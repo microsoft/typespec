@@ -131,32 +131,8 @@ namespace Microsoft.TypeSpec.Generator
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            IEnumerable<INamedTypeSymbol> symbolsToInternalize;
-            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
-            {
-                symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.InternalizeCandidates).ToArray();
-            }
-            else
-            {
-                // build the reference map
-                var referenceMap =
-                    await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                        definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
-                // get the root symbols
-                var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-                // traverse all the root and recursively add all the things we met
-                var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-                symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
-            }
-
-            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
-            {
-                ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
-                    "internalize",
-                    symbolsToInternalize.Select(static symbol => symbol.GetFullyQualifiedName()),
-                    shadowResult.InternalizeCandidates);
-            }
+            var shadowResult = ProviderReferenceMapShadowAnalyzer.LatestResult ?? ProviderReferenceMapShadowResult.Empty;
+            var symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, shadowResult.InternalizeCandidates).ToArray();
 
             var nodesToInternalize = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
             foreach (var symbol in symbolsToInternalize)
@@ -254,41 +230,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
-            IEnumerable<INamedTypeSymbol> symbolsToRemove;
-            HashSet<INamedTypeSymbol> referencedSet;
-            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult)
-            {
-                symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.RemoveCandidates).ToArray();
-                referencedSet = new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default);
-            }
-            else
-            {
-                // build reference map
-                var referenceMap =
-                    await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
-                        definitions.DeclaredSymbols, definitions.DocumentsCache);
-                // get root symbols
-                var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-                // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
-                // helpers that are required by the model factory.
-                if (_modelFactorySymbol != null)
-                    rootSymbols.Add(_modelFactorySymbol);
-                // traverse the map to determine the declarations that we are about to remove, starting from root nodes
-                var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-                referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
-                referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
-
-                symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
-            }
-
-            if (ProviderReferenceMapShadowAnalyzer.LatestResult is { } shadowResult)
-            {
-                ProviderReferenceMapShadowAnalyzer.WriteComparisonReport(
-                    "remove",
-                    symbolsToRemove.Select(static symbol => symbol.GetFullyQualifiedName()),
-                    shadowResult.RemoveCandidates);
-            }
+            var shadowResult = ProviderReferenceMapShadowAnalyzer.LatestResult ?? ProviderReferenceMapShadowResult.Empty;
+            var symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, shadowResult.RemoveCandidates).ToArray();
+            var referencedSet = new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default);
 
             var nodesToRemove = new List<BaseTypeDeclarationSyntax>();
             foreach (var symbol in symbolsToRemove)

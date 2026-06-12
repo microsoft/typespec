@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -16,32 +14,12 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class ProviderReferenceMapShadowAnalyzer
     {
-        private const string EnableEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_SHADOW";
-        private const string UseShadowEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_USE_SHADOW";
-        private const string OutputDirectoryEnvironmentVariable = "TYPESPEC_PROVIDER_REFERENCE_MAP_SHADOW_DIR";
-
         private static ProviderReferenceMapShadowResult? _latestResult;
-
-        public static bool IsEnabled => string.Equals(
-            Environment.GetEnvironmentVariable(EnableEnvironmentVariable),
-            "true",
-            StringComparison.OrdinalIgnoreCase);
 
         public static ProviderReferenceMapShadowResult? LatestResult => _latestResult;
 
-        public static bool UseShadowMap => string.Equals(
-            Environment.GetEnvironmentVariable(UseShadowEnvironmentVariable),
-            "true",
-            StringComparison.OrdinalIgnoreCase);
-
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
-            if (!IsEnabled)
-            {
-                _latestResult = null;
-                return;
-            }
-
             var graph = BuildGraph(providers);
             var customRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false);
@@ -67,8 +45,6 @@ namespace Microsoft.TypeSpec.Generator
             _latestResult = new ProviderReferenceMapShadowResult(
                 internalizeCandidates.ToHashSet(StringComparer.Ordinal),
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
-
-            WriteReport(graph, customRoots, helperRoots, internalizeRoots, internalizeReachable, internalizeCandidates, removeRoots, removeReachable, removeCandidates);
         }
 
         private static HashSet<string> GetCustomCodeGeneratedTypeRoots(Project project, HashSet<string> generatedTypeNames)
@@ -130,45 +106,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AddSymbolRoot(roots, typeArgument, generatedTypeNames);
             }
-        }
-
-        public static void WriteComparisonReport(string passName, IEnumerable<string> roslynCandidates, IEnumerable<string> providerCandidates)
-        {
-            if (!IsEnabled)
-            {
-                return;
-            }
-
-            var roslynSet = roslynCandidates.ToHashSet(StringComparer.Ordinal);
-            var providerSet = providerCandidates.ToHashSet(StringComparer.Ordinal);
-            var missingFromProvider = roslynSet.Except(providerSet, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
-            var extraInProvider = providerSet.Except(roslynSet, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
-
-            var directory = GetOutputDirectory();
-            Directory.CreateDirectory(directory);
-            var path = Path.Combine(directory, $"provider-reference-map-shadow-comparison-{passName}-{DateTime.UtcNow:yyyyMMddHHmmssfff}.txt");
-            var builder = new StringBuilder();
-            builder.AppendLine($"Provider reference map shadow comparison: {passName}");
-            builder.AppendLine($"Roslyn candidates: {roslynSet.Count}");
-            builder.AppendLine($"Provider candidates: {providerSet.Count}");
-            builder.AppendLine($"Missing from provider: {missingFromProvider.Length}");
-            builder.AppendLine($"Extra in provider: {extraInProvider.Length}");
-            builder.AppendLine();
-            builder.AppendLine("Missing from provider:");
-            foreach (var item in missingFromProvider)
-            {
-                builder.AppendLine($"  {item}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Extra in provider:");
-            foreach (var item in extraInProvider)
-            {
-                builder.AppendLine($"  {item}");
-            }
-
-            File.WriteAllText(path, builder.ToString());
-            CodeModelGenerator.Instance.Emitter.Debug($"Provider reference map shadow comparison written to {path}");
         }
 
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers)
@@ -498,89 +435,6 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void WriteReport(
-            ProviderReferenceGraph graph,
-            HashSet<string> customRoots,
-            HashSet<string> helperRoots,
-            HashSet<string> internalizeRoots,
-            HashSet<string> internalizeReachable,
-            IReadOnlyList<string> internalizeCandidates,
-            HashSet<string> removeRoots,
-            HashSet<string> removeReachable,
-            IReadOnlyList<string> removeCandidates)
-        {
-            var directory = GetOutputDirectory();
-
-            Directory.CreateDirectory(directory);
-            var path = Path.Combine(directory, $"provider-reference-map-shadow-{DateTime.UtcNow:yyyyMMddHHmmssfff}.txt");
-            var builder = new StringBuilder();
-            builder.AppendLine("Provider reference map shadow report");
-            builder.AppendLine($"Declared providers: {graph.Nodes.Count}");
-            builder.AppendLine($"Internalize roots: {internalizeRoots.Count}");
-            builder.AppendLine($"Internalize reachable: {internalizeReachable.Count}");
-            builder.AppendLine($"Internalize candidates: {internalizeCandidates.Count}");
-            builder.AppendLine($"Custom roots: {customRoots.Count}");
-            builder.AppendLine($"Helper roots: {helperRoots.Count}");
-            builder.AppendLine($"Remove roots: {removeRoots.Count}");
-            builder.AppendLine($"Remove reachable: {removeReachable.Count}");
-            builder.AppendLine($"Remove candidates: {removeCandidates.Count}");
-            builder.AppendLine();
-            builder.AppendLine("Custom roots:");
-            foreach (var root in customRoots.OrderBy(static name => name, StringComparer.Ordinal))
-            {
-                builder.AppendLine($"  {root}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Helper roots:");
-            foreach (var root in helperRoots.OrderBy(static name => name, StringComparer.Ordinal))
-            {
-                builder.AppendLine($"  {root}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Internalize roots:");
-            foreach (var root in internalizeRoots.OrderBy(static name => name, StringComparer.Ordinal))
-            {
-                builder.AppendLine($"  {root}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Internalize candidates:");
-            foreach (var candidate in internalizeCandidates)
-            {
-                builder.AppendLine($"  {candidate}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Remove roots:");
-            foreach (var root in removeRoots.OrderBy(static name => name, StringComparer.Ordinal))
-            {
-                builder.AppendLine($"  {root}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("Remove candidates:");
-            foreach (var candidate in removeCandidates)
-            {
-                builder.AppendLine($"  {candidate}");
-            }
-
-            builder.AppendLine();
-            builder.AppendLine("References:");
-            foreach (var (type, references) in graph.References.OrderBy(static item => item.Key, StringComparer.Ordinal))
-            {
-                builder.AppendLine($"  {type}");
-                foreach (var reference in references.OrderBy(static name => name, StringComparer.Ordinal))
-                {
-                    builder.AppendLine($"    -> {reference}");
-                }
-            }
-
-            File.WriteAllText(path, builder.ToString());
-            CodeModelGenerator.Instance.Emitter.Debug($"Provider reference map shadow report written to {path}");
-        }
-
         private static string GetSimpleName(string fullyQualifiedName)
         {
             var lastDot = fullyQualifiedName.LastIndexOf('.');
@@ -604,13 +458,5 @@ namespace Microsoft.TypeSpec.Generator
         private sealed record ProviderReferenceGraph(
             HashSet<string> Nodes,
             Dictionary<string, HashSet<string>> References);
-
-        private static string GetOutputDirectory()
-        {
-            var directory = Environment.GetEnvironmentVariable(OutputDirectoryEnvironmentVariable);
-            return string.IsNullOrWhiteSpace(directory)
-                ? Path.Combine(Path.GetTempPath(), "typespec-provider-reference-map-shadow")
-                : Path.GetFullPath(directory);
-        }
     }
 }
