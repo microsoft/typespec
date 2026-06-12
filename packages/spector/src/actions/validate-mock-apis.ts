@@ -87,7 +87,7 @@ export async function validateMockApis({
             diagnostics.reportDiagnostic({
               message: `Scenario ${scenario.name} has a mock api uri "${normalizeMockApiUri(
                 api.uri,
-              )}" that does not match any of the routes defined in the spec: ${scenario.endpoints
+              )}" that does not match (segment-by-segment, treating route template params as wildcards) any of the routes defined in the spec: ${scenario.endpoints
                 .map((endpoint) => `"${endpoint.path}"`)
                 .join(", ")}.`,
             });

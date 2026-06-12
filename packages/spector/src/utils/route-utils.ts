@@ -23,9 +23,10 @@ function segmentToRegExp(segment: string): RegExp {
   while (i < segment.length) {
     if (segment[i] === "{") {
       // URI template expression (e.g. `{param}`, `{+param}`, `{param*}`, `{/param}`).
-      // It can expand to anything, including reserved characters, so match greedily.
+      // The concrete value is unknown, so match anything within the segment. Segments never
+      // contain a `/` (the path is already split on `/`), so restrict the wildcard accordingly.
       const end = segment.indexOf("}", i);
-      pattern += ".*";
+      pattern += "[^/]*";
       i = end === -1 ? segment.length : end + 1;
     } else {
       pattern += segment[i].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
