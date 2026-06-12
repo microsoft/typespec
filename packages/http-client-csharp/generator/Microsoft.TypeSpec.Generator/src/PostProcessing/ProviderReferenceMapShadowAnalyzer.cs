@@ -186,12 +186,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers)
         {
-            var nodes = providers
+            var generatedProviders = GetGeneratedProviders(providers);
+            var nodes = generatedProviders
                 .Select(static provider => GetProviderTypeName(provider.Type))
                 .ToHashSet(StringComparer.Ordinal);
             var references = nodes.ToDictionary(static name => name, _ => new HashSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
 
-            foreach (var provider in providers)
+            foreach (var provider in generatedProviders)
             {
                 var current = GetProviderTypeName(provider.Type);
                 AddTypeReference(references[current], provider.Type, nodes);
@@ -243,6 +244,18 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return new ProviderReferenceGraph(nodes, references);
+        }
+
+        private static IReadOnlyList<TypeProvider> GetGeneratedProviders(IReadOnlyList<TypeProvider> providers)
+        {
+            var generatedProviders = new List<TypeProvider>();
+            foreach (var provider in providers)
+            {
+                generatedProviders.Add(provider);
+                generatedProviders.AddRange(provider.SerializationProviders);
+            }
+
+            return generatedProviders;
         }
 
         private static void AddGeneratedBodyReferences(Project project, IReadOnlyList<TypeProvider> providers, ProviderReferenceGraph graph)
