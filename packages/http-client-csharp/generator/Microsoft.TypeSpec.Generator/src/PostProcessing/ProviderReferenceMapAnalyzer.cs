@@ -122,12 +122,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers)
         {
-            var nodes = providers
+            var generatedProviders = GetGeneratedProviders(providers);
+            var nodes = generatedProviders
                 .Select(static provider => GetProviderTypeName(provider.Type))
                 .ToHashSet(StringComparer.Ordinal);
             var references = nodes.ToDictionary(static name => name, _ => new HashSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
 
-            foreach (var provider in providers)
+            foreach (var provider in generatedProviders)
             {
                 var current = GetProviderTypeName(provider.Type);
                 AddTypeReference(references[current], provider.Type, nodes);
@@ -184,6 +185,18 @@ namespace Microsoft.TypeSpec.Generator
             return new ProviderReferenceGraph(nodes, references);
         }
 
+        private static IReadOnlyList<TypeProvider> GetGeneratedProviders(IReadOnlyList<TypeProvider> providers)
+        {
+            var generatedProviders = new List<TypeProvider>();
+            foreach (var provider in providers)
+            {
+                generatedProviders.Add(provider);
+                generatedProviders.AddRange(provider.SerializationProviders);
+            }
+
+            return generatedProviders;
+        }
+
         private static void AddGeneratedBodyReferences(Project project, IReadOnlyList<TypeProvider> providers, ProviderReferenceGraph graph)
         {
             var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
@@ -194,6 +207,11 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var provider in providers)
             {
+                if (!IsGeneratedBodyReferenceCandidate(provider))
+                {
+                    continue;
+                }
+
                 var providerName = GetProviderTypeName(provider.Type);
                 if (!graph.Nodes.Contains(providerName))
                 {
@@ -218,6 +236,18 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
             }
+        }
+
+        private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider)
+        {
+            if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
+            {
+                return true;
+            }
+
+            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
+            return relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
+                relativePath.Contains("/CollectionResults/", StringComparison.Ordinal);
         }
 
         private static void AddGeneratedReferencesToHelper(Project project, Compilation compilation, ProviderReferenceGraph graph, string helperName, ISymbol symbol)
