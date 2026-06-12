@@ -20,7 +20,7 @@ catalog:
   "@astrojs/starlight": ^0.39.2
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
-  "@babel/code-frame": ^7.29.0
+  "@babel/code-frame": ^7.29.7
   "@babel/core": ^7.29.0
   "@chronus/chronus": ^1.3.1
   "@chronus/github": ^1.0.6
