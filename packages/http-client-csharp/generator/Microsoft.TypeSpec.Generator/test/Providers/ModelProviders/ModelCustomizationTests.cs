@@ -1815,6 +1815,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, fieldObsoleteAttr.Arguments.Count);
         }
 
+        [Test]
+        public async Task CanReadCustomCodeAttributeFromRegisteredProvider()
+        {
+            // A derived generator contributes a generator-specific custom-code attribute via the extension point.
+            var customAttributeProvider = new TestCustomCodeAttributeDefinition();
+            var generator = new TestGenerator();
+            generator.AddCustomCodeAttributeProviderForTest(customAttributeProvider);
+            CollectionAssert.Contains(generator.CustomCodeAttributeProviders, customAttributeProvider);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+                    // Mirror CSharpGen: the contributed attribute definition is emitted into the custom-code
+                    // compilation so that custom code referencing it compiles and can be parsed.
+                    return compilation.AddSyntaxTrees(GeneratedCodeWorkspace.GetTree(customAttributeProvider));
+                });
+
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelProvider = new ModelProvider(inputModel);
+            var customCodeView = modelProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+
+            // Validate that the parsed type registers the custom-code attribute contributed by the provider.
+            var customAttr = customCodeView!.Attributes.SingleOrDefault(a => a.Type.Name == "CodeGenCustomAttribute");
+            Assert.IsNotNull(customAttr);
+            Assert.AreEqual(AttributeNamespace, customAttr!.Type.Namespace);
+            Assert.AreEqual(1, customAttr.Arguments.Count);
+        }
+
+        private const string AttributeNamespace = TestCustomCodeAttributeDefinition.AttributeNamespace;
+
         private class TestNameVisitor : NameVisitor
         {
             public TypeProvider? InvokeVisit(TypeProvider type)
