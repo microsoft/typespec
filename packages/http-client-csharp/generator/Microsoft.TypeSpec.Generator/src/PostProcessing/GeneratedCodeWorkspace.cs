@@ -37,8 +37,6 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly Lazy<WorkspaceMetadataReferenceResolver> _metadataReferenceResolver = new(() => new WorkspaceMetadataReferenceResolver());
         private static Task<Project>? _cachedProject;
 
-        internal static GeneratedCodeWorkspacePostProcessingProfile? PostProcessingProfile { get; set; }
-
         private static readonly string[] _generatedFolders = [GeneratedFolder];
         private static readonly string[] _sharedFolders = [SharedFolder];
 
@@ -109,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
-            List<Document> docs = new List<Document>();
+            List<Task<Document>> documents = new List<Task<Document>>();
             var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
             {
@@ -118,12 +116,9 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                docs.Add(document);
+                documents.Add(ProcessDocument(document, memberRemover));
             }
-
-            docs = PostProcessingProfile == null
-                ? [.. await Task.WhenAll(docs.Select(document => ProcessDocument(document, memberRemover)))]
-                : await ProcessDocumentsSequentiallyAsync(docs, memberRemover);
+            var docs = await Task.WhenAll(documents);
 
             LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
 
@@ -139,101 +134,36 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private async Task<List<Document>> ProcessDocumentsSequentiallyAsync(List<Document> documents, MemberRemoverRewriter memberRemover)
-        {
-            List<Document> processedDocuments = new(documents.Count);
-            foreach (var document in documents)
-            {
-                processedDocuments.Add(await ProcessDocument(document, memberRemover));
-            }
-
-            return processedDocuments;
-        }
-
         private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover)
         {
-            var totalStopwatch = PostProcessingProfile == null ? null : Stopwatch.StartNew();
-            try
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+
+            if (semanticModel == null || root == null)
             {
-                var root = await MeasurePostProcessingStepAsync<SyntaxNode?>("GetSyntaxRootAsync", () => document.GetSyntaxRootAsync());
-                var semanticModel = await MeasurePostProcessingStepAsync<SemanticModel?>("GetSemanticModelAsync", () => document.GetSemanticModelAsync());
-
-                if (semanticModel == null || root == null)
-                {
-                    return document;
-                }
-
-                root = MeasurePostProcessingStep("MemberRemoverRewriter", () => memberRemover.Visit(root));
-
-                foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
-                {
-                    rewriter.SemanticModel = semanticModel;
-                    root = MeasurePostProcessingStep($"CustomRewriter.{rewriter.GetType().Name}", () => rewriter.Visit(root));
-                }
-                document = document.WithSyntaxRoot(root);
-
-                if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
-                {
-                    document = await MeasurePostProcessingStepAsync("Roslyn.Simplifier.ReduceAsync", () => Simplifier.ReduceAsync(document));
-                }
-
-                // Reformat if any custom rewriters have been applied
-                if (CodeModelGenerator.Instance.Rewriters.Count > 0)
-                {
-                    document = await MeasurePostProcessingStepAsync("Formatter.FormatAsync", () => Formatter.FormatAsync(document));
-                }
                 return document;
             }
-            finally
-            {
-                if (totalStopwatch != null)
-                {
-                    totalStopwatch.Stop();
-                    PostProcessingProfile?.Add("ProcessDocument.Total", totalStopwatch.Elapsed, 0);
-                }
-            }
-        }
 
-        private static T MeasurePostProcessingStep<T>(string stepName, Func<T> action)
-        {
-            var profile = PostProcessingProfile;
-            if (profile == null)
+            root = memberRemover.Visit(root);
+
+            foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
             {
-                return action();
+                rewriter.SemanticModel = semanticModel;
+                root = rewriter.Visit(root);
+            }
+            document = document.WithSyntaxRoot(root);
+
+            if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+            {
+                document = await Simplifier.ReduceAsync(document);
             }
 
-            var allocatedBytes = GC.GetTotalAllocatedBytes(precise: false);
-            var stopwatch = Stopwatch.StartNew();
-            try
+            // Reformat if any custom rewriters have been applied
+            if (CodeModelGenerator.Instance.Rewriters.Count > 0)
             {
-                return action();
+                document = await Formatter.FormatAsync(document);
             }
-            finally
-            {
-                stopwatch.Stop();
-                profile.Add(stepName, stopwatch.Elapsed, GC.GetTotalAllocatedBytes(precise: false) - allocatedBytes);
-            }
-        }
-
-        private static async Task<T> MeasurePostProcessingStepAsync<T>(string stepName, Func<Task<T>> action)
-        {
-            var profile = PostProcessingProfile;
-            if (profile == null)
-            {
-                return await action();
-            }
-
-            var allocatedBytes = GC.GetTotalAllocatedBytes(precise: false);
-            var stopwatch = Stopwatch.StartNew();
-            try
-            {
-                return await action();
-            }
-            finally
-            {
-                stopwatch.Stop();
-                profile.Add(stepName, stopwatch.Elapsed, GC.GetTotalAllocatedBytes(precise: false) - allocatedBytes);
-            }
+            return document;
         }
 
         public static bool IsGeneratedDocument(Document document) => document.Folders.Contains(GeneratedFolder);
@@ -350,11 +280,11 @@ namespace Microsoft.TypeSpec.Generator
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
+                    _project = await postProcessor.InternalizeAsync(_project);
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
-                    _project = await MeasurePostProcessingStepAsync("PostProcess.RemoveAsync", () => postProcessor.RemoveAsync(_project));
+                    _project = await postProcessor.InternalizeAsync(_project);
+                    _project = await postProcessor.RemoveAsync(_project);
                     break;
             }
         }
