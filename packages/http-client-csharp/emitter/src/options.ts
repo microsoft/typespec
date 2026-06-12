@@ -16,6 +16,7 @@ export interface CSharpEmitterOptions {
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
+  "disable-roslyn-reduce"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
   plugins?: string[];
@@ -101,6 +102,13 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Set to `true` to disable XML documentation generation. The default value is `false`.",
+    },
+    "disable-roslyn-reduce": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to skip the Roslyn reduce (simplification) post-processing step. " +
+        "This speeds up generation and is useful when iterating quickly. The default value is `false`.",
     },
     "generator-name": {
       type: "string",
