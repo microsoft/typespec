@@ -168,6 +168,12 @@ export const libDef = {
         default: paramMessage`Type "${"name"}" collides with another type of the same name in the GraphQL schema. Consider renaming one of the types.`,
       },
     },
+    "operation-fields-ignored-on-input": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`@operationFields on \`${"model"}\` is ignored in input context — GraphQL input types cannot have operation fields.`,
+      },
+    },
     "empty-schema": {
       severity: "warning",
       messages: {

@@ -1,9 +1,15 @@
 import {
+  getTypeName,
   walkPropertiesInherited,
   type Model,
   type ModelProperty,
   type Operation,
+  type Type,
 } from "@typespec/compiler";
+
+function typesEqual(a: Type, b: Type): boolean {
+  return a === b || getTypeName(a) === getTypeName(b);
+}
 
 export function propertiesEqual(
   prop1: ModelProperty,
@@ -13,7 +19,7 @@ export function propertiesEqual(
   if (!ignoreNames && prop1.name !== prop2.name) {
     return false;
   }
-  return prop1.type === prop2.type && prop1.optional === prop2.optional;
+  return typesEqual(prop1.type, prop2.type) && prop1.optional === prop2.optional;
 }
 
 export function modelsEqual(model1: Model, model2: Model, ignoreNames: boolean = false): boolean {
@@ -43,5 +49,5 @@ export function operationsEqual(
   if (!ignoreNames && op1.name !== op2.name) {
     return false;
   }
-  return op1.returnType === op2.returnType && modelsEqual(op1.parameters, op2.parameters, true);
+  return typesEqual(op1.returnType, op2.returnType) && modelsEqual(op1.parameters, op2.parameters, true);
 }

@@ -1,4 +1,5 @@
 import { expect, describe, it } from "vitest";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("e2e: operations", () => {
@@ -687,6 +688,102 @@ describe("e2e: anonymous unions", () => {
 
       type Query {
         getPet: GetPetUnion!
+      }"
+    `);
+  });
+});
+
+describe("e2e: @compose does not produce false incompatible diagnostics", () => {
+  it("no diagnostics for @compose with spread properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @Interface(#{interfaceOnly: true})
+        model Node { id: GraphQL.ID; }
+
+        @compose(Node)
+        model Article { ...Node; title: string; }
+
+        @query op getArticle(): Article;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "interface Node {
+        id: ID!
+      }
+
+      type Article implements Node {
+        id: ID!
+        title: String!
+      }
+
+      type Query {
+        getArticle: Article!
+      }"
+    `);
+  });
+
+  it("no diagnostics for @compose with multiple interfaces", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @Interface(#{interfaceOnly: true})
+        model Node { id: GraphQL.ID; }
+
+        @Interface
+        model Named { name: string; }
+
+        @compose(Node, Named)
+        model User { ...Node; ...Named; age: int32; }
+
+        @query op getUser(): User;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+  });
+});
+
+describe("e2e: @operationFields on model used as input warns", () => {
+  it("warns that operation fields are ignored on input types", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @query op getUser(id: string): User;
+        @operationFields(getUser)
+        model User { id: string; name: string; }
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toContain("getUser(id: String!): User!");
+    expect(result.graphQLOutput).not.toMatch(/input UserInput[^}]*getUser/s);
+    const warnings = result.diagnostics.filter(d => d.severity === "warning");
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings.some(d => d.code === "@typespec/graphql/operation-fields-ignored-on-input")).toBe(true);
+  });
+});
+
+describe("e2e: TypeSpec interface keyword prefixes operations", () => {
+  it("prefixes operations from interface with interface name", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Board { id: string; name: string; }
+
+        interface BoardOps {
+          @query getBoard(id: string): Board;
+          @mutation createBoard(name: string): Board;
+        }
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Board {
+        id: String!
+        name: String!
+      }
+
+      type Query {
+        boardOpsGetBoard(id: String!): Board!
+      }
+
+      type Mutation {
+        boardOpsCreateBoard(name: String!): Board!
       }"
     `);
   });
