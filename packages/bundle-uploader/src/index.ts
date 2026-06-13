@@ -82,6 +82,42 @@ export async function bundleAndUploadStandalonePackage({
 }
 
 /**
+ * Upload binary asset files from a package directory to blob storage.
+ * Matches files using glob patterns and uploads each matched file.
+ */
+async function uploadAssets(
+  uploader: TypeSpecBundledPackageUploader,
+  packagePath: string,
+  manifest: { name: string; version: string },
+  assets: PlaygroundAssetConfig[],
+): Promise<Record<string, string>> {
+  const importMap: Record<string, string> = {};
+  for (const asset of assets) {
+    const matchedFiles: string[] = [];
+    for await (const file of glob(asset.path, { cwd: packagePath })) {
+      matchedFiles.push(resolve(packagePath, file));
+    }
+    if (matchedFiles.length === 0) {
+      throw new Error(`No files matched asset pattern: ${asset.path}`);
+    }
+    for (const filePath of matchedFiles) {
+      const relativePath = relative(packagePath, filePath).replace(/\\/g, "/");
+      const blobPath = joinUnix(manifest.name, manifest.version, relativePath);
+      const content = await readFile(filePath);
+      const assetResult = await uploader.uploadBinaryAsset(blobPath, content, asset.contentType);
+      const importKey = joinUnix(manifest.name, relativePath);
+      importMap[importKey] = assetResult.url;
+      if (assetResult.status === "uploaded") {
+        logSuccess(`Uploaded asset: ${relativePath}`);
+      } else {
+        logInfo(`Asset already exists: ${relativePath}`);
+      }
+    }
+  }
+  return importMap;
+}
+
+/**
  * Upload playground assets and bundle peer dependencies based on the provided config.
  */
 async function uploadPlaygroundAssets(
@@ -97,29 +133,8 @@ async function uploadPlaygroundAssets(
 
   // Upload static assets (e.g. .whl files)
   if (config.assets) {
-    for (const asset of config.assets) {
-      const matchedFiles: string[] = [];
-      for await (const file of glob(asset.path, { cwd: packagePath })) {
-        matchedFiles.push(resolve(packagePath, file));
-      }
-      if (matchedFiles.length === 0) {
-        logInfo(pc.yellow(`⚠ No files matched asset pattern: ${asset.path}`));
-        continue;
-      }
-      for (const filePath of matchedFiles) {
-        const relativePath = relative(packagePath, filePath).replace(/\\/g, "/");
-        const blobPath = joinUnix(manifest.name, manifest.version, relativePath);
-        const content = await readFile(filePath);
-        const assetResult = await uploader.uploadBinaryAsset(blobPath, content, asset.contentType);
-        const importKey = joinUnix(manifest.name, relativePath);
-        importMap[importKey] = assetResult.url;
-        if (assetResult.status === "uploaded") {
-          logSuccess(`Uploaded asset: ${relativePath}`);
-        } else {
-          logInfo(`Asset already exists: ${relativePath}`);
-        }
-      }
-    }
+    const assetImports = await uploadAssets(uploader, packagePath, manifest, config.assets);
+    Object.assign(importMap, assetImports);
   }
 
   // Bundle and upload peer dependencies
@@ -149,6 +164,33 @@ async function uploadPlaygroundAssets(
       }
     }
   }
+}
+
+export interface UploadStandalonePackageAssetsOptions {
+  /** Absolute path to the package directory. */
+  packagePath: string;
+  /** Asset files to upload. */
+  assets: PlaygroundAssetConfig[];
+}
+
+/**
+ * Upload only binary assets from a package directory to blob storage,
+ * without creating a TypeSpec bundle. Useful for uploading assets (e.g. .whl files)
+ * from an installed dependency that is already inlined into another package's bundle.
+ */
+export async function uploadStandalonePackageAssets({
+  packagePath,
+  assets,
+}: UploadStandalonePackageAssetsOptions): Promise<Record<string, string>> {
+  const pkgJsonPath = resolve(packagePath, "package.json");
+  const pkgJson = JSON.parse(await readFile(pkgJsonPath, "utf-8"));
+  const manifest = { name: pkgJson.name, version: pkgJson.version };
+  logInfo(`Uploading assets for ${manifest.name}@${manifest.version}`);
+
+  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
+  await uploader.createIfNotExists();
+
+  return uploadAssets(uploader, packagePath, manifest, assets);
 }
 
 export interface BundleAndUploadPackagesOptions {
