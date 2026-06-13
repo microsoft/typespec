@@ -28,9 +28,14 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
   }, [theme]);
 
   const importItem = useImportCommandBarItem();
-  const imports = Object.keys(versionData.importMap.imports).filter(
-    (x) => (x.match(/\//g) || []).length < 2, // Don't include sub imports as libraries.
+  const imports = useMemo(
+    () =>
+      Object.keys(versionData.importMap.imports).filter(
+        (x) => (x.match(/\//g) || []).length < 2, // Don't include sub imports as libraries.
+      ),
+    [versionData.importMap.imports],
   );
+  const importConfig = useMemo(() => ({ useShim: true }), []);
   return (
     <StandalonePlayground
       {...TypeSpecPlaygroundConfig}
@@ -40,7 +45,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
         "@typespec/http-client-python": { debounce: 1000 },
         "@typespec/http-client-csharp": { debounce: 500 },
       }}
-      importConfig={{ useShim: true }}
+      importConfig={importConfig}
       editorOptions={editorOptions}
       footer={<PlaygroundFooter versionData={versionData} />}
       fallback={<LoadingSpinner message="Loading libraries..." />}

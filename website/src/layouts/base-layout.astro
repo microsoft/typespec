@@ -21,6 +21,22 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
     <link rel="og:image" type="image/svg+xml" href={baseUrl("/img/social.svg")} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>typespec.io</title>
+    <script is:inline>
+      (function () {
+        var raw =
+          localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        var theme = raw === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+        if (theme === "dark") {
+          document.documentElement.classList.remove("light");
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
+        }
+      })();
+    </script>
     <script
       src="https://consentdeliveryfd.azurefd.net/mscc/lib/v2/wcp-consent.js"
       crossorigin="anonymous"
