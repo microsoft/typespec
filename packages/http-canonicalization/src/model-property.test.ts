@@ -125,6 +125,35 @@ it("applies friendly name", async () => {
   expect(prop.wireType.name).toBe("id");
 });
 
+it("routes language edge to alternateType while wire edge follows original type", async () => {
+  const { Foo, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      @encode(DateTimeKnownEncoding.rfc7231)
+      ${t.modelProperty("prop")}: utcDateTime;
+    }
+  `);
+
+  const tk = $(program);
+  const canonicalizer = new HttpCanonicalizer(tk);
+
+  // Simulate @alternateType(string): the language representation uses `string`,
+  // while the wire representation keeps the original utcDateTime (with rfc7231 encoding).
+  const canonicalized = canonicalizer.canonicalize(Foo, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+    alternateType: tk.builtin.string,
+  });
+
+  const prop = canonicalized.properties.get("prop")!;
+  expect(prop).toBeDefined();
+
+  // Language type follows the alternate type (string)
+  expectTypeEquals(prop.languageType.type, tk.builtin.string);
+
+  // Wire type follows the original type (utcDateTime, encoded as string via rfc7231)
+  expectTypeEquals(prop.wireType.type, tk.builtin.utcDateTime);
+});
+
 it("Applies renames", async () => {
   const { program, test } = await runner.compile(t.code`
     op ${t.op("test")}(): Foo;
