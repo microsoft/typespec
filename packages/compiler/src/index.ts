@@ -106,6 +106,11 @@ export { isNumeric, Numeric } from "./core/numeric.js";
 export type { CompilerOptions } from "./core/options.js";
 export { getPositionBeforeTrivia } from "./core/parser-utils.js";
 export {
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+} from "./lib/auto-decorator.js";
+export {
   $defaultVisibility,
   $discriminator,
   $doc,

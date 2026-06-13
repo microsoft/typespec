@@ -22,6 +22,7 @@ describe("formatCompilerFeatures", () => {
       "Compiler Features",
       "",
       "  enabled   function-declarations  Allows use of function declarations without experimental warnings in project code.",
+      "  disabled  auto-decorators        Allows use of auto decorator declarations without experimental warnings in project code.",
     ]);
   });
 });

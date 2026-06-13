@@ -111,14 +111,30 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
-    it("errors if decorator is missing extern modifier", async () => {
+    it("errors if decorator is missing extern or auto modifier", async () => {
       const diagnostics = await DecTester.diagnose(`
         dec testDec(target: unknown);
       `);
       expectDiagnostics(diagnostics, {
         code: "invalid-modifier",
-        message: "Declaration of type 'dec' is missing required modifier 'extern'.",
+        message:
+          "Declaration of type 'dec' is missing one of the required modifiers: 'extern' or 'auto'.",
       });
+    });
+
+    it("errors if both extern and auto modifiers are used", async () => {
+      const diagnostics = await DecTester.diagnose(`
+        auto extern dec testDec(target: unknown);
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-modifier",
+          message: "Modifiers 'extern' and 'auto' cannot be used together.",
+        },
+        {
+          code: "auto-decorator-disabled",
+        },
+      ]);
     });
 
     it("errors if rest parameter type is not an array expression", async () => {
@@ -139,6 +155,233 @@ describe("compiler: checker: decorators", () => {
         code: "missing-implementation",
         message: "Extern declaration must have an implementation in JS file.",
       });
+    });
+  });
+
+  describe("auto decorators", () => {
+    const autoDecOptions = {
+      compilerOptions: {
+        configFile: {
+          projectRoot: ".",
+          kind: "project" as const,
+          features: ["auto-decorators"],
+          diagnostics: [] as any[],
+          outputDir: "tsp-output",
+        },
+      },
+    };
+
+    it("auto decorator does not require an implementation", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myFlag(target: Model);
+      `,
+        autoDecOptions,
+      );
+
+      const dec = program.getGlobalNamespaceType().decoratorDeclarations.get("myFlag");
+      ok(dec);
+      strictEqual(dec.declarationKind, "auto");
+      ok(dec.implementation, "should have auto-generated implementation");
+    });
+
+    it("auto decorator with no args stores empty record in stateMap", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myFlag(target: Model);
+
+        @myFlag
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      ok(Foo, "Foo should exist");
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myFlag", Foo), {});
+    });
+
+    it("auto decorator with single arg stores as key-value record in stateMap", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myLabel(target: Model, label: valueof string);
+
+        @myLabel("hello")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "hello" });
+    });
+
+    it("auto decorator with multiple args stores named record in stateMap", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myMeta(target: Model, name: valueof string, version: valueof int32);
+
+        @myMeta("test", 42)
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const value = getAutoDecoratorValue(program, "myMeta", Foo) as any;
+      deepStrictEqual(value, { name: "test", version: 42 });
+    });
+
+    it("auto decorator in namespace uses FQN for state key", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        namespace MyLib {
+          auto dec myLabel(target: Model, label: valueof string);
+        }
+
+        @MyLib.myLabel("world")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
+    });
+
+    it("internal auto dec is valid", async () => {
+      const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(
+        `
+        internal auto dec myDec(target: unknown);
+      `,
+        autoDecOptions,
+      );
+      strictEqual(diagnostics.length, 0);
+    });
+
+    it("emits error without feature flag", async () => {
+      const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(`
+        auto dec myFlag(target: Model);
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "auto-decorator-disabled",
+        message: /Auto decorator declarations require the 'auto-decorators' feature to be enabled/,
+      });
+    });
+
+    it("auto decorator with rest params stores as array in record", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec tags(target: Model, ...tags: valueof string[]);
+
+        @tags("a", "b", "c")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "tags", Foo), { tags: ["a", "b", "c"] });
+    });
+
+    it("auto decorator with mixed params and rest stores correctly", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec route(target: Model, path: valueof string, ...tags: valueof string[]);
+
+        @route("/foo", "tag1", "tag2")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "route", Foo), {
+        path: "/foo",
+        tags: ["tag1", "tag2"],
+      });
+    });
+
+    it("emits duplicate-decorator warning when applied twice on same node", async () => {
+      const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(
+        `
+        auto dec myFlag(target: Model);
+
+        @myFlag
+        @myFlag
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+      expectDiagnostics(diagnostics, [
+        {
+          code: "duplicate-decorator",
+          message: /Decorator @myFlag cannot be used twice on the same declaration/,
+        },
+        {
+          code: "duplicate-decorator",
+          message: /Decorator @myFlag cannot be used twice on the same declaration/,
+        },
+      ]);
+    });
+
+    it("augment decorator overwrites auto decorator value (last-write-wins)", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myLabel(target: Model, label: valueof string);
+
+        @myLabel("first")
+        model Foo {}
+
+        @@myLabel(Foo, "second");
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "second" });
+    });
+
+    it("auto decorator with optional param stores undefined for missing arg", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myDec(target: Model, required: valueof string, optional?: valueof int32);
+
+        @myDec("hello")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myDec", Foo), {
+        required: "hello",
+        optional: undefined,
+      });
+    });
+
+    it("getAutoDecoratorTargets returns all targets", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec tracked(target: Model);
+
+        @tracked model Foo {}
+        @tracked model Bar {}
+      `,
+        autoDecOptions,
+      );
+
+      const { getAutoDecoratorTargets } = await import("../../src/lib/auto-decorator.js");
+      const targets = getAutoDecoratorTargets(program, "tracked");
+      strictEqual(targets.size, 2);
     });
   });
 
