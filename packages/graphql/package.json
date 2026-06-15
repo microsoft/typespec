@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@alloy-js/core": "^0.22.0",
-    "@alloy-js/graphql": "link:../../alloy/packages/graphql",
+    "@alloy-js/graphql": "link:../../../alloy/packages/graphql",
     "@alloy-js/typescript": "^0.22.0",
     "change-case": "^5.4.4",
     "graphql": "^16.9.0"
