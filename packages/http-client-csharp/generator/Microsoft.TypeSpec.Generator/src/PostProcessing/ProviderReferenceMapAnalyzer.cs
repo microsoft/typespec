@@ -136,6 +136,11 @@ namespace Microsoft.TypeSpec.Generator
                 AddTypeReference(references[current], provider.BaseType, nodes);
                 AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes);
 
+                if (IsKept(provider.Type, CodeModelGenerator.Instance.NonRootTypes, nodes))
+                {
+                    continue;
+                }
+
                 // Model factory signatures mention many models. The existing Roslyn post-processor
                 // removes factory methods for unreachable models, so model factory should only
                 // contribute helper dependencies, not model reachability edges.
@@ -206,8 +211,13 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            foreach (var provider in providers)
+            foreach (var provider in GetBodyReferenceProviders(providers))
             {
+                if (IsModelFactoryProvider(provider))
+                {
+                    continue;
+                }
+
                 if (!IsGeneratedBodyReferenceCandidate(provider))
                 {
                     continue;
@@ -225,20 +235,35 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddGeneratedReferencesToHelper(project, compilation, graph, providerName, symbol);
-                if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
+                if (!IsSerializationProvider(provider))
                 {
-                    foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>())
+                    AddGeneratedReferencesToHelper(project, compilation, graph, providerName, symbol);
+                    if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
                     {
-                        if (method.IsExtensionMethod)
+                        foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>())
                         {
-                            AddGeneratedReferencesToHelper(project, compilation, graph, providerName, method);
+                            if (method.IsExtensionMethod)
+                            {
+                                AddGeneratedReferencesToHelper(project, compilation, graph, providerName, method);
+                            }
                         }
                     }
                 }
 
                 AddGeneratedBodyTypeReferences(project, compilation, graph, providerName, symbol);
             }
+        }
+
+        private static IReadOnlyList<TypeProvider> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
+        {
+            var bodyReferenceProviders = new List<TypeProvider>();
+            foreach (var provider in providers)
+            {
+                bodyReferenceProviders.Add(provider);
+                bodyReferenceProviders.AddRange(provider.SerializationProviders);
+            }
+
+            return bodyReferenceProviders;
         }
 
         private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider)
@@ -249,7 +274,9 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
+            return IsSerializationProvider(provider) ||
+                relativePath.EndsWith("Client.cs", StringComparison.Ordinal) ||
+                relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
                 relativePath.Contains("/CollectionResults/", StringComparison.Ordinal);
         }
 
@@ -388,13 +415,18 @@ namespace Microsoft.TypeSpec.Generator
         private static HashSet<string> GetHelperRootNames(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, HashSet<string> reachableTypes)
         {
             var roots = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var provider in providers)
+            foreach (var provider in GetGeneratedProviders(providers))
             {
                 var providerName = GetProviderTypeName(provider.Type);
                 var isModelFactory = IsModelFactoryProvider(provider);
                 if (!reachableTypes.Contains(providerName) && !isModelFactory)
                 {
                     continue;
+                }
+
+                if (IsSerializationProvider(provider))
+                {
+                    AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
                 }
 
                 foreach (var property in provider.Properties)
@@ -445,6 +477,13 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AddMatchingName(roots, "Argument", nodes);
             }
+        }
+
+        private static bool IsSerializationProvider(TypeProvider provider)
+        {
+            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
+            return relativePath.EndsWith(".Serialization.cs", StringComparison.Ordinal) ||
+                relativePath.EndsWith(".Serialization.Multipart.cs", StringComparison.Ordinal);
         }
 
         private static void AddInitializationHelperRoot(HashSet<string> roots, CSharpType? type, HashSet<string> nodes)
