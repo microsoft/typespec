@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
@@ -56,6 +57,303 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Foo", signature.Name);
             Assert.AreEqual("p1", signature.Parameters[0].Name);
         }
+
+        // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior
+        // from the base TypeProvider.
+        [Test]
+        public async Task CustomTypeProviderInheritsParameterReorderBackCompat()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(second, first) — the reverse of the last contract's
+            // Foo(first, second).
+            var first = new ParameterProvider("first", $"", new CSharpType(typeof(string)));
+            var second = new ParameterProvider("second", $"", new CSharpType(typeof(int)));
+            var currentFoo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [second, first]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "CustomReorderType", ns: "Test", methods: [currentFoo]);
+
+            // The custom type does not override BuildMethodsForBackCompatibility; the base default
+            // restores the previous parameter order in place.
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates that when restoring a previous parameter order, the previously published default
+        // value representation is preserved (e.g. a value-type parameter keeps its literal `= 0`
+        // rather than flipping to `= default`).
+        [Test]
+        public async Task CustomTypeProviderReorderPreservesValueTypeDefaults()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current generation declares Foo(flag, count) with `default`-keyword defaults — the
+            // reverse of the last contract's Foo(int count = 0, bool flag = false).
+            var flag = new ParameterProvider("flag", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default);
+            var count = new ParameterProvider("count", $"", new CSharpType(typeof(int)), defaultValue: Snippet.Default);
+            var currentFoo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [flag, count]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "CustomReorderValueTypeDefaultsType", ns: "Test", methods: [currentFoo]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates that the base BuildMethodsForBackCompatibility default does NOT restore the
+        // previous parameter order when that removal has been accepted in the ApiCompat baseline.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsReorderAcceptedInBaseline()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Current generation declares Foo(second, first) — the reverse of the last contract's
+            // Foo(first, second) — but the reorder is an accepted removal in the ApiCompat baseline,
+            // so the base default must leave the current order untouched.
+            var first = new ParameterProvider("first", $"", new CSharpType(typeof(string)));
+            var second = new ParameterProvider("second", $"", new CSharpType(typeof(int)));
+            var currentFoo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [second, first]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "SkipReorderType", ns: "Test", methods: [currentFoo]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates that the base TypeProvider generalizes the non-abstract base model back-compat to
+        // any TypeProvider: a type the current generation would declare abstract is kept non-abstract
+        // when the last contract published it as a non-abstract class.
+        [Test]
+        public async Task BuildDeclarationModifiersPreservesNonAbstractFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = new TestTypeProvider(
+                name: "NonAbstractPreservedType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+
+            Assert.IsFalse(
+                typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract),
+                "Expected the abstract modifier to be removed to match the non-abstract last contract.");
+        }
+
+        // Validates the negative case: without a last contract, a type the current generation declares
+        // abstract stays abstract (the preservation only applies against a non-abstract last contract).
+        [Test]
+        public void BuildDeclarationModifiersKeepsAbstractWithoutLastContract()
+        {
+            var typeProvider = new TestTypeProvider(
+                name: "AbstractNoContractType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+
+            Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+        }
+
+        // Validates that the base TypeProvider generalizes the model-constructor back-compat to any
+        // abstract TypeProvider: a private-protected constructor is promoted to public when the last
+        // contract published a matching public constructor.
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityPromotesPrivateProtectedToPublic()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var baseProp = new ParameterProvider("baseProp", $"", new CSharpType(typeof(string)));
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [baseProp]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "PromoteCtorType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var promoted = typeProvider.Constructors.Single();
+            Assert.IsTrue(promoted.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsFalse(promoted.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private));
+            Assert.IsFalse(promoted.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+        }
+
+        // Validates the negative case: a non-abstract type does not get its private-protected
+        // constructor promoted, even with a matching public constructor in the last contract.
+        [Test]
+        public async Task BuildConstructorsForBackCompatibilityKeepsModifierOnNonAbstractType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var baseProp = new ParameterProvider("baseProp", $"", new CSharpType(typeof(string)));
+            var currentConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(object)),
+                    $"",
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [baseProp]),
+                Snippet.ThrowExpression(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "KeepCtorType",
+                ns: "Test",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                constructors: [currentConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var constructor = typeProvider.Constructors.Single();
+            Assert.IsTrue(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private));
+            Assert.IsTrue(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsFalse(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+        }
+
+        // Validates the shared lookup that any provider can use to restore a previously-published
+        // parameter name from its last contract.
+        [Test]
+        public async Task FindPreviousParameterNameLooksUpLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var lastContractView = new TestTypeProvider(name: "TestClient").LastContractView;
+
+            // The last contract published Foo(string oldParam); scoped to that method it is found.
+            Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam", "Foo"));
+
+            // The exact casing from the contract is returned even when the lookup name differs only in casing.
+            Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldparam", "Foo"));
+
+            // The lookup is scoped: "oldParam" is not published on Other.
+            Assert.IsNull(BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam", "Other"));
+
+            // An unscoped lookup finds the parameter on any last-contract method.
+            Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam"));
+
+            // A parameter that does not exist in the last contract returns null.
+            Assert.IsNull(BackCompatHelper.FindPreviousParameterName(lastContractView, "missing", "Foo"));
+
+            // A sync method name matches its async counterpart (BarAsync) in the contract.
+            Assert.AreEqual("oldAsyncParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldAsyncParam", "Bar"));
+        }
+
+        // Validates that the lookup returns null when there is no last contract.
+        [Test]
+        public void FindPreviousParameterNameReturnsNullWithoutLastContract()
+        {
+            var typeProvider = new TestTypeProvider(name: "TestClient");
+            Assert.IsNull(typeProvider.LastContractView);
+            Assert.IsNull(BackCompatHelper.FindPreviousParameterName(typeProvider.LastContractView, "oldParam", "Foo"));
+        }
+
+        // Validates that the base BuildMethodsForBackCompatibility default automatically restores a
+        // previously-published parameter name on any derived type — keyed on the parameter's spec
+        // original name — and that the rename propagates into the already-built method body.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoresPreviousParameterName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // A spec parameter "oldParam" that the generator renamed to "newParam".
+            var inputParameter = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            inputParameter.Update(name: "newParam");
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                new MethodBodyStatement[]
+                {
+                    // Passing the parameter as an argument to another method exercises propagation
+                    // of the restored name into invocation arguments, not just the return.
+                    Snippet.This.Invoke("Validate", parameter).Terminate(),
+                    Snippet.Return(parameter),
+                },
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            // The default has no override here; the base restores the previously-published name and
+            // the rename propagates into the already-built body.
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates that a parameter whose spec name is not in the last contract keeps its current name.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityKeepsUnpublishedParameterName()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // "brandNewParam" has no counterpart in the last contract (TestClient.Foo(oldParam)).
+            var inputParameter = InputFactory.QueryParameter("brandNewParam", InputPrimitiveType.String, isRequired: true);
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                Snippet.Return(parameter),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // When the restored name is used both as an argument (AsArgument -> _asArgument) and
+        // as a variable (-> _asVariable), materializing both cached expressions before the rename, the
+        // rename must keep them sharing one declaration. Otherwise the writer uniquifies the two
+        // declarations of the same name into "oldParam0"/"oldParam1", producing non-compiling code.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoredNameDoesNotSplitDeclarations()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParameter = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            inputParameter.Update(name: "newParam");
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                new MethodBodyStatement[]
+                {
+                    Snippet.This.Invoke("Validate", parameter.AsArgument()).Terminate(),
+                    Snippet.Return(parameter),
+                },
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
 
         [Test]
         public async Task LastContractViewLoadedForRenamedType()

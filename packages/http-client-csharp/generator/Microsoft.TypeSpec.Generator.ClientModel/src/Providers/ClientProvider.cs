@@ -1263,62 +1263,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
-            List<MethodProvider> materializedMethods = [.. originalMethods];
-
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
-                return materializedMethods;
+                return [.. originalMethods];
             }
 
-            var currentMethodSignatures = BuildCurrentMethodSignatures(materializedMethods);
+            // Snapshot the current signatures before the base reorders any of them in place, so we
+            // can fix up convenience method bodies that call reordered protocol methods afterwards.
+            var originalSignatures = new Dictionary<MethodProvider, MethodSignature>(ReferenceEqualityComparer.Instance);
+            foreach (var method in originalMethods)
+            {
+                originalSignatures.TryAdd(method, method.Signature);
+            }
 
-            ProcessBackCompatForParameterReordering(materializedMethods, currentMethodSignatures);
-            ProcessBackCompatForNewOptionalParameters(materializedMethods, currentMethodSignatures);
+            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
 
-            return materializedMethods;
-        }
-
-        private void ProcessBackCompatForParameterReordering(
-            IList<MethodProvider> materializedMethods,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
+            // Determine which existing methods had their parameters reordered by the base and fix up
+            // convenience method bodies that call the reordered protocol methods.
             var updatedSignatureToOriginal = new Dictionary<MethodSignature, MethodSignature>(MethodSignature.MethodSignatureComparer);
             var methodsWithReorderedParams = new List<MethodProvider>();
-
-            foreach (var previousMethod in LastContractView!.Methods)
+            foreach (var (method, originalSignature) in originalSignatures)
             {
-                if (!ShouldProcessMethodForBackCompat(previousMethod.Signature, currentMethodSignatures))
+                if (method.Signature.Name.Equals(originalSignature.Name)
+                    && !MethodSignatureHelper.HaveSameParametersInSameOrder(method.Signature, originalSignature))
                 {
-                    continue;
-                }
-
-                var methodToUpdate = FindMethodWithSameParametersButDifferentOrder(
-                    previousMethod.Signature,
-                    currentMethodSignatures);
-
-                if (methodToUpdate != null && TryReorderCurrentMethodParameters(
-                    methodToUpdate,
-                    previousMethod.Signature,
-                    updatedSignatureToOriginal))
-                {
-                    methodsWithReorderedParams.Add(methodToUpdate);
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.",
-                        BackCompatibilityChangeCategory.MethodParameterReordering);
+                    updatedSignatureToOriginal.TryAdd(method.Signature, originalSignature);
+                    methodsWithReorderedParams.Add(method);
                 }
             }
 
             if (methodsWithReorderedParams.Count > 0)
             {
-                UpdateConvenienceMethodsForBackCompat(materializedMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
+                UpdateConvenienceMethodsForBackCompat(result, methodsWithReorderedParams, updatedSignatureToOriginal);
             }
+
+            // Add hidden overloads for methods that gained new optional non-body parameters.
+            ProcessBackCompatForNewOptionalParameters(result, BuildCurrentMethodSignatureMap(result));
+
+            return result;
         }
 
-        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatures(IEnumerable<MethodProvider> originalMethods)
+        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatureMap(IEnumerable<MethodProvider> methods)
         {
             var allMethods = CustomCodeView?.Methods != null
-                ? originalMethods.Concat(CustomCodeView.Methods)
-                : originalMethods;
+                ? methods.Concat(CustomCodeView.Methods)
+                : methods;
 
             var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
             foreach (var method in allMethods)
@@ -1326,86 +1315,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 result.TryAdd(method.Signature, method);
             }
             return result;
-        }
-
-        private static bool ShouldProcessMethodForBackCompat(
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            if (currentMethodSignatures.ContainsKey(previousSignature))
-            {
-                return false;
-            }
-
-            var modifiers = previousSignature.Modifiers;
-            return modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                   modifiers.HasFlag(MethodSignatureModifiers.Protected);
-        }
-
-        private static MethodProvider? FindMethodWithSameParametersButDifferentOrder(
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            foreach (var kvp in currentMethodSignatures)
-            {
-                var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name)
-                    && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
-                    && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
-                {
-                    return kvp.Value;
-                }
-            }
-
-            return null;
-        }
-
-        private bool TryReorderCurrentMethodParameters(
-            MethodProvider methodToUpdate,
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal)
-        {
-            var currentSignature = methodToUpdate.Signature;
-            // Early exit: Check if parameters are already in the same order
-            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
-            {
-                return false;
-            }
-
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
-            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
-
-            foreach (var previousParam in previousSignature.Parameters)
-            {
-                if (parametersByName.TryGetValue(previousParam.Name, out var matchingParam))
-                {
-                    reorderedParameters.Add(matchingParam);
-                }
-            }
-
-            if (reorderedParameters.Count != currentSignature.Parameters.Count)
-            {
-                return false;
-            }
-
-            var updatedSignature = new MethodSignature(
-                currentSignature.Name,
-                currentSignature.Description,
-                currentSignature.Modifiers,
-                currentSignature.ReturnType,
-                currentSignature.ReturnDescription,
-                reorderedParameters,
-                currentSignature.Attributes,
-                currentSignature.GenericArguments,
-                currentSignature.GenericParameterConstraints,
-                currentSignature.ExplicitInterface,
-                currentSignature.NonDocumentComment);
-            updatedSignatureToOriginal.TryAdd(updatedSignature, currentSignature);
-
-            UpdateXmlDocProviderForParamReorder(methodToUpdate.XmlDocs, updatedSignature);
-            methodToUpdate.Update(signature: updatedSignature, xmlDocProvider: methodToUpdate.XmlDocs);
-
-            return true;
         }
 
         private ParameterProvider BuildClientEndpointParameter()
@@ -1770,28 +1679,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && !reorderedArgs.SequenceEqual(invocation.Arguments))
             {
                 invocation.Update(arguments: reorderedArgs);
-            }
-        }
-
-        private static void UpdateXmlDocProviderForParamReorder(
-            XmlDocProvider xmlDocs,
-            MethodSignature updatedSignature)
-        {
-            var paramDocsByName = xmlDocs.Parameters.ToDictionary(s => s.Parameter.Name);
-            var reorderedParamDocs = new List<XmlDocParamStatement>(updatedSignature.Parameters.Count);
-
-            foreach (var param in updatedSignature.Parameters)
-            {
-                if (paramDocsByName.TryGetValue(param.Name, out var paramDoc))
-                {
-                    reorderedParamDocs.Add(paramDoc);
-                }
-            }
-
-            if (reorderedParamDocs.Count == xmlDocs.Parameters.Count &&
-                !reorderedParamDocs.SequenceEqual(xmlDocs.Parameters))
-            {
-                xmlDocs.Update(parameters: reorderedParamDocs);
             }
         }
 
