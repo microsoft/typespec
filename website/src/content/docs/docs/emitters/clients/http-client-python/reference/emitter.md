@@ -118,7 +118,7 @@ Whether to keep the existing `setup.py` when `generate-packaging-files` is `true
 
 **Type:** `boolean`
 
-Whether to preserve manually customized `description`, `classifiers`, and `[project.urls]` fields in an existing `pyproject.toml` instead of overwriting them on regeneration. Defaults to `false`.
+Whether to preserve manually customized `authors`, `description`, `classifiers`, and `[project.urls]` fields in an existing `pyproject.toml` instead of overwriting them on regeneration. Defaults to `false`.
 
 ### `clear-output-folder`
 

@@ -11,9 +11,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "{{ options.get('package-name')|lower }}"
 {% if options.get('package-mode') %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.authors') %}
+authors = [
+  {% for author in KEEP_FIELDS.get('project.authors') %}
+  { {% for key, val in author.items() %}{{ key }} = {{ val|tojson }}{% if not loop.last %}, {% endif %}{% endfor %} },
+  {% endfor %}
+]
+{% else %}
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
+{% endif %}
 {% if KEEP_FIELDS and KEEP_FIELDS.get('project.description') %}
 description = {{ KEEP_FIELDS.get('project.description')|tojson }}
 {% elif options.get("azure-arm") %}

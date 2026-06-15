@@ -92,7 +92,7 @@ class GeneralSerializer(BaseSerializer):
             # Keep manually customized project fields the emitter would otherwise overwrite.
             # Only done when the "keep-pyproject-fields" option is explicitly enabled.
             if keep_pyproject_fields:
-                for field in ("description", "classifiers", "urls"):
+                for field in ("description", "classifiers", "urls", "authors"):
                     if field in project:
                         result["KEEP_FIELDS"][f"project.{field}"] = project[field]
 
