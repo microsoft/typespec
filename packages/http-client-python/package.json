@@ -25,6 +25,10 @@
       "default": "./dist/emitter/index.js"
     }
   },
+  "browser": {
+    "./dist/emitter/node-runner.js": "./dist/emitter/node-runner.browser.js",
+    "./dist/emitter/pyodide-loader.js": "./dist/emitter/pyodide-loader.browser.js"
+  },
   "engines": {
     "node": ">=22.0.0"
   },
