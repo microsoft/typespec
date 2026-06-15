@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
             var graph = BuildGraph(providers);
+            var publicGraph = BuildGraph(providers, publicOnly: true);
 
             // Generated-code dependencies come from providers. Custom code still needs Roslyn
             // because arbitrary user C# can reference generated types in ways providers cannot see.
@@ -30,12 +31,14 @@ namespace Microsoft.TypeSpec.Generator
 
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
+            var internalizeReferences = CloneReferences(publicGraph.References);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false);
             internalizeRoots.UnionWith(customRoots);
-            var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, graph.References);
+            var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
             var internalizeHelperRoots = GetHelperRootNames(providers, graph.Nodes, internalizeReachableWithoutHelpers);
             internalizeRoots.UnionWith(internalizeHelperRoots);
-            var internalizeReachable = GetReachableTypes(internalizeRoots, graph.References);
+            var internalizeReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
             var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(providers, graph.Nodes, publicOnly: true);
             var internalizeCandidates = internalizeDeclaredNodes.Except(internalizeReachable, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
 
@@ -121,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers)
+        private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers, bool publicOnly = false)
         {
             var generatedProviders = GetGeneratedProviders(providers);
             var nodes = generatedProviders
@@ -166,6 +169,11 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var property in provider.Properties)
                 {
+                    if (publicOnly && !IsPublic(property.Modifiers))
+                    {
+                        continue;
+                    }
+
                     AddTypeReference(references[current], property.Type, nodes);
                     AddTypeReference(references[current], property.ExplicitInterface, nodes);
                     AddAttributes(references[current], property.Attributes, nodes);
@@ -173,22 +181,67 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var field in provider.Fields)
                 {
+                    if (publicOnly && !field.Modifiers.HasFlag(FieldModifiers.Public))
+                    {
+                        continue;
+                    }
+
                     AddTypeReference(references[current], field.Type, nodes);
                     AddAttributes(references[current], field.Attributes, nodes);
                 }
 
                 foreach (var constructor in provider.Constructors)
                 {
+                    if (publicOnly && !IsPublic(constructor.Signature.Modifiers))
+                    {
+                        continue;
+                    }
+
                     AddSignatureReferences(references[current], constructor.Signature, nodes);
                 }
 
                 foreach (var method in provider.Methods)
                 {
+                    if (publicOnly && !IsPublic(method.Signature.Modifiers))
+                    {
+                        continue;
+                    }
+
                     AddSignatureReferences(references[current], method.Signature, nodes);
                 }
             }
 
             return new ProviderReferenceGraph(nodes, references);
+        }
+
+        private static bool IsPublic(MethodSignatureModifiers modifiers) => modifiers.HasFlag(MethodSignatureModifiers.Public);
+
+        private static Dictionary<string, HashSet<string>> CloneReferences(IReadOnlyDictionary<string, HashSet<string>> references)
+        {
+            return references.ToDictionary(
+                static item => item.Key,
+                static item => item.Value.ToHashSet(StringComparer.Ordinal),
+                StringComparer.Ordinal);
+        }
+
+        private static void AddDerivedModelReferences(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes,
+            Dictionary<string, HashSet<string>> references)
+        {
+            foreach (var provider in providers.OfType<ModelProvider>())
+            {
+                var providerName = GetProviderTypeName(provider.Type);
+                if (!nodes.Contains(providerName))
+                {
+                    continue;
+                }
+
+                foreach (var derivedModel in provider.DerivedModels)
+                {
+                    AddTypeReference(references[providerName], derivedModel.Type, nodes);
+                }
+            }
         }
 
         private static IReadOnlyList<TypeProvider> GetGeneratedProviders(IReadOnlyList<TypeProvider> providers)
