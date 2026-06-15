@@ -115,6 +115,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
 
+        protected override IReadOnlyList<string> BuildHelperDependencyNames() => _rawDataField != null || _additionalProperties.Value.Length > 0
+            ? ["ChangeTrackingDictionary"]
+            : [];
+
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
             if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))

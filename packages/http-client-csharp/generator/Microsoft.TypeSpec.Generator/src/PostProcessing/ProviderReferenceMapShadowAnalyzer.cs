@@ -269,10 +269,19 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     AddSignatureReferences(references[current], method.Signature, nodes);
+                    AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes);
                 }
             }
 
             return new ProviderReferenceGraph(nodes, references);
+        }
+
+        private static CSharpType? GetCollectionDefinitionType(MethodProvider method)
+        {
+            var property = method.GetType().GetProperty("CollectionDefinition");
+            return property?.GetValue(method) is TypeProvider collectionDefinition
+                ? collectionDefinition.Type
+                : null;
         }
 
         private static bool IsPublic(MethodSignatureModifiers modifiers) => modifiers.HasFlag(MethodSignatureModifiers.Public);
@@ -343,6 +352,13 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
+                AddProviderBodyDependencyTypes(graph.References[providerName], provider.BodyDependencyTypes, graph.Nodes);
+
+                if (provider.BodyDependencyTypes.Count > 0)
+                {
+                    continue;
+                }
+
                 var symbol = compilation.GetTypeByMetadataName(providerName);
                 if (symbol == null)
                 {
@@ -365,6 +381,14 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 AddGeneratedBodyTypeReferences(project, compilation, graph, providerName, symbol);
+            }
+        }
+
+        private static void AddProviderBodyDependencyTypes(HashSet<string> references, IReadOnlyList<CSharpType> dependencies, HashSet<string> nodes)
+        {
+            foreach (var dependency in dependencies)
+            {
+                AddTypeReference(references, dependency, nodes);
             }
         }
 
@@ -391,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator
             return IsSerializationProvider(provider) ||
                 relativePath.EndsWith("Client.cs", StringComparison.Ordinal) ||
                 relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
-                relativePath.Contains("/CollectionResults/", StringComparison.Ordinal);
+                provider.BodyDependencyTypes.Count > 0;
         }
 
         private static void AddGeneratedBodyTypeReferences(Project project, Compilation compilation, ProviderReferenceGraph graph, string ownerName, INamedTypeSymbol ownerSymbol)
@@ -536,10 +560,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (IsSerializationProvider(provider))
-                {
-                    AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
-                }
+                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes);
 
                 foreach (var property in provider.Properties)
                 {
@@ -595,6 +616,14 @@ namespace Microsoft.TypeSpec.Generator
             var relativePath = provider.RelativeFilePath.Replace('\\', '/');
             return relativePath.EndsWith(".Serialization.cs", StringComparison.Ordinal) ||
                 relativePath.EndsWith(".Serialization.Multipart.cs", StringComparison.Ordinal);
+        }
+
+        private static void AddHelperDependencies(HashSet<string> roots, IReadOnlyList<string> dependencies, HashSet<string> nodes)
+        {
+            foreach (var dependency in dependencies)
+            {
+                AddMatchingName(roots, dependency, nodes);
+            }
         }
 
         private static void AddInitializationHelperRoot(HashSet<string> roots, CSharpType? type, HashSet<string> nodes)
