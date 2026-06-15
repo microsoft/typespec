@@ -352,7 +352,6 @@ namespace Microsoft.TypeSpec.Generator
 
             var relativePath = provider.RelativeFilePath.Replace('\\', '/');
             return IsSerializationProvider(provider) ||
-                relativePath.EndsWith("Client.cs", StringComparison.Ordinal) ||
                 relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
                 provider.BodyDependencyTypes.Count > 0;
         }

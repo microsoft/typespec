@@ -424,6 +424,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType>();
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.CollectionDefinition != null)
+                {
+                    dependencies.Add(method.CollectionDefinition.Type);
+                }
+
+                if (method.ServiceMethod == null)
+                {
+                    continue;
+                }
+
+                AddInputTypeDependency(dependencies, method.ServiceMethod.Response.Type);
+                AddInputTypeDependency(dependencies, method.ServiceMethod.Exception?.Type);
+                foreach (var parameter in method.ServiceMethod.Parameters)
+                {
+                    AddInputTypeDependency(dependencies, parameter.Type);
+                }
+
+                foreach (var parameter in method.ServiceMethod.Operation.Parameters)
+                {
+                    AddInputTypeDependency(dependencies, parameter.Type);
+                }
+
+                foreach (var response in method.ServiceMethod.Operation.Responses)
+                {
+                    AddInputTypeDependency(dependencies, response.BodyType);
+                    foreach (var header in response.Headers)
+                    {
+                        AddInputTypeDependency(dependencies, header.Type);
+                    }
+                }
+            }
+
+            return dependencies;
+        }
+
+        private static void AddInputTypeDependency(List<CSharpType> dependencies, InputType? inputType)
+        {
+            var type = inputType == null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+            if (type != null)
+            {
+                dependencies.Add(type);
+            }
+        }
+
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = [EndpointField];
