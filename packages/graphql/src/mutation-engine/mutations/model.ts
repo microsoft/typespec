@@ -108,6 +108,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       }
     });
     super.mutate();
+    this.flattenBaseModel();
   }
 
   protected override mutateProperties(newOptions: MutationOptions = this.options) {
@@ -135,6 +136,21 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
         );
       }
     }
+  }
+
+  private flattenBaseModel() {
+    if (!this.baseModel) return;
+    const mutated = this.mutationNode.mutatedType;
+    const baseProps = this.baseModel.mutatedType.properties;
+    const ownEntries = [...mutated.properties.entries()];
+    mutated.properties.clear();
+    for (const [name, prop] of baseProps) {
+      mutated.properties.set(name, prop);
+    }
+    for (const [name, prop] of ownEntries) {
+      mutated.properties.set(name, prop);
+    }
+    mutated.baseModel = undefined;
   }
 
   private mutateDecoratorTypeArgs(model: Model) {

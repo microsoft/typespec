@@ -973,3 +973,66 @@ describe("e2e: visibility filtering", () => {
     `);
   });
 });
+
+describe("e2e: extends flattening", () => {
+  it("flattens base model fields into child type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        scalar DateTime extends utcDateTime;
+        model Timestamps { createdAt: DateTime; updatedAt: DateTime; }
+        model AuditedComment extends Timestamps {
+          commentId: string;
+          action: string;
+        }
+        @query op getAudit(): AuditedComment;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "scalar DateTime
+
+      type Timestamps {
+        createdAt: DateTime!
+        updatedAt: DateTime!
+      }
+
+      type AuditedComment {
+        createdAt: DateTime!
+        updatedAt: DateTime!
+        commentId: String!
+        action: String!
+      }
+
+      type Query {
+        getAudit: AuditedComment!
+      }"
+    `);
+  });
+
+  it("flattens multi-level inheritance", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Base { id: string; }
+        model Middle extends Base { name: string; }
+        model Child extends Middle { age: int32; }
+        @query op getChild(): Child;
+      }
+    `);
+    // All inherited fields should be on Child, not separate types
+    expect(result.graphQLOutput).toMatch(/type Child \{[^}]*id: String!/s);
+    expect(result.graphQLOutput).toMatch(/type Child \{[^}]*name: String!/s);
+    expect(result.graphQLOutput).toMatch(/type Child \{[^}]*age: Int!/s);
+  });
+
+  it("flattens base model fields into input type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Base { id: string; }
+        model Child extends Base { name: string; }
+        @query op getChild(): Child;
+        @mutation op createChild(input: Child): Child;
+      }
+    `);
+    expect(result.graphQLOutput).toMatch(/input ChildInput[^}]*id: String!/s);
+    expect(result.graphQLOutput).toMatch(/input ChildInput[^}]*name: String!/s);
+  });
+});
