@@ -14,12 +14,21 @@ name = "{{ options.get('package-name')|lower }}"
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
-{% if options.get("azure-arm") %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.description') %}
+description = {{ KEEP_FIELDS.get('project.description')|tojson }}
+{% elif options.get("azure-arm") %}
 description = "Microsoft Azure {{ options.get('package-pprint-name') }} Client Library for Python"
 {% else %}
 description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
 {% endif %}
 license = "MIT"
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.classifiers') %}
+classifiers = [
+    {% for classifier in KEEP_FIELDS.get('project.classifiers') %}
+    {{ classifier|tojson }},
+    {% endfor %}
+]
+{% else %}
 classifiers = [
     "Development Status :: {{ dev_status }}",
     "Programming Language :: Python",
@@ -29,9 +38,14 @@ classifiers = [
     "Programming Language :: Python :: 3.{{ version }}",
     {% endfor %}
 ]
+{% endif %}
 requires-python = ">={{ MIN_PYTHON_VERSION }}"
 {% else %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.description') %}
+description = {{ KEEP_FIELDS.get('project.description')|tojson }}
+{% else %}
 description = "{{ options.get('package-name') }}"
+{% endif %}
 {% endif %}
 {% if code_model.is_azure_flavor %}
 keywords = ["azure", "azure sdk"]
@@ -77,7 +91,13 @@ version = "{{ options.get("package-version", "unknown") }}"
 ]
 {% endfor %}
 {% endif %}
-{% if code_model.is_azure_flavor %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
+
+[project.urls]
+{% for key, val in KEEP_FIELDS.get('project.urls').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% elif code_model.is_azure_flavor %}
 
 [project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python"

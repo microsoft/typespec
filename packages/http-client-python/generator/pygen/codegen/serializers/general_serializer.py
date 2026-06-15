@@ -85,6 +85,13 @@ class GeneralSerializer(BaseSerializer):
 
         # Process dependencies
         if "project" in loaded_pyproject_toml:
+            project = loaded_pyproject_toml["project"]
+
+            # Keep manually customized project fields the emitter would otherwise overwrite.
+            for field in ("description", "classifiers", "urls"):
+                if field in project:
+                    result["KEEP_FIELDS"][f"project.{field}"] = project[field]
+
             # Handle main dependencies
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
