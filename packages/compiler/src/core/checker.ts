@@ -10,6 +10,7 @@ import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
+import { validateDecoratorUniqueOnNode } from "./decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import {
   compilerAssert,
@@ -2163,25 +2164,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const lastParamIsRest =
       node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
 
-    return (context: DecoratorContext, target: Type, ...args: unknown[]) => {
-      // Check for duplicate application on the same declaration node
+    const impl = (context: DecoratorContext, target: Type, ...args: unknown[]) => {
+      // Warn (but still store, so duplicates are last-write-wins like extern
+      // decorators) if the same auto decorator is applied twice on the same node.
       if ("decorators" in target) {
-        const sameDecorators = (target as any).decorators.filter(
-          (x: any) =>
-            x.definition?.name === `@${node.id.sv}` &&
-            x.node?.kind === SyntaxKind.DecoratorExpression &&
-            x.node?.parent === (target as any).node,
-        );
-        if (sameDecorators.length > 1) {
-          context.program.reportDiagnostic(
-            createDiagnostic({
-              code: "duplicate-decorator",
-              format: { decoratorName: `@${node.id.sv}` },
-              target: context.decoratorTarget,
-            }),
-          );
-          return;
-        }
+        validateDecoratorUniqueOnNode(context, target, impl);
       }
 
       // Store as key-value record { paramName: value }
@@ -2200,6 +2187,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       context.program.stateMap(stateKey).set(target, data);
     };
+    // The function name drives the `@<name>` text in the duplicate-decorator
+    // diagnostic; mirror the extern `$name` convention so the helper strips it.
+    Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
+    return impl;
   }
 
   function checkFunctionDeclaration(

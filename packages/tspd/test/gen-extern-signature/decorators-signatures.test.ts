@@ -464,7 +464,20 @@ export function isMyFlag(program: Program, target: Model): boolean {
 ${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
 
 export function getMyLabel(program: Program, target: Model): string | undefined {
-  return getAutoDecoratorValue(program, "myLabel", target) as any;
+  return getAutoDecoratorValue(program, "myLabel", target)?.["label"] as any;
+}
+  `,
+    });
+  });
+
+  it("generate accessor for single-rest-arg auto decorator unwraps to array", async () => {
+    await expectSignatures({
+      code: `auto dec myTags(target: Model, ...tags: valueof string[]);`,
+      expected: `
+${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
+
+export function getMyTags(program: Program, target: Model): readonly string[] | undefined {
+  return getAutoDecoratorValue(program, "myTags", target)?.["tags"] as any;
 }
   `,
     });

@@ -60,6 +60,7 @@ function AutoDecoratorAccessor(props: Readonly<AutoDecoratorAccessorProps>) {
 
   // Decorators with args — generate `get*` function
   let returnType;
+  let body;
   if (params.length === 1) {
     const param = params[0];
     returnType = (
@@ -68,6 +69,9 @@ function AutoDecoratorAccessor(props: Readonly<AutoDecoratorAccessorProps>) {
         {" | undefined"}
       </>
     );
+    // Single-arg: storage is a uniform record, but the typed accessor unwraps to
+    // the bare value to preserve parity with hand-written extern getters.
+    body = code`return ${typespecCompiler.getAutoDecoratorValue}(program, "${fqn}", ${decorator.target.name})?.["${param.name}"] as any;`;
   } else {
     // Multi-arg — return type is an interface with named properties
     returnType = (
@@ -84,6 +88,7 @@ function AutoDecoratorAccessor(props: Readonly<AutoDecoratorAccessorProps>) {
         {" } | undefined"}
       </>
     );
+    body = code`return ${typespecCompiler.getAutoDecoratorValue}(program, "${fqn}", ${decorator.target.name}) as any;`;
   }
 
   return (
@@ -96,7 +101,7 @@ function AutoDecoratorAccessor(props: Readonly<AutoDecoratorAccessorProps>) {
       ]}
       returnType={returnType}
     >
-      {code`return ${typespecCompiler.getAutoDecoratorValue}(program, "${fqn}", ${decorator.target.name}) as any;`}
+      {body}
     </ts.FunctionDeclaration>
   );
 }

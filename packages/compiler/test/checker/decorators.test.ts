@@ -331,6 +331,26 @@ describe("compiler: checker: decorators", () => {
       ]);
     });
 
+    it("duplicate auto decorators on same node are last-write-wins", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myLabel(target: Model, label: valueof string);
+
+        #suppress "duplicate-decorator" "testing last-write-wins"
+        @myLabel("first")
+        @myLabel("second")
+        model Foo {}
+      `,
+        autoDecOptions,
+      );
+
+      // Decorators execute in reverse source order, so the source-first
+      // application runs last and wins (both applications still store).
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "first" });
+    });
+
     it("augment decorator overwrites auto decorator value (last-write-wins)", async () => {
       const { program } = await Tester.using("TypeSpec.Reflection").compile(
         `
