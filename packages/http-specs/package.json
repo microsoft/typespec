@@ -1,7 +1,7 @@
 {
   "name": "@typespec/http-specs",
   "displayName": "Http Specs",
-  "version": "0.1.0-alpha.34",
+  "version": "0.1.0-alpha.36",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -19,7 +19,7 @@
     "upload-coverage": "tsp-spector upload-coverage --generatorName @typespec/http-specs --generatorVersion 0.1.0-alpha.4 --containerName coverages --generatorMode standard --storageAccountName typespec",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
-    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"pnpm knock\"; tsp-spector server stop",
+    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"pnpm knock\"; code=$?; tsp-spector server stop; exit $code",
     "build:smoke": "tsp compile smoke/petstore --warn-as-error --no-emit && tsp compile smoke/todoapp --warn-as-error --no-emit",
     "client": "pnpm knock",
     "knock": "tsp-spector knock ./specs",
@@ -27,7 +27,7 @@
     "test": "echo \"Error: no test specified\""
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=22.0.0"
   },
   "repository": {
     "type": "git",
@@ -44,19 +44,17 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@typespec/spec-api": "workspace:^",
-    "@typespec/spector": "workspace:^",
-    "deep-equal": "^2.2.0"
+    "@typespec/spector": "workspace:^"
   },
   "devDependencies": {
-    "@types/deep-equal": "^1.0.1",
-    "@types/multer": "^2.0.0",
-    "@types/node": "~25.3.0",
+    "@types/multer": "catalog:",
+    "@types/node": "catalog:",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
-    "concurrently": "^9.1.2",
-    "rimraf": "~6.1.3",
-    "typescript": "~5.9.3"
+    "concurrently": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",

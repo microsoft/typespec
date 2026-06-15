@@ -439,5 +439,14 @@ namespace SampleTypeSpec
         {
             return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The GetNotebookResponse. </summary>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
+        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
+        {
+            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
+        }
     }
 }

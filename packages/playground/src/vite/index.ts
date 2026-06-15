@@ -20,9 +20,6 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
         },
       },
     },
-    esbuild: {
-      logOverride: { "this-is-undefined-in-esm": "silent" },
-    },
     assetsInclude: [/\.tsp$/],
     optimizeDeps: {
       exclude: ["swagger-ui"],

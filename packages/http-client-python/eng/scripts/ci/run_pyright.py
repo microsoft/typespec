@@ -19,11 +19,12 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_pyright_config_file_location():
-    pyright_config = os.path.join(os.getcwd(), "../../eng/scripts/ci/pyrightconfig.json")
+    # When running from tests/ directory via tox
+    pyright_config = os.path.join(os.getcwd(), "../eng/scripts/ci/config/pyrightconfig.json")
     if os.path.exists(pyright_config):
         return pyright_config
-    else:
-        return os.path.join(os.getcwd(), "../../../eng/scripts/ci/pyrightconfig.json")
+    # Fallback for running from different directories
+    return os.path.join(os.path.dirname(__file__), "config/pyrightconfig.json")
 
 
 def _single_dir_pyright(mod):

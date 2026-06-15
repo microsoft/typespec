@@ -12,7 +12,7 @@ from multiprocessing import Pool
 
 logging.getLogger().setLevel(logging.INFO)
 
-ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "generator"))
+ROOT_FOLDER = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", "..", "..", "tests"))
 
 IGNORE_FOLDER = []
 
@@ -53,11 +53,12 @@ def run_check(name, call_back, log_info):
 
     args = parser.parse_args()
 
-    pkg_dir = Path(ROOT_FOLDER) / Path("test") / Path(args.test_folder)
-    if args.generator:
-        pkg_dir /= Path(args.generator)
+    pkg_dir = Path(ROOT_FOLDER)
     if args.subfolder:
         pkg_dir /= Path(args.subfolder)
+    pkg_dir /= Path(args.test_folder)
+    if args.generator:
+        pkg_dir /= Path(args.generator)
     dirs = [d for d in pkg_dir.iterdir() if d.is_dir() and not d.stem.startswith("_") and d.stem not in IGNORE_FOLDER]
     if args.file_name:
         dirs = [d for d in dirs if args.file_name.lower() in d.stem.lower()]

@@ -18,15 +18,18 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_config_file_location():
-    mypy_ini_path = os.path.join(os.getcwd(), "../../eng/scripts/ci/mypy.ini")
+    # When running from tests/ directory via tox
+    mypy_ini_path = os.path.join(os.getcwd(), "../eng/scripts/ci/config/mypy.ini")
     if os.path.exists(mypy_ini_path):
         return mypy_ini_path
-    else:
-        return os.path.join(os.getcwd(), "../../../eng/scripts/ci/mypy.ini")
+    # Fallback for running from different directories
+    return os.path.join(os.path.dirname(__file__), "config/mypy.ini")
 
 
 def _single_dir_mypy(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    # Exclude "build" directories to avoid mypy "Duplicate module" errors caused by
+    # stale build/lib/ artifacts from previous setup.py builds.
+    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.stem != "build")
     try:
         check_call(
             [

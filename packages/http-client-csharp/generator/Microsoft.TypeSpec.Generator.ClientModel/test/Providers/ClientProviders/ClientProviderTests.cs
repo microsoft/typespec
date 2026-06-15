@@ -48,9 +48,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private const string OnlyUnsupportedAuthCategory = "WithOnlyUnsupportedAuth";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _testClient = InputFactory.Client(TestClientName);
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient, initializedBy: InputClientInitializedBy.Parent);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -755,10 +755,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByIndividually_HasPublicConstructors()
         {
-            var parentClient = InputFactory.Client("ParentClient");
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: parentClient,
+                parameters: [endpointParameter],
                 initializedBy: InputClientInitializedBy.Individually);
 
             MockHelpers.LoadMockGenerator(
@@ -776,23 +783,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually should have public constructors");
 
-            // primary constructor should set the pipeline, options, and endpoint
+            // Primary public constructor should have auth credential param and chain to internal via this(...)
             var primaryConstructor = publicConstructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null);
-            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
-            StringAssert.Contains(
-                "options ??= new global::Sample.ParentClientOptions();",
-                primaryConstructor!.BodyStatements!.ToDisplayString(),
-                "Primary constructor should null coalesce options parameter");
-            StringAssert.Contains(
-                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
-                primaryConstructor.BodyStatements!.ToDisplayString(),
-                "Primary constructor should set the Pipeline property");
+                c => c.Signature?.Parameters.Any(p => p.Name == "options") == true && c.Signature?.Initializer != null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor with initializer");
 
-            // Should NOT have internal constructor since InitializedBy does not include Parent
-            var internalConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
-            Assert.IsNull(internalConstructor, "SubClient with InitializedBy.Individually (without Parent) should not have internal constructor");
+            // Should have a credential parameter (from the mock api key auth)
+            Assert.IsTrue(primaryConstructor!.Signature.Parameters.Any(p => p.Name == "credential"),
+                "SubClient with InitializedBy.Individually should have credential parameter in public constructor");
+
+            // Should have internal AuthenticationPolicy constructor
+            var internalConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToList();
+            Assert.IsTrue(internalConstructors.Count > 0, "SubClient with InitializedBy.Individually should have internal constructor");
+            var authPolicyConstructor = internalConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Any(p => p.Type.Name == nameof(AuthenticationPolicy)) == true);
+            Assert.IsNotNull(authPolicyConstructor, "SubClient with InitializedBy.Individually should have internal AuthenticationPolicy constructor");
+
+            // Should have a Settings constructor
+            Assert.IsNotNull(clientProvider.ClientSettings, "SubClient with InitializedBy.Individually should have ClientSettings");
+            var settingsConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Count == 1 && c.Signature.Parameters[0].Name == "settings");
+            Assert.IsNotNull(settingsConstructor, "SubClient with InitializedBy.Individually should have Settings constructor");
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -835,10 +847,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
         {
-            var parentClient = InputFactory.Client("ParentClient");
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: parentClient,
+                parameters: [endpointParameter],
                 initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
 
             MockHelpers.LoadMockGenerator(
@@ -856,23 +875,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have public constructors");
 
-            // primary constructor should set the pipeline, options, and endpoint
+            // Primary public constructor should have auth credential param and chain to internal via this(...)
             var primaryConstructor = publicConstructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null);
-            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
-            StringAssert.Contains(
-                "options ??= new global::Sample.ParentClientOptions();",
-                primaryConstructor!.BodyStatements!.ToDisplayString(),
-                "Primary constructor should null coalesce options parameter");
-            StringAssert.Contains(
-                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
-                primaryConstructor.BodyStatements!.ToDisplayString(),
-                "Primary constructor should set the Pipeline property");
+                c => c.Signature?.Parameters.Any(p => p.Name == "options") == true && c.Signature?.Initializer != null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor with initializer");
 
-            // Should also have internal constructor
-            var internalConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
-            Assert.IsNotNull(internalConstructor, "SubClient with InitializedBy.Individually | Parent should have internal constructor");
+            // Should also have internal constructors (sub-client internal + AuthenticationPolicy internal)
+            var internalConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal).ToList();
+            Assert.IsTrue(internalConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have internal constructor");
+
+            // Should have a Settings constructor
+            Assert.IsNotNull(clientProvider.ClientSettings, "SubClient with InitializedBy.Individually | Parent should have ClientSettings");
+            var settingsConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Parameters.Count == 1 && c.Signature.Parameters[0].Name == "settings");
+            Assert.IsNotNull(settingsConstructor, "SubClient with InitializedBy.Individually | Parent should have Settings constructor");
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -1219,7 +1236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 parentClient = InputFactory.Client("parent");
             }
 
-            var client = InputFactory.Client(TestClientName, parent: parentClient);
+            var client = InputFactory.Client(TestClientName, parent: parentClient, initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
             var clientProvider = new ClientProvider(client);
             Assert.IsNotNull(clientProvider);
 
@@ -1572,6 +1589,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var subClient = InputFactory.Client(
                 "SubClient",
                 parent: rootClient,
+                initializedBy: InputClientInitializedBy.Parent,
                 parameters:
                 [
                     InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isApiVersion: true),
@@ -3327,8 +3345,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 scope: InputParameterScope.Client);
 
             var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
-            var serviceAClient = InputFactory.Client("ServiceA", clientNamespace: "Sample.ServiceA", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var serviceBClient = InputFactory.Client("ServiceB", clientNamespace: "Sample.ServiceB", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var serviceAClient = InputFactory.Client("ServiceA", clientNamespace: "Sample.ServiceA", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var serviceBClient = InputFactory.Client("ServiceB", clientNamespace: "Sample.ServiceB", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => [.. serviceAVersions, .. serviceBVersions],
@@ -3387,9 +3405,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 scope: InputParameterScope.Client);
 
             var client = InputFactory.Client(TestClientName, parameters: [subscriptionIdParameter, apiVersionParameter], isMultiServiceClient: true);
-            var keyVaultClient = InputFactory.Client("KeyVault", clientNamespace: "Sample.KeyVault", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var storageClient = InputFactory.Client("Storage", clientNamespace: "Sample.Storage", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
-            var computeClient = InputFactory.Client("Compute", clientNamespace: "Sample.Compute", parent: client, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var keyVaultClient = InputFactory.Client("KeyVault", clientNamespace: "Sample.KeyVault", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var storageClient = InputFactory.Client("Storage", clientNamespace: "Sample.Storage", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
+            var computeClient = InputFactory.Client("Compute", clientNamespace: "Sample.Compute", parent: client, initializedBy: InputClientInitializedBy.Parent, parameters: [apiVersionParameter, subscriptionIdParameter]);
 
             MockHelpers.LoadMockGenerator(
                 apiVersions: () => [.. keyVaultVersions, .. storageVersions, .. computeVersions],
@@ -3803,6 +3821,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("_serviceAApiVersion", fieldUpperCase!.Name);
         }
 
+        [Test]
+        public void GetApiVersionFieldForService_MultiService_SameLastSegment_ProducesUniqueFields()
+        {
+            // Regression test: when two services have different full namespaces but the same last
+            // segment, using only the last segment would produce duplicate field names. The fix
+            // uses the full namespace to guarantee uniqueness.
+            List<string> serviceOneVersions = ["1.0", "2.0"];
+            List<string> serviceTwoVersions = ["3.0", "4.0"];
+
+            var serviceOneEnumValues = serviceOneVersions.Select(a => (a, a));
+            var serviceTwoEnumValues = serviceTwoVersions.Select(a => (a, a));
+
+            // Different full namespaces, same last segment ("Tests") — would collide with last-segment-only naming
+            var serviceOneEnum = InputFactory.StringEnum(
+                "ServiceOneVersions",
+                serviceOneEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceOne.Tests");
+            var serviceTwoEnum = InputFactory.StringEnum(
+                "ServiceTwoVersions",
+                serviceTwoEnumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "Azure.ServiceTwo.Tests");
+
+            InputParameter apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+
+            var serviceOneOperation = InputFactory.Operation(
+                "ServiceOneOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceOne.Tests");
+
+            var serviceTwoOperation = InputFactory.Operation(
+                "ServiceTwoOperation",
+                parameters: [apiVersionParameter],
+                ns: "Azure.ServiceTwo.Tests");
+
+            var client = InputFactory.Client(
+                TestClientName,
+                methods:
+                [
+                    InputFactory.BasicServiceMethod("ServiceOneMethod", serviceOneOperation),
+                    InputFactory.BasicServiceMethod("ServiceTwoMethod", serviceTwoOperation)
+                ],
+                parameters: [apiVersionParameter],
+                isMultiServiceClient: true);
+
+            MockHelpers.LoadMockGenerator(
+                apiVersions: () => [.. serviceOneVersions, .. serviceTwoVersions],
+                clients: () => [client],
+                inputEnums: () => [serviceOneEnum, serviceTwoEnum]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            // This should not crash — previously it threw due to duplicate field names
+            Assert.DoesNotThrow(() => _ = clientProvider!.Fields);
+
+            // Verify we have two distinct api version fields using the shortest unique namespace suffix
+            var apiVersionFields = clientProvider!.Fields
+                .Where(f => f.Name.Contains("ApiVersion", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Name)
+                .ToList();
+            Assert.AreEqual(2, apiVersionFields.Count);
+            Assert.AreNotEqual(apiVersionFields[0].Name, apiVersionFields[1].Name);
+
+            // Shortest unique suffix: "ServiceOne.Tests" → "ServiceOneTests"
+            Assert.AreEqual("_serviceOneTestsApiVersion", apiVersionFields[0].Name);
+            Assert.AreEqual("_serviceTwoTestsApiVersion", apiVersionFields[1].Name);
+        }
+
         [TestCase("{endpoint}")]
         [TestCase("{Endpoint}")]
         [TestCase("{ENDPOINT}")]
@@ -3903,6 +3996,189 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(bodyText);
             // Verify that the Uri is built according to the server template
             Assert.IsTrue(bodyText.Contains("$\"{endpoint}/{_apiVersion}/services/{_subscriptionId}\""));
+        }
+
+        [Test]
+        public void TestParamAlias_ClientConstructorDoesNotDuplicateAliasedParameter()
+        {
+            // A client parameter "blob" with paramAlias "blobName" should not produce
+            // a duplicate field when the operation also declares "blobName" as client-scoped.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                paramAlias: "blobName");
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Should have exactly one field for the blob/blobName parameter (not two)
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blob" || f.Name == "_blobName").ToList();
+            Assert.AreEqual(1, blobFields.Count,
+                $"Expected 1 field but found {blobFields.Count}: {string.Join(", ", blobFields.Select(f => f.Name))}");
+            Assert.AreEqual("_blob", blobFields[0].Name);
+
+            // ClientParameters should contain only the "blob" parameter
+            var blobParams = clientProvider.ClientParameters.Where(
+                p => p.Name == "blob" || p.Name == "blobName").ToList();
+            Assert.AreEqual(1, blobParams.Count,
+                $"Expected 1 client parameter but found {blobParams.Count}: {string.Join(", ", blobParams.Select(p => p.Name))}");
+            Assert.AreEqual("blob", blobParams[0].Name);
+        }
+
+        [Test]
+        public void TestParamAlias_ClientConstructorKeepsBothWhenNoAlias()
+        {
+            // Without paramAlias, a client parameter "blob" and operation parameter "blobName"
+            // should both appear since they have different names.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Without alias, both fields should exist
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blob" || f.Name == "_blobName").ToList();
+            Assert.AreEqual(2, blobFields.Count,
+                $"Expected 2 fields but found {blobFields.Count}: {string.Join(", ", blobFields.Select(f => f.Name))}");
+        }
+
+        [Test]
+        public void TestParamAlias_MatchingNamesWithoutAliasDeduplicate()
+        {
+            // When the client parameter and operation parameter share the same name,
+            // deduplication occurs by name even without paramAlias.
+            var clientParam = InputFactory.MethodParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Same name means they get deduplicated to one field
+            var blobFields = clientProvider.Fields.Where(f => f.Name == "_blobName").ToList();
+            Assert.AreEqual(1, blobFields.Count);
+        }
+
+        [Test]
+        public void TestParamAlias_MethodParametersSkipAliasedClientParam()
+        {
+            // When a client parameter "blob" is aliased to "blobName" via @paramAlias,
+            // the generated operation method should NOT have "blobName" as a method parameter
+            // since it's already on the client.
+            var clientParam = InputFactory.MethodParameter(
+                "blob",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                paramAlias: "blobName");
+
+            var operationParam = InputFactory.PathParameter(
+                "blobName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                scope: InputParameterScope.Client);
+
+            var operation = InputFactory.Operation("Upload", parameters: [operationParam]);
+            var client = InputFactory.Client(
+                TestClientName,
+                methods: [InputFactory.BasicServiceMethod("Upload", operation)],
+                parameters: [
+                    InputFactory.EndpointParameter(
+                        "endpoint",
+                        InputPrimitiveType.String,
+                        defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                        scope: InputParameterScope.Client,
+                        isEndpoint: true),
+                    clientParam]);
+
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // Get the generated operation methods (excluding subclient accessors and constructors)
+            var operationMethods = clientProvider.Methods
+                .Where(m => m.Signature?.Name == "Upload" || m.Signature?.Name == "UploadAsync")
+                .ToList();
+
+            Assert.IsTrue(operationMethods.Count > 0, "Should have Upload methods");
+
+            foreach (var method in operationMethods)
+            {
+                var paramNames = method.Signature!.Parameters.Select(p => p.Name).ToList();
+                Assert.IsFalse(paramNames.Contains("blobName"),
+                    $"Method '{method.Signature.Name}' should not have 'blobName' parameter since it's an aliased client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+                Assert.IsFalse(paramNames.Contains("blob"),
+                    $"Method '{method.Signature.Name}' should not have 'blob' parameter since it's a client parameter. " +
+                    $"Params: [{string.Join(", ", paramNames)}]");
+            }
         }
     }
 }

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import chalk from "chalk";
 import { execFile } from "child_process";
 import { existsSync } from "fs";
 import { dirname, join, resolve } from "path";
+import pc from "picocolors";
 import process from "process";
 import { fileURLToPath } from "url";
 import { parseArgs, promisify } from "util";
@@ -21,11 +21,11 @@ export async function executeCommand(command: string, args: string[]) {
   const execFileAsync = promisify(execFile);
   try {
     await execFileAsync(command, args, { shell: true });
-    console.log(chalk.green(`${command} passed`));
+    console.log(pc.green(`${command} passed`));
   } catch (err: any) {
-    console.error(chalk.red(`Error executing ${command}`));
-    if (err.stdout) console.error(chalk.yellow("STDOUT:"), err.stdout);
-    if (err.stderr) console.error(chalk.yellow("STDERR:"), err.stderr);
+    console.error(pc.red(`Error executing ${command}`));
+    if (err.stdout) console.error(pc.yellow("STDOUT:"), err.stdout);
+    if (err.stderr) console.error(pc.yellow("STDERR:"), err.stderr);
     process.exit(1);
   }
 }

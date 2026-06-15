@@ -1,4 +1,32 @@
 #Requires -Version 7.0
+<#
+.SYNOPSIS
+    Runs tests for the TypeSpec Python emitter.
+
+.DESCRIPTION
+    This script is called by the CI pipeline to run tests.
+
+    With -UnitTests:
+      - Runs npm run build (compile emitter)
+
+    With -GenerationChecks:
+      - Runs npm run build (compile emitter)
+      - Runs Generate.ps1 (regenerate test fixtures)
+      - Runs Check-GitChanges.ps1 (verify no uncommitted changes)
+      - Runs npm run ci (full test suite: pytest, lint, mypy, pyright)
+
+.PARAMETER UnitTests
+    Run unit tests only (just builds the project).
+
+.PARAMETER GenerationChecks
+    Run full generation checks and test suite.
+
+.PARAMETER Filter
+    Optional filter pattern for tests (not currently used).
+
+.EXAMPLE
+    ./Test-Packages.ps1 -GenerationChecks
+#>
 
 param(
     [switch] $UnitTests,
@@ -7,57 +35,56 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-
 Set-StrictMode -Version 3.0
+
+# Setup paths and helpers
 $packageRoot = (Resolve-Path "$PSScriptRoot/../..").Path.Replace('\', '/')
 . "$packageRoot/../../eng/emitters/scripts/CommandInvocation-Helpers.ps1"
 Set-ConsoleEncoding
 
+Write-Host "Python version:"
 Invoke-LoggedCommand "python --version"
 
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        Push-Location "$packageRoot"
-        try {
-
-            Write-Host "Updated PATH: $env:PATH"
-            # test the emitter
-            Invoke-LoggedCommand "npm run build" -GroupOutput
-            
-        }
-        finally {
-            Pop-Location
-        }
+        Write-Host "`n=== Running unit tests ===" -ForegroundColor Cyan
+        Invoke-LoggedCommand "npm run build" -GroupOutput
     }
+
     if ($GenerationChecks) {
-        Set-StrictMode -Version 1
-        
-        # run E2E Test for TypeSpec emitter
-        Write-Host "Generating test projects ..."
+        # Step 1: Regenerate all test fixtures
+        Write-Host "`n=== Regenerating test fixtures ===" -ForegroundColor Cyan
         & "$packageRoot/eng/scripts/Generate.ps1"
-        Write-Host 'Code generation is completed.'
 
+        # Step 2: Check for uncommitted changes (regeneration should be clean)
+        Write-Host "`n=== Checking for uncommitted changes ===" -ForegroundColor Cyan
         try {
-            Write-Host 'Checking for differences in generated code...'
             & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
-            Write-Host 'Done. No code generation differences detected.'
+            Write-Host "No uncommitted changes detected." -ForegroundColor Green
         }
         catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
+            Write-Error "Generated code is not up to date. Please run: npm run regenerate"
         }
 
-        try {
-            Write-Host "Pip List" 
-            & pip list
-            # Run tox
-            Write-Host 'Running tests'
-            & npm run ci
-            Write-Host 'tox tests passed'
-        } 
-        catch {
-            Write-Error "Spector tests failed:  $_"
-        }
+        # Step 3: Run full test suite
+        Write-Host "`n=== Running full test suite ===" -ForegroundColor Cyan
+        Write-Host "Installed packages:"
+        & pip list
+
+        Invoke-LoggedCommand "npm run ci"
+        Write-Host "All tests passed." -ForegroundColor Green
+
+        # Linux specific: check mypy/lint/pyright on generated code
+        if ($IsLinux) {
+            Write-Host "`n=== Running lint on generated code ===" -ForegroundColor Cyan
+            Invoke-LoggedCommand "npm run lint:generated"
+            Write-Host "Generated code checks passed." -ForegroundColor Green
+
+            Write-Host "`n=== Running mypy/pyright on generated code ===" -ForegroundColor Cyan
+            Invoke-LoggedCommand "npm run typecheck:generated"
+            Write-Host "Generated code mypy/pyright checks passed." -ForegroundColor Green
+        }    
     }
 }
 finally {

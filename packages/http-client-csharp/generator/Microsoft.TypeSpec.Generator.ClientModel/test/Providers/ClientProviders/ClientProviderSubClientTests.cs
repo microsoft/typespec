@@ -15,11 +15,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
     public class ClientProviderSubClientTests
     {
         private static readonly InputClient _testClient = InputFactory.Client("TestClient");
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient);
-        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient);
-        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: _testClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient, initializedBy: InputClientInitializedBy.Parent);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient, initializedBy: InputClientInitializedBy.Parent);
 
         [SetUp]
         public void SetUp()
@@ -77,6 +77,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(client);
 
             Assert.AreEqual("/// <summary> The Test sub-client. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
+        }
+
+        [Test]
+        public void HasAccessorOnlyParameters_ReturnsFalse_WhenSubClientParamMatchesParentAlias()
+        {
+            // Parent has parameter "blobName" with paramAlias "name"
+            // Subclient has parameter "name"
+            // The alias should make it recognized as a shared parameter, not subclient-specific
+            var parentClient = InputFactory.Client(
+                "ParentClient",
+                parameters: [InputFactory.MethodParameter("blobName", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, paramAlias: "name")]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [parentClient]);
+
+            var subClientProvider = new ClientProvider(subClient);
+            Assert.IsFalse(subClientProvider.HasAccessorOnlyParameters(parentClient));
+        }
+
+        [Test]
+        public void HasAccessorOnlyParameters_ReturnsTrue_WhenSubClientParamDoesNotMatchParentAlias()
+        {
+            // Parent has parameter "blobName" with paramAlias "name"
+            // Subclient has parameter "color" — not matching either parent name or alias
+            var parentClient = InputFactory.Client(
+                "ParentClient",
+                parameters: [InputFactory.MethodParameter("blobName", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, paramAlias: "name")]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [InputFactory.MethodParameter("color", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [parentClient]);
+
+            var subClientProvider = new ClientProvider(subClient);
+            Assert.IsTrue(subClientProvider.HasAccessorOnlyParameters(parentClient));
         }
 
         private class MockClientProvider : ClientProvider

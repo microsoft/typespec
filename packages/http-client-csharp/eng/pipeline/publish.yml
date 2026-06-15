@@ -5,8 +5,6 @@ trigger:
   paths:
     include:
       - packages/http-client-csharp/
-    exclude:
-      - packages/http-client-csharp/eng/
 
 pr: none
 
@@ -31,6 +29,11 @@ parameters:
     type: boolean
     default: true
 
+  - name: UseTypeSpecNext
+    displayName: Use TypeSpec Next (update dependencies to @next versions)
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
 
@@ -39,7 +42,7 @@ extends:
       - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
         parameters:
           BuildPrereleaseVersion: true
-          UseTypeSpecNext: false
+          UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
           Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
           PublishDependsOnTest: ${{ parameters.RunTests }}
           PackagePath: /packages/http-client-csharp
@@ -96,12 +99,17 @@ extends:
         condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), and(eq(variables['Build.Reason'], 'Manual'), ${{ parameters.CreateAzureSdkForNetPR }})))
         variables:
           PackageVersion: $[ stageDependencies.CSharp_Build.Build_linux_20.outputs['ci_build.emitterVersion'] ]
+          ${{ if parameters.UseTypeSpecNext }}:
+            UseTypeSpecNext: true
+          ${{ else }}:
+            UseTypeSpecNext: $[eq(variables['Build.Reason'], 'Schedule')]
         pool:
           name: $(LINUXPOOL)
           image: $(LINUXVMIMAGE)
           os: linux
         jobs:
           - job: CreatePR
+            timeoutInMinutes: 90
             steps:
               - checkout: self
               - pwsh: |
@@ -123,7 +131,7 @@ extends:
               - task: NuGetAuthenticate@1
 
               - pwsh: |
-                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/"
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
                   $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
 
                   if (!(Test-Path $parentFolder)) {
@@ -131,7 +139,7 @@ extends:
                     New-Item -Path $parentFolder -ItemType Directory | Out-Null
                   }
 
-                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/`n`nalways-auth=true"
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n`nalways-auth=true"
                   $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
 
                   Write-Host "##[section].npmrc file created successfully. Contents:"
@@ -152,6 +160,10 @@ extends:
                   npm install -g @azure-tools/typespec-client-generator-cli@latest
                 displayName: Install tsp-client
 
+              - pwsh: |
+                  npm install -g semver
+                displayName: Install semver
+
               - task: PowerShell@2
                 displayName: Update package.json with injected dependencies
                 inputs:
@@ -161,6 +173,13 @@ extends:
                   arguments: >
                     -PackageVersion '$(PackageVersion)'
                     -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - pwsh: |
+                  Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                  Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                displayName: Configure npm for TypeSpec Next
+                condition: eq(variables['UseTypeSpecNext'], 'true')
 
               - task: UseDotNet@2
                 inputs:
@@ -199,6 +218,7 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    -UseTypeSpecNext:$$(UseTypeSpecNext)
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

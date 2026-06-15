@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -101,6 +102,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _variable?.Update(name: name);
                 _asMember?.Update(memberName: name);
                 _declaration = null;
+                if (_asMember != null)
+                {
+                    _asMember.Declaration = Declaration;
+                }
                 InitializeParameter();
             }
 
@@ -143,11 +148,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         [MemberNotNull(nameof(_parameter))]
         private void InitializeParameter()
         {
+            var paramAttributes = Attributes.Where(a => a.Type.Namespace != CodeModelGenerator.CustomizationAttributeNamespace).ToArray();
             _parameter = new(() => new ParameterProvider(
-                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo, attributes: Attributes));
+                Name.ToVariableName(), Description ?? FormattableStringHelpers.Empty, Type, field: this, wireInfo: WireInfo, attributes: paramAttributes));
         }
 
         private MemberExpression? _asMember;
-        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name);
+        public static implicit operator MemberExpression(FieldProvider field) => field._asMember ??= new MemberExpression(null, field.Name) { Declaration = field.Declaration };
     }
 }

@@ -23,25 +23,25 @@
     }
   },
   "peerDependencies": {
-    "@alloy-js/core": "^0.22.0",
-    "@alloy-js/typescript": "^0.22.0",
+    "@alloy-js/core": "catalog:",
+    "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.22.0",
-    "@alloy-js/core": "^0.22.0",
-    "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/typescript": "^0.22.0",
-    "@types/node": "~25.3.0",
+    "@alloy-js/cli": "catalog:",
+    "@alloy-js/core": "catalog:",
+    "@alloy-js/rollup-plugin": "catalog:",
+    "@alloy-js/typescript": "catalog:",
+    "@types/node": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/tspd": "workspace:^",
-    "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "scripts": {
     "build": "npm run gen-extern-signature && alloy build && npm run lint-typespec-library",

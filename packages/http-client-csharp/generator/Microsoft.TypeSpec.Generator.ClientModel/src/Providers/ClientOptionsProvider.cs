@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientOptionsProvider : TypeProvider
     {
-        private const string ServicePrefix = "Service";
         private const string VersionSuffix = "Version";
         private const string ApiVersionSuffix = "ApiVersion";
         private const string LatestPrefix = "Latest";
@@ -134,9 +133,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
             foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var versionPropertyName = _inputClient.IsMultiServiceClient
-                    ? ClientHelper.BuildNameForService(inputEnum.Namespace, ServicePrefix, ApiVersionSuffix)
-                    : VersionSuffix;
+                string versionPropertyName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    versionPropertyName = VersionSuffix;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
+                    }
+                    else
+                    {
+                        versionPropertyName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, string.Empty, ApiVersionSuffix);
+                    }
+                }
 
                 var versionProperty = new PropertyProvider(
                     null,
@@ -160,11 +176,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
-            foreach (var enumProvider in _serviceVersionsEnums.Values)
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
-                var fieldName = _inputClient.IsMultiServiceClient
-                    ? $"{LatestPrefix}{enumProvider.Name.ToIdentifierName()}"
-                    : LatestVersionFieldName;
+                string fieldName;
+                if (!_inputClient.IsMultiServiceClient)
+                {
+                    fieldName = LatestVersionFieldName;
+                }
+                else
+                {
+                    var serviceNamespace = inputEnum.Namespace;
+                    if (!string.IsNullOrEmpty(serviceNamespace) &&
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
+                    {
+                        // Last segment collides — find the shortest unique namespace suffix.
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
+                        fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
+                    }
+                    else
+                    {
+                        fieldName = ClientHelper.BuildNameForService(serviceNamespace ?? string.Empty, LatestPrefix, VersionSuffix);
+                    }
+                }
                 var field = new FieldProvider(
                     modifiers: FieldModifiers.Private | FieldModifiers.Const,
                     type: enumProvider.Type,
@@ -256,10 +289,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FormattableString versionParamDescription = $"The service version";
                 if (_inputClient.IsMultiServiceClient)
                 {
-                    versionParameterName = ClientHelper.BuildNameForService(
-                        serviceVersionEnum.Name,
-                        ServicePrefix,
-                        VersionSuffix).ToVariableName();
+                    versionParameterName = serviceVersionEnum.Name.ToVariableName();
                     versionParamDescription = $"The {serviceVersionEnum.Name} service version";
                 }
 
@@ -355,6 +385,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     property.Name,
                     property.Name.ToVariableName(),
                     property.Type);
+            }
+
+            // Also bind custom code properties (e.g., hand-written properties added via partial classes)
+            var generatedPropNames = new HashSet<string>(Properties.Select(p => p.Name));
+            if (versionPropertyNames != null)
+            {
+                generatedPropNames.UnionWith(versionPropertyNames);
+            }
+            var customCodeProperties = CustomCodeView?.Properties;
+            if (customCodeProperties != null)
+            {
+                foreach (var prop in customCodeProperties)
+                {
+                    if (prop.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                        !generatedPropNames.Contains(prop.Name))
+                    {
+                        ClientSettingsProvider.AppendBindingForProperty(
+                            body,
+                            sectionParam,
+                            prop.Name,
+                            prop.Name.ToVariableName(),
+                            prop.Type);
+                        generatedPropNames.Add(prop.Name);
+                    }
+                }
             }
 
             return new ConstructorProvider(

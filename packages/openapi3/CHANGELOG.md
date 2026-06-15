@@ -1,5 +1,13 @@
 # Change Log - @typespec/openapi3
 
+## 1.11.0
+
+### Bug Fixes
+
+- [#10041](https://github.com/microsoft/typespec/pull/10041) [importer] Fix `anyOf` with `$ref` and inline object being incorrectly imported as a model instead of a union.
+- [#10046](https://github.com/microsoft/typespec/pull/10046) Fix OpenAPI emitter failing with "Duplicate type name" error when using a named union with a `bytes` variant in a multipart body (e.g. `HttpPart<MyUnion>` where `MyUnion` includes `bytes`).
+
+
 ## 1.10.0
 
 ### Features

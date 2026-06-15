@@ -28,10 +28,6 @@ import {
   getImplementation,
 } from "./utils.js";
 
-export const typesMap = new Map<SdkType, Record<string, any>>();
-export const simpleTypesMap = new Map<string | null, Record<string, any>>();
-export const disableGenerationMap = new Set<SdkType>();
-
 export interface CredentialType {
   kind: "Credential";
   scheme: HttpAuth;
@@ -59,13 +55,16 @@ function isEmptyModel(type: SdkType): boolean {
   );
 }
 
-export function getSimpleTypeResult(result: Record<string, any>): Record<string, any> {
+export function getSimpleTypeResult(
+  context: PythonSdkContext,
+  result: Record<string, any>,
+): Record<string, any> {
   const key = dump(result, { sortKeys: true });
-  const value = simpleTypesMap.get(key);
+  const value = context.__simpleTypesMap.get(key);
   if (value) {
     result = value;
   } else {
-    simpleTypesMap.set(key, result);
+    context.__simpleTypesMap.set(key, result);
   }
   return result;
 }
@@ -82,16 +81,16 @@ export function getType(
     case "enum":
       return emitEnum(context, type);
     case "constant":
-      return emitConstant(type)!;
+      return emitConstant(context, type)!;
     case "array":
     case "dict":
       return emitArrayOrDict(context, type)!;
     case "utcDateTime":
     case "offsetDateTime":
     case "duration":
-      return emitDurationOrDateType(type);
+      return emitDurationOrDateType(context, type);
     case "enumvalue":
-      return emitEnumMember(type, emitEnum(context, type.enumType));
+      return emitEnumMember(context, type, emitEnum(context, type.enumType));
     case "credential":
       return emitCredential(context, type);
     case "bytes":
@@ -116,7 +115,7 @@ export function getType(
     case "decimal128":
     case "string":
     case "url":
-      return emitBuiltInType(type);
+      return emitBuiltInType(context, type);
     case "unknown":
       return KnownTypes.any;
     case "nullable":
@@ -133,12 +132,12 @@ function emitMultiPartFile(
   type: MultiPartFileType,
 ): Record<string, any> {
   if (type.type.kind === "array") {
-    return getSimpleTypeResult({
+    return getSimpleTypeResult(context, {
       type: "list",
       elementType: getType(context, createMultiPartFileType(type.type.valueType)),
     });
   }
-  return getSimpleTypeResult({
+  return getSimpleTypeResult(context, {
     type: type.kind,
     description: type.type.summary ? type.type.summary : type.type.doc,
   });
@@ -183,7 +182,7 @@ function emitCredential(
       },
     };
   }
-  return getSimpleTypeResult(credential_type);
+  return getSimpleTypeResult(context, credential_type);
 }
 
 function visibilityMapping(visibility?: Visibility[]): string[] | undefined {
@@ -211,14 +210,14 @@ function createMultiPartFileType(type: SdkType): MultiPartFileType {
   return { kind: "multipartfile", type };
 }
 
-function addDisableGenerationMap(type: SdkType): void {
-  if (disableGenerationMap.has(type)) return;
+function addDisableGenerationMap(context: PythonSdkContext, type: SdkType): void {
+  if (context.__disableGenerationMap.has(type)) return;
 
-  disableGenerationMap.add(type);
+  context.__disableGenerationMap.add(type);
   if (type.kind === "model" && type.baseModel) {
-    addDisableGenerationMap(type.baseModel);
+    addDisableGenerationMap(context, type.baseModel);
   } else if (type.kind === "array") {
-    addDisableGenerationMap(type.valueType);
+    addDisableGenerationMap(context, type.valueType);
   }
 }
 
@@ -231,7 +230,7 @@ function emitProperty(
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
     // Python convert all the type of file part to FileType so clear these models' usage so that they won't be generated
-    addDisableGenerationMap(property.type);
+    addDisableGenerationMap(context, property.type);
   }
   return {
     clientName: camelToSnakeCase(property.name),
@@ -257,8 +256,8 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   if (isEmptyModel(type)) {
     return KnownTypes.any;
   }
-  if (typesMap.has(type)) {
-    return typesMap.get(type)!;
+  if (context.__typesMap.has(type)) {
+    return context.__typesMap.get(type)!;
   }
   if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.Error") {
     return {
@@ -275,7 +274,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     };
   }
   if (type.external) {
-    return getSimpleTypeResult({
+    return getSimpleTypeResult(context, {
       type: "external",
       externalTypeInfo: type.external,
     });
@@ -299,7 +298,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     clientNamespace: getClientNamespace(context, type.namespace),
   };
 
-  typesMap.set(type, newValue);
+  context.__typesMap.set(type, newValue);
   newValue.parents = type.baseModel ? [getType(context, type.baseModel)] : newValue.parents;
   for (const property of type.properties.values()) {
     if (property.kind === "property" && !isHttpMetadata(context, property)) {
@@ -309,7 +308,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       if (type.discriminatedSubtypes && property.discriminator) {
         newValue.properties[newValue.properties.length - 1].isPolymorphic = true;
         if (property.type.kind === "string") {
-          newValue.properties[newValue.properties.length - 1].type = getConstantType(null);
+          newValue.properties[newValue.properties.length - 1].type = getConstantType(context, null);
         }
       }
     }
@@ -322,25 +321,28 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   return newValue;
 }
 
-function getConstantFromEnumValueType(type: SdkEnumValueType): Record<string, any> {
-  return getSimpleTypeResult({
+function getConstantFromEnumValueType(
+  context: PythonSdkContext,
+  type: SdkEnumValueType,
+): Record<string, any> {
+  return getSimpleTypeResult(context, {
     type: "constant",
     value: type.value,
-    valueType: emitBuiltInType(type.valueType),
+    valueType: emitBuiltInType(context, type.valueType),
   });
 }
 
 function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, any> {
-  if (typesMap.has(type)) {
-    return typesMap.get(type)!;
+  if (context.__typesMap.has(type)) {
+    return context.__typesMap.get(type)!;
   }
   if (type.isGeneratedName) {
     const types = [];
     for (const value of type.values) {
-      types.push(getConstantFromEnumValueType(value));
+      types.push(getConstantFromEnumValueType(context, value));
     }
     if (!type.isFixed) {
-      types.push(emitBuiltInType(type.valueType));
+      types.push(emitBuiltInType(context, type.valueType));
     }
 
     const newValue = {
@@ -350,7 +352,7 @@ function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, 
       types,
       xmlMetadata: {},
     };
-    typesMap.set(type, newValue);
+    context.__typesMap.set(type, newValue);
     return newValue;
   }
   const values: Record<string, any>[] = [];
@@ -361,16 +363,16 @@ function emitEnum(context: PythonSdkContext, type: SdkEnumType): Record<string, 
     description: (type.summary ? type.summary : type.doc) ?? `Type of ${name}`,
     internal: type.access === "internal",
     type: type.kind,
-    valueType: emitBuiltInType(type.valueType),
+    valueType: emitBuiltInType(context, type.valueType),
     values,
     xmlMetadata: {},
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     clientNamespace: getClientNamespace(context, type.namespace),
   };
   for (const value of type.values) {
-    newValue.values.push(emitEnumMember(value, newValue));
+    newValue.values.push(emitEnumMember(context, value, newValue));
   }
-  typesMap.set(type, newValue);
+  context.__typesMap.set(type, newValue);
   return newValue;
 }
 
@@ -382,15 +384,16 @@ function enumName(name: string): string {
 }
 
 function emitEnumMember(
+  context: PythonSdkContext,
   type: SdkEnumValueType,
   enumType: Record<string, any>,
 ): Record<string, any> {
-  if (typesMap.has(type)) {
-    return typesMap.get(type)!;
+  if (context.__typesMap.has(type)) {
+    return context.__typesMap.get(type)!;
   }
   // python don't generate enum created by TCGC, so we shall not generate type for enum member of the enum, either.
   if (type.enumType.isGeneratedName) {
-    return getConstantFromEnumValueType(type);
+    return getConstantFromEnumValueType(context, type);
   }
 
   const result = {
@@ -401,14 +404,17 @@ function emitEnumMember(
     type: type.kind,
     valueType: enumType["valueType"],
   };
-  typesMap.set(type, result);
+  context.__typesMap.set(type, result);
   return result;
 }
 
-function emitDurationOrDateType(type: SdkDurationType | SdkDateTimeType): Record<string, any> {
-  return getSimpleTypeResult({
-    ...emitBuiltInType(type),
-    wireType: emitBuiltInType(type.wireType),
+function emitDurationOrDateType(
+  context: PythonSdkContext,
+  type: SdkDurationType | SdkDateTimeType,
+): Record<string, any> {
+  return getSimpleTypeResult(context, {
+    ...emitBuiltInType(context, type),
+    wireType: emitBuiltInType(context, type.wireType),
   });
 }
 
@@ -417,17 +423,17 @@ function emitArrayOrDict(
   type: SdkArrayType | SdkDictionaryType,
 ): Record<string, any> {
   const kind = type.kind === "array" ? "list" : type.kind;
-  return getSimpleTypeResult({
+  return getSimpleTypeResult(context, {
     type: kind,
     elementType: getType(context, type.valueType),
   });
 }
 
-function emitConstant(type: SdkConstantType) {
-  return getSimpleTypeResult({
+function emitConstant(context: PythonSdkContext, type: SdkConstantType) {
+  return getSimpleTypeResult(context, {
     type: type.kind,
     value: type.value,
-    valueType: emitBuiltInType(type.valueType),
+    valueType: emitBuiltInType(context, type.valueType),
   });
 }
 
@@ -461,12 +467,13 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 };
 
 function emitBuiltInType(
+  context: PythonSdkContext,
   type: SdkBuiltInType | SdkDurationType | SdkDateTimeType,
 ): Record<string, any> {
   if (type.encode) {
     if (type.kind === "duration") {
       if (type.encode === "ISO8601") {
-        return getSimpleTypeResult({
+        return getSimpleTypeResult(context, {
           type: type.kind,
           encode: type.encode,
         });
@@ -474,13 +481,13 @@ function emitBuiltInType(
     }
     if (type.kind === "utcDateTime" || type.kind === "offsetDateTime") {
       if (type.encode === "unixTimestamp") {
-        return getSimpleTypeResult({
+        return getSimpleTypeResult(context, {
           type: "unixtime",
           encode: type.encode,
         });
       }
       if (type.encode === "rfc3339" || type.encode === "rfc7231") {
-        return getSimpleTypeResult({
+        return getSimpleTypeResult(context, {
           type: type.kind,
           encode: type.encode,
         });
@@ -489,21 +496,21 @@ function emitBuiltInType(
 
     // fallback to wire type for unknown or unsupported encode
     if ("wireType" in type && type.wireType !== undefined) {
-      return getSimpleTypeResult({
+      return getSimpleTypeResult(context, {
         type: sdkScalarKindToPythonKind[type.wireType.kind] || type.wireType.kind,
         encode: type.encode,
       });
     }
   }
 
-  return getSimpleTypeResult({
+  return getSimpleTypeResult(context, {
     type: sdkScalarKindToPythonKind[type.kind] || type.kind, // TODO: switch to kind
     encode: type.encode,
   });
 }
 
 function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string, any> {
-  return getSimpleTypeResult({
+  return getSimpleTypeResult(context, {
     name: type.isGeneratedName ? undefined : type.name,
     snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
     description: type.isGeneratedName ? "" : `Type of ${type.name}`,
@@ -515,8 +522,11 @@ function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string
   });
 }
 
-export function getConstantType(key: string | null): Record<string, any> {
-  const cache = simpleTypesMap.get(key);
+export function getConstantType(
+  context: PythonSdkContext,
+  key: string | null,
+): Record<string, any> {
+  const cache = context.__simpleTypesMap.get(key);
   if (cache) {
     return cache;
   }
@@ -527,7 +537,7 @@ export function getConstantType(key: string | null): Record<string, any> {
     valueType: KnownTypes.string,
     xmlMetadata: {},
   };
-  simpleTypesMap.set(key, type);
+  context.__simpleTypesMap.set(key, type);
   return type;
 }
 

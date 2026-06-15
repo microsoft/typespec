@@ -75,7 +75,7 @@ export async function installCompilerWithUi(
   paths: (string | "global")[],
 ): Promise<Result> {
   const COMPILER_REQUIREMENT =
-    "Minimum Requirements: Install Node.js 20 LTS or above and verify 'node -v' and 'npm -v' run in command prompt";
+    "Minimum Requirements: Install Node.js 22 LTS or above and verify 'node -v' and 'npm -v' run in command prompt";
   const globalPath = "global";
   if (paths.length === 0) {
     paths.push(globalPath);

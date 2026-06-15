@@ -201,6 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 paramMap[param.Name] = param;
             }
 
+            // Register client parameters under their paramAlias names so that operation parameters
+            // (which use the original name) can find the corresponding client parameter.
+            foreach (var inputParam in _inputClient.Parameters)
+            {
+                if (inputParam is InputMethodParameter { ParamAlias: string alias } &&
+                    paramMap.TryGetValue(inputParam.Name, out var aliasedParam))
+                {
+                    paramMap[alias] = aliasedParam;
+                }
+            }
+
             InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
             var uriBuilderType =
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
@@ -431,22 +442,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), toStringExpression.As<string>()]);
                 }
 
-                if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
+                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
+                if (inputHeaderParameter.IsContentType && contentParam != null &&
+                    operation.Parameters.Any(p => p is InputBodyParameter bodyParam && !bodyParam.IsRequired))
+                {
+                    statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
+                }
+                else if (!TryGetSpecialHeaderParam(inputHeaderParameter, out _) && (!inputHeaderParameter.IsRequired || type?.IsNullable == true ||
                    (type is { IsValueType: false, IsFrameworkType: true } && type.FrameworkType != typeof(string))))
                 {
                     statement = BuildQueryOrHeaderOrPathParameterNullCheck(type, valueExpression, statement);
-                }
-                // If this is a Content-Type header and there's an optional content parameter, wrap in content null check
-                else if (inputHeaderParameter.IsContentType && contentParam != null)
-                {
-                    // Check if any body parameter in the operation is optional
-                    var hasOptionalBody = operation.Parameters.Any(p =>
-                        p is InputBodyParameter bodyParam && !bodyParam.IsRequired);
-
-                    if (hasOptionalBody)
-                    {
-                        statement = new IfStatement(contentParam.NotEqual(Null)) { statement };
-                    }
                 }
 
                 statements.Add(statement);
@@ -715,7 +720,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase));
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => string.Equals(p.Name, paramName, StringComparison.OrdinalIgnoreCase))
+                    || _inputClient.Parameters.Any(p => p is InputMethodParameter { ParamAlias: string alias } && string.Equals(alias, paramName, StringComparison.OrdinalIgnoreCase));
                 CSharpType? type;
                 SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;

@@ -18,12 +18,15 @@ jobs:
       !startsWith(github.head_ref, 'publish/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - name: Prepare artifact directory
+        run: mkdir -p "${{ runner.temp }}/comment-artifact"
+      - uses: actions/download-artifact@v8
         with:
           name: comment
           run-id: ${{github.event.workflow_run.id }}
           github-token: ${{secrets.GITHUB_TOKEN}}
+          path: ${{ runner.temp }}/comment-artifact
       - name: Display structure of downloaded files
         run: ls -R
 
@@ -32,7 +35,7 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm chronus-github-pr-commenter --comment-file comment.json
+      - run: pnpm chronus-github-pr-commenter --comment-file "${{ runner.temp }}/comment-artifact/comment.json"
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         name: Create/update comment

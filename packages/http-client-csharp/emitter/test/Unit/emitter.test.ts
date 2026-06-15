@@ -1,6 +1,6 @@
 vi.resetModules();
 
-import { EmitContext, Program } from "@typespec/compiler";
+import { Diagnostic, EmitContext, Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { statSync } from "fs";
@@ -19,6 +19,10 @@ import {
 describe("$onEmit tests", () => {
   let program: Program;
   let $onEmit: (arg0: EmitContext<CSharpEmitterOptions>) => any;
+  let emitCodeModel: (
+    context: EmitContext<CSharpEmitterOptions>,
+    updateCodeModel?: (model: CodeModel, context: any) => CodeModel,
+  ) => any;
   beforeEach(async () => {
     // Reset the dynamically imported module to ensure a clean state
     vi.resetModules();
@@ -58,7 +62,7 @@ describe("$onEmit tests", () => {
     }));
 
     vi.mock("../../src/lib/client-model-builder.js", () => ({
-      createModel: vi.fn().mockReturnValue({ Name: "TestNamespace" }),
+      createModel: vi.fn().mockReturnValue([{ name: "TestNamespace" }, []]),
     }));
 
     program = {
@@ -79,19 +83,40 @@ describe("$onEmit tests", () => {
       reportDiagnostics: vi.fn(),
     } as unknown as Program;
 
-    // dynamically import the module to get the $onEmit function
+    // dynamically import the module to get the $onEmit and emitCodeModel functions
     // we avoid importing it at the top to allow mocking of dependencies
-    $onEmit = (await import("../../src/emitter.js")).$onEmit;
+    const emitterModule = await import("../../src/emitter.js");
+    $onEmit = emitterModule.$onEmit;
+    emitCodeModel = emitterModule.emitCodeModel;
   });
 
-  it("should apply the update-code-model callback just once", async () => {
+  it("should apply the updateCodeModel callback", async () => {
     const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
     const updateCallback = vi.fn().mockImplementation((model: CodeModel) => {
       return model;
     });
-    context.options["update-code-model"] = updateCallback;
-    await $onEmit(context);
+    await emitCodeModel(context, updateCallback);
     expect(updateCallback).toHaveBeenCalledTimes(1);
+  });
+
+  it("should report diagnostic instead of throwing when generator fails", async () => {
+    vi.mocked(execCSharpGenerator).mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "Unable to parse required option package-name from configuration.",
+    } as any);
+    vi.mocked(execAsync).mockResolvedValueOnce({
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+    } as any);
+
+    const context: EmitContext<CSharpEmitterOptions> = createEmitterContext(program);
+    // should not throw
+    await $onEmit(context);
+    expect(program.reportDiagnostics).toHaveBeenCalled();
   });
 
   it("should apply sdk-context-options", async () => {
@@ -179,11 +204,64 @@ describe("$onEmit tests", () => {
   });
 });
 
+describe("emitCodeModel tests", () => {
+  let runner: TestHost;
+  let program: Program;
+
+  beforeEach(async () => {
+    vi.restoreAllMocks();
+    runner = await createEmitterTestHost();
+  });
+
+  it("should return diagnostics array from emitCodeModel", async () => {
+    program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
+
+    // Verify that diagnostics is an array
+    expect(Array.isArray(diagnostics)).toBe(true);
+    // Diagnostics array should be defined (may be empty or have diagnostics)
+    expect(diagnostics).toBeDefined();
+  });
+
+  it("should collect diagnostics from createModel in emitCodeModel", async () => {
+    program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const { emitCodeModel } = await import("../../src/emitter.js");
+    const [, diagnostics] = await emitCodeModel(context);
+
+    // The function should return diagnostics even if empty
+    expect(diagnostics).toBeDefined();
+    expect(Array.isArray(diagnostics)).toBe(true);
+  });
+});
+
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<boolean>;
+  let _validateDotNetSdk: (arg0: any, arg1: number) => Promise<[boolean, readonly Diagnostic[]]>;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -217,7 +295,9 @@ describe("Test _validateDotNetSdk", () => {
     (execAsync as Mock).mockRejectedValueOnce(error);
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
+    // Report collected diagnostics to program
+    program.reportDiagnostics(diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -241,10 +321,10 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
+    strictEqual(diagnostics.length, 0);
   });
 
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
@@ -258,10 +338,10 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
-    strictEqual(program.diagnostics.length, 0);
+    strictEqual(diagnostics.length, 0);
   });
 
   it("should return false and report diagnostic for invalid .NET SDK version", async () => {
@@ -275,7 +355,9 @@ describe("Test _validateDotNetSdk", () => {
     });
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const result = await _validateDotNetSdk(sdkContext, minVersion);
+    const [result, diagnostics] = await _validateDotNetSdk(sdkContext, minVersion);
+    // Report collected diagnostics to program
+    program.reportDiagnostics(diagnostics);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

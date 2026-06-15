@@ -1,0 +1,7 @@
+# Documentation dependencies
+-r base.txt
+pip
+sphinx>=7.0.0
+sphinx_rtd_theme>=2.0.0
+myst_parser>=2.0.0
+sphinxcontrib-jquery>=4.1

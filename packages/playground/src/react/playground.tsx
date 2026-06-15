@@ -26,11 +26,21 @@ import { useMonacoModel, type OnMountData } from "./editor.js";
 import { OutputView } from "./output-view/output-view.js";
 import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
+import type { CommandBarItem } from "./responsive-command-bar/index.js";
 import type { CompilationState, FileOutputViewer, ProgramViewer } from "./types.js";
+import { useIsMobile } from "./use-mobile.js";
 import { usePlaygroundState, type PlaygroundState } from "./use-playground-state.js";
+import { ViewToggle, type ViewMode } from "./view-toggle.js";
 
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
+
+export interface PlaygroundEmitterOptions {
+  /** Compile debounce delay in milliseconds. Default is 200. */
+  debounce?: number;
+  /** When true, highlights changed files and lines after recompilation. */
+  newChangeDiff?: boolean;
+}
 
 export interface PlaygroundProps {
   host: BrowserHost;
@@ -59,17 +69,19 @@ export interface PlaygroundProps {
 
   onFileBug?: () => void;
 
-  /** Additional buttons to show up in the command bar */
-  commandBarButtons?: ReactNode;
-
-  /** Playground links */
-  links?: PlaygroundLinks;
+  /** Additional items to show in the command bar. */
+  commandBarItems?: CommandBarItem[];
 
   /** Custom viewers to view the typespec program */
   viewers?: ProgramViewer[];
 
   /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
   emitterViewers?: Record<string, FileOutputViewer[]>;
+
+  /**
+   * Per-emitter playground options. Key is the emitter name.
+   */
+  emitterOptions?: Record<string, PlaygroundEmitterOptions>;
 
   onSave?: (value: PlaygroundSaveData) => void;
 
@@ -91,11 +103,6 @@ export interface PlaygroundSaveData extends PlaygroundState {
 
   /** Emitter name. */
   emitter: string;
-}
-
-export interface PlaygroundLinks {
-  /** Link to documentation */
-  documentationUrl?: string;
 }
 
 /**
@@ -159,6 +166,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   const typespecModel = useMonacoModel("inmemory://test/main.tsp", "typespec");
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
+  const lastSuccessfulOutputRef = useRef<string[]>([]);
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [isOutputStale, setIsOutputStale] = useState(false);
 
   // Use the playground state hook
   const state = usePlaygroundState({
@@ -188,6 +198,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     onContentChange,
   } = state;
 
+  // Clear preserved output when switching emitters
+  useEffect(() => {
+    lastSuccessfulOutputRef.current = [];
+    setIsOutputStale(false);
+  }, [selectedEmitter]);
+
   // Sync Monaco model with state content
   useEffect(() => {
     if (typespecModel.getValue() !== (content ?? "")) {
@@ -210,12 +226,49 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
   }, [content, selectedSampleName, props.samples]);
 
+  const compileIdRef = useRef(0);
+
   const doCompile = useCallback(async () => {
     const currentContent = typespecModel.getValue();
     const typespecCompiler = host.compiler;
+    const compileId = ++compileIdRef.current;
 
-    const state = await compile(host, currentContent, selectedEmitter, compilerOptions);
-    setCompilationState(state);
+    setIsCompiling(true);
+    let state: CompilationState;
+    try {
+      state = await compile(host, currentContent, selectedEmitter, compilerOptions);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Compilation failed", error);
+      return;
+    } finally {
+      setIsCompiling(false);
+    }
+
+    // Discard stale results from an older compilation
+    if (compileId !== compileIdRef.current) return;
+
+    // When compilation has errors and produced no output files, preserve the
+    // previous successful output so the user doesn't lose their selected file
+    // while typing (transient syntax errors).
+    if (
+      "program" in state &&
+      state.program.hasError() &&
+      state.outputFiles.length === 0 &&
+      lastSuccessfulOutputRef.current.length > 0
+    ) {
+      setIsOutputStale(true);
+      setCompilationState({
+        ...state,
+        outputFiles: lastSuccessfulOutputRef.current,
+      });
+    } else {
+      setIsOutputStale(false);
+      if ("program" in state && state.outputFiles.length > 0) {
+        lastSuccessfulOutputRef.current = state.outputFiles;
+      }
+      setCompilationState(state);
+    }
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
         ...getMonacoRange(typespecCompiler, diag.target),
@@ -238,14 +291,19 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     }
   }, [host, selectedEmitter, compilerOptions, typespecModel]);
 
+  const currentEmitterOptions = selectedEmitter
+    ? props.emitterOptions?.[selectedEmitter]
+    : undefined;
+
   useEffect(() => {
-    const debouncer = debounce(() => doCompile(), 200);
+    const delay = currentEmitterOptions?.debounce ?? 200;
+    const debouncer = debounce(() => doCompile(), delay);
     const disposable = typespecModel.onDidChangeContent(debouncer);
     return () => {
       debouncer.clear();
       disposable.dispose();
     };
-  }, [typespecModel, doCompile]);
+  }, [typespecModel, doCompile, currentEmitterOptions?.debounce]);
 
   useEffect(() => {
     void doCompile();
@@ -330,56 +388,84 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     };
   }, [host, typespecModel, onContentChange]);
 
+  const isMobile = useIsMobile();
+  const [viewMode, setViewMode] = useState<ViewMode>("editor");
+
+  // Reset to "editor" when entering mobile, force "both" on desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setViewMode("both");
+    } else {
+      setViewMode("editor");
+    }
+  }, [isMobile]);
+
+  const commandBar = (
+    <EditorCommandBar
+      host={host}
+      selectedEmitter={selectedEmitter}
+      onSelectedEmitterChange={onSelectedEmitterChange}
+      samples={props.samples}
+      selectedSampleName={selectedSampleName}
+      onSelectedSampleNameChange={onSelectedSampleNameChange}
+      saveCode={saveCode}
+      formatCode={formatCode}
+      fileBug={props.onFileBug ? fileBug : undefined}
+      commandBarItems={props.commandBarItems}
+    />
+  );
+
+  const editorPanel = (
+    <EditorPanel
+      host={host}
+      model={typespecModel}
+      actions={typespecEditorActions}
+      editorOptions={props.editorOptions}
+      onMount={onTypeSpecEditorMount}
+      selectedEmitter={selectedEmitter}
+      compilerOptions={compilerOptions}
+      onCompilerOptionsChange={onCompilerOptionsChange}
+      onSelectedEmitterChange={onSelectedEmitterChange}
+      commandBar={isMobile ? undefined : commandBar}
+    />
+  );
+
+  const outputPanel = (
+    <OutputView
+      compilationState={compilationState}
+      isCompiling={isCompiling}
+      isOutputStale={isOutputStale}
+      editorOptions={props.editorOptions}
+      viewers={props.viewers}
+      fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}
+      highlightChanges={currentEmitterOptions?.newChangeDiff}
+      selectedViewer={selectedViewer}
+      onViewerChange={onSelectedViewerChange}
+      viewerState={viewerState}
+      onViewerStateChange={onViewerStateChange}
+    />
+  );
+
+  const mainContent =
+    viewMode === "both" ? (
+      <SplitPane initialSizes={["50%", "50%"]}>
+        <Pane className={style["edit-pane"]}>{editorPanel}</Pane>
+        <Pane>{outputPanel}</Pane>
+      </SplitPane>
+    ) : viewMode === "editor" ? (
+      <div className={style["single-pane"]}>{editorPanel}</div>
+    ) : (
+      <div className={style["single-pane"]}>{outputPanel}</div>
+    );
+
   return (
     <PlaygroundContextProvider value={playgroundContext}>
       <div className={style["layout"]}>
+        {isMobile && (
+          <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} actions={commandBar} />
+        )}
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
-          <Pane>
-            <SplitPane initialSizes={["50%", "50%"]}>
-              <Pane className={style["edit-pane"]}>
-                <EditorPanel
-                  host={host}
-                  model={typespecModel}
-                  actions={typespecEditorActions}
-                  editorOptions={props.editorOptions}
-                  onMount={onTypeSpecEditorMount}
-                  selectedEmitter={selectedEmitter}
-                  compilerOptions={compilerOptions}
-                  onCompilerOptionsChange={onCompilerOptionsChange}
-                  onSelectedEmitterChange={onSelectedEmitterChange}
-                  commandBar={
-                    <EditorCommandBar
-                      host={host}
-                      selectedEmitter={selectedEmitter}
-                      onSelectedEmitterChange={onSelectedEmitterChange}
-                      samples={props.samples}
-                      selectedSampleName={selectedSampleName}
-                      onSelectedSampleNameChange={onSelectedSampleNameChange}
-                      saveCode={saveCode}
-                      formatCode={formatCode}
-                      fileBug={props.onFileBug ? fileBug : undefined}
-                      commandBarButtons={props.commandBarButtons}
-                      documentationUrl={props.links?.documentationUrl}
-                    />
-                  }
-                />
-              </Pane>
-              <Pane>
-                <OutputView
-                  compilationState={compilationState}
-                  editorOptions={props.editorOptions}
-                  viewers={props.viewers}
-                  fileViewers={
-                    selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined
-                  }
-                  selectedViewer={selectedViewer}
-                  onViewerChange={onSelectedViewerChange}
-                  viewerState={viewerState}
-                  onViewerStateChange={onViewerStateChange}
-                />
-              </Pane>
-            </SplitPane>
-          </Pane>
+          <Pane>{mainContent}</Pane>
           <Pane minSize={30}>
             <ProblemPane
               collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}

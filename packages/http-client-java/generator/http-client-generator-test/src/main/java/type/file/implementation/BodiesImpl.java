@@ -221,7 +221,6 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -231,8 +230,9 @@ public final class BodiesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponseAsync(String contentType, BinaryData file,
+    public Mono<Response<Void>> uploadFileSpecificContentTypeWithResponseAsync(BinaryData file,
         RequestOptions requestOptions) {
+        final String contentType = "image/png";
         return FluxUtil.withContext(context -> service.uploadFileSpecificContentType(this.client.getEndpoint(),
             contentType, file, requestOptions, context));
     }
@@ -247,7 +247,6 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -257,8 +256,8 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileSpecificContentTypeWithResponse(String contentType, BinaryData file,
-        RequestOptions requestOptions) {
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData file, RequestOptions requestOptions) {
+        final String contentType = "image/png";
         return service.uploadFileSpecificContentTypeSync(this.client.getEndpoint(), contentType, file, requestOptions,
             Context.NONE);
     }
@@ -419,7 +418,8 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
+     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg. Allowed values:
+     * "image/png", "image/jpeg".
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -445,7 +445,8 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg.
+     * @param contentType Body parameter's content type. Known values are image/png,image/jpeg. Allowed values:
+     * "image/png", "image/jpeg".
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -471,7 +472,7 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
+     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -496,7 +497,7 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
+     * @param accept The accept parameter. Allowed values: "image/png", "image/jpeg".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -521,7 +522,6 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -531,8 +531,9 @@ public final class BodiesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> uploadFileDefaultContentTypeWithResponseAsync(String contentType, BinaryData file,
+    public Mono<Response<Void>> uploadFileDefaultContentTypeWithResponseAsync(BinaryData file,
         RequestOptions requestOptions) {
+        final String contentType = "*/*";
         return FluxUtil.withContext(context -> service.uploadFileDefaultContentType(this.client.getEndpoint(),
             contentType, file, requestOptions, context));
     }
@@ -547,7 +548,6 @@ public final class BodiesImpl {
      * }
      * </pre>
      * 
-     * @param contentType Body parameter's content type. Known values are *&#47;*.
      * @param file The file parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -557,8 +557,8 @@ public final class BodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> uploadFileDefaultContentTypeWithResponse(String contentType, BinaryData file,
-        RequestOptions requestOptions) {
+    public Response<Void> uploadFileDefaultContentTypeWithResponse(BinaryData file, RequestOptions requestOptions) {
+        final String contentType = "*/*";
         return service.uploadFileDefaultContentTypeSync(this.client.getEndpoint(), contentType, file, requestOptions,
             Context.NONE);
     }

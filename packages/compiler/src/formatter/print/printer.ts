@@ -969,12 +969,19 @@ export function printModelExpression(
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    const properties =
-      node.properties.length === 0
-        ? ""
-        : indent(
-            joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
-          );
+    const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+    if (node.properties.length === 0) {
+      if (nodeHasComments) {
+        return group([
+          indent(printDanglingComments(path, options, { sameIndent: true })),
+          softline,
+        ]);
+      }
+      return group(["", softline]);
+    }
+    const properties = indent(
+      joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
+    );
     return group([properties, softline]);
   }
 }

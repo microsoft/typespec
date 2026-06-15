@@ -13,9 +13,9 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
-        private readonly string _serviceComputeApiVersion;
-        private readonly string _serviceKeyVaultApiVersion;
-        private readonly string _serviceStorageApiVersion;
+        private readonly string _computeApiVersion;
+        private readonly string _keyVaultApiVersion;
+        private readonly string _storageApiVersion;
 
         protected TestClient()
         {
@@ -32,10 +32,17 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
-            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
-            _serviceComputeApiVersion = options.ServiceComputeApiVersion;
-            _serviceKeyVaultApiVersion = options.ServiceKeyVaultApiVersion;
-            _serviceStorageApiVersion = options.ServiceStorageApiVersion;
+            if ((authenticationPolicy != null))
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            else
+            {
+                Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            }
+            _computeApiVersion = options.ComputeApiVersion;
+            _keyVaultApiVersion = options.KeyVaultApiVersion;
+            _storageApiVersion = options.StorageApiVersion;
         }
 
         public TestClient(global::System.Uri endpoint, global::Sample.TestClientOptions options) : this(null, endpoint, options)

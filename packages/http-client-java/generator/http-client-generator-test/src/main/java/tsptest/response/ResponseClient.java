@@ -20,6 +20,7 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.TypeReference;
 import java.util.List;
 import tsptest.response.implementation.ResponseClientImpl;
+import tsptest.response.models.GetUnionResponseContentType;
 import tsptest.response.models.OperationDetails1;
 import tsptest.response.models.OperationDetails2;
 import tsptest.response.models.Resource;
@@ -362,7 +363,7 @@ public final class ResponseClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter.
+     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -770,10 +771,10 @@ public final class ResponseClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData getUnionResponse(String accept) {
+    public BinaryData getUnionResponse(GetUnionResponseContentType accept) {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getUnionResponseWithResponse(accept, requestOptions).getValue();
+        return getUnionResponseWithResponse(accept.toString(), requestOptions).getValue();
     }
 
     /**

@@ -482,6 +482,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
+        generation_dir = self.code_model.get_generation_dir(namespace)
         # write _utils folder
         self._serialize_and_write_utils_folder(env, self.code_model.namespace)
 
@@ -498,16 +499,18 @@ class JinjaSerializer(ReaderAndWriter):
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
+        # Use generation_dir so that relative imports from operations/clients
+        # within a generation-subdir resolve correctly.
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
-                root_dir / Path("_validation.py"),
+                generation_dir / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
 
         # write _types.py
         if self.code_model.named_unions:
             self.write_file(
-                root_dir / Path("_types.py"),
+                generation_dir / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 

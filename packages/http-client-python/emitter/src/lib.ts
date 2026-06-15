@@ -1,5 +1,6 @@
 import {
   SdkContext,
+  SdkType,
   UnbrandedSdkEmitterOptions,
 } from "@azure-tools/typespec-client-generator-core";
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
@@ -28,6 +29,9 @@ export interface PythonEmitterOptions {
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
   __endpointPathParameters: Record<string, any>[];
+  __typesMap: Map<SdkType, Record<string, any>>;
+  __simpleTypesMap: Map<string | null, Record<string, any>>;
+  __disableGenerationMap: Set<SdkType>;
 }
 
 export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
@@ -125,6 +129,19 @@ const libDef = {
       messages: {
         default:
           "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
+      },
+    },
+    "no-sdk-clients": {
+      severity: "error",
+      messages: {
+        default:
+          "The Python emitter did not find any SDK clients in this TypeSpec program. The current Python generator expects at least one client/service to generate code.",
+      },
+    },
+    "browser-runtime-load-failed": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Failed to initialize the browser Python runtime.${"details"}`,
       },
     },
     "invalid-paging-items": {

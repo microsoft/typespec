@@ -92,7 +92,6 @@ words:
   - genproto
   - getpgid
   - giacamo
-  - globby
   - graalvm
   - Gson
   - Hdvcmxk
@@ -129,6 +128,7 @@ words:
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -247,6 +247,7 @@ words:
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -256,7 +257,6 @@ words:
   - strs
   - stubbed
   - swaggerui
-  - syncpack
   - TCGC
   - terlson
   - timegm
@@ -277,6 +277,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -308,6 +309,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
@@ -337,6 +340,8 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - pnpm-workspace.yaml
+  - "**/dependabot.yml"
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**

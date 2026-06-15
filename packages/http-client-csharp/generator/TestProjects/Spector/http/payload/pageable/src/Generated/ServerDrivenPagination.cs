@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using Payload.Pageable;
+using Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb;
 using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable._ServerDrivenPagination
@@ -42,6 +43,8 @@ namespace Payload.Pageable._ServerDrivenPagination
         public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
 
         public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ServerDrivenPaginationAlternateInitialVerb GetServerDrivenPaginationAlternateInitialVerbClient() => throw null;
 
         public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
     }

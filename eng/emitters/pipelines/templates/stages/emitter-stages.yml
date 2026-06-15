@@ -7,7 +7,9 @@ parameters:
   - name: UseTypeSpecNext
     type: boolean
 
-  # Whether to publish to the internal feed.
+  # Whether and where to publish packages. Values: 'none', 'internal', 'public'.
+  # 'internal' publishes to the internal feed only.
+  # 'public' publishes to the internal feed AND to npmjs.org.
   - name: Publish
     type: string
     default: "none"
@@ -79,6 +81,11 @@ parameters:
   - name: PythonVersion
     type: string
     default: "3.12"
+
+  # Whether to bundle and upload the emitter package to the playground package storage.
+  - name: UploadPlaygroundBundle
+    type: boolean
+    default: false
 
 stages:
   # Build stage
@@ -185,6 +192,7 @@ stages:
                   CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
                   EnableCadlRanchReport: ${{ parameters.EnableCadlRanchReport }}
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -195,6 +203,7 @@ stages:
                   NodeVersion: 22.x
                   Os: linux
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -205,6 +214,7 @@ stages:
                   NodeVersion: 20.x
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
               - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
                 parameters:
                   AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -215,6 +225,7 @@ stages:
                   NodeVersion: 22.x
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
+                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
 
   # Regen Test stage
   # Responsible for running any regen tests needed to validate no manual changes were done.
@@ -239,6 +250,7 @@ stages:
               Os: windows
               TestMatrix: ${{ parameters.TestMatrix }}
               PythonVersion: ${{ parameters.PythonVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
           - template: /eng/emitters/pipelines/templates/jobs/test-job.yml
             parameters:
               AdditionalInitializeSteps: ${{ parameters.AdditionalInitializeSteps }}
@@ -248,6 +260,7 @@ stages:
               Os: linux
               TestMatrix: ${{ parameters.TestMatrix }}
               PythonVersion: ${{ parameters.PythonVersion }}
+              UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
 
   # Publish stage
   # Responsible for publishing the packages in `build_artifacts/packages` and producing `emitter-package-lock.json`
@@ -281,27 +294,43 @@ stages:
                 artifact: build_artifacts_${{ parameters.LanguageShortName }}
                 displayName: Download build artifacts
 
-              # Create authenticated .npmrc file for publishing
-              - ${{ if eq(parameters.Publish, 'internal') }}:
-                  - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                    parameters:
-                      npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                      registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js-test-autorest/npm/registry/
-              - ${{ else }}:
-                  - pwsh: |
-                      "//registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)" | Out-File '.npmrc'
-                    displayName: Authenticate .npmrc for npmjs.org
-                    workingDirectory: $(buildArtifactsPath)/packages
+              # Always publish to internal feed
+              - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+                parameters:
+                  npmrcPath: $(buildArtifactsPath)/packages/.npmrc
+                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
 
-              # per package, publishing using appropriate tool
-              - ${{ each package in parameters.Packages }}:
-                  - ${{ if eq(package.type, 'npm') }}:
-                      - pwsh: |
-                          $file = Resolve-Path "${{ package.file }}"
-                          Write-Host "npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages"
-                          npm publish $file --verbose --access public --prefix $(buildArtifactsPath)/packages
-                        displayName: Publish ${{ package.name }}
-                        workingDirectory: $(buildArtifactsPath)/packages
+              # publish to devops feed
+              - pwsh: |
+                  $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+                  foreach ($file in $packageFiles.Name) {
+                    Write-Host "npm publish $file --verbose --access public"
+                    npm publish $file --verbose --access public
+                  }
+                displayName: Publish to DevOps feed
+                workingDirectory: $(buildArtifactsPath)/packages
+
+              # If publishing publicly, also publish to npmjs.org
+              - ${{ if eq(parameters.Publish, 'public') }}:
+                  # publish to npmjs.org using ESRP
+                  - task: EsrpRelease@11
+                    inputs:
+                      displayName: Publish to npmjs.org
+                      ConnectedServiceName: Azure SDK PME Managed Identity
+                      ClientId: 5f81938c-2544-4f1f-9251-dd9de5b8a81b
+                      DomainTenantId: 975f013f-7f24-47e8-a7d3-abc4752bf346
+                      UseManagedIdentity: true
+                      KeyVaultName: kv-azuresdk-codesign
+                      SignCertName: azure-sdk-esrp-release-certificate
+                      Intent: PackageDistribution
+                      ContentType: npm
+                      FolderLocation: $(buildArtifactsPath)/packages
+                      Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
+                      ServiceEndpointUrl: https://api.esrp.microsoft.com
+                      # cspell:ignore ESRPRELPACMANTEST
+                      MainPublisher: ESRPRELPACMANTEST
+
               - ${{ if parameters.HasNugetPackages }}:
                   - task: 1ES.PublishNuget@1
                     displayName: Publish Nuget packages
@@ -322,6 +351,29 @@ stages:
                   ArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
                   ArtifactPath: $(buildArtifactsPath)
                   LanguageShortName: ${{ parameters.LanguageShortName }}
+
+              - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - script: npm ci
+                    displayName: Install emitter dependencies for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run build
+                    displayName: Build emitter for playground bundle
+                    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm install -g pnpm
+                    displayName: Install pnpm for playground bundle upload
+                  - script: pnpm install --filter "@typespec/bundle-uploader..."
+                    displayName: Install bundle-uploader dependencies
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - script: pnpm --filter "@typespec/bundle-uploader..." build
+                    displayName: Build bundle-uploader
+                    workingDirectory: $(Build.SourcesDirectory)
+                  - task: AzureCLI@1
+                    displayName: Upload playground bundle
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
 
             templateContext:
               outputs:

@@ -1,4 +1,10 @@
-import type { Namespace, Scalar, Type } from "@typespec/compiler";
+import {
+  getMediaTypeHint,
+  type Namespace,
+  type Program,
+  type Scalar,
+  type Type,
+} from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import { t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
@@ -15,7 +21,7 @@ const baseCode = `
 `;
 async function testMutationLogic(
   code: string,
-): Promise<{ v1: Namespace; v2: Namespace; v3: Namespace }> {
+): Promise<{ program: Program; v1: Namespace; v2: Namespace; v3: Namespace }> {
   const runner = await Tester.createInstance();
   const fullCode = baseCode + "\n" + code;
   const { Service } = await runner.compile(fullCode);
@@ -25,7 +31,7 @@ async function testMutationLogic(
     (x) =>
       unsafe_mutateSubgraphWithNamespace(runner.program, [x.mutator], Service as Namespace).type,
   );
-  return { v1, v2, v3 } as any;
+  return { program: runner.program, v1, v2, v3 } as any;
 }
 
 async function itCanBeAddedRemovedAndRenamed(
@@ -106,6 +112,19 @@ describe("models", () => {
     (ns) => ns.models,
     (decorators) => `${decorators} model A {}`,
   );
+
+  it("preserves @mediaTypeHint state on version snapshot clones", async () => {
+    const { program, v1, v2, v3 } = await testMutationLogic(`
+      @mediaTypeHint("application/merge-patch+json")
+      model PatchBody {}
+    `);
+
+    for (const ns of [v1, v2, v3]) {
+      const model = ns.models.get("PatchBody");
+      expect(model).toBeDefined();
+      expect(getMediaTypeHint(program, model!)).toBe("application/merge-patch+json");
+    }
+  });
 });
 
 describe("model properties", () => {

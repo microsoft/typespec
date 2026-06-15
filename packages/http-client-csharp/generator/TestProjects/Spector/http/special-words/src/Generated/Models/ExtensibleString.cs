@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace SpecialWords
+namespace SpecialWords._ExtensibleStrings
 {
     public readonly partial struct ExtensibleString : IEquatable<ExtensibleString>
     {

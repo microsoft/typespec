@@ -1,6 +1,6 @@
 import versions from "@site/playground-versions.json";
 import { useTheme } from "@typespec/astro-utils/utils/theme-react";
-import { ImportToolbarButton, TypeSpecPlaygroundConfig } from "@typespec/playground-website";
+import { TypeSpecPlaygroundConfig, useImportCommandBarItem } from "@typespec/playground-website";
 import {
   Footer,
   FooterVersionItem,
@@ -27,6 +27,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
     return { theme: theme === "dark" ? "typespec-dark" : "typespec" };
   }, [theme]);
 
+  const importItem = useImportCommandBarItem();
   const imports = Object.keys(versionData.importMap.imports).filter(
     (x) => (x.match(/\//g) || []).length < 2, // Don't include sub imports as libraries.
   );
@@ -35,12 +36,16 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       {...TypeSpecPlaygroundConfig}
       libraries={imports}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
+      emitterOptions={{
+        "@typespec/http-client-python": { debounce: 500, newChangeDiff: true },
+        "@typespec/http-client-csharp": { debounce: 500, newChangeDiff: true },
+      }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
       footer={<PlaygroundFooter versionData={versionData} />}
       fallback={<LoadingSpinner message="Loading libraries..." />}
       onFileBug={fileBugToGithub}
-      commandBarButtons={<ImportToolbarButton />}
+      commandBarItems={[importItem]}
     />
   );
 };

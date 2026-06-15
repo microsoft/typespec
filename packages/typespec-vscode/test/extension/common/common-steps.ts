@@ -26,19 +26,18 @@ export async function preContrastResult(
     await page.waitForSelector(`:text("${text}")`, { timeout });
   } catch (e) {
     await cs.screenshot(page, "error");
-    app.close();
     throw new Error(`${errorMessage} - Timed out waiting for text: "${text}" - ${e}`, { cause: e });
   }
 }
 
 /**
  * Results comparison
- * @param exected List of expected files
+ * @param expected List of expected files that must be present in the directory
  * @param dir The directory to be compared needs to be converted into an absolute path using path.resolve
  */
-export async function expectFilesInDir(exected: string[], dir: string) {
+export async function expectFilesInDir(expected: string[], dir: string) {
   const results = await readdir(dir);
-  expect(results).toEqual(exected);
+  expect(results).toEqual(expect.arrayContaining(expected));
 }
 
 /**

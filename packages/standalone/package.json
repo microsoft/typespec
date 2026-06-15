@@ -1,7 +1,7 @@
 {
   "name": "@typespec/standalone-cli",
   "private": true,
-  "version": "0.80.0",
+  "version": "0.81.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec Standalone CLI",
   "homepage": "https://typespec.io",
@@ -19,7 +19,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -39,24 +39,23 @@
     "!dist/test/**"
   ],
   "devDependencies": {
-    "@types/node": "~25.3.0",
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
-    "c8": "^11.0.0",
-    "esbuild": "^0.27.0",
-    "execa": "^9.6.1",
-    "ora": "^9.0.0",
-    "postject": "1.0.0-alpha.6",
-    "rimraf": "~6.1.3",
-    "tsx": "^4.21.0",
-    "typescript": "~5.9.3",
-    "vitest": "^4.0.18"
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "esbuild": "catalog:",
+    "execa": "catalog:",
+    "ora": "catalog:",
+    "postject": "catalog:",
+    "rimraf": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "dependencies": {
-    "@yarnpkg/core": "^4.2.1",
-    "@yarnpkg/fslib": "^3.1.2",
-    "@yarnpkg/plugin-nm": "^4.0.6",
-    "@yarnpkg/plugin-npm": "^3.0.2",
-    "@yarnpkg/plugin-pnp": "^4.0.7"
+    "@yarnpkg/core": "catalog:",
+    "@yarnpkg/fslib": "catalog:",
+    "@yarnpkg/plugin-nm": "catalog:",
+    "@yarnpkg/plugin-npm": "catalog:",
+    "@yarnpkg/plugin-pnp": "catalog:"
   }
 }

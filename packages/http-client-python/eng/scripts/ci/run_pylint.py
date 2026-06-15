@@ -18,30 +18,39 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def get_rfc_file_location():
-    rfc_file_location = os.path.join(os.getcwd(), "../../../eng/scripts/ci/pylintrc")
+    # When running from tests/ directory via tox
+    rfc_file_location = os.path.join(os.getcwd(), "../eng/scripts/ci/config/pylintrc")
     if os.path.exists(rfc_file_location):
         return rfc_file_location
-    else:
-        return os.path.join(os.getcwd(), "../../../../eng/scripts/ci/pylintrc")
+    # Fallback for running from different directories
+    return os.path.join(os.path.dirname(__file__), "config/pylintrc")
 
 
 def _single_dir_pylint(mod):
-    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info"))
+    # Exclude "build" directories created by pip install / setup.py build.
+    # Without this, "build" may be picked first alphabetically and pylint would
+    # lint stale build artifacts instead of the actual source, causing false
+    # positives (e.g. modules named "json", "xml", "datetime" shadow the stdlib).
+    inner_class = next(d for d in mod.iterdir() if d.is_dir() and not str(d).endswith("egg-info") and d.name != "build")
+    # Only load the Azure pylint guidelines checker plugin for azure packages.
+    # The plugin (azure-pylint-guidelines-checker) is only installed in the
+    # lint-azure tox environment and is not available for unbranded packages.
+    is_azure = "azure" in mod.parts
+    pylint_args = [
+        sys.executable,
+        "-m",
+        "pylint",
+        "--rcfile={}".format(get_rfc_file_location()),
+        "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
+        "--output-format=parseable",
+        "--recursive=y",
+        "--py-version=3.9",
+    ]
+    if is_azure:
+        pylint_args.append("--load-plugins=pylint_guidelines_checker")
+    pylint_args.append(str(inner_class.absolute()))
     try:
-        check_call(
-            [
-                sys.executable,
-                "-m",
-                "pylint",
-                "--rcfile={}".format(get_rfc_file_location()),
-                "--evaluation=(max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention + info)/ statement) * 10)))",
-                "--load-plugins=pylint_guidelines_checker",
-                "--output-format=parseable",
-                "--recursive=y",
-                "--py-version=3.9",
-                str(inner_class.absolute()),
-            ]
-        )
+        check_call(pylint_args)
         return True
     except CalledProcessError as e:
         logging.error("{} exited with linting error {}".format(str(inner_class.absolute()), e.returncode))

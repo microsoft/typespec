@@ -41,7 +41,7 @@ public final class ModelWithUnwrappedArrayValueClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains fields of wrapped and unwrapped arrays of primitive types along with {@link Response}.
+     * @return §3.2 — Contains fields of wrapped and unwrapped arrays of primitive types along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -55,7 +55,7 @@ public final class ModelWithUnwrappedArrayValueClient {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains fields of wrapped and unwrapped arrays of primitive types.
+     * @return §3.2 — Contains fields of wrapped and unwrapped arrays of primitive types.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

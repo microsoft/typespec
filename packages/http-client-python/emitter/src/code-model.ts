@@ -25,14 +25,7 @@ import {
   emitPagingHttpMethod,
 } from "./http.js";
 import { PythonSdkContext } from "./lib.js";
-import {
-  KnownTypes,
-  disableGenerationMap,
-  emitEndpointType,
-  getType,
-  simpleTypesMap,
-  typesMap,
-} from "./types.js";
+import { KnownTypes, emitEndpointType, getType } from "./types.js";
 import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
@@ -263,7 +256,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   // operation has same clientNamespace as the operation group
   for (const og of operationGroups) {
     for (const op of og.operations) {
-      op.clientNamespace = getClientNamespace(context, og.clientNamespace);
+      op.clientNamespace = og.clientNamespace;
     }
   }
 
@@ -366,7 +359,7 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
       continue;
     }
     // filter out specific models not used in python, e.g., pageable models
-    if (disableGenerationMap.has(model)) {
+    if (sdkContext.__disableGenerationMap.has(model)) {
       continue;
     }
     // filter out core models
@@ -391,19 +384,20 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
   }
 
   // clear usage when a model is only used by paging
-  for (const type of typesMap.values()) {
+  for (const type of sdkContext.__typesMap.values()) {
     if (
       type["type"] === "model" &&
-      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly &&
+      (type["usage"] & UsageFlags.Input) === 0
     ) {
       type["usage"] = UsageFlags.None;
     }
   }
 
   codeModel["types"] = [
-    ...typesMap.values(),
+    ...sdkContext.__typesMap.values(),
     ...Object.values(KnownTypes),
-    ...simpleTypesMap.values(),
+    ...sdkContext.__simpleTypesMap.values(),
   ];
   codeModel["crossLanguagePackageId"] = ignoreDiagnostics(getCrossLanguagePackageId(sdkContext));
   if ((sdkContext.emitContext.options as any).flavor === "azure") {

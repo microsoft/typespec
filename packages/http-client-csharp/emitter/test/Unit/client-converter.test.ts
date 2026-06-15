@@ -28,7 +28,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -72,8 +72,8 @@ describe("isMultiServiceClient", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
-        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv2)
         namespace Service.MultiService {}
       `,
       runner,
@@ -81,7 +81,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const client = root.clients[0];
@@ -147,7 +147,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const client = root.clients[0];
@@ -210,6 +210,7 @@ describe("isMultiServiceClient", () => {
         @client({
           name: "CombinedClient",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
 
         namespace Service.MultiService {}
@@ -219,7 +220,7 @@ describe("isMultiServiceClient", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     strictEqual(root.name, "Service.MultiService", "Root namespace should be Service.MultiService");
 
     const clients = root.clients;
@@ -293,7 +294,7 @@ describe("client name suffix", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -338,7 +339,7 @@ describe("client name suffix", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -383,7 +384,7 @@ describe("client name suffix", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");
@@ -426,8 +427,8 @@ describe("client name suffix", () => {
         @client({
           name: "Combined",
           service: [ServiceA, ServiceB],
+          autoMergeService: true,
         })
-        @useDependency(ServiceA.VersionsA.av1, ServiceB.VersionsB.bv1)
         namespace Service.MultiService {}
       `,
       runner,
@@ -435,7 +436,7 @@ describe("client name suffix", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     const client = root.clients[0];
     ok(client, "Client should exist");

@@ -1,14 +1,21 @@
-import { ModelProperty, NoTarget, Scalar } from "@typespec/compiler";
-import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
+import { ModelProperty, NoTarget, Scalar, resolvePath } from "@typespec/compiler";
+import { BasicTestRunner, createTestRunner, createTester } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { getJsScalar } from "../src/common/scalar.js";
-import { createPathCursor, JsContext, Module } from "../src/ctx.js";
+import { JsContext, Module, createPathCursor } from "../src/ctx.js";
 
 import { module as dateTimeModule } from "../generated-defs/helpers/datetime.js";
 import { module as temporalHelpersModule } from "../generated-defs/helpers/temporal/native.js";
 import { module as temporalPolyfillHelpersModule } from "../generated-defs/helpers/temporal/polyfill.js";
 import { JsEmitterOptions } from "../src/lib.js";
+
+const HttpServerEmitterTester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/http", "@typespec/http-server-js"],
+})
+  .import("@typespec/http")
+  .using("Http")
+  .emit("@typespec/http-server-js");
 
 describe("scalar", () => {
   let runner: BasicTestRunner;
@@ -184,6 +191,22 @@ describe("scalar", () => {
       decoded,
       "globalThis.Buffer.from((globalThis.decodeURIComponent((asdf))), 'base64')",
     );
+  });
+
+  it("emits result processing for bare scalar responses", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        @get op read(): string;
+      }
+    `);
+
+    const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
+
+    expect(serverRaw).toBeDefined();
+    expect(serverRaw).toContain('response.setHeader("content-type", "application/json");');
+    expect(serverRaw).toMatch(/response\.end\(globalThis\.JSON\.stringify\(__result_\d+\)\);/);
   });
 
   describe("date/time/duration types", () => {

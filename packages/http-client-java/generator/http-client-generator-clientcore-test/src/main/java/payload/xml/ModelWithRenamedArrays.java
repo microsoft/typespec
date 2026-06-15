@@ -12,7 +12,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 /**
- * Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.
+ * §3.3, §3.4 — Contains fields of wrapped and unwrapped arrays of primitive types that have different XML
+ * representations.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedArrays implements XmlSerializable<ModelWithRenamedArrays> {
