@@ -429,6 +429,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dependencies = new List<CSharpType>();
             foreach (var method in Methods.OfType<ScmMethodProvider>())
             {
+                if (method.BodyStatements == null)
+                {
+                    continue;
+                }
+
                 if (method.CollectionDefinition != null)
                 {
                     dependencies.Add(method.CollectionDefinition.Type);
