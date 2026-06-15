@@ -477,10 +477,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (IsSerializationProvider(provider))
-                {
-                    AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
-                }
+                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes);
 
                 foreach (var property in provider.Properties)
                 {
@@ -529,6 +526,14 @@ namespace Microsoft.TypeSpec.Generator
             if (parameter.Validation != ParameterValidationType.None)
             {
                 AddMatchingName(roots, "Argument", nodes);
+            }
+        }
+
+        private static void AddHelperDependencies(HashSet<string> roots, IReadOnlyList<string> dependencies, HashSet<string> nodes)
+        {
+            foreach (var dependency in dependencies)
+            {
+                AddMatchingName(roots, dependency, nodes);
             }
         }
 

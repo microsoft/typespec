@@ -117,6 +117,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
 
+        protected override IReadOnlyList<string> BuildHelperDependencyNames() => _rawDataField != null || _additionalProperties.Value.Length > 0
+            ? ["ChangeTrackingDictionary"]
+            : [];
+
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
         {
             if (_model.CanonicalView.Properties.Any(p => ScmModelProvider.IsFileBinaryContentType(p.Type)))

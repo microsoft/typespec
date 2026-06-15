@@ -272,6 +272,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
+        internal IReadOnlyList<string> HelperDependencyNames => BuildHelperDependencyNames();
+        protected internal virtual IReadOnlyList<string> BuildHelperDependencyNames() => [];
+
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
