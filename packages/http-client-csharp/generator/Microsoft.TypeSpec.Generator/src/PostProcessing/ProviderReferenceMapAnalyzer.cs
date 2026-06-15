@@ -8,6 +8,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 
@@ -235,6 +236,8 @@ namespace Microsoft.TypeSpec.Generator
                         }
                     }
                 }
+
+                AddGeneratedBodyTypeReferences(project, compilation, graph, providerName, symbol);
             }
         }
 
@@ -248,6 +251,46 @@ namespace Microsoft.TypeSpec.Generator
             var relativePath = provider.RelativeFilePath.Replace('\\', '/');
             return relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
                 relativePath.Contains("/CollectionResults/", StringComparison.Ordinal);
+        }
+
+        private static void AddGeneratedBodyTypeReferences(Project project, Compilation compilation, ProviderReferenceGraph graph, string ownerName, INamedTypeSymbol ownerSymbol)
+        {
+            foreach (var syntaxReference in ownerSymbol.DeclaringSyntaxReferences)
+            {
+                var document = project.GetDocument(syntaxReference.SyntaxTree);
+                if (document == null || !GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                var root = syntaxReference.SyntaxTree.GetRoot();
+                var semanticModel = compilation.GetSemanticModel(syntaxReference.SyntaxTree);
+                foreach (var typeSyntax in root.DescendantNodes().OfType<TypeSyntax>())
+                {
+                    // Declaration names are the owner itself. The old Roslyn map captures references,
+                    // not a declaration making itself reachable.
+                    if (typeSyntax.Parent is BaseTypeDeclarationSyntax baseTypeDeclaration && baseTypeDeclaration.Identifier.Span == typeSyntax.Span)
+                    {
+                        continue;
+                    }
+
+                    AddBodyTypeReference(graph.References[ownerName], semanticModel.GetTypeInfo(typeSyntax).Type, graph.Nodes);
+                }
+            }
+        }
+
+        private static void AddBodyTypeReference(HashSet<string> references, ITypeSymbol? symbol, HashSet<string> nodes)
+        {
+            if (symbol is not INamedTypeSymbol namedType || namedType.TypeKind == TypeKind.Error)
+            {
+                return;
+            }
+
+            AddMatchingName(references, namedType.GetFullyQualifiedName(), nodes);
+            foreach (var typeArgument in namedType.TypeArguments)
+            {
+                AddBodyTypeReference(references, typeArgument, nodes);
+            }
         }
 
         private static void AddGeneratedReferencesToHelper(Project project, Compilation compilation, ProviderReferenceGraph graph, string helperName, ISymbol symbol)
