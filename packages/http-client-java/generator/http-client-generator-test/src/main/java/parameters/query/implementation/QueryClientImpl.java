@@ -72,6 +72,20 @@ public final class QueryClientImpl {
     }
 
     /**
+     * The SpecialCharsImpl object to access its operations.
+     */
+    private final SpecialCharsImpl specialChars;
+
+    /**
+     * Gets the SpecialCharsImpl object to access its operations.
+     * 
+     * @return the SpecialCharsImpl object.
+     */
+    public SpecialCharsImpl getSpecialChars() {
+        return this.specialChars;
+    }
+
+    /**
      * Initializes an instance of QueryClient client.
      * 
      * @param endpoint Service host.
@@ -103,5 +117,6 @@ public final class QueryClientImpl {
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
         this.constants = new ConstantsImpl(this);
+        this.specialChars = new SpecialCharsImpl(this);
     }
 }

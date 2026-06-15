@@ -100,6 +100,26 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsInstanceOf<DerivedTestLibraryVisitor>(mockGenerator.Visitors[0]);
         }
 
+        [Test]
+        public void HasDefaultCustomCodeAttributeProviders()
+        {
+            var mockGenerator = new TestGenerator();
+            Assert.AreEqual(4, mockGenerator.CustomCodeAttributeProviders.Count);
+        }
+
+        [Test]
+        public void CanAddCustomCodeAttributeProvider()
+        {
+            var mockGenerator = new TestGenerator();
+            var initialCount = mockGenerator.CustomCodeAttributeProviders.Count;
+
+            var provider = new TestTypeProvider();
+            mockGenerator.AddCustomCodeAttributeProviderForTest(provider);
+
+            Assert.AreEqual(initialCount + 1, mockGenerator.CustomCodeAttributeProviders.Count);
+            Assert.AreSame(provider, mockGenerator.CustomCodeAttributeProviders[^1]);
+        }
+
         private class DerivedTestLibraryVisitor : TestLibraryVisitor { }
     }
 }
