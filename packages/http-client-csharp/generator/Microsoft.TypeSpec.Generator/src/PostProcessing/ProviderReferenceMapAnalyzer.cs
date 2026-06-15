@@ -395,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             var generator = CodeModelGenerator.Instance;
             var excludedNames = generator.NonRootTypes;
-            return providers
+            return GetGeneratedProviders(providers)
                 .Where(provider => !IsModelFactoryProvider(provider))
                 .Where(provider => !publicOnly || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 .Select(provider => GetProviderTypeName(provider.Type))
