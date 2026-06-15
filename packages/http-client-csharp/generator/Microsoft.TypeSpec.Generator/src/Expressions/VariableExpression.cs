@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             }
             if (name != null)
             {
-                Declaration = new CodeWriterDeclaration(name);
+                Declaration.Update(name: name);
             }
             if (isRef != null)
             {
