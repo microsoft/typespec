@@ -78,6 +78,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
+        protected override IReadOnlyList<string> BuildHelperDependencyNames()
+        {
+            var dependencies = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var serviceMethod in _inputClient.Methods)
+            {
+                foreach (var parameter in serviceMethod.Operation.Parameters)
+                {
+                    if (parameter is not InputHeaderParameter and not InputQueryParameter)
+                    {
+                        continue;
+                    }
+
+                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(parameter.Type);
+                    if (type?.IsDictionary == true)
+                    {
+                        dependencies.Add("ChangeTrackingDictionary");
+                    }
+                    else if (type?.IsCollection == true)
+                    {
+                        dependencies.Add("ChangeTrackingList");
+                    }
+                }
+            }
+
+            return [.. dependencies];
+        }
+
         protected override ScmMethodProvider[] BuildMethods()
         {
             List<ScmMethodProvider> methods = new List<ScmMethodProvider>();
