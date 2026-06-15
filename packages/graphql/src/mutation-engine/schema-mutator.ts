@@ -12,10 +12,14 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { setInputType } from "../lib/input-type.js";
-import { isInterfaceOnly, isInterface } from "../lib/interface.js";
+import { isInterface } from "../lib/interface.js";
+import { getOperationFields } from "../lib/operation-fields.js";
 import { reportDiagnostic } from "../lib.js";
+import { createVisibilityFilters } from "../lib/visibility.js";
+import { isStdScalar } from "../lib/scalar-mappings.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
+import type { GraphQLModelMutation } from "./mutations/model.js";
 import { GraphQLTypeContext } from "./options.js";
 import { buildTypeGraph, type TypeGraph } from "./type-graph.js";
 
@@ -37,6 +41,16 @@ export function mutateSchema(
 ): TypeGraph {
   const tk = $(program);
   const mutatedTypes: Type[] = [];
+  const filters = createVisibilityFilters(program);
+
+  function pushMutatedModel(mutation: GraphQLModelMutation) {
+    const node = mutation.mutationNode;
+    if (node.isReplaced && node.replacementNode) {
+      mutatedTypes.push(node.replacementNode.mutatedType);
+    } else {
+      mutatedTypes.push(mutation.mutatedType);
+    }
+  }
 
   navigateTypesInNamespace(schema, {
     model: (node: Model) => {
@@ -47,20 +61,53 @@ export function mutateSchema(
       const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
       const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
       const isInterfaceModel = isInterface(program, node);
-      const isExclusive = isInterfaceModel && isInterfaceOnly(program, node);
 
       if (isInterfaceModel) {
         const mutation = engine.mutateModel(node, GraphQLTypeContext.Interface);
-        mutatedTypes.push(mutation.mutatedType);
+        pushMutatedModel(mutation);
       }
-      if (!isExclusive && (usedAsOutput || !usage)) {
-        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output);
-        mutatedTypes.push(mutation.mutatedType);
+      if (!isInterfaceModel && (usedAsOutput || !usage)) {
+        const mutation = engine.mutateModel(node, GraphQLTypeContext.Output, filters.output);
+        pushMutatedModel(mutation);
       }
       if (usedAsInput) {
-        const mutation = engine.mutateModel(node, GraphQLTypeContext.Input);
-        setInputType(mutation.mutatedType);
-        mutatedTypes.push(mutation.mutatedType);
+        if (getOperationFields(program, node).size > 0) {
+          reportDiagnostic(program, {
+            code: "operation-fields-ignored-on-input",
+            format: { model: node.name },
+            target: node,
+          });
+        }
+        const hasVariance = typeUsage.hasInputOperationVariance(node);
+        const usedByQuery = usage?.has(GraphQLTypeUsage.InputQuery) ?? false;
+        const usedByMutation = usage?.has(GraphQLTypeUsage.InputMutation) ?? false;
+
+        if (hasVariance) {
+          const qm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query", "Query");
+          const mm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation", "Mutation");
+          if (qm.mutatedType.properties.size > 0) {
+            setInputType(qm.mutatedType);
+            pushMutatedModel(qm);
+          }
+          if (mm.mutatedType.properties.size > 0) {
+            setInputType(mm.mutatedType);
+            pushMutatedModel(mm);
+          }
+        } else {
+          const emitted = usedByMutation
+            ? engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation")
+            : engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query");
+          if (emitted.mutatedType.properties.size > 0) {
+            setInputType(emitted.mutatedType);
+            pushMutatedModel(emitted);
+
+            if (usedByQuery && usedByMutation) {
+              setInputType(
+                engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query").mutatedType,
+              );
+            }
+          }
+        }
       }
     },
     enum: (node: Enum) => {
@@ -77,13 +124,33 @@ export function mutateSchema(
     union: (node: Union) => {
       if (typeUsage.isUnreachable(node)) return;
 
-      const mutation = engine.mutateUnion(node, GraphQLTypeContext.Output);
-      if (mutation.mutatedType.kind === "Model" && isArrayModelType(mutation.mutatedType)) {
-        return;
+      const usage = typeUsage.getUsage(node);
+      const usedAsOutput = usage?.has(GraphQLTypeUsage.Output) ?? false;
+      const usedAsInput = usage?.has(GraphQLTypeUsage.Input) ?? false;
+
+      if (usedAsOutput || !usage) {
+        const mutation = engine.mutateUnion(node, GraphQLTypeContext.Output);
+        if (mutation.mutatedType.kind === "Union") {
+          mutatedTypes.push(mutation.mutatedType);
+          for (const wrapper of mutation.wrapperModels) {
+            mutatedTypes.push(wrapper);
+          }
+        }
       }
-      mutatedTypes.push(mutation.mutatedType);
-      for (const wrapper of mutation.wrapperModels) {
-        mutatedTypes.push(wrapper);
+
+      if (usedAsInput) {
+        const usedByQuery = usage?.has(GraphQLTypeUsage.InputQuery) ?? false;
+        const usedByMutation = usage?.has(GraphQLTypeUsage.InputMutation) ?? false;
+        const filter = usedByMutation ? filters.mutation : filters.query;
+        const opKind = usedByMutation ? "mutation" : "query";
+        const mutation = engine.mutateUnion(node, GraphQLTypeContext.Input, filter, opKind);
+        const mutated = mutation.mutatedType;
+        if (mutated.kind === "Model") {
+          setInputType(mutated);
+          mutatedTypes.push(mutated);
+        } else if (mutated.kind === "Union") {
+          mutatedTypes.push(mutated);
+        }
       }
     },
     operation: (node: Operation) => {
@@ -91,6 +158,7 @@ export function mutateSchema(
       mutatedTypes.push(mutation.mutatedType);
     },
   });
+
 
   const seen = new Map<string, Type>();
   for (const type of mutatedTypes) {
@@ -107,5 +175,18 @@ export function mutateSchema(
     }
   }
 
-  return buildTypeGraph(program, tk, mutatedTypes);
+  return buildTypeGraph(program, tk, mutatedTypes, {
+    shouldIncludeRef: (type) => {
+      if (type.kind === "Scalar") {
+        return !isStdScalar(tk, type) && !isLibraryScalar(type);
+      }
+      return true;
+    },
+  });
 }
+
+function isLibraryScalar(scalar: { namespace?: { name: string; namespace?: { name: string } } }): boolean {
+  return scalar.namespace?.name === "GraphQL" && scalar.namespace?.namespace?.name === "TypeSpec";
+}
+
+

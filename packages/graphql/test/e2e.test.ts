@@ -1,4 +1,5 @@
 import { expect, describe, it } from "vitest";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("e2e: operations", () => {
@@ -399,10 +400,6 @@ describe("e2e: interfaces", () => {
         name: String!
       }
 
-      interface Animal {
-        name: String!
-      }
-
       type Cat implements AnimalInterface {
         name: String!
         breed: String!
@@ -529,6 +526,52 @@ describe("e2e: nullability combinations", () => {
   });
 });
 
+describe("e2e: nullable scalar does not emit built-in scalar declaration", () => {
+  it("does not emit scalar string for nullable string field", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Foo {
+          id: GraphQL.ID;
+          value: string | null;
+        }
+        @query op getFoo(id: GraphQL.ID): Foo;
+      }
+    `);
+    expect(result.graphQLOutput).not.toContain("scalar string");
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Foo {
+        id: ID!
+        value: String
+      }
+
+      type Query {
+        getFoo(id: ID!): Foo!
+      }"
+    `);
+  });
+
+  it("does not emit scalar int32 for nullable int field", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Bar {
+          count: int32 | null;
+        }
+        @query op getBar(): Bar;
+      }
+    `);
+    expect(result.graphQLOutput).not.toContain("scalar int32");
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Bar {
+        count: Int
+      }
+
+      type Query {
+        getBar: Bar!
+      }"
+    `);
+  });
+});
+
 describe("e2e: @operationFields", () => {
   it("renders operation as field with arguments on object type", async () => {
     const result = await emitSingleSchemaWithDiagnostics(`
@@ -645,6 +688,287 @@ describe("e2e: anonymous unions", () => {
 
       type Query {
         getPet: GetPetUnion!
+      }"
+    `);
+  });
+});
+
+describe("e2e: @compose does not produce false incompatible diagnostics", () => {
+  it("no diagnostics for @compose with spread properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @Interface(#{interfaceOnly: true})
+        model Node { id: GraphQL.ID; }
+
+        @compose(Node)
+        model Article { ...Node; title: string; }
+
+        @query op getArticle(): Article;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "interface Node {
+        id: ID!
+      }
+
+      type Article implements Node {
+        id: ID!
+        title: String!
+      }
+
+      type Query {
+        getArticle: Article!
+      }"
+    `);
+  });
+
+  it("no diagnostics for @compose with multiple interfaces", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @Interface(#{interfaceOnly: true})
+        model Node { id: GraphQL.ID; }
+
+        @Interface
+        model Named { name: string; }
+
+        @compose(Node, Named)
+        model User { ...Node; ...Named; age: int32; }
+
+        @query op getUser(): User;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+  });
+});
+
+describe("e2e: @operationFields on model used as input warns", () => {
+  it("warns that operation fields are ignored on input types", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @query op getUser(id: string): User;
+        @operationFields(getUser)
+        model User { id: string; name: string; }
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toContain("getUser(id: String!): User!");
+    expect(result.graphQLOutput).not.toMatch(/input UserInput[^}]*getUser/s);
+    const warnings = result.diagnostics.filter(d => d.severity === "warning");
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings.some(d => d.code === "@typespec/graphql/operation-fields-ignored-on-input")).toBe(true);
+  });
+});
+
+describe("e2e: TypeSpec interface keyword prefixes operations", () => {
+  it("prefixes operations from interface with interface name", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Board { id: string; name: string; }
+
+        interface BoardOps {
+          @query getBoard(id: string): Board;
+          @mutation createBoard(name: string): Board;
+        }
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Board {
+        id: String!
+        name: String!
+      }
+
+      type Query {
+        boardOpsGetBoard(id: String!): Board!
+      }
+
+      type Mutation {
+        boardOpsCreateBoard(name: String!): Board!
+      }"
+    `);
+  });
+});
+
+describe("e2e: visibility filtering", () => {
+  it("excludes read-only properties from input type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Board {
+          @visibility(Lifecycle.Read)
+          id: string;
+
+          @visibility(Lifecycle.Read)
+          createdAt: string;
+
+          name: string;
+          description: string;
+        }
+        @query op getBoard(id: string): Board;
+        @mutation op createBoard(input: Board): Board;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Board {
+        id: String!
+        createdAt: String!
+        name: String!
+        description: String!
+      }
+
+      input BoardInput {
+        name: String!
+        description: String!
+      }
+
+      type Query {
+        getBoard(id: String!): Board!
+      }
+
+      type Mutation {
+        createBoard(input: BoardInput!): Board!
+      }"
+    `);
+  });
+
+  it("excludes create-only properties from output type", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model User {
+          @visibility(Lifecycle.Read)
+          id: string;
+
+          @visibility(Lifecycle.Create)
+          password: string;
+
+          name: string;
+        }
+        @query op getUser(id: string): User;
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type User {
+        id: String!
+        name: String!
+      }
+
+      input UserInput {
+        password: String!
+        name: String!
+      }
+
+      type Query {
+        getUser(id: String!): User!
+      }
+
+      type Mutation {
+        createUser(input: UserInput!): User!
+      }"
+    `);
+  });
+
+  it("includes all properties when no visibility decorator is set", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Item {
+          name: string;
+          count: int32;
+        }
+        @query op getItem(): Item;
+        @mutation op createItem(input: Item): Item;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Item {
+        name: String!
+        count: Int!
+      }
+
+      input ItemInput {
+        name: String!
+        count: Int!
+      }
+
+      type Query {
+        getItem: Item!
+      }
+
+      type Mutation {
+        createItem(input: ItemInput!): Item!
+      }"
+    `);
+  });
+
+  it("splits input types when query and mutation have different visible properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model User {
+          @visibility(Lifecycle.Read, Lifecycle.Query)
+          id: string;
+
+          @visibility(Lifecycle.Create, Lifecycle.Update)
+          password: string;
+
+          name: string;
+        }
+        @query op getUser(filter: User): User;
+        @mutation op createUser(input: User): User;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type User {
+        id: String!
+        name: String!
+      }
+
+      input UserQueryInput {
+        id: String!
+        name: String!
+      }
+
+      input UserMutationInput {
+        password: String!
+        name: String!
+      }
+
+      type Query {
+        getUser(filter: UserQueryInput!): User!
+      }
+
+      type Mutation {
+        createUser(input: UserMutationInput!): User!
+      }"
+    `);
+  });
+
+  it("does not split input types when visibility produces same properties", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Item {
+          name: string;
+          count: int32;
+        }
+        @query op searchItems(filter: Item): Item[];
+        @mutation op createItem(input: Item): Item;
+      }
+    `);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "type Item {
+        name: String!
+        count: Int!
+      }
+
+      input ItemInput {
+        name: String!
+        count: Int!
+      }
+
+      type Query {
+        searchItems(filter: ItemInput!): [Item!]!
+      }
+
+      type Mutation {
+        createItem(input: ItemInput!): Item!
       }"
     `);
   });

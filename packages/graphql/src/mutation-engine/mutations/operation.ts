@@ -9,6 +9,8 @@ import {
 import { applyFieldNamePipeline } from "../../lib/naming.js";
 import { setNullable, setNullableElements } from "../../lib/nullable.js";
 import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
+import { getOperationKind } from "../../lib/operation-kind.js";
+import { createVisibilityFilters } from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /** GraphQL-specific Operation mutation. */
@@ -23,9 +25,17 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     super(engine, sourceType, referenceTypes, options, info);
   }
 
-  /** Mutate parameters with input context. */
+  /** Mutate parameters with input context and operation-kind-aware visibility. */
   protected override mutateParameters() {
-    const inputOptions = new GraphQLMutationOptions(GraphQLTypeContext.Input);
+    const program = this.engine.$.program;
+    const kind = getOperationKind(program, this.sourceType);
+    const filters = createVisibilityFilters(program);
+    const isQuery = kind === "Query" || kind === "Subscription";
+    const visibilityFilter = isQuery ? filters.query : filters.mutation;
+    const opKind = isQuery ? "query" : "mutation";
+    const inputOptions = new GraphQLMutationOptions(
+      GraphQLTypeContext.Input, visibilityFilter, opKind,
+    );
     this.parameters = this.engine.mutate(
       this.sourceType.parameters,
       inputOptions,
@@ -35,7 +45,9 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
 
   /** Mutate return type with output context. */
   protected override mutateReturnType() {
-    const outputOptions = new GraphQLMutationOptions(GraphQLTypeContext.Output);
+    const program = this.engine.$.program;
+    const filters = createVisibilityFilters(program);
+    const outputOptions = new GraphQLMutationOptions(GraphQLTypeContext.Output, filters.output);
     this.returnType = this.engine.mutate(
       this.sourceType.returnType,
       outputOptions,
@@ -59,9 +71,18 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
       isNullableUnion(innerReturnType.indexer.value);
 
     this.mutationNode.mutate((operation) => {
-      operation.name = applyFieldNamePipeline(operation.name);
+      const iface = this.sourceType.interface;
+      const rawName = iface ? `${iface.name}_${operation.name}` : operation.name;
+      operation.name = applyFieldNamePipeline(rawName);
     });
     super.mutate();
+
+    // Remove parameters whose type was visibility-filtered to an empty model.
+    for (const [name, param] of this.mutatedType.parameters.properties) {
+      if (param.type.kind === "Model" && !isArrayModelType(param.type) && param.type.properties.size === 0) {
+        this.mutatedType.parameters.properties.delete(name);
+      }
+    }
 
     if (hasNullableReturn) {
       setNullable(this.mutatedType);

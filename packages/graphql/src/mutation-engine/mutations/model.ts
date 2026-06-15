@@ -8,6 +8,7 @@ import {
   type Value,
 } from "@typespec/compiler";
 import {
+  type MutationOptions,
   SimpleModelMutation,
   type MutationInfo,
   type SimpleMutationEngine,
@@ -18,6 +19,7 @@ import { isInterfaceOnly } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
 import { isRecordType } from "../../lib/type-utils.js";
+import { isPropertyVisible } from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /**
@@ -88,14 +90,51 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     const needsInterfaceSuffix =
       isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
 
+    const inputQualifier =
+      this.options instanceof GraphQLMutationOptions ? this.options.inputQualifier : undefined;
+
     this.mutationNode.mutate((model) => {
       model.name = applyTypeNamePipeline(rawName, {
         isInput: isInputContext,
         isInterface: needsInterfaceSuffix,
+        inputQualifier,
       });
-      this.mutateDecoratorTypeArgs(model);
+      if (isInputContext) {
+        model.decorators = model.decorators.filter(
+          (d) => !decoratorArgContext.has(d.decorator.name),
+        );
+      } else {
+        this.mutateDecoratorTypeArgs(model);
+      }
     });
     super.mutate();
+  }
+
+  protected override mutateProperties(newOptions: MutationOptions = this.options) {
+    const visibilityFilter = this.options instanceof GraphQLMutationOptions
+      ? this.options.visibilityFilter
+      : undefined;
+
+    if (!visibilityFilter) {
+      super.mutateProperties(newOptions);
+      return;
+    }
+
+    const program = this.engine.$.program;
+
+    for (const prop of this.sourceType.properties.values()) {
+      if (!isPropertyVisible(program, prop, visibilityFilter)) {
+        this.mutationNode.mutatedType.properties.delete(prop.name);
+      }
+    }
+    for (const prop of this.sourceType.properties.values()) {
+      if (isPropertyVisible(program, prop, visibilityFilter)) {
+        this.properties.set(
+          prop.name,
+          this.engine.mutate(prop, newOptions, this.startPropertyEdge()),
+        );
+      }
+    }
   }
 
   private mutateDecoratorTypeArgs(model: Model) {

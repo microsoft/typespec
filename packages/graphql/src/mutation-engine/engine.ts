@@ -5,7 +5,9 @@ import {
   type Program,
   type Scalar,
   type Union,
+  type VisibilityFilter,
 } from "@typespec/compiler";
+
 import { $ } from "@typespec/compiler/typekit";
 import {
   MutationEngine,
@@ -69,12 +71,21 @@ export class GraphQLMutationEngine {
   }
 
   /**
-   * Mutate a model with explicit input/output context.
+   * Mutate a model with explicit input/output context and optional visibility filter.
    * Models mutated with different contexts produce separate cached mutations,
    * allowing the same source model to have both an input and output variant.
    */
-  mutateModel(model: Model, context: GraphQLTypeContext): GraphQLModelMutation {
-    return this.engine.mutate(model, new GraphQLMutationOptions(context)) as GraphQLModelMutation;
+  mutateModel(
+    model: Model,
+    context: GraphQLTypeContext,
+    visibilityFilter?: VisibilityFilter,
+    operationKind?: string,
+    inputQualifier?: string,
+  ): GraphQLModelMutation {
+    return this.engine.mutate(
+      model,
+      new GraphQLMutationOptions(context, visibilityFilter, operationKind, inputQualifier),
+    ) as GraphQLModelMutation;
   }
 
   /**
@@ -106,8 +117,16 @@ export class GraphQLMutationEngine {
    * In input context: replaces the union with a @oneOf input Model in the type graph,
    *   since GraphQL unions are output-only. mutatedType is a Model.
    */
-  mutateUnion(union: Union, context: GraphQLTypeContext): GraphQLUnionMutation {
-    return this.engine.mutate(union, new GraphQLMutationOptions(context)) as GraphQLUnionMutation;
+  mutateUnion(
+    union: Union,
+    context: GraphQLTypeContext,
+    visibilityFilter?: VisibilityFilter,
+    operationKind?: string,
+  ): GraphQLUnionMutation {
+    return this.engine.mutate(
+      union,
+      new GraphQLMutationOptions(context, visibilityFilter, operationKind),
+    ) as GraphQLUnionMutation;
   }
 }
 

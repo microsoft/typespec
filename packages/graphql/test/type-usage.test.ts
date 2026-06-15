@@ -10,8 +10,9 @@ describe("type-usage", () => {
   });
 
   function resolve(omitUnreachableTypes = true) {
-    return resolveTypeUsage(tester.program.getGlobalNamespaceType(), omitUnreachableTypes);
+    return resolveTypeUsage(tester.program, tester.program.getGlobalNamespaceType(), omitUnreachableTypes);
   }
+
 
   describe("basic output reachability", () => {
     it("marks return type model as Output", async () => {
@@ -246,4 +247,5 @@ describe("type-usage", () => {
       expect(resolver.isUnreachable(User)).toBe(false);
     });
   });
+
 });
