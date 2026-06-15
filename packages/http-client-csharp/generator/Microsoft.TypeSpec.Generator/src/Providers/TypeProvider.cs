@@ -275,6 +275,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal IReadOnlyList<string> HelperDependencyNames => BuildHelperDependencyNames();
         protected internal virtual IReadOnlyList<string> BuildHelperDependencyNames() => [];
 
+        internal IReadOnlyList<CSharpType> BodyDependencyTypes => BuildBodyDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
+
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
