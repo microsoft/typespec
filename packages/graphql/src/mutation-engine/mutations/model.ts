@@ -1,9 +1,11 @@
 import {
+  isArrayModelType,
   isTemplateInstance,
   isType,
   walkPropertiesInherited,
   type MemberType,
   type Model,
+  type Program,
   type Type,
   type Value,
 } from "@typespec/compiler";
@@ -19,7 +21,7 @@ import { isInterfaceOnly } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
 import { isRecordType } from "../../lib/type-utils.js";
-import { isPropertyVisible } from "../../lib/visibility.js";
+import { hasNoVisibleProperties, isPropertyVisible, type VisibilityFilter } from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /**
@@ -64,34 +66,29 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     const isInputContext = this.typeContext === GraphQLTypeContext.Input;
     const isInterfaceContext = this.typeContext === GraphQLTypeContext.Interface;
 
-    if (isRecordType(this.sourceType) && walkPropertiesInherited(this.sourceType).next().done) {
-      const rawName = isTemplateInstance(this.sourceType)
-        ? composeTemplateName(this.sourceType)
-        : this.sourceType.name;
-      const scalarName = applyTypeNamePipeline(rawName, {
-        isInput: isInputContext,
-        isInterface: false,
-      });
-      const scalar = program.checker.createType({
+    const rawName = isTemplateInstance(this.sourceType)
+      ? composeTemplateName(this.sourceType)
+      : this.sourceType.name;
+    const visibilityFilter = this.options instanceof GraphQLMutationOptions
+      ? this.options.visibilityFilter
+      : undefined;
+    const inputQualifier =
+      this.options instanceof GraphQLMutationOptions ? this.options.inputQualifier : undefined;
+
+    if (this.shouldReplaceWithScalar(program, visibilityFilter)) {
+      const scalarName = applyTypeNamePipeline(rawName, { isInput: isInputContext, isInterface: false, inputQualifier });
+      this.mutationNode.replace(program.checker.createType({
         kind: "Scalar",
         name: scalarName,
         decorators: [],
         derivedScalars: [],
         constructors: new Map(),
-      });
-      this.mutationNode.replace(scalar);
+      }));
       return;
     }
 
-    const rawName = isTemplateInstance(this.sourceType)
-      ? composeTemplateName(this.sourceType)
-      : this.sourceType.name;
-
     const needsInterfaceSuffix =
       isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
-
-    const inputQualifier =
-      this.options instanceof GraphQLMutationOptions ? this.options.inputQualifier : undefined;
 
     this.mutationNode.mutate((model) => {
       model.name = applyTypeNamePipeline(rawName, {
@@ -151,6 +148,21 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       mutated.properties.set(name, prop);
     }
     mutated.baseModel = undefined;
+  }
+
+  private shouldReplaceWithScalar(program: Program, visibilityFilter: VisibilityFilter | undefined): boolean {
+    if (!this.sourceType.name || isArrayModelType(this.sourceType)) return false;
+    return this.willHaveNoFields(program, visibilityFilter);
+  }
+
+  private willHaveNoFields(program: Program, visibilityFilter: VisibilityFilter | undefined): boolean {
+    // Record<T> with no own/inherited properties → opaque map scalar
+    if (isRecordType(this.sourceType)) return walkPropertiesInherited(this.sourceType).next().done;
+    // Model declared with no properties at all
+    if (this.sourceType.properties.size === 0) return true;
+    // All properties removed by visibility filtering (e.g., all @visibility(Lifecycle.Read) in input context)
+    if (visibilityFilter) return hasNoVisibleProperties(program, this.sourceType, visibilityFilter);
+    return false;
   }
 
   private mutateDecoratorTypeArgs(model: Model) {
