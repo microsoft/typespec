@@ -29,6 +29,7 @@ class OptionsDict(MutableMapping):
         "from-typespec": False,
         "generate-sample": False,
         "keep-setup-py": False,
+        "keep-pyproject-fields": False,
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,

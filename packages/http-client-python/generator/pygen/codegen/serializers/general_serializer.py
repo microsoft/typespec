@@ -66,7 +66,9 @@ class GeneralSerializer(BaseSerializer):
         if dep_version > default_version:
             version_map[dep_name] = str(dep_version)
 
-    def external_lib_version_map(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
+    def external_lib_version_map(
+        self, file_content: str, additional_version_map: dict[str, str], keep_pyproject_fields: bool = False
+    ) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
@@ -88,9 +90,11 @@ class GeneralSerializer(BaseSerializer):
             project = loaded_pyproject_toml["project"]
 
             # Keep manually customized project fields the emitter would otherwise overwrite.
-            for field in ("description", "classifiers", "urls"):
-                if field in project:
-                    result["KEEP_FIELDS"][f"project.{field}"] = project[field]
+            # Only done when the "keep-pyproject-fields" option is explicitly enabled.
+            if keep_pyproject_fields:
+                for field in ("description", "classifiers", "urls"):
+                    if field in project:
+                        result["KEEP_FIELDS"][f"project.{field}"] = project[field]
 
             # Handle main dependencies
             if "dependencies" in loaded_pyproject_toml["project"]:
@@ -134,7 +138,8 @@ class GeneralSerializer(BaseSerializer):
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self.external_lib_version_map(file_content, additional_version_map)
+            keep_pyproject_fields = bool(self.code_model.options.get("keep-pyproject-fields"))
+            params = self.external_lib_version_map(file_content, additional_version_map, keep_pyproject_fields)
         else:
             params = {}
 

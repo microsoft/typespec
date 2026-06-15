@@ -12,11 +12,11 @@ preserved so they are not clobbered (see GitHub issue #10311).
 from pygen.codegen.serializers.general_serializer import GeneralSerializer
 
 
-def _keep_fields(file_content: str) -> dict:
+def _keep_fields(file_content: str, keep_pyproject_fields: bool = True) -> dict:
     # external_lib_version_map only relies on module-level helpers, not on
     # instance state, so we can bypass __init__ for a focused unit test.
     serializer = GeneralSerializer.__new__(GeneralSerializer)
-    return serializer.external_lib_version_map(file_content, {})["KEEP_FIELDS"]
+    return serializer.external_lib_version_map(file_content, {}, keep_pyproject_fields)["KEEP_FIELDS"]
 
 
 def test_preserve_description():
@@ -55,6 +55,22 @@ documentation = "https://aka.ms/custom-docs"
     keep_fields = _keep_fields(content)
     assert keep_fields["project.urls"]["repository"] == "https://github.com/Azure/azure-sdk-for-python-custom"
     assert keep_fields["project.urls"]["documentation"] == "https://aka.ms/custom-docs"
+
+
+def test_fields_not_kept_when_option_disabled():
+    content = """
+[project]
+name = "azure-ai-sample"
+description = "Microsoft Azure AI Sample Client Library for Python"
+classifiers = ["Programming Language :: Python :: 3.14"]
+
+[project.urls]
+repository = "https://github.com/Azure/azure-sdk-for-python-custom"
+"""
+    keep_fields = _keep_fields(content, keep_pyproject_fields=False)
+    assert "project.description" not in keep_fields
+    assert "project.classifiers" not in keep_fields
+    assert "project.urls" not in keep_fields
 
 
 def test_missing_fields_not_kept():
