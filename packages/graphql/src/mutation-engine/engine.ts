@@ -117,8 +117,16 @@ export class GraphQLMutationEngine {
    * In input context: replaces the union with a @oneOf input Model in the type graph,
    *   since GraphQL unions are output-only. mutatedType is a Model.
    */
-  mutateUnion(union: Union, context: GraphQLTypeContext): GraphQLUnionMutation {
-    return this.engine.mutate(union, new GraphQLMutationOptions(context)) as GraphQLUnionMutation;
+  mutateUnion(
+    union: Union,
+    context: GraphQLTypeContext,
+    visibilityFilter?: VisibilityFilter,
+    operationKind?: string,
+  ): GraphQLUnionMutation {
+    return this.engine.mutate(
+      union,
+      new GraphQLMutationOptions(context, visibilityFilter, operationKind),
+    ) as GraphQLUnionMutation;
   }
 }
 
