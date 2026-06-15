@@ -12,7 +12,7 @@ import {
 
 interface OperationRouteInfo {
   routePath: string;
-  serverPrefixSegmentCount: number;
+  serverPrefixSegmentCounts: number[];
 }
 
 export interface ValidateMockApisConfig {
@@ -80,13 +80,16 @@ export async function validateMockApis({
     const [httpServices] = httpLib.getAllHttpServices(program);
     for (const service of httpServices) {
       const servers = httpLib.getServers(program, service.namespace);
-      const serverPrefixSegmentCount =
+      // A service may declare several `@server`s with different path prefix lengths. Keep every
+      // distinct prefix length so a mock uri can be matched against any of them rather than forcing
+      // a single (e.g. shortest) prefix, which could otherwise produce false mismatches.
+      const serverPrefixSegmentCounts =
         servers && servers.length > 0
-          ? Math.min(...servers.map((server) => getServerPathPrefixSegmentCount(server.url)))
-          : 0;
+          ? [...new Set(servers.map((server) => getServerPathPrefixSegmentCount(server.url)))]
+          : [0];
       for (const httpOperation of service.operations) {
         const infos = routeInfoByOperation.get(httpOperation.operation) ?? [];
-        infos.push({ routePath: httpOperation.path, serverPrefixSegmentCount });
+        infos.push({ routePath: httpOperation.path, serverPrefixSegmentCounts });
         routeInfoByOperation.set(httpOperation.operation, infos);
       }
     }
@@ -124,7 +127,9 @@ export async function validateMockApis({
             }
             const matched = routeInfos.some((info) =>
               mockUris.some((uri) =>
-                isMockApiUriConsistentWithRoute(info.routePath, uri, info.serverPrefixSegmentCount),
+                info.serverPrefixSegmentCounts.some((serverPrefixSegmentCount) =>
+                  isMockApiUriConsistentWithRoute(info.routePath, uri, serverPrefixSegmentCount),
+                ),
               ),
             );
             if (!matched) {

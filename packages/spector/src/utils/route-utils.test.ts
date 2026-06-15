@@ -51,7 +51,8 @@ describe("isMockApiUriConsistentWithRoute", () => {
   });
 
   it("detects a mismatch in a literal segment", () => {
-    // Regression test for the dollar-sign scenario mismatch.
+    // A literal route segment must match exactly: `dollarSign` (camelCase) must not be considered
+    // consistent with a `dollar-sign` (kebab-case) uri.
     expect(
       isMockApiUriConsistentWithRoute(
         "/parameters/query/special-char/dollarSign",
