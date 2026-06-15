@@ -1017,7 +1017,6 @@ describe("e2e: extends flattening", () => {
         @query op getChild(): Child;
       }
     `);
-    // All inherited fields should be on Child, not separate types
     expect(result.graphQLOutput).toMatch(/type Child \{[^}]*id: String!/s);
     expect(result.graphQLOutput).toMatch(/type Child \{[^}]*name: String!/s);
     expect(result.graphQLOutput).toMatch(/type Child \{[^}]*age: Int!/s);
@@ -1034,5 +1033,37 @@ describe("e2e: extends flattening", () => {
     `);
     expect(result.graphQLOutput).toMatch(/input ChildInput[^}]*id: String!/s);
     expect(result.graphQLOutput).toMatch(/input ChildInput[^}]*name: String!/s);
+  });
+});
+
+describe("e2e: empty model becomes scalar", () => {
+  it("empty model referenced as property becomes scalar", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Empty {}
+        model Outer { name: string; inner: Empty; }
+        @query op getOuter(): Outer;
+      }
+    `);
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toContain("scalar Empty");
+    expect(result.graphQLOutput).toContain("inner: Empty!");
+  });
+
+  it("visibility-filtered-to-empty model becomes scalar in input", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        model Inner {
+          @visibility(Lifecycle.Read) id: string;
+          @visibility(Lifecycle.Read) createdAt: string;
+        }
+        model Outer { name: string; inner: Inner; }
+        @query op getOuter(): Outer;
+        @mutation op createOuter(input: Outer): Outer;
+      }
+    `);
+    expect(result.graphQLOutput).toBeDefined();
+    expect(result.graphQLOutput).toContain("scalar InnerInput");
+    expect(result.graphQLOutput).toMatch(/input OuterInput[^}]*inner: InnerInput/s);
   });
 });

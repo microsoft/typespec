@@ -27,7 +27,7 @@ describe("GraphQL Mutation Engine - Models", () => {
   });
 
   it("renames invalid model names", async () => {
-    await tester.compile(t.code`model ${t.model("$Invalid$")} { }`);
+    await tester.compile(t.code`model ${t.model("$Invalid$")} { x: string; }`);
 
     const InvalidModel = tester.program.getGlobalNamespaceType().models.get("$Invalid$")!;
     const engine = createTestEngine(tester.program);

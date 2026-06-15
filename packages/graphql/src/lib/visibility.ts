@@ -1,6 +1,7 @@
 import {
   getLifecycleVisibilityEnum,
   isVisible,
+  type Model,
   type ModelProperty,
   type Program,
   type VisibilityFilter,
@@ -33,3 +34,16 @@ export function isPropertyVisible(
 ): boolean {
   return isVisible(program, property, filter);
 }
+
+export function hasNoVisibleProperties(
+  program: Program,
+  model: Model,
+  filter: VisibilityFilter,
+): boolean {
+  for (const prop of model.properties.values()) {
+    if (isVisible(program, prop, filter)) return false;
+  }
+  return true;
+}
+
+export type { VisibilityFilter };

@@ -137,13 +137,13 @@ Patterns: optional+nullable, constrained generic.
 | 18 | Constrained generic `<L extends string>` → resolves to `String` | Correct |
 | 32 | `field?: T \| null` → no `!` | Correct |
 
-## Schema 09-nested-empty: Known Crash (API-5280)
+## Schema 09-nested-empty: Visibility-Filtered Empty Model
 
 Edge case: model with property whose type is fully visibility-filtered.
 
 | # | Pattern | Result |
 |---|---------|--------|
-| — | Nested empty model from visibility filtering | **CRASH: Unknown GraphQL type "InnerInput" (API-5280)** |
+| — | Nested empty model from visibility filtering | Correct — replaced with scalar (fixed in PR #102) |
 
 ## Not Tested
 
@@ -158,4 +158,4 @@ Edge case: model with property whose type is fully visibility-filtered.
 |--------|---------|--------|
 | API-5278 | Record<T> scalars duplicated for input/output context (`RecordOfString` + `RecordOfStringInput`) | Open |
 | API-5279 | Model `extends` does not flatten base model fields into child type | Fixed (PR #101) |
-| API-5280 | Emitter crashes when nested model property type is fully visibility-filtered to empty | Open |
+| API-5280 | Emitter crashes when nested model property type is fully visibility-filtered to empty | Fixed (PR #102) |

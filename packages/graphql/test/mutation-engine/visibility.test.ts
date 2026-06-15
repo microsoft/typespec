@@ -167,7 +167,7 @@ describe("GraphQL Mutation Engine - Visibility Filtering", () => {
       expect(mutation.mutatedType.properties.has("name")).toBe(true);
     });
 
-    it("produces empty model when all properties are read-only in input context", async () => {
+    it("replaces with scalar when all properties are read-only in input context", async () => {
       const { ReadOnlyModel } = await tester.compile(t.code`
         model ${t.model("ReadOnlyModel")} {
           @visibility(Lifecycle.Read)
@@ -181,7 +181,10 @@ describe("GraphQL Mutation Engine - Visibility Filtering", () => {
       const engine = createTestEngine(tester.program);
       const mutation = mutateAsInput(engine, ReadOnlyModel);
 
-      expect(mutation.mutatedType.properties.size).toBe(0);
+      expect(mutation.mutationNode.isReplaced).toBe(true);
+      const replacement = mutation.mutationNode.replacementNode!.mutatedType;
+      expect(replacement.kind).toBe("Scalar");
+      expect(replacement.name).toBe("ReadOnlyModelInput");
     });
 
     it("strips @compose from input variants to avoid spurious validation", async () => {
