@@ -37,7 +37,7 @@ Patterns: operations, models, scalars, enums, interfaces, unions, nullability, s
 | 12 | Scalar variant in union (`NotificationContentMessageUnionVariant`) | Correct |
 | 14 | Anonymous union return → auto-named (`GetContentUnion`) | Correct |
 | 15 | Anonymous union property → auto-named (`FeedItemContentUnion`) | Correct |
-| 19 | `extends` (field flattening) | **BUG: fields not flattened (API-5279)** |
+| 19 | `extends` (field flattening) | Correct (fixed in PR #101) |
 | 20 | `...spread` (Timestamps/Auditable fields on User) | Correct |
 | 21 | `Record<string>` → `scalar RecordOfString` | Correct |
 | 22 | `Record<Model>` → `scalar RecordOfMetric` | Correct |
@@ -59,7 +59,7 @@ Patterns: operations, models, scalars, enums, interfaces, unions, nullability, s
 | 54 | Deprecated field (`body @deprecated`) | Correct |
 | 55 | Deprecated operation (`publishDraft @deprecated`) | Correct |
 | 56 | Interface inheritance chain (`PagedConnection implements Connection`) | Correct |
-| 59 | extends + spread combined | **BUG: extends portion missing (API-5279)** |
+| 59 | extends + spread combined | Correct (fixed in PR #101) |
 | 60 | Circular input model (`CreateCommentInput.replies`) | Correct |
 | 69 | Single-variant union → unwrapped (`getWrapped: Article!`) | Correct |
 
@@ -154,8 +154,8 @@ Edge case: model with property whose type is fully visibility-filtered.
 
 ## Known Bugs
 
-| Ticket | Summary |
-|--------|---------|
-| API-5278 | Record<T> scalars duplicated for input/output context (`RecordOfString` + `RecordOfStringInput`) |
-| API-5279 | Model `extends` does not flatten base model fields into child type |
-| API-5280 | Emitter crashes when nested model property type is fully visibility-filtered to empty |
+| Ticket | Summary | Status |
+|--------|---------|--------|
+| API-5278 | Record<T> scalars duplicated for input/output context (`RecordOfString` + `RecordOfStringInput`) | Open |
+| API-5279 | Model `extends` does not flatten base model fields into child type | Fixed (PR #101) |
+| API-5280 | Emitter crashes when nested model property type is fully visibility-filtered to empty | Open |
