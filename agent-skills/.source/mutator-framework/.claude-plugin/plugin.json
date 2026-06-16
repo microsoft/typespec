@@ -1,7 +1,0 @@
-{
-  "name": "mutator-framework",
-  "description": "Guide for using the TypeSpec mutator framework (@typespec/mutator-framework) to transform TypeSpec types before emission. Use when the agent needs to (1) create type graph mutations (renaming, wrapping, substituting types), (2) implement custom mutation classes for models, properties, unions, scalars, or other type kinds, (3) understand mutation caching, half-edges, and the mutationInfo protocol, (4) integrate mutated types with the emitter framework, or (5) debug or extend existing mutation logic.",
-  "author": {
-    "name": "pinternal-dev"
-  }
-}

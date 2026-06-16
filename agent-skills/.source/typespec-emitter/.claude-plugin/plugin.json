@@ -1,7 +1,0 @@
-{
-  "name": "typespec-emitter",
-  "description": "Orchestration guide for building TypeSpec emitters end-to-end. Use when the agent needs to (1) plan a new emitter through an interactive design conversation with the user, (2) produce a design doc for an emitter (target description, type mapping, file layout, mutation strategy), (3) assess language target availability and choose an implementation approach, (4) architect an emitter's component structure, (5) coordinate between library setup, mutations, and component implementation, or (6) set up scenario-based snapshot testing for an emitter.",
-  "author": {
-    "name": "pinternal-dev"
-  }
-}

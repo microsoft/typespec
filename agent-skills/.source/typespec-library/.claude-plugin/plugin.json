@@ -1,7 +1,0 @@
-{
-  "name": "typespec-library",
-  "description": "Guide for creating TypeSpec libraries (packages with types, decorators, diagnostics, emitters, or linters). Use when the agent needs to (1) scaffold a new TypeSpec library or emitter package, (2) define or modify createTypeSpecLibrary configuration (diagnostics, state keys, emitter options), (3) implement or debug decorators (declaration, JS implementation, parameter marshalling, state management), (4) set up or fix testing infrastructure (createTester, tester chains, type collection), or (5) understand TypeSpec library package structure and conventions.",
-  "author": {
-    "name": "pinternal-dev"
-  }
-}

@@ -1,5 +1,0 @@
-{
-  "name": "skill-creator",
-  "description": "Guide for creating effective skills that extend agent capabilities with specialized knowledge, workflows, or tool integrations. Use when users want to create a new skill or update an existing skill.",
-  "author": { "name": "pinternal-dev" }
-}

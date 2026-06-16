@@ -1,5 +1,0 @@
-{
-  "name": "emitter-framework",
-  "description": "Guide for building TypeSpec emitters using the emitter framework (@typespec/emitter-framework). Use when the agent needs to create a new TypeSpec emitter, add or modify emitter components, add a new language target, work with the JSX-based component model, write snapshot tests, or understand the emitter framework architecture and APIs.",
-  "author": { "name": "pinternal-dev" }
-}
