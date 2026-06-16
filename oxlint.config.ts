@@ -160,6 +160,25 @@ const testFilesOverride = {
 } as const;
 
 /**
+ * Type-aware rules — require full type information and only run when oxlint is invoked with
+ * `--type-aware` (backed by the experimental `oxlint-tsgolint`). Scoped to package sources to
+ * match the previous `typescript-eslint` setup, and excludes the standalone emitters that are
+ * not part of the pnpm workspace (`http-client-csharp`, `http-client-java`, `http-client-python`).
+ */
+const typeAwareOverride = {
+  files: ["**/packages/*/src/**/*.ts", "**/packages/*/src/**/*.tsx"],
+  excludeFiles: [
+    "**/packages/http-client-csharp/**/*",
+    "**/packages/http-client-java/**/*",
+    "**/packages/http-client-python/**/*",
+  ],
+  rules: {
+    "typescript/no-floating-promises": "error",
+    "typescript/no-deprecated": "warn",
+  },
+} as const;
+
+/**
  * Shared TypeSpec oxlint configs — can be reused by downstream repos (e.g., typespec-azure).
  */
 export const TypeSpecCommonOxlintConfigs = {
@@ -167,6 +186,7 @@ export const TypeSpecCommonOxlintConfigs = {
   typescriptFileOverride,
   jsxFilesOverride,
   testFilesOverride,
+  typeAwareOverride,
 };
 
 export default defineConfig({
@@ -208,6 +228,7 @@ export default defineConfig({
     typescriptFileOverride,
     jsxFilesOverride,
     testFilesOverride,
+    typeAwareOverride,
     // Framework-required PascalCase filenames
     {
       files: ["website/src/components/docusaurus/**/*.ts", "website/src/pages/**/*.ts"],
