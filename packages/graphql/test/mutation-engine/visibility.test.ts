@@ -184,7 +184,9 @@ describe("GraphQL Mutation Engine - Visibility Filtering", () => {
       expect(mutation.mutationNode.isReplaced).toBe(true);
       const replacement = mutation.mutationNode.replacementNode!.mutatedType;
       expect(replacement.kind).toBe("Scalar");
-      expect(replacement.name).toBe("ReadOnlyModelInput");
+      if (replacement.kind === "Scalar") {
+        expect(replacement.name).toBe("ReadOnlyModelInput");
+      }
     });
 
     it("strips @compose from input variants to avoid spurious validation", async () => {
