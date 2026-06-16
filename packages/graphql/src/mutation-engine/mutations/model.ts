@@ -76,7 +76,16 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       this.options instanceof GraphQLMutationOptions ? this.options.inputQualifier : undefined;
 
     if (this.shouldReplaceWithScalar(program, visibilityFilter)) {
-      const scalarName = applyTypeNamePipeline(rawName, { isInput: isInputContext, isInterface: false, inputQualifier });
+      // Record<T> scalars should NOT get Input suffix - they're opaque map types with
+      // no structural difference between input/output. Visibility-filtered scalars
+      // (where all properties were removed) keep the Input suffix to distinguish variants.
+      const isPureRecord = isRecordType(this.sourceType) &&
+        (walkPropertiesInherited(this.sourceType).next().done ?? false);
+      const scalarName = applyTypeNamePipeline(rawName, {
+        isInput: isInputContext && !isPureRecord,
+        isInterface: false,
+        inputQualifier: isPureRecord ? undefined : inputQualifier,
+      });
       this.mutationNode.replace(program.checker.createType({
         kind: "Scalar",
         name: scalarName,
@@ -157,7 +166,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
 
   private willHaveNoFields(program: Program, visibilityFilter: VisibilityFilter | undefined): boolean {
     // Record<T> with no own/inherited properties → opaque map scalar
-    if (isRecordType(this.sourceType)) return walkPropertiesInherited(this.sourceType).next().done;
+    if (isRecordType(this.sourceType)) return walkPropertiesInherited(this.sourceType).next().done ?? false;
     // Model declared with no properties at all
     if (this.sourceType.properties.size === 0) return true;
     // All properties removed by visibility filtering (e.g., all @visibility(Lifecycle.Read) in input context)

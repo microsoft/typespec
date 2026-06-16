@@ -69,6 +69,23 @@ describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
     expect(resolved).toHaveProperty("name", "Metadata");
   });
 
+  it("produces same scalar name for Record in both input and output contexts", async () => {
+    const { Metadata } = await tester.compile(
+      t.code`model ${t.model("Metadata")} is Record<string>;`,
+    );
+
+    const engine = createTestEngine(tester.program);
+    const outputMutation = engine.mutateModel(Metadata, GraphQLTypeContext.Output);
+    const inputMutation = engine.mutateModel(Metadata, GraphQLTypeContext.Input);
+
+    const outputScalar = outputMutation.mutationNode.replacementNode!.mutatedType;
+    const inputScalar = inputMutation.mutationNode.replacementNode!.mutatedType;
+
+    // Both should produce the same scalar name - no Input suffix for Records
+    expect(outputScalar).toHaveProperty("name", "Metadata");
+    expect(inputScalar).toHaveProperty("name", "Metadata");
+  });
+
   it("replaces Record model with scalar even through T | null unwrap", async () => {
     const { Foo } = await tester.compile(
       t.code`

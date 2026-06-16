@@ -316,6 +316,35 @@ describe("schema: record types", () => {
     expect(sdl).toContain("scalar RecordOfMetric");
     expect(errors).toHaveLength(0);
   });
+
+  it("emits a single scalar for Record<T> used in both input and output contexts", async () => {
+    const { sdl, errors } = await emitSchema("04b-records-dedup", `
+      @schema(#{ name: "records-dedup" })
+      namespace RecordsDedup {
+        model User {
+          name: string;
+          metadata: Record<string>;
+        }
+
+        @query op getUser(): User;
+        @mutation op createUser(input: User): User;
+      }
+    `);
+
+    expect(sdl).toBeTruthy();
+    expect(errors).toHaveLength(0);
+
+    // Should have exactly ONE RecordOfString scalar, not two
+    const matches = sdl!.match(/scalar RecordOfString/g);
+    expect(matches).toHaveLength(1);
+
+    // Should NOT have RecordOfStringInput
+    expect(sdl).not.toContain("RecordOfStringInput");
+
+    // Both type and input should reference the same scalar
+    expect(sdl).toMatch(/type User \{[\s\S]*?metadata: RecordOfString/);
+    expect(sdl).toMatch(/input UserInput \{[\s\S]*?metadata: RecordOfString/);
+  });
 });
 
 // =============================================================================
