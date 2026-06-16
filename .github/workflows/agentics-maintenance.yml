@@ -42,9 +42,7 @@ on:
         description: 'Optional maintenance operation to run'
         required: false
         type: choice
-        default: ''
         options:
-          - ''
           - 'disable'
           - 'enable'
           - 'update'
