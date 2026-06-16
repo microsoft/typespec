@@ -740,18 +740,8 @@ namespace Header {
  * mismatches, which are already covered by the round-trip scenarios above.
  */
 @route("/lossy")
-namespace Lossy {
-  model Int32SecondsDurationProperty {
-    @encode(DurationKnownEncoding.seconds, int32)
-    value: duration;
-  }
-
-  model Int32MillisecondsDurationProperty {
-    @encode(DurationKnownEncoding.milliseconds, int32)
-    value: duration;
-  }
-
-  @route("/query/int32-seconds")
+interface Lossy {
+  @route("/int32-seconds")
   @scenario
   @scenarioDoc("""
     Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
@@ -759,13 +749,13 @@ namespace Lossy {
     The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
     Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
     """)
-  op queryInt32Seconds(
+  intSeconds(
     @query
     @encode(DurationKnownEncoding.seconds, int32)
     input: duration,
   ): NoContentResponse;
 
-  @route("/query/int32-milliseconds")
+  @route("/int32-milliseconds")
   @scenario
   @scenarioDoc("""
     Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
@@ -773,61 +763,9 @@ namespace Lossy {
     The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
     Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
     """)
-  op queryInt32Milliseconds(
+  intMilliseconds(
     @query
     @encode(DurationKnownEncoding.milliseconds, int32)
     input: duration,
-  ): NoContentResponse;
-
-  @route("/property/int32-seconds")
-  @scenario
-  @scenarioDoc("""
-    Test int32 seconds encode for a duration property whose value has a fractional (sub-second) component.
-    The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
-    The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
-    Because emitters may floor, round, or ceil when discarding that precision, the expected request body `value` is `36` or `37`.
-    """)
-  @post
-  op propertyInt32Seconds(@body body: Int32SecondsDurationProperty): Int32SecondsDurationProperty;
-
-  @route("/property/int32-milliseconds")
-  @scenario
-  @scenarioDoc("""
-    Test int32 milliseconds encode for a duration property whose value has a sub-millisecond fractional component.
-    The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
-    The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
-    Because emitters may floor, round, or ceil when discarding that precision, the expected request body `value` is `36250` or `36251`.
-    """)
-  @post
-  op propertyInt32Milliseconds(
-    @body body: Int32MillisecondsDurationProperty,
-  ): Int32MillisecondsDurationProperty;
-
-  @route("/header/int32-seconds")
-  @scenario
-  @scenarioDoc("""
-    Test int32 seconds encode for a duration header whose value has a fractional (sub-second) component.
-    The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
-    The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
-    Because emitters may floor, round, or ceil when discarding that precision, the expected header is `duration: 36` or `duration: 37`.
-    """)
-  op headerInt32Seconds(
-    @header
-    @encode(DurationKnownEncoding.seconds, int32)
-    duration: duration,
-  ): NoContentResponse;
-
-  @route("/header/int32-milliseconds")
-  @scenario
-  @scenarioDoc("""
-    Test int32 milliseconds encode for a duration header whose value has a sub-millisecond fractional component.
-    The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
-    The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
-    Because emitters may floor, round, or ceil when discarding that precision, the expected header is `duration: 36250` or `duration: 36251`.
-    """)
-  op headerInt32Milliseconds(
-    @header
-    @encode(DurationKnownEncoding.milliseconds, int32)
-    duration: duration,
   ): NoContentResponse;
 }
