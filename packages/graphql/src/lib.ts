@@ -31,13 +31,6 @@ export interface GraphQLEmitterOptions {
    * @default false
    */
   "omit-unreachable-types"?: boolean;
-
-  /**
-   * Only emit types if a correct GraphQL translation type is found. Don't emit Any types and operations that don't have the GraphQL decorators.
-   * By default a best effort is made to emit all types.
-   * @default false
-   */
-  strict?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
@@ -76,15 +69,6 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
         "Omit unreachable types.",
         "By default all types declared under the schema namespace will be included.",
         "With this flag on only types references in an operation will be emitted.",
-      ].join("\n"),
-    },
-    strict: {
-      type: "boolean",
-      nullable: true,
-      description: [
-        "Only emit types if a correct GraphQL translation type is found.",
-        "Don't emit Any types and operations that don't have the GraphQL decorators.",
-        "By default a best effort is made to emit all types.",
       ].join("\n"),
     },
   },

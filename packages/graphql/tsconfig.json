@@ -1,5 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
+  "references": [
+    { "path": "../compiler/tsconfig.json" },
+    { "path": "../emitter-framework/tsconfig.json" },
+    { "path": "../http/tsconfig.json" }
+  ],
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
