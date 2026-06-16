@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
     /// via <c>AddCustomCodeAttributeProvider</c>. Used to validate that custom code referencing the attribute is
     /// parsed and the attribute is registered on the parsed type.
     /// </summary>
-    public class TestCustomCodeAttributeDefinition : TypeProvider
+    public class TestCustomCodeAttributeDefinition : CustomCodeAttributeDefinition
     {
         public const string AttributeNamespace = "Sample.Customizations";
 
