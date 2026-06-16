@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Base package defining the Animal model, referenced as an external type by SamplePets.</Description>
+    <AssemblyTitle>SDK Code Generation SampleAnimals</AssemblyTitle>
+    <Version>1.0.0</Version>
+    <PackageTags>SampleAnimals</PackageTags>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\SampleAnimals.NuGet.targets" Pack="true" PackagePath="buildTransitive\net8.0\SampleAnimals.targets" />
+  </ItemGroup>
+</Project>

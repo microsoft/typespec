@@ -1,0 +1,835 @@
+{
+  "name": "SamplePets",
+  "apiVersions": [],
+  "enums": [],
+  "constants": [
+    {
+      "$id": "1",
+      "kind": "constant",
+      "name": "PetKind",
+      "namespace": "SamplePets",
+      "usage": "Input,Output,Json,External",
+      "valueType": {
+        "$id": "2",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "pet",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "3",
+      "kind": "constant",
+      "name": "DogKind",
+      "namespace": "SamplePets",
+      "usage": "Input,Output,Json,External",
+      "valueType": {
+        "$id": "4",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "dog",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "5",
+      "kind": "constant",
+      "name": "UpdatePetContentType",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "6",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "7",
+      "kind": "constant",
+      "name": "UpdatePetContentType1",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "8",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "9",
+      "kind": "constant",
+      "name": "UpdatePetContentType2",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "10",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "11",
+      "kind": "constant",
+      "name": "UpdatePetContentType3",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "12",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "models": [
+    {
+      "$id": "13",
+      "kind": "model",
+      "name": "Pet",
+      "namespace": "SamplePets",
+      "crossLanguageDefinitionId": "SamplePets.Pet",
+      "usage": "Input,Output,Json,External",
+      "doc": "Pet is an animal that can be trained.",
+      "discriminatorValue": "pet",
+      "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Pet"
+        }
+      },
+      "isExactName": false,
+      "baseModel": {
+        "$id": "14",
+        "kind": "model",
+        "name": "Animal",
+        "namespace": "SampleAnimals",
+        "crossLanguageDefinitionId": "SampleAnimals.Animal",
+        "usage": "External",
+        "doc": "Base animal with a discriminator. Generated into the base package (SampleAnimals) and referenced as an external type by the extended package (SamplePets).",
+        "decorators": [],
+        "external": {
+          "identity": "SampleAnimals.Animal",
+          "package": "SampleAnimals",
+          "minVersion": "1.0.0"
+        },
+        "serializationOptions": {
+          "json": {
+            "name": "Animal"
+          }
+        },
+        "isExactName": false,
+        "discriminatorProperty": {
+          "$id": "15",
+          "kind": "property",
+          "name": "kind",
+          "serializedName": "kind",
+          "doc": "The kind of animal.",
+          "type": {
+            "$id": "16",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": true,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleAnimals.Animal.kind",
+          "serializationOptions": {
+            "json": {
+              "name": "kind"
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        },
+        "properties": [
+          {
+            "$ref": "15"
+          },
+          {
+            "$id": "17",
+            "kind": "property",
+            "name": "name",
+            "serializedName": "name",
+            "doc": "The name of the animal.",
+            "type": {
+              "$id": "18",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+            },
+            "optional": false,
+            "readOnly": false,
+            "discriminator": false,
+            "flatten": false,
+            "decorators": [],
+            "crossLanguageDefinitionId": "SampleAnimals.Animal.name",
+            "serializationOptions": {
+              "json": {
+                "name": "name"
+              }
+            },
+            "isHttpMetadata": false,
+            "isExactName": false
+          }
+        ],
+        "discriminatedSubtypes": {
+          "pet": {
+            "$ref": "13"
+          },
+          "dog": {
+            "$id": "19",
+            "kind": "model",
+            "name": "Dog",
+            "namespace": "SamplePets",
+            "crossLanguageDefinitionId": "SamplePets.Dog",
+            "usage": "Input,Output,Json,External",
+            "doc": "Dog is a specific kind of animal.",
+            "discriminatorValue": "dog",
+            "decorators": [],
+            "serializationOptions": {
+              "json": {
+                "name": "Dog"
+              }
+            },
+            "isExactName": false,
+            "baseModel": {
+              "$ref": "14"
+            },
+            "properties": [
+              {
+                "$id": "20",
+                "kind": "property",
+                "name": "kind",
+                "serializedName": "kind",
+                "type": {
+                  "$ref": "3"
+                },
+                "optional": false,
+                "readOnly": false,
+                "discriminator": true,
+                "flatten": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "SamplePets.Dog.kind",
+                "serializationOptions": {
+                  "json": {
+                    "name": "kind"
+                  }
+                },
+                "isHttpMetadata": false,
+                "isExactName": false
+              },
+              {
+                "$id": "21",
+                "kind": "property",
+                "name": "trained",
+                "serializedName": "trained",
+                "doc": "Whether the dog is trained.",
+                "type": {
+                  "$id": "22",
+                  "kind": "boolean",
+                  "name": "boolean",
+                  "crossLanguageDefinitionId": "TypeSpec.boolean",
+                  "decorators": []
+                },
+                "optional": false,
+                "readOnly": false,
+                "discriminator": false,
+                "flatten": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "SamplePets.Dog.trained",
+                "serializationOptions": {
+                  "json": {
+                    "name": "trained"
+                  }
+                },
+                "isHttpMetadata": false,
+                "isExactName": false
+              },
+              {
+                "$id": "23",
+                "kind": "property",
+                "name": "breed",
+                "serializedName": "breed",
+                "doc": "The breed of the dog.",
+                "type": {
+                  "$id": "24",
+                  "kind": "string",
+                  "name": "string",
+                  "crossLanguageDefinitionId": "TypeSpec.string",
+                  "decorators": []
+                },
+                "optional": false,
+                "readOnly": false,
+                "discriminator": false,
+                "flatten": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "SamplePets.Dog.breed",
+                "serializationOptions": {
+                  "json": {
+                    "name": "breed"
+                  }
+                },
+                "isHttpMetadata": false,
+                "isExactName": false
+              }
+            ]
+          }
+        }
+      },
+      "properties": [
+        {
+          "$id": "25",
+          "kind": "property",
+          "name": "kind",
+          "serializedName": "kind",
+          "type": {
+            "$ref": "1"
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": true,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SamplePets.Pet.kind",
+          "serializationOptions": {
+            "json": {
+              "name": "kind"
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        },
+        {
+          "$id": "26",
+          "kind": "property",
+          "name": "trained",
+          "serializedName": "trained",
+          "doc": "Whether the pet is trained.",
+          "type": {
+            "$id": "27",
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SamplePets.Pet.trained",
+          "serializationOptions": {
+            "json": {
+              "name": "trained"
+            }
+          },
+          "isHttpMetadata": false,
+          "isExactName": false
+        }
+      ]
+    },
+    {
+      "$ref": "14"
+    },
+    {
+      "$ref": "19"
+    }
+  ],
+  "clients": [
+    {
+      "$id": "28",
+      "kind": "client",
+      "name": "SamplePetsClient",
+      "isExactName": false,
+      "namespace": "SamplePets",
+      "doc": "Extended package whose models extend the Animal base model from the SampleAnimals package.",
+      "methods": [],
+      "parameters": [
+        {
+          "$id": "29",
+          "kind": "endpoint",
+          "name": "endpoint",
+          "serializedName": "endpoint",
+          "doc": "Service host",
+          "type": {
+            "$id": "30",
+            "kind": "url",
+            "name": "endpoint",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+          },
+          "isApiVersion": false,
+          "optional": false,
+          "scope": "Client",
+          "isEndpoint": true,
+          "serverUrlTemplate": "{endpoint}",
+          "skipUrlEncoding": false,
+          "readOnly": false,
+          "crossLanguageDefinitionId": "SamplePets.endpoint",
+          "isExactName": false
+        }
+      ],
+      "initializedBy": 1,
+      "decorators": [],
+      "crossLanguageDefinitionId": "SamplePets",
+      "apiVersions": [],
+      "children": [
+        {
+          "$id": "31",
+          "kind": "client",
+          "name": "PetOperations",
+          "isExactName": false,
+          "namespace": "SamplePets",
+          "methods": [
+            {
+              "$id": "32",
+              "kind": "basic",
+              "name": "updatePet",
+              "isExactName": false,
+              "accessibility": "public",
+              "apiVersions": [],
+              "doc": "Round-trip a pet.",
+              "operation": {
+                "$id": "33",
+                "name": "updatePet",
+                "isExactName": false,
+                "resourceName": "PetOperations",
+                "doc": "Round-trip a pet.",
+                "accessibility": "public",
+                "parameters": [
+                  {
+                    "$id": "34",
+                    "kind": "header",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "5"
+                    },
+                    "isApiVersion": false,
+                    "optional": false,
+                    "isContentType": true,
+                    "scope": "Constant",
+                    "readOnly": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.contentType",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "35",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "5"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false
+                  },
+                  {
+                    "$id": "36",
+                    "kind": "header",
+                    "name": "accept",
+                    "serializedName": "Accept",
+                    "type": {
+                      "$ref": "7"
+                    },
+                    "isApiVersion": false,
+                    "optional": false,
+                    "isContentType": false,
+                    "scope": "Constant",
+                    "readOnly": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.accept",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "37",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "7"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false
+                  },
+                  {
+                    "$id": "38",
+                    "kind": "body",
+                    "name": "pet",
+                    "serializedName": "pet",
+                    "type": {
+                      "$ref": "13"
+                    },
+                    "isApiVersion": false,
+                    "contentTypes": [
+                      "application/json"
+                    ],
+                    "defaultContentType": "application/json",
+                    "optional": false,
+                    "scope": "Method",
+                    "decorators": [],
+                    "readOnly": false,
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.pet",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "39",
+                        "kind": "method",
+                        "name": "pet",
+                        "serializedName": "pet",
+                        "type": {
+                          "$ref": "13"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet.pet",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "pet"
+                      }
+                    }
+                  }
+                ],
+                "responses": [
+                  {
+                    "statusCodes": [
+                      200
+                    ],
+                    "bodyType": {
+                      "$ref": "13"
+                    },
+                    "headers": [],
+                    "isErrorResponse": false,
+                    "contentTypes": [
+                      "application/json"
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
+                  }
+                ],
+                "httpMethod": "PUT",
+                "uri": "{endpoint}",
+                "path": "/pets/pet",
+                "requestMediaTypes": [
+                  "application/json"
+                ],
+                "bufferResponse": true,
+                "generateProtocolMethod": true,
+                "generateConvenienceMethod": true,
+                "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet",
+                "decorators": [],
+                "namespace": "SamplePets"
+              },
+              "parameters": [
+                {
+                  "$ref": "39"
+                },
+                {
+                  "$ref": "35"
+                },
+                {
+                  "$ref": "37"
+                }
+              ],
+              "response": {
+                "type": {
+                  "$ref": "13"
+                }
+              },
+              "isOverride": false,
+              "generateConvenient": true,
+              "generateProtocol": true,
+              "crossLanguageDefinitionId": "SamplePets.PetOperations.updatePet"
+            },
+            {
+              "$id": "40",
+              "kind": "basic",
+              "name": "updateDog",
+              "isExactName": false,
+              "accessibility": "public",
+              "apiVersions": [],
+              "doc": "Round-trip a dog.",
+              "operation": {
+                "$id": "41",
+                "name": "updateDog",
+                "isExactName": false,
+                "resourceName": "PetOperations",
+                "doc": "Round-trip a dog.",
+                "accessibility": "public",
+                "parameters": [
+                  {
+                    "$id": "42",
+                    "kind": "header",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "9"
+                    },
+                    "isApiVersion": false,
+                    "optional": false,
+                    "isContentType": true,
+                    "scope": "Constant",
+                    "readOnly": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.contentType",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "43",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "9"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false
+                  },
+                  {
+                    "$id": "44",
+                    "kind": "header",
+                    "name": "accept",
+                    "serializedName": "Accept",
+                    "type": {
+                      "$ref": "11"
+                    },
+                    "isApiVersion": false,
+                    "optional": false,
+                    "isContentType": false,
+                    "scope": "Constant",
+                    "readOnly": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.accept",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "45",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "11"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false
+                  },
+                  {
+                    "$id": "46",
+                    "kind": "body",
+                    "name": "dog",
+                    "serializedName": "dog",
+                    "type": {
+                      "$ref": "19"
+                    },
+                    "isApiVersion": false,
+                    "contentTypes": [
+                      "application/json"
+                    ],
+                    "defaultContentType": "application/json",
+                    "optional": false,
+                    "scope": "Method",
+                    "decorators": [],
+                    "readOnly": false,
+                    "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.dog",
+                    "methodParameterSegments": [
+                      {
+                        "$id": "47",
+                        "kind": "method",
+                        "name": "dog",
+                        "serializedName": "dog",
+                        "type": {
+                          "$ref": "19"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog.dog",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": [],
+                        "isExactName": false
+                      }
+                    ],
+                    "isExactName": false,
+                    "serializationOptions": {
+                      "json": {
+                        "name": "dog"
+                      }
+                    }
+                  }
+                ],
+                "responses": [
+                  {
+                    "statusCodes": [
+                      200
+                    ],
+                    "bodyType": {
+                      "$ref": "19"
+                    },
+                    "headers": [],
+                    "isErrorResponse": false,
+                    "contentTypes": [
+                      "application/json"
+                    ],
+                    "serializationOptions": {
+                      "json": {
+                        "name": ""
+                      }
+                    }
+                  }
+                ],
+                "httpMethod": "PUT",
+                "uri": "{endpoint}",
+                "path": "/pets/dog",
+                "requestMediaTypes": [
+                  "application/json"
+                ],
+                "bufferResponse": true,
+                "generateProtocolMethod": true,
+                "generateConvenienceMethod": true,
+                "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog",
+                "decorators": [],
+                "namespace": "SamplePets"
+              },
+              "parameters": [
+                {
+                  "$ref": "47"
+                },
+                {
+                  "$ref": "43"
+                },
+                {
+                  "$ref": "45"
+                }
+              ],
+              "response": {
+                "type": {
+                  "$ref": "19"
+                }
+              },
+              "isOverride": false,
+              "generateConvenient": true,
+              "generateProtocol": true,
+              "crossLanguageDefinitionId": "SamplePets.PetOperations.updateDog"
+            }
+          ],
+          "parameters": [
+            {
+              "$id": "48",
+              "kind": "endpoint",
+              "name": "endpoint",
+              "serializedName": "endpoint",
+              "doc": "Service host",
+              "type": {
+                "$id": "49",
+                "kind": "url",
+                "name": "endpoint",
+                "crossLanguageDefinitionId": "TypeSpec.url"
+              },
+              "isApiVersion": false,
+              "optional": false,
+              "scope": "Client",
+              "isEndpoint": true,
+              "serverUrlTemplate": "{endpoint}",
+              "skipUrlEncoding": false,
+              "readOnly": false,
+              "crossLanguageDefinitionId": "SamplePets.PetOperations.endpoint",
+              "isExactName": false
+            }
+          ],
+          "initializedBy": 0,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SamplePets.PetOperations",
+          "apiVersions": [],
+          "parent": {
+            "$ref": "28"
+          },
+          "isMultiServiceClient": false
+        }
+      ],
+      "isMultiServiceClient": false
+    }
+  ]
+}

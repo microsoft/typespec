@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Extended package whose Pet and Dog models extend the external SampleAnimals.Animal base.</Description>
+    <AssemblyTitle>SDK Code Generation SamplePets</AssemblyTitle>
+    <Version>1.0.0-beta.1</Version>
+    <PackageTags>SamplePets</PackageTags>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ClientModel" Version="1.10.0" />
+    <PackageReference Include="SampleAnimals" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Generated\schema\ConfigurationSchema.json" Pack="true" PackagePath="\" />
+    <None Include="..\SamplePets.NuGet.targets" Pack="true" PackagePath="buildTransitive\net8.0\SamplePets.targets" />
+  </ItemGroup>
+</Project>
