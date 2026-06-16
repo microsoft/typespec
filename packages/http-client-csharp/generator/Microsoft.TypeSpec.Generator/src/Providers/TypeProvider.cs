@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private CSharpType? _type;
         private CSharpType[]? _arguments;
-        public CSharpType Type => _type ??=
+        public virtual CSharpType Type => _type ??=
             new(
                 CustomCodeView?.Name ?? BuildName(),
                 CustomCodeView?.Type.Namespace ?? BuildNamespace(),

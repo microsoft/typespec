@@ -546,20 +546,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private SwitchCaseStatement[] GetXmlDiscriminatorSwitchCases(ModelProvider unknownVariant)
         {
-            SwitchCaseStatement[] cases = new SwitchCaseStatement[_model.DerivedModels.Count - 1];
-            int index = 0;
-            for (int i = 0; i < _model.DerivedModels.Count; i++)
+            var cases = new List<SwitchCaseStatement>(_model.DerivedModels.Count);
+            foreach (var model in _model.DerivedModels)
             {
-                var model = _model.DerivedModels[i];
                 if (ReferenceEquals(model, unknownVariant))
                 {
                     continue;
                 }
-                cases[index++] = new SwitchCaseStatement(
+                cases.Add(new SwitchCaseStatement(
                     Literal(model.DiscriminatorValue!),
-                    Return(GetDeserializationMethodInvocationForType(model, _xmlElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));
+                    Return(GetDeserializationMethodInvocationForType(model, _xmlElementParameterSnippet, _dataParameter, _serializationOptionsParameter))));
             }
-            return cases;
+            return cases.ToArray();
         }
 
         private MethodBodyStatement[] BuildXmlDeserializationMethodBody()

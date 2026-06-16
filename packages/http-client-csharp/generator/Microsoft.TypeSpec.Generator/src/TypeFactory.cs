@@ -177,6 +177,26 @@ namespace Microsoft.TypeSpec.Generator
             if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
+            // If the model is mapped to an external library type via @@alternateType, return a
+            // non-emitting placeholder ModelProvider whose Type is the resolved external CSharpType.
+            // This keeps BaseModelProvider!=null checks throughout the generator working so that
+            // derived models correctly inherit serialization overrides, base ctor calls, etc.
+            if (model.External != null)
+            {
+                var externalCSharpType = CreateCSharpType(model);
+                if (externalCSharpType != null)
+                {
+                    var externalProvider = new ExternalModelProvider(model, externalCSharpType);
+                    InputTypeToModelProvider[model] = externalProvider;
+                    CSharpTypeMap[externalProvider.Type] = externalProvider;
+                    TypeProvidersByName[externalProvider.Type.Name] = externalProvider;
+                    return externalProvider;
+                }
+                // Resolution failed; CreateCSharpType already reported the diagnostic.
+                InputTypeToModelProvider[model] = null;
+                return null;
+            }
+
             // Add sentinel before construction to prevent re-entrant creation of the same model
             // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
             InputTypeToModelProvider[model] = null;

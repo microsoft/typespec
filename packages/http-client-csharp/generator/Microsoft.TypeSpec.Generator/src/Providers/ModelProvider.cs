@@ -189,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p =>
             p.Type.ElementType.Equals(_additionalPropsUnknownType) ||
             (p.Type.ElementType.IsFrameworkType && p.Type.ElementType.FrameworkType == typeof(object)));
-        public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
+        public virtual ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
             // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.

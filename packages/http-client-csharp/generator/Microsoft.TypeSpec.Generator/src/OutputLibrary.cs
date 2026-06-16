@@ -52,14 +52,14 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var inputModel in input.Models)
             {
                 var outputModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-                if (outputModel != null)
+                if (outputModel != null && outputModel is not ExternalModelProvider)
                 {
                     models.Add(outputModel);
                     var unknownVariant = inputModel.DiscriminatedSubtypes.Values.FirstOrDefault(m => m.IsUnknownDiscriminatorModel);
                     if (unknownVariant != null)
                     {
                         var unknownModel = CodeModelGenerator.Instance.TypeFactory.CreateModel(unknownVariant);
-                        if (unknownModel != null)
+                        if (unknownModel != null && unknownModel is not ExternalModelProvider)
                         {
                             models.Add(unknownModel);
                         }
