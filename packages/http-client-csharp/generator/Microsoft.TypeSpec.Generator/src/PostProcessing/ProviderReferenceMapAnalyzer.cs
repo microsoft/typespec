@@ -240,6 +240,11 @@ namespace Microsoft.TypeSpec.Generator
         {
             foreach (var provider in providers.OfType<ModelProvider>())
             {
+                if (provider.DiscriminatorProperty == null)
+                {
+                    continue;
+                }
+
                 var providerName = GetProviderTypeName(provider.Type);
                 if (!nodes.Contains(providerName))
                 {

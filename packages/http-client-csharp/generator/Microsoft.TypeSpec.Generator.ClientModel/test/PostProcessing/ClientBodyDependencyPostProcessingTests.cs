@@ -53,6 +53,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             await GenerateAndAssertInternalModels([toolModel, nestedModel], [client], ["ToolConfig", "NestedToolParameter"]);
         }
 
+        [Test]
+        public async Task NonDiscriminatorDerivedBodyModelDoesNotBecomePublicFromPublicBase()
+        {
+            var baseTool = InputFactory.Model("BaseTool");
+            var concreteTool = InputFactory.Model(
+                "ConcreteTool",
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)],
+                baseModel: baseTool);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: baseTool)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation, response: InputFactory.ServiceMethodResponse(baseTool, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertMixedModels(
+                [baseTool, concreteTool],
+                [client],
+                publicModelNames: ["BaseTool"],
+                internalModelNames: ["ConcreteTool"]);
+        }
+
         private static async Task GenerateAndAssertInternalModels(
             InputModelType[] models,
             InputClient[] clients,
@@ -65,11 +84,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             string[] modelNames)
             => await GenerateAndAssertModels(models, clients, modelNames, shouldBePublic: true);
 
+        private static async Task GenerateAndAssertMixedModels(
+            InputModelType[] models,
+            InputClient[] clients,
+            string[] publicModelNames,
+            string[] internalModelNames)
+            => await GenerateAndAssertModels(models, clients, publicModelNames, internalModelNames);
+
         private static async Task GenerateAndAssertModels(
             InputModelType[] models,
             InputClient[] clients,
             string[] modelNames,
             bool shouldBePublic)
+            => await GenerateAndAssertModels(
+                models,
+                clients,
+                shouldBePublic ? modelNames : [],
+                shouldBePublic ? [] : modelNames);
+
+        private static async Task GenerateAndAssertModels(
+            InputModelType[] models,
+            InputClient[] clients,
+            string[] publicModelNames,
+            string[] internalModelNames)
         {
             var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(outputPath);
@@ -83,36 +120,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
 
                 await new CSharpGen().ExecuteAsync();
 
-                foreach (var modelName in modelNames)
+                foreach (var modelName in publicModelNames)
                 {
                     var modelPath = Path.Combine(outputPath, "src", "Generated", "Models", $"{modelName}.cs");
                     Assert.IsTrue(File.Exists(modelPath), $"Expected generated model file '{modelPath}'.");
                     var text = File.ReadAllText(modelPath);
-                    if (shouldBePublic)
-                    {
-                        StringAssert.Contains($"public partial class {modelName}", text, $"{modelName} should be public.");
-                    }
-                    else
-                    {
-                        StringAssert.Contains($"internal partial class {modelName}", text, $"{modelName} should be internal.");
-                        StringAssert.DoesNotContain($"public partial class {modelName}", text, $"{modelName} should not be public.");
-                    }
+                    StringAssert.Contains($"public partial class {modelName}", text, $"{modelName} should be public.");
+                }
+
+                foreach (var modelName in internalModelNames)
+                {
+                    var modelPath = Path.Combine(outputPath, "src", "Generated", "Models", $"{modelName}.cs");
+                    Assert.IsTrue(File.Exists(modelPath), $"Expected generated model file '{modelPath}'.");
+                    var text = File.ReadAllText(modelPath);
+                    StringAssert.Contains($"internal partial class {modelName}", text, $"{modelName} should be internal.");
+                    StringAssert.DoesNotContain($"public partial class {modelName}", text, $"{modelName} should not be public.");
                 }
 
                 var modelFactoryPath = Path.Combine(outputPath, "src", "Generated", "SampleModelFactory.cs");
                 if (File.Exists(modelFactoryPath))
                 {
                     var modelFactoryText = File.ReadAllText(modelFactoryPath);
-                    foreach (var modelName in modelNames)
+                    foreach (var modelName in publicModelNames)
                     {
-                        if (shouldBePublic)
-                        {
-                            StringAssert.Contains($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should be generated.");
-                        }
-                        else
-                        {
-                            StringAssert.DoesNotContain($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should not be generated.");
-                        }
+                        StringAssert.Contains($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should be generated.");
+                    }
+
+                    foreach (var modelName in internalModelNames)
+                    {
+                        StringAssert.DoesNotContain($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should not be generated.");
                     }
                 }
             }
