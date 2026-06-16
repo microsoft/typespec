@@ -1,5 +1,10 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+} from "./core/auto-decorator.js";
+export {
   Checker,
   CreateTypeProps,
   // TODO: feels like all of those should move to a separate file
@@ -105,11 +110,6 @@ export { NodeHost } from "./core/node-host.js";
 export { isNumeric, Numeric } from "./core/numeric.js";
 export type { CompilerOptions } from "./core/options.js";
 export { getPositionBeforeTrivia } from "./core/parser-utils.js";
-export {
-  getAutoDecoratorTargets,
-  getAutoDecoratorValue,
-  hasAutoDecorator,
-} from "./lib/auto-decorator.js";
 export {
   $defaultVisibility,
   $discriminator,

@@ -221,7 +221,7 @@ describe("compiler: checker: decorators", () => {
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
       ok(Foo, "Foo should exist");
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myFlag", Foo), {});
     });
 
@@ -237,7 +237,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "hello" });
     });
 
@@ -253,7 +253,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       const value = getAutoDecoratorValue(program, "myMeta", Foo) as any;
       deepStrictEqual(value, { name: "test", version: 42 });
     });
@@ -272,7 +272,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
     });
 
@@ -308,7 +308,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "tags", Foo), { tags: ["a", "b", "c"] });
     });
 
@@ -324,7 +324,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "route", Foo), {
         path: "/foo",
         tags: ["tag1", "tag2"],
@@ -370,7 +370,7 @@ describe("compiler: checker: decorators", () => {
       // Decorators execute in reverse source order, so the source-first
       // application runs last and wins (both applications still store).
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "first" });
     });
 
@@ -388,7 +388,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myLabel", Foo), { label: "second" });
     });
 
@@ -404,7 +404,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myDec", Foo), {
         required: "hello",
         optional: undefined,
@@ -422,7 +422,7 @@ describe("compiler: checker: decorators", () => {
         autoDecOptions,
       );
 
-      const { getAutoDecoratorTargets } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorTargets } = await import("../../src/core/auto-decorator.js");
       const targets = getAutoDecoratorTargets(program, "tracked");
       strictEqual(targets.size, 2);
     });
@@ -439,7 +439,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const ns = program.getGlobalNamespaceType();
-      const { hasAutoDecorator } = await import("../../src/lib/auto-decorator.js");
+      const { hasAutoDecorator } = await import("../../src/core/auto-decorator.js");
       strictEqual(hasAutoDecorator(program, "tracked", ns.models.get("Foo")!), true);
       strictEqual(hasAutoDecorator(program, "tracked", ns.models.get("Bar")!), false);
     });
@@ -455,7 +455,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const Bar = program.getGlobalNamespaceType().models.get("Bar")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       strictEqual(getAutoDecoratorValue(program, "myLabel", Bar), undefined);
     });
 
@@ -473,7 +473,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const ns = program.getGlobalNamespaceType();
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "myLabel", ns.models.get("Base")!), {
         label: "base",
       });
@@ -496,7 +496,7 @@ describe("compiler: checker: decorators", () => {
       );
 
       const prop = program.getGlobalNamespaceType().models.get("Foo")!.properties.get("prop")!;
-      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      const { getAutoDecoratorValue } = await import("../../src/core/auto-decorator.js");
       deepStrictEqual(getAutoDecoratorValue(program, "field", prop), { name: "id" });
     });
   });

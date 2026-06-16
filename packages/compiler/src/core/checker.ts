@@ -1,16 +1,15 @@
 import { Realm } from "../experimental/realm.js";
-import { getAutoDecoratorStateKey } from "../lib/auto-decorator.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
-import { validateDecoratorUniqueOnNode } from "./decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import {
   compilerAssert,
@@ -2152,45 +2151,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     linkType(ctx, links, decoratorType);
 
     return decoratorType;
-  }
-
-  function createAutoDecoratorImplementation(
-    symbol: Sym,
-    node: DecoratorDeclarationStatementNode,
-  ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
-    const fqn = getFullyQualifiedSymbolName(symbol);
-    const stateKey = getAutoDecoratorStateKey(fqn);
-    const paramNames = node.parameters.map((p) => p.id.sv);
-    const lastParamIsRest =
-      node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
-
-    const impl = (context: DecoratorContext, target: Type, ...args: unknown[]) => {
-      // Warn (but still store, so duplicates are last-write-wins like extern
-      // decorators) if the same auto decorator is applied twice on the same node.
-      if ("decorators" in target) {
-        validateDecoratorUniqueOnNode(context, target, impl);
-      }
-
-      // Store as key-value record { paramName: value }
-      const data: Record<string, unknown> = {};
-      if (lastParamIsRest) {
-        // Non-rest params first
-        for (let i = 0; i < paramNames.length - 1; i++) {
-          data[paramNames[i]] = args[i];
-        }
-        // Rest param collects remaining args as an array
-        data[paramNames[paramNames.length - 1]] = args.slice(paramNames.length - 1);
-      } else {
-        for (let i = 0; i < paramNames.length; i++) {
-          data[paramNames[i]] = args[i];
-        }
-      }
-      context.program.stateMap(stateKey).set(target, data);
-    };
-    // The function name drives the `@<name>` text in the duplicate-decorator
-    // diagnostic; mirror the extern `$name` convention so the helper strips it.
-    Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
-    return impl;
   }
 
   function checkFunctionDeclaration(
