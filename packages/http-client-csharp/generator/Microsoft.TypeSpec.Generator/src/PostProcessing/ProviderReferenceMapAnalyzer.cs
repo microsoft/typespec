@@ -486,7 +486,16 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsClientProviderRoot(TypeProvider provider) =>
             provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
 
-        private static bool IsModelFactoryProvider(TypeProvider provider) => provider is ModelFactoryProvider;
+        private static bool IsModelFactoryProvider(TypeProvider provider)
+        {
+            if (provider is ModelFactoryProvider)
+            {
+                return true;
+            }
+
+            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
+            return relativePath.EndsWith("ModelFactory.cs", StringComparison.Ordinal);
+        }
 
         private static HashSet<string> GetHelperRootNames(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, HashSet<string> reachableTypes)
         {
