@@ -14,59 +14,59 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
-import com.azure.core.util.FluxUtil;
-import parameters.query.implementation.ConstantsImpl;
-import reactor.core.publisher.Mono;
+import parameters.query.implementation.SpecialCharsImpl;
 
 /**
- * Initializes a new instance of the asynchronous QueryClient type.
+ * Initializes a new instance of the synchronous QueryClient type.
  */
-@ServiceClient(builder = QueryClientBuilder.class, isAsync = true)
-public final class QueryAsyncClient {
+@ServiceClient(builder = QueryClientBuilder.class)
+public final class SpecialCharClient {
     @Generated
-    private final ConstantsImpl serviceClient;
+    private final SpecialCharsImpl serviceClient;
 
     /**
-     * Initializes an instance of QueryAsyncClient class.
+     * Initializes an instance of SpecialCharClient class.
      * 
      * @param serviceClient the service client implementation.
      */
     @Generated
-    QueryAsyncClient(ConstantsImpl serviceClient) {
+    SpecialCharClient(SpecialCharsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * post constant query value.
+     * The dollarSign operation.
      * 
+     * @param filter The filter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the {@link Response} on successful completion of {@link Mono}.
+     * @return the {@link Response}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> postWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.postWithResponseAsync(requestOptions);
+    public Response<Void> dollarSignWithResponse(String filter, RequestOptions requestOptions) {
+        return this.serviceClient.dollarSignWithResponse(filter, requestOptions);
     }
 
     /**
-     * post constant query value.
+     * The dollarSign operation.
      * 
+     * @param filter The filter parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> post() {
-        // Generated convenience method for postWithResponse
+    public void dollarSign(String filter) {
+        // Generated convenience method for dollarSignWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return postWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        dollarSignWithResponse(filter, requestOptions).getValue();
     }
 }

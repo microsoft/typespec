@@ -16,20 +16,29 @@ the rule files. This keeps cop targeted at the generator (via -t) and avoids
 scanning node_modules or the rest of the repository.
 
 .PARAMETER Version
-The cop release tag to use, or "latest" (default) to track the newest release.
+The cop release tag to use. Defaults to a pinned tag so CI is reproducible and
+upstream cop releases cannot break our build.
 
-NOTE: cop auto-restores its provider packages (code, csharp) from the GitHub
-feed, and the feed always serves the *latest* provider build. Those providers
-are version-locked to the cop runtime assembly, so the binary must match the
-provider version the feed currently serves -- otherwise the provider fails to
-load ("Could not load file or assembly 'cop, Version=...'"). Because the feed
-moves with upstream, we default to "latest" so the binary stays in lockstep with
-the providers. Pass an explicit tag only to reproduce a historical run.
+NOTE: cop's provider packages (code, csharp) are version-locked to the cop
+runtime assembly -- a mismatch makes the provider fail to load ("Could not load
+file or assembly 'cop, Version=...'"). We do NOT rely on cop's auto-restore feed
+(which always serves the *latest* provider build); instead we vendor the
+provider packages from the cop repo at the tag reported by `cop -v` (see below),
+so they always match the downloaded binary. Because of that, pinning the binary
+to a fixed tag is safe: the providers are pinned to the same tag automatically.
+
+Bumping the pinned version is a deliberate, reviewable change. Before bumping,
+verify the rule files in cop-checks/ still run against the new release, since
+cop occasionally makes breaking changes to its query API between releases.
+Pass "latest" to test against the newest release.
 #>
 
 [CmdletBinding()]
 param(
-    [string] $Version = "latest"
+    # Pinned cop release. Bump deliberately after verifying the cop-checks/ rules
+    # still run against the new release (cop can make breaking API changes
+    # between releases). Pass "latest" to test against the newest release.
+    [string] $Version = "v2026.6.10.1"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -71,9 +80,9 @@ else {
     $url = "https://github.com/KrzysztofCwalina/cop/releases/download/$Version/$asset"
 }
 
-# Cache the downloaded tool per version + platform. When tracking "latest" the
-# tag is not fixed, so always re-download to stay in lockstep with the feed's
-# provider packages.
+# Cache the downloaded tool per version + platform. A pinned tag is immutable, so
+# a cached copy can be reused; when "latest" is requested the tag is not fixed, so
+# always re-download to stay in lockstep with the feed's provider packages.
 $toolDir = Join-Path ([System.IO.Path]::GetTempPath()) "cop-$Version-$os-$arch"
 $copPath = Join-Path $toolDir $exe
 

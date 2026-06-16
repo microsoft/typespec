@@ -91,13 +91,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_generateConvenienceMethod)
             {
-                return
-                [
+                var methods = new List<ScmMethodProvider>
+                {
                     syncProtocol,
                     asyncProtocol,
-                    BuildConvenienceMethod(syncProtocol, false),
-                    BuildConvenienceMethod(asyncProtocol, true),
-                ];
+                };
+
+                if (_pagingServiceMethod != null)
+                {
+                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                    methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                }
+                else
+                {
+                    if (ProtocolMethodExists(syncProtocol))
+                    {
+                        methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                    }
+
+                    if (ProtocolMethodExists(asyncProtocol))
+                    {
+                        methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                    }
+                }
+
+                return methods;
             }
 
             return
@@ -105,6 +123,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 syncProtocol,
                 asyncProtocol,
             ];
+        }
+
+        private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
+        {
+            if (!generatedProtocolMethod.IsMethodSuppressed())
+            {
+                return true;
+            }
+
+            foreach (var method in EnclosingType.CustomCodeView?.Methods ?? [])
+            {
+                if (!method.IsPartialMethod &&
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedProtocolMethod.Signature))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
