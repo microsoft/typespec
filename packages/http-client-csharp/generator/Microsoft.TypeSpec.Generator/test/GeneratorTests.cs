@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var mockGenerator = new TestGenerator();
             var initialCount = mockGenerator.CustomCodeAttributeProviders.Count;
 
-            var provider = new TestTypeProvider();
+            var provider = new TestCustomCodeAttributeDefinition();
             mockGenerator.AddCustomCodeAttributeProviderForTest(provider);
 
             Assert.AreEqual(initialCount + 1, mockGenerator.CustomCodeAttributeProviders.Count);

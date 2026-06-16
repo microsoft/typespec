@@ -7,10 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// A base type for custom-code attribute definitions that are generated into the SDK project and made available
     /// to the compiler while it compiles custom code. Attribute definitions themselves should not participate in
     /// source-input customization lookup, so this base type disables the <see cref="TypeProvider.CustomCodeView"/>
-    /// and <see cref="TypeProvider.LastContractView"/> source-input views. Derived generators can inherit from this
-    /// type to contribute generator-specific attribute definitions via
-    /// <c>CodeModelGenerator.AddCustomCodeAttributeProvider(TypeProvider)</c> without having to suppress the
-    /// source-input views themselves.
+    /// and <see cref="TypeProvider.LastContractView"/> source-input views.
     /// </summary>
     public abstract class CustomCodeAttributeDefinition : TypeProvider
     {
