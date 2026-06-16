@@ -66,8 +66,25 @@ class GeneralSerializer(BaseSerializer):
         if dep_version > default_version:
             version_map[dep_name] = str(dep_version)
 
+    # Project-level pyproject.toml fields that may be preserved across regeneration
+    # via the "keep-pyproject-fields" option.
+    KEEPABLE_PROJECT_FIELDS = ("authors", "description", "classifiers", "urls")
+
+    @staticmethod
+    def _parse_keep_pyproject_fields(value: Any) -> tuple[str, ...]:
+        # The "keep-pyproject-fields" option may be a comma-separated string (e.g.
+        # "authors,description") or an already-parsed sequence of field names.
+        if not value:
+            return ()
+        if isinstance(value, str):
+            return tuple(field.strip() for field in value.split(",") if field.strip())
+        return tuple(value)
+
     def external_lib_version_map(
-        self, file_content: str, additional_version_map: dict[str, str], keep_pyproject_fields: bool = False
+        self,
+        file_content: str,
+        additional_version_map: dict[str, str],
+        keep_pyproject_fields: tuple[str, ...] = (),
     ) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
@@ -90,11 +107,10 @@ class GeneralSerializer(BaseSerializer):
             project = loaded_pyproject_toml["project"]
 
             # Keep manually customized project fields the emitter would otherwise overwrite.
-            # Only done when the "keep-pyproject-fields" option is explicitly enabled.
-            if keep_pyproject_fields:
-                for field in ("description", "classifiers", "urls", "authors"):
-                    if field in project:
-                        result["KEEP_FIELDS"][f"project.{field}"] = project[field]
+            # Only the fields explicitly listed in the "keep-pyproject-fields" option are preserved.
+            for field in keep_pyproject_fields:
+                if field in self.KEEPABLE_PROJECT_FIELDS and field in project:
+                    result["KEEP_FIELDS"][f"project.{field}"] = project[field]
 
             # Handle main dependencies
             if "dependencies" in loaded_pyproject_toml["project"]:
@@ -138,7 +154,9 @@ class GeneralSerializer(BaseSerializer):
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            keep_pyproject_fields = bool(self.code_model.options.get("keep-pyproject-fields"))
+            keep_pyproject_fields = self._parse_keep_pyproject_fields(
+                self.code_model.options.get("keep-pyproject-fields")
+            )
             params = self.external_lib_version_map(file_content, additional_version_map, keep_pyproject_fields)
         else:
             params = {}
