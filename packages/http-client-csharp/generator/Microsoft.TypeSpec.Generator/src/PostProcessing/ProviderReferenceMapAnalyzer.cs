@@ -32,8 +32,9 @@ namespace Microsoft.TypeSpec.Generator
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
             var internalizeReferences = CloneReferences(publicGraph.References);
-            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false);
+            var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable);
             internalizeRoots.UnionWith(customRoots);
             var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
             var internalizeHelperRoots = GetHelperRootNames(providers, graph.Nodes, internalizeReachableWithoutHelpers);
@@ -236,7 +237,8 @@ namespace Microsoft.TypeSpec.Generator
         private static void AddDerivedModelReferences(
             IReadOnlyList<TypeProvider> providers,
             HashSet<string> nodes,
-            Dictionary<string, HashSet<string>> references)
+            Dictionary<string, HashSet<string>> references,
+            HashSet<string> publicBaseModels)
         {
             foreach (var provider in providers.OfType<ModelProvider>())
             {
@@ -245,8 +247,18 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
                 var providerName = GetProviderTypeName(provider.Type);
                 if (!nodes.Contains(providerName))
+                {
+                    continue;
+                }
+
+                if (!publicBaseModels.Contains(providerName))
                 {
                     continue;
                 }
