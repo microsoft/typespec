@@ -475,7 +475,14 @@ namespace Microsoft.TypeSpec.Generator
 
             if (invalidUsings.Count > 0)
             {
+                var leadingTrivia = invalidUsings[0].GetLeadingTrivia();
                 cu = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+                if (leadingTrivia.Count > 0)
+                {
+                    var firstToken = cu.GetFirstToken(includeZeroWidth: true);
+                    cu = cu.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
+                }
+
                 solution = solution.WithDocumentSyntaxRoot(documentId, cu);
             }
 
