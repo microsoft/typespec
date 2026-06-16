@@ -168,13 +168,14 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("pkgutil_init.py.jinja2")
         return template.render()
 
-    def serialize_init_file(self, clients: list[Client]) -> str:
+    def serialize_init_file(self, clients: list[Client], has_types: bool = False) -> str:
         template = self.env.get_template("init.py.jinja2")
         return template.render(
             code_model=self.code_model,
             clients=clients,
             async_mode=self.async_mode,
             serialize_namespace=self.serialize_namespace,
+            has_types=has_types,
         )
 
     def serialize_service_client_file(self, clients: list[Client]) -> str:

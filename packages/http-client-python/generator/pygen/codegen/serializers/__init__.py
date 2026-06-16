@@ -182,7 +182,15 @@ class JinjaSerializer(ReaderAndWriter):
                     )
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
-                self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
+                # compute has_types early so __init__.py can include `from . import types`
+                has_types_models = any(
+                    m.is_used_in_operations_via_types for m in client_namespace_type.models if m.base != "json"
+                )
+                has_types_enums = any(e.is_typeddict_mode for e in client_namespace_type.enums)
+                has_types = has_types_models or has_types_enums
+                self._serialize_client_and_config_files(
+                    client_namespace, client_namespace_type.clients, env, has_types=has_types
+                )
                 # When generation-subdir is configured, generated code goes into a subdirectory
                 # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
                 # so that the package is discoverable by find_packages() / pip install.
@@ -463,6 +471,7 @@ class JinjaSerializer(ReaderAndWriter):
         namespace: str,
         clients: list[Client],
         env: Environment,
+        has_types: bool = False,
     ) -> None:
         generation_path = self.code_model.get_generation_dir(namespace)
         for async_mode, async_path in self.serialize_loop:
@@ -472,7 +481,7 @@ class JinjaSerializer(ReaderAndWriter):
             # when there is client.py, there must be __init__.py
             self.write_file(
                 generation_path / Path(f"{async_path}__init__.py"),
-                general_serializer.serialize_init_file([c for c in clients if c.has_operations]),
+                general_serializer.serialize_init_file([c for c in clients if c.has_operations], has_types=has_types),
             )
 
             # if there was a patch file before, we keep it
