@@ -18,6 +18,9 @@ catalogs:
     '@alloy-js/msbuild':
       specifier: ^0.23.0
       version: 0.23.0
+    '@alloy-js/python':
+      specifier: ^0.5.0
+      version: 0.5.0
     '@alloy-js/rollup-plugin':
       specifier: ^0.1.1
       version: 0.1.1
@@ -898,8 +901,8 @@ importers:
         specifier: 0.23.1
         version: 0.23.1
       '@alloy-js/python':
-        specifier: https://pkg.pr.new/@alloy-js/python@403
-        version: https://pkg.pr.new/@alloy-js/python@403
+        specifier: 'catalog:'
+        version: 0.5.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.1(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.60.4)
@@ -3143,9 +3146,8 @@ packages:
   '@alloy-js/msbuild@0.23.0':
     resolution: {integrity: sha512-k7hGl/oxPoH6tVqgPti0GaS1LyyPUlFJhkxi43pqYx2r6Xi6QX7I5h2IX325058I7tl9mwYlnycdSvzg/UZAeQ==}
 
-  '@alloy-js/python@https://pkg.pr.new/@alloy-js/python@403':
-    resolution: {tarball: https://pkg.pr.new/@alloy-js/python@403}
-    version: 0.5.0-pr.403.1498
+  '@alloy-js/python@0.5.0':
+    resolution: {integrity: sha512-p1O5eUFtfW5MLg4ngywnjMz43adco3+pdSLxfRFPYc452S7fStToP0jy7i9fyuLlR0o//1K9SDmfuP/VMK/Rtw==}
 
   '@alloy-js/rollup-plugin@0.1.1':
     resolution: {integrity: sha512-K2E9WNh05RSFyUG0nIYBUJIL/w9QzxF5boR9cQqWwcXAKSCGw4vdjOCG8zJ1Wsk10vetDyf/L1GcnlsGFXsCdA==}
@@ -13931,7 +13933,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@alloy-js/python@https://pkg.pr.new/@alloy-js/python@403':
+  '@alloy-js/python@0.5.0':
     dependencies:
       '@alloy-js/core': 0.23.1
       change-case: 5.4.4

@@ -76,7 +76,7 @@
   "devDependencies": {
     "@alloy-js/cli": "catalog:",
     "@alloy-js/core": "catalog:",
-    "@alloy-js/python": "https://pkg.pr.new/@alloy-js/python@403",
+    "@alloy-js/python": "catalog:",
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",
