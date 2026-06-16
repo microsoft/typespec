@@ -82,10 +82,41 @@ parameters:
     type: string
     default: "3.12"
 
+  # Primary Node.js version used in the build/test matrix. Artifacts are emitted from the
+  # job that uses this version. Changing this default automatically updates the dynamically
+  # generated job name (Build_linux_<major>) referenced by DetectApiChanges and downstream
+  # stages, so callers do not need to update DependsOn references separately.
+  - name: PrimaryNodeVersion
+    type: string
+    default: "24.x"
+
+  # Secondary Node.js version used in the build/test matrix.
+  - name: SecondaryNodeVersion
+    type: string
+    default: "22.x"
+
   # Whether to bundle and upload the emitter package to the playground package storage.
   - name: UploadPlaygroundBundle
     type: boolean
     default: false
+
+  # The npm script to run to build the emitter for playground bundling.
+  # Default is "build". C# uses "build:emitter" to skip the .NET generator build.
+  - name: PlaygroundBundleBuildScript
+    type: string
+    default: "build"
+
+  # Path to a Dockerfile (relative to PackagePath) for the playground server.
+  # When set alongside UploadPlaygroundBundle, the server container is built and
+  # deployed to Azure App Service after publishing.
+  - name: PlaygroundServerDockerfile
+    type: string
+    default: ""
+
+  # Azure App Service name for the playground server.
+  - name: PlaygroundServerAppName
+    type: string
+    default: ""
 
 stages:
   # Build stage
@@ -112,7 +143,7 @@ stages:
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
           BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-          NodeVersion: 20.x
+          NodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Os: linux
           EmitArtifacts: true # Emit artifacts only for the first job
           PythonVersion: ${{ parameters.PythonVersion }}
@@ -126,7 +157,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 22.x
+          NodeVersion: ${{ parameters.SecondaryNodeVersion }}
           Os: linux
           PythonVersion: ${{ parameters.PythonVersion }}
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -138,7 +169,7 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 20.x
+          NodeVersion: ${{ parameters.PrimaryNodeVersion }}
           Os: windows
           PythonVersion: ${{ parameters.PythonVersion }}
       - template: /eng/emitters/pipelines/templates/jobs/build-job.yml
@@ -150,14 +181,14 @@ stages:
           Packages: ${{ parameters.Packages }}
           PackagePath: ${{ parameters.PackagePath }}
           LanguageShortName: ${{ parameters.LanguageShortName }}
-          NodeVersion: 22.x
+          NodeVersion: ${{ parameters.SecondaryNodeVersion }}
           Os: windows
           PythonVersion: ${{ parameters.PythonVersion }}
       - ${{ if eq(parameters.Publish, 'none') }}:
           - template: /eng/emitters/pipelines/templates/jobs/detect-api-changes.yml
             parameters:
               LanguageShortName: ${{ parameters.LanguageShortName }}
-              DependsOn: Build_linux_20
+              DependsOn: Build_linux_${{ split(parameters.PrimaryNodeVersion, '.')[0] }}
               BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
               Artifacts:
                 - ${{ each package in parameters.Packages }}:
@@ -186,7 +217,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 20.x
+                  NodeVersion: ${{ parameters.PrimaryNodeVersion }}
                   Os: linux
                   EmitArtifacts: true # Emit artifacts only for the first job
                   CadlRanchName: ${{ parameters.CadlRanchName }} # only needed for first job
@@ -200,7 +231,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 22.x
+                  NodeVersion: ${{ parameters.SecondaryNodeVersion }}
                   Os: linux
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -211,7 +242,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 20.x
+                  NodeVersion: ${{ parameters.PrimaryNodeVersion }}
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -222,7 +253,7 @@ stages:
                   TestArgs: ${{ parameters.UnitTestArgs }}
                   LanguageShortName: ${{ parameters.LanguageShortName }}
                   BuildArtifactName: build_artifacts_${{ parameters.LanguageShortName }}
-                  NodeVersion: 22.x
+                  NodeVersion: ${{ parameters.SecondaryNodeVersion }}
                   Os: windows
                   PythonVersion: ${{ parameters.PythonVersion }}
                   UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
@@ -353,10 +384,31 @@ stages:
                   LanguageShortName: ${{ parameters.LanguageShortName }}
 
               - ${{ if parameters.UploadPlaygroundBundle }}:
+                  - task: NodeTool@0
+                    displayName: Use Node 22.x for playground bundle
+                    inputs:
+                      versionSpec: "22.x"
+                      checkLatest: true
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm run build
+                  - ${{ if parameters.BuildPrereleaseVersion }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-alpha.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - ${{ else }}:
+                      - script: |
+                          CURRENT_VERSION=$(node -p "require('./package.json').version")
+                          NEW_VERSION="${CURRENT_VERSION}-beta.${BUILD_BUILDNUMBER}"
+                          echo "Setting version to $NEW_VERSION"
+                          npm version "$NEW_VERSION" --no-git-tag-version
+                        displayName: Stamp build version for playground bundle
+                        workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
+                  - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
                   - script: npm install -g pnpm
@@ -373,6 +425,38 @@ stages:
                       azureSubscription: "Azure SDK Engineering System"
                       scriptLocation: inlineScript
                       inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      workingDirectory: $(Build.SourcesDirectory)
+
+              - ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:
+                  - task: AzureCLI@1
+                    displayName: Build and deploy playground server
+                    inputs:
+                      azureSubscription: "Azure SDK Engineering System"
+                      scriptLocation: inlineScript
+                      inlineScript: |
+                        set -e
+                        REGISTRY="typespecacr"
+                        RESOURCE_GROUP="typespec"
+                        APP_NAME="${{ parameters.PlaygroundServerAppName }}"
+                        IMAGE="$REGISTRY.azurecr.io/$APP_NAME:$(Build.BuildId)"
+
+                        # Build and push Docker image to ACR
+                        echo "Building Docker image: $IMAGE"
+                        CONTEXT="$(Build.SourcesDirectory)/${{ parameters.PackagePath }}"
+                        az acr build \
+                          --registry "$REGISTRY" \
+                          --image "$APP_NAME:$(Build.BuildId)" \
+                          --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
+                          "$CONTEXT"
+
+                        # Update App Service container image
+                        az webapp config container set \
+                          --name "$APP_NAME" \
+                          --resource-group "$RESOURCE_GROUP" \
+                          --container-image-name "$IMAGE" \
+                          --container-registry-url "https://$REGISTRY.azurecr.io"
+
+                        echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)
 
             templateContext:

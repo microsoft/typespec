@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -152,6 +154,171 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNull(customMethods[0].BodyExpression);
             Assert.AreEqual(string.Empty, customMethods[0].BodyStatements!.ToDisplayString());
 
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] without a custom
+        // replacement, the convenience method (which calls the protocol method) is not generated either,
+        // since it would not compile.
+        [Test]
+        public async Task SuppressedProtocolMethodSkipsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Both the suppressed protocol methods and the dependent convenience methods should be gone.
+            var helloAgainMethods = clientProvider!.Methods
+                .Where(m => m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync")
+                .ToList();
+            Assert.AreEqual(0, helloAgainMethods.Count);
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] but replaced by a
+        // custom (non-partial) method implementation, the convenience method is still generated because
+        // it will compile against the custom protocol method.
+        [Test]
+        public async Task SuppressedProtocolMethodWithCustomCodeKeepsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The generated protocol methods are suppressed (provided by custom code), but the convenience
+            // methods (taking a CancellationToken) should still be generated.
+            var syncConvenience = clientProvider!.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "HelloAgain" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))));
+            var asyncConvenience = clientProvider.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "HelloAgainAsync" &&
+                m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))));
+
+            Assert.IsNotNull(syncConvenience);
+            Assert.IsNotNull(asyncConvenience);
+
+            // Validate the generated convenience methods (signature and body) still call into the
+            // (custom) protocol methods.
+            string syncActual;
+            using (var syncWriter = new CodeWriter())
+            {
+                syncWriter.WriteMethod(syncConvenience!);
+                syncActual = syncWriter.ToString(false);
+            }
+
+            string asyncActual;
+            using (var asyncWriter = new CodeWriter())
+            {
+                asyncWriter.WriteMethod(asyncConvenience!);
+                asyncActual = asyncWriter.ToString(false);
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncActual);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncActual);
+
+            // The generated protocol methods (taking RequestOptions) should be suppressed in favor of the custom ones.
+            var generatedProtocolMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))))
+                .ToList();
+            Assert.AreEqual(0, generatedProtocolMethods.Count);
+        }
+
+        // Validates that when the protocol method is suppressed via [CodeGenSuppress] and the customization
+        // only provides an overload with an additional parameter (a different signature), the convenience
+        // method is still skipped because no replacement with the matching protocol signature exists.
+        [Test]
+        public async Task SuppressedProtocolMethodWithCustomOverloadSkipsConvenienceMethod()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The custom overloads (with an additional parameter) do not match the suppressed protocol
+            // signature, so both the protocol and the dependent convenience methods should be gone.
+            var generatedHelloAgainMethods = clientProvider!.Methods
+                .Where(m => m.Signature.Name == "HelloAgain" || m.Signature.Name == "HelloAgainAsync")
+                .ToList();
+            Assert.AreEqual(0, generatedHelloAgainMethods.Count);
+
+            // The additional custom overload is still present in the custom code view.
+            var customMethods = clientProvider.CustomCodeView?.Methods ?? [];
+            Assert.AreEqual(2, customMethods.Count);
+            Assert.IsTrue(customMethods.All(m => m.Signature.Parameters.Count == 2));
+        }
+
+        // Validates that when a paging protocol method is suppressed via [CodeGenSuppress], the paging
+        // helpers (collection result definitions) are still generated so that custom code can reference
+        // them. Unlike non-paging convenience methods, paging convenience methods instantiate the
+        // collection result directly instead of calling the protocol method, so they are always generated.
+        [Test]
+        public async Task SuppressedPagingProtocolMethodKeepsPagingHelpers()
+        {
+            var inputModel = InputFactory.Model("item", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties:
+                    [
+                        InputFactory.Property("items", InputFactory.Array(inputModel)),
+                        InputFactory.Property("nextLink", InputPrimitiveType.Url),
+                    ]));
+            var inputOperation = InputFactory.Operation("GetItems", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("GetItems", inputOperation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = (ClientProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ClientProvider);
+
+            // The generated protocol methods (taking RequestOptions) are suppressed.
+            var generatedProtocolMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "GetItems" || m.Signature.Name == "GetItemsAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))))
+                .ToList();
+            Assert.AreEqual(0, generatedProtocolMethods.Count);
+
+            // The paging convenience methods (taking a CancellationToken) are still generated because they
+            // instantiate the collection result directly rather than calling the suppressed protocol method.
+            var convenienceMethods = clientProvider.Methods
+                .Where(m => (m.Signature.Name == "GetItems" || m.Signature.Name == "GetItemsAsync") &&
+                    m.Signature.Parameters.Any(p => p.Type.Equals(typeof(System.Threading.CancellationToken))))
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            // The paging helpers (collection result definitions) are still emitted so that the custom code
+            // referencing them continues to compile.
+            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders
+                .OfType<CollectionResultDefinition>()
+                .Select(t => t.Name)
+                .ToList();
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResultOfT");
         }
 
         // Validates that a method with a struct parameter can be replaced
@@ -333,6 +500,136 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);
+        }
+
+        // Validates that a generated protocol method can be customized via a partial method declaration in custom code.
+        [Test]
+        public async Task CanCustomizeMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the protocol method that should now be partial.
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Custom signature changes should be applied (parameter renamed to "content").
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // All parameters in the partial implementation must be required (no default values).
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+
+            // The original generated (non-partial) HelloAgain protocol method should not also be present.
+            var nonPartialDuplicates = clientProvider.Methods.Where(m =>
+                m.Signature.Name == "HelloAgain"
+                && !m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent")).ToList();
+            Assert.AreEqual(0, nonPartialDuplicates.Count);
+        }
+
+        [Test]
+        public async Task CanCustomizeMethodModifierOnly()
+        {
+            // Verifies that a partial method declaration that changes only the access modifier
+            // (without renaming any parameters) still produces a partial implementation with
+            // the customer's modifier and the generator's parameter names.
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Modifier comes from the partial declaration -> should be internal.
+            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsFalse(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            // Parameter names are unchanged (generator-chosen).
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("p1", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // Defaults stripped on the implementation.
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+        }
+
+        [Test]
+        public async Task CanCustomizeConvenienceMethodSignature()
+        {
+            // Verifies the matching/cloning logic in BuildConvenienceMethod: a partial method
+            // declaration on the convenience overload renames parameters and the generator
+            // emits a partial implementation that references the customer-chosen names.
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ];
+            List<InputBodyParameter> operationParameters =
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ];
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters: operationParameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("HelloAgain", inputOperation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the convenience overload (the one whose first parameter is IEnumerable<string>,
+            // not BinaryContent).
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.IsList));
+            Assert.IsNotNull(convenienceMethod, "HelloAgain convenience method should be generated as partial");
+            Assert.IsTrue(convenienceMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // Parameters take their names from the partial declaration.
+            Assert.AreEqual(2, convenienceMethod.Signature.Parameters.Count);
+            Assert.AreEqual("body", convenienceMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("ct", convenienceMethod.Signature.Parameters[1].Name);
+
+            // The cloned parameters preserve generator-side metadata: the body parameter
+            // still reports its original Location so the body construction works.
+            Assert.AreEqual("CancellationToken", convenienceMethod.Signature.Parameters[1].Type.Name);
+
+            // No duplicate non-partial convenience method.
+            var nonPartialDuplicates = clientProvider.Methods.Where(m =>
+                m.Signature.Name == "HelloAgain"
+                && !m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.IsList)).ToList();
+            Assert.AreEqual(0, nonPartialDuplicates.Count);
         }
     }
 }

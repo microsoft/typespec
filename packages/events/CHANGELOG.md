@@ -1,5 +1,13 @@
 # Changelog - @typespec/events
 
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
 ## 0.81.0
 
 No changes, version bump only.

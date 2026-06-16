@@ -115,6 +115,78 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CustomCodeWinsOverIsExactName()
+        {
+            // A spec property marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that property via [CodeGenMember], the custom code
+            // rename should still win — the generated property is filtered out and the
+            // custom property's name is used.
+            var props = new[]
+            {
+                InputFactory.Property("access_token", InputPrimitiveType.String, wireName: "access_token", isExactName: true),
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view with its custom name
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CustomCodeView.Properties[0].Name);
+
+            // serialized name from the spec must be preserved on the custom property
+            var wireInfo = modelTypeProvider.CustomCodeView.Properties[0].WireInfo;
+            Assert.IsNotNull(wireInfo);
+            Assert.AreEqual("access_token", wireInfo!.SerializedName);
+
+            // the generated property should be filtered out
+            Assert.AreEqual(0, modelTypeProvider.Properties.Count);
+
+            // canonical view should expose only the custom rename
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+            Assert.AreEqual("AccessToken", modelTypeProvider.CanonicalView.Properties[0].Name);
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnModel()
+        {
+            // A spec model marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that model via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("snake_case_model", properties: props, isExactName: true);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            AssertCommon(modelTypeProvider, "NewNamespace.Models", "CustomizedModel");
+        }
+
+        [Test]
+        public async Task CustomCodeWinsOverIsExactNameOnEnum()
+        {
+            // A spec enum marked with IsExactName has its exact-cased name preserved.
+            // If custom code renames that enum via [CodeGenType], the custom code rename
+            // should still win.
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputEnum = InputFactory.StringEnum("snake_case_enum", [("value", "value")], isExactName: true);
+            var enumProvider = new FixedEnumProvider(inputEnum, null);
+
+            AssertCommon(enumProvider, "NewNamespace.Models", "CustomizedEnum");
+        }
+
+        [Test]
         public async Task CanChangePropertyType()
         {
             var props = new[]
@@ -1742,6 +1814,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var fieldObsoleteAttr = customField.Attributes.Single(a => new CSharpType(typeof(ObsoleteAttribute)).Equals(a.Type));
             Assert.AreEqual(1, fieldObsoleteAttr.Arguments.Count);
         }
+
+        [Test]
+        public async Task CanReadCustomCodeAttributeFromRegisteredProvider()
+        {
+            // A derived generator contributes a generator-specific custom-code attribute via the extension point.
+            var customAttributeProvider = new TestCustomCodeAttributeDefinition();
+            var generator = new TestGenerator();
+            generator.AddCustomCodeAttributeProviderForTest(customAttributeProvider);
+            CollectionAssert.Contains(generator.CustomCodeAttributeProviders, customAttributeProvider);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+                    // Mirror CSharpGen: the contributed attribute definition is emitted into the custom-code
+                    // compilation so that custom code referencing it compiles and can be parsed.
+                    return compilation.AddSyntaxTrees(GeneratedCodeWorkspace.GetTree(customAttributeProvider));
+                });
+
+            var inputModel = InputFactory.Model("mockInputModel");
+            var modelProvider = new ModelProvider(inputModel);
+            var customCodeView = modelProvider.CustomCodeView;
+
+            Assert.IsNotNull(customCodeView);
+
+            // Validate that the parsed type registers the custom-code attribute contributed by the provider.
+            var customAttr = customCodeView!.Attributes.Single(a => a.Type.Name == "CodeGenCustomAttribute");
+            Assert.AreEqual(AttributeNamespace, customAttr.Type.Namespace);
+            Assert.AreEqual(1, customAttr.Arguments.Count);
+        }
+
+        private const string AttributeNamespace = TestCustomCodeAttributeDefinition.AttributeNamespace;
 
         private class TestNameVisitor : NameVisitor
         {

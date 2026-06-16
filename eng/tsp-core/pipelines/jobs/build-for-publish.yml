@@ -39,10 +39,11 @@ jobs:
           Contents: "*.vsix"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
 
-      - task: AzureCLI@1
+      - task: AzureCLI@2
         displayName: "Publish bundled packages to package storage"
         inputs:
           azureSubscription: "Azure SDK Engineering System"
+          scriptType: batch
           scriptLocation: inlineScript
           inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
 
@@ -69,10 +70,11 @@ jobs:
           name: npm_packages_next
 
       # Publish Next playground
-      - task: AzureCLI@1
+      - task: AzureCLI@2
         displayName: "Publish playground"
         inputs:
           azureSubscription: "Azure SDK Engineering System"
+          scriptType: batch
           scriptLocation: inlineScript
           inlineScript: |
             az storage blob upload-batch ^

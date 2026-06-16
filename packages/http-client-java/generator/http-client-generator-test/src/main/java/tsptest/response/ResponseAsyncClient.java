@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.response.implementation.ResponseClientImpl;
-import tsptest.response.models.GetUnionResponseContentType;
 import tsptest.response.models.OperationDetails1;
 import tsptest.response.models.OperationDetails2;
 import tsptest.response.models.Resource;
@@ -369,7 +368,6 @@ public final class ResponseAsyncClient {
      * }
      * </pre>
      * 
-     * @param accept The accept parameter. Allowed values: "application/json", "application/json".
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -379,8 +377,8 @@ public final class ResponseAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getUnionResponseWithResponse(String accept, RequestOptions requestOptions) {
-        return this.serviceClient.getUnionResponseWithResponseAsync(accept, requestOptions);
+    public Mono<Response<BinaryData>> getUnionResponseWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getUnionResponseWithResponseAsync(requestOptions);
     }
 
     /**
@@ -796,8 +794,6 @@ public final class ResponseAsyncClient {
     /**
      * The getUnionResponse operation.
      * 
-     * @param accept The accept parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
@@ -807,10 +803,10 @@ public final class ResponseAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> getUnionResponse(GetUnionResponseContentType accept) {
+    public Mono<BinaryData> getUnionResponse() {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getUnionResponseWithResponse(accept.toString(), requestOptions).flatMap(FluxUtil::toMono);
+        return getUnionResponseWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

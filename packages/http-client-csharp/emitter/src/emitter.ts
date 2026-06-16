@@ -6,50 +6,18 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   EmitContext,
-  getDirectoryPath,
-  joinPaths,
-  NoTarget,
   Program,
   resolvePath,
 } from "@typespec/compiler";
-import fs, { statSync } from "fs";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
-import { writeCodeModel, writeConfiguration } from "./code-model-writer.js";
-import {
-  _minSupportedDotNetSdkVersion,
-  configurationFileName,
-  tspOutputFileName,
-} from "./constants.js";
+import { serializeCodeModel } from "./code-model-writer.js";
+import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { createDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
-import { execAsync, execCSharpGenerator } from "./lib/utils.js";
 import { CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
-
-/**
- * Look for the project root by looking up until a `package.json` is found.
- * @param path Path to start looking
- */
-function findProjectRoot(path: string): string | undefined {
-  let current = path;
-  while (true) {
-    const pkgPath = joinPaths(current, "package.json");
-    const stats = checkFile(pkgPath);
-    if (stats?.isFile()) {
-      return current;
-    }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
-  }
-}
 
 /**
  * Creates a code model by executing the full emission logic.
@@ -86,7 +54,7 @@ export async function emitCodeModel(
 
   // Resolve plugin paths to absolute if specified
   if (options["plugins"]) {
-    options["plugins"] = options["plugins"].map((p) => resolve(outputFolder, p));
+    options["plugins"] = options["plugins"].map((p) => resolvePath(outputFolder, p));
   }
 
   /* set the log level. */
@@ -112,80 +80,31 @@ export async function emitCodeModel(
       // Apply optional code model update callback
       const updatedRoot = updateCodeModel ? updateCodeModel(root, sdkContext) : root;
 
-      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
-
-      if (!fs.existsSync(generatedFolder)) {
-        fs.mkdirSync(generatedFolder, { recursive: true });
-      }
-
-      // emit tspCodeModel.json
-      await writeCodeModel(sdkContext, updatedRoot, outputFolder);
-
       const namespace = updatedRoot.name;
-      const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      //emit configuration.json
-      await writeConfiguration(sdkContext, configurations, outputFolder);
+      // If the namespace could not be resolved, createModel has already reported an
+      // actionable diagnostic. Skip generation so we don't send an unnamed code model that
+      // fails to deserialize in the .NET generator with an opaque root-level error.
+      // See https://github.com/microsoft/typespec/issues/10914.
+      if (namespace) {
+        const configurations: Configuration = createConfiguration(options, namespace, sdkContext);
 
-      const csProjFile = resolvePath(
-        outputFolder,
-        "src",
-        `${configurations["package-name"]}.csproj`,
-      );
-      logger.info(`Checking if ${csProjFile} exists`);
+        // Serialize code model and configuration
+        const codeModelJson = serializeCodeModel(sdkContext, updatedRoot);
+        const configJson = JSON.stringify(configurations, null, 2) + "\n";
 
-      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-      );
-
-      try {
-        const result = await execCSharpGenerator(sdkContext, {
-          generatorPath: generatorPath,
-          outputFolder: outputFolder,
+        // Generate C# code via platform-specific implementation.
+        // In Node.js this runs the .NET generator locally.
+        // In the browser this sends the code model to a playground server.
+        await generate(sdkContext, codeModelJson, configJson, {
+          outputFolder,
+          packageName: configurations["package-name"] ?? "",
           generatorName: options["generator-name"],
-          newProject: options["new-project"] || !checkFile(csProjFile),
+          newProject: options["new-project"],
           debug: options.debug ?? false,
+          saveInputs: options["save-inputs"] ?? false,
+          emitterExtensionPath: options["emitter-extension-path"],
         });
-        if (result.exitCode !== 0) {
-          const isValid = diagnostics.pipe(
-            await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
-          );
-          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            diagnostics.add(
-              createDiagnostic({
-                code: "general-error",
-                format: {
-                  message: `Failed to generate the library. Exit code: ${result.exitCode}.\n${result.stderr}`,
-                },
-                target: NoTarget,
-              }),
-            );
-          }
-        }
-      } catch (error: any) {
-        const isValid = diagnostics.pipe(
-          await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion),
-        );
-        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) {
-          diagnostics.add(
-            createDiagnostic({
-              code: "general-error",
-              format: {
-                message: `Failed to generate the library. Error: ${error.message ?? error}`,
-              },
-              target: NoTarget,
-            }),
-          );
-        }
-      }
-      if (!options["save-inputs"]) {
-        // delete
-        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
-        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
       }
     }
   }
@@ -231,91 +150,8 @@ export function createConfiguration(
     "unreferenced-types-handling": options["unreferenced-types-handling"],
     "disable-xml-docs":
       options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+    "disable-roslyn-reduce":
+      options["disable-roslyn-reduce"] === false ? undefined : options["disable-roslyn-reduce"],
     license: sdkContext.sdkPackage.licenseInfo,
   };
-}
-
-/** check the dotnet sdk installation.
- * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
- * @param sdkContext - The SDK context
- * @param minVersionRequisite - The minimum required major version
- * @returns A tuple containing whether the SDK is valid and any diagnostics
- * @internal
- */
-export async function _validateDotNetSdk(
-  sdkContext: CSharpEmitterContext,
-  minMajorVersion: number,
-): Promise<[boolean, readonly Diagnostic[]]> {
-  const diagnostics = createDiagnosticCollector();
-  try {
-    const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return diagnostics.wrap(
-      diagnostics.pipe(validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion)),
-    );
-  } catch (error: any) {
-    if (error && "code" in error && error["code"] === "ENOENT") {
-      diagnostics.add(
-        createDiagnostic({
-          code: "invalid-dotnet-sdk-dependency",
-          messageId: "missing",
-          format: {
-            dotnetMajorVersion: `${minMajorVersion}`,
-            downloadUrl: "https://dotnet.microsoft.com/",
-          },
-          target: NoTarget,
-        }),
-      );
-    }
-    return diagnostics.wrap(false);
-  }
-}
-
-function validateDotNetSdkVersionCore(
-  sdkContext: CSharpEmitterContext,
-  version: string,
-  minMajorVersion: number,
-): [boolean, readonly Diagnostic[]] {
-  const diagnostics = createDiagnosticCollector();
-  if (version) {
-    const dotIndex = version.indexOf(".");
-    const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
-    const major = Number(firstPart);
-
-    if (isNaN(major)) {
-      return diagnostics.wrap(false);
-    }
-    if (major < minMajorVersion) {
-      diagnostics.add(
-        createDiagnostic({
-          code: "invalid-dotnet-sdk-dependency",
-          messageId: "invalidVersion",
-          format: {
-            installedVersion: version,
-            dotnetMajorVersion: `${minMajorVersion}`,
-            downloadUrl: "https://dotnet.microsoft.com/",
-          },
-          target: NoTarget,
-        }),
-      );
-      return diagnostics.wrap(false);
-    }
-    return diagnostics.wrap(true);
-  } else {
-    diagnostics.add(
-      createDiagnostic({
-        code: "general-error",
-        format: { message: "Cannot get the installed .NET SDK version." },
-        target: NoTarget,
-      }),
-    );
-    return diagnostics.wrap(false);
-  }
-}
-
-function checkFile(pkgPath: string) {
-  try {
-    return statSync(pkgPath);
-  } catch (error) {
-    return undefined;
-  }
 }

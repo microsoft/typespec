@@ -85,6 +85,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-parameters-body-root": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/body-root -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-parameters-collection-format": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/collection-format -g StubLibraryGenerator",
       "commandName": "Executable",
@@ -107,6 +112,11 @@
     },
     "http-payload-content-negotiation": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/content-negotiation -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-payload-head": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/head -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
@@ -182,6 +192,11 @@
     },
     "http-server-versions-versioned": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/server/versions/versioned -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-service-multiple-services": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/service/multiple-services -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },

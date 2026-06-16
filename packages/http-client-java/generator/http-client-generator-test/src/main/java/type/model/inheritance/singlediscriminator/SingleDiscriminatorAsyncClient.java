@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import type.model.inheritance.singlediscriminator.implementation.SingleDiscriminatorClientImpl;
 import type.model.inheritance.singlediscriminator.models.Bird;
 import type.model.inheritance.singlediscriminator.models.Dinosaur;
+import type.model.inheritance.singlediscriminator.models.Fish;
 
 /**
  * Initializes a new instance of the asynchronous SingleDiscriminatorClient type.
@@ -229,6 +230,60 @@ public final class SingleDiscriminatorAsyncClient {
     }
 
     /**
+     * The getNoSubtypesModel operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     size: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a discriminated model with no defined subtypes along with {@link Response} on successful completion of
+     * {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getNoSubtypesModelWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getNoSubtypesModelWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     kind: String (Required)
+     *     size: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> putNoSubtypesModelWithResponse(BinaryData input, RequestOptions requestOptions) {
+        return this.serviceClient.putNoSubtypesModelWithResponseAsync(input, requestOptions);
+    }
+
+    /**
      * The getModel operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -365,5 +420,44 @@ public final class SingleDiscriminatorAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return getLegacyModelWithResponse(requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Dinosaur.class));
+    }
+
+    /**
+     * The getNoSubtypesModel operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Fish> getNoSubtypesModel() {
+        // Generated convenience method for getNoSubtypesModelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getNoSubtypesModelWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> protocolMethodData.toObject(Fish.class));
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> putNoSubtypesModel(Fish input) {
+        // Generated convenience method for putNoSubtypesModelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return putNoSubtypesModelWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

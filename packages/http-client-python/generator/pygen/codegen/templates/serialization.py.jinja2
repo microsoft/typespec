@@ -35,10 +35,14 @@ except ImportError:
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
-from typing_extensions import Self
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
@@ -512,6 +516,10 @@ class Serializer:  # pylint: disable=too-many-public-methods
             "rfc-1123": Serializer.serialize_rfc,
             "unix-time": Serializer.serialize_unix,
             "duration": Serializer.serialize_duration,
+            "duration-seconds-int": Serializer.serialize_duration_seconds_int,
+            "duration-seconds-float": Serializer.serialize_duration_seconds_float,
+            "duration-milliseconds-int": Serializer.serialize_duration_milliseconds_int,
+            "duration-milliseconds-float": Serializer.serialize_duration_milliseconds_float,
             "date": Serializer.serialize_date,
             "time": Serializer.serialize_time,
             "decimal": Serializer.serialize_decimal,
@@ -1102,6 +1110,61 @@ class Serializer:  # pylint: disable=too-many-public-methods
         return isodate.duration_isoformat(attr)
 
     @staticmethod
+    def _serialize_duration_numeric(attr, scale, as_int):
+        """Serialize a TimeDelta into a numeric value scaled to the wire unit.
+
+        :param TimeDelta attr: Object to be serialized.
+        :param int scale: Multiplier applied to total seconds (1 for seconds, 1000 for milliseconds).
+        :param bool as_int: Whether to truncate the result to an int.
+        :rtype: int or float
+        :return: serialized duration
+        """
+        if isinstance(attr, str):
+            attr = isodate.parse_duration(attr)
+        value = attr.total_seconds() * scale if isinstance(attr, datetime.timedelta) else attr
+        return int(value) if as_int else float(value)
+
+    @staticmethod
+    def serialize_duration_seconds_int(attr, **kwargs):  # pylint: disable=unused-argument
+        """Serialize TimeDelta object into an integer number of seconds.
+
+        :param TimeDelta attr: Object to be serialized.
+        :rtype: int
+        :return: serialized duration
+        """
+        return Serializer._serialize_duration_numeric(attr, 1, True)
+
+    @staticmethod
+    def serialize_duration_seconds_float(attr, **kwargs):  # pylint: disable=unused-argument
+        """Serialize TimeDelta object into a floating point number of seconds.
+
+        :param TimeDelta attr: Object to be serialized.
+        :rtype: float
+        :return: serialized duration
+        """
+        return Serializer._serialize_duration_numeric(attr, 1, False)
+
+    @staticmethod
+    def serialize_duration_milliseconds_int(attr, **kwargs):  # pylint: disable=unused-argument
+        """Serialize TimeDelta object into an integer number of milliseconds.
+
+        :param TimeDelta attr: Object to be serialized.
+        :rtype: int
+        :return: serialized duration
+        """
+        return Serializer._serialize_duration_numeric(attr, 1000, True)
+
+    @staticmethod
+    def serialize_duration_milliseconds_float(attr, **kwargs):  # pylint: disable=unused-argument
+        """Serialize TimeDelta object into a floating point number of milliseconds.
+
+        :param TimeDelta attr: Object to be serialized.
+        :rtype: float
+        :return: serialized duration
+        """
+        return Serializer._serialize_duration_numeric(attr, 1000, False)
+
+    @staticmethod
     def serialize_rfc(attr, **kwargs):  # pylint: disable=unused-argument
         """Serialize Datetime object into RFC-1123 formatted string.
 
@@ -1373,6 +1436,10 @@ class Deserializer:
             "rfc-1123": Deserializer.deserialize_rfc,
             "unix-time": Deserializer.deserialize_unix,
             "duration": Deserializer.deserialize_duration,
+            "duration-seconds-int": Deserializer.deserialize_duration_seconds,
+            "duration-seconds-float": Deserializer.deserialize_duration_seconds,
+            "duration-milliseconds-int": Deserializer.deserialize_duration_milliseconds,
+            "duration-milliseconds-float": Deserializer.deserialize_duration_milliseconds,
             "date": Deserializer.deserialize_date,
             "time": Deserializer.deserialize_time,
             "decimal": Deserializer.deserialize_decimal,
@@ -1385,6 +1452,10 @@ class Deserializer:
         }
         self.deserialize_expected_types = {
             "duration": (isodate.Duration, datetime.timedelta),
+            "duration-seconds-int": (isodate.Duration, datetime.timedelta),
+            "duration-seconds-float": (isodate.Duration, datetime.timedelta),
+            "duration-milliseconds-int": (isodate.Duration, datetime.timedelta),
+            "duration-milliseconds-float": (isodate.Duration, datetime.timedelta),
             "iso-8601": (datetime.datetime),
         }
         self.dependencies: dict[str, type] = dict(classes) if classes else {}
@@ -1397,7 +1468,7 @@ class Deserializer:
         # Otherwise, result are unexpected
         self.additional_properties_detection = True
 
-    def __call__(self, target_obj, response_data, content_type=None):
+    def __call__(self, target_obj, response_data, content_type=None):  # pylint: disable=too-many-return-statements
         """Call the deserializer to process a REST response.
 
         :param str target_obj: Target data type to deserialize to.
@@ -1407,6 +1478,27 @@ class Deserializer:
         :return: Deserialized object.
         :rtype: object
         """
+        # Fast path for header deserialization: response_data is a plain str or None
+        # and target_obj is a simple scalar type. This avoids the expensive
+        # _unpack_content → _deserialize → _classify_target → deserialize_data chain.
+        if response_data is None:
+            return None
+        if target_obj == "str" and isinstance(response_data, str):
+            return response_data
+        if isinstance(response_data, str):
+            if target_obj == "int":
+                return int(response_data)
+            if target_obj == "bool":
+                if response_data in ("true", "1", "True"):
+                    return True
+                if response_data in ("false", "0", "False"):
+                    return False
+                return bool(response_data)
+            if target_obj == "rfc-1123":
+                return Deserializer.deserialize_rfc(response_data)
+            if target_obj == "bytearray":
+                return Deserializer.deserialize_bytearray(response_data)
+
         data = self._unpack_content(response_data, content_type)
         return self._deserialize(target_obj, data)
 
@@ -1924,6 +2016,48 @@ class Deserializer:
             msg = "Cannot deserialize duration object."
             raise DeserializationError(msg) from err
         return duration
+
+    @staticmethod
+    def _deserialize_duration_numeric(attr, unit):
+        """Deserialize a numeric duration value into a TimeDelta object.
+
+        :param float attr: response value to be deserialized.
+        :param str unit: The wire unit, used as the ``timedelta`` keyword
+            (``"seconds"`` or ``"milliseconds"``).
+        :return: Deserialized duration
+        :rtype: TimeDelta
+        :raises DeserializationError: if value is invalid.
+        """
+        if isinstance(attr, ET.Element):
+            attr = attr.text
+        try:
+            duration = datetime.timedelta(**{unit: float(attr)})  # type: ignore
+        except (ValueError, OverflowError, TypeError) as err:
+            msg = "Cannot deserialize duration object."
+            raise DeserializationError(msg) from err
+        return duration
+
+    @staticmethod
+    def deserialize_duration_seconds(attr):
+        """Deserialize a numeric number of seconds into a TimeDelta object.
+
+        :param float attr: response value to be deserialized.
+        :return: Deserialized duration
+        :rtype: TimeDelta
+        :raises DeserializationError: if value is invalid.
+        """
+        return Deserializer._deserialize_duration_numeric(attr, "seconds")
+
+    @staticmethod
+    def deserialize_duration_milliseconds(attr):
+        """Deserialize a numeric number of milliseconds into a TimeDelta object.
+
+        :param float attr: response value to be deserialized.
+        :return: Deserialized duration
+        :rtype: TimeDelta
+        :raises DeserializationError: if value is invalid.
+        """
+        return Deserializer._deserialize_duration_numeric(attr, "milliseconds")
 
     @staticmethod
     def deserialize_date(attr):

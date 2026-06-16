@@ -13,3 +13,15 @@ Scenarios.Parameters_Query_Constant_post = passOnSuccess({
   },
   kind: "MockApiDefinition",
 });
+
+Scenarios.Parameters_Query_SpecialChar_dollarSign = passOnSuccess({
+  uri: "/parameters/query/special-char/dollar-sign",
+  method: "get",
+  request: {
+    query: { $filter: "status eq 'active'" },
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});

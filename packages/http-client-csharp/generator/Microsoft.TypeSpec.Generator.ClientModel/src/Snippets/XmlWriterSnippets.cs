@@ -38,6 +38,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static MethodBodyStatement WriteValue(this ScopedApi<XmlWriter> writer, ValueExpression value)
             => writer.Invoke(nameof(XmlWriter.WriteValue), value).Terminate();
 
+        public static MethodBodyStatement WriteBase64(this ScopedApi<XmlWriter> writer, ValueExpression buffer, ValueExpression index, ValueExpression count)
+            => writer.Invoke(nameof(XmlWriter.WriteBase64), [buffer, index, count]).Terminate();
+
         public static MethodBodyStatement WriteAttributeString(this ScopedApi<XmlWriter> writer, string prefix, string localName, string ns, ValueExpression value)
             => writer.Invoke(nameof(XmlWriter.WriteAttributeString), [Literal(prefix), Literal(localName), Literal(ns), value]).Terminate();
 
@@ -55,6 +58,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static MethodBodyStatement WriteNode(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
             => writer.Invoke(nameof(XmlWriter.WriteNode), [reader, defattr]).Terminate();
+
+        public static MethodBodyStatement WriteAttributes(this ScopedApi<XmlWriter> writer, ValueExpression reader, ValueExpression defattr)
+            => writer.Invoke(nameof(XmlWriter.WriteAttributes), [reader, defattr]).Terminate();
 
         public static MethodBodyStatement WriteObjectValue(this ScopedApi<XmlWriter> writer, ScopedApi value, ValueExpression options, ValueExpression? nameHint = null)
             => ModelSerializationExtensionsSnippets.WriteObjectValue(writer, value, options, nameHint);

@@ -627,7 +627,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return ""
 
     def pop_kwargs_from_signature(self, builder: OperationType) -> list[str]:
-        kwargs_to_pop = builder.parameters.kwargs_to_pop
+        exact_names = builder.exact_name_params
+        kwargs_to_pop = [k for k in builder.parameters.kwargs_to_pop if k.client_name not in exact_names]
         kwargs = self.parameter_serializer.pop_kwargs_from_signature(
             kwargs_to_pop,
             check_kwarg_dict=True,
@@ -645,7 +646,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             body_parameter=builder.parameters.body_parameter if builder.parameters.has_body else None,
         )
         for p in builder.parameters.parameters:
-            if p.hide_in_operation_signature and not p.is_continuation_token:
+            if p.hide_in_operation_signature and not p.is_continuation_token and p.client_name not in exact_names:
                 kwargs.append(f'{p.client_name} = kwargs.pop("{p.client_name}", None)')
         cls_annotation = builder.cls_type_annotation(
             async_mode=self.async_mode, serialize_namespace=self.serialize_namespace
@@ -930,7 +931,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if builder.parameters.has_body and builder.parameters.body_parameter.flattened:
             # serialize flattened body before passing to request builder as well
             retval.extend(_serialize_flattened_body(builder.parameters.body_parameter))
-        if is_json_model_type(builder.parameters):
+        if is_json_model_type(builder.parameters) and not is_paging:
+            # For paging, we put the json model body outside `prepare_request`
             retval.extend(_serialize_json_model_body(builder.parameters.body_parameter, builder.parameters.parameters))
         if builder.has_form_data_body:
             retval.extend(self._create_body_parameter(builder))
@@ -1368,7 +1370,13 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         return retval
 
     def _prepare_request_callback(self, builder: PagingOperationType) -> list[str]:
-        retval = self._initialize_overloads(builder)
+        retval: list[str] = []
+        # The json model body must be constructed before `_initialize_overloads`
+        # serializes it into the request content, and outside `prepare_request` so
+        # the closure doesn't treat `body` as an unbound local.
+        if is_json_model_type(builder.parameters):
+            retval.extend(_serialize_json_model_body(builder.parameters.body_parameter, builder.parameters.parameters))
+        retval.extend(self._initialize_overloads(builder))
         if builder.has_continuation_token:
             retval.append(f"def prepare_request({builder.next_variable_name}=None):")
             retval.extend([f"    {line}" for line in self.call_request_builder(builder, is_paging=True)])

@@ -23,6 +23,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
+
 Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   "/encode/duration/property/default",
   {
@@ -165,6 +166,45 @@ function createQueryFloatServerTests(uri: string, paramData: any, value: number)
         throw new ValidationError(
           `Expected query param input=${value} but got ${actual}`,
           String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyQueryServerTests(uri: string, allowed: number[]) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: {
+        input: allowed[0],
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
           actual,
         );
       }
@@ -407,4 +447,15 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
 Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
   210000,
+);
+
+// Lossy encode scenarios: the source duration carries more precision than the target integer
+// encoding, so floor/round/ceil are all acceptable results (e.g. 36.25s -> 36 or 37).
+Scenarios.Encode_Duration_Lossy_intSeconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_intMilliseconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/int32-milliseconds",
+  [36250, 36251],
 );

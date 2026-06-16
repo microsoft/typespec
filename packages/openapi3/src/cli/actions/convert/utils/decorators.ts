@@ -13,7 +13,7 @@ import { stringLiteral } from "../generators/common.js";
 import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import type { Context } from "./context.js";
 
-const validLocations = ["header", "query", "path"];
+const validLocations = ["header", "query", "path", "cookie"];
 const extensionDecoratorName = "extension";
 
 export function getExtensions(element: Extensions): TypeSpecDecorator[] {

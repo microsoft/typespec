@@ -248,7 +248,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     diagnosticTarget: Entity | Node,
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
-    if ("kind" in source && source.kind === "TemplateParameter") {
+    if (
+      "kind" in source &&
+      (source.kind === "TemplateParameter" || source.kind === "TemplateParameterAccess")
+    ) {
       source = source.constraint ?? checker.anyType;
     }
     if (target.entityKind === "Indeterminate") {
@@ -548,7 +551,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     relationCache: MultiKeyMap<[Entity, Entity], Related>,
   ): [Related, readonly TypeRelationError[]] {
     if (source.kind !== "FunctionType") {
-      return [Related.false, [createUnassignableDiagnostic(source, target, source)]];
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
     const { parameters: sourceParameters, returnType: sourceReturnType } = source;

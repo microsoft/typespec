@@ -196,8 +196,23 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
+  const requestMediaTypes = getRequestMediaTypes(method.operation);
+  if (generateConvenience && isUnsupportedMultipart(requestMediaTypes)) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-multipart-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
+    generateConvenience = false;
+  }
+
   operation = {
     name: method.name,
+    isExactName: method.isExactName,
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
@@ -216,7 +231,7 @@ export function fromSdkServiceMethodOperation(
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    requestMediaTypes: getRequestMediaTypes(method.operation),
+    requestMediaTypes: requestMediaTypes,
     bufferResponse: true,
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
@@ -273,6 +288,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   return diagnostics.wrap({
     kind: method.kind,
     name: method.name,
+    isExactName: method.isExactName,
     accessibility: method.access,
     apiVersions: method.apiVersions,
     doc: method.doc,
@@ -504,6 +520,7 @@ function fromQueryParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -539,6 +556,7 @@ function fromPathParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -574,6 +592,7 @@ function fromHeaderParameter(
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
     collectionHeaderPrefix: diagnostics.pipe(getCollectionHeaderPrefix(sdkContext, p)),
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -604,6 +623,8 @@ function fromBodyParameter(
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
+    serializationOptions: p.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -645,6 +666,7 @@ export function fromMethodParameter(
     access: p.access,
     decorators: p.decorators,
     paramAlias,
+    isExactName: p.isExactName,
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
@@ -706,6 +728,7 @@ export function fromSdkHttpOperationResponse(
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
     contentTypes: sdkResponse.contentTypes,
+    serializationOptions: sdkResponse.serializationOptions,
   };
 
   sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
@@ -740,6 +763,15 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
     statusCodes.push(i);
   }
   return statusCodes;
+}
+
+function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
+  return (
+    requestMediaTypes?.some((mediaType) => {
+      const normalized = mediaType.toLowerCase();
+      return normalized.startsWith("multipart/") && normalized !== "multipart/form-data";
+    }) ?? false
+  );
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {

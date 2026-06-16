@@ -23,21 +23,19 @@ using OpenAPI;
   termsOfService: "http://swagger.io/terms/",
 })
 @server("/v3")
-@tagMetadata(
-  "pet",
+@tagMetadata(#[
   #{
+    name: "pet",
     description: "Everything about your Pets",
     externalDocs: #{ url: "http://swagger.io", description: "Find out more" },
-  }
-)
-@tagMetadata(
-  "store",
+  },
   #{
+    name: "store",
     description: "Access to Petstore orders",
     externalDocs: #{ url: "http://swagger.io", description: "Find out more about our store" },
-  }
-)
-@tagMetadata("user", #{ description: "Operations about user" })
+  },
+  #{ name: "user", description: "Operations about user" }
+])
 namespace SwaggerPetstoreOpenAPI30;
 
 @extension("x-swagger-router-model", "io.swagger.petstore.model.Order")
@@ -120,12 +118,15 @@ op addPet(
 
   /** Create a new pet in the store */
   @body body: Pet,
-): {
-  @header contentType: "application/xml";
-  @body body: Pet;
-} | Pet | {
-  @statusCode statusCode: 405;
-};
+):
+  | {
+      @header contentType: "application/xml";
+      @body body: Pet;
+    }
+  | Pet
+  | {
+      @statusCode statusCode: 405;
+    };
 
 /** Update an existing pet by Id */
 @tag("pet")
@@ -157,10 +158,13 @@ op updatePet(
 op findPetsByStatus(
   /** Status values that need to be considered for filter */
   @query(#{ explode: true }) status?: "available" | "pending" | "sold" = "available",
-): {
-  @header contentType: "application/xml";
-  @body body: Pet[];
-} | Body<Pet[]> | BadRequestResponse;
+):
+  | {
+      @header contentType: "application/xml";
+      @body body: Pet[];
+    }
+  | Body<Pet[]>
+  | BadRequestResponse;
 
 /** Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing. */
 @tag("pet")
@@ -170,10 +174,13 @@ op findPetsByStatus(
 op findPetsByTags(
   /** Tags to filter by */
   @query(#{ explode: true }) tags?: string[],
-): {
-  @header contentType: "application/xml";
-  @body body: Pet[];
-} | Body<Pet[]> | BadRequestResponse;
+):
+  | {
+      @header contentType: "application/xml";
+      @body body: Pet[];
+    }
+  | Body<Pet[]>
+  | BadRequestResponse;
 
 @tag("pet")
 @route("/pet/{petId}")
@@ -252,9 +259,11 @@ op getInventory(): Body<Record<int32>>;
 op placeOrder(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
   @body body: Order,
-): Order | {
-  @statusCode statusCode: 405;
-};
+):
+  | Order
+  | {
+      @statusCode statusCode: 405;
+    };
 
 /** For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors */
 @tag("store")
@@ -295,16 +304,15 @@ op createUser(
 
   /** Created user object */
   @body body: User,
-): GeneratedHelpers.DefaultResponse<
-  Description = "successful operation",
-  Body = User
-> | GeneratedHelpers.DefaultResponse<
-  Description = "successful operation",
-  Headers = {
-    @header contentType: "application/xml";
-  },
-  Body = User
->;
+):
+  | GeneratedHelpers.DefaultResponse<Description = "successful operation", Body = User>
+  | GeneratedHelpers.DefaultResponse<
+      Description = "successful operation",
+      Headers = {
+        @header contentType: "application/xml";
+      },
+      Body = User
+    >;
 
 /** Creates list of users with given input array */
 @tag("user")
@@ -312,10 +320,13 @@ op createUser(
 @route("/user/createWithList")
 @post
 @summary("Creates list of users with given input array")
-op createUsersWithListInput(@body body: User[]): {
-  @header contentType: "application/xml";
-  @body body: User;
-} | User | GeneratedHelpers.DefaultResponse<Description = "successful operation">;
+op createUsersWithListInput(@body body: User[]):
+  | {
+      @header contentType: "application/xml";
+      @body body: User;
+    }
+  | User
+  | GeneratedHelpers.DefaultResponse<Description = "successful operation">;
 
 @tag("user")
 @route("/user/login")
@@ -327,24 +338,27 @@ op loginUser(
 
   /** The password for login in clear text */
   @query(#{ explode: true }) password?: string,
-): {
-  /** calls per hour allowed by the user */
-  @header("X-Rate-Limit") XRateLimit?: int32;
+):
+  | {
+      /** calls per hour allowed by the user */
+      @header("X-Rate-Limit") XRateLimit?: int32;
 
-  /** date in UTC when token expires */
-  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
+      /** date in UTC when token expires */
+      @header("X-Expires-After") XExpiresAfter?: utcDateTime;
 
-  @header contentType: "application/xml";
-  @body body: string;
-} | {
-  /** calls per hour allowed by the user */
-  @header("X-Rate-Limit") XRateLimit?: int32;
+      @header contentType: "application/xml";
+      @body body: string;
+    }
+  | {
+      /** calls per hour allowed by the user */
+      @header("X-Rate-Limit") XRateLimit?: int32;
 
-  /** date in UTC when token expires */
-  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
+      /** date in UTC when token expires */
+      @header("X-Expires-After") XExpiresAfter?: utcDateTime;
 
-  @body body: string;
-} | BadRequestResponse;
+      @body body: string;
+    }
+  | BadRequestResponse;
 
 @tag("user")
 @route("/user/logout")

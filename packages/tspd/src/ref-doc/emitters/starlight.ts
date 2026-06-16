@@ -1,7 +1,9 @@
 import {
   DeprecationNotice,
+  LinterRuleRefDoc,
   NamedTypeRefDoc,
   RefDocEntity,
+  SubExportRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
 } from "../types.js";
@@ -53,6 +55,16 @@ export function renderToAstroStarlightMarkdown(
   const linter = renderLinter(renderer, refDoc);
   if (linter) {
     files["linter.md"] = linter;
+  }
+
+  // Render sub-exports
+  if (refDoc.subExports) {
+    for (const [exportPath, subExport] of refDoc.subExports) {
+      const subFiles = renderSubExport(renderer, refDoc, exportPath, subExport, options);
+      for (const [name, content] of Object.entries(subFiles)) {
+        files[name] = content;
+      }
+    }
   }
 
   return files;
@@ -269,6 +281,112 @@ function renderLinter(
   return renderMarkdowDoc(content, 2);
 }
 
+function renderSubExport(
+  renderer: StarlightRenderer,
+  refDoc: TypeSpecRefDoc,
+  exportPath: string,
+  subExport: SubExportRefDoc,
+  options: RenderToStarlightMarkdownOptions,
+): Record<string, string> {
+  const files: Record<string, string> = {};
+  // Use the export path as a directory prefix (e.g., "./streams" -> "streams/")
+  const dirPrefix = exportPath.replace(/^\.\//, "") + "/";
+  const displayName = exportPath.replace(/^\.\//, "");
+
+  // Decorators
+  if (subExport.namespaces.some((x) => x.decorators.length > 0)) {
+    const content: MarkdownDoc = [
+      "---",
+      `title: "Decorators (${displayName})"`,
+      `description: "Decorators exported by ${refDoc.name}/${displayName}"`,
+      "toc_min_heading_level: 2",
+      "toc_max_heading_level: 3",
+    ];
+    if (options.llmstxt) {
+      content.push("llmstxt: true");
+    }
+    content.push("---");
+    content.push(renderer.decoratorsSection(subExport));
+    files[`${dirPrefix}decorators.md`] = renderMarkdowDoc(content, 2);
+  }
+
+  // Interfaces and Operations
+  if (subExport.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
+    const content: MarkdownDoc = [
+      "---",
+      `title: "Interfaces and Operations (${displayName})"`,
+      `description: "Interfaces and Operations exported by ${refDoc.name}/${displayName}"`,
+    ];
+    if (options.llmstxt) {
+      content.push("llmstxt: true");
+    }
+    content.push("---");
+    content.push(
+      groupByNamespace(subExport.namespaces, (namespace) => {
+        if (namespace.operations.length === 0 && namespace.interfaces.length === 0) {
+          return undefined;
+        }
+        const nsContent: MarkdownDoc = [];
+        for (const iface of namespace.interfaces) {
+          nsContent.push(renderer.interface(iface), "");
+        }
+        for (const operation of namespace.operations) {
+          nsContent.push(renderer.operation(operation), "");
+        }
+        return nsContent;
+      }),
+    );
+    files[`${dirPrefix}interfaces.md`] = renderMarkdowDoc(content, 2);
+  }
+
+  // Data types (models, enums, unions, scalars)
+  if (
+    subExport.namespaces.some(
+      (x) =>
+        x.models.length > 0 || x.enums.length > 0 || x.unions.length > 0 || x.scalars.length > 0,
+    )
+  ) {
+    const content: MarkdownDoc = [
+      "---",
+      `title: "Data types (${displayName})"`,
+      `description: "Data types exported by ${refDoc.name}/${displayName}"`,
+    ];
+    if (options.llmstxt) {
+      content.push("llmstxt: true");
+    }
+    content.push("---");
+    content.push(
+      groupByNamespace(subExport.namespaces, (namespace) => {
+        const modelCount =
+          namespace.models.length +
+          namespace.enums.length +
+          namespace.unions.length +
+          namespace.scalars.length;
+        if (modelCount === 0) {
+          return undefined;
+        }
+        const nsContent: MarkdownDoc = [];
+        for (const model of namespace.models) {
+          nsContent.push(renderer.model(model), "");
+        }
+        for (const e of namespace.enums) {
+          nsContent.push(renderer.enum(e), "");
+        }
+        for (const union of namespace.unions) {
+          nsContent.push(renderer.union(union), "");
+        }
+        for (const scalar of namespace.scalars) {
+          nsContent.push(renderer.scalar(scalar), "");
+        }
+        return nsContent;
+      }),
+    );
+    files[`${dirPrefix}data-types.md`] = renderMarkdowDoc(content, 2);
+  }
+
+  return files;
+}
+
 export class StarlightRenderer extends MarkdownRenderer {
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
@@ -311,14 +429,8 @@ export class StarlightRenderer extends MarkdownRenderer {
     }
   }
 
-  linterRuleLink(url: string) {
-    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
-    if (homepage && url.includes(homepage)) {
-      const fromRoot = url.replace(homepage, "");
-      return `${fromRoot}.md`;
-    } else {
-      return url;
-    }
+  linterRuleLink(rule: LinterRuleRefDoc) {
+    return `../rules/${rule.rule.name}.md`;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {

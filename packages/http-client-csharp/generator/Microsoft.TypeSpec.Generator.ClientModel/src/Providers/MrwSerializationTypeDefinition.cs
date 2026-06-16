@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,6 +27,7 @@ using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     /// <summary>
@@ -66,6 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private readonly bool _shouldOverrideMethods;
+        private readonly bool _shouldSkipDerivedSerializationMethodOverrides;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         private CSharpType RootType => _rootType ??= GetRootModelType();
@@ -79,8 +82,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
-            _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json);
             _supportsXml = inputModel.Usage.HasFlag(InputModelTypeUsage.Xml);
+            _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json) || !_supportsXml;
             // Initialize the serialization interfaces
             var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
             _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
@@ -91,6 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
+            _shouldSkipDerivedSerializationMethodOverrides = _model.BaseModelProvider?.ShouldSkipDerivedSerializationMethodOverrides == true;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -112,6 +116,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName() => _model.Name;
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+        {
+            if (_model.CanonicalView.Properties.Any(p => ScmModelProvider.IsFileBinaryContentType(p.Type)))
+            {
+                return [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
+            }
+            return [];
+        }
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -244,6 +257,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_model is ScmModelProvider { IsDynamicModel: true, HasDynamicProperties: true })
             {
                 methods.AddRange(BuildPropagateGetMethod(), BuildPropagateSetMethod());
+
+                // Add helper methods for every qualifying list/array property
+                foreach (var prop in GetQualifyingDynamicListProperties())
+                {
+                    methods.AddRange(BuildTryResolveArrayMethod(prop), BuildActiveItemsMethod(prop));
+                }
             }
 
             return [.. methods];
@@ -482,7 +501,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -506,7 +525,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -533,7 +552,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_jsonModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(_jsonModelTInterface.Arguments[0]);
             }
 
             // T IJsonModel<T>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
@@ -554,7 +573,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods)
+            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -690,7 +709,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // is an unknown discriminated model.
             if (!createCoreReturnType.Equals(_persistableModelTInterface.Arguments[0]))
             {
-                createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
+                createCoreInvocation = createCoreInvocation.CastTo(_persistableModelTInterface.Arguments[0]);
             }
             // IPersistableModel<T>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
             return new MethodProvider
@@ -2238,6 +2257,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     SerializeBinaryData(frameworkType, serializationFormat, value, utf8JsonWriter),
                 var t when t == typeof(Stream) =>
                     utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
+                var t when t == typeof(FileBinaryContent) =>
+                    utf8JsonWriter.WriteObjectValue(value.As<FileBinaryContent>(), mrwOptionsParameter),
                 _ => null
             };
 
@@ -2302,6 +2323,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         : BinaryDataSnippets.FromString(element.GetRawText()).ToArray(),
                 Type t when t == typeof(Stream) =>
                     BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
+                Type t when t == typeof(FileBinaryContent) =>
+                    New.Instance<FileBinaryContent>(New.Instance<MemoryStream>(element.GetBytesFromBase64(), Literal(false))),
                 Type t when t == typeof(JsonElement) =>
                     element.InvokeClone(),
                 Type t when t == typeof(object) =>
@@ -2331,8 +2354,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(TimeSpan) => format switch
                 {
                     SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
+                    SerializationFormat.Duration_Seconds_Int64 => TimeSpanSnippets.FromSeconds(element.GetInt64()),
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
                     SerializationFormat.Duration_Milliseconds => TimeSpanSnippets.FromMilliseconds(element.GetInt32()),
+                    SerializationFormat.Duration_Milliseconds_Int64 => TimeSpanSnippets.FromMilliseconds(element.GetInt64()),
                     SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => TimeSpanSnippets.FromMilliseconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
@@ -2372,7 +2397,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
             // sbyte.Parse(element.GetString())
-            SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
+            SerializationFormat.Int_String => Static(type).Invoke(nameof(int.Parse), [element.GetString()]),
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),
@@ -2389,9 +2414,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
             {
-                SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalSeconds())),
+                SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(MathSnippets.InvokeRound(value.As<TimeSpan>().TotalSeconds()))),
+                SerializationFormat.Duration_Seconds_Int64 => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt64(MathSnippets.InvokeRound(value.As<TimeSpan>().TotalSeconds()))),
                 SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalSeconds()),
-                SerializationFormat.Duration_Milliseconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalMilliseconds())),
+                SerializationFormat.Duration_Milliseconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(MathSnippets.InvokeRound(value.As<TimeSpan>().TotalMilliseconds()))),
+                SerializationFormat.Duration_Milliseconds_Int64 => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt64(MathSnippets.InvokeRound(value.As<TimeSpan>().TotalMilliseconds()))),
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalMilliseconds()),
                 SerializationFormat.DateTime_Unix => utf8JsonWriter.WriteNumberValue(value, format),
                 _ => format is not null ? utf8JsonWriter.WriteStringValue(value, format) : utf8JsonWriter.WriteStringValue(value)
@@ -2664,3 +2691,4 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
     }
 }
+#pragma warning restore SCME0004

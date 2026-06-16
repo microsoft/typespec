@@ -910,6 +910,24 @@ Expected header `duration: P40D`
 Test iso8601 encode for a duration array header.
 Expected header `duration: [P40D,P50D]`
 
+### Encode_Duration_Lossy_intMilliseconds
+
+- Endpoint: `get /encode/duration/lossy/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
+The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
+
+### Encode_Duration_Lossy_intSeconds
+
+- Endpoint: `get /encode/duration/lossy/int32-seconds`
+
+Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
+The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
+
 ### Encode_Duration_Property_default
 
 - Endpoint: `post /encode/duration/property/default`
@@ -1455,6 +1473,22 @@ Expected request body:
 { "name": "foo" }
 ```
 
+### Parameters_BodyRoot_nested
+
+- Endpoint: `post /parameters/body-root/nested`
+
+Test case for a `@bodyRoot` parameter nested inside a wrapper model.
+
+Emitters must resolve the accessor path through the wrapper (e.g.
+`body.bodyRootParameters`) rather than referencing the property name
+directly.
+
+Expected request body:
+
+```json
+{ "category": "widget", "linkType": "hard", "wasSuccessful": true }
+```
+
 ### Parameters_CollectionFormat_Header_csv
 
 - Endpoint: `get /parameters/collection-format/header/csv`
@@ -1533,6 +1567,18 @@ Second request path:
 - Endpoint: `post /parameters/query/constant`
 
 Expect to handle a constant value for query and mock api returns nothing
+
+### Parameters_Query_SpecialChar_dollarSign
+
+- Endpoint: `get /parameters/query/special-char/dollar-sign`
+
+Send a request with a dollar-sign prefixed`$filter` query parameter.
+
+Expected query parameter:
+
+- `$filter` = "status eq 'active'"
+
+Expected response status code: 204
 
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
@@ -1775,6 +1821,17 @@ Scenario that returns a different file encoding depending on the accept header.
 
 - image/png return a png image
 - image/jpeg return a jpeg image
+
+### Payload_Head_contentTypeHeaderInResponse
+
+- Endpoint: `head /payload/head/content-type-header-in-response`
+
+A HEAD operation that returns response headers including Content-Type and x-ms-meta.
+
+Expected response headers:
+
+- Content-Type: text/plain; charset=utf-8
+- x-ms-meta: hello
 
 ### Payload_JsonMergePatch_createResource
 
@@ -5155,6 +5212,19 @@ Verify that the name "with" works. Send this parameter to pass with value `ok`.
 
 Verify that the name "yield" works. Send this parameter to pass with value `ok`.
 
+### SpecialWords_ReservedOperationBodyParams_withItems
+
+- Endpoint: `post /special-words/operations/body-param-reserved`
+
+Verify that an operation parameter named "items" is sent with the key "items" on the wire,
+not mangled to "items_property" or similar.
+
+Send
+
+```json
+{ "items": ["item"] }
+```
+
 ### Streaming_Jsonl_Basic_receive
 
 - Endpoint: `get /streaming/jsonl/basic/receive`
@@ -6202,6 +6272,18 @@ Expected response body:
 { "wingspan": 1, "kind": "sparrow" }
 ```
 
+### Type_Model_Inheritance_SingleDiscriminator_getNoSubtypesModel
+
+- Endpoint: `get /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Generate and receive a discriminated model that has no defined subtypes.
+The base model declares a discriminator but no models extend it.
+Expected response body:
+
+```json
+{ "kind": "salmon", "size": 10 }
+```
+
 ### Type_Model_Inheritance_SingleDiscriminator_getRecursiveModel
 
 - Endpoint: `get /type/model/inheritance/single-discriminator/recursivemodel`
@@ -6252,6 +6334,17 @@ Expected input body:
 
 ```json
 { "wingspan": 1, "kind": "sparrow" }
+```
+
+### Type_Model_Inheritance_SingleDiscriminator_putNoSubtypesModel
+
+- Endpoint: `put /type/model/inheritance/single-discriminator/no-subtypes/model`
+
+Send a discriminated model that has no defined subtypes.
+Expected input body:
+
+```json
+{ "kind": "salmon", "size": 10 }
 ```
 
 ### Type_Model_Inheritance_SingleDiscriminator_putRecursiveModel

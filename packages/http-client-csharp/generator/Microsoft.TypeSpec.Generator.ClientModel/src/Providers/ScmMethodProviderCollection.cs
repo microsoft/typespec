@@ -74,8 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
-            _generateConvenienceMethod = ServiceMethod.Operation is
-            { GenerateConvenienceMethod: true, IsMultipartFormData: false };
+            _generateConvenienceMethod = ServiceMethod.Operation.GenerateConvenienceMethod;
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -92,13 +91,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (_generateConvenienceMethod)
             {
-                return
-                [
+                var methods = new List<ScmMethodProvider>
+                {
                     syncProtocol,
                     asyncProtocol,
-                    BuildConvenienceMethod(syncProtocol, false),
-                    BuildConvenienceMethod(asyncProtocol, true),
-                ];
+                };
+
+                if (_pagingServiceMethod != null)
+                {
+                    methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                    methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                }
+                else
+                {
+                    if (ProtocolMethodExists(syncProtocol))
+                    {
+                        methods.Add(BuildConvenienceMethod(syncProtocol, false));
+                    }
+
+                    if (ProtocolMethodExists(asyncProtocol))
+                    {
+                        methods.Add(BuildConvenienceMethod(asyncProtocol, true));
+                    }
+                }
+
+                return methods;
             }
 
             return
@@ -108,33 +125,91 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
+        private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
+        {
+            if (!generatedProtocolMethod.IsMethodSuppressed())
+            {
+                return true;
+            }
+
+            foreach (var method in EnclosingType.CustomCodeView?.Methods ?? [])
+            {
+                if (!method.IsPartialMethod &&
+                    MethodSignatureBase.SignatureComparer.Equals(method.Signature, generatedProtocolMethod.Signature))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
-            if (EnclosingType is not ClientProvider)
+            if (EnclosingType is not ClientProvider client)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodSignature = new MethodSignature(
-                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
-                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                protocolMethod.Signature.Modifiers,
-                GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType),
-                null,
-                [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken]);
+            var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
+            ParameterProvider[] signatureParameters = [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken];
+
+            // Detect a partial method declaration in the client's custom code matching this convenience method.
+            MethodSignature? customSignature = null;
+            PartialMethodCustomization.TryFindCustomSignature(client, methodName, signatureParameters, out customSignature);
+
+            // Parameters used to construct the method body. When customizing, we clone the generator's
+            // parameter providers with the customer's names but keep all generator metadata so that the
+            // body construction (param conversions, request invocation, etc.) still works.
+            IReadOnlyList<ParameterProvider> convenienceBodyParameters;
+
+            MethodSignature methodSignature;
+
+            if (customSignature != null)
+            {
+                var renamedSignatureParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                    signatureParameters,
+                    customSignature.Parameters,
+                    removeDefaults: true);
+
+                // The generator-controlled body params are the leading parameters (everything except the trailing CancellationToken).
+                var bodyParams = new ParameterProvider[ConvenienceMethodParameters.Count];
+                for (int i = 0; i < ConvenienceMethodParameters.Count; i++)
+                {
+                    bodyParams[i] = renamedSignatureParameters[i];
+                }
+                convenienceBodyParameters = bodyParams;
+
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
+            }
+            else
+            {
+                convenienceBodyParameters = ConvenienceMethodParameters;
+                methodSignature = new MethodSignature(
+                    methodName,
+                    DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                    GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
+                    GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
+                    null,
+                    signatureParameters,
+                    Attributes: BuildConvenienceMethodAttributes());
+            }
+
+            // Recompute the response body type so we can branch the body accordingly.
+            GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, ConvenienceMethodParameters, true)];
+                methodBody = [.. GetPagingMethodBody(collection, convenienceBodyParameters, true)];
             }
             else if (responseBodyType is null)
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
                     Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync))
                 ];
             }
@@ -142,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 methodBody =
                 [
-                    .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
@@ -175,6 +250,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return convenienceMethod;
+        }
+
+        private MethodSignatureModifiers GetConvenienceMethodModifiers(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<ParameterProvider> signatureParameters)
+        {
+            var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
+            if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
+                !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Private) &&
+                signatureParameters.Any(p => !p.Type.IsPublic))
+            {
+                modifiers &= ~MethodSignatureModifiers.Public;
+                modifiers |= MethodSignatureModifiers.Internal;
+            }
+
+            return modifiers;
         }
 
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
@@ -242,9 +334,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         // Check if this is a dual-format model that needs explicit serialization
                         ModelProvider? bodyModel = null;
                         InputModelType? bodyInputModel = null;
+                        InputMethodParameter? inputParam = null;
                         if (parameter.Type is { IsFrameworkType: false })
                         {
-                            var inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            inputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
                             if (inputParam?.Type is InputModelType model)
                             {
                                 bodyInputModel = model;
@@ -257,6 +350,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             // Create using declaration for BinaryContent
                             var methodName = $"To{requestContentType.Name}";
                             statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
+                            declarations["content"] = content;
+                        }
+                        else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
+                        {
+                            var bodyExpression = inputParam is { IsRequired: false }
+                                ? parameter.NullConditional()
+                                : parameter;
+                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression), out var content));
                             declarations["content"] = content;
                         }
                         // else rely on implicit operator to convert to BinaryContent
@@ -715,6 +816,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    type.Equals(typeof(TimeSpan?));
         }
 
+        private IReadOnlyList<AttributeStatement>? BuildConvenienceMethodAttributes()
+        {
+            var bodyInputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+            if (bodyInputParam?.Type is InputModelType bodyModel
+                && bodyModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
+            {
+                return [new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmModelProvider.FileBinaryContentDiagnosticId)])];
+            }
+
+            return null;
+        }
+
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
@@ -781,6 +894,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (convenienceParam == null)
                     {
+                        // When the convenience surface drops a literal Content-Type header (which
+                        // can happen for multipart operations where the actual wire value includes
+                        // a boundary computed at runtime), forward the value from the multipart
+                        // content's MediaType property to the protocol method.
+                        if (ServiceMethod.Operation.IsMultipartFormData
+                            && string.Equals(protocolParam.Name, ScmKnownParameters.ContentType.Name, StringComparison.Ordinal)
+                            && declarations.TryGetValue("content", out ValueExpression? multipartContent))
+                        {
+                            // When the body is optional, `content` may be null, so we forward `content?.MediaType`.
+                            var bodyInputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
+                            var mediaTypeExpression = bodyInputParam is { IsRequired: false }
+                                ? new MemberExpression(new NullConditionalExpression(multipartContent), "MediaType")
+                                : multipartContent.Property("MediaType");
+                            AddArgument(protocolParam, mediaTypeExpression);
+                            continue;
+                        }
+
                         if (TryGetNonBodyModelPropertyConversion(protocolParam, out var conversion))
                         {
                             AddArgument(protocolParam, conversion);
@@ -933,21 +1063,50 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
+            var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
 
-            var methodSignature = new MethodSignature(
-                isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name,
-                DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                methodModifiers,
-                GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
-                $"The response returned from the service.",
-                parameters);
+            // Detect a partial method declaration in the client's custom code matching this protocol method.
+            // When found, we use the customized signature (modifiers, name, parameter names) and emit the
+            // generated body using the customized parameter references.
+            MethodSignature? customSignature = null;
+            PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
+
+            MethodSignature methodSignature;
+            ParameterProvider[] bodyParameters;
+
+            if (customSignature != null)
+            {
+                // Partial methods cannot have optional parameters in the implementation.
+                var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
+                    customSignature.Parameters,
+                    customSignature.Parameters,
+                    removeDefaults: true).ToArray();
+
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
+
+                bodyParameters = requiredCustomParameters;
+                // Re-resolve the request options parameter from the customized parameter list so the
+                // generated body references the user-named options parameter (typically the last param).
+                requestOptionsParameter = requiredCustomParameters[requiredCustomParameters.Length - 1];
+            }
+            else
+            {
+                methodSignature = new MethodSignature(
+                    methodName,
+                    DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
+                    methodModifiers,
+                    GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
+                    $"The response returned from the service.",
+                    parameters);
+                bodyParameters = parameters;
+            }
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, parameters, false)];
+                methodBody = [.. GetPagingMethodBody(collection, bodyParameters, false)];
             }
             else
             {
@@ -956,7 +1115,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
-                            [.. parameters]), out var message),
+                            [.. bodyParameters.Select(p => (ValueExpression)p)]), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
                         .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
@@ -1313,9 +1472,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             rootName = null;
             childName = null;
 
-            // Check if the response uses XML content type
+            // Check if the response is serialized as XML using the propagated serialization options
             var response = ServiceMethod.Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response == null || !response.ContentTypes.Any(c => c.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)))
+            if (response?.SerializationOptions?.Xml is null)
             {
                 return false;
             }

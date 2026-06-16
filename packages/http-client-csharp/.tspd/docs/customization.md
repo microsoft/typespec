@@ -1273,6 +1273,88 @@ namespace Azure.Service.Operations
 
 </details>
 
+## Customize a generated client method's signature
+
+Declare a `partial` method (without a body) on the generated client class with the same name and parameter types as a generated protocol or convenience method. The generator emits a matching partial implementation, taking the modifiers and parameter names from your declaration while keeping its generated body.
+
+This applies specifically to **client methods** (protocol and convenience methods on the generated `*Client` class). Other generated members (model constructors, model serialization methods, model factories, etc.) should be customized using `[CodeGenSuppress]` + a hand-written replacement, or one of the other techniques in this document.
+
+Use this when you want to keep the generated body but tweak the surface — typically:
+
+- Tighten the access modifier (`public` → `internal`).
+- Add `virtual` / `override` / `new` modifiers.
+- Rename a parameter to something more idiomatic.
+
+This is preferred over `[CodeGenSuppress]` + a hand-written replacement when the only thing you want to change is the signature, because you stay in lock-step with the generated body — future regenerations automatically pick up changes (new optional parameters, body changes from spec edits, etc.).
+
+### What is supported
+
+- **Modifier changes** (access modifier, `virtual`, `override`, `new`, `unsafe`).
+- **Parameter renames.** The generator clones each parameter with the customer-chosen name while preserving all internal metadata (parameter location, wire info, spread source, validation, …) so the generated body keeps compiling.
+- Both protocol method overloads and convenience method overloads (sync and async) on the generated client. Each overload must be customized independently.
+
+### What is NOT supported
+
+- **Renaming the method itself.** Matching is by `(method name, ordered parameter type list)`. To rename, use `[CodeGenSuppress]` + a hand-written method that delegates to the underlying request/pipeline machinery.
+- **Changing parameter types.** The parameter type list must match the generated signature exactly (matched by type name). Replacing a parameter type with a different type — even an implicitly convertible one — will simply fail to match and the partial decl will be ignored. To project a different type, use `[CodeGenSuppress]` + a hand-written wrapper that converts and forwards.
+- **Adding/removing/reordering parameters.** The parameter type list must match the generated signature exactly. To restructure, use `[CodeGenSuppress]`.
+- **Default values on the partial implementation.** C# requires partial method implementations to have all parameters required, so any default values on your partial declaration are stripped on the generated impl. Callers still see the defaults from your declaration in custom code.
+- **Non-client members** (models, serialization methods, model factories). Use `[CodeGenSuppress]` for these.
+
+<details>
+
+**Generated code before (Generated/TestClient.cs):**
+
+```C#
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+        public virtual ClientResult HelloAgain(BinaryContent p1, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(p1, nameof(p1));
+            using PipelineMessage message = CreateRequest(p1, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+    }
+}
+```
+
+**Add customized client (TestClient.cs):**
+
+```C#
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+        // Renames `p1` to `content` and changes accessibility from public to internal.
+        internal partial ClientResult HelloAgain(BinaryContent content, RequestOptions options);
+    }
+}
+```
+
+**Generated code after (Generated/TestClient.cs):**
+
+```diff
+namespace Azure.Service
+{
+    public partial class TestClient
+    {
+-        public virtual ClientResult HelloAgain(BinaryContent p1, RequestOptions options = null)
++        internal partial ClientResult HelloAgain(BinaryContent content, RequestOptions options)
+        {
+-            Argument.AssertNotNull(p1, nameof(p1));
+-            using PipelineMessage message = CreateRequest(p1, options);
++            Argument.AssertNotNull(content, nameof(content));
++            using PipelineMessage message = CreateRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+    }
+}
+```
+
+</details>
+
 ## Replace any generated member
 
 Works for model and client properties, methods, constructors etc.
