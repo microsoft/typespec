@@ -496,6 +496,34 @@ export function getMyMeta(program: Program, target: Model): { name: string; vers
     });
   });
 
+  it("generates accessor with fully-qualified name for namespaced auto decorator", async () => {
+    const [{ program }] = await Tester.compileAndDiagnose(
+      `
+      namespace MyLib {
+        auto dec myLabel(target: Model, label: valueof string);
+      }
+    `,
+      {
+        compilerOptions: {
+          parseOptions: { comments: true, docs: true },
+          configFile: {
+            projectRoot: ".",
+            kind: "project",
+            features: ["auto-decorators"],
+            diagnostics: [],
+            outputDir: "tsp-output",
+          },
+        } as any,
+      },
+    );
+    expectDiagnosticEmpty(program.diagnostics.filter((x) => x.code !== "missing-implementation"));
+    const files = await generateExternDecorators(program, "test-lib", {
+      prettierConfig: { printWidth: 160, plugins: [] },
+    });
+    const all = Object.values(files).join("\n");
+    expect(all).toContain(`getAutoDecoratorValue(program, "MyLib.myLabel", target)?.["label"]`);
+  });
+
   it("does not generate $decorators type for auto decorators", async () => {
     const result = await generateDecoratorSignatures(`auto dec myFlag(target: Model);`);
     expect(result).not.toContain("Decorators");

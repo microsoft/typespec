@@ -50,7 +50,7 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
     mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
   [SyntaxKind.FunctionDeclarationStatement]: {
-    allowed: ModifierFlags.All,
+    allowed: ModifierFlags.Extern | ModifierFlags.Internal,
     required: ModifierFlags.Extern,
   },
 };

@@ -137,6 +137,29 @@ describe("compiler: checker: decorators", () => {
       ]);
     });
 
+    it("errors if auto modifier is used on a model declaration", async () => {
+      const diagnostics = await DecTester.diagnose(`
+        auto model Foo {}
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "invalid-modifier",
+        message: "Modifier 'auto' cannot be used on declarations of type 'model'.",
+      });
+    });
+
+    it("errors if auto modifier is used on a function declaration", async () => {
+      const diagnostics = await DecTester.diagnose(`
+        auto extern fn foo(): void;
+      `);
+      expectDiagnostics(
+        diagnostics.filter((d) => d.code === "invalid-modifier"),
+        {
+          code: "invalid-modifier",
+          message: "Modifier 'auto' cannot be used on declarations of type 'function'.",
+        },
+      );
+    });
+
     it("errors if rest parameter type is not an array expression", async () => {
       const diagnostics = await DecTester.diagnose(`
         extern dec testDec(target: unknown, ...rest: string);
@@ -402,6 +425,79 @@ describe("compiler: checker: decorators", () => {
       const { getAutoDecoratorTargets } = await import("../../src/lib/auto-decorator.js");
       const targets = getAutoDecoratorTargets(program, "tracked");
       strictEqual(targets.size, 2);
+    });
+
+    it("hasAutoDecorator reflects whether the decorator was applied", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec tracked(target: Model);
+
+        @tracked model Foo {}
+        model Bar {}
+      `,
+        autoDecOptions,
+      );
+
+      const ns = program.getGlobalNamespaceType();
+      const { hasAutoDecorator } = await import("../../src/lib/auto-decorator.js");
+      strictEqual(hasAutoDecorator(program, "tracked", ns.models.get("Foo")!), true);
+      strictEqual(hasAutoDecorator(program, "tracked", ns.models.get("Bar")!), false);
+    });
+
+    it("getAutoDecoratorValue returns undefined when not applied", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myLabel(target: Model, label: valueof string);
+
+        model Bar {}
+      `,
+        autoDecOptions,
+      );
+
+      const Bar = program.getGlobalNamespaceType().models.get("Bar")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      strictEqual(getAutoDecoratorValue(program, "myLabel", Bar), undefined);
+    });
+
+    it("auto decorator is inherited through `is`", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec myLabel(target: Model, label: valueof string);
+
+        @myLabel("base")
+        model Base {}
+
+        model Derived is Base {}
+      `,
+        autoDecOptions,
+      );
+
+      const ns = program.getGlobalNamespaceType();
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", ns.models.get("Base")!), {
+        label: "base",
+      });
+      deepStrictEqual(getAutoDecoratorValue(program, "myLabel", ns.models.get("Derived")!), {
+        label: "base",
+      });
+    });
+
+    it("auto decorator works on a non-Model target (ModelProperty)", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(
+        `
+        auto dec field(target: ModelProperty, name: valueof string);
+
+        model Foo {
+          @field("id")
+          prop: string;
+        }
+      `,
+        autoDecOptions,
+      );
+
+      const prop = program.getGlobalNamespaceType().models.get("Foo")!.properties.get("prop")!;
+      const { getAutoDecoratorValue } = await import("../../src/lib/auto-decorator.js");
+      deepStrictEqual(getAutoDecoratorValue(program, "field", prop), { name: "id" });
     });
   });
 
