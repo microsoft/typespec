@@ -481,5 +481,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
                 "External base models should not be emitted as generated types.");
         }
+
+        // -------------------------------------------------------------------
+        // 11. Fallback: an external model whose type cannot be resolved is generated
+        //     normally (as a regular ModelProvider) rather than being dropped.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void ExternalModel_ThatCannotBeResolved_FallsBackToNormalGeneration()
+        {
+            var inputModel = InputFactory.Model(
+                "Widget",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                // Not a real framework type and no package metadata, so resolution fails.
+                external: new InputExternalTypeMetadata("Some.Unresolvable.ExternalType", null, null));
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            // Unresolvable external metadata: no SystemObjectModelProvider mapping; generate normally.
+            Assert.IsNotNull(provider);
+            Assert.IsNotInstanceOf<SystemObjectModelProvider>(provider);
+
+            // And the model is still emitted as a generated type.
+            Assert.IsTrue(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t == provider),
+                "An external model that cannot be resolved should still be generated.");
+        }
+
+        // -------------------------------------------------------------------
+        // 12. A property typed as an external model resolves to the external type, and the
+        //     external model itself is not generated.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void PropertyTypedAsExternalModel_ResolvesToExternalType_AndExternalModelIsNotGenerated()
+        {
+            var externalModel = InputFactory.Model(
+                "ExternalThing",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
+                external: new InputExternalTypeMetadata("System.Exception", null, null));
+            var containerModel = InputFactory.Model(
+                "Container",
+                properties: [InputFactory.Property("thing", externalModel, isRequired: true)]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [externalModel, containerModel]);
+
+            // The external model maps to a SystemObjectModelProvider and is not emitted.
+            var externalProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(externalModel);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(externalProvider);
+            Assert.IsFalse(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
+                "External models must not be emitted as generated types.");
+
+            // A property typed as the external model resolves to the external framework type.
+            var container = CodeModelGenerator.Instance.TypeFactory.CreateModel(containerModel) as ModelProvider;
+            Assert.IsNotNull(container);
+            var thingProperty = container!.Properties.FirstOrDefault(p => p.Name == "Thing");
+            Assert.IsNotNull(thingProperty);
+            Assert.AreEqual("Exception", thingProperty!.Type.Name);
+            Assert.AreEqual("System", thingProperty.Type.Namespace);
+        }
     }
 }
