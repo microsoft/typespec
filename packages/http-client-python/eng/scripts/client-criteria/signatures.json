@@ -1,0 +1,13 @@
+{
+  "_comment": "Routing table for the /check-client-surface orchestrator. A category listed here has a DETERMINISTIC check (the orchestrator runs verify.py with these params instead of judging). A category NOT listed is verified by AI. 'check' picks the verify.py routine.",
+  "access": {
+    "check": "export_visibility",
+    "public_init": "models/__init__.py"
+  },
+  "exactName": {
+    "check": "identifier_exact"
+  },
+  "naming": {
+    "check": "identifier_casing_insensitive"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "items": [
+    {"id": "Client_Naming_Model_client",    "scenario": "naming", "category": "naming", "target": "ModelWithClientClientName",        "expected": "ClientModel"},
+    {"id": "Client_Naming_Model_language",   "scenario": "naming", "category": "naming", "target": "ModelWithLanguageClientName",       "client_names": {"python": "PythonModel", "csharp": "CSModel", "java": "JavaModel", "javascript": "TSModel"}},
+    {"id": "Client_Naming_Property_client",  "scenario": "naming", "category": "naming", "target": "ClientNameModel.defaultName",        "expected": "clientName"},
+    {"id": "Client_Naming_Property_language","scenario": "naming", "category": "naming", "target": "LanguageClientNameModel.defaultName", "client_names": {"python": "python_name", "csharp": "CSName", "java": "javaName", "javascript": "tsName"}},
+    {"id": "Client_Naming_UnionEnum_name",   "scenario": "naming", "category": "naming", "target": "ServerExtensibleEnum",               "expected": "ClientExtensibleEnum"},
+    {"id": "Client_Naming_UnionEnum_value",  "scenario": "naming", "category": "naming", "target": "ExtensibleEnum.value1",              "expected": "ClientEnumValue1"},
+    {"id": "Client_Paging_Widgets_list",     "scenario": "naming", "category": "paging", "target": "Widgets.list",                       "verify": "surfaces results as a lazily-iterated collection, not a single response object"}
+  ]
+}

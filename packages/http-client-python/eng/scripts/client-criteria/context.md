@@ -1,65 +1,49 @@
-# Client Criteria Checker — context (http-client-python)
+# Client surface checks — context: http-client-python
 
-You are inspecting generated Python client SDKs to verify **client-surface**
-behavior that the spector wire tests cannot see. A property renamed with
-`@clientName`, an enum member preserved with `@exactName`, or a method relocated
-with `@clientLocation` all send identical bytes on the wire — the mock APIs pass
-them either way. Your job is to check how the generated client actually _looks_.
+## Emitter facts
+*The shared `/check-client-surface` prompt and `verify.py` read these.*
 
-## Your job
+- **language:** python *(selects which per-language client name applies when a check is language-scoped)*
+- **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
+- **flavors:** `azure`, `unbranded`
+- **checks-doc:** `packages/http-client-python/eng/client-surface-checks/demo-checks.json`
+<!-- `node_modules/@typespec/spector/client-surface-checks.generated.md` *(precomputed)* -->
 
-For each criterion you are given, **locate the corresponding symbol in the
-generated code and report its exact identifier.** Nothing more. Do not judge
-whether it is correct or idiomatic — a deterministic step compares the
-identifier you report against a human-authored expected value. This split means
-a mistaken opinion can't produce a false pass.
+### What differs by flavor (branded = azure, unbranded)
+Only the **generated-root** subfolder and the **import namespace** (`azure.core`
+vs `corehttp`). Symbol locations and every concept signature below are
+flavor-invariant.
 
-## Where the code is
+## Concept signatures
+What each verifiable concept looks like in generated Python. Authored once,
+reused across every scenario that uses the concept. Prefer concrete, checkable
+signatures so the deterministic runner can decide **without calling AI** — see
+`signatures.json` for the machine-readable form.
 
-Generated packages live at `tests/generated/<flavor>/<package>/`, one package
-per spector spec. The two flavors differ only in their runtime imports:
+### access: internal
+- **enum** → the class is NOT re-exported from `models/__init__.py`; it may also
+  be defined with a leading `_`.
+- **model** → absent from the package's public `__init__.py` exports.
+- **operation / method** → prefixed `_`, or not present on the public client.
 
-- **azure** — imports from `azure.core` (e.g. `azure.core.rest`, `_model_base`).
-- **unbranded** — imports from `corehttp` instead.
+### access: public
+- present in the public `__init__.py` exports, no leading underscore.
 
-Symbol locations are the same across flavors.
+### naming (`@clientName`)
+- the generated identifier equals the client name **ignoring case/separators**
+  (idiomatic Python casing: `snake_case`, `PascalCase`, `UPPER_SNAKE`).
+- **resolving the expected name:** if the check has a `- Client names:` line
+  (a per-language map, e.g. `python=…; csharp=…`), use the value whose key equals
+  this emitter's **language** (`python`, from Emitter facts). Otherwise use the
+  single backticked name in the `Expects` sentence. A language with no entry in
+  the map is `N/A`.
 
-## Where each symbol lives
+### exactName (`@exactName`)
+- the identifier equals the spec name **byte-for-byte**, no casing transform.
 
-- **Enum** `Foo` → class `Foo` in `<root_module>/models/_enums.py`.
-  - Each member is `IDENTIFIER = "<wire value>"`.
-  - The **client identifier** is the attribute name (left of `=`).
-  - The **wire value** is the string literal (right of `=`).
-- **Model** `Foo` → class `Foo` in `<root_module>/models/_models.py`.
-  - Each property is `prop_name: <type> = rest_field(name="<wire name>")`.
-  - The **client identifier** is the attribute name.
-  - The **wire name** is the `name=` argument to `rest_field(...)`. If absent,
-    the wire name equals the attribute name.
-- The package's top-level `__init__.py` re-exports the public symbols; start
-  there if unsure of the module layout.
+### flatten (`@flattenProperty`)
+- the nested model's fields appear directly as attributes on the parent class.
 
-## What the emitter does to names by default
-
-Knowing the default transform lets you tell when a check's intent was honored vs
-silently lost:
-
-- **Enum members** → upper `SNAKE_CASE` (`aBc` would normally become `A_BC`).
-- **Properties / parameters / methods** → `snake_case`.
-- **Classes / enums** → `PascalCase`.
-
-So an `@exactName` member of `aBc` is correct only if it appears literally as
-`aBc`; seeing `A_BC` means the default normalization was applied and the intent
-was lost. A `@clientName("modelType")` property is correct if you see
-`model_type` (rename applied, then idiomatic casing); seeing the old wire name
-means the rename was dropped.
-
-## Output contract
-
-Respond with **only** this JSON object — no prose, no markdown fences:
-
-```
-{"found": <bool>, "identifier": <string|null>, "file": <string|null>, "evidence": <string|null>}
-```
-
-`evidence` is the single line of code you read the identifier from. If you can't
-find the symbol, return `found: false` with the rest null.
+> When an assertion has no concrete signature here (and none in signatures.json),
+> `/check-client-surface` may fall back to judgment — but add a signature when
+> you can, to keep AI calls rare.
