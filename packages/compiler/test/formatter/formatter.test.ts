@@ -1930,6 +1930,49 @@ union Foo {
 `,
       });
     });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("does not add a blank line or extra indent for a union used as a template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked
+  is PickProperties<
+    Sample,
+    | "alpha"
+    | "bravo"
+    | "charlie"
+    | "delta"
+    | "echo"
+    | "foxtrot"
+    | "golf"
+    | "hotel"
+  >;
+`,
+      });
+    });
+
+    it("keeps leading | and indent for a union used as the only template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<"alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked
+  is PickProperties<
+    | "alpha"
+    | "bravo"
+    | "charlie"
+    | "delta"
+    | "echo"
+    | "foxtrot"
+    | "golf"
+    | "hotel">;
+`,
+      });
+    });
   });
 
   describe("namespaces", () => {

@@ -1403,14 +1403,33 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
+  // A union that is one of several template arguments must not add its own
+  // leading line + indent: the argument list already provides them, so stacking
+  // both yields a blank line and an extra indent level for the variants.
+  // https://github.com/microsoft/typespec/issues/11009
+  const inMultiTemplateArgumentList = isInMultiTemplateArgumentList(path);
   const types = path.map((typePath) => {
-    const printedType: Doc = align(2, print(typePath));
-    return printedType;
+    return inMultiTemplateArgumentList ? print(typePath) : align(2, print(typePath));
   }, "options");
 
-  const shouldAddStartLine = true;
+  const shouldAddStartLine = !inMultiTemplateArgumentList;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
-  return group(indent(code));
+  return inMultiTemplateArgumentList ? group(code) : group(indent(code));
+}
+
+/** Whether the node is a direct argument of a template reference with more than one argument. */
+function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
+  if (path.getParentNode()?.kind !== SyntaxKind.TemplateArgument) {
+    return false;
+  }
+  let count = 0;
+  let node: Node | null;
+  while ((node = path.getParentNode(count++))) {
+    if (node.kind === SyntaxKind.TypeReference) {
+      return node.arguments.length > 1;
+    }
+  }
+  return false;
 }
 
 export function printTypeReference(

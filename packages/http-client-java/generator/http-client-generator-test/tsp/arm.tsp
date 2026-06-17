@@ -389,12 +389,11 @@ interface ImmutableResourceModel {
       Azure.ResourceManager.Foundations.DefaultBaseParameters<NginxConfigurationResponse>
     >,
     NginxConfigurationRequest,
-
-      | NginxConfigurationResponse
-      | ArmResourceCreatedResponse<
-          NginxConfigurationResponse,
-          LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
-        >,
+    | NginxConfigurationResponse
+    | ArmResourceCreatedResponse<
+      NginxConfigurationResponse,
+      LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
+    >,
     ErrorResponse,
     OptionalRequestBody = true
   >;
