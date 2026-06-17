@@ -1406,11 +1406,12 @@ export function printUnion(
   // A union that is one of several template arguments must not add its own
   // leading line + indent: the argument list already provides them, so stacking
   // both yields a blank line and an extra indent level for the variants.
+  // The per-variant align(2) is always kept though (matching prettier's union
+  // printer): it accounts for the "| " prefix so a variant that breaks (e.g. a
+  // nested template) stays aligned under its content.
   // https://github.com/microsoft/typespec/issues/11009
   const inMultiTemplateArgumentList = isInMultiTemplateArgumentList(path);
-  const types = path.map((typePath) => {
-    return inMultiTemplateArgumentList ? print(typePath) : align(2, print(typePath));
-  }, "options");
+  const types = path.map((typePath) => align(2, print(typePath)), "options");
 
   const shouldAddStartLine = !inMultiTemplateArgumentList;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];

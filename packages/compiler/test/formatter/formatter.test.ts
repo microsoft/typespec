@@ -1973,6 +1973,27 @@ model Picked
 `,
       });
     });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("keeps the variant alignment so a nested template argument stays indented", async () => {
+      await assertFormat({
+        code: `
+model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
+`,
+        expected: `
+model Created
+  is Operation<
+    Request,
+    | Response
+    | CreatedResponse<
+        ResponseBodyModel,
+        LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
+      >,
+    Error
+  >;
+`,
+      });
+    });
   });
 
   describe("namespaces", () => {

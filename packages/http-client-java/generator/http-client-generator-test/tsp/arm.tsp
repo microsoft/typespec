@@ -391,9 +391,9 @@ interface ImmutableResourceModel {
     NginxConfigurationRequest,
     | NginxConfigurationResponse
     | ArmResourceCreatedResponse<
-      NginxConfigurationResponse,
-      LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
-    >,
+        NginxConfigurationResponse,
+        LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
+      >,
     ErrorResponse,
     OptionalRequestBody = true
   >;
