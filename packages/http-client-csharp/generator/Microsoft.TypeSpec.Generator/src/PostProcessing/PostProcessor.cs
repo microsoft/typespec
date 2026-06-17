@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -452,6 +453,12 @@ namespace Microsoft.TypeSpec.Generator
                 solution = await RemoveInvalidAttributes(solution, documentId);
             }
 
+            // Process each document for invalid XML doc cref attributes (with fresh semantic models)
+            foreach (var documentId in project.DocumentIds)
+            {
+                solution = await RemoveInvalidDocCrefs(solution, documentId);
+            }
+
             return solution.GetProject(project.Id)!;
         }
 
@@ -561,6 +568,37 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return solution;
+        }
+
+        private async Task<Solution> RemoveInvalidDocCrefs(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root == null || model == null)
+                return solution;
+
+            var invalidSeeElements = root.DescendantTrivia(descendIntoTrivia: true)
+                .SelectMany(static trivia => trivia.GetStructure()?.DescendantNodes().OfType<XmlEmptyElementSyntax>() ?? [])
+                .Where(element => string.Equals(element.Name.LocalName.ValueText, "see", StringComparison.Ordinal))
+                .Where(element => element.Attributes.OfType<XmlCrefAttributeSyntax>().Any(attribute => model.GetSymbolInfo(attribute.Cref).Symbol == null))
+                .ToArray();
+
+            if (invalidSeeElements.Length == 0)
+                return solution;
+
+            var text = await document.GetTextAsync();
+            var source = text.ToString();
+            foreach (var element in invalidSeeElements)
+            {
+                var cref = element.Attributes.OfType<XmlCrefAttributeSyntax>().First().Cref.ToString();
+                var colonIndex = cref.IndexOf(':');
+                var replacement = colonIndex >= 0 ? cref.Substring(colonIndex + 1) : cref;
+                source = source.Replace(element.ToFullString(), replacement, StringComparison.Ordinal);
+            }
+
+            return solution.WithDocumentText(documentId, SourceText.From(source, text.Encoding));
         }
 
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)

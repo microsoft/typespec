@@ -128,6 +128,14 @@ namespace Microsoft.TypeSpec.Generator
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> providers, bool publicOnly = false)
         {
             var generatedProviders = GetGeneratedProviders(providers);
+            var serializationProviderNamesByType = providers
+                .Where(static provider => provider.SerializationProviders.Count > 0)
+                .ToDictionary(
+                    static provider => GetProviderTypeName(provider.Type),
+                    static provider => provider.SerializationProviders
+                        .Select(static serializationProvider => GetProviderTypeName(serializationProvider.Type))
+                        .ToArray(),
+                    StringComparer.Ordinal);
             var nodes = generatedProviders
                 .Select(static provider => GetProviderTypeName(provider.Type))
                 .ToHashSet(StringComparer.Ordinal);
@@ -136,9 +144,9 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var provider in generatedProviders)
             {
                 var current = GetProviderTypeName(provider.Type);
-                AddTypeReference(references[current], provider.Type, nodes);
-                AddTypeReference(references[current], provider.BaseType, nodes);
-                AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes);
+                AddTypeReference(references[current], provider.Type, nodes, serializationProviderNamesByType);
+                AddTypeReference(references[current], provider.BaseType, nodes, serializationProviderNamesByType);
+                AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes, serializationProviderNamesByType);
 
                 if (IsKept(provider.Type, CodeModelGenerator.Instance.NonRootTypes, nodes))
                 {
@@ -155,17 +163,17 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var implementedType in provider.Implements)
                 {
-                    AddTypeReference(references[current], implementedType, nodes);
+                    AddTypeReference(references[current], implementedType, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var nestedType in provider.NestedTypes)
                 {
-                    AddTypeReference(references[current], nestedType.Type, nodes);
+                    AddTypeReference(references[current], nestedType.Type, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var serializationProvider in provider.SerializationProviders)
                 {
-                    AddTypeReference(references[current], serializationProvider.Type, nodes);
+                    AddTypeReference(references[current], serializationProvider.Type, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var property in provider.Properties)
@@ -175,9 +183,9 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddTypeReference(references[current], property.Type, nodes);
-                    AddTypeReference(references[current], property.ExplicitInterface, nodes);
-                    AddAttributes(references[current], property.Attributes, nodes);
+                    AddTypeReference(references[current], property.Type, nodes, serializationProviderNamesByType);
+                    AddTypeReference(references[current], property.ExplicitInterface, nodes, serializationProviderNamesByType);
+                    AddAttributes(references[current], property.Attributes, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var field in provider.Fields)
@@ -187,8 +195,8 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddTypeReference(references[current], field.Type, nodes);
-                    AddAttributes(references[current], field.Attributes, nodes);
+                    AddTypeReference(references[current], field.Type, nodes, serializationProviderNamesByType);
+                    AddAttributes(references[current], field.Attributes, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var constructor in provider.Constructors)
@@ -198,7 +206,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], constructor.Signature, nodes);
+                    AddSignatureReferences(references[current], constructor.Signature, nodes, serializationProviderNamesByType);
                 }
 
                 foreach (var method in provider.Methods)
@@ -208,8 +216,8 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], method.Signature, nodes);
-                    AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes);
+                    AddSignatureReferences(references[current], method.Signature, nodes, serializationProviderNamesByType);
+                    AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes, serializationProviderNamesByType);
                 }
             }
 
@@ -418,6 +426,11 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AddMatchingName(references, namedType.GetFullyQualifiedName(), nodes);
+            if (namedType.TypeKind == TypeKind.Enum)
+            {
+                AddMatchingName(references, $"{namedType.Name}Extensions", nodes);
+            }
+
             foreach (var typeArgument in namedType.TypeArguments)
             {
                 AddBodyTypeReference(references, typeArgument, nodes);
@@ -694,25 +707,29 @@ namespace Microsoft.TypeSpec.Generator
             return reachable;
         }
 
-        private static void AddSignatureReferences(HashSet<string> references, MethodSignatureBase signature, HashSet<string> nodes)
+        private static void AddSignatureReferences(
+            HashSet<string> references,
+            MethodSignatureBase signature,
+            HashSet<string> nodes,
+            IReadOnlyDictionary<string, string[]> serializationProviderNamesByType)
         {
-            AddTypeReference(references, signature.ReturnType, nodes);
-            AddAttributes(references, signature.Attributes, nodes);
+            AddTypeReference(references, signature.ReturnType, nodes, serializationProviderNamesByType);
+            AddAttributes(references, signature.Attributes, nodes, serializationProviderNamesByType);
 
             foreach (var parameter in signature.Parameters)
             {
-                AddTypeReference(references, parameter.Type, nodes);
-                AddAttributes(references, parameter.Attributes, nodes);
+                AddTypeReference(references, parameter.Type, nodes, serializationProviderNamesByType);
+                AddAttributes(references, parameter.Attributes, nodes, serializationProviderNamesByType);
             }
 
             if (signature is MethodSignature methodSignature)
             {
-                AddTypeReference(references, methodSignature.ExplicitInterface, nodes);
+                AddTypeReference(references, methodSignature.ExplicitInterface, nodes, serializationProviderNamesByType);
                 if (methodSignature.GenericArguments != null)
                 {
                     foreach (var genericArgument in methodSignature.GenericArguments)
                     {
-                        AddTypeReference(references, genericArgument, nodes);
+                        AddTypeReference(references, genericArgument, nodes, serializationProviderNamesByType);
                     }
                 }
 
@@ -720,26 +737,34 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     foreach (var constraint in methodSignature.GenericParameterConstraints)
                     {
-                        AddTypeReference(references, constraint.Type, nodes);
+                        AddTypeReference(references, constraint.Type, nodes, serializationProviderNamesByType);
                     }
                 }
             }
 
             if (signature is ConstructorSignature constructorSignature)
             {
-                AddTypeReference(references, constructorSignature.Type, nodes);
+                AddTypeReference(references, constructorSignature.Type, nodes, serializationProviderNamesByType);
             }
         }
 
-        private static void AddAttributes(HashSet<string> references, IReadOnlyList<AttributeStatement> attributes, HashSet<string> nodes)
+        private static void AddAttributes(
+            HashSet<string> references,
+            IReadOnlyList<AttributeStatement> attributes,
+            HashSet<string> nodes,
+            IReadOnlyDictionary<string, string[]> serializationProviderNamesByType)
         {
             foreach (var attribute in attributes)
             {
-                AddTypeReference(references, attribute.Type, nodes);
+                AddTypeReference(references, attribute.Type, nodes, serializationProviderNamesByType);
             }
         }
 
-        private static void AddTypeReference(HashSet<string> references, CSharpType? type, HashSet<string> nodes)
+        private static void AddTypeReference(
+            HashSet<string> references,
+            CSharpType? type,
+            HashSet<string> nodes,
+            IReadOnlyDictionary<string, string[]>? serializationProviderNamesByType = null)
         {
             if (type == null)
             {
@@ -750,13 +775,20 @@ namespace Microsoft.TypeSpec.Generator
             if (nodes.Contains(providerTypeName))
             {
                 references.Add(providerTypeName);
+                if (serializationProviderNamesByType != null && serializationProviderNamesByType.TryGetValue(providerTypeName, out var serializationProviderNames))
+                {
+                    foreach (var serializationProviderName in serializationProviderNames)
+                    {
+                        references.Add(serializationProviderName);
+                    }
+                }
             }
 
-            AddTypeReference(references, type.BaseType, nodes);
-            AddTypeReference(references, type.DeclaringType, nodes);
+            AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType);
+            AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType);
             foreach (var argument in type.Arguments)
             {
-                AddTypeReference(references, argument, nodes);
+                AddTypeReference(references, argument, nodes, serializationProviderNamesByType);
             }
         }
 

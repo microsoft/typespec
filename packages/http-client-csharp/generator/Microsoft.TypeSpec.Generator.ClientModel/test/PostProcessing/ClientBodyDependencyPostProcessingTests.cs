@@ -72,6 +72,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                 internalModelNames: ["ConcreteTool"]);
         }
 
+        [Test]
+        public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
+        {
+            var statusEnum = InputFactory.StringEnum(
+                "Status",
+                [("Succeeded", "succeeded"), ("Failed", "failed")],
+                clientNamespace: "Sample");
+            var resultModel = InputFactory.Model(
+                "OperationResult",
+                properties: [InputFactory.Property("Status", statusEnum, isRequired: true)],
+                @namespace: "Sample");
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: resultModel)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation, response: InputFactory.ServiceMethodResponse(resultModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method], clientNamespace: "Sample");
+
+            await GenerateAndAssertFiles(
+                enums: [statusEnum],
+                models: [resultModel],
+                clients: [client],
+                customFiles: [
+                    (Path.Combine("src", "Custom", "Status.cs"), """
+                        namespace Sample;
+
+                        [CodeGenType("Status")]
+                        public enum Status
+                        {
+                            Succeeded,
+                            Failed
+                        }
+                        """)
+                ],
+                expectedFiles: [Path.Combine("src", "Generated", "Models", "Status.Serialization.cs")]);
+        }
+
         private static async Task GenerateAndAssertInternalModels(
             InputModelType[] models,
             InputClient[] clients,
@@ -108,11 +142,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             string[] publicModelNames,
             string[] internalModelNames)
         {
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: models,
+                clients: clients,
+                customFiles: [],
+                publicModelNames: publicModelNames,
+                internalModelNames: internalModelNames,
+                expectedFiles: []);
+        }
+
+        private static async Task GenerateAndAssertFiles(
+            InputEnumType[] enums,
+            InputModelType[] models,
+            InputClient[] clients,
+            (string Path, string Content)[] customFiles,
+            string[] expectedFiles,
+            string[] publicModelNames = null!,
+            string[] internalModelNames = null!)
+        {
+            publicModelNames ??= [];
+            internalModelNames ??= [];
+
             var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(outputPath);
             try
             {
+                foreach (var customFile in customFiles)
+                {
+                    var customPath = Path.Combine(outputPath, customFile.Path);
+                    Directory.CreateDirectory(Path.GetDirectoryName(customPath)!);
+                    File.WriteAllText(customPath, customFile.Content);
+                }
+
                 await MockHelpers.LoadMockGeneratorAsync(
+                    inputEnums: () => enums,
                     inputModels: () => models,
                     clients: () => clients,
                     configuration: "{\"package-name\": \"Sample\", \"disable-xml-docs\": true}",
@@ -150,6 +214,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                     {
                         StringAssert.DoesNotContain($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should not be generated.");
                     }
+                }
+
+                foreach (var expectedFile in expectedFiles)
+                {
+                    var filePath = Path.Combine(outputPath, expectedFile);
+                    Assert.IsTrue(File.Exists(filePath), $"Expected generated file '{filePath}'.");
                 }
             }
             finally
