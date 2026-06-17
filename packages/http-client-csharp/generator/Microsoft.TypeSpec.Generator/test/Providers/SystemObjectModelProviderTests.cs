@@ -370,5 +370,116 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var inputModel = InputFactory.Model("Resource", properties: []);
             Assert.Throws<ArgumentNullException>(() => new SystemObjectModelProvider(null!, inputModel));
         }
+
+        // -------------------------------------------------------------------
+        // 9. A derived discriminated model forwards its discriminator value to a
+        //    SystemObjectModelProvider base constructor. This is impossible with
+        //    SystemObjectTypeProvider because it cannot serve as a BaseModelProvider.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void DerivedDiscriminatedModel_ForwardsDiscriminatorToSystemObjectModelProviderBase()
+        {
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            var systemType = CreateSystemCSharpType("BaseModelData", "TestFramework");
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel],
+                createModelCore: (model) =>
+                    model.Name == "BaseModel"
+                        ? new SystemObjectModelProvider(systemType, model)
+                        : new ModelProvider(model));
+
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider!.BaseModelProvider);
+
+            var publicCtor = derivedProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+
+            var initializer = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+
+            // The base constructor call must forward the discriminator literal "one".
+            Assert.IsTrue(
+                initializer.Arguments.Any(a => a.ToDisplayString() == "\"one\""),
+                "Expected the base constructor call to forward the discriminator value \"one\". " +
+                "Actual arguments: " + string.Join(", ", initializer.Arguments.Select(a => a.ToDisplayString())));
+        }
+
+        // -------------------------------------------------------------------
+        // 10. End-to-end: a base model marked external (External metadata) is mapped to a
+        //     SystemObjectModelProvider by the default factory, is not emitted, and a derived
+        //     discriminated model forwards its discriminator value to the external base.
+        // -------------------------------------------------------------------
+
+        [Test]
+        public void ExternalBaseModel_MapsToSystemObjectModelProvider_AndForwardsDiscriminator()
+        {
+            var baseInputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ],
+                external: new InputExternalTypeMetadata("System.Exception", null, null));
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                baseModel: baseInputModel,
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            // No createModelCore override: the default (real) CreateModelCore must perform the mapping.
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModelTypes: [baseInputModel, derivedInputModel]);
+
+            // The external base maps to a SystemObjectModelProvider rather than a generated model.
+            var baseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(baseProvider);
+
+            // The derived model uses it as its base model provider.
+            var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
+            Assert.IsNotNull(derivedProvider);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider!.BaseModelProvider);
+
+            // The derived constructor forwards the discriminator value to the external base.
+            var publicCtor = derivedProvider.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor);
+            var initializer = publicCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            Assert.IsTrue(
+                initializer.Arguments.Any(a => a.ToDisplayString() == "\"one\""),
+                "Expected the base constructor call to forward the discriminator value \"one\". " +
+                "Actual arguments: " + string.Join(", ", initializer.Arguments.Select(a => a.ToDisplayString())));
+
+            // The external base is not emitted as a generated type.
+            Assert.IsFalse(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
+                "External base models should not be emitted as generated types.");
+        }
     }
 }
