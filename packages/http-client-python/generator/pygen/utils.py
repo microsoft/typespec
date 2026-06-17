@@ -15,26 +15,22 @@ CODE_BLOCK_MARKER = ".. code-block::"
 
 
 def description_ends_with_code_block(description: str) -> bool:
-    """Return True when the description's trailing content is an RST code block.
+    """Return True when the description's trailing content is an RST ``.. code-block::``.
 
-    The code block is the trailing content when the last ``.. code-block::`` directive
-    starts its own line and every line after the directive's first line (its language
-    argument) is either blank or indented (i.e. still part of the literal block), with no
-    unindented prose paragraph following it.
+    True when the last ``.. code-block::`` directive (starting its own line, so inline
+    mentions are ignored) is followed only by blank or indented lines, i.e. the literal
+    block runs to the end of the description.
     """
-    marker_index = description.rfind(CODE_BLOCK_MARKER)
-    if marker_index == -1:
+    lines = description.rstrip().splitlines()
+    directives = [
+        i for i, line in enumerate(lines) if line.lstrip().startswith(CODE_BLOCK_MARKER)
+    ]
+    if not directives:
         return False
-    # The marker must start its own line (an RST directive), not be an inline mention of
-    # ".. code-block::" inside a sentence.
-    line_start = description.rfind("\n", 0, marker_index) + 1
-    if description[line_start:marker_index].strip():
-        return False
-    after_marker = description[marker_index + len(CODE_BLOCK_MARKER) :]
-    for line in after_marker.splitlines()[1:]:
-        if line.strip() and not line.startswith((" ", "\t")):
-            return False
-    return True
+    return all(
+        not line.strip() or line.startswith((" ", "\t"))
+        for line in lines[directives[-1] + 1 :]
+    )
 
 
 def update_enum_value(

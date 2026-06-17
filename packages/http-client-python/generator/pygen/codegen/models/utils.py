@@ -16,12 +16,10 @@ OrderedSet = dict[T, None]
 def add_to_description(description: str, entry: str) -> str:
     if not description:
         return entry
-    # When the description ends with a code block, append the entry (e.g. "Required.") as a
-    # new paragraph after the block. Appending it inline (e.g. "]. Required.") leaves it
-    # inside the rendered literal block and breaks Sphinx rendering.
-    if description_ends_with_code_block(description):
-        return f"{description.rstrip()}\n\n{entry}"
-    return f"{description} {entry}"
+    # Put the entry (e.g. "Required.") on its own paragraph after a trailing code block;
+    # appending inline (e.g. "]. Required.") would land it inside the block and break Sphinx.
+    separator = "\n\n" if description_ends_with_code_block(description) else " "
+    return f"{description.rstrip()}{separator}{entry}"
 
 
 def add_to_pylint_disable(curr_str: str, entry: str) -> str:
