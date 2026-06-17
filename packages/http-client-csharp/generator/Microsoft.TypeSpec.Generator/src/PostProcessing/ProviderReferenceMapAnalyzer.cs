@@ -240,32 +240,43 @@ namespace Microsoft.TypeSpec.Generator
             Dictionary<string, HashSet<string>> references,
             HashSet<string> publicBaseModels)
         {
-            foreach (var provider in providers.OfType<ModelProvider>())
+            var addedReference = true;
+            while (addedReference)
             {
-                if (provider.DiscriminatorProperty == null)
+                addedReference = false;
+                foreach (var provider in providers.OfType<ModelProvider>())
                 {
-                    continue;
-                }
+                    if (provider.DiscriminatorProperty == null)
+                    {
+                        continue;
+                    }
 
-                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                {
-                    continue;
-                }
+                    if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                    {
+                        continue;
+                    }
 
-                var providerName = GetProviderTypeName(provider.Type);
-                if (!nodes.Contains(providerName))
-                {
-                    continue;
-                }
+                    var providerName = GetProviderTypeName(provider.Type);
+                    if (!nodes.Contains(providerName))
+                    {
+                        continue;
+                    }
 
-                if (!publicBaseModels.Contains(providerName))
-                {
-                    continue;
-                }
+                    if (!publicBaseModels.Contains(providerName))
+                    {
+                        continue;
+                    }
 
-                foreach (var derivedModel in provider.DerivedModels)
-                {
-                    AddTypeReference(references[providerName], derivedModel.Type, nodes);
+                    foreach (var derivedModel in provider.DerivedModels)
+                    {
+                        var before = references[providerName].Count;
+                        AddTypeReference(references[providerName], derivedModel.Type, nodes);
+                        var derivedName = GetProviderTypeName(derivedModel.Type);
+                        if (nodes.Contains(derivedName) && publicBaseModels.Add(derivedName) || references[providerName].Count != before)
+                        {
+                            addedReference = true;
+                        }
+                    }
                 }
             }
         }
