@@ -453,10 +453,10 @@ namespace Microsoft.TypeSpec.Generator
                 solution = await RemoveInvalidAttributes(solution, documentId);
             }
 
-            // Process each document for invalid XML doc cref attributes (with fresh semantic models)
+            // Process each document for invalid XML documentation references (with fresh semantic models)
             foreach (var documentId in project.DocumentIds)
             {
-                solution = await RemoveInvalidDocCrefs(solution, documentId);
+                solution = await RemoveInvalidXmlDocReferences(solution, documentId);
             }
 
             return solution.GetProject(project.Id)!;
@@ -570,7 +570,7 @@ namespace Microsoft.TypeSpec.Generator
             return solution;
         }
 
-        private async Task<Solution> RemoveInvalidDocCrefs(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveInvalidXmlDocReferences(Solution solution, DocumentId documentId)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
