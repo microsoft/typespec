@@ -183,7 +183,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
                 // For base model types, we need to process their properties as well, but we don't need to add the base model type itself
-                CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                if (visitedTypeProviders.Add(modelProvider.BaseModelProvider))
+                {
+                    CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                }
             }
             else
             {

@@ -291,6 +291,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
                             MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            if (HasBaseExplicitFromClientResult())
+            {
+                modifiers |= MethodSignatureModifiers.New;
+            }
             // using PipelineResponse response = result.GetRawResponse();
             var response = result.ToApi<ClientResponseApi>();
             MethodBodyStatement responseDeclaration;
@@ -348,6 +352,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.ToExpression().Create(model)
                 },
                 this);
+        }
+
+        private bool HasBaseExplicitFromClientResult()
+            => EnumerateBaseModelProviders()
+                .SelectMany(provider => provider.SerializationProviders)
+                .OfType<MrwSerializationTypeDefinition>()
+                .SelectMany(provider => provider.Methods)
+                .Any(IsExplicitFromClientResultMethod);
+
+        private static bool IsExplicitFromClientResultMethod(MethodProvider method)
+        {
+            if (method.Signature.Parameters is not [var parameter]
+                || !parameter.Type.AreNamesEqual(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType))
+            {
+                return false;
+            }
+
+            return method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
         }
 
         private MethodProvider BuildToBinaryContentMethod()
@@ -1114,8 +1137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
                     if (field != null)
@@ -1123,7 +1145,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         rawBinaryData = field;
                         break;
                     }
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -1737,8 +1758,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isDynamicModelWithNonDynamicBase)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     foreach (var property in baseModelProvider.CanonicalView.Properties)
                     {
@@ -1759,8 +1779,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                         propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
                     }
-
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -2575,21 +2593,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = _model.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
-            return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
-                p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+            return property ?? EnumerateBaseModelProviders()
+                .SelectMany(m => m.Properties)
+                .FirstOrDefault(p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
         private MethodProvider? FindCustomHookMethod(string hookName)
         {
-            var model = _model;
-            while (model != null)
+            foreach (var model in EnumerateModelAndBaseModelProviders())
             {
                 var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
                 if (method != null)
                 {
                     return method;
                 }
-                model = model.BaseModelProvider;
             }
             return null;
         }
@@ -2636,9 +2653,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
                 .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
-            var baseModelProvider = _model.BaseModelProvider;
 
-            while (baseModelProvider != null)
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 var customCodeView = baseModelProvider.CustomCodeView;
                 if (customCodeView != null)
@@ -2647,10 +2663,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         .AddRange(customCodeView.Attributes
                         .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             return serializationAttributes;
+        }
+
+        private IEnumerable<ModelProvider> EnumerateModelAndBaseModelProviders()
+        {
+            var visited = new HashSet<ModelProvider>();
+            var model = _model;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
+        }
+
+        private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
+        {
+            var visited = new HashSet<ModelProvider> { _model };
+            var model = _model.BaseModelProvider;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
         }
 
         private static bool TypeRequiresNullCheckInSerialization(CSharpType type)
