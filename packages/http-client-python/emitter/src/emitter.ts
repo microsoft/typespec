@@ -210,6 +210,14 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
+  if (resolvedOptions["keep-pyproject-fields"]) {
+    // Flatten the object of enabled fields into a comma-separated list for the generator.
+    const enabledFields = Object.entries(resolvedOptions["keep-pyproject-fields"])
+      .filter(([, value]) => value === true)
+      .map(([key]) => key);
+    commandArgs["keep-pyproject-fields"] = enabledFields.join(",");
+    resolvedOptions["keep-pyproject-fields"] = undefined;
+  }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
     if (key === "license") continue; // skip license since it is passed in codeModel

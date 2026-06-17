@@ -116,9 +116,9 @@ Whether to keep the existing `setup.py` when `generate-packaging-files` is `true
 
 ### `keep-pyproject-fields`
 
-**Type:** `string`
+**Type:** `object`
 
-A comma-separated list of manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Supported fields: `authors`, `description`, `classifiers`, `urls`. For example, `authors,description` keeps only those two fields. Defaults to preserving nothing.
+Which manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Set a field to `true` to keep it. Supported fields: `authors`, `description`, `classifiers`, `urls`. By default no fields are preserved.
 
 ### `clear-output-folder`
 
