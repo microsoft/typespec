@@ -122,3 +122,45 @@ def test_update_description_full_pipeline_with_code_block() -> None:
 def test_update_description_still_adds_period_for_plain_text() -> None:
     assert update_description("The tools") == "The tools."
     assert update_description("The tools.") == "The tools."
+
+
+def test_add_to_description_two_blocks_back_to_back_appends_after_last() -> None:
+    description = (
+        "Intro:\n\n.. code-block:: json\n\n   [1]\n\n.. code-block:: json\n\n   [2]"
+    )
+    result = add_to_description(description, "Required.")
+    assert result == (
+        "Intro:\n\n.. code-block:: json\n\n   [1]\n\n.. code-block:: json\n\n   [2]\n\nRequired."
+    )
+
+
+def test_add_to_description_prose_between_blocks_last_trailing() -> None:
+    # Prose separates the two blocks, but the description still ends with a block, so the
+    # annotation is appended after the last block.
+    description = (
+        "First:\n\n.. code-block:: json\n\n   [1]\n\n"
+        "Then second:\n\n.. code-block:: json\n\n   [2]"
+    )
+    result = add_to_description(description, "Required.")
+    assert result.endswith("   [2]\n\nRequired.")
+    assert "]. Required." not in result
+
+
+def test_add_to_description_prose_after_last_block_appends_inline() -> None:
+    # Multiple blocks, but prose follows the last one, so it is not the trailing content
+    # and the annotation is appended inline at the very end.
+    description = (
+        "First:\n\n.. code-block:: json\n\n   [1]\n\n"
+        "Second:\n\n.. code-block:: json\n\n   [2]\n\nFinal prose."
+    )
+    result = add_to_description(description, "Required.")
+    assert result == description + " Required."
+
+
+def test_inline_code_block_mention_is_not_treated_as_trailing_block() -> None:
+    # ".. code-block::" mentioned inline in a sentence is not a real directive, so the
+    # description does not "end" with a code block: the trailing period is still added and
+    # the annotation is appended inline.
+    description = "Use .. code-block:: json directives in your text"
+    assert update_description(description) == description + "."
+    assert add_to_description(description, "Required.") == description + " Required."

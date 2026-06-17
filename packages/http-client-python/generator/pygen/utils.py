@@ -17,12 +17,18 @@ CODE_BLOCK_MARKER = ".. code-block::"
 def description_ends_with_code_block(description: str) -> bool:
     """Return True when the description's trailing content is an RST code block.
 
-    The code block is the trailing content when, after the ``.. code-block::`` directive's
-    first line (its language argument), every remaining line is either blank or indented
-    (i.e. still part of the literal block), with no unindented prose paragraph following it.
+    The code block is the trailing content when the last ``.. code-block::`` directive
+    starts its own line and every line after the directive's first line (its language
+    argument) is either blank or indented (i.e. still part of the literal block), with no
+    unindented prose paragraph following it.
     """
     marker_index = description.rfind(CODE_BLOCK_MARKER)
     if marker_index == -1:
+        return False
+    # The marker must start its own line (an RST directive), not be an inline mention of
+    # ".. code-block::" inside a sentence.
+    line_start = description.rfind("\n", 0, marker_index) + 1
+    if description[line_start:marker_index].strip():
         return False
     after_marker = description[marker_index + len(CODE_BLOCK_MARKER) :]
     for line in after_marker.splitlines()[1:]:
