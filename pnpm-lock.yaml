@@ -346,8 +346,8 @@ catalogs:
       specifier: ^1.10.1
       version: 1.10.1
     multer:
-      specifier: ^2.1.1
-      version: 2.1.1
+      specifier: ^2.2.0
+      version: 2.2.0
     mustache:
       specifier: ^4.2.0
       version: 4.2.0
@@ -2485,7 +2485,7 @@ importers:
         version: 1.10.1
       multer:
         specifier: 'catalog:'
-        version: 2.1.1
+        version: 2.2.0
       picocolors:
         specifier: 'catalog:'
         version: 1.1.1
@@ -10981,8 +10981,8 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  multer@2.1.1:
-    resolution: {integrity: sha512-mo+QTzKlx8R7E5ylSXxWzGoXoZbOsRMpyitcht8By2KHvMbf3tjwosZ/Mu/XYU6UuJ3VZnODIrak5ZrPiPyB6A==}
+  multer@2.2.0:
+    resolution: {integrity: sha512-6rdyFg2kLrMh9Jee7/BMPuV9lEAd7lLW2YUpF9/YxR7njyoUwwQ0ZPh3TaIY50Sw6vlyD2HW3wGOkTS4P79xrQ==}
     engines: {node: '>= 10.16.0'}
 
   mustache@4.2.0:
@@ -19960,7 +19960,7 @@ snapshots:
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
-      ink: 3.2.0(@types/react@19.2.16)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.16)(react@19.2.7)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@19.2.16)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.8.1
@@ -20123,7 +20123,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.8.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.47.0
-      ink: 3.2.0(@types/react@19.2.16)(react@19.2.7)
+      ink: 3.2.0(@types/react@19.2.16)(react@17.0.2)
       react: 17.0.2
       semver: 7.8.1
       tslib: 2.8.1
@@ -24163,7 +24163,7 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  multer@2.1.1:
+  multer@2.2.0:
     dependencies:
       append-field: 1.0.0
       busboy: 1.6.0
