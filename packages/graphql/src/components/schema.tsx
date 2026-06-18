@@ -1,5 +1,5 @@
 import { type Model } from "@typespec/compiler";
-import * as gql from "@alloy-js/graphql";
+import * as gql from "@pinterest/alloy-graphql";
 import { useTsp } from "@typespec/emitter-framework";
 import { isInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";

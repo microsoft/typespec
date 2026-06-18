@@ -30,9 +30,9 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.22.0",
-    "@alloy-js/graphql": "link:../../../alloy/packages/graphql",
-    "@alloy-js/typescript": "^0.22.0",
+    "@alloy-js/core": "catalog:",
+    "@pinterest/alloy-graphql": "link:../../../alloy-graphql/packages/graphql",
+    "@alloy-js/typescript": "catalog:",
     "change-case": "^5.4.4",
     "graphql": "^16.9.0"
   },
@@ -57,8 +57,8 @@
     "@typespec/mutator-framework": "workspace:~"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.22.0",
-    "@alloy-js/rollup-plugin": "^0.1.0",
+    "@alloy-js/cli": "^0.23.0",
+    "@alloy-js/rollup-plugin": "^0.1.1",
     "@types/node": "~22.13.13",
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",

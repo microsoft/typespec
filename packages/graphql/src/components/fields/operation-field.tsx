@@ -1,5 +1,5 @@
 import { type Operation, getDeprecationDetails, isArrayModelType } from "@typespec/compiler";
-import * as gql from "@alloy-js/graphql";
+import * as gql from "@pinterest/alloy-graphql";
 import { useTsp } from "@typespec/emitter-framework";
 import { resolveGraphQLTypeName } from "../../lib/graphql-type-name.js";
 import { hasNullableElements, isNullable } from "../../lib/nullable.js";

@@ -1,5 +1,5 @@
 import { type Model, getDoc } from "@typespec/compiler";
-import * as gql from "@alloy-js/graphql";
+import * as gql from "@pinterest/alloy-graphql";
 import { useTsp } from "@typespec/emitter-framework";
 import { getComposition } from "../../lib/interface.js";
 import { Field } from "../fields/index.js";

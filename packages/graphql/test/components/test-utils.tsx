@@ -1,6 +1,6 @@
 import { type Children } from "@alloy-js/core";
-import * as gql from "@alloy-js/graphql";
-import { renderSchema } from "@alloy-js/graphql";
+import * as gql from "@pinterest/alloy-graphql";
+import { renderSchema } from "@pinterest/alloy-graphql";
 import { printSchema } from "graphql";
 import type { Program } from "@typespec/compiler";
 import { TspContext } from "@typespec/emitter-framework";

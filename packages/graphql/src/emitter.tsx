@@ -7,7 +7,7 @@ import {
   type Program,
 } from "@typespec/compiler";
 import { TspContext } from "@typespec/emitter-framework";
-import { renderSchema as alloyRenderSchema } from "@alloy-js/graphql";
+import { renderSchema as alloyRenderSchema } from "@pinterest/alloy-graphql";
 import { printSchema } from "graphql";
 import { Schema } from "./components/schema.js";
 import { GraphQLSchemaContext } from "./context/index.js";
