@@ -43,6 +43,54 @@ describe("union", () => {
     expect(type.expression).toBe(true);
     expect(type.variants.size).toBe(2);
   });
+
+  it("keyword form is not flattened when used as a `|` operand", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: union { a: int32 } | float32;
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.variants.size).toBe(2);
+    // The keyword union is a single nested variant, not flattened into `value`.
+    const nested = [...type.variants.values()].map((v) => v.type).find((t) => t.kind === "Union") as
+      | Union
+      | undefined;
+    expect(nested).toBeDefined();
+    expect(nested!.variants.has("a")).toBe(true);
+  });
+
+  it("does not silently drop colliding variants from keyword unions in a `|`", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: union { a: int32 } | union { a: string };
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    // Both keyword unions are preserved as distinct nested variants (no data loss).
+    expect(type.variants.size).toBe(2);
+  });
+
+  it("still flattens nested union expressions", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: (string | int32) | float32;
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.variants.size).toBe(3);
+  });
+
+  it("still flattens an alias to a union expression", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      alias AB = string | int32;
+      model ${t.model("Foo")} {
+        value: AB | float32;
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.variants.size).toBe(3);
+  });
 });
 
 describe("scalar", () => {

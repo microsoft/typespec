@@ -2014,7 +2014,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (type === neverType) {
         continue;
       }
-      if (type.kind === "Union" && type.expression) {
+      // Flatten nested union expressions (e.g. `(a | b) | c` or an alias to a union
+      // expression). Only the `|`-operator form is flattened: its variants are
+      // anonymous (symbol-keyed) and cannot collide. Keyword-form unions used in
+      // expression position (`union { a, b }`) are also `expression: true` but can have
+      // named variants, so flattening them would silently drop colliding members.
+      if (type.kind === "Union" && type.node?.kind === SyntaxKind.UnionExpression) {
         for (const [name, variant] of type.variants) {
           unionType.variants.set(name, variant);
         }
