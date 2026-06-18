@@ -16,6 +16,8 @@ OrderedSet = dict[T, None]
 def add_to_description(description: str, entry: str) -> str:
     if not description:
         return entry
+    if not entry:
+        return description
     # When the description ends with a code block, prepend the entry (e.g. "Required.") so
     # it appears before the prose instead of after the block. Appending inline (e.g.
     # "]. Required.") would land it inside the rendered literal block and break Sphinx, and a

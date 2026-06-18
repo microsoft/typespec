@@ -12,6 +12,13 @@ def test_add_to_description_empty() -> None:
     assert add_to_description("", "Required.") == "Required."
 
 
+def test_add_to_description_empty_entry_returns_description_unchanged() -> None:
+    # An empty entry (e.g. an empty type_description) must not introduce a leading/trailing space.
+    description = "The tools to use.\n\n.. code-block:: json\n\n   [\n     1\n   ]"
+    assert add_to_description(description, "") == description
+    assert add_to_description("The tools.", "") == "The tools."
+
+
 def test_add_to_description_plain() -> None:
     assert add_to_description("The tools.", "Required.") == "The tools. Required."
 
