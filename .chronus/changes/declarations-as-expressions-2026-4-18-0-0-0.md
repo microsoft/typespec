@@ -4,7 +4,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. A declaration used in expression position is anonymous (its `name` is `""`) and its corresponding type has `expression: true`. It is not registered in the enclosing namespace.
+Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. A declaration used in expression position has its corresponding type marked with `expression: true` and is not registered in the enclosing namespace. It may be named or anonymous (in which case its `name` is `""`).
 
 ```tsp
 alias Foo = enum {
@@ -15,6 +15,6 @@ alias Foo = enum {
 model Bar {
   status: enum { active, inactive };
   unit: scalar extends string;
-  inner: model { x: string };
+  inner: model Inner { x: string };
 }
 ```
