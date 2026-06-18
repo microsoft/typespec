@@ -78,6 +78,8 @@ export function stripNullVariants(union: Union): {
 /** Generate a GraphQL type name for a templated model (e.g., `ListOfString`). */
 export function getTemplatedModelName(model: Model): string {
   const name = getTypeName(model, {});
+  // Strip generic type parameters from compiler type names (e.g., "List<string>" → "List").
+  // This regex matches angle-bracket syntax, not HTML — output is GraphQL SDL identifiers.
   const baseName = toTypeName(name.replace(/<[^>]*>/g, ""));
   const templateString = getTemplateString(model);
   return templateString ? `${baseName}Of${templateString}` : baseName;

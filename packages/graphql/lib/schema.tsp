@@ -5,7 +5,12 @@ using TypeSpec.Reflection;
 namespace TypeSpec.GraphQL;
 
 namespace Schema {
+  /** Options for configuring a GraphQL schema. */
   model SchemaOptions {
+    /**
+     * The name of the GraphQL schema. Used in the output filename when emitting
+     * multiple schemas (e.g., `{name}.graphql`). Defaults to `"schema"`.
+     */
     name?: string;
   }
 }
