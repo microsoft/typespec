@@ -191,4 +191,15 @@ describe("isUnionEnum", () => {
 
     expect(isUnionEnum(Mixed)).toBe(false);
   });
+
+  it("returns true for anonymous inline union of string literals", async () => {
+    const { ReasoningEffort } = await runner.compile(t.code`
+      union ${t.union("ReasoningEffort")} {
+        "none" | "minimal" | "low" | "medium" | "high",
+        null,
+      }
+    `);
+
+    expect(isUnionEnum(ReasoningEffort)).toBe(true);
+  });
 });

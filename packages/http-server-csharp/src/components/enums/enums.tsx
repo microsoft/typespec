@@ -134,10 +134,22 @@ export function Enums(props: EnumsProps): Children {
 }
 
 /**
+ * Returns true if an anonymous inline union contains only string literal variants.
+ */
+function isInlineStringLiteralUnion(type: Type): boolean {
+  if (type.kind !== "Union" || type.name) return false;
+  for (const variant of type.variants.values()) {
+    if (variant.type.kind !== "String") return false;
+  }
+  return type.variants.size > 0;
+}
+
+/**
  * Returns true if a named union can be represented as a C# enum.
  * Requires: named union, every named variant has a string value,
  * and optionally one unnamed scalar `string` variant (open/extensible)
- * and/or a `null` variant.
+ * and/or a `null` variant. Also supports inline anonymous unions of
+ * string literals (e.g., `"a" | "b" | "c"` as a single variant).
  */
 export function isUnionEnum(union: Union): boolean {
   if (!union.name) return false;
@@ -164,6 +176,11 @@ export function isUnionEnum(union: Union): boolean {
       hasStringVariant = true;
       continue;
     }
+    // Inline anonymous union of string literals (e.g., "a" | "b" | "c" as a single variant)
+    if (isInlineStringLiteralUnion(variant.type)) {
+      hasStringVariant = true;
+      continue;
+    }
     // Any other variant type means it's not a simple enum
     return false;
   }
@@ -187,6 +204,17 @@ export function getUnionEnumMembers(
     } else if (variant.type.kind === "String" && typeof variant.name === "symbol") {
       // Unnamed string literal variant (e.g., "none") — derive name from the value
       members.push({ name: variant.type.value, value: variant.type.value, variant });
+    } else if (isInlineStringLiteralUnion(variant.type)) {
+      // Inline anonymous union of string literals — flatten into individual members
+      for (const innerVariant of (variant.type as Union).variants.values()) {
+        if (innerVariant.type.kind === "String") {
+          members.push({
+            name: innerVariant.type.value,
+            value: innerVariant.type.value,
+            variant: innerVariant,
+          });
+        }
+      }
     }
   }
   return members;
