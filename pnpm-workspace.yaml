@@ -120,7 +120,7 @@ catalog:
   monaco-editor: ^0.55.1
   monaco-editor-core: ^0.55.1
   morgan: ^1.10.1
-  multer: ^2.1.1
+  multer: ^2.2.0
   mustache: ^4.2.0
   ora: ^9.3.0
   p-limit: ^7.3.0
