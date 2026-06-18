@@ -1801,6 +1801,51 @@ model Foo {
 `,
       });
     });
+
+    it("formats named enum expression", async () => {
+      await assertFormat({
+        code: `alias E = enum Color {red, green};`,
+        expected: `
+alias E = enum Color {
+  red,
+  green,
+};
+`,
+      });
+    });
+
+    it("formats named union expression", async () => {
+      await assertFormat({
+        code: `alias U = union Choice {string, int32};`,
+        expected: `
+alias U = union Choice {
+  string,
+  int32,
+};
+`,
+      });
+    });
+
+    it("formats named scalar expression", async () => {
+      await assertFormat({
+        code: `alias S = scalar Celsius extends int32;`,
+        expected: `alias S = scalar Celsius extends int32;`,
+      });
+    });
+
+    it("formats nested declaration expressions", async () => {
+      await assertFormat({
+        code: `alias N = model { inner: enum { a, b } };`,
+        expected: `
+alias N = model {
+  inner: enum {
+    a,
+    b,
+  };
+};
+`,
+      });
+    });
   });
 
   describe("enum", () => {

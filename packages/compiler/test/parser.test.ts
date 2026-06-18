@@ -299,6 +299,13 @@ describe("compiler: parser", () => {
       // nested declaration expressions
       "alias N = model { inner: enum { a, b } };",
     ]);
+
+    // interface and operation are intentionally NOT allowed in expression position
+    parseErrorEach([
+      ["alias I = interface { foo(): void };", [/Keyword cannot be used as identifier/]],
+      ["alias O = op (): void;", [/Keyword cannot be used as identifier/]],
+      ["model A { x: interface {} }", [/Keyword cannot be used as identifier/]],
+    ]);
   });
 
   describe("const statements", () => {
