@@ -68,10 +68,10 @@ catalog:
   "@types/swagger-ui-express": ^4.1.8
   "@types/which": ^3.0.4
   "@types/yargs": ^17.0.35
-  "@typescript-eslint/parser": ^8.58.1
-  "@typescript-eslint/rule-tester": ^8.58.1
-  "@typescript-eslint/types": ^8.58.1
-  "@typescript-eslint/utils": ^8.58.1
+  "@typescript-eslint/parser": ^8.61.1
+  "@typescript-eslint/rule-tester": ^8.61.1
+  "@typescript-eslint/types": ^8.61.1
+  "@typescript-eslint/utils": ^8.61.1
   "@typespec/ts-http-runtime": 0.3.5
   "@vitejs/plugin-react": ^6.0.1
   "@vitest/coverage-v8": ^4.1.3
@@ -98,7 +98,7 @@ catalog:
   concurrently: ^10.0.0
   cross-env: ^10.1.0
   cross-spawn: ^7.0.6
-  cspell: ^10.0.0
+  cspell: ^10.0.1
   debounce: ^3.0.0
   decimal.js: ^10.6.0
   ecmarkup: ~23.0.2
@@ -106,9 +106,9 @@ catalog:
   es-module-shims: ^2.8.0
   esbuild: ^0.28.0
   esbuild-plugins-node-modules-polyfill: ^1.8.1
-  eslint: ^10.2.0
+  eslint: ^10.5.0
   eslint-plugin-react-hooks: 7.1.1
-  eslint-plugin-unicorn: ^64.0.0
+  eslint-plugin-unicorn: ^67.0.0
   execa: ^9.6.1
   express: ^5.2.1
   fast-xml-parser: ^5.7.0
@@ -163,7 +163,7 @@ catalog:
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
-  typescript-eslint: ^8.58.1
+  typescript-eslint: ^8.61.1
   uri-template: ^2.0.0
   vite: ^8.0.8
   vite-plugin-checker: ^0.14.1
