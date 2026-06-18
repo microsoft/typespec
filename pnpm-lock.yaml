@@ -439,8 +439,8 @@ catalogs:
       specifier: ^5.0.1
       version: 5.0.1
     tar:
-      specifier: ^7.5.13
-      version: 7.5.15
+      specifier: ^7.5.16
+      version: 7.5.16
     temporal-polyfill:
       specifier: ^0.3.2
       version: 0.3.2
@@ -828,7 +828,7 @@ importers:
         version: 7.8.1
       tar:
         specifier: 'catalog:'
-        version: 7.5.15
+        version: 7.5.16
       temporal-polyfill:
         specifier: 'catalog:'
         version: 0.3.2
@@ -2692,7 +2692,7 @@ importers:
         version: 3.36.0
       tar:
         specifier: 'catalog:'
-        version: 7.5.15
+        version: 7.5.16
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -12610,6 +12610,10 @@ packages:
 
   tar@7.5.15:
     resolution: {integrity: sha512-dzGK0boVlC4W5QFuQN1EFSl3bIDYsk7Tj40U6eIBnK2k/8ml7TZ5agbI5j5+qnoVcAA+rNtBml8SEiLxZpNqRQ==}
+    engines: {node: '>=18'}
+
+  tar@7.5.16:
+    resolution: {integrity: sha512-56adEpPMouktRlBLXiaYFFzZ/3+JXa8P9n7WbR+ibIjtviN55mEaOkiysCnPnWm+7kkui1Dn8J9l+g6zV8731w==}
     engines: {node: '>=18'}
 
   tau-prolog@0.2.81:
@@ -26142,6 +26146,14 @@ snapshots:
       - react-native-b4a
 
   tar@7.5.15:
+    dependencies:
+      '@isaacs/fs-minipass': 4.0.1
+      chownr: 3.0.0
+      minipass: 7.1.3
+      minizlib: 3.1.0
+      yallist: 5.0.0
+
+  tar@7.5.16:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
