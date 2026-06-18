@@ -1,6 +1,7 @@
 import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { isDeclarationInExpressionPosition } from "./helpers/syntax-utils.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
 import {
@@ -397,12 +398,7 @@ export function createBinder(program: Program): Binder {
    * position. Anonymous declarations are always in expression position.
    */
   function isDeclarationStatementPosition(node: Node): boolean {
-    const parent = node.parent;
-    return (
-      parent?.kind === SyntaxKind.NamespaceStatement ||
-      parent?.kind === SyntaxKind.TypeSpecScript ||
-      parent?.kind === SyntaxKind.JsSourceFile
-    );
+    return !isDeclarationInExpressionPosition(node);
   }
 
   function bindModelStatement(node: ModelStatementNode) {

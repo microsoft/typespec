@@ -68,6 +68,23 @@ describe("union", () => {
     expect(type.variants.has("bar")).toBe(true);
   });
 
+  it("keeps its members when used as a `|` operand instead of being flattened", async () => {
+    // Regression: a keyword-form union is `expression: true`; it must not be flattened
+    // into the parent `|` union (which would silently drop colliding named variants).
+    const { Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: union { a: "a1", b: "b1" } | union { a: "a2", c: "c1" };
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.kind).toBe("Union");
+    expect(type.variants.size).toBe(2);
+    for (const variant of type.variants.values()) {
+      expect((variant.type as Union).kind).toBe("Union");
+      expect((variant.type as Union).variants.size).toBe(2);
+    }
+  });
+
   it("is not registered in the namespace", async () => {
     const { program } = await Tester.compile(`
       namespace Ns;
@@ -246,6 +263,21 @@ describe("usage contexts", () => {
     expect((Foo.properties.get("m")!.type as Model).expression).toBe(true);
   });
 
+  it("can reference an enclosing template parameter", async () => {
+    const { Bar } = await Tester.compile(t.code`
+      model Wrapper<T> {
+        nested: model { item: T };
+      }
+      model ${t.model("Bar")} {
+        w: Wrapper<int32>;
+      }
+    `);
+    const wrapper = Bar.properties.get("w")!.type as Model;
+    const nested = wrapper.properties.get("nested")!.type as Model;
+    expect(nested.expression).toBe(true);
+    expect((nested.properties.get("item")!.type as Scalar).name).toBe("int32");
+  });
+
   it("can be used as an operation return type", async () => {
     const { test } = await Tester.compile(t.code`
       op ${t.op("test")}(): enum { a, b };
@@ -313,14 +345,29 @@ describe("usage contexts", () => {
 });
 
 describe("type name", () => {
-  it("renders an anonymous expression with an empty name", async () => {
+  it("renders anonymous expressions inline and is not namespace-qualified", async () => {
     const { Foo } = await Tester.compile(t.code`
+      namespace Ns;
       model ${t.model("Foo")} {
-        anon: enum { a, b };
+        modelProp: model { x: string };
+        enumProp: enum { a, b };
+        scalarProp: scalar extends string;
+        unionProp: union { string, int32 };
+      }
+    `);
+    expect(getTypeName(Foo.properties.get("modelProp")!.type)).toBe("{ x: string }");
+    expect(getTypeName(Foo.properties.get("enumProp")!.type)).toBe("{ a, b }");
+    expect(getTypeName(Foo.properties.get("scalarProp")!.type)).toBe("scalar extends string");
+    expect(getTypeName(Foo.properties.get("unionProp")!.type)).toBe("string | int32");
+  });
+
+  it("renders a named expression by its name without a namespace prefix", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      namespace Ns;
+      model ${t.model("Foo")} {
         named: enum Color { red };
       }
     `);
-    expect(getTypeName(Foo.properties.get("anon")!.type)).toBe("");
     expect(getTypeName(Foo.properties.get("named")!.type)).toBe("Color");
   });
 });

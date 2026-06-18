@@ -21,6 +21,7 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import {
+  isDeclarationInExpressionPosition,
   printIdentifier,
   printMemberExpressionPath,
   typeReferenceToString,
@@ -5004,22 +5005,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       return checkModelExpression(ctx, node);
     }
-  }
-
-  /**
-   * Determine whether a declaration node (model/enum/union/scalar) appears in
-   * expression position (e.g. as the value of an alias or a property type) rather
-   * than as a top-level statement in a namespace or file. Anonymous declarations
-   * (without an `id`) are always in expression position.
-   */
-  function isDeclarationInExpressionPosition(
-    node: ModelStatementNode | EnumStatementNode | UnionStatementNode | ScalarStatementNode,
-  ): boolean {
-    const parent = node.parent;
-    return (
-      parent === undefined ||
-      (parent.kind !== SyntaxKind.NamespaceStatement && parent.kind !== SyntaxKind.TypeSpecScript)
-    );
   }
 
   /**

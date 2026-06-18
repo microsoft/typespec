@@ -1,6 +1,31 @@
 import { CharCode, isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
 import { isModifier, Keywords, ReservedKeywords } from "../scanner.js";
-import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
+import {
+  IdentifierNode,
+  MemberExpressionNode,
+  Node,
+  SyntaxKind,
+  TypeReferenceNode,
+} from "../types.js";
+
+/**
+ * Determine whether a declaration node (model/enum/union/scalar) appears in expression
+ * position (e.g. as an alias value or a property type) rather than as a top-level
+ * statement directly under a namespace or source file. Anonymous declarations (used as
+ * expressions) are always in expression position.
+ *
+ * This is the single source of truth shared by the binder and checker so the two cannot
+ * drift apart.
+ */
+export function isDeclarationInExpressionPosition(node: Node): boolean {
+  const parent = node.parent;
+  return (
+    parent === undefined ||
+    (parent.kind !== SyntaxKind.NamespaceStatement &&
+      parent.kind !== SyntaxKind.TypeSpecScript &&
+      parent.kind !== SyntaxKind.JsSourceFile)
+  );
+}
 
 /**
  * Print a string as a TypeSpec identifier. If the string is a valid identifier, return it as is otherwise wrap it into backticks.
