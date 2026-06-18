@@ -910,6 +910,24 @@ Expected header `duration: P40D`
 Test iso8601 encode for a duration array header.
 Expected header `duration: [P40D,P50D]`
 
+### Encode_Duration_Lossy_intMilliseconds
+
+- Endpoint: `get /encode/duration/lossy/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
+The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
+
+### Encode_Duration_Lossy_intSeconds
+
+- Endpoint: `get /encode/duration/lossy/int32-seconds`
+
+Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
+The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
+
 ### Encode_Duration_Property_default
 
 - Endpoint: `post /encode/duration/property/default`
