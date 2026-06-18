@@ -41,14 +41,12 @@ export function createAutoDecoratorImplementation(
       validateDecoratorUniqueOnNode(context, target, impl);
     }
 
-    // Store as key-value record { paramName: value }
     const data: Record<string, unknown> = {};
     if (lastParamIsRest) {
-      // Non-rest params first
       for (let i = 0; i < paramNames.length - 1; i++) {
         data[paramNames[i]] = args[i];
       }
-      // Rest param collects remaining args as an array
+      // The rest parameter collects all remaining arguments into an array.
       data[paramNames[paramNames.length - 1]] = args.slice(paramNames.length - 1);
     } else {
       for (let i = 0; i < paramNames.length; i++) {

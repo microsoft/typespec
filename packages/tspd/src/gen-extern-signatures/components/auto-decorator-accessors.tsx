@@ -14,13 +14,8 @@ export interface AutoDecoratorAccessorsProps {
  * These are thin wrappers around the compiler's generic auto decorator API.
  */
 export function AutoDecoratorAccessors(props: Readonly<AutoDecoratorAccessorsProps>) {
-  const autoDecorators = props.decorators.filter((d) => d.isAuto);
-  if (autoDecorators.length === 0) {
-    return undefined;
-  }
-
   return (
-    <For each={autoDecorators} doubleHardline>
+    <For each={props.decorators} doubleHardline>
       {(signature) => (
         <AutoDecoratorAccessor signature={signature} namespaceName={props.namespaceName} />
       )}
