@@ -112,9 +112,9 @@ function addCompletionByLookingBackwardNode(
   posDetail: PositionDetail,
   context: CompletionContext,
 ): boolean {
-  const getIdentifierEndPos = (n: IdentifierNode) => {
+  const getIdentifierEndPos = (n: IdentifierNode | undefined) => {
     // n.pos === n.end, it means it's a missing identifier, just return -1;
-    return n.pos === n.end ? -1 : n.end;
+    return n === undefined || n.pos === n.end ? -1 : n.end;
   };
   const map: { [key in SyntaxKind]?: keyof KeywordArea } = {
     [SyntaxKind.ModelStatement]: "modelHeader",

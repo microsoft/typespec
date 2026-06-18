@@ -391,11 +391,29 @@ export function createBinder(program: Program): Binder {
     declareSymbol(node, SymbolFlags.TemplateParameter | SymbolFlags.Declaration);
   }
 
+  /**
+   * Whether a declaration node (model/enum/union/scalar) appears in statement
+   * position (directly under a namespace or file) rather than in expression
+   * position. Anonymous declarations are always in expression position.
+   */
+  function isDeclarationStatementPosition(node: Node): boolean {
+    const parent = node.parent;
+    return (
+      parent?.kind === SyntaxKind.NamespaceStatement ||
+      parent?.kind === SyntaxKind.TypeSpecScript ||
+      parent?.kind === SyntaxKind.JsSourceFile
+    );
+  }
+
   function bindModelStatement(node: ModelStatementNode) {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
 
-    declareSymbol(node, SymbolFlags.Model | SymbolFlags.Declaration | internal);
+    if (isDeclarationStatementPosition(node)) {
+      declareSymbol(node, SymbolFlags.Model | SymbolFlags.Declaration | internal);
+    } else {
+      bindSymbol(node, SymbolFlags.Model);
+    }
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -415,7 +433,11 @@ export function createBinder(program: Program): Binder {
   function bindScalarStatement(node: ScalarStatementNode) {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
-    declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration | internal);
+    if (isDeclarationStatementPosition(node)) {
+      declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration | internal);
+    } else {
+      bindSymbol(node, SymbolFlags.Scalar);
+    }
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -434,7 +456,11 @@ export function createBinder(program: Program): Binder {
   function bindUnionStatement(node: UnionStatementNode) {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
-    declareSymbol(node, SymbolFlags.Union | SymbolFlags.Declaration | internal);
+    if (isDeclarationStatementPosition(node)) {
+      declareSymbol(node, SymbolFlags.Union | SymbolFlags.Declaration | internal);
+    } else {
+      bindSymbol(node, SymbolFlags.Union);
+    }
     mutate(node).locals = new SymbolTable();
   }
 
@@ -454,7 +480,11 @@ export function createBinder(program: Program): Binder {
   function bindEnumStatement(node: EnumStatementNode) {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
-    declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration | internal);
+    if (isDeclarationStatementPosition(node)) {
+      declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration | internal);
+    } else {
+      bindSymbol(node, SymbolFlags.Enum);
+    }
   }
 
   function bindEnumMember(node: EnumMemberNode) {
@@ -560,7 +590,7 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.JsSourceFile:
         return declareScriptMember(node, flags, name);
       default:
-        const key = name ?? node.id.sv;
+        const key = name ?? node.id?.sv ?? "";
         const symbol = createSymbol(node, key, flags, scope?.symbol);
         mutate(node).symbol = symbol;
         mutate(scope.locals!).set(key, symbol);
@@ -585,7 +615,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id.sv;
+    const key = name ?? node.id?.sv ?? "";
     const symbol = createSymbol(node, key, flags, scope.symbol);
     mutate(node).symbol = symbol;
     mutate(scope.symbol.exports)!.set(key, symbol);
@@ -604,7 +634,7 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
-    const key = name ?? node.id.sv;
+    const key = name ?? node.id?.sv ?? "";
     const symbol = createSymbol(node, key, flags, fileNamespace?.symbol);
     mutate(node).symbol = symbol;
     mutate(effectiveScope.symbol.exports!).set(key, symbol);

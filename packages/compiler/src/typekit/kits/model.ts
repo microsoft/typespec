@@ -154,6 +154,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
+        expression: desc.name === undefined,
       });
 
       this.program.checker.finishType(model);

@@ -123,7 +123,7 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
     const properties: DocumentSymbol[] = [...node.properties.values()]
       .map(getDocumentSymbolsForNode)
       .filter(isDefined);
-    return createDocumentSymbol(node, node.id.sv, SymbolKind.Struct, properties);
+    return createDocumentSymbol(node, node.id?.sv ?? "", SymbolKind.Struct, properties);
   }
 
   function getForModelSpread(node: ModelSpreadPropertyNode): DocumentSymbol | undefined {
@@ -138,7 +138,7 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
     const members: DocumentSymbol[] = [...node.members.values()]
       .map(getDocumentSymbolsForNode)
       .filter(isDefined);
-    return createDocumentSymbol(node, node.id.sv, SymbolKind.Enum, members);
+    return createDocumentSymbol(node, node.id?.sv ?? "", SymbolKind.Enum, members);
   }
 
   function getForEnumSpread(node: EnumSpreadMemberNode): DocumentSymbol | undefined {
@@ -160,6 +160,6 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
     const variants: DocumentSymbol[] = [...node.options.values()]
       .map(getDocumentSymbolsForNode)
       .filter(isDefined);
-    return createDocumentSymbol(node, node.id.sv, SymbolKind.Enum, variants);
+    return createDocumentSymbol(node, node.id?.sv ?? "", SymbolKind.Enum, variants);
   }
 }

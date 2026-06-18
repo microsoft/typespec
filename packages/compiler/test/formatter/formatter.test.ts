@@ -1746,6 +1746,63 @@ alias Foo = (A & B) | (C & D);
     });
   });
 
+  describe("declaration expressions", () => {
+    it("formats anonymous enum expression", async () => {
+      await assertFormat({
+        code: `alias E   =   enum {  a,   b  };`,
+        expected: `
+alias E = enum {
+  a,
+  b,
+};
+`,
+      });
+    });
+
+    it("formats anonymous union expression", async () => {
+      await assertFormat({
+        code: `alias U   =   union {  string,   int32  };`,
+        expected: `
+alias U = union {
+  string,
+  int32,
+};
+`,
+      });
+    });
+
+    it("formats anonymous model expression", async () => {
+      await assertFormat({
+        code: `alias M   =   model {  x:   string  };`,
+        expected: `
+alias M = model {
+  x: string;
+};
+`,
+      });
+    });
+
+    it("formats anonymous scalar expression without double semicolon", async () => {
+      await assertFormat({
+        code: `alias S   =   scalar   extends   string;`,
+        expected: `alias S = scalar extends string;`,
+      });
+    });
+
+    it("formats named declaration expression", async () => {
+      await assertFormat({
+        code: `model Foo { nested:   model Inner {  x:  string  }; }`,
+        expected: `
+model Foo {
+  nested: model Inner {
+    x: string;
+  };
+}
+`,
+      });
+    });
+  });
+
   describe("enum", () => {
     it("format simple enum", async () => {
       await assertFormat({

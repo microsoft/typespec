@@ -53,7 +53,7 @@ it("toEqual with string asserts single-file code fix on main.tsp", async () => {
   const tester = await createCodeFixRuleTester(({ model, fixContext }) => {
     const node = model.node!;
     if (node.kind !== SyntaxKind.ModelStatement) throw new Error("unexpected");
-    return fixContext.replaceText(getSourceLocation(node.id), "Bar");
+    return fixContext.replaceText(getSourceLocation(node.id!), "Bar");
   });
 
   await tester

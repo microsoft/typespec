@@ -281,6 +281,26 @@ describe("compiler: parser", () => {
     parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
+  describe("declaration expressions", () => {
+    parseEach([
+      // anonymous keyword declarations in expression position
+      "alias E = enum { a, b };",
+      "alias U = union { string, int32 };",
+      "alias S = scalar extends string;",
+      "alias M = model { x: string };",
+      // named keyword declarations in expression position
+      "alias NE = enum Color { red, green };",
+      "alias NM = model Inner { x: string };",
+      // nested in model properties
+      "model A { status: enum { active, inactive } }",
+      "model A { value: model { x: string } }",
+      "model A { unit: scalar extends string }",
+      "model A { value: union { string, int32 } }",
+      // nested declaration expressions
+      "alias N = model { inner: enum { a, b } };",
+    ]);
+  });
+
   describe("const statements", () => {
     parseEach([
       `const a = 123;`,
@@ -626,7 +646,7 @@ describe("compiler: parser", () => {
           (node) => {
             const statement = node.statements[0];
             assert(statement.kind === SyntaxKind.ModelStatement, "Model statement expected.");
-            assert.strictEqual(statement.id.sv, expected);
+            assert.strictEqual(statement.id?.sv, expected);
           },
         ];
       }),

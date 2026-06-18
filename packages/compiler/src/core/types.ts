@@ -272,6 +272,12 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   indexer?: ModelIndexer;
 
   /**
+   * Whether this model was declared in expression position (e.g. an anonymous
+   * `model { ... }` used as a type) rather than as a named statement.
+   */
+  expression: boolean;
+
+  /**
    * The properties of the model.
    *
    * Properties are ordered in the order that they appear in source.
@@ -439,6 +445,12 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   namespace?: Namespace;
 
   /**
+   * Whether this scalar was declared in expression position (anonymous `scalar ...`)
+   * rather than as a named statement.
+   */
+  expression: boolean;
+
+  /**
    * Scalar this scalar extends.
    */
   baseScalar?: Scalar;
@@ -501,6 +513,12 @@ export interface Enum extends BaseType, DecoratedType {
   name: string;
   node?: EnumStatementNode;
   namespace?: Namespace;
+
+  /**
+   * Whether this enum was declared in expression position (anonymous `enum { ... }`)
+   * rather than as a named statement.
+   */
+  expression: boolean;
 
   /**
    * The members of the enum.
@@ -1444,7 +1462,35 @@ export interface DeclarationNode {
   readonly modifierFlags: ModifierFlags;
 }
 
-export type Declaration = Extract<Statement, DeclarationNode>;
+/**
+ * Declaration node whose identifier is optional. Used by declarations that can also
+ * appear in expression position (e.g. `alias Foo = enum { a, b }`), in which case they
+ * may be anonymous (no `id`).
+ */
+export interface OptionallyNamedDeclarationNode {
+  /**
+   * Identifier that this node declares. May be undefined when the declaration is used
+   * as an anonymous expression.
+   */
+  readonly id?: IdentifierNode;
+
+  /**
+   * Modifier nodes applied to this declaration.
+   */
+  readonly modifiers: Modifier[];
+
+  /**
+   * Combined modifier flags for this declaration.
+   */
+  readonly modifierFlags: ModifierFlags;
+}
+
+export type Declaration =
+  | Extract<Statement, DeclarationNode>
+  | ModelStatementNode
+  | ScalarStatementNode
+  | UnionStatementNode
+  | EnumStatementNode;
 
 export type ScopeNode =
   | NamespaceStatementNode
@@ -1491,6 +1537,10 @@ export type Expression =
   | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
+  | ModelStatementNode
+  | EnumStatementNode
+  | UnionStatementNode
+  | ScalarStatementNode
   | ObjectLiteralNode
   | ArrayLiteralNode
   | TupleExpressionNode
@@ -1561,7 +1611,8 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
-export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+export interface ModelStatementNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ModelStatement;
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
   readonly bodyRange: TextRange;
@@ -1571,7 +1622,8 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
-export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+export interface ScalarStatementNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1596,7 +1648,8 @@ export interface InterfaceStatementNode extends BaseNode, DeclarationNode, Templ
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
-export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+export interface UnionStatementNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.UnionStatement;
   readonly options: readonly UnionVariantNode[];
   readonly decorators: readonly DecoratorExpressionNode[];
@@ -1611,7 +1664,7 @@ export interface UnionVariantNode extends BaseNode {
   readonly parent?: UnionStatementNode;
 }
 
-export interface EnumStatementNode extends BaseNode, DeclarationNode {
+export interface EnumStatementNode extends BaseNode, OptionallyNamedDeclarationNode {
   readonly kind: SyntaxKind.EnumStatement;
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
   readonly decorators: readonly DecoratorExpressionNode[];

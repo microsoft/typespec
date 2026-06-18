@@ -207,6 +207,13 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
+  "templated-declaration-in-expression": {
+    severity: "error",
+    messages: {
+      default:
+        "A declaration used as an expression cannot have template parameters as it cannot be referenced or instantiated.",
+    },
+  },
   "default-required": {
     severity: "error",
     messages: {

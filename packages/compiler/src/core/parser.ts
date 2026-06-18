@@ -697,9 +697,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
+    allowAnonymous = false,
   ): UnionStatementNode {
     parseExpected(Token.UnionKeyword);
-    const id = parseIdentifier();
+    const id = parseDeclarationIdentifier(allowAnonymous);
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
@@ -897,9 +898,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
+    allowAnonymous = false,
   ): ModelStatementNode {
     parseExpected(Token.ModelKeyword);
-    const id = parseIdentifier();
+    const id = parseDeclarationIdentifier(allowAnonymous);
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
@@ -1102,14 +1104,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
+    allowAnonymous = false,
   ): ScalarStatementNode {
     parseExpected(Token.ScalarKeyword);
-    const id = parseIdentifier();
+    const id = parseDeclarationIdentifier(allowAnonymous);
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
-    const { items: members, range: bodyRange } = parseScalarMembers();
+    const { items: members, range: bodyRange } = parseScalarMembers(allowAnonymous);
 
     return {
       kind: SyntaxKind.ScalarStatement,
@@ -1133,7 +1136,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return undefined;
   }
 
-  function parseScalarMembers(): ListDetail<ScalarConstructorNode> {
+  function parseScalarMembers(allowAnonymous = false): ListDetail<ScalarConstructorNode> {
+    // In expression position there is no `;` terminator: only parse a `{ ... }` body
+    // when present, otherwise the scalar has no members.
+    if (allowAnonymous && token() !== Token.OpenBrace) {
+      return createEmptyList<ScalarConstructorNode>();
+    }
     if (token() === Token.Semicolon) {
       nextToken();
       return createEmptyList<ScalarConstructorNode>();
@@ -1163,9 +1171,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
+    allowAnonymous = false,
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
-    const id = parseIdentifier();
+    const id = parseDeclarationIdentifier(allowAnonymous);
     const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
@@ -1724,6 +1733,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseNumericLiteral();
         case Token.OpenBrace:
           return parseModelExpression();
+        case Token.ModelKeyword:
+          return parseModelStatement(tokenPos(), [], [], true);
+        case Token.EnumKeyword:
+          return parseEnumStatement(tokenPos(), [], [], true);
+        case Token.UnionKeyword:
+          return parseUnionStatement(tokenPos(), [], [], true);
+        case Token.ScalarKeyword:
+          return parseScalarStatement(tokenPos(), [], [], true);
         case Token.OpenBracket:
           return parseTupleExpression();
         case Token.OpenParen:
@@ -2000,6 +2017,18 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       value,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * Parse the identifier of a declaration. When {@link allowAnonymous} is true (the
+   * declaration is being used in expression position) the identifier is optional and
+   * only parsed when a name is actually present.
+   */
+  function parseDeclarationIdentifier(allowAnonymous: boolean): IdentifierNode | undefined {
+    if (allowAnonymous && token() !== Token.Identifier) {
+      return undefined;
+    }
+    return parseIdentifier();
   }
 
   function parseIdentifier(options?: {

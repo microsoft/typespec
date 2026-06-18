@@ -222,10 +222,10 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         classify(node.id, SemanticTokenKind.Struct);
         break;
       case SyntaxKind.ModelStatement:
-        classify(node.id, SemanticTokenKind.Struct);
+        if (node.id) classify(node.id, SemanticTokenKind.Struct);
         break;
       case SyntaxKind.ScalarStatement:
-        classify(node.id, SemanticTokenKind.Type);
+        if (node.id) classify(node.id, SemanticTokenKind.Type);
         break;
       case SyntaxKind.ScalarConstructor:
         classify(node.id, SemanticTokenKind.Function);
@@ -236,10 +236,10 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         }
         break;
       case SyntaxKind.EnumStatement:
-        classify(node.id, SemanticTokenKind.Enum);
+        if (node.id) classify(node.id, SemanticTokenKind.Enum);
         break;
       case SyntaxKind.UnionStatement:
-        classify(node.id, SemanticTokenKind.Enum);
+        if (node.id) classify(node.id, SemanticTokenKind.Enum);
         break;
       case SyntaxKind.EnumMember:
         classify(node.id, SemanticTokenKind.EnumMember);

@@ -44,6 +44,7 @@ import {
   OperationSignatureDeclarationNode,
   OperationSignatureReferenceNode,
   OperationStatementNode,
+  OptionallyNamedDeclarationNode,
   ScalarConstructorNode,
   ScalarStatementNode,
   Statement,
@@ -686,11 +687,11 @@ export function printEnumStatement(
   print: PrettierChildPrint,
 ) {
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
-  const id = path.call(print, "id");
+  const id = path.node.id ? [" ", path.call(print, "id")] : "";
   return [
     decorators,
     printModifiers(path, options, print),
-    "enum ",
+    "enum",
     id,
     " ",
     printEnumBlock(path, options, print),
@@ -738,13 +739,13 @@ export function printUnionStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const id = path.call(print, "id");
+  const id = path.node.id ? [" ", path.call(print, "id")] : "";
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
     decorators,
     printModifiers(path, options, print),
-    "union ",
+    "union",
     id,
     generic,
     " ",
@@ -1049,7 +1050,7 @@ export function printModelStatement(
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = node.id ? [" ", path.call(print, "id")] : "";
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
     : "";
@@ -1061,7 +1062,7 @@ export function printModelStatement(
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     printModifiers(path, options, print),
-    "model ",
+    "model",
     id,
     generic,
     group(indent(["", heritage, isBase])),
@@ -1231,13 +1232,28 @@ function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
   }
 }
 
+function isInExpressionPosition(path: AstPath<Node>): boolean {
+  const parent = path.getParentNode();
+  if (parent === null || parent === undefined) {
+    return false;
+  }
+  switch (parent.kind) {
+    case SyntaxKind.NamespaceStatement:
+    case SyntaxKind.TypeSpecScript:
+    case SyntaxKind.JsSourceFile:
+      return false;
+    default:
+      return true;
+  }
+}
+
 function printScalarStatement(
   path: AstPath<ScalarStatementNode>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
   const node = path.node;
-  const id = path.call(print, "id");
+  const id = node.id ? [" ", path.call(print, "id")] : "";
   const template = printTemplateParameters(path, options, print, "templateParameters");
 
   const heritage = node.extends
@@ -1246,11 +1262,16 @@ function printScalarStatement(
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
 
-  const members = shouldPrintBody ? [" ", printScalarBody(path, options, print)] : ";";
+  const inExpressionPosition = isInExpressionPosition(path);
+  const members = shouldPrintBody
+    ? [" ", printScalarBody(path, options, print)]
+    : inExpressionPosition
+      ? ""
+      : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
     printModifiers(path, options, print),
-    "scalar ",
+    "scalar",
     id,
     template,
     group(indent(["", heritage])),
@@ -1559,7 +1580,7 @@ function printFunctionParameterDeclaration(
 }
 
 export function printModifiers(
-  path: AstPath<DeclarationNode & Node>,
+  path: AstPath<(DeclarationNode | OptionallyNamedDeclarationNode) & Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ): Doc {
