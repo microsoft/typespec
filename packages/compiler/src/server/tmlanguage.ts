@@ -68,7 +68,10 @@ const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
 const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern|internal)\\b`;
-const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
+// Keywords that begin a statement. Used as a heuristic terminator for expressions.
+// `model`, `enum` and `union` are intentionally excluded because they can now appear
+// in expression position (declarations-as-expressions) and must not terminate an expression.
+const statementKeyword = `\\b(?:namespace|op|using|import|alias|interface|dec|fn)\\b`;
 const universalEnd = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
@@ -712,6 +715,66 @@ const unionStatement: BeginEndRule = {
   patterns: [token, unionBody],
 };
 
+// Declarations used in expression position (e.g. `alias Foo = enum { a, b }`).
+// The name is optional since these can be anonymous when used as an expression.
+const modelExpressionKeyword: BeginEndRule = {
+  key: "model-expression-keyword",
+  scope: meta,
+  begin: `\\b(model)\\b(?:\\s+(?!extends\\b|is\\b)(${identifier}))?`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [
+    token,
+    typeParameters,
+    modelHeritage, // before expression or `extends` or `is` will look like type name
+    expression, // enough to match type parameters and body.
+  ],
+};
+
+const scalarExpression: BeginEndRule = {
+  key: "scalar-expression",
+  scope: meta,
+  begin: `\\b(scalar)\\b(?:\\s+(?!extends\\b)(${identifier}))?`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [
+    token,
+    typeParameters,
+    scalarExtends, // before expression or `extends` will look like type name
+    scalarBody,
+  ],
+};
+
+const enumExpression: BeginEndRule = {
+  key: "enum-expression",
+  scope: meta,
+  begin: `\\b(enum)\\b(?:\\s+(${identifier}))?`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [token, enumBody],
+};
+
+const unionExpression: BeginEndRule = {
+  key: "union-expression",
+  scope: meta,
+  begin: `\\b(union)\\b(?:\\s+(${identifier}))?`,
+  beginCaptures: {
+    "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
+  },
+  end: `(?<=\\})|${universalEnd}`,
+  patterns: [token, unionBody],
+};
+
 const aliasAssignment: BeginEndRule = {
   key: "alias-id",
   scope: meta,
@@ -937,6 +1000,10 @@ expression.patterns = [
   objectLiteral,
   tupleLiteral,
   tupleExpression,
+  modelExpressionKeyword,
+  scalarExpression,
+  enumExpression,
+  unionExpression,
   modelExpression,
   callExpression,
   identifierExpression,
