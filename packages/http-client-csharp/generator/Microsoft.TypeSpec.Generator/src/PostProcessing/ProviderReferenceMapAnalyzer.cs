@@ -31,9 +31,12 @@ namespace Microsoft.TypeSpec.Generator
 
             // Generated-code dependencies come from providers. Custom code still needs Roslyn
             // because arbitrary user C# can reference generated types in ways providers cannot see.
+            var existingGeneratedPublicRoots = GetExistingGeneratedPublicTypeRoots(graph.Nodes);
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(project, graph.Nodes);
             customPublicRoots.UnionWith(GetApiBaselineGeneratedTypeRoots(graph.Nodes));
+            customPublicRoots.UnionWith(existingGeneratedPublicRoots);
             var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
+            customRemovalRoots.UnionWith(existingGeneratedPublicRoots);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(project, graph.Nodes);
 
@@ -248,6 +251,38 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 roots.Add(fullName);
+            }
+
+            return roots;
+        }
+
+        private static HashSet<string> GetExistingGeneratedPublicTypeRoots(HashSet<string> generatedTypeNames)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            var generatedDirectory = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+            if (string.IsNullOrEmpty(generatedDirectory) || !Directory.Exists(generatedDirectory))
+            {
+                return roots;
+            }
+
+            foreach (var file in Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories))
+            {
+                var text = File.ReadAllText(file);
+                if (!text.Contains("public", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var root = CSharpSyntaxTree.ParseText(text).GetRoot();
+                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
+                {
+                    if (!declaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                    {
+                        continue;
+                    }
+
+                    AddMatchingName(roots, declaration.Identifier.ValueText, generatedTypeNames);
+                }
             }
 
             return roots;
