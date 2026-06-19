@@ -1420,17 +1420,13 @@ export function printUnion(
 
 /** Whether the node is a direct argument of a template reference with more than one argument. */
 function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
+  // A `TemplateArgument` only ever lives in `TypeReference.arguments`, so the
+  // owning `TypeReference` is always the next node ancestor.
   if (path.getParentNode()?.kind !== SyntaxKind.TemplateArgument) {
     return false;
   }
-  let count = 0;
-  let node: Node | null;
-  while ((node = path.getParentNode(count++))) {
-    if (node.kind === SyntaxKind.TypeReference) {
-      return node.arguments.length > 1;
-    }
-  }
-  return false;
+  const reference = path.getParentNode(1);
+  return reference?.kind === SyntaxKind.TypeReference && reference.arguments.length > 1;
 }
 
 export function printTypeReference(
