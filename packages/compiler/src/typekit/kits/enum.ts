@@ -11,7 +11,8 @@ import { type UnionKit } from "./union.js";
  */
 interface EnumDescriptor {
   /**
-   * The name of the enum declaration.
+   * The name of the enum. If a non-empty name is provided, it is an enum
+   * declaration. An empty string (`""`) produces an enum expression.
    */
   name: string;
 
@@ -78,7 +79,7 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
-        expression: false,
+        expression: desc.name === "",
       });
 
       if (Array.isArray(desc.members)) {

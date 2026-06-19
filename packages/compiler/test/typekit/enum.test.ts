@@ -47,3 +47,21 @@ it("preserves documentation when copying", async () => {
   expect(getDoc(program, newEnum.members.get("One")!)).toBe("doc-comment for one");
   expect(getDoc(program, newEnum.members.get("Two")!)).toBeUndefined();
 });
+
+it("creates a named enum as a declaration (expression: false)", () => {
+  const en = $(program).enum.create({
+    name: "Foo",
+    members: { a: 1, b: 2 },
+  });
+  expect(en.name).toBe("Foo");
+  expect(en.expression).toBe(false);
+});
+
+it("creates an anonymous enum as an expression (expression: true)", () => {
+  const en = $(program).enum.create({
+    name: "",
+    members: { a: 1, b: 2 },
+  });
+  expect(en.name).toBe("");
+  expect(en.expression).toBe(true);
+});
