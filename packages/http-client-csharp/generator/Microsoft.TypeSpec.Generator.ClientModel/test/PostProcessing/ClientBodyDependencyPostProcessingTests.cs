@@ -73,6 +73,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task PublicModelSignatureDependencyIsPromotedToPublic()
+        {
+            var internalDependency = InputFactory.Model("InternalDependency", access: "internal");
+            var responseModel = InputFactory.Model(
+                "ResponseBody",
+                properties: [InputFactory.Property("Dependency", internalDependency)]);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: responseModel)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation, response: InputFactory.ServiceMethodResponse(responseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertPublicModels([responseModel, internalDependency], [client], ["ResponseBody", "InternalDependency"]);
+        }
+
+        [Test]
         public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
         {
             var statusEnum = InputFactory.StringEnum(
@@ -104,6 +118,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                         """)
                 ],
                 expectedFiles: [Path.Combine("src", "Generated", "Models", "Status.Serialization.cs")]);
+        }
+
+        [Test]
+        public async Task CustomModelFactoryPartialDoesNotKeepBodyOnlyModelPublic()
+        {
+            var requestModel = InputFactory.Model("RequestBody");
+            var parameter = InputFactory.BodyParameter("body", requestModel, isRequired: true);
+            var operation = InputFactory.Operation("Create", parameters: [parameter], httpMethod: "POST");
+            var method = InputFactory.BasicServiceMethod("Create", operation);
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [requestModel],
+                clients: [client],
+                customFiles: [
+                    (Path.Combine("src", "SampleModelFactory.cs"), """
+                        namespace Sample;
+
+                        [Microsoft.TypeSpec.Generator.Customizations.CodeGenType("SampleModelFactory")]
+                        public static partial class SampleModelFactory
+                        {
+                        }
+                        """)
+                ],
+                expectedFiles: [],
+                internalModelNames: ["RequestBody"]);
         }
 
         private static async Task GenerateAndAssertInternalModels(
