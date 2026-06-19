@@ -220,7 +220,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
-    if (key === "license") continue; // skip license since it is passed in codeModel
+    if (key === "license" || key === "keep-pyproject-fields") continue; // skip license + keep-pyproject-fields since it is passed in codeModel
     commandArgs[key] = value;
   }
   if (resolvedOptions["generate-packaging-files"]) {
