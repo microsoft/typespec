@@ -9,7 +9,11 @@ import {
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
-import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import {
+  PythonEmitterOptions,
+  PythonSdkContext,
+  reportDiagnostic,
+} from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
@@ -49,11 +53,60 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   ) {
     // Only add quotes for shell compatibility when NOT using emit-yaml-only mode
     // (emit-yaml-only passes options via JSON config files, not shell)
-    const needsShellQuoting = !options["use-pyodide"] && !options["emit-yaml-only"];
+    const needsShellQuoting =
+      !options["use-pyodide"] && !options["emit-yaml-only"];
     options["package-pprint-name"] = needsShellQuoting
       ? `"${options["package-pprint-name"]}"`
       : `${options["package-pprint-name"]}`;
   }
+}
+
+export function buildCommandArgs(
+  resolvedOptions: PythonEmitterOptions,
+  arm: boolean,
+): Record<string, string> {
+  const commandArgs: Record<string, string> = {};
+  const transformedOptions = new Set(["license"]);
+
+  if (resolvedOptions["packaging-files-config"]) {
+    const keyValuePairs = Object.entries(
+      resolvedOptions["packaging-files-config"],
+    ).map(([key, value]) => {
+      return `${key}:${value}`;
+    });
+    commandArgs["packaging-files-config"] = keyValuePairs.join("|");
+    transformedOptions.add("packaging-files-config");
+  }
+
+  if (resolvedOptions["keep-pyproject-fields"]) {
+    // Flatten the object of enabled fields into a comma-separated list for the generator.
+    const enabledFields = Object.entries(
+      resolvedOptions["keep-pyproject-fields"],
+    )
+      .filter(([, value]) => value === true)
+      .map(([key]) => key);
+    commandArgs["keep-pyproject-fields"] = enabledFields.join(",");
+    transformedOptions.add("keep-pyproject-fields");
+  }
+
+  for (const [key, value] of Object.entries(resolvedOptions)) {
+    if (transformedOptions.has(key) || value === undefined) continue;
+    commandArgs[key] = value;
+  }
+
+  if (resolvedOptions["generate-packaging-files"]) {
+    commandArgs["package-mode"] = arm ? "azure-mgmt" : "azure-dataplane";
+    commandArgs["keep-setup-py"] =
+      resolvedOptions["keep-setup-py"] === true ? "true" : "false";
+  }
+
+  if (arm === true) {
+    commandArgs["azure-arm"] = "true";
+  }
+
+  commandArgs["from-typespec"] = "true";
+  commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
+  return commandArgs;
 }
 
 async function createPythonSdkContext(
@@ -101,7 +154,10 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
           }
         } else if (Array.isArray(current[key])) {
           stack.push(current[key]);
-        } else if (current[key] !== undefined && typeof current[key] === "object") {
+        } else if (
+          current[key] !== undefined &&
+          typeof current[key] === "object"
+        ) {
           stack.push(current[key]);
         }
       }
@@ -173,7 +229,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       "========================================= error stack start ================================================";
     const errStackEnd =
       "========================================= error stack end ================================================";
-    const errStack = error.stack ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}` : "";
+    const errStack = error.stack
+      ? `\n${errStackStart}\n${error.stack}\n${errStackEnd}`
+      : "";
     reportDiagnostic(context.program, {
       code: "unknown-error",
       target: NoTarget,
@@ -200,38 +258,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 
   const resolvedOptions = sdkContext.emitContext.options;
-  const commandArgs: Record<string, string> = {};
-  if (resolvedOptions["packaging-files-config"]) {
-    const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
-      ([key, value]) => {
-        return `${key}:${value}`;
-      },
-    );
-    commandArgs["packaging-files-config"] = keyValuePairs.join("|");
-    resolvedOptions["packaging-files-config"] = undefined;
-  }
-  if (resolvedOptions["keep-pyproject-fields"]) {
-    // Flatten the object of enabled fields into a comma-separated list for the generator.
-    const enabledFields = Object.entries(resolvedOptions["keep-pyproject-fields"])
-      .filter(([, value]) => value === true)
-      .map(([key]) => key);
-    commandArgs["keep-pyproject-fields"] = enabledFields.join(",");
-    resolvedOptions["keep-pyproject-fields"] = undefined;
-  }
-
-  for (const [key, value] of Object.entries(resolvedOptions)) {
-    if (key === "license") continue; // skip license since it is passed in codeModel
-    commandArgs[key] = value;
-  }
-  if (resolvedOptions["generate-packaging-files"]) {
-    commandArgs["package-mode"] = sdkContext.arm ? "azure-mgmt" : "azure-dataplane";
-    commandArgs["keep-setup-py"] = resolvedOptions["keep-setup-py"] === true ? "true" : "false";
-  }
-  if (sdkContext.arm === true) {
-    commandArgs["azure-arm"] = "true";
-  }
-  commandArgs["from-typespec"] = "true";
-  commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
+  const commandArgs = buildCommandArgs(
+    resolvedOptions,
+    sdkContext.arm === true,
+  );
 
   if (typeof window !== "undefined") {
     // Running in browser with Pyodide - fileURLToPath and other filesystem operations are browser-incompatible
