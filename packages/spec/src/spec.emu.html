@@ -236,15 +236,11 @@ WhiteSpace :
     <PS>
 
 ///
-// LineTerminatorSequence covers the sequences that are recognized as line
-// endings. Only CR (U+000D), LF (U+000A), and the CRLF pair are currently
-// recognized. Unlike WhiteSpace, line terminators are syntactically
-// significant: they terminate directive expressions (see DirectiveExpression).
+// LineTerminatorSequence covers the three sequences recognised as line endings:
+// a lone LF (U+000A), a lone CR (U+000D) not followed by LF, or the CRLF pair.
+// Unlike WhiteSpace, line terminators are syntactically significant: they
+// terminate directive expressions (see DirectiveExpression).
 ///
-LineTerminator : one of
-    <LF>
-    <CR>
-
 LineTerminatorSequence :
     <LF>
     <CR> [lookahead != <LF>]
@@ -591,25 +587,23 @@ DecoratorArguments :
 
 ///
 // DirectiveExpression covers the #suppress and #deprecated directives.
-// Unlike most constructs, a directive is terminated by a LineTerminatorSequence
-// (or end of file) rather than a delimiter such as `;`. This means line
-// terminators are syntactically significant inside directives: all arguments
-// to the directive must appear on the same line as the `#` token.
+// A directive is terminated by a line terminator (CR, LF, or CRLF) or end of
+// input. Because line terminators are classified as Trivia and are normally
+// transparent to the syntactic grammar, the termination rule is enforced
+// contextually by the parser rather than expressed as a formal production: all
+// DirectiveArguments must appear on the same source line as the `#` token.
 //
-// Currently recognized directive names are `suppress` and `deprecated`.
+// Currently recognised directive names are `suppress` and `deprecated`.
 //   #suppress <rule-code> <message>   -- suppresses a specific diagnostic (2 arguments)
 //   #deprecated <message>             -- marks a declaration as deprecated (1 argument)
 //
 // The number of required arguments is validated during semantic analysis, not
-// by this grammar. The second alternative for DirectiveExpression handles the
-// case where the directive appears at the very end of the file with no trailing
-// line terminator.
+// by this grammar.
 ///
 DirectiveList :
     DirectiveList? DirectiveExpression
 
 DirectiveExpression :
-    `#` Identifier DirectiveArguments? LineTerminatorSequence
     `#` Identifier DirectiveArguments?
 
 DirectiveArguments :
