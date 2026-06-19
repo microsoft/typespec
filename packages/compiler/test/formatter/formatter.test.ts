@@ -1891,6 +1891,62 @@ alias N = model {
 `,
       });
     });
+
+    it("keeps a decorator inline on an enum expression", async () => {
+      await assertFormat({
+        code: `alias E = @doc("hi")enum {  a, b  };`,
+        expected: `
+alias E = @doc("hi") enum {
+  a,
+  b,
+};
+`,
+      });
+    });
+
+    it("keeps a decorator inline on a model expression property", async () => {
+      await assertFormat({
+        code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
+        expected: `
+model Foo {
+  status: @doc("the status") enum {
+    active,
+    inactive,
+  };
+}
+`,
+      });
+    });
+
+    it("keeps a decorator inline on a named model expression", async () => {
+      await assertFormat({
+        code: `alias M = @doc("d")model Inner {  x:  string  };`,
+        expected: `
+alias M = @doc("d") model Inner {
+  x: string;
+};
+`,
+      });
+    });
+
+    it("keeps a decorator inline on a union expression", async () => {
+      await assertFormat({
+        code: `alias U = @doc("d")union {  string, int32  };`,
+        expected: `
+alias U = @doc("d") union {
+  string,
+  int32,
+};
+`,
+      });
+    });
+
+    it("keeps a decorator inline on a scalar expression", async () => {
+      await assertFormat({
+        code: `alias S = @doc("d")scalar Celsius extends int32;`,
+        expected: `alias S = @doc("d") scalar Celsius extends int32;`,
+      });
+    });
   });
 
   describe("enum", () => {

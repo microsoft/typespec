@@ -686,7 +686,9 @@ export function printEnumStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const { decorators } = printDecorators(path, options, print, { tryInline: false });
+  const { decorators } = printDecorators(path, options, print, {
+    tryInline: isInExpressionPosition(path),
+  });
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   return [
     decorators,
@@ -740,7 +742,9 @@ export function printUnionStatement(
   print: PrettierChildPrint,
 ) {
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
-  const { decorators } = printDecorators(path, options, print, { tryInline: false });
+  const { decorators } = printDecorators(path, options, print, {
+    tryInline: isInExpressionPosition(path),
+  });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
     decorators,
@@ -1083,7 +1087,7 @@ export function printModelStatement(
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
   const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
-    printDecorators(path, options, print, { tryInline: false }).decorators,
+    printDecorators(path, options, print, { tryInline: isInExpressionPosition(path) }).decorators,
     printModifiers(path, options, print),
     "model",
     id,
@@ -1291,7 +1295,7 @@ function printScalarStatement(
       ? ""
       : ";";
   return [
-    printDecorators(path, options, print, { tryInline: false }).decorators,
+    printDecorators(path, options, print, { tryInline: inExpressionPosition }).decorators,
     printModifiers(path, options, print),
     "scalar",
     id,

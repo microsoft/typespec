@@ -1745,10 +1745,26 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseTupleExpression();
         case Token.OpenParen:
           return parseParenthesizedExpression();
-        case Token.At:
+        case Token.At: {
+          const pos = tokenPos();
           const decorators = parseDecoratorList();
-          reportInvalidDecorators(decorators, "expression");
-          continue;
+          // Decorators are only valid in expression position when they decorate a
+          // declaration expression (the keyword forms below). `pos` starts at the `@`
+          // so the resulting node span includes the decorators.
+          switch (token()) {
+            case Token.ModelKeyword:
+              return parseModelStatement(pos, decorators, [], true);
+            case Token.EnumKeyword:
+              return parseEnumStatement(pos, decorators, [], true);
+            case Token.UnionKeyword:
+              return parseUnionStatement(pos, decorators, [], true);
+            case Token.ScalarKeyword:
+              return parseScalarStatement(pos, decorators, [], true);
+            default:
+              reportInvalidDecorators(decorators, "expression");
+              continue;
+          }
+        }
         case Token.Hash:
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
