@@ -9,8 +9,8 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @JoshLove-msft @iscai-msft @srnagar @timotheeguerin @l0lawrence
-/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao @l0lawrence
+/eng/emitters/                               @JoshLove-msft @iscai-msft @timotheeguerin @l0lawrence
+/docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @joheredi @timotheeguerin @qiaozha @MaryGao @l0lawrence
 
 ######################
 # CSharp
@@ -22,9 +22,9 @@ cspell.yaml
 ######################
 # Java
 ######################
-/packages/http-client-java/                  @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
-/website/src/content/docs/docs/emitters/clients/http-client-java/ @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
-/.github/instructions/http-client-java.instructions.md @srnagar @anuchandy @weidongxu-microsoft @haolingdong-msft @XiaofeiCao
+/packages/http-client-java/                  @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft
+/website/src/content/docs/docs/emitters/clients/http-client-java/ @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft
+/.github/instructions/http-client-java.instructions.md @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @alzimmermsft
 
 ######################
 # Python
