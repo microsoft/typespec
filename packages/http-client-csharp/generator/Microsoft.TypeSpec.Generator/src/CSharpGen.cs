@@ -18,8 +18,18 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
+        private const string RawRequestUriBuilderExtensionsFileName = "RawRequestUriBuilderExtensions.cs";
+        private const string SerializationFormatFileName = "SerializationFormat.cs";
+        private const string TypeFormattersFileName = "TypeFormatters.cs";
 
-        private static readonly string[] _filesToKeep = [ConfigurationFileName, CodeModelFileName];
+        private static readonly string[] _filesToKeep =
+        [
+            ConfigurationFileName,
+            CodeModelFileName,
+            RawRequestUriBuilderExtensionsFileName,
+            SerializationFormatFileName,
+            TypeFormattersFileName
+        ];
 
         internal static GeneratedCodeWorkspacePostProcessingProfile? GenerationProfile { get; set; }
 

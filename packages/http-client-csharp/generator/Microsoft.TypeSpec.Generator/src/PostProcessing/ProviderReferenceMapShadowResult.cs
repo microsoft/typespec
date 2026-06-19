@@ -9,6 +9,7 @@ namespace Microsoft.TypeSpec.Generator
     internal sealed record ProviderReferenceMapShadowResult(
         ProjectId ProjectId,
         HashSet<string> InternalizeCandidates,
+        HashSet<string> PublicizeCandidates,
         HashSet<string> RemoveCandidates)
     {
     }

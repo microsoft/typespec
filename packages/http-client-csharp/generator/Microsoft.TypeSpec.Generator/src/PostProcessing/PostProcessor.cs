@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Simplification;
 
 namespace Microsoft.TypeSpec.Generator
@@ -131,15 +132,22 @@ namespace Microsoft.TypeSpec.Generator
             if (compilation == null)
                 return project;
 
+            var useShadowResult = ProviderReferenceMapShadowAnalyzer.UseShadowMap &&
+                ProviderReferenceMapShadowAnalyzer.LatestResult is { } latestResult &&
+                latestResult.ProjectId == project.Id
+                ? latestResult
+                : null;
+
             // first get all the declared symbols
-            var definitions = await MeasureAsync("PostProcessor.Internalize.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, true));
+            var definitions = await MeasureAsync("PostProcessor.Internalize.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, publicOnly: useShadowResult == null));
             IEnumerable<INamedTypeSymbol> symbolsToInternalize;
-            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap &&
-                ProviderReferenceMapShadowAnalyzer.LatestResult is { } useShadowResult &&
-                useShadowResult.ProjectId == project.Id)
+            IEnumerable<INamedTypeSymbol> symbolsToPublicize = [];
+            if (useShadowResult != null)
             {
                 symbolsToInternalize = Measure("PostProcessor.Internalize.UseShadowCandidates", () =>
                     GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.InternalizeCandidates).ToArray());
+                symbolsToPublicize = Measure("PostProcessor.Internalize.UseShadowPublicizeCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, useShadowResult.PublicizeCandidates).ToArray());
             }
             else
             {
@@ -179,24 +187,75 @@ namespace Microsoft.TypeSpec.Generator
                 return nodes;
             });
 
-            project = Measure("PostProcessor.Internalize.MarkInternal", () =>
+            var nodesToPublicize = Measure("PostProcessor.Internalize.CollectPublicizeNodes", () =>
             {
-                var updatedProject = project;
-                foreach (var (model, documentId) in nodesToInternalize)
+                var nodes = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
+                foreach (var symbol in symbolsToPublicize)
                 {
-                    updatedProject = MarkInternal(updatedProject, model, documentId);
+                    foreach (var node in definitions.DeclaredNodesCache[symbol])
+                    {
+                        nodes[node] = project.GetDocumentId(node.SyntaxTree)!;
+                    }
                 }
 
-                return updatedProject;
+                return nodes;
             });
 
-            var modelNamesToRemove =
-                nodesToInternalize.Keys.Select(item => item.Identifier.Text);
+            project = Measure("PostProcessor.Internalize.ApplyAccessibilityChanges", () =>
+                ApplyAccessibilityChanges(project, nodesToInternalize, nodesToPublicize));
+            project = await MeasureAsync(
+                "PostProcessor.Internalize.InternalizePublicNestedTypesInInternalTypesAsync",
+                () => InternalizePublicNestedTypesInInternalTypesAsync(project));
+
+            var modelNamesToRemove = nodesToInternalize.Keys.Select(item => item.Identifier.Text);
+            if (useShadowResult != null)
+            {
+                modelNamesToRemove = modelNamesToRemove.Concat(useShadowResult.RemoveCandidates.Select(GetSimpleName));
+            }
             project = await MeasureAsync(
                 "PostProcessor.Internalize.RemoveMethodsFromModelFactoryAsync",
                 () => RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet()));
 
             return project;
+        }
+
+        private static async Task<Project> InternalizePublicNestedTypesInInternalTypesAsync(Project project)
+        {
+            foreach (var document in project.Documents.ToArray())
+            {
+                if (!GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                var root = await document.GetSyntaxRootAsync();
+                if (root == null)
+                {
+                    continue;
+                }
+
+                var nestedPublicTypes = root.DescendantNodes()
+                    .OfType<BaseTypeDeclarationSyntax>()
+                    .Where(static declaration => declaration.Modifiers.Any(SyntaxKind.PublicKeyword) &&
+                        declaration.Ancestors().OfType<BaseTypeDeclarationSyntax>().Any(static parent => parent.Modifiers.Any(SyntaxKind.InternalKeyword)))
+                    .ToArray();
+                if (nestedPublicTypes.Length == 0)
+                {
+                    continue;
+                }
+
+                var newRoot = root.ReplaceNodes(nestedPublicTypes, static (originalNode, _) =>
+                    ChangeAccessibility(originalNode, SyntaxKind.InternalKeyword)).WithAdditionalAnnotations(Simplifier.Annotation);
+                project = document.WithSyntaxRoot(newRoot).Project;
+            }
+
+            return project;
+        }
+
+        private static string GetSimpleName(string fullyQualifiedName)
+        {
+            var lastDot = fullyQualifiedName.LastIndexOf('.');
+            return lastDot < 0 ? fullyQualifiedName : fullyQualifiedName.Substring(lastDot + 1);
         }
 
         private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
@@ -410,15 +469,54 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
+        private Project ApplyAccessibilityChanges(
+            Project project,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodesToInternalize,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodesToPublicize)
         {
-            var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
-            var tree = declarationNode.SyntaxTree;
-            var document = project.GetDocument(documentId)!;
-            var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
-                .WithAdditionalAnnotations(Simplifier.Annotation);
-            document = document.WithSyntaxRoot(newRoot);
-            return document.Project;
+            var changesByDocument = new Dictionary<DocumentId, Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>>();
+            AddAccessibilityChanges(changesByDocument, nodesToInternalize, SyntaxKind.InternalKeyword);
+            AddAccessibilityChanges(changesByDocument, nodesToPublicize, SyntaxKind.PublicKeyword);
+
+            foreach (var (documentId, changes) in changesByDocument)
+            {
+                var document = project.GetDocument(documentId)!;
+                var root = changes.Keys.First().SyntaxTree.GetRoot();
+                var newRoot = root.ReplaceNodes(
+                    changes.Keys,
+                    (originalNode, _) => changes.TryGetValue(originalNode, out var targetAccessibility)
+                        ? ChangeAccessibility(originalNode, targetAccessibility)
+                        : originalNode)
+                    .WithAdditionalAnnotations(Simplifier.Annotation);
+                document = document.WithSyntaxRoot(newRoot);
+                project = document.Project;
+            }
+
+            return project;
+        }
+
+        private static void AddAccessibilityChanges(
+            Dictionary<DocumentId, Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>> changesByDocument,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodes,
+            SyntaxKind targetAccessibility)
+        {
+            foreach (var (node, documentId) in nodes)
+            {
+                if (!changesByDocument.TryGetValue(documentId, out var changes))
+                {
+                    changes = new Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>();
+                    changesByDocument[documentId] = changes;
+                }
+
+                changes[node] = targetAccessibility;
+            }
+        }
+
+        private static BaseTypeDeclarationSyntax ChangeAccessibility(BaseTypeDeclarationSyntax declarationNode, SyntaxKind targetAccessibility)
+        {
+            return targetAccessibility == SyntaxKind.PublicKeyword
+                ? ChangeModifier(declarationNode, SyntaxKind.InternalKeyword, SyntaxKind.PublicKeyword)
+                : ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
         }
 
         private async Task<Project> RemoveModelsAsync(Project project,
@@ -576,6 +674,15 @@ namespace Microsoft.TypeSpec.Generator
                         model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
                 .ToHashSet();
 
+            foreach (var attr in attributes)
+            {
+                if (IsInternalRecordBuildableAttribute(attr) ||
+                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr))
+                {
+                    invalidAttributes.Add(attr);
+                }
+            }
+
             if (invalidAttributes.Count > 0)
             {
                 cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
@@ -629,6 +736,117 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return solution;
+        }
+
+        private static bool IsInternalRecordBuildableAttribute(AttributeListSyntax attributeList)
+        {
+            if (attributeList.Attributes.Count != 1 ||
+                !IsModelReaderWriterBuildableAttribute(attributeList.Attributes[0]))
+            {
+                return false;
+            }
+
+            var typeName = attributeList.Attributes[0].ArgumentList?.Arguments
+                .Select(static argument => argument.Expression)
+                .OfType<TypeOfExpressionSyntax>()
+                .Select(static typeOfExpression => typeOfExpression.Type.ToString().Split('.').Last())
+                .FirstOrDefault();
+
+            return typeName?.StartsWith("Update", StringComparison.Ordinal) == true && typeName.EndsWith("Record", StringComparison.Ordinal) ||
+                typeName?.EndsWith("PatchUpdate", StringComparison.Ordinal) == true;
+        }
+
+        private static async Task<bool> ShouldRemoveUnreferencedInternalBuildableAttribute(
+            Solution solution,
+            SemanticModel model,
+            AttributeListSyntax attributeList)
+        {
+            if (attributeList.Attributes.Count != 1)
+            {
+                return false;
+            }
+
+            var attribute = attributeList.Attributes[0];
+            if (model.GetSymbolInfo(attribute).Symbol?.ContainingType.Name != "ModelReaderWriterBuildableAttribute" &&
+                !IsModelReaderWriterBuildableAttribute(attribute))
+            {
+                return false;
+            }
+
+            var typeOfExpression = attribute.ArgumentList?.Arguments
+                .Select(static argument => argument.Expression)
+                .OfType<TypeOfExpressionSyntax>()
+                .FirstOrDefault();
+            if (typeOfExpression == null ||
+                model.GetTypeInfo(typeOfExpression.Type).Type is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.DeclaredAccessibility != Accessibility.Internal)
+            {
+                return false;
+            }
+
+            if (typeSymbol.BaseType is { SpecialType: not SpecialType.System_Object })
+            {
+                return false;
+            }
+
+            if (typeSymbol.Name.EndsWith("PatchUpdate", StringComparison.Ordinal) ||
+                typeSymbol.Name.StartsWith("Update", StringComparison.Ordinal) && typeSymbol.Name.EndsWith("Record", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            foreach (var referencedSymbol in await SymbolFinder.FindReferencesAsync(typeSymbol, solution))
+            {
+                foreach (var location in referencedSymbol.Locations)
+                {
+                    if (!location.Location.IsInSource)
+                    {
+                        continue;
+                    }
+
+                    var document = location.Document;
+                    var root = await document.GetSyntaxRootAsync();
+                    if (root == null)
+                    {
+                        continue;
+                    }
+
+                    var node = root.FindNode(location.Location.SourceSpan);
+                    if (node.AncestorsAndSelf().OfType<AttributeSyntax>().Any())
+                    {
+                        continue;
+                    }
+
+                    if (IsWithinTypeDeclaration(typeSymbol, node))
+                    {
+                        continue;
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsModelReaderWriterBuildableAttribute(AttributeSyntax attribute)
+        {
+            var name = attribute.Name.ToString();
+            return name.EndsWith("ModelReaderWriterBuildable", StringComparison.Ordinal) ||
+                name.EndsWith("ModelReaderWriterBuildableAttribute", StringComparison.Ordinal) ||
+                name.Contains(".ModelReaderWriterBuildableAttribute", StringComparison.Ordinal);
+        }
+
+        private static bool IsWithinTypeDeclaration(INamedTypeSymbol typeSymbol, SyntaxNode node)
+        {
+            foreach (var syntaxReference in typeSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.SyntaxTree == node.SyntaxTree && syntaxReference.Span.Contains(node.Span))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static T Measure<T>(string stepName, Func<T> action)
