@@ -1,5 +1,16 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.27
+
+### Features
+
+- [#10799](https://github.com/microsoft/typespec/pull/10799) Added support for `Http.File` response bodies. File bodies are treated as _raw_ bytes, and the `filename` is represented in the `Content-Disposition` header.
+
+### Bug Fixes
+
+- [#10799](https://github.com/microsoft/typespec/pull/10799) Fixed an issue with handling of `bytes` response bodies with content-types other than "application/json" that would cause http-server-js to emit an invalid attempt to call `Uint8Array.toJsonObject`.
+
+
 ## 0.58.0-alpha.26
 
 ### Bug Fixes

@@ -13,22 +13,34 @@ import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
-import parameters.query.QueryClient;
+import parameters.query.ConstantClient;
 import parameters.query.QueryClientBuilder;
+import parameters.query.SpecialCharClient;
 
 class QueryClientTestBase extends TestProxyTestBase {
-    protected QueryClient queryClient;
+    protected ConstantClient constantClient;
+
+    protected SpecialCharClient specialCharClient;
 
     @Override
     protected void beforeTest() {
-        QueryClientBuilder queryClientbuilder = new QueryClientBuilder()
+        QueryClientBuilder constantClientbuilder = new QueryClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
-            queryClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+            constantClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
-        queryClient = queryClientbuilder.buildClient();
+        constantClient = constantClientbuilder.buildConstantClient();
+
+        QueryClientBuilder specialCharClientbuilder = new QueryClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            specialCharClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        specialCharClient = specialCharClientbuilder.buildSpecialCharClient();
 
     }
 }

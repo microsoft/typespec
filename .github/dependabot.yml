@@ -1,134 +1,131 @@
-version: 2
 updates:
-  # Python dependencies for http-client-python
-  - package-ecosystem: "pip"
+  - commit-message:
+      include: scope
+      prefix: pip prod
+      prefix-development: pip dev
     directories:
-      - "/packages/http-client-python/eng/"
-      - "/packages/http-client-python/generator/test"
-      - "/packages/http-client-python/generator/test/azure"
-      - "/packages/http-client-python/generator/test/unbranded"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "pip prod"
-      prefix-development: "pip dev"
-      include: "scope"
+      - /packages/http-client-python/eng/
+      - /packages/http-client-python/generator/test
+      - /packages/http-client-python/generator/test/azure
+      - /packages/http-client-python/generator/test/unbranded
     labels:
-      - "emitter:client:python"
-
-  # Main pnpm workspace (npm dependencies via catalog)
-  - package-ecosystem: "npm"
-    directory: "/"
+      - emitter:client:python
+    package-ecosystem: pip
     schedule:
-      interval: "weekly"
+      interval: weekly
+  - directory: /
     exclude-paths:
-      - "packages/http-client-csharp"
-      - "packages/http-client-java"
-      - "packages/http-client-python"
-    labels: [] # conflict with our labels in labels.ts
+      - packages/http-client-csharp
+      - packages/http-client-java
+      - packages/http-client-python
     groups:
       alloy:
         patterns:
           - "@alloy-js/*"
-      types:
-        patterns:
-          - "@types/*"
-      testing:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
-          - "@playwright/test"
-          - "playwright"
-          - "@testing-library/*"
-          - "mocha"
-          - "happy-dom"
-          - "c8"
-      linting:
-        patterns:
-          - "eslint"
-          - "@eslint/*"
-          - "eslint-plugin-*"
-          - "@typescript-eslint/*"
-          - "typescript-eslint"
-          - "cspell"
-      build-tools:
-        patterns:
-          - "esbuild"
-          - "esbuild-*"
-          - "vite"
-          - "vite-*"
-          - "@vitejs/*"
-          - "typescript"
-          - "tsx"
-          - "rollup-*"
-      website:
-        patterns:
-          - "astro"
-          - "astro-*"
-          - "@astrojs/*"
-          - "@expressive-code/*"
-          - "@docsearch/*"
-          - "rehype-*"
-          - "remark-*"
-          - "typedoc"
-          - "typedoc-*"
-          - "sharp"
-      ui:
-        patterns:
-          - "react"
-          - "react-*"
-          - "@fluentui/*"
-          - "storybook"
-          - "@storybook/*"
-          - "prism-react-renderer"
-          - "clsx"
-      vscode:
-        patterns:
-          - "@vscode/*"
-          - "vscode-*"
-      formatting:
-        patterns:
-          - "prettier"
-          - "prettier-plugin-*"
-      microsoft:
-        patterns:
-          - "@microsoft/*"
-      chronus:
-        patterns:
-          - "@chronus/*"
-      tree-sitter:
-        patterns:
-          - "tree-sitter-*"
-          - "web-tree-sitter"
-      octokit:
-        patterns:
-          - "@octokit/*"
       azure:
         patterns:
           - "@azure/*"
-      yarnpkg:
-        patterns:
-          - "@yarnpkg/*"
       babel:
         patterns:
           - "@babel/*"
+      build-tools:
+        patterns:
+          - esbuild
+          - esbuild-*
+          - vite
+          - vite-*
+          - "@vitejs/*"
+          - typescript
+          - tsx
+          - rollup-*
+      chronus:
+        patterns:
+          - "@chronus/*"
+      formatting:
+        patterns:
+          - prettier
+          - prettier-plugin-*
+      linting:
+        patterns:
+          - eslint
+          - "@eslint/*"
+          - eslint-plugin-*
+          - "@typescript-eslint/*"
+          - typescript-eslint
+          - cspell
+      microsoft:
+        patterns:
+          - "@microsoft/*"
+      monaco:
+        patterns:
+          - monaco-editor
+          - monaco-editor-core
+      octokit:
+        patterns:
+          - "@octokit/*"
       scalar:
         patterns:
           - "@scalar/*"
-      monaco:
+      testing:
         patterns:
-          - "monaco-editor"
-          - "monaco-editor-core"
-
-  # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+          - vitest
+          - "@vitest/*"
+          - "@playwright/test"
+          - playwright
+          - "@testing-library/*"
+          - mocha
+          - happy-dom
+          - c8
+      tree-sitter:
+        patterns:
+          - tree-sitter-*
+          - web-tree-sitter
+      types:
+        patterns:
+          - "@types/*"
+      ui:
+        patterns:
+          - react
+          - react-*
+          - "@fluentui/*"
+          - storybook
+          - "@storybook/*"
+          - prism-react-renderer
+          - clsx
+      vscode:
+        patterns:
+          - "@vscode/*"
+          - vscode-*
+      website:
+        patterns:
+          - astro
+          - astro-*
+          - "@astrojs/*"
+          - "@expressive-code/*"
+          - "@docsearch/*"
+          - rehype-*
+          - remark-*
+          - typedoc
+          - typedoc-*
+          - sharp
+      yarnpkg:
+        patterns:
+          - "@yarnpkg/*"
+    labels: []
+    package-ecosystem: npm
     schedule:
-      interval: "weekly"
+      interval: weekly
+  - directory: /
     exclude-paths:
-      - ".github/workflows/*.lock.{yaml,yml}"
-    labels: [] # conflict with our labels in labels.ts
+      - .github/workflows/*.lock.{yaml,yml}
     groups:
       actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
+    labels: []
+    package-ecosystem: github-actions
+    schedule:
+      interval: weekly
+version: 2

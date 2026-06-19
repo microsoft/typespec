@@ -121,33 +121,15 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
     case "FunctionType":
-      return `fn (${type.parameters.map((p) => getTypeSignature(p, options)).join(", ")}): ${getMixedConstraintSignature(
-        type.returnType,
-        options,
-      )}`;
+      return fence(
+        `fn (${type.parameters.map((p) => getFunctionParameterSignature(p)).join(", ")}) => ${getEntityName(
+          type.returnType,
+        )}`,
+      );
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
-}
-
-function getMixedConstraintSignature(
-  constraint: MixedParameterConstraint,
-  options: GetSymbolSignatureOptions,
-) {
-  let result = "";
-
-  if (constraint.type) {
-    result += getTypeSignature(constraint.type, options);
-  }
-
-  if (constraint.valueType) {
-    if (result.length > 0) {
-      result += " | ";
-    }
-    result += "valueof " + getTypeSignature(constraint.valueType, options);
-  }
-  return result;
 }
 
 /** Format `T extends ...` style signatures for template parameters/access paths. */

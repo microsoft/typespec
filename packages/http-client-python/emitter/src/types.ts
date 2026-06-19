@@ -397,7 +397,8 @@ function emitEnumMember(
   }
 
   const result = {
-    name: enumName(type.name),
+    name: type.isExactName ? type.name : enumName(type.name),
+    isExactName: type.isExactName,
     value: type.value,
     description: type.summary ? type.summary : type.doc,
     enumType,
@@ -476,6 +477,13 @@ function emitBuiltInType(
         return getSimpleTypeResult(context, {
           type: type.kind,
           encode: type.encode,
+        });
+      }
+      if (type.encode === "seconds" || type.encode === "milliseconds") {
+        return getSimpleTypeResult(context, {
+          type: type.kind,
+          encode: type.encode,
+          wireType: getType(context, type.wireType),
         });
       }
     }

@@ -173,7 +173,10 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 document = document.WithSyntaxRoot(root);
 
-                document = await MeasurePostProcessingStepAsync("Roslyn.Simplifier.ReduceAsync", () => Simplifier.ReduceAsync(document));
+                if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+                {
+                    document = await MeasurePostProcessingStepAsync("Roslyn.Simplifier.ReduceAsync", () => Simplifier.ReduceAsync(document));
+                }
 
                 // Reformat if any custom rewriters have been applied
                 if (CodeModelGenerator.Instance.Rewriters.Count > 0)

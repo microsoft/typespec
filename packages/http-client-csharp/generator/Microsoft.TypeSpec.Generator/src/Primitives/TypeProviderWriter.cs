@@ -19,9 +19,20 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.DisableStatement.Write(writer);
+            }
+
             using (var ns = writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
+            }
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.RestoreStatement.Write(writer);
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }

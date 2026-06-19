@@ -88,6 +88,7 @@ export interface InputPrimitiveType extends InputTypeBase {
   encode?: string; // In TCGC this is required, and when there is no encoding, it just has the same value as kind
   crossLanguageDefinitionId: string;
   baseType?: InputPrimitiveType;
+  isFileType?: boolean;
 }
 
 export interface InputLiteralType extends InputTypeBase {
@@ -166,6 +167,11 @@ export interface InputModelType extends InputTypeBase {
   serializationOptions: SerializationOptions;
   /** Whether the name should be used exactly as-is, without casing transformations. */
   isExactName?: boolean;
+  /**
+   * Whether the type represents a file. Only set on types that can represent a file in TCGC
+   * (the http `File` model); otherwise left undefined.
+   */
+  isFileType?: boolean;
 }
 
 export interface InputPropertyTypeBase extends DecoratedType {
