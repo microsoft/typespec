@@ -1,6 +1,12 @@
 import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
-import { Attribute, createCSharpNamePolicy, EnumDeclaration as CsEnumDeclaration, EnumMember, SourceFile } from "@alloy-js/csharp";
+import {
+  Attribute,
+  createCSharpNamePolicy,
+  EnumDeclaration as CsEnumDeclaration,
+  EnumMember,
+  SourceFile,
+} from "@alloy-js/csharp";
 import { type Union } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { Output } from "@typespec/emitter-framework";
