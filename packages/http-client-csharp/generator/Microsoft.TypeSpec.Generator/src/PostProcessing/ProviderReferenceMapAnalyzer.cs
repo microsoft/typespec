@@ -32,11 +32,13 @@ namespace Microsoft.TypeSpec.Generator
             // Generated-code dependencies come from providers. Custom code still needs Roslyn
             // because arbitrary user C# can reference generated types in ways providers cannot see.
             var existingGeneratedPublicRoots = GetExistingGeneratedPublicTypeRoots(graph.Nodes);
+            var existingGeneratedPublicXmlDocRoots = GetExistingGeneratedPublicXmlDocTypeRoots(graph.Nodes);
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(project, graph.Nodes);
             customPublicRoots.UnionWith(GetApiBaselineGeneratedTypeRoots(graph.Nodes));
             customPublicRoots.UnionWith(existingGeneratedPublicRoots);
             var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
             customRemovalRoots.UnionWith(existingGeneratedPublicRoots);
+            customRemovalRoots.UnionWith(existingGeneratedPublicXmlDocRoots);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(project, graph.Nodes);
 
@@ -90,8 +92,9 @@ namespace Microsoft.TypeSpec.Generator
 
             var removeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: false);
             removeRoots.UnionWith(customRemovalRoots);
+            RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, project);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
-            var removeHelperRoots = GetHelperRootNames(providers, graph.Nodes, removeReachableWithoutHelpers);
+            var removeHelperRoots = GetHelperRootNames(providers, graph.Nodes, removeReachableWithoutHelpers, graph.References);
             removeRoots.UnionWith(removeHelperRoots);
             var removeReachable = GetReachableTypes(removeRoots, graph.References);
             var removeDeclaredNodes = GetPostProcessorDeclaredNodes(providers, graph.Nodes, publicOnly: false);
@@ -288,6 +291,48 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
+        private static HashSet<string> GetExistingGeneratedPublicXmlDocTypeRoots(HashSet<string> generatedTypeNames)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            var generatedDirectory = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+            if (string.IsNullOrEmpty(generatedDirectory) || !Directory.Exists(generatedDirectory))
+            {
+                return roots;
+            }
+
+            foreach (var file in Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories))
+            {
+                var text = File.ReadAllText(file);
+                if (!text.Contains("public", StringComparison.Ordinal) || !text.Contains("cref", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var root = CSharpSyntaxTree.ParseText(text).GetRoot();
+                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
+                {
+                    AddXmlDocCrefRoots(roots, declaration.GetLeadingTrivia(), generatedTypeNames);
+                    foreach (var member in declaration.DescendantNodes().OfType<MemberDeclarationSyntax>())
+                    {
+                        AddXmlDocCrefRoots(roots, member.GetLeadingTrivia(), generatedTypeNames);
+                    }
+                }
+            }
+
+            return roots;
+        }
+
+        private static void AddXmlDocCrefRoots(HashSet<string> roots, SyntaxTriviaList trivia, HashSet<string> generatedTypeNames)
+        {
+            foreach (var structuredTrivia in trivia.Select(static item => item.GetStructure()).OfType<DocumentationCommentTriviaSyntax>())
+            {
+                foreach (var cref in structuredTrivia.DescendantNodes().OfType<XmlCrefAttributeSyntax>())
+                {
+                    AddMatchingName(roots, cref.Cref.ToString(), generatedTypeNames);
+                }
+            }
+        }
+
         private static bool ContainsApiTypeReference(string apiText, string fullName, string simpleName)
         {
             var fullNamePattern = $@"(?<![\w.]){Regex.Escape(fullName)}(?!\s*<)(?![\w.])";
@@ -443,10 +488,25 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            AddMatchingName(roots, namedType.GetFullyQualifiedName(), generatedTypeNames);
+            AddMatchingSymbolName(roots, namedType, generatedTypeNames);
             foreach (var typeArgument in namedType.TypeArguments)
             {
                 AddSymbolRoot(roots, typeArgument, generatedTypeNames);
+            }
+        }
+
+        private static void AddMatchingSymbolName(HashSet<string> target, INamedTypeSymbol symbol, HashSet<string> generatedTypeNames)
+        {
+            AddMatchingName(target, symbol.Name, generatedTypeNames);
+
+            try
+            {
+                AddMatchingName(target, symbol.GetFullyQualifiedName(), generatedTypeNames);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // Some custom-code symbols cannot be represented by the legacy fully-qualified-name
+                // helper. A simple-name match is enough to discover generated roots.
             }
         }
 
@@ -990,7 +1050,11 @@ namespace Microsoft.TypeSpec.Generator
             return relativePath.EndsWith("ModelFactory.cs", StringComparison.Ordinal);
         }
 
-        private static HashSet<string> GetHelperRootNames(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, HashSet<string> reachableTypes)
+        private static HashSet<string> GetHelperRootNames(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes,
+            HashSet<string> reachableTypes,
+            IReadOnlyDictionary<string, HashSet<string>>? references = null)
         {
             var roots = new HashSet<string>(StringComparer.Ordinal);
             foreach (var provider in GetGeneratedProviders(providers))
@@ -1002,7 +1066,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes);
+                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes, references == null ? null : references[providerName]);
 
                 foreach (var property in provider.Properties)
                 {
@@ -1054,12 +1118,61 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void AddHelperDependencies(HashSet<string> roots, IReadOnlyList<string> dependencies, HashSet<string> nodes)
+        private static void AddHelperDependencies(
+            HashSet<string> roots,
+            IReadOnlyList<string> dependencies,
+            HashSet<string> nodes,
+            HashSet<string>? referencedNames)
         {
             foreach (var dependency in dependencies)
             {
-                AddMatchingName(roots, dependency, nodes);
+                if (referencedNames == null)
+                {
+                    AddMatchingName(roots, dependency, nodes);
+                    continue;
+                }
+
+                var matches = new HashSet<string>(StringComparer.Ordinal);
+                AddMatchingName(matches, dependency, nodes);
+                roots.UnionWith(matches.Intersect(referencedNames, StringComparer.Ordinal));
             }
+        }
+
+        private static void RemoveUnusedRequestHeaderExtensionsRoot(
+            HashSet<string> roots,
+            IReadOnlyDictionary<string, HashSet<string>> references,
+            Project project)
+        {
+            var hasCustomReference = HasCustomRequestHeaderExtensionsReference(project);
+            var unusedRequestHeaderExtensions = roots
+                .Where(static root => root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal))
+                .Where(_ => !hasCustomReference)
+                .Where(root => !references.Any(reference =>
+                    !string.Equals(reference.Key, root, StringComparison.Ordinal) &&
+                    reference.Value.Contains(root)))
+                .ToArray();
+
+            roots.ExceptWith(unusedRequestHeaderExtensions);
+        }
+
+        private static bool HasCustomRequestHeaderExtensionsReference(Project project)
+        {
+            foreach (var document in project.Documents)
+            {
+                if (IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                var text = document.GetTextAsync().GetAwaiter().GetResult().ToString();
+                if (text.Contains("RequestHeaderExtensions", StringComparison.Ordinal) ||
+                    text.Contains("SetDelimited", StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsSerializationProvider(TypeProvider provider)

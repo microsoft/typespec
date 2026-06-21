@@ -124,13 +124,29 @@ namespace Microsoft.TypeSpec.Generator
 
             await generatedCodeWorkspace.PostProcessAsync();
 
-            // Write the generated files to the output directory
+            var generatedFiles = new List<(string Name, string Text)>();
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
             {
                 if (string.IsNullOrEmpty(file.Text))
                 {
                     continue;
                 }
+
+                generatedFiles.Add((file.Name, file.Text));
+            }
+
+            var usesRequestHeaderExtensions = generatedFiles.Any(static file =>
+                !file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) &&
+                file.Text.Contains(".SetDelimited(", StringComparison.Ordinal));
+
+            // Write the generated files to the output directory
+            foreach (var file in generatedFiles)
+            {
+                if (file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) && !usesRequestHeaderExtensions)
+                {
+                    continue;
+                }
+
                 var filename = Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
