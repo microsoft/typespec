@@ -869,8 +869,32 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddBodyTypeReference(graph.References[ownerName], semanticModel.GetTypeInfo(typeSyntax).Type, graph.Nodes);
+                    var typeInfo = semanticModel.GetTypeInfo(typeSyntax).Type;
+                    AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
+                    AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
                 }
+            }
+        }
+
+        private static void AddUnresolvedBodyTypeSyntaxReference(HashSet<string> references, TypeSyntax typeSyntax, ITypeSymbol? symbol, HashSet<string> nodes)
+        {
+            if (symbol is INamedTypeSymbol { TypeKind: not TypeKind.Error })
+            {
+                return;
+            }
+
+            var simpleName = typeSyntax switch
+            {
+                QualifiedNameSyntax qualifiedName => qualifiedName.Right.Identifier.ValueText,
+                AliasQualifiedNameSyntax aliasQualifiedName => aliasQualifiedName.Name.Identifier.ValueText,
+                GenericNameSyntax genericName => genericName.Identifier.ValueText,
+                IdentifierNameSyntax identifierName => identifierName.Identifier.ValueText,
+                _ => null
+            };
+
+            if (simpleName != null)
+            {
+                AddMatchingName(references, simpleName, nodes);
             }
         }
 
@@ -1211,6 +1235,11 @@ namespace Microsoft.TypeSpec.Generator
             if (type is { IsList: true, IsReadOnlyMemory: false })
             {
                 AddMatchingName(roots, "ChangeTrackingList", nodes);
+            }
+
+            if (type.IsDictionary)
+            {
+                AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
             }
 
             foreach (var argument in type.Arguments)
