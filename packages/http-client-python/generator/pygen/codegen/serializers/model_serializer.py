@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Optional
+from typing import Any, Optional
 from abc import ABC, abstractmethod
 
 from ..models import ModelType, Property, ConstantType, EnumValue, EnumType
@@ -73,12 +73,19 @@ def _get_xml_deserializer_enum_type(prop: Property) -> Optional[EnumType]:
     return prop_type if isinstance(prop_type, EnumType) else None
 
 
-def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> list[str]:
+def _documentation_string(
+    prop: Property, description_keyword: str, docstring_type_keyword: str, **kwargs: Any
+) -> list[str]:
     retval: list[str] = []
     sphinx_prefix = f":{description_keyword} {prop.client_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
-    retval.append(f":{docstring_type_keyword} {prop.client_name}: {prop.type.docstring_type()}")
+    # In the types file, use type_annotation (the serialized form) for docstrings
+    if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+        doc_type = prop.type.type_annotation(**kwargs)
+    else:
+        doc_type = prop.type.docstring_type(**kwargs)
+    retval.append(f":{docstring_type_keyword} {prop.client_name}: {doc_type}")
     return retval
 
 

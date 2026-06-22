@@ -46,10 +46,6 @@ class NamespaceType(str, Enum):
 
 LOCALS_LENGTH_LIMIT = 25
 
-REQUEST_BUILDER_BODY_VARIABLES_LENGTH = (
-    6  # how many body variables are present in a request builder
-)
+REQUEST_BUILDER_BODY_VARIABLES_LENGTH = 6  # how many body variables are present in a request builder
 
-OPERATION_BODY_VARIABLES_LENGTH = (
-    14  # how many body variables are present in an operation
-)
+OPERATION_BODY_VARIABLES_LENGTH = 14  # how many body variables are present in an operation

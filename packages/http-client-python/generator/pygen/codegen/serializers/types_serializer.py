@@ -253,7 +253,7 @@ class TypesSerializer(BaseSerializer):
 
     @staticmethod
     def variable_documentation_string(prop: Property) -> list[str]:
-        return _documentation_string(prop, "ivar", "vartype")
+        return _documentation_string(prop, "ivar", "vartype", serialize_namespace_type=NamespaceType.TYPES_FILE)
 
     def serialize(self) -> str:
         template = self.env.get_template("types.py.jinja2")

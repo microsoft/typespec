@@ -36,18 +36,14 @@ def update_overload_section(
             if overload_s.get("type"):
                 overload_s["type"] = original_s["type"]
             if overload_s.get("headers"):
-                for overload_h, original_h in zip(
-                    overload_s["headers"], original_s["headers"]
-                ):
+                for overload_h, original_h in zip(overload_s["headers"], original_s["headers"]):
                     if overload_h.get("type"):
                         overload_h["type"] = original_h["type"]
     except KeyError as exc:
         raise ValueError(overload["name"]) from exc
 
 
-def add_overload(
-    yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatten_params=False
-):
+def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatten_params=False):
     overload = copy.deepcopy(yaml_data)
     overload["isOverload"] = True
     overload["bodyParameter"]["type"] = body_type
@@ -59,9 +55,7 @@ def add_overload(
     if for_flatten_params:
         overload["bodyParameter"]["flattened"] = True
     else:
-        overload["parameters"] = [
-            p for p in overload["parameters"] if not p.get("inFlattenedBody")
-        ]
+        overload["parameters"] = [p for p in overload["parameters"] if not p.get("inFlattenedBody")]
     # for yaml sync, we need to make sure all of the responses, parameters, and exceptions' types have the same yaml id
     for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
         overload_p["type"] = original_p["type"]
@@ -69,9 +63,7 @@ def add_overload(
     update_overload_section(overload, yaml_data, "exceptions")
 
     # update content type to be an overloads content type
-    content_type_param = next(
-        p for p in overload["parameters"] if p["wireName"].lower() == "content-type"
-    )
+    content_type_param = next(p for p in overload["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = True
     content_type_param["inDocstring"] = True
     body_type_description = get_body_type_for_description(overload["bodyParameter"])
@@ -94,25 +86,16 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     body_parameter = yaml_data["bodyParameter"]
     if not (
         body_parameter["type"]["type"] == "combined"
-        and len(yaml_data["bodyParameter"]["type"]["types"])
-        > len(yaml_data["overloads"])
+        and len(yaml_data["bodyParameter"]["type"]["types"]) > len(yaml_data["overloads"])
     ):
         return
     for body_type in body_parameter["type"]["types"]:
-        if any(
-            o
-            for o in yaml_data["overloads"]
-            if id(o["bodyParameter"]["type"]) == id(body_type)
-        ):
+        if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
-            yaml_data["overloads"].append(
-                add_overload(yaml_data, body_type, for_flatten_params=True)
-            )
+            yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
-    content_type_param = next(
-        p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type"
-    )
+    content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
     content_type_param["inOverridden"] = True
     content_type_param["inDocstring"] = True
@@ -122,19 +105,13 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     content_type_param["optional"] = True
 
 
-def update_description(
-    description: Optional[str], default_description: str = ""
-) -> str:
+def update_description(description: Optional[str], default_description: str = "") -> str:
     if not description:
         description = default_description
     description.rstrip(" ")
     # Don't append a trailing period when the description ends with a code block: the
     # period would land inside the rendered literal block (e.g. "]." ) and break Sphinx.
-    if (
-        description
-        and description[-1] != "."
-        and not description_ends_with_code_block(description)
-    ):
+    if description and description[-1] != "." and not description_ends_with_code_block(description):
         description += "."
     return description
 
@@ -197,9 +174,7 @@ def _get_etag_role(parameter: dict[str, Any]) -> Optional[str]:
     return parameter.get("etagRole")
 
 
-def _pick_etag_slot(
-    candidates: list[dict[str, Any]], standard_wire_name: str
-) -> Optional[dict[str, Any]]:
+def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -> Optional[dict[str, Any]]:
     """Choose which etag-typed header should be promoted to the etag/match_condition slot.
 
     When more than one etag-typed header is present in an operation, prefer the
@@ -227,25 +202,16 @@ def _resolve_etag_pair(
     Returns (property_if_match, property_if_none_match) — both None when
     there are no etag candidates.
     """
-    property_if_match = _pick_etag_slot(
-        if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME
-    )
-    property_if_none_match = _pick_etag_slot(
-        if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME
-    )
+    property_if_match = _pick_etag_slot(if_match_candidates, STANDARD_IF_MATCH_WIRE_NAME)
+    property_if_none_match = _pick_etag_slot(if_none_match_candidates, STANDARD_IF_NONE_MATCH_WIRE_NAME)
 
     # Ensure the promoted pair come from the same family.  When one slot is
     # standard and the other custom (cross-family), replace the custom slot
     # with a synthetic standard partner.  Also synthesize the missing partner
     # when only one side is present.
     if property_if_match and property_if_none_match:
-        match_is_std = (
-            get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
-        )
-        none_match_is_std = (
-            get_wire_name_lower(property_if_none_match)
-            == STANDARD_IF_NONE_MATCH_WIRE_NAME
-        )
+        match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
+        none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
         if match_is_std and not none_match_is_std:
             property_if_none_match = property_if_match.copy()
             property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
@@ -293,15 +259,11 @@ def _process_operation_etag_headers(
             elif role == "ifNoneMatch":
                 if_none_match_candidates.append(p)
 
-    property_if_match, property_if_none_match = _resolve_etag_pair(
-        if_match_candidates, if_none_match_candidates
-    )
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
 
     if property_if_match and property_if_none_match:
         etag_params = {id(property_if_match), id(property_if_none_match)}
-        operation["parameters"] = [
-            item for item in operation["parameters"] if id(item) not in etag_params
-        ] + [
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
             property_if_match,
             property_if_none_match,
         ]
@@ -320,9 +282,7 @@ def has_json_content_type(yaml_data: dict[str, Any]) -> bool:
 
 
 def has_multi_part_content_type(yaml_data: dict[str, Any]) -> bool:
-    return any(
-        ct for ct in yaml_data.get("contentTypes", []) if ct == "multipart/form-data"
-    )
+    return any(ct for ct in yaml_data.get("contentTypes", []) if ct == "multipart/form-data")
 
 
 class PreProcessPlugin(YamlUpdatePlugin):
@@ -353,18 +313,34 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if (  # pylint: disable=too-many-boolean-expressions
             body_parameter
             and body_parameter["type"]["type"] in ("model", "dict", "list")
-            and (
-                has_json_content_type(body_parameter)
-                or (self.is_tsp and has_multi_part_content_type(body_parameter))
-            )
+            and (has_json_content_type(body_parameter) or (self.is_tsp and has_multi_part_content_type(body_parameter)))
             and not body_parameter["type"].get("xmlMetadata")
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
+            # In typeddict-only mode, create a combined type with just the typeddict type.
+            # This produces a single overload with body: TypedDictType, while the main
+            # method keeps spread params as keyword-only.
+            if self.options["models-mode"] == "typeddict":
+                origin_type = body_parameter["type"]["type"]
+                model_type = (
+                    body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
+                )
+                if model_type.get("base") in ("dpg", "json"):
+                    model_type["base"] = "typeddict"
+                td_type = body_parameter["type"]
+                body_parameter["type"] = {
+                    "type": "combined",
+                    "types": [td_type],
+                }
+                # Ensure the typeddict type is registered so it can be resolved by id
+                if td_type not in code_model["types"]:
+                    code_model["types"].append(td_type)
+                code_model["types"].append(body_parameter["type"])
+                return
+
             origin_type = body_parameter["type"]["type"]
             model_type = (
-                body_parameter["type"]
-                if origin_type == "model"
-                else body_parameter["type"].get("elementType", {})
+                body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
             )
             is_dpg_model = model_type.get("base") == "dpg"
             body_parameter["type"] = {
@@ -388,19 +364,14 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     code_model["types"].append(td_list_or_dict["elementType"])
             code_model["types"].append(body_parameter["type"])
 
-    def pad_reserved_words(
-        self, name: str, pad_type: PadType, yaml_type: dict[str, Any]
-    ) -> str:
+    def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
         if not name:
             # we'll pass in empty operation groups sometime etc.
             return name
 
         if self.is_tsp:
-            reserved_words = {
-                k: (v + TSP_RESERVED_WORDS.get(k, []))
-                for k, v in RESERVED_WORDS.items()
-            }
+            reserved_words = {k: (v + TSP_RESERVED_WORDS.get(k, [])) for k, v in RESERVED_WORDS.items()}
         else:
             reserved_words = RESERVED_WORDS
         name = pad_special_chars(name)
@@ -417,24 +388,18 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def update_types(self, yaml_data: list[dict[str, Any]]) -> None:
         for type in yaml_data:
             for property in type.get("properties", []):
-                property["description"] = update_description(
-                    property.get("description", "")
-                )
+                property["description"] = update_description(property.get("description", ""))
                 if not property.get("isExactName", False):
                     property["clientName"] = self.pad_reserved_words(
                         property["clientName"].lower(), PadType.PROPERTY, property
                     )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
-                pad_type = (
-                    PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
-                )
+                pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 if type["type"] != "enumvalue":
                     name = self.pad_reserved_words(type["name"], pad_type, type)
                     type["name"] = name[0].upper() + name[1:]
-                type["description"] = update_description(
-                    type.get("description", ""), type["name"]
-                )
+                type["description"] = update_description(type.get("description", ""), type["name"])
                 type["snakeCaseName"] = to_snake_case(type["name"])
             if type.get("values"):
                 # we're enums - enum values are UPPER_CASE so no padding needed for reserved words
@@ -452,24 +417,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data.append(CLOUD_SETTING["type"])  # type: ignore
 
     def update_client(self, yaml_data: dict[str, Any]) -> None:
-        yaml_data["description"] = update_description(
-            yaml_data["description"], default_description=yaml_data["name"]
-        )
+        yaml_data["description"] = update_description(yaml_data["description"], default_description=yaml_data["name"])
         yaml_data["legacyFilename"] = to_snake_case(yaml_data["name"].replace(" ", "_"))
         parameters = yaml_data["parameters"]
         for parameter in parameters:
             self.update_parameter(parameter)
             if parameter["clientName"] == "credential":
                 policy = parameter["type"].get("policy")
-                if (
-                    policy
-                    and policy["type"] == "BearerTokenCredentialPolicy"
-                    and self.azure_arm
-                ):
+                if policy and policy["type"] == "BearerTokenCredentialPolicy" and self.azure_arm:
                     policy["type"] = "ARMChallengeAuthenticationPolicy"
-                    policy["credentialScopes"] = [
-                        "https://management.azure.com/.default"
-                    ]
+                    policy["credentialScopes"] = ["https://management.azure.com/.default"]
         if (
             (not self.version_tolerant or self.azure_arm)
             and parameters
@@ -489,9 +446,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if self.azure_arm and yaml_data["parameters"]:
             yaml_data["parameters"].append(CLOUD_SETTING)
 
-    def get_operation_updater(
-        self, yaml_data: dict[str, Any]
-    ) -> Callable[[dict[str, Any], dict[str, Any]], None]:
+    def get_operation_updater(self, yaml_data: dict[str, Any]) -> Callable[[dict[str, Any], dict[str, Any]], None]:
         if yaml_data["discriminator"] == "lropaging":
             return self.update_lro_paging_operation
         if yaml_data["discriminator"] == "lro":
@@ -503,8 +458,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
         if not yaml_data.get("isExactName", False) and not (
-            yaml_data["location"] == "header"
-            and yaml_data["clientName"] in ("content_type", "accept")
+            yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")
         ):
             yaml_data["clientName"] = self.pad_reserved_words(
                 yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
@@ -520,16 +474,13 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 prop: (
                     param_name
                     if prop in exact_name_props
-                    else self.pad_reserved_words(
-                        param_name, PadType.PARAMETER, yaml_data
-                    ).lower()
+                    else self.pad_reserved_words(param_name, PadType.PARAMETER, yaml_data).lower()
                 )
                 for prop, param_name in yaml_data["propertyToParameterName"].items()
             }
         wire_name_lower = (yaml_data.get("wireName") or "").lower()
         if yaml_data["location"] == "header" and (
-            wire_name_lower in HEADERS_HIDE_IN_METHOD
-            or yaml_data.get("clientDefaultValue") == "multipart/form-data"
+            wire_name_lower in HEADERS_HIDE_IN_METHOD or yaml_data.get("clientDefaultValue") == "multipart/form-data"
         ):
             yaml_data["hideInMethod"] = True
         if self.version_tolerant and yaml_data["location"] == "header":
@@ -538,10 +489,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 headers_convert(yaml_data, ETAG_MATCH_DATA)
             elif role == "ifNoneMatch":
                 headers_convert(yaml_data, ETAG_NONE_MATCH_DATA)
-        if (
-            wire_name_lower in ["$host", "content-type", "accept"]
-            and yaml_data["type"]["type"] == "constant"
-        ):
+        if wire_name_lower in ["$host", "content-type", "accept"] and yaml_data["type"]["type"] == "constant":
             yaml_data["clientDefaultValue"] = yaml_data["type"]["value"]
 
     def update_operation(
@@ -551,17 +499,13 @@ class PreProcessPlugin(YamlUpdatePlugin):
         *,
         is_overload: bool = False,
     ) -> None:
-        yaml_data["groupName"] = self.pad_reserved_words(
-            yaml_data["groupName"], PadType.OPERATION_GROUP, yaml_data
-        )
+        yaml_data["groupName"] = self.pad_reserved_words(yaml_data["groupName"], PadType.OPERATION_GROUP, yaml_data)
         yaml_data["groupName"] = to_snake_case(yaml_data["groupName"])
         if yaml_data.get("isExactName", False):
             # exact() client name: keep the operation name as-is without lowercasing,
             # snake-casing, or padding reserved words.
             if yaml_data.get("isLroInitialOperation") is True:
-                yaml_data["name"] = (
-                    "_" + extract_original_name(yaml_data["name"]) + "_initial"
-                )
+                yaml_data["name"] = "_" + extract_original_name(yaml_data["name"]) + "_initial"
         else:
             yaml_data["name"] = yaml_data["name"].lower()
             if yaml_data.get("isLroInitialOperation") is True:
@@ -575,12 +519,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     + "_initial"
                 )
             else:
-                yaml_data["name"] = self.pad_reserved_words(
-                    yaml_data["name"], PadType.METHOD, yaml_data
-                )
-        yaml_data["description"] = update_description(
-            yaml_data["description"], yaml_data["name"]
-        )
+                yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
+        yaml_data["description"] = update_description(yaml_data["description"], yaml_data["name"])
         yaml_data["summary"] = update_description(yaml_data.get("summary", ""))
         body_parameter = yaml_data.get("bodyParameter")
         for parameter in yaml_data["parameters"]:
@@ -601,12 +541,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def _update_lro_operation_helper(self, yaml_data: dict[str, Any]) -> None:
         for response in yaml_data.get("responses", []):
             response["discriminator"] = "lro"
-            response["pollerSync"] = (
-                response.get("pollerSync") or "azure.core.polling.LROPoller"
-            )
-            response["pollerAsync"] = (
-                response.get("pollerAsync") or "azure.core.polling.AsyncLROPoller"
-            )
+            response["pollerSync"] = response.get("pollerSync") or "azure.core.polling.LROPoller"
+            response["pollerAsync"] = response.get("pollerAsync") or "azure.core.polling.AsyncLROPoller"
             if not response.get("pollingMethodSync"):
                 response["pollingMethodSync"] = (
                     "azure.mgmt.core.polling.arm_polling.ARMPolling"
@@ -628,9 +564,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         item_type: Optional[dict[str, Any]] = None,
     ) -> None:
         self.update_lro_operation(code_model, yaml_data, is_overload=is_overload)
-        self.update_paging_operation(
-            code_model, yaml_data, is_overload=is_overload, item_type=item_type
-        )
+        self.update_paging_operation(code_model, yaml_data, is_overload=is_overload, item_type=item_type)
         yaml_data["discriminator"] = "lropaging"
         for response in yaml_data.get("responses", []):
             response["discriminator"] = "lropaging"
@@ -653,16 +587,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 response["type"] = KNOWN_TYPES["binary"]
 
         self.update_operation(code_model, yaml_data, is_overload=is_overload)
-        self.update_operation(
-            code_model, yaml_data["initialOperation"], is_overload=is_overload
-        )
+        self.update_operation(code_model, yaml_data["initialOperation"], is_overload=is_overload)
         convert_initial_operation_response_type(yaml_data["initialOperation"])
         self._update_lro_operation_helper(yaml_data)
         for overload in yaml_data.get("overloads", []):
             self._update_lro_operation_helper(overload)
-            self.update_operation(
-                code_model, overload["initialOperation"], is_overload=True
-            )
+            self.update_operation(code_model, overload["initialOperation"], is_overload=True)
             convert_initial_operation_response_type(overload["initialOperation"])
 
     def update_paging_operation(
@@ -680,9 +610,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 PadType.OPERATION_GROUP,
                 yaml_data["nextOperation"],
             )
-            yaml_data["nextOperation"]["groupName"] = to_snake_case(
-                yaml_data["nextOperation"]["groupName"]
-            )
+            yaml_data["nextOperation"]["groupName"] = to_snake_case(yaml_data["nextOperation"]["groupName"])
             for response in yaml_data["nextOperation"].get("responses", []):
                 update_paging_response(response)
                 response["itemType"] = item_type
@@ -690,13 +618,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
             update_paging_response(response)
             response["itemType"] = item_type
         for overload in yaml_data.get("overloads", []):
-            self.update_paging_operation(
-                code_model, overload, is_overload=True, item_type=item_type
-            )
+            self.update_paging_operation(code_model, overload, is_overload=True, item_type=item_type)
 
-    def update_operation_groups(
-        self, code_model: dict[str, Any], client: dict[str, Any]
-    ) -> None:
+    def update_operation_groups(self, code_model: dict[str, Any], client: dict[str, Any]) -> None:
         operation_groups_yaml_data = client.get("operationGroups", [])
         for operation_group in operation_groups_yaml_data:
             operation_group["identifyName"] = self.pad_reserved_words(
@@ -704,17 +628,13 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 PadType.OPERATION_GROUP,
                 operation_group,
             )
-            operation_group["identifyName"] = to_snake_case(
-                operation_group["identifyName"]
-            )
+            operation_group["identifyName"] = to_snake_case(operation_group["identifyName"])
             operation_group["propertyName"] = self.pad_reserved_words(
                 operation_group["propertyName"],
                 PadType.OPERATION_GROUP,
                 operation_group,
             )
-            operation_group["propertyName"] = to_snake_case(
-                operation_group["propertyName"]
-            )
+            operation_group["propertyName"] = to_snake_case(operation_group["propertyName"])
             operation_group["className"] = update_operation_group_class_name(
                 client["name"], operation_group["className"]
             )
@@ -738,6 +658,4 @@ class PreProcessPlugin(YamlUpdatePlugin):
 if __name__ == "__main__":
     # TSP pipeline will call this
     args, unknown_args = parse_args()
-    PreProcessPlugin(
-        output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args
-    ).process()
+    PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
