@@ -390,6 +390,35 @@ export type Decorators = {
     });
   });
 
+  describe("function signatures", () => {
+    it("includes @param doc comment", async () => {
+      await expectSignatures({
+        code: `
+  #suppress "experimental-feature"
+  /**
+   * Some doc comment
+   *
+   * @param arg This is the argument
+   */
+  extern fn simple(arg);`,
+        expected: `
+import type { FunctionContext, Type } from "@typespec/compiler";
+
+/**
+ * Some doc comment
+ *
+ * @param arg This is the argument
+ */
+export type SimpleFunctionImplementation = (context: FunctionContext, arg: Type) => Type;
+
+export type Functions = {
+  simple: SimpleFunctionImplementation;
+};
+    `,
+      });
+    });
+  });
+
   it("include @param doc comment", async () => {
     await expectSignatures({
       code: `

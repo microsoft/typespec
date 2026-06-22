@@ -46,4 +46,6 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 **Type:** `string`
 
+**Default:** `"test-package"`
+
 Name of the package as it will be in package.json

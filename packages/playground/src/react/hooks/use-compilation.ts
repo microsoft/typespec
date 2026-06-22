@@ -1,4 +1,3 @@
-import type { CompilerOptions } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { MarkerSeverity, MarkerTag, editor } from "monaco-editor";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,7 +10,8 @@ import type { CompilationState } from "../types.js";
 export interface UseCompilationOptions {
   host: BrowserHost;
   selectedEmitter: string;
-  compilerOptions: CompilerOptions;
+  /** Raw tspconfig.yaml content used to configure the compilation. */
+  tspconfig: string;
   typespecModel: editor.ITextModel;
 }
 
@@ -25,7 +25,7 @@ export interface UseCompilationResult {
 export function useCompilation({
   host,
   selectedEmitter,
-  compilerOptions,
+  tspconfig,
   typespecModel,
 }: UseCompilationOptions): UseCompilationResult {
   const [compilationState, setCompilationState] = useState<CompilationState | undefined>(undefined);
@@ -57,7 +57,7 @@ export function useCompilation({
     setIsCompiling(true);
     let state: CompilationState;
     try {
-      state = await compile(host, currentContent, selectedEmitter, compilerOptions);
+      state = await compile(host, currentContent, selectedEmitter, tspconfig);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Compilation failed", error);
@@ -121,7 +121,7 @@ export function useCompilation({
       pendingRecompileRef.current = false;
       void doCompileRef.current();
     }
-  }, [host, selectedEmitter, compilerOptions, typespecModel]);
+  }, [host, selectedEmitter, tspconfig, typespecModel]);
 
   useEffect(() => {
     doCompileRef.current = doCompile;

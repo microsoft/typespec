@@ -16,7 +16,7 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.lang.reflect.InvocationTargetException;
-import type.file.UploadFileMultipleContentTypesContentType;
+import type.file.body.UploadFileMultipleContentTypesContentType;
 
 /**
  * An instance of this class provides access to all the operations defined in Bodies.

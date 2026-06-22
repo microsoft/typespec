@@ -125,6 +125,7 @@ describe("Configuration tests", async () => {
       "package-name": "custom-package",
       "unreferenced-types-handling": "removeOrInternalize",
       "disable-xml-docs": true,
+      "disable-roslyn-reduce": true,
       license: {
         name: "Custom License",
         company: "Custom Company",
@@ -141,6 +142,7 @@ describe("Configuration tests", async () => {
     expect(config["package-name"]).toBe("custom-package");
     expect(config["unreferenced-types-handling"]).toBe("removeOrInternalize");
     expect(config["disable-xml-docs"]).toBe(true);
+    expect(config["disable-roslyn-reduce"]).toBe(true);
     expect(config.license).toEqual({
       name: "Custom License",
       company: "Custom Company",

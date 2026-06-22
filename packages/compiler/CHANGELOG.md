@@ -1,5 +1,96 @@
 # Change Log - @typespec/compiler
 
+## 1.13.0
+
+### Deprecations
+
+- [#10876](https://github.com/microsoft/typespec/pull/10876) Deprecated `deepClone` utility in favor of `structuredClone`. All internal usages have been replaced with the native `structuredClone` API.
+
+### Features
+
+- [#10897](https://github.com/microsoft/typespec/pull/10897) `ApplyCodeFixExpect.toEqual` now accepts `Record<string, string>` to assert on multiple files after a code fix is applied. This enables testing code fixes that write to a different file (e.g., adding augment decorators to a `client.tsp`).
+  
+  ```ts
+  await ruleTester
+    .expect({
+      "main.tsp": `import "./client.tsp";\nmodel Foo { name: string; }`,
+      "client.tsp": ``,
+    })
+    .applyCodeFix("add-client-override")
+    .toEqual({
+      "client.tsp": `@@override(Foo.name, "clientName");\n`,
+    });
+  ```
+- [#10548](https://github.com/microsoft/typespec/pull/10548) Add `kind: project` and `entrypoint` support to `tspconfig.yaml` for defining project boundaries and entrypoint resolution. See [Project Configuration](https://typespec.io/docs/handbook/configuration/configuration#project-configuration) for more details.
+  
+  ```yaml title=tspconfig.yaml
+  kind: project
+  entrypoint: src/service.tsp
+  emit:
+    - "@typespec/openapi3"
+  ```
+- [#10694](https://github.com/microsoft/typespec/pull/10694) Added support for accessing late-bound members on models that use template spreads or `is` bases.
+  
+  Previously, accessing a member that was introduced via a template instantiation would fail with an `invalid-ref` error:
+  
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User is Template<{name: string}>;
+  
+  alias UserName = User.name; // ❌ previously: "Model doesn't have member name"
+  ```
+  
+  Now, the compiler will force-evaluate the container type when a member lookup fails on a model with unknown members (from template spreads or `is`), making late-bound members accessible:
+  
+  ```typespec
+  model Template<T> {
+    ...T;
+  }
+  model User is Template<{name: string}>;
+  
+  alias UserName = User.name; // ✅ now resolves correctly
+  ```
+  
+  This also works with:
+  - Forward references to the template definition
+  - Spread-based patterns (`model A { ...Template<{x: int32}> }`)
+  - Members added by augment decorators
+  - Circular references between models with late-bound members
+- [#10855](https://github.com/microsoft/typespec/pull/10855) The `internal` modifier is no longer experimental. Using `internal` will no longer emit an `experimental-feature` warning, and `#suppress "experimental-feature"` directives are no longer needed.
+- [#10826](https://github.com/microsoft/typespec/pull/10826) Add project-scoped compiler feature flags to `tspconfig.yaml`. Compiler feature definitions
+  are tracked internally with descriptions and can be listed with `tsp info features`.
+  
+  ```yaml title=tspconfig.yaml
+  kind: project
+  features:
+    - function-declarations
+  ```
+- [#9868](https://github.com/microsoft/typespec/pull/9868) Enabled resolution of member properties and metaproperties through template parameters based on constraints.
+  
+  ```tsp
+  model Resource {
+    id: string;
+  }
+  
+  model Read<R extends Resource> {
+    id: R.id;
+  }
+  ```
+
+### Bug Fixes
+
+- [#10692](https://github.com/microsoft/typespec/pull/10692) Fix spurious circular-base-type diagnostics after invalid 'model is' declarations.
+- [#10684](https://github.com/microsoft/typespec/pull/10684) Fixed the compiler to correctly detect circular model spread chains while preserving support for recursive model-expression aliases.
+- [#10687](https://github.com/microsoft/typespec/pull/10687) Fix wrongly detected circular reference with alias and model properties
+- [#10643](https://github.com/microsoft/typespec/pull/10643) Completion in the middle of an identifier now replaces the full token instead of inserting and leaving trailing characters
+- [#10827](https://github.com/microsoft/typespec/pull/10827) Language server fatal errors now write pending logs and the fatal stack trace directly to stderr so crash details remain visible.
+- [#10773](https://github.com/microsoft/typespec/pull/10773) Report an error when a function is declared in the `$functions` map in a JS file but has no corresponding `extern fn` declaration in TypeSpec. Previously this would silently have no effect.
+- [#10847](https://github.com/microsoft/typespec/pull/10847) [Language Server] Wrapped LSP server handlers with `wrapUnhandledError` to preserve server-side stack traces in error messages forwarded to the client. Previously, the JSON-RPC layer discarded the original stack trace, making unhandled errors in telemetry opaque.
+- [#10880](https://github.com/microsoft/typespec/pull/10880) Validate function rest arguments and report function call argument count diagnostics at call sites.
+
+
 ## 1.12.0
 
 ### Features

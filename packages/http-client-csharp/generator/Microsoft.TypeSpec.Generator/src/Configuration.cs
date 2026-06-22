@@ -36,7 +36,8 @@ namespace Microsoft.TypeSpec.Generator
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
             LicenseInfo? licenseInfo,
-            IReadOnlyList<string>? pluginPaths = null)
+            IReadOnlyList<string>? pluginPaths = null,
+            bool disableRoslynReduce = false)
         {
             OutputDirectory = outputPath;
             AdditionalConfigurationOptions = additionalConfigurationOptions;
@@ -45,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
             PluginPaths = pluginPaths;
+            DisableRoslynReduce = disableRoslynReduce;
         }
 
         /// <summary>
@@ -54,6 +56,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
+            public const string DisableRoslynReduce = "disable-roslyn-reduce";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
             public const string Plugins = "plugins";
         }
@@ -62,6 +65,13 @@ namespace Microsoft.TypeSpec.Generator
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
+
+        /// <summary>
+        /// Gets whether the Roslyn reduce (simplification) post-processing step is disabled.
+        /// Disabling it speeds up generation at the cost of less simplified output, which is
+        /// useful when iterating quickly.
+        /// </summary>
+        public bool DisableRoslynReduce { get; }
 
         /// <summary>
         /// Gets the root output directory for the generated library.
@@ -134,7 +144,8 @@ namespace Microsoft.TypeSpec.Generator
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
                 ReadLicenseInfo(root),
-                ReadStringArrayOption(root, Options.Plugins));
+                ReadStringArrayOption(root, Options.Plugins),
+                ReadOption(root, Options.DisableRoslynReduce));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -165,6 +176,7 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
             { Options.DisableXmlDocs, false },
+            { Options.DisableRoslynReduce, false },
         };
 
         /// <summary>
@@ -174,6 +186,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             Options.PackageName,
             Options.DisableXmlDocs,
+            Options.DisableRoslynReduce,
             Options.UnreferencedTypesHandling,
             Options.Plugins,
         };

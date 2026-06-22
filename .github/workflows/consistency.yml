@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' && 
+      !contains(github.event.pull_request.title, '[skip chg]') &&
       !startsWith(github.head_ref, 'publish/') &&
       !startsWith(github.head_ref, 'dependabot/') &&
       !startsWith(github.head_ref, 'backmerge/') &&
