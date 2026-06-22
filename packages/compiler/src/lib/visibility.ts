@@ -748,6 +748,14 @@ function createVisibilityFilterMutator(
           }
         }
 
+        if (model.baseModel) {
+          const mutatedBase = cachedMutateSubgraph(program, self, model.baseModel);
+          if (mutatedBase.type !== model.baseModel) {
+            clone.baseModel = mutatedBase.type as Model;
+            modified = true;
+          }
+        }
+
         if (options.decoratorFn) {
           clone.decorators = clone.decorators.filter(
             (d) =>
