@@ -74,10 +74,10 @@ done
 Parse the `tspconfig.yaml` and extract the options block for the Python emitter.
 The emitter may appear under either name:
 
-| Flavor    | Emitter key in tspconfig.yaml        |
-| --------- | ------------------------------------ |
-| Branded   | `@azure-tools/typespec-python`       |
-| Unbranded | `@typespec/http-client-python`       |
+| Flavor    | Emitter key in tspconfig.yaml  |
+| --------- | ------------------------------ |
+| Branded   | `@azure-tools/typespec-python` |
+| Unbranded | `@typespec/http-client-python` |
 
 **Important cross-flavor rule:** If the user requests a different flavor than
 what's in the tspconfig, carry over ALL options from the tspconfig's Python
@@ -89,6 +89,7 @@ emitter block. For example:
   **branded** → use all those options, but emit under `@azure-tools/typespec-python`
 
 If no Python emitter options exist in the tspconfig at all, ask the user for:
+
 - `emitter-output-dir` (required — where to write the generated code)
 - `package-name` (required)
 - `namespace` (optional — omit to let `@clientNamespace` decorators resolve naturally)
@@ -111,7 +112,7 @@ Look for the `tsp` CLI in the spec repo's `node_modules`:
 
 ```bash
 # Check spec repo root for compiler
-<spec-repo-root>/node_modules/@typespec/compiler/cmd/tsp.js
+< spec-repo-root > /node_modules/@typespec/compiler/cmd/tsp.js
 ```
 
 If not found, fall back to the global `tsp` command, or check the typespec
@@ -136,8 +137,7 @@ Build the `tsp compile` command using:
 **Template:**
 
 ```bash
-<tsp-cli-path> compile <entry-point.tsp> \
-  --emit ~/Desktop/github/typespec/packages/http-client-python \
+< tsp-cli-path > compile < entry-point.tsp > --emit ~/Desktop/github/typespec/packages/http-client-python \
   --option "@typespec/http-client-python.<key1>=<value1>" \
   --option "@typespec/http-client-python.<key2>=<value2>" \
   ...
@@ -145,18 +145,18 @@ Build the `tsp compile` command using:
 
 **Option mapping rules:**
 
-| tspconfig key            | CLI `--option` key       | Notes                                              |
-| ------------------------ | ------------------------ | -------------------------------------------------- |
-| `emitter-output-dir`     | `emitter-output-dir`     | Resolve `{output-dir}`, `{service-dir}` variables  |
-| `package-mode`           | `package-mode`           | Usually `dataplane` or `mgmt`                      |
-| `package-name`           | `package-name`           |                                                    |
-| `namespace`              | `namespace`              | **Omit if not in tspconfig** — see note below       |
-| `api-version`            | `api-version`            |                                                    |
-| `flavor`                 | `flavor`                 | Set to `azure` for branded, omit for unbranded     |
-| `generate-test`          | `generate-test`          |                                                    |
-| `generate-sample`        | `generate-sample`        |                                                    |
-| `models-mode`            | `models-mode`            | e.g., `dpg`, `msrest`, `typeddict`                 |
-| Any other option         | Pass through as-is       |                                                    |
+| tspconfig key        | CLI `--option` key   | Notes                                             |
+| -------------------- | -------------------- | ------------------------------------------------- |
+| `emitter-output-dir` | `emitter-output-dir` | Resolve `{output-dir}`, `{service-dir}` variables |
+| `package-mode`       | `package-mode`       | Usually `dataplane` or `mgmt`                     |
+| `package-name`       | `package-name`       |                                                   |
+| `namespace`          | `namespace`          | **Omit if not in tspconfig** — see note below     |
+| `api-version`        | `api-version`        |                                                   |
+| `flavor`             | `flavor`             | Set to `azure` for branded, omit for unbranded    |
+| `generate-test`      | `generate-test`      |                                                   |
+| `generate-sample`    | `generate-sample`    |                                                   |
+| `models-mode`        | `models-mode`        | e.g., `dpg`, `msrest`, `typeddict`                |
+| Any other option     | Pass through as-is   |                                                   |
 
 **Namespace note:** Do NOT pass `--namespace` unless it is explicitly set in the
 tspconfig or by the user. When omitted, the emitter lets TCGC resolve
@@ -177,6 +177,7 @@ cd <spec-directory>
 Set a timeout of at least 180 seconds — compilation can take a few minutes.
 
 Check the output:
+
 - **Warnings only** → success
 - **Errors** → report to the user with the full error output
 
@@ -185,8 +186,9 @@ Check the output:
 After successful compilation:
 
 1. Show the generated directory structure:
+
    ```bash
-   find <output-dir> -type d | sort
+   find < output-dir > -type d | sort
    ```
 
 2. Verify the output matches expectations (e.g., TypedDict if `models-mode=typeddict`).
@@ -218,8 +220,8 @@ and `--option` flags. The `flavor` option controls branded behavior:
 
 ### Common additional options the user may request
 
-| User request       | Option to add                                          |
-| ------------------ | ------------------------------------------------------ |
-| TypedDict only     | `--option "@typespec/http-client-python.models-mode=typeddict"` |
-| No tests           | `--option "@typespec/http-client-python.generate-test=false"`   |
-| No samples         | `--option "@typespec/http-client-python.generate-sample=false"` |
+| User request   | Option to add                                                   |
+| -------------- | --------------------------------------------------------------- |
+| TypedDict only | `--option "@typespec/http-client-python.models-mode=typeddict"` |
+| No tests       | `--option "@typespec/http-client-python.generate-test=false"`   |
+| No samples     | `--option "@typespec/http-client-python.generate-sample=false"` |
