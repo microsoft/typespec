@@ -68,7 +68,12 @@ class Response(BaseModel):
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         if self.type:
-            self.type.get_polymorphic_subtypes(polymorphic_subtypes)
+            if isinstance(self.type, CombinedType):
+                target = self.type.target_model_subtype((ModelType,))
+                if target:
+                    target.get_polymorphic_subtypes(polymorphic_subtypes)
+            else:
+                self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         if not self.type:
@@ -168,7 +173,12 @@ class PagingResponse(Response):
         )
 
     def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
-        return self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
+        if isinstance(self.item_type, CombinedType):
+            target = self.item_type.target_model_subtype((ModelType,))
+            if target:
+                target.get_polymorphic_subtypes(polymorphic_subtypes)
+        else:
+            self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         return self.item_type.get_json_template_representation()
