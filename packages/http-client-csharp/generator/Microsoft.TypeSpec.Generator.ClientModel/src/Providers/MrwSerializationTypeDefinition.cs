@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -159,27 +158,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                baseProvider is ModelProvider;
 
         /// <summary>
-        /// The generated MRW serialization <c>*Core</c> methods. A base model participates in the
-        /// override chain only if it declares all of these as overridable members.
-        /// </summary>
-        private static readonly string[] SerializationCoreMethodNames =
-        [
-            JsonModelWriteCoreMethodName,
-            JsonModelCreateCoreMethodName,
-            PersistableModelWriteCoreMethodName,
-            PersistableModelCreateCoreMethodName,
-        ];
-
-        /// <summary>
         /// Determines whether a derived model should skip overriding the generated serialization
         /// <c>*Core</c> methods of its base.
         /// </summary>
         /// <remarks>
         /// External/system base models are represented by a <see cref="SystemObjectModelProvider"/>.
         /// Such a base only participates in the generated MRW <c>*Core</c> override chain when the
-        /// wrapped framework/referenced type itself follows the generated serialization pattern (i.e.
-        /// declares the protected virtual <c>*Core</c> methods). When it does, derived models must
-        /// override those methods rather than hide them (otherwise the compiler reports CS0114).
+        /// wrapped framework/referenced type itself follows the model-reader-writer serialization
+        /// pattern (i.e. implements <see cref="IJsonModel{T}"/> or <see cref="IPersistableModel{T}"/>,
+        /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
+        /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
         /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
         /// models re-introduce the methods as <c>virtual</c>.
         /// </remarks>
@@ -192,38 +180,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (baseModelProvider is SystemObjectModelProvider systemBase)
             {
-                return !SystemTypeDeclaresSerializationCoreMethods(systemBase.SystemType);
+                return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
             }
 
             return baseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
 
-        private static bool SystemTypeDeclaresSerializationCoreMethods(CSharpType systemType)
+        private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
         {
             if (!systemType.IsFrameworkType)
             {
                 return false;
             }
 
-            foreach (var methodName in SerializationCoreMethodNames)
+            foreach (var @interface in systemType.FrameworkType.GetInterfaces())
             {
-                if (!DeclaresInstanceMethod(systemType.FrameworkType, methodName))
+                if (@interface.IsGenericType)
                 {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private static bool DeclaresInstanceMethod(Type type, string methodName)
-        {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-            for (Type? current = type; current is not null; current = current.BaseType)
-            {
-                if (current.GetMethods(flags).Any(m => m.Name == methodName))
-                {
-                    return true;
+                    var definition = @interface.GetGenericTypeDefinition();
+                    if (definition == typeof(IJsonModel<>) || definition == typeof(IPersistableModel<>))
+                    {
+                        return true;
+                    }
                 }
             }
 
