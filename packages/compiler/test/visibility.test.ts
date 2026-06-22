@@ -1779,13 +1779,23 @@ describe("compiler: visibility core", () => {
         next?: LinkedNode;
       }
 
-      @test model ${t.model("Result")} is FilterVisibility<LinkedNode, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+      model Child extends LinkedNode {
+        extra: string;
+      }
+
+      @test model ${t.model("Result")} is FilterVisibility<Child, #{ all: #[Lifecycle.Create] }, "{name}Create">;
     `);
 
     ok(Result);
-    ok(Result.properties.has("value"));
-    ok(Result.properties.has("next"));
-    ok(!Result.properties.has("id"));
+    ok(Result.properties.has("extra"));
+
+    // Base model (LinkedNode) should be filtered and renamed
+    const base = Result.baseModel;
+    ok(base);
+    strictEqual(base.name, "LinkedNodeCreate");
+    ok(base.properties.has("value"));
+    ok(base.properties.has("next"));
+    ok(!base.properties.has("id"));
   });
 
   it("does not duplicate encodedName metadata", async () => {
