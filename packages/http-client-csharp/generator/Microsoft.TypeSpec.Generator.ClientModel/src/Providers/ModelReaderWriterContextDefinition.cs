@@ -188,6 +188,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
+                // Base-model traversal can visit providers that were not in the initial output-library
+                // set, so the recursive call still needs the context eligibility filter.
                 CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, contextEligibleOutputProviders, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
