@@ -96,6 +96,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each output-library provider recursively to discover types from methods and properties.
             foreach (var provider in contextEligibleOutputProviders)
             {
+                // Only output-library providers get standalone context entries.
                 if (ImplementsModelReaderWriter(provider))
                 {
                     buildableProviders.Add(provider);
@@ -184,6 +185,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
+                // Traverse base model properties for discoverable types, but do not add the base model
+                // itself as a context entry unless it was in the output-library seed set.
                 CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
