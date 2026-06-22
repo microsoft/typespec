@@ -100,12 +100,12 @@ namespace Microsoft.TypeSpec.Generator
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
 
         /// <summary>
-        /// The list of <see cref="TypeProvider"/> instances that define custom-code attributes. These attribute
+        /// The list of <see cref="CustomCodeAttributeDefinition"/> instances that define custom-code attributes. These attribute
         /// definitions are generated into the SDK project and are made available to the compiler while it compiles
         /// custom code. Derived generators can contribute additional providers via
-        /// <see cref="AddCustomCodeAttributeProvider(TypeProvider)"/>.
+        /// <see cref="AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition)"/>.
         /// </summary>
-        internal List<TypeProvider> CustomCodeAttributeProviders { get; } =
+        internal List<CustomCodeAttributeDefinition> CustomCodeAttributeProviders { get; } =
         [
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
@@ -171,8 +171,8 @@ namespace Microsoft.TypeSpec.Generator
         /// generator-specific attribute definitions. The provider's attribute definition is generated into
         /// the SDK project and made available to the compiler while it compiles custom code.
         /// </summary>
-        /// <param name="provider">The <see cref="TypeProvider"/> that defines the custom-code attribute.</param>
-        protected void AddCustomCodeAttributeProvider(TypeProvider provider)
+        /// <param name="provider">The <see cref="CustomCodeAttributeDefinition"/> that defines the custom-code attribute.</param>
+        protected void AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition provider)
         {
             CustomCodeAttributeProviders.Add(provider);
         }

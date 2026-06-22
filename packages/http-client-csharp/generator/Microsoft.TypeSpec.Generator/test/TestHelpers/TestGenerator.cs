@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
         }
 
-        public void AddCustomCodeAttributeProviderForTest(TypeProvider provider)
+        public void AddCustomCodeAttributeProviderForTest(CustomCodeAttributeDefinition provider)
             => AddCustomCodeAttributeProvider(provider);
     }
 }
