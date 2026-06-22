@@ -849,6 +849,10 @@ namespace Microsoft.TypeSpec.Generator
                 provider.BodyDependencyTypes.Count > 0;
         }
 
+        private static bool IsGeneratedHelperSimpleName(string name) =>
+            string.Equals(name, "ChangeTrackingDictionary", StringComparison.Ordinal) ||
+            string.Equals(name, "ChangeTrackingList", StringComparison.Ordinal);
+
         private static void AddGeneratedBodyTypeReferences(Project project, Compilation compilation, ProviderReferenceGraph graph, string ownerName, INamedTypeSymbol ownerSymbol)
         {
             foreach (var syntaxReference in ownerSymbol.DeclaringSyntaxReferences)
@@ -893,7 +897,7 @@ namespace Microsoft.TypeSpec.Generator
                 _ => null
             };
 
-            if (simpleName != null)
+            if (simpleName != null && IsGeneratedHelperSimpleName(simpleName))
             {
                 AddMatchingName(references, simpleName, nodes);
             }
@@ -906,7 +910,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            AddMatchingName(references, namedType.Name, nodes);
+            if (IsGeneratedHelperSimpleName(namedType.Name))
+            {
+                AddMatchingName(references, namedType.Name, nodes);
+            }
             AddMatchingName(references, namedType.GetFullyQualifiedName(), nodes);
             if (namedType.TypeKind == TypeKind.Enum)
             {
