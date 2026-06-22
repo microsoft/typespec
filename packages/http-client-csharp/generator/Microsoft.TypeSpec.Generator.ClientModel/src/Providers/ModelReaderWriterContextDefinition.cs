@@ -96,7 +96,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each output-library provider recursively to discover types from methods and properties.
             foreach (var provider in contextEligibleOutputProviders)
             {
-                CollectBuildableTypeProvidersRecursive(provider, contextEligibleOutputProviders, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                if (ImplementsModelReaderWriter(provider))
+                {
+                    buildableProviders.Add(provider);
+                }
+
+                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
 
             return (buildableTypes, buildableProviders);
@@ -123,7 +128,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private void CollectBuildableTypeProvidersRecursive(
             TypeProvider currentProvider,
-            HashSet<TypeProvider> contextEligibleOutputProviders,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
@@ -135,23 +139,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return;
             }
 
-            // Only add providers that the output library asked this context to build; base providers outside
-            // that set are still traversed for their properties but do not get standalone context entries.
-            if (contextEligibleOutputProviders.Contains(currentProvider) && ImplementsModelReaderWriter(currentProvider))
-            {
-                buildableProviders.Add(currentProvider);
-            }
-
             // Process all providers to discover types from methods and properties
             if (currentProvider is not null)
             {
-                CollectBuildableTypesRecursiveCore(currentProvider, contextEligibleOutputProviders, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
         }
 
         private void CollectBuildableTypesRecursiveCore(
             TypeProvider provider,
-            HashSet<TypeProvider> contextEligibleOutputProviders,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
             HashSet<TypeProvider> buildableProviders,
@@ -188,9 +184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
-                // Base-model traversal can visit providers that were not in the initial output-library
-                // set, so the recursive call still needs the context eligibility filter.
-                CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, contextEligibleOutputProviders, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
             {
