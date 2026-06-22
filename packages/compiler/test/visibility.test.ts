@@ -1771,6 +1771,23 @@ describe("compiler: visibility core", () => {
     ok(!baseFiltered.properties.has("id"));
   });
 
+  it("does not produce infinite regress for self-referential models", async () => {
+    const { Result } = await Tester.compile(t.code`
+      model LinkedNode {
+        value: string;
+        @visibility(Lifecycle.Read) id: string;
+        next?: LinkedNode;
+      }
+
+      @test model ${t.model("Result")} is FilterVisibility<LinkedNode, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(Result);
+    ok(Result.properties.has("value"));
+    ok(Result.properties.has("next"));
+    ok(!Result.properties.has("id"));
+  });
+
   it("does not duplicate encodedName metadata", async () => {
     const diagnostics = await Tester.diagnose(`
       model SomeModel {
