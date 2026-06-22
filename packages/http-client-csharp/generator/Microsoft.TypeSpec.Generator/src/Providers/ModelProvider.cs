@@ -190,6 +190,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (_buildingRawDataField)
                 {
+                    // BuildRawDataField walks base models and can re-enter this property when custom
+                    // base models form a cycle.
                     return null;
                 }
 
@@ -673,6 +675,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
         {
+            // Custom code can create base-model cycles; include this model in the visited set so a cycle
+            // back to it is not yielded as one of its own bases.
             HashSet<ModelProvider> visited = [this];
             var model = BaseModelProvider;
             while (model != null && visited.Add(model))
@@ -1027,6 +1031,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasBaseModelProviderCycle()
         {
+            // FullConstructor reads the base constructor signature. If the custom base chain loops back
+            // to this model, skip that read rather than recursively building this constructor again.
             HashSet<ModelProvider> visited = [this];
             var modelProvider = BaseModelProvider;
             while (modelProvider != null)

@@ -2647,6 +2647,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<ModelProvider> EnumerateModelAndBaseModelProviders()
         {
+            // Custom code can create base-model cycles; stop at the first repeated provider.
             var visited = new HashSet<ModelProvider>();
             var model = _model;
             while (model != null && visited.Add(model))
@@ -2658,6 +2659,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
         {
+            // Custom code can create base-model cycles; include the current model in the visited set so
+            // a cycle back to it is not yielded as one of its own bases.
             var visited = new HashSet<ModelProvider> { _model };
             var model = _model.BaseModelProvider;
             while (model != null && visited.Add(model))
