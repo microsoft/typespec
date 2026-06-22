@@ -81,6 +81,8 @@ namespace Microsoft.TypeSpec.Generator
                 .Except(internalizeHelperRoots, StringComparer.Ordinal)
                 .Except(GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true), StringComparer.Ordinal)
                 .Intersect(publicizeReachable, StringComparer.Ordinal)
+                // Preserve generated types that the last contract already made internal unless a public API/custom root explicitly requires them.
+                .Where(name => !generatedInternalDeclarations.Contains(name) || publicizeRoots.Contains(name))
                 .Where(name => publicizeRoots.Contains(name) ||
                     HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
                 .OrderBy(static name => name, StringComparer.Ordinal)
