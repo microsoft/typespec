@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator
             customRemovalRoots.UnionWith(existingGeneratedPublicRoots);
             customRemovalRoots.UnionWith(existingGeneratedPublicXmlDocRoots);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
-            var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(project, graph.Nodes);
+            var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(providers, graph.Nodes);
 
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
@@ -440,41 +440,17 @@ namespace Microsoft.TypeSpec.Generator
             return proxyTypes;
         }
 
-        private static HashSet<string> GetGeneratedInternalTypeDeclarations(Project project, HashSet<string> generatedTypeNames)
+        private static HashSet<string> GetGeneratedInternalTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            foreach (var provider in GetGeneratedProviders(providers))
             {
-                return declarations;
-            }
-
-            foreach (var document in project.Documents)
-            {
-                if (!IsGeneratedDocument(document))
+                if (provider.LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal) != true)
                 {
                     continue;
                 }
 
-                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                if (root == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    if (!declaration.Modifiers.Any(SyntaxKind.InternalKeyword))
-                    {
-                        continue;
-                    }
-
-                    if (semanticModel.GetDeclaredSymbol(declaration) is INamedTypeSymbol symbol)
-                    {
-                        AddMatchingName(declarations, symbol.GetFullyQualifiedName(), generatedTypeNames);
-                    }
-                }
+                AddMatchingName(declarations, GetProviderTypeName(provider.Type), generatedTypeNames);
             }
 
             return declarations;
@@ -499,8 +475,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddMatchingSymbolName(HashSet<string> target, INamedTypeSymbol symbol, HashSet<string> generatedTypeNames)
         {
-            AddMatchingName(target, symbol.Name, generatedTypeNames);
-
             try
             {
                 AddMatchingName(target, symbol.GetFullyQualifiedName(), generatedTypeNames);
@@ -509,6 +483,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // Some custom-code symbols cannot be represented by the legacy fully-qualified-name
                 // helper. A simple-name match is enough to discover generated roots.
+                AddMatchingName(target, symbol.Name, generatedTypeNames);
             }
         }
 
