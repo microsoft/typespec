@@ -210,6 +210,21 @@ model Foo
 `,
         });
       });
+
+      it("keeps extends inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName> {}
+`,
+          expected: `
+model Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+> {}
+`,
+        });
+      });
     });
 
     describe("model `is`", () => {
@@ -255,6 +270,21 @@ model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillB
           expected: `
 model Foo
   is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
+`,
+        });
+      });
+
+      it("keeps is inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo is Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+          expected: `
+model Foo is Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
         });
       });
@@ -805,6 +835,21 @@ scalar
 `,
         expected: `
 scalar Foo extends string;
+`,
+      });
+    });
+
+    it("keeps extends inline and breaks the template arguments when too long", async () => {
+      await assertFormat({
+        code: `
+scalar Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+        expected: `
+scalar Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
       });
     });
