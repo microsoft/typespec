@@ -845,6 +845,7 @@ namespace Microsoft.TypeSpec.Generator
             var relativePath = provider.RelativeFilePath.Replace('\\', '/');
             return IsSerializationProvider(provider) ||
                 relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
+                provider.HelperDependencyNames.Count > 0 ||
                 provider.BodyDependencyTypes.Count > 0;
         }
 
@@ -905,6 +906,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            AddMatchingName(references, namedType.Name, nodes);
             AddMatchingName(references, namedType.GetFullyQualifiedName(), nodes);
             if (namedType.TypeKind == TypeKind.Enum)
             {
