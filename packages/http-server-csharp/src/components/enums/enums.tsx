@@ -134,34 +134,61 @@ export function Enums(props: EnumsProps): Children {
 }
 
 /**
+ * Returns true if an anonymous inline union contains only string literal variants.
+ */
+function isInlineStringLiteralUnion(type: Type): boolean {
+  if (type.kind !== "Union" || type.name) return false;
+  for (const variant of type.variants.values()) {
+    if (variant.type.kind !== "String") return false;
+  }
+  return type.variants.size > 0;
+}
+
+/**
  * Returns true if a named union can be represented as a C# enum.
  * Requires: named union, every named variant has a string value,
- * and optionally one unnamed scalar `string` variant (open/extensible).
+ * and optionally one unnamed scalar `string` variant (open/extensible)
+ * and/or a `null` variant. Also supports inline anonymous unions of
+ * string literals (e.g., `"a" | "b" | "c"` as a single variant).
  */
 export function isUnionEnum(union: Union): boolean {
   if (!union.name) return false;
 
   const variants = Array.from(union.variants.values());
-  let hasNamedStringVariant = false;
+  let hasStringVariant = false;
 
   for (const variant of variants) {
     // Allow a single open string scalar variant (extensible union)
     if (variant.type.kind === "Scalar" && variant.type.name === "string") {
       continue;
     }
+    // Allow null variant (nullable union)
+    if (variant.type.kind === "Intrinsic" && variant.type.name === "null") {
+      continue;
+    }
     // Named variant with a string literal value
     if (variant.type.kind === "String" && variant.name && typeof variant.name === "string") {
-      hasNamedStringVariant = true;
+      hasStringVariant = true;
+      continue;
+    }
+    // Unnamed variant with a string literal value (e.g., union { "low", "medium", "high" })
+    if (variant.type.kind === "String" && typeof variant.name === "symbol") {
+      hasStringVariant = true;
+      continue;
+    }
+    // Inline anonymous union of string literals (e.g., "a" | "b" | "c" as a single variant)
+    if (isInlineStringLiteralUnion(variant.type)) {
+      hasStringVariant = true;
       continue;
     }
     // Any other variant type means it's not a simple enum
     return false;
   }
 
-  return hasNamedStringVariant;
+  return hasStringVariant;
 }
 
-/** Gets the named string variants of a union-as-enum (skipping the open `string` variant). */
+/** Gets the named string variants of a union-as-enum (skipping the open `string` and `null` variants). */
 export function getUnionEnumMembers(
   union: Union,
 ): { name: string; value: string; variant: import("@typespec/compiler").UnionVariant }[] {
@@ -172,7 +199,22 @@ export function getUnionEnumMembers(
   }[] = [];
   for (const variant of union.variants.values()) {
     if (variant.type.kind === "String" && variant.name && typeof variant.name === "string") {
+      // Named variant with explicit key (e.g., none: "none")
       members.push({ name: variant.name, value: variant.type.value, variant });
+    } else if (variant.type.kind === "String" && typeof variant.name === "symbol") {
+      // Unnamed string literal variant (e.g., "none") — derive name from the value
+      members.push({ name: variant.type.value, value: variant.type.value, variant });
+    } else if (isInlineStringLiteralUnion(variant.type)) {
+      // Inline anonymous union of string literals — flatten into individual members
+      for (const innerVariant of (variant.type as Union).variants.values()) {
+        if (innerVariant.type.kind === "String") {
+          members.push({
+            name: innerVariant.type.value,
+            value: innerVariant.type.value,
+            variant: innerVariant,
+          });
+        }
+      }
     }
   }
   return members;

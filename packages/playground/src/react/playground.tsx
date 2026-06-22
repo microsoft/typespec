@@ -176,12 +176,14 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const {
     selectedEmitter,
     compilerOptions,
+    tspconfig,
     selectedSampleName,
     selectedViewer,
     viewerState,
     content,
     onSelectedEmitterChange,
     onCompilerOptionsChange,
+    onTspconfigChange,
     onSelectedSampleNameChange,
     onSelectedViewerChange,
     onViewerStateChange,
@@ -195,7 +197,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { compilationState, isCompiling, isOutputStale, doCompile } = useCompilation({
     host,
     selectedEmitter,
-    compilerOptions,
+    tspconfig,
     typespecModel,
   });
 
@@ -219,6 +221,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef,
     selectedEmitter,
     compilerOptions,
+    tspconfig,
     selectedSampleName,
     isSampleUntouched,
     selectedViewer,
@@ -301,8 +304,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onMount={onTypeSpecEditorMount}
       selectedEmitter={selectedEmitter}
       compilerOptions={compilerOptions}
+      tspconfig={tspconfig}
       onCompilerOptionsChange={onCompilerOptionsChange}
       onSelectedEmitterChange={onSelectedEmitterChange}
+      onTspconfigChange={onTspconfigChange}
       commandBar={isMobile ? undefined : commandBar}
     />
   );
