@@ -170,6 +170,8 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 
 **Type:** `"default" | "annotated"`
 
+**Default:** `"default"`
+
 How to emit TypeSpec enums. Options are:
 
 - `default`: Emit as a single schema using the `enum` keyword.
