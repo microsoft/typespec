@@ -538,8 +538,22 @@ class DateType(PrimitiveType):
 
 
 class DurationType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        # ``seconds`` and ``milliseconds`` encodings serialize a timedelta to a numeric
+        # wire value. ``encode`` is set to a combined format token (e.g.
+        # ``duration-seconds-int``) so that serialization/deserialization can convert
+        # between ``datetime.timedelta`` and the numeric wire type. ISO8601 (the default)
+        # leaves ``encode`` unset and keeps the legacy ISO 8601 string behavior.
+        self.encode: Optional[str] = None
+        encode = yaml_data.get("encode")
+        if encode in ("seconds", "milliseconds"):
+            wire_type = yaml_data.get("wireType") or {}
+            wire = "int" if wire_type.get("type") == "integer" else "float"
+            self.encode = f"duration-{encode}-{wire}"
+
     def serialization_type(self, **kwargs: Any) -> str:
-        return "duration"
+        return self.encode or "duration"
 
     def docstring_type(self, **kwargs: Any) -> str:
         return "~" + self.type_annotation()

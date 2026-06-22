@@ -1,5 +1,43 @@
 # Change Log - @typespec/http-client-python
 
+## 0.33.0
+
+### Features
+
+- [#10987](https://github.com/microsoft/typespec/pull/10987) Add a `keep-pyproject-fields` emitter option that selects which `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Supported fields: `authors`, `description`, `classifiers`, `urls`.
+  
+  ```yaml
+  # tspconfig.yaml
+  options:
+    "@typespec/http-client-python":
+      keep-pyproject-fields:
+        authors: true
+        description: true
+  ```
+
+### Bug Fixes
+
+- [#11013](https://github.com/microsoft/typespec/pull/11013) Place docstring annotations such as `Required.` in front of the description when it ends with an RST code block, and stop appending a sentence period inside the block. Previously the period landed on the code block's last line (e.g. `].`) and `Required.` was appended after the block (`]. Required.`), both of which broke Sphinx rendering.
+
+
+## 0.32.0
+
+### Features
+
+- [#10947](https://github.com/microsoft/typespec/pull/10947) Support `datetime.timedelta` for `duration` types encoded as `seconds` or `milliseconds`. SDK users can now pass a `datetime.timedelta` (instead of a raw `int`/`float`) and responses are deserialized back into `datetime.timedelta`.
+
+### Bug Fixes
+
+- [#10957](https://github.com/microsoft/typespec/pull/10957) Fix `UnboundLocalError` for paging operations with a flattened JSON model body. The request body is now constructed once outside the `prepare_request` callback (and before the body is serialized into the request content) instead of inside the closure, where assigning `body` made it an unbound local on every page fetch.
+- [#10955](https://github.com/microsoft/typespec/pull/10955) Fix Sphinx docstring rendering when a `Required.` (or other) annotation followed a code block. The annotation is now inserted into the prose before the code block instead of being appended after it.
+
+
+## 0.31.1
+
+### Bump dependencies
+
+-  Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
 ## 0.31.0
 
 ### Features

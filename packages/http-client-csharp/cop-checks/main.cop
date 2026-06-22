@@ -15,7 +15,7 @@
 import code
 import csharp
 
-let cb = code.codebase('csharp')
+let cb : Codebase = provider('csharp')
 
 # Rule: braces.cop
 command CHECK-BRACES = foreach cb.Lines:missingBraces => '{error:@red} {item.File.Path}:{item.Number}: missing braces -> {item.Text}'

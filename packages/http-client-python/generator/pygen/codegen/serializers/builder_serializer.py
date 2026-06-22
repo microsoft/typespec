@@ -931,7 +931,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if builder.parameters.has_body and builder.parameters.body_parameter.flattened:
             # serialize flattened body before passing to request builder as well
             retval.extend(_serialize_flattened_body(builder.parameters.body_parameter))
-        if is_json_model_type(builder.parameters):
+        if is_json_model_type(builder.parameters) and not is_paging:
+            # For paging, we put the json model body outside `prepare_request`
             retval.extend(_serialize_json_model_body(builder.parameters.body_parameter, builder.parameters.parameters))
         if builder.has_form_data_body:
             retval.extend(self._create_body_parameter(builder))
@@ -1375,7 +1376,13 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         return retval
 
     def _prepare_request_callback(self, builder: PagingOperationType) -> list[str]:
-        retval = self._initialize_overloads(builder)
+        retval: list[str] = []
+        # The json model body must be constructed before `_initialize_overloads`
+        # serializes it into the request content, and outside `prepare_request` so
+        # the closure doesn't treat `body` as an unbound local.
+        if is_json_model_type(builder.parameters):
+            retval.extend(_serialize_json_model_body(builder.parameters.body_parameter, builder.parameters.parameters))
+        retval.extend(self._initialize_overloads(builder))
         if builder.has_continuation_token:
             retval.append(f"def prepare_request({builder.next_variable_name}=None):")
             retval.extend([f"    {line}" for line in self.call_request_builder(builder, is_paging=True)])

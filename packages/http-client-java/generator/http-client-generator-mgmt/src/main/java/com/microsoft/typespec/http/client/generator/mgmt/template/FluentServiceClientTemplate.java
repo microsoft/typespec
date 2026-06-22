@@ -133,8 +133,10 @@ public class FluentServiceClientTemplate extends ServiceClientTemplate {
                         code.line("super(null);");
                         code.line("this.statusCode = statusCode;");
                         code.line("this.httpHeaders = httpHeaders;");
+                        // Use an empty array so body accessors still work when the poller surfaces an error without a
+                        // response body.
                         code.line(
-                            "this.responseBody = responseBody == null ? null : responseBody.getBytes(StandardCharsets.UTF_8);");
+                            "this.responseBody = responseBody == null ? new byte[0] : responseBody.getBytes(StandardCharsets.UTF_8);");
                     });
 
                 block.publicMethod("int getStatusCode()", code -> code.methodReturn("statusCode"));

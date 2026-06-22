@@ -175,13 +175,14 @@ function Update-MgmtGenerator {
 
     .DESCRIPTION
         This function handles the management plane generator setup:
-        1. Updates package.json with local unbranded and Azure generator dependencies
+        1. Redirects the mgmt generator's "dependencies" for both @azure-typespec/http-client-csharp
+           and @typespec/http-client-csharp to the locally built packages
         2. Runs npm install
         3. Runs npm run clean to ensure a clean build
         4. Builds the management plane generator
         5. Packages the management plane generator
         6. Updates eng folder emitter package artifacts (azure-typespec-http-client-csharp-mgmt-emitter-package.json)
-        7. Updates mgmt emitter package artifact's devDependency for @typespec/http-client-csharp
+           and regenerates the lock file with the full local dependency graph (mgmt + Azure + unbranded)
         
         This function is designed to be called from RegenPreview.ps1 and uses the same
         versioning scheme as the main generators. It derives all necessary paths from the
@@ -232,32 +233,31 @@ function Update-MgmtGenerator {
     Write-Host "Local version: $LocalVersion" -ForegroundColor Gray
     Write-Host ""
 
-    # Use shared helper to build and package the mgmt generator
+    # Use shared helper to build and package the mgmt generator.
+    # The mgmt generator declares BOTH the Azure and unbranded generators under
+    # "dependencies" (not devDependencies), so both must be redirected to the locally
+    # built packages before packing. Otherwise the packed mgmt emitter would still
+    # reference the published Azure/unbranded versions instead of the local builds.
     $mgmtPackagePath = Update-GeneratorPackage `
         -GeneratorPath $mgmtGeneratorPath `
-        -Dependencies @{ '@azure-typespec/http-client-csharp' = $azurePackagePath } `
-        -DevDependencies @{ '@typespec/http-client-csharp' = $unbrandedPackagePath } `
+        -Dependencies @{
+            '@azure-typespec/http-client-csharp' = $azurePackagePath
+            '@typespec/http-client-csharp'       = $unbrandedPackagePath
+        } `
         -LocalVersion $LocalVersion `
         -DebugFolder $DebugFolder `
         -UseNpmCi $false
 
-    # Update eng folder mgmt emitter package artifacts
+    # Update eng folder mgmt emitter package artifacts.
+    # The emitter package only declares @azure-typespec/http-client-csharp-mgmt directly;
+    # the Azure + unbranded packages are pulled in transitively from the mgmt tgz, which
+    # now points at the local file: packages. Installing the local mgmt tgz regenerates
+    # the lock file with the full local dependency graph.
     Write-Host "Updating mgmt emitter package artifacts..." -ForegroundColor Gray
     
-    # First, update the mgmt emitter package artifact's devDependency for @typespec/http-client-csharp
     $mgmtEmitterJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-    $mgmtEmitterPackageJson = Get-Content $mgmtEmitterJson -Raw | ConvertFrom-Json
     
-    # Check if devDependencies exists and has @typespec/http-client-csharp
-    if ($mgmtEmitterPackageJson.devDependencies -and 
-        $mgmtEmitterPackageJson.devDependencies.PSObject.Properties['@typespec/http-client-csharp']) {
-        # Use file path to the unbranded package, not just the version string
-        $mgmtEmitterPackageJson.devDependencies.'@typespec/http-client-csharp' = "file:$unbrandedPackagePath"
-        $mgmtEmitterPackageJson | ConvertTo-Json -Depth 100 | Set-Content $mgmtEmitterJson -Encoding UTF8
-        Write-Host "  Updated @typespec/http-client-csharp devDependency to file:$unbrandedPackagePath" -ForegroundColor Green
-    }
-    
-    # Now update the package-lock.json with both dependencies
+    # Regenerate the package-lock.json with the full (local) dependency graph
     $tempDir = Join-Path $EngFolder "temp-mgmt-package-update"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     
