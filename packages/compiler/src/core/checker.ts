@@ -7205,7 +7205,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else if (
       links.finalSymbol?.flags &&
       ~links.finalSymbol.flags & SymbolFlags.Declaration &&
-      ~links.finalSymbol.flags & SymbolFlags.Member
+      ~links.finalSymbol.flags & SymbolFlags.Member &&
+      !isDeclarationExpressionSym(links.finalSymbol)
     ) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -7234,6 +7235,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // If this was used to get a type this is invalid, only used for validation.
     return errorType;
+  }
+
+  /**
+   * A declaration expression (e.g. the `enum { a, b }` in `model Foo { x: enum { a, b } }`)
+   * is bound as a non-declaration symbol but is still a real, referenceable type
+   * (e.g. via `Foo.x::type`) and therefore a valid augment target. Statement-position
+   * declarations carry {@link SymbolFlags.Declaration} and never reach this check.
+   */
+  function isDeclarationExpressionSym(sym: Sym): boolean {
+    const symNode = getSymNode(sym);
+    switch (symNode?.kind) {
+      case SyntaxKind.ModelStatement:
+      case SyntaxKind.EnumStatement:
+      case SyntaxKind.UnionStatement:
+      case SyntaxKind.ScalarStatement:
+        return isDeclarationInExpressionPosition(symNode);
+      default:
+        return false;
+    }
   }
 
   /**
