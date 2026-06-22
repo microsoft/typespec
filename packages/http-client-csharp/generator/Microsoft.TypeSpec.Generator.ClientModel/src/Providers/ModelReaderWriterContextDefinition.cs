@@ -87,14 +87,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
-            // Process all providers from the output library to discover types from methods and properties.
-            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
             // Base-model traversal can encounter equivalent provider instances that are not reference-equal to
-            // the output-library roots, so keep the root set name-comparable when deciding context eligibility.
-            var contextEligibleOutputProviders = new HashSet<TypeProvider>(providers, s_typeProviderNameComparer);
+            // the output-library roots, so keep the output-library provider set name-comparable.
+            var contextEligibleOutputProviders = new HashSet<TypeProvider>(
+                ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders,
+                s_typeProviderNameComparer);
 
-            // Process each provider recursively
-            foreach (var provider in providers)
+            // Process each output-library provider recursively to discover types from methods and properties.
+            foreach (var provider in contextEligibleOutputProviders)
             {
                 CollectBuildableTypeProvidersRecursive(provider, contextEligibleOutputProviders, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
