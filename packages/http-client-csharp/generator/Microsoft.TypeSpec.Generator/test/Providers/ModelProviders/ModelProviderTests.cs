@@ -525,6 +525,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
         }
 
+        // Regression: custom code (such as an inheritable system base model) can produce a base
+        // ModelProvider chain that cycles back on itself. Base-model traversal during constructor,
+        // field, and raw-data discovery must terminate instead of recursing infinitely.
+        [Test]
+        public void BaseModelProviderCycleDoesNotRecurseInfinitely()
+        {
+            var inputA = InputFactory.Model(
+                "ModelA",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Output,
+                properties: [InputFactory.Property("aProp", InputPrimitiveType.String, isRequired: true)]);
+            var inputB = InputFactory.Model(
+                "ModelB",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Output,
+                properties: [InputFactory.Property("bProp", InputPrimitiveType.String, isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputA, inputB]);
+
+            var modelA = new CyclicBaseModelProvider(inputA);
+            var modelB = new CyclicBaseModelProvider(inputB);
+
+            // Wire the base-model providers into a cycle: A -> B -> A.
+            modelA.CyclicBase = modelB;
+            modelB.CyclicBase = modelA;
+
+            Assert.AreSame(modelB, modelA.BaseModelProvider);
+            Assert.AreSame(modelA, modelB.BaseModelProvider);
+
+            // Each of these walks the base-model chain and previously stack-overflowed on a cycle.
+            Assert.DoesNotThrow(() => _ = modelA.FullConstructor);
+            Assert.DoesNotThrow(() => _ = modelA.Constructors);
+            Assert.DoesNotThrow(() => _ = modelA.Fields);
+        }
+
+        private sealed class CyclicBaseModelProvider : ModelProvider
+        {
+            public CyclicBaseModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            public ModelProvider? CyclicBase { get; set; }
+
+            protected override ModelProvider? BuildBaseModelProvider() => CyclicBase;
+        }
+
         [Test]
         public void BuildModelAsStruct()
         {
