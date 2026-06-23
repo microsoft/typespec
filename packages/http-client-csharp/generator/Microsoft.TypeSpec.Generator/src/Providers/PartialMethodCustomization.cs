@@ -159,16 +159,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Builds a <see cref="MethodSignature"/> for a partial method implementation using
-        /// <paramref name="customSignature"/> (modifiers, name, return type, attributes, and
-        /// other signature metadata) and the supplied <paramref name="implementationParameters"/>.
+        /// <paramref name="customSignature"/> (modifiers, name, attributes, and other signature
+        /// metadata) and the supplied <paramref name="implementationParameters"/>.
         /// The result has <see cref="MethodSignatureModifiers.Partial"/> applied.
         /// </summary>
         /// <param name="customSignature">The customer's partial declaration signature.</param>
         /// <param name="implementationParameters">The parameters to use for the implementation.
         /// Must all be required (no default values) per the C# partial method rules.</param>
+        /// <param name="returnType">The return type the implementation should use. Pass the
+        /// generator's own return type rather than relying on the customer's parsed declaration:
+        /// the customer's declaration may reference not-yet-generated types, which Roslyn surfaces
+        /// as error types with no namespace (producing malformed <c>global::.TypeName</c> output).
+        /// When <c>null</c>, the customer's parsed return type is used as a fallback.</param>
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
-            IReadOnlyList<ParameterProvider> implementationParameters)
+            IReadOnlyList<ParameterProvider> implementationParameters,
+            CSharpType? returnType = null)
         {
             if (customSignature is null)
             {
@@ -184,7 +190,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customSignature.Name,
                 customSignature.Description,
                 customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                customSignature.ReturnType,
+                returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
                 customSignature.Attributes,

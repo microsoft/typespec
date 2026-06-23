@@ -180,7 +180,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 convenienceBodyParameters = bodyParams;
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    renamedSignatureParameters,
+                    GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _));
             }
             else
             {
@@ -1077,12 +1080,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (customSignature != null)
             {
                 // Partial methods cannot have optional parameters in the implementation.
+                // Clone from the generator's parameters (resolved types/metadata) while taking the
+                // customer's names, rather than from the customer's parsed parameters whose types
+                // may be unresolved error types (which render with no namespace).
                 var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                    customSignature.Parameters,
+                    parameters,
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    requiredCustomParameters,
+                    GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _));
 
                 bodyParameters = requiredCustomParameters;
                 // Re-resolve the request options parameter from the customized parameter list so the
