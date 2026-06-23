@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
             _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
-            _shouldSkipDerivedSerializationMethodOverrides = _model.BaseModelProvider?.ShouldSkipDerivedSerializationMethodOverrides == true;
+            _shouldSkipDerivedSerializationMethodOverrides = ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -156,6 +156,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsModelType(CSharpType type)
             => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&
                baseProvider is ModelProvider;
+
+        /// <summary>
+        /// Determines whether a derived model should skip overriding the generated serialization
+        /// <c>*Core</c> methods of its base.
+        /// </summary>
+        /// <remarks>
+        /// External/system base models are represented by a <see cref="SystemObjectModelProvider"/>.
+        /// Such a base only participates in the generated MRW <c>*Core</c> override chain when the
+        /// wrapped framework/referenced type itself follows the model-reader-writer serialization
+        /// pattern (i.e. implements <see cref="IJsonModel{T}"/> or <see cref="IPersistableModel{T}"/>,
+        /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
+        /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
+        /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
+        /// models re-introduce the methods as <c>virtual</c>.
+        /// </remarks>
+        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider? baseModelProvider)
+        {
+            if (baseModelProvider is null)
+            {
+                return false;
+            }
+
+            if (baseModelProvider is SystemObjectModelProvider systemBase)
+            {
+                return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
+            }
+
+            return baseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
+        }
+
+        private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
+        {
+            if (!systemType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            foreach (var @interface in systemType.FrameworkType.GetInterfaces())
+            {
+                if (@interface.IsGenericType)
+                {
+                    var definition = @interface.GetGenericTypeDefinition();
+                    if (definition == typeof(IJsonModel<>) || definition == typeof(IPersistableModel<>))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
 
         protected override ConstructorProvider[] BuildConstructors()
         {
@@ -1114,8 +1165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
                     if (field != null)
@@ -1123,7 +1173,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         rawBinaryData = field;
                         break;
                     }
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -1737,8 +1786,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isDynamicModelWithNonDynamicBase)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     foreach (var property in baseModelProvider.CanonicalView.Properties)
                     {
@@ -1759,8 +1807,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                         propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
                     }
-
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -2575,21 +2621,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = _model.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
-            return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
-                p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+            return property ?? EnumerateBaseModelProviders()
+                .SelectMany(m => m.Properties)
+                .FirstOrDefault(p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
         private MethodProvider? FindCustomHookMethod(string hookName)
         {
-            var model = _model;
-            while (model != null)
+            foreach (var model in EnumerateModelAndBaseModelProviders())
             {
                 var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
                 if (method != null)
                 {
                     return method;
                 }
-                model = model.BaseModelProvider;
             }
             return null;
         }
@@ -2636,9 +2681,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
                 .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
-            var baseModelProvider = _model.BaseModelProvider;
 
-            while (baseModelProvider != null)
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 var customCodeView = baseModelProvider.CustomCodeView;
                 if (customCodeView != null)
@@ -2647,10 +2691,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         .AddRange(customCodeView.Attributes
                         .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             return serializationAttributes;
+        }
+
+        private IEnumerable<ModelProvider> EnumerateModelAndBaseModelProviders()
+        {
+            // Custom code can create base-model cycles; stop at the first repeated provider.
+            var visited = new HashSet<ModelProvider>();
+            var model = _model;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
+        }
+
+        private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
+        {
+            // Custom code can create base-model cycles; include the current model in the visited set so
+            // a cycle back to it is not yielded as one of its own bases.
+            var visited = new HashSet<ModelProvider> { _model };
+            var model = _model.BaseModelProvider;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
         }
 
         private static bool TypeRequiresNullCheckInSerialization(CSharpType type)

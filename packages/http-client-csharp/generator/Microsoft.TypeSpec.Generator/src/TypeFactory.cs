@@ -253,6 +253,18 @@ namespace Microsoft.TypeSpec.Generator
             if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
                 return enumProvider;
 
+            // An enum marked as external maps to a type that already exists in a framework or
+            // referenced assembly, so it must not be generated. Unlike models there is no derived-type
+            // scenario for enums, so we simply skip generation; callers use the resolved external
+            // CSharpType produced by CreateCSharpType (which short-circuits on InputType.External)
+            // instead of a generated provider. This is handled here, before the overridable
+            // CreateEnumCore, so all generators share the behavior and mirror CreateExternalModel.
+            if (enumType.External != null)
+            {
+                EnumCache.TryAdd(enumCacheKey, null);
+                return null;
+            }
+
             enumProvider = CreateEnumCore(enumType, declaringType);
 
             foreach (var visitor in Visitors)

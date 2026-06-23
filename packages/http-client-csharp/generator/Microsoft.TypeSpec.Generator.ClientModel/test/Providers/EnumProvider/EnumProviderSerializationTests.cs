@@ -106,6 +106,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
             }
         }
 
+        // Regression test for the "Not an enum type" crash, guarding the original crash site.
+        //
+        // An enum mapped to an existing external type (via @alternateType, surfaced as
+        // InputType.External) must be skipped during library generation rather than emitted.
+        // Otherwise building the OutputLibrary reaches EnsureBuilt -> BuildSerializationProviders ->
+        // ScmTypeFactory.CreateExtensibleEnumSerializations, which calls CSharpType.UnderlyingEnumType
+        // on the resolved external (non-enum) type and throws InvalidOperationException("Not an enum type").
+        // System.Uri stands in for an external extensible-enum struct such as OpenAI's ResponseToolKind.
+        [Test]
+        public void ExternalExtensibleEnum_NotEmittedFromOutputLibrary()
+        {
+            var externalEnum = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            MockHelpers.LoadMockGenerator(inputEnums: () => [externalEnum]);
+
+            // Building the library must not throw, and the external enum must not be generated.
+            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            Assert.IsEmpty(providers.OfType<Generator.Providers.EnumProvider>().Where(e => e.Name == "ExternalToolType"));
+        }
+
         [TestCaseSource(nameof(ValidateTypes), [true])]
         public void ValidateToSerialMethodsExtensible(InputEnumType inputEnum)
         {
