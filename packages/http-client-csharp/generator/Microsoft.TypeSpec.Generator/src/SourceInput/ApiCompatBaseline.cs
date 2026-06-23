@@ -226,7 +226,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             if (ctorIndex > 0)
             {
                 declaringTypeFullName = memberPath.Substring(0, ctorIndex);
-                memberName = memberPath.Substring(ctorIndex + 1); // ".ctor" / ".cctor"
+                memberName = memberPath.Substring(ctorIndex + 1); // ".ctor"
             }
             else
             {
