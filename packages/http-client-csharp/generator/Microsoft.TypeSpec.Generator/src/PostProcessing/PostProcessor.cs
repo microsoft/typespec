@@ -336,7 +336,10 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // remove them one by one
-            project = await RemoveModelsAsync(project, nodesToRemove);
+            var referencedTypeNames = referencedSet
+                .Select(static symbol => symbol.GetFullyQualifiedName())
+                .ToHashSet(StringComparer.Ordinal);
+            project = await RemoveModelsAsync(project, nodesToRemove, referencedTypeNames);
 
             return project;
         }
@@ -464,8 +467,10 @@ namespace Microsoft.TypeSpec.Generator
                 : ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
         }
 
-        private async Task<Project> RemoveModelsAsync(Project project,
-            IEnumerable<BaseTypeDeclarationSyntax> unusedModels)
+        private async Task<Project> RemoveModelsAsync(
+            Project project,
+            IEnumerable<BaseTypeDeclarationSyntax> unusedModels,
+            HashSet<string> referencedTypeNames)
         {
             // accumulate the definitions from the same document together
             var documents = new Dictionary<Document, HashSet<BaseTypeDeclarationSyntax>>();
@@ -486,7 +491,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // remove what are now invalid references due to the models being removed
-            project = await RemoveInvalidRefs(project);
+            project = await RemoveInvalidRefs(project, referencedTypeNames);
 
             return project;
         }
@@ -532,7 +537,7 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private async Task<Project> RemoveInvalidRefs(Project project)
+        private async Task<Project> RemoveInvalidRefs(Project project, HashSet<string> referencedTypeNames)
         {
             var solution = project.Solution;
 
@@ -545,7 +550,7 @@ namespace Microsoft.TypeSpec.Generator
             // Process each document for invalid attributes (with fresh semantic models)
             foreach (var documentId in project.DocumentIds)
             {
-                solution = await RemoveInvalidAttributes(solution, documentId);
+                solution = await RemoveInvalidAttributes(solution, documentId, referencedTypeNames);
             }
 
             // Process each document for invalid XML documentation references (with fresh semantic models)
@@ -591,7 +596,7 @@ namespace Microsoft.TypeSpec.Generator
             return solution;
         }
 
-        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId, HashSet<string> referencedTypeNames)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
@@ -613,7 +618,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var attr in attributes)
             {
                 if (IsInternalRecordBuildableAttribute(attr) ||
-                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr))
+                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr, referencedTypeNames))
                 {
                     invalidAttributes.Add(attr);
                 }
@@ -692,10 +697,11 @@ namespace Microsoft.TypeSpec.Generator
                 typeName?.EndsWith("PatchUpdate", StringComparison.Ordinal) == true;
         }
 
-        private static async Task<bool> ShouldRemoveUnreferencedInternalBuildableAttribute(
+        private async Task<bool> ShouldRemoveUnreferencedInternalBuildableAttribute(
             Solution solution,
             SemanticModel model,
-            AttributeListSyntax attributeList)
+            AttributeListSyntax attributeList,
+            HashSet<string> referencedTypeNames)
         {
             if (attributeList.Attributes.Count != 1)
             {
@@ -729,6 +735,11 @@ namespace Microsoft.TypeSpec.Generator
                 typeSymbol.Name.StartsWith("Update", StringComparison.Ordinal) && typeSymbol.Name.EndsWith("Record", StringComparison.Ordinal))
             {
                 return true;
+            }
+
+            if (referencedTypeNames.Contains(typeSymbol.GetFullyQualifiedName()))
+            {
+                return false;
             }
 
             foreach (var referencedSymbol in await SymbolFinder.FindReferencesAsync(typeSymbol, solution))
