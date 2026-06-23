@@ -7,8 +7,9 @@ import { $operationFields } from "./lib/operation-fields.js";
 import { $mutation, $query, $subscription } from "./lib/operation-kind.js";
 import { $schema } from "./lib/schema.js";
 import { $specifiedBy } from "./lib/specified-by.js";
+import { $onValidate } from "./validate.js";
 
-export { $lib };
+export { $lib, $onValidate };
 
 export const $decorators: DecoratorImplementations = {
   "TypeSpec.GraphQL": {

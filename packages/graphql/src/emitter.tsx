@@ -11,7 +11,7 @@ import { renderSchema as alloyRenderSchema } from "@pinterest/alloy-graphql";
 import { printSchema } from "graphql";
 import { Schema } from "./components/schema.js";
 import { GraphQLSchemaContext } from "./context/index.js";
-import { type GraphQLEmitterOptions, reportDiagnostic } from "./lib.js";
+import { type GraphQLEmitterOptions } from "./lib.js";
 import { getOperationKind } from "./lib/operation-kind.js";
 import { listSchemas } from "./lib/schema.js";
 import { createGraphQLMutationEngine } from "./mutation-engine/index.js";
@@ -55,14 +55,12 @@ function buildSchema(
   const engine = createGraphQLMutationEngine(program);
   const typeGraph = mutateSchema(program, engine, schema, typeUsage);
 
-  const hasQueryOps = [...typeGraph.globalNamespace.operations.values()].some(
+  // Check for GraphQL operations - skip generation if none exist
+  // (the diagnostic is reported by $onValidate for early IDE feedback)
+  const hasGraphQLOps = [...typeGraph.globalNamespace.operations.values()].some(
     (op) => getOperationKind(program, op) !== undefined,
   );
-  if (!hasQueryOps) {
-    reportDiagnostic(program, {
-      code: "empty-schema",
-      target: schema,
-    });
+  if (!hasGraphQLOps) {
     return undefined;
   }
 

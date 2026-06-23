@@ -7,7 +7,9 @@ describe("@schema", () => {
   it("Creates a schema with no name", async () => {
     const { program, TestNamespace } = await Tester.compile(t.code`
       @schema
-      @test namespace ${t.namespace("TestNamespace")} {}
+      @test namespace ${t.namespace("TestNamespace")} {
+        @query op health(): string;
+      }
     `);
 
     const schema = getSchema(program, TestNamespace);
@@ -19,7 +21,9 @@ describe("@schema", () => {
   it("Creates a schema with a specified name", async () => {
     const { program, TestNamespace } = await Tester.compile(t.code`
       @schema(#{name: "MySchema"})
-      @test namespace ${t.namespace("TestNamespace")} {}
+      @test namespace ${t.namespace("TestNamespace")} {
+        @query op health(): string;
+      }
     `);
 
     const schema = getSchema(program, TestNamespace);
