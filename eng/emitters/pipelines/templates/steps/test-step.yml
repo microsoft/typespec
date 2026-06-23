@@ -52,7 +52,7 @@ steps:
   - checkout: self
 
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
-  
+
   - download: current
     artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts

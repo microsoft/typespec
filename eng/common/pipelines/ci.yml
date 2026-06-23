@@ -32,17 +32,25 @@ extends:
 
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
+              - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
+                displayName: Install pnpm
+
               - script: |
-                  corepack disable
-                  npx pnpm install
+                  node -e "
+                    const fs = require('fs');
+                    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+                    delete pkg.packageManager;
+                    fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+                  "
+                displayName: Remove packageManager for pipeline
+
+              - script: pnpm install
                 displayName: Install JavaScript Dependencies
 
               - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
 
-              - script: |
-                  corepack disable
-                  npx pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
+              - script: pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
                 name: InitStep
 

@@ -25,6 +25,14 @@ steps:
           version: 8.0.x
 
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+  - script: |
+      node -e "
+        const fs = require('fs');
+        const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+        delete pkg.packageManager;
+        fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+      "
+    displayName: Remove packageManager for pipeline
   - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
     displayName: Install pnpm
   - script: pnpm config set store-dir ${{ parameters.pnpmStorePath }}
