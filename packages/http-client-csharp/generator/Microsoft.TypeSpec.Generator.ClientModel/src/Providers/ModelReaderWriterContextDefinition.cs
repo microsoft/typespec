@@ -187,7 +187,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Traverse base model properties for discoverable types, but do not add the base model
                 // itself as a context entry unless it was in the output-library seed set.
-                CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
             {
