@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
-using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -1337,10 +1336,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // been intentionally removed and that removal is accepted in the ApiCompat baseline, so the
             // generator must allow the property to take its current (spec) type instead of preserving
             // a now-removed type.
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
 
             var inputModel = InputFactory.Model(
                 "MockInputModel",

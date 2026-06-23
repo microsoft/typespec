@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
@@ -23,10 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesTypesMustExist()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "TypesMustExist : Type 'Azure.AI.Projects.Agents.ProjectsAgentProtocol' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol"));
             Assert.IsFalse(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.SomethingElse"));
@@ -35,10 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void TypeSuppressionImpliesAllMembersSuppressed()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "TypesMustExist : Type 'Azure.AI.Projects.Agents.ProjectsAgentProtocol' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol", "AnyMember", 3));
         }
@@ -46,10 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesMembersMustExistMethod()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "MembersMustExist : Member 'public Azure.AI.Projects.Agents.ProtocolVersionRecord Azure.AI.Projects.Agents.ProjectsAgentsModelFactory.ProtocolVersionRecord(Azure.AI.Projects.Agents.ProjectsAgentProtocol, System.String)' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed(
                 "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
@@ -70,10 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesParameterlessMember()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "MembersMustExist : Member 'public System.Void Ns.Foo.Reset()' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Reset", 0));
         }
@@ -81,10 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesConstructor()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "MembersMustExist : Member 'public Ns.Foo..ctor(Ns.Kind, System.String)' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", ".ctor", 2));
         }
@@ -92,11 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesPropertyAccessorOntoOwner()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "MembersMustExist : Member 'public Ns.Kind Ns.Foo.Kind.get()' does not exist in the implementation but it does exist in the contract.",
-                "MembersMustExist : Member 'public System.Void Ns.Foo.Kind.set(Ns.Kind)' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 0));
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 1));
@@ -105,10 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void CountsGenericParametersAsSingleArgument()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "MembersMustExist : Member 'public System.Void Ns.Foo.Configure(System.Collections.Generic.IDictionary<System.String, System.Int32>, System.String)' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Configure", 2));
         }
@@ -116,14 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IgnoresUnknownRulesAndMalformedLines()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "CannotRemoveAttribute : Attribute 'System.Diagnostics.CodeAnalysis.ExperimentalAttribute' exists on 'Ns.Foo' in the contract but not the implementation.",
-                "this line has no colon and should be ignored",
-                "",
-                "   ",
-                "MembersMustExist : Member with no quotes should be ignored",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
 
             Assert.IsTrue(baseline.IsEmpty);
         }
@@ -131,10 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ReferencesSuppressedTypeMatchesDirectType()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "SuppressedString");
 
             Assert.IsTrue(baseline.ReferencesSuppressedType(new CSharpType(typeof(string))));
             Assert.IsFalse(baseline.ReferencesSuppressedType(new CSharpType(typeof(int))));
@@ -143,10 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ReferencesSuppressedTypeMatchesNestedGenericArgument()
         {
-            var baseline = ApiCompatBaseline.Parse(new[]
-            {
-                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
-            });
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "SuppressedString");
 
             // IList<string> -- the suppressed type is nested as a generic argument.
             var listOfString = new CSharpType(typeof(IList<>), new CSharpType(typeof(string)));
