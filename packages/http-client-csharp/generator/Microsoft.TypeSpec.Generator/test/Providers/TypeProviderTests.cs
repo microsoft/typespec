@@ -434,6 +434,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task CustomPartialMethodImplementationKeepsParameterNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputParam = new ParameterProvider("input", $"The input value.", typeof(string));
+            var generatedMethod = new MethodProvider(
+                new MethodSignature(
+                    "MyMethod",
+                    $"Does something.",
+                    MethodSignatureModifiers.Static,
+                    null,
+                    null,
+                    [inputParam]),
+                inputParam.Invoke("ToString").Terminate(),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "CustomPartialMethodType", methods: [generatedMethod]);
+
+            var method = typeProvider.Methods.Single();
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+            var result = codeWriter.ToString(false);
+
+            // The partial implementation's signature parameter must keep the same name the body uses.
+            // Regression guard: the parameter must not be renamed with a numeric suffix (e.g. "input0").
+            Assert.IsFalse(
+                result.Contains("input0"),
+                $"Partial implementation renamed the parameter with a numeric suffix:\n{result}");
+            Assert.AreEqual("input", method.Signature.Parameters.Single().Name);
+        }
+
+        [Test]
         public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

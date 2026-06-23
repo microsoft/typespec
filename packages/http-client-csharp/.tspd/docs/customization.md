@@ -1302,7 +1302,23 @@ This is preferred over `[CodeGenSuppress]` + a hand-written replacement when the
 - **Default values on the partial implementation.** C# requires partial method implementations to have all parameters required, so any default values on your partial declaration are stripped on the generated impl. Callers still see the defaults from your declaration in custom code.
 - **Non-client members** (models, serialization methods, model factories). Use `[CodeGenSuppress]` for these.
 
+### Fully qualify types generated into the same assembly
+
+When a parameter or return type in your partial declaration refers to a type that is generated into the **same assembly** (for example a model in the `*.Models` namespace), fully qualify it with `global::` in the declaration:
+
+```C#
+// Instead of: static partial Response<DeallocateResourceOperationResult> BulkDeallocateOperation(...)
+static partial Response<global::Azure.ResourceManager.Compute.BulkActions.Models.DeallocateResourceOperationResult> BulkDeallocateOperation(
+    ResourceGroupResource resourceGroupResource,
+    AzureLocation location,
+    global::Azure.ResourceManager.Compute.BulkActions.Models.ExecuteDeallocateContent content,
+    CancellationToken cancellationToken);
+```
+
+The generator reads your partial declaration before those generated types exist, so they resolve as unresolved symbols and the generator cannot recover their namespace, emitting an invalid `global::.` prefix. Qualifying with `global::<Namespace>.<Type>` lets the generator recover the namespace and reduce it correctly in the generated file. Types that already exist when the declaration is read (framework types, types from referenced packages) do not need qualification.
+
 <details>
+
 
 **Generated code before (Generated/TestClient.cs):**
 

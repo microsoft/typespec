@@ -413,8 +413,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
         {
             // Partial method implementations require all parameters to be required (no default values).
+            // The generator's parameters carry the metadata and the declarations referenced by the
+            // method body and XML docs; the custom signature only supplies the parameter names.
             var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                customSignature.Parameters,
+                generatedMethod.Signature.Parameters,
                 customSignature.Parameters,
                 removeDefaults: true);
 
