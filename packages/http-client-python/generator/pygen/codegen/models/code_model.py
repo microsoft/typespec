@@ -186,6 +186,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 if model.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[model.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[model.client_namespace].models.append(model)
+            # TypedDict copies (base="typeddict") are excluded from model_types to keep
+            # them out of _models.py, but they need to be in the namespace model list
+            # so the TypesSerializer can render them in types.py.
+            for t in self.types_map.values():
+                if isinstance(t, ModelType) and t.base == "typeddict" and t.usage != UsageFlags.Default.value:
+                    if t.client_namespace not in self._client_namespace_types:
+                        self._client_namespace_types[t.client_namespace] = ClientNamespaceType()
+                    self._client_namespace_types[t.client_namespace].models.append(t)
             for enum in self.enums:
                 if enum.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[enum.client_namespace] = ClientNamespaceType()
