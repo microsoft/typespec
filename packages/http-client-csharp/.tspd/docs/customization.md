@@ -1319,7 +1319,6 @@ The generator reads your partial declaration before those generated types exist,
 
 <details>
 
-
 **Generated code before (Generated/TestClient.cs):**
 
 ```C#
