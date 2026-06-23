@@ -13,7 +13,7 @@ describe("InterfaceType component", () => {
 
   it("renders a basic interface type", async () => {
     const { Node } = await tester.compile(
-      t.code`@Interface model ${t.model("Node")} { id: string; }`,
+      t.code`@\`interface\` model ${t.model("Node")} { id: string; }`,
     );
 
     const engine = createGraphQLMutationEngine(tester.program);
@@ -27,7 +27,7 @@ describe("InterfaceType component", () => {
 
   it("renders interfaceOnly interface without suffix", async () => {
     const { Node } = await tester.compile(
-      t.code`@Interface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }`,
+      t.code`@\`interface\`(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }`,
     );
 
     const engine = createGraphQLMutationEngine(tester.program);
@@ -43,7 +43,7 @@ describe("InterfaceType component", () => {
     const { Node } = await tester.compile(
       t.code`
         /** A uniquely identifiable entity */
-        @Interface model ${t.model("Node")} { id: string; }
+        @\`interface\` model ${t.model("Node")} { id: string; }
       `,
     );
 

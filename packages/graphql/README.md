@@ -76,7 +76,7 @@ using TypeSpec.GraphQL;
 - [`@query`](#query)
 - [`@mutation`](#mutation)
 - [`@subscription`](#subscription)
-- [`@Interface`](#interface)
+- [`` @`interface` ``](#interface)
 - [`@compose`](#compose)
 - [`@operationFields`](#operationfields)
 - [`@schema`](#schema)
@@ -148,12 +148,12 @@ None
 @subscription op onUserCreated(): User;
 ```
 
-#### `@Interface`
+#### `` @`interface` ``
 
 Mark a model as a GraphQL Interface. Interfaces can be implemented by other models using `@compose`.
 
 ```typespec
-@Interface(options?: { interfaceOnly?: boolean })
+@`interface`(options?: { interfaceOnly?: boolean })
 ```
 
 ##### Target
@@ -169,12 +169,12 @@ Mark a model as a GraphQL Interface. Interfaces can be implemented by other mode
 ##### Examples
 
 ```typespec
-@Interface(#{ interfaceOnly: true })
+@`interface`(#{ interfaceOnly: true })
 model Node {
   id: string;
 }
 
-@Interface
+@`interface`
 model Reactable {
   reactions: Reaction[];
 }
@@ -182,7 +182,7 @@ model Reactable {
 
 #### `@compose`
 
-Specify the GraphQL interfaces that should be implemented by a model. The interfaces must be decorated with the `@Interface` decorator, and all of the interfaces' properties must be present and compatible.
+Specify the GraphQL interfaces that should be implemented by a model. The interfaces must be decorated with the `` @`interface` `` decorator, and all of the interfaces' properties must be present and compatible.
 
 ```typespec
 @compose(...interfaces: Model[])
@@ -201,7 +201,7 @@ Specify the GraphQL interfaces that should be implemented by a model. The interf
 ##### Examples
 
 ```typespec
-@Interface(#{ interfaceOnly: true })
+@`interface`(#{ interfaceOnly: true })
 model Node {
   id: string;
 }

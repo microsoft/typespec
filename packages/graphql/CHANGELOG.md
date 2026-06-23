@@ -6,7 +6,7 @@
 
 - Initial release of the GraphQL emitter
 - Support for `@query`, `@mutation`, and `@subscription` operation decorators
-- Support for `@Interface` decorator to mark models as GraphQL interfaces
+- Support for `@interface` decorator to mark models as GraphQL interfaces
 - Support for `@compose` decorator to implement interfaces
 - Support for `@operationFields` decorator to add operations to models
 - Support for `@specifiedBy` decorator for custom scalar URLs

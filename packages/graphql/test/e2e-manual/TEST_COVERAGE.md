@@ -25,8 +25,8 @@ Patterns: operations, models, scalars, enums, interfaces, unions, nullability, s
 | # | Pattern | Result |
 |---|---------|--------|
 | 1 | `@query`, `@mutation`, `@subscription` | Correct |
-| 2 | `@Interface` (default) → `ReactableInterface` suffix | Correct |
-| 3 | `@Interface(#{interfaceOnly: true})` → no suffix (`Node`, `Connection`) | Correct |
+| 2 | `@interface` (default) → `ReactableInterface` suffix | Correct |
+| 3 | `@interface(#{interfaceOnly: true})` → no suffix (`Node`, `Connection`) | Correct |
 | 4 | `@compose(...)` single + multi (`Article implements Node`, `Review implements Node & ReactableInterface`) | Correct |
 | 6 | `@specifiedBy(url)` on scalars | Correct |
 | 7 | `GraphQL.ID` → `ID!` | Correct |

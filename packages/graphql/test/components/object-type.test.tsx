@@ -63,7 +63,7 @@ describe("ObjectType component", () => {
   it("renders object type implementing interfaces", async () => {
     const { Cat, Animal } = await tester.compile(
       t.code`
-        @Interface model ${t.model("Animal")} { name: string; }
+        @\`interface\` model ${t.model("Animal")} { name: string; }
         @compose(Animal)
         model ${t.model("Cat")} { name: string; breed: string; }
       `,

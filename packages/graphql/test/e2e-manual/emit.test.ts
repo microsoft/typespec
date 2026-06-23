@@ -55,13 +55,13 @@ describe("schema: core content platform", () => {
         enum SortOrder { Ascending, Descending }
         enum MimeType { ImageJpeg: "image/jpeg", ImagePng: "image/png", ImageWebp: "image/webp" }
 
-        @Interface(#{interfaceOnly: true})
+        @\`interface\`(#{interfaceOnly: true})
         model Node { id: GraphQL.ID; }
 
-        @Interface(#{interfaceOnly: true})
+        @\`interface\`(#{interfaceOnly: true})
         model Connection { totalCount: int32; hasNextPage: boolean; }
 
-        @Interface
+        @\`interface\`
         model Reactable { likeCount: int32; dislikeCount: int32; }
 
         @compose(Node)
@@ -70,7 +70,7 @@ describe("schema: core content platform", () => {
         @compose(Node, Reactable)
         model Review { ...Node; ...Reactable; rating: int32; text: string; reviewer: User; }
 
-        @Interface(#{interfaceOnly: true})
+        @\`interface\`(#{interfaceOnly: true})
         @compose(Connection)
         model PagedConnection { ...Connection; pageSize: int32; currentPage: int32; }
 

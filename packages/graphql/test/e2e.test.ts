@@ -386,10 +386,10 @@ describe("e2e: unions", () => {
 });
 
 describe("e2e: interfaces", () => {
-  it("renders @Interface model as interface with suffix", async () => {
+  it("renders @interface model as interface with suffix", async () => {
     const result = await emitSingleSchemaWithDiagnostics(`
       @schema namespace Test {
-        @Interface model Animal { name: string; }
+        @\`interface\` model Animal { name: string; }
         @compose(Animal)
         model Cat { name: string; breed: string; }
         @query op getCat(): Cat;
@@ -697,7 +697,7 @@ describe("e2e: @compose does not produce false incompatible diagnostics", () => 
   it("no diagnostics for @compose with spread properties", async () => {
     const result = await emitSingleSchemaWithDiagnostics(`
       @schema namespace Test {
-        @Interface(#{interfaceOnly: true})
+        @\`interface\`(#{interfaceOnly: true})
         model Node { id: GraphQL.ID; }
 
         @compose(Node)
@@ -726,10 +726,10 @@ describe("e2e: @compose does not produce false incompatible diagnostics", () => 
   it("no diagnostics for @compose with multiple interfaces", async () => {
     const result = await emitSingleSchemaWithDiagnostics(`
       @schema namespace Test {
-        @Interface(#{interfaceOnly: true})
+        @\`interface\`(#{interfaceOnly: true})
         model Node { id: GraphQL.ID; }
 
-        @Interface
+        @\`interface\`
         model Named { name: string; }
 
         @compose(Node, Named)

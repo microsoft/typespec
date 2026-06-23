@@ -99,7 +99,7 @@ export const libDef = {
     "invalid-interface": {
       severity: "error",
       messages: {
-        default: paramMessage`All models used with \`@compose\` must be marked as an \`@Interface\`, but ${"interface"} is not.`,
+        default: paramMessage`All models used with \`@compose\` must be marked with \`@interface\`, but ${"interface"} is not.`,
       },
     },
     "circular-interface": {
@@ -176,8 +176,8 @@ export const libDef = {
     },
     operationFields: { description: "State for the @operationFields decorator." },
     compose: { description: "State for the @compose decorator." },
-    interface: { description: "State for the @Interface decorator." },
-    interfaceOnly: { description: "State for @Interface(#{interfaceOnly: true})." },
+    interface: { description: "State for the @interface decorator." },
+    interfaceOnly: { description: "State for @interface(#{interfaceOnly: true})." },
     schema: { description: "State for the @schema decorator." },
     specifiedBy: { description: "State for the @specifiedBy decorator." },
   },

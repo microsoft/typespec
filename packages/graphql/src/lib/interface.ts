@@ -131,12 +131,12 @@ function validateImplementsInterfacesProperties(
   return valid;
 }
 
-export const $Interface: DecoratorFunction = (
+export const $interface: DecoratorFunction = (
   context: DecoratorContext,
   target: Model,
   options?: { interfaceOnly?: boolean },
 ) => {
-  validateDecoratorUniqueOnNode(context, target, $Interface);
+  validateDecoratorUniqueOnNode(context, target, $interface);
   setInterface(context.program, target as Interface);
   if (options?.interfaceOnly) {
     setInterfaceOnly(context.program, target as Interface);

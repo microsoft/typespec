@@ -8,10 +8,10 @@ import { describe, expect, it } from "vitest";
 import { getComposition, isInterface } from "../src/lib/interface.js";
 import { Tester } from "./test-host.js";
 
-describe("@Interface", () => {
+describe("@interface", () => {
   it("Marks the model as an interface", async () => {
     const { TestModel, program } = await Tester.compile(t.code`
-      @Interface
+      @\`interface\`
       model ${t.model("TestModel")} {}
     `);
 
@@ -22,7 +22,7 @@ describe("@Interface", () => {
 describe("@compose", () => {
   it("Can compose and store the composition", async () => {
     const { TestModel, AnInterface, program } = await Tester.compile(t.code`
-      @Interface
+      @\`interface\`
       model ${t.model("AnInterface")} {}
 
       @compose(AnInterface)
@@ -36,9 +36,9 @@ describe("@compose", () => {
 
   it("Can compose multiple interfaces", async () => {
     const { TestModel, FirstInterface, SecondInterface, program } = await Tester.compile(t.code`
-      @Interface
+      @\`interface\`
       model ${t.model("FirstInterface")} {}
-      @Interface
+      @\`interface\`
       model ${t.model("SecondInterface")} {}
 
       @compose(FirstInterface, SecondInterface)
@@ -54,7 +54,7 @@ describe("@compose", () => {
 
   it("Can spread properties from the interface", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 
@@ -68,7 +68,7 @@ describe("@compose", () => {
 
   it("Can extend properties from the interface", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 
@@ -80,7 +80,7 @@ describe("@compose", () => {
 
   it("Can copy the interface", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 
@@ -92,7 +92,7 @@ describe("@compose", () => {
 
   it("Can receive properties from a template", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
       
@@ -119,13 +119,13 @@ describe("@compose", () => {
     expectDiagnostics(diagnostics, {
       code: "@typespec/graphql/invalid-interface",
       message:
-        "All models used with `@compose` must be marked as an `@Interface`, but NotAnInterface is not.",
+        "All models used with `@compose` must be marked with `@interface`, but NotAnInterface is not.",
     });
   });
 
   it("Requires that all implemented models are Interfaces", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {}
+      @\`interface\` model AnInterface {}
       model NotAnInterface {}
 
       @compose(AnInterface, NotAnInterface)
@@ -134,17 +134,17 @@ describe("@compose", () => {
     expectDiagnostics(diagnostics, {
       code: "@typespec/graphql/invalid-interface",
       message:
-        "All models used with `@compose` must be marked as an `@Interface`, but NotAnInterface is not.",
+        "All models used with `@compose` must be marked with `@interface`, but NotAnInterface is not.",
     });
   });
 
   it("Allows Interfaces to implement other Interfaces", async () => {
     const { AnInterface, AnotherInterface, program } = await Tester.compile(t.code`
-      @Interface
+      @\`interface\`
       model ${t.model("AnotherInterface")} {}
 
       @compose(AnotherInterface)
-      @Interface
+      @\`interface\`
       model ${t.model("AnInterface")} {}
     `);
 
@@ -157,7 +157,7 @@ describe("@compose", () => {
   it("Does not allow an interface to implement itself", async () => {
     const diagnostics = await Tester.diagnose(`
       @compose(AnInterface)
-      @Interface
+      @\`interface\`
       @test model AnInterface {}
     `);
     expectDiagnostics(diagnostics, {
@@ -168,7 +168,7 @@ describe("@compose", () => {
 
   it("Requires that all Interface properties are implemented", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 
@@ -184,7 +184,7 @@ describe("@compose", () => {
 
   it("Requires that all Interface properties are compatible", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 
@@ -201,7 +201,7 @@ describe("@compose", () => {
 
   it("Allows additional properties", async () => {
     const diagnostics = await Tester.diagnose(`
-      @Interface model AnInterface {
+      @\`interface\` model AnInterface {
         prop: string;
       }
 

@@ -233,7 +233,7 @@ describe("mutateSchema", () => {
   it("mutateDecoratorTypeArgs does not corrupt source type decorator args", async () => {
     await tester.compile(
       t.code`
-        @Interface model ${t.model("Animal")} { name: string; }
+        @\`interface\` model ${t.model("Animal")} { name: string; }
         @compose(Animal)
         model ${t.model("Cat")} { name: string; breed: string; }
         op ${t.op("getCat")}(): Cat;
@@ -255,10 +255,10 @@ describe("mutateSchema", () => {
     expect((sourceComposeArg!.value as any).name).toBe("Animal");
   });
 
-  it("interfaceOnly @Interface model used as output does not produce name collision", async () => {
+  it("interfaceOnly @interface model used as output does not produce name collision", async () => {
     await tester.compile(
       t.code`
-        @Interface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
+        @\`interface\`(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
         op ${t.op("getNode")}(): Node;
       `,
     );

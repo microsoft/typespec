@@ -10,7 +10,7 @@ export enum GraphQLTypeContext {
   Input = "input",
   /** Type reachable from operation return types */
   Output = "output",
-  /** Model marked with @Interface — emits as a GraphQL interface declaration */
+  /** Model marked with @interface — emits as a GraphQL interface declaration */
   Interface = "interface",
 }
 
