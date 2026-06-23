@@ -49,6 +49,10 @@ namespace Microsoft.TypeSpec.Generator
             AddGeneratedXmlDocCrefReferences(project, publicGraph, publicOnly: true);
             var internalizeReferences = CloneReferences(publicGraph.References);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
+            if (ShouldUseUnionVariantFallbackRoots())
+            {
+                AddUnionVariantRoots(internalizeRoots, providers, graph.Nodes);
+            }
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
             internalizeRoots.UnionWith(customPublicRoots);
@@ -101,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator
                 helperRoots: [],
                 includeModelFactory: true,
                 includeAdditionalRoots: true,
-                includeUnionVariantRoots: false,
+                includeUnionVariantRoots: ShouldUseUnionVariantFallbackRoots(),
                 publicClientRootsOnly: false);
             removeRoots.UnionWith(customRemovalRoots);
             RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, project);
@@ -1050,6 +1054,10 @@ namespace Microsoft.TypeSpec.Generator
                 AddMatchingName(roots, GetProviderTypeName(provider.Type), nodes);
             }
         }
+
+        private static bool ShouldUseUnionVariantFallbackRoots() =>
+            !CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
+            CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
         private static bool IsImplementationOnlyModelFactoryMethod(MethodProvider method)
         {
