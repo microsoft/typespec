@@ -29,15 +29,17 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
     const typeGraph = buildSchema(context, schema.type);
     if (typeGraph) {
       const sdl = renderSchema(context.program, typeGraph);
-      const outputFile = context.options["output-file"] ?? "{schema-name}.graphql";
-      const fileName = interpolatePath(outputFile, {
-        "schema-name": schema.name ?? "schema",
-      });
-      await emitFile(context.program, {
-        path: resolvePath(context.emitterOutputDir, fileName),
-        content: sdl,
-        newLine: context.options["new-line"] ?? "lf",
-      });
+      if (!context.program.compilerOptions.dryRun) {
+        const outputFile = context.options["output-file"] ?? "{schema-name}.graphql";
+        const fileName = interpolatePath(outputFile, {
+          "schema-name": schema.name ?? "schema",
+        });
+        await emitFile(context.program, {
+          path: resolvePath(context.emitterOutputDir, fileName),
+          content: sdl,
+          newLine: context.options["new-line"] ?? "lf",
+        });
+      }
     }
   }
 }

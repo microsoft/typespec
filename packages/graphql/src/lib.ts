@@ -166,6 +166,9 @@ export const libDef = {
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
+    capabilities: {
+      dryRun: true,
+    },
   },
   state: {
     operationKind: {
