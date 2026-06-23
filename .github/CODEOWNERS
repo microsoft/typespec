@@ -47,4 +47,4 @@ cspell.yaml
 ######################
 # GraphQL
 ######################
-/packages/graphql/                           @steverice @swatkatz @fionabronwen @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/graphql/                           @bterlson @markcowl @allenjzhang @timotheeguerin
