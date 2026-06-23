@@ -163,6 +163,18 @@ export const libDef = {
           "GraphQL schema has no operations. At minimum a Query root type is required.",
       },
     },
+    "empty-enum": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Enum "${"name"}" must define at least one value. GraphQL enums cannot be empty.`,
+      },
+    },
+    "reserved-name": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Name "${"name"}" must not begin with "__" (two underscores), which is reserved by GraphQL for introspection.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
