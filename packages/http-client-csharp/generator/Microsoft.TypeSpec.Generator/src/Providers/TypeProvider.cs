@@ -420,7 +420,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customSignature.Parameters,
                 removeDefaults: true);
 
-            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(
+                customSignature,
+                requiredParameters,
+                generatedMethod.Signature.ReturnType);
 
             MethodProvider partialMethod = generatedMethod.BodyExpression != null
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)

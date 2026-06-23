@@ -468,6 +468,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task CustomPartialMethodImplementationUsesGeneratorReturnType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The generator's resolved return type carries a namespace. The custom partial
+            // declaration references the same type by name, but it is unresolved when read (a
+            // type generated into the same assembly), so its parsed CSharpType has no namespace.
+            var generatorReturnType = new CSharpType(
+                "CustomReturnModel",
+                "Sample.Models",
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: true,
+                isStruct: false);
+
+            var inputParam = new ParameterProvider("input", $"The input value.", typeof(string));
+            var generatedMethod = new MethodProvider(
+                new MethodSignature(
+                    "MyMethod",
+                    $"Does something.",
+                    MethodSignatureModifiers.Static,
+                    generatorReturnType,
+                    $"The result.",
+                    [inputParam]),
+                inputParam.Invoke("ToString").Terminate(),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "CustomPartialReturnType", methods: [generatedMethod]);
+
+            var method = typeProvider.Methods.Single();
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // The implementation must use the generator's resolved return type (with namespace),
+            // not the customer's unresolved parsed return type (empty namespace).
+            Assert.AreEqual("Sample.Models", method.Signature.ReturnType!.Namespace);
+            Assert.AreEqual("CustomReturnModel", method.Signature.ReturnType.Name);
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethod(method);
+            var result = codeWriter.ToString(false);
+
+            // Regression guard: an empty-namespace return type renders as the malformed `global::.`.
+            Assert.IsFalse(
+                result.Contains("global::."),
+                $"Partial implementation wrote a return type with no namespace:\n{result}");
+        }
+
+        [Test]
         public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
