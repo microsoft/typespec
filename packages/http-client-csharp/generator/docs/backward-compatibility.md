@@ -38,6 +38,15 @@ When generating code, the generator can optionally receive a compiled assembly f
 2. Compares the generated types against the types in the last contract
 3. Automatically generates compatibility methods, properties, or enum members where differences are detected
 
+### ApiCompat Baseline Awareness
+
+Sometimes a breaking change (such as removing a model or a model factory method) is intentional and has already been reviewed and accepted. In the Azure SDK, such accepted breaking changes are recorded in an [ApiCompat](https://github.com/dotnet/sdk/tree/main/src/Compatibility) baseline (suppression) file, conventionally located at `eng/apicompatbaselines/<AssemblyName>.txt`.
+
+Without awareness of these files, the back-compat system would resurrect every member present in the last contract — re-introducing the very API that was intentionally removed (and potentially referencing types that no longer exist). To prevent this, the generator discovers the baseline file by walking up from the project directory and parses its `TypesMustExist` and `MembersMustExist` suppressions. Before regenerating a compatibility shim for a removed member, the back-compat code checks whether the removal has been accepted in the baseline (matched by declaring-type full name, member name, and parameter count) and, if so, skips it.
+
+> [!NOTE]
+> Baseline awareness is currently wired into the model factory back-compat path (`ModelFactoryProvider`). The other back-compat consumers (`ClientProvider`, `ModelProvider` constructors/properties, the enum providers, and `RestClientProvider`) can be made baseline-aware in the same way as a follow-up.
+
 ## Supported Scenarios
 
 ### Model Factory Methods

@@ -116,6 +116,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                // If the removal of this factory method has already been accepted in the ApiCompat
+                // baseline, honor that decision and do not resurrect a compatibility shim for it.
+                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
+                        Type.FullyQualifiedName,
+                        previousMethod.Signature.Name,
+                        previousMethod.Signature.Parameters.Count) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.");
+                    continue;
+                }
+
                 List<MethodSignature> currentOverloads = [];
                 bool foundCompatibleOverload = false;
 
