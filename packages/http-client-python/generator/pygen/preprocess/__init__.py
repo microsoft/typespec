@@ -337,16 +337,30 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
             # Add typeddict overload for non-spread dpg models
             if self.options["models-mode"] == "dpg" and is_dpg_model:
+                cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                existing_td = next(
+                    (
+                        t
+                        for t in code_model["types"]
+                        if t.get("type") == "model"
+                        and t.get("base") == "typeddict"
+                        and t.get("crossLanguageDefinitionId") == cross_lang_id
+                    ),
+                    None,
+                )
                 if origin_type == "model":
-                    td_type = {**model_type, "base": "typeddict"}
+                    td_type = existing_td or {**model_type, "base": "typeddict"}
                     body_parameter["type"]["types"].insert(1, td_type)
-                    code_model["types"].append(td_type)
+                    if not existing_td:
+                        code_model["types"].append(td_type)
                 else:
                     # dict or list — replace elementType with TypedDict reference
                     td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                    td_list_or_dict["elementType"] = {**model_type, "base": "typeddict"}
+                    td_elem = existing_td or {**model_type, "base": "typeddict"}
+                    td_list_or_dict["elementType"] = td_elem
                     body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                    code_model["types"].append(td_list_or_dict["elementType"])
+                    if not existing_td:
+                        code_model["types"].append(td_elem)
 
             # For spread bodies (json base), add a typeddict overload that references
             # the original model. This replaces the JSON single-body overload.

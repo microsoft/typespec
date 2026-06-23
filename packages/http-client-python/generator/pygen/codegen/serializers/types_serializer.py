@@ -73,8 +73,28 @@ class TypesSerializer(BaseSerializer):
 
     @property
     def typeddict_models(self) -> list[ModelType]:
-        """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions)."""
-        return [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
+        """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions).
+
+        When both a dpg model and its typeddict copy exist (same crossLanguageDefinitionId),
+        prefer the dpg model (it already renders as a TypedDict in types.py) and skip the copy.
+        """
+        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
+        seen_ids: dict[str, "ModelType"] = {}
+        result: list["ModelType"] = []
+        for m in candidates:
+            clid = m.yaml_data.get("crossLanguageDefinitionId")
+            if clid and clid in seen_ids:
+                # Prefer the dpg model over the typeddict copy
+                if m.base == "dpg" and seen_ids[clid].base == "typeddict":
+                    # Replace the typeddict copy with the dpg model
+                    result = [r if r is not seen_ids[clid] else m for r in result]
+                    seen_ids[clid] = m
+                # Otherwise skip this duplicate
+                continue
+            if clid:
+                seen_ids[clid] = m
+            result.append(m)
+        return result
 
     @property
     def discriminated_base_models(self) -> list[ModelType]:
