@@ -11,7 +11,6 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 
@@ -31,14 +30,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // Generated-code dependencies come from providers. Custom code still needs Roslyn
             // because arbitrary user C# can reference generated types in ways providers cannot see.
-            var existingGeneratedPublicRoots = GetExistingGeneratedPublicTypeRoots(graph.Nodes);
-            var existingGeneratedPublicXmlDocRoots = GetExistingGeneratedPublicXmlDocTypeRoots(graph.Nodes);
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(project, graph.Nodes);
             customPublicRoots.UnionWith(GetApiBaselineGeneratedTypeRoots(graph.Nodes));
-            customPublicRoots.UnionWith(existingGeneratedPublicRoots);
             var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
-            customRemovalRoots.UnionWith(existingGeneratedPublicRoots);
-            customRemovalRoots.UnionWith(existingGeneratedPublicXmlDocRoots);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(providers, graph.Nodes);
 
@@ -46,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
             var generatedDiscriminatorBaseNames = GetGeneratedPersistableModelProxyTypeNames(project, publicGraph.Nodes);
             var internalizeReferences = CloneReferences(publicGraph.References);
-            var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
+            var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true);
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
             internalizeRoots.UnionWith(customPublicRoots);
@@ -96,6 +90,8 @@ namespace Microsoft.TypeSpec.Generator
             removeRoots.UnionWith(customRemovalRoots);
             RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, project);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
+            AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
+            removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             var removeHelperRoots = GetHelperRootNames(providers, graph.Nodes, removeReachableWithoutHelpers, graph.References);
             removeRoots.UnionWith(removeHelperRoots);
             var removeReachable = GetReachableTypes(removeRoots, graph.References);
@@ -259,80 +255,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return roots;
-        }
-
-        private static HashSet<string> GetExistingGeneratedPublicTypeRoots(HashSet<string> generatedTypeNames)
-        {
-            var roots = new HashSet<string>(StringComparer.Ordinal);
-            var generatedDirectory = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
-            if (string.IsNullOrEmpty(generatedDirectory) || !Directory.Exists(generatedDirectory))
-            {
-                return roots;
-            }
-
-            foreach (var file in Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories))
-            {
-                var text = File.ReadAllText(file);
-                if (!text.Contains("public", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                var root = CSharpSyntaxTree.ParseText(text).GetRoot();
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    if (!declaration.Modifiers.Any(SyntaxKind.PublicKeyword))
-                    {
-                        continue;
-                    }
-
-                    AddMatchingName(roots, declaration.Identifier.ValueText, generatedTypeNames);
-                }
-            }
-
-            return roots;
-        }
-
-        private static HashSet<string> GetExistingGeneratedPublicXmlDocTypeRoots(HashSet<string> generatedTypeNames)
-        {
-            var roots = new HashSet<string>(StringComparer.Ordinal);
-            var generatedDirectory = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
-            if (string.IsNullOrEmpty(generatedDirectory) || !Directory.Exists(generatedDirectory))
-            {
-                return roots;
-            }
-
-            foreach (var file in Directory.GetFiles(generatedDirectory, "*.cs", SearchOption.AllDirectories))
-            {
-                var text = File.ReadAllText(file);
-                if (!text.Contains("public", StringComparison.Ordinal) || !text.Contains("cref", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                var root = CSharpSyntaxTree.ParseText(text).GetRoot();
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    AddXmlDocCrefRoots(roots, declaration.GetLeadingTrivia(), generatedTypeNames);
-                    foreach (var member in declaration.DescendantNodes().OfType<MemberDeclarationSyntax>())
-                    {
-                        AddXmlDocCrefRoots(roots, member.GetLeadingTrivia(), generatedTypeNames);
-                    }
-                }
-            }
-
-            return roots;
-        }
-
-        private static void AddXmlDocCrefRoots(HashSet<string> roots, SyntaxTriviaList trivia, HashSet<string> generatedTypeNames)
-        {
-            foreach (var structuredTrivia in trivia.Select(static item => item.GetStructure()).OfType<DocumentationCommentTriviaSyntax>())
-            {
-                foreach (var cref in structuredTrivia.DescendantNodes().OfType<XmlCrefAttributeSyntax>())
-                {
-                    AddMatchingName(roots, cref.Cref.ToString(), generatedTypeNames);
-                }
-            }
         }
 
         private static bool ContainsApiTypeReference(string apiText, string fullName, string simpleName)
