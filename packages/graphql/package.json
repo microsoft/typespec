@@ -43,7 +43,8 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "regen-docs": "tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/graphql/reference"
   },
   "files": [
     "lib/*.tsp",
@@ -64,6 +65,7 @@
     "@typespec/emitter-framework": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/mutator-framework": "workspace:~",
+    "@typespec/tspd": "workspace:~",
     "rimraf": "~6.0.1",
     "source-map-support": "~0.5.21",
     "typescript": "~5.8.2",
