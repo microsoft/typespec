@@ -54,6 +54,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
 
+        protected override IReadOnlyList<string> BuildHelperDependencyNames() => _model.Properties.Any(
+            prop => prop.WireInfo != null && !prop.WireInfo.IsRequired &&
+                (prop.Type is { IsCollection: true, IsReadOnlyMemory: false } || prop.Type.IsDictionary))
+            ? ["Optional"]
+            : [];
+
         protected override ConstructorProvider[] BuildConstructors()
         {
             if (_hasJsonOrXmlUsage)
