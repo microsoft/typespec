@@ -966,6 +966,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Build constructor parameters first so we can use them for initializer
             foreach (var property in CanonicalView.Properties)
             {
+                if (ShouldOmitDiscriminatorParameterFromPublicConstructor(property, isInitializationConstructor))
+                {
+                    continue;
+                }
+
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
@@ -1028,6 +1033,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return (constructorParameters, constructorInitializer);
         }
+
+        private bool ShouldOmitDiscriminatorParameterFromPublicConstructor(PropertyProvider property, bool isInitializationConstructor)
+            => isInitializationConstructor
+                && property.IsDiscriminator
+                && _inputModel.DiscriminatorProperty is not null
+                && _inputModel.DiscriminatorValue is null
+                && _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract);
 
         private bool HasBaseModelProviderCycle()
         {
