@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -1326,6 +1327,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Spec type (non-nullable int) is preserved because there is no last contract to compare to.
             Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
             Assert.IsFalse(countProperty.Type.IsNullable);
+        }
+
+        [Test]
+        public async Task BackCompat_PropertyTypeChangeAllowedWhenPreviousTypeSuppressed()
+        {
+            // The last contract has `string Count { get; set; }` and the new spec says int. Normally
+            // the generator preserves the last contract's `string` type. Here the previous type has
+            // been intentionally removed and that removal is accepted in the ApiCompat baseline, so the
+            // generator must allow the property to take its current (spec) type instead of preserving
+            // a now-removed type.
+            var baseline = ApiCompatBaseline.Parse(new[]
+            {
+                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
+            });
+
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers"),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // The previous `string` type is a baseline-accepted removal, so the current spec type
+            // (int) is kept rather than being reverted to `string`.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
         }
 
         [Test]

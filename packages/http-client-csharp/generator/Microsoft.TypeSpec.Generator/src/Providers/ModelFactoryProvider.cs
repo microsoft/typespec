@@ -123,8 +123,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         previousMethod.Signature.Name,
                         previousMethod.Signature.Parameters.Count) == true)
                 {
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.");
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
                     continue;
                 }
 

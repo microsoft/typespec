@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using NUnit.Framework;
 
@@ -124,6 +126,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
             });
 
             Assert.IsTrue(baseline.IsEmpty);
+        }
+
+        [Test]
+        public void ReferencesSuppressedTypeMatchesDirectType()
+        {
+            var baseline = ApiCompatBaseline.Parse(new[]
+            {
+                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
+            });
+
+            Assert.IsTrue(baseline.ReferencesSuppressedType(new CSharpType(typeof(string))));
+            Assert.IsFalse(baseline.ReferencesSuppressedType(new CSharpType(typeof(int))));
+        }
+
+        [Test]
+        public void ReferencesSuppressedTypeMatchesNestedGenericArgument()
+        {
+            var baseline = ApiCompatBaseline.Parse(new[]
+            {
+                "TypesMustExist : Type 'System.String' does not exist in the implementation but it does exist in the contract.",
+            });
+
+            // IList<string> -- the suppressed type is nested as a generic argument.
+            var listOfString = new CSharpType(typeof(IList<>), new CSharpType(typeof(string)));
+            Assert.IsTrue(baseline.ReferencesSuppressedType(listOfString));
+
+            var listOfInt = new CSharpType(typeof(IList<>), new CSharpType(typeof(int)));
+            Assert.IsFalse(baseline.ReferencesSuppressedType(listOfInt));
+        }
+
+        [Test]
+        public void ReferencesSuppressedTypeReturnsFalseForNullOrEmptyBaseline()
+        {
+            Assert.IsFalse(ApiCompatBaseline.Empty.ReferencesSuppressedType(new CSharpType(typeof(string))));
+            Assert.IsFalse(ApiCompatBaseline.Empty.ReferencesSuppressedType(null));
         }
     }
 }

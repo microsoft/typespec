@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.SourceInput
 {
@@ -140,6 +141,36 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             }
 
             return _suppressedMembers.Contains(new MemberKey(declaringTypeFullName, memberName, parameterCount));
+        }
+
+        /// <summary>
+        /// Determines whether the given type, or any of its generic argument types, refers to a type
+        /// whose removal has been accepted in the baseline (a <c>TypesMustExist</c> suppression). This
+        /// is used by the back-compat code to recognize when a previously-published type can no longer
+        /// be referenced (for example when preserving a property's previous type would point at a type
+        /// that has been intentionally removed).
+        /// </summary>
+        public bool ReferencesSuppressedType(CSharpType? type)
+        {
+            if (type is null || _suppressedTypes.Count == 0)
+            {
+                return false;
+            }
+
+            if (IsTypeSuppressed(type.FullyQualifiedName))
+            {
+                return true;
+            }
+
+            foreach (var argument in type.Arguments)
+            {
+                if (ReferencesSuppressedType(argument))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool TryExtractQuoted(string message, out string value)
