@@ -1,3 +1,4 @@
+import "../dist/src/tsp-index.js";
 import "./interface.tsp";
 import "./nullable.tsp";
 import "./one-of.tsp";

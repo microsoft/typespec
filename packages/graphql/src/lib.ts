@@ -1,7 +1,5 @@
 import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
-export const NAMESPACE = "TypeSpec.GraphQL";
-
 export interface GraphQLEmitterOptions {
   /**
    * Name of the output file.

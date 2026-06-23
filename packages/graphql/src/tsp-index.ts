@@ -1,18 +1,25 @@
 import type { DecoratorImplementations } from "@typespec/compiler";
-import { NAMESPACE } from "./lib.js";
+import { $lib } from "./lib.js";
 import { $compose, $interface } from "./lib/interface.js";
+import { $nullable, $nullableElements } from "./lib/nullable.js";
+import { $oneOf } from "./lib/one-of.js";
 import { $operationFields } from "./lib/operation-fields.js";
 import { $mutation, $query, $subscription } from "./lib/operation-kind.js";
 import { $schema } from "./lib/schema.js";
 import { $specifiedBy } from "./lib/specified-by.js";
 
+export { $lib };
+
 export const $decorators: DecoratorImplementations = {
-  [NAMESPACE]: {
+  "TypeSpec.GraphQL": {
     compose: $compose,
     interface: $interface,
     mutation: $mutation,
-    query: $query,
+    nullable: $nullable,
+    nullableElements: $nullableElements,
+    oneOf: $oneOf,
     operationFields: $operationFields,
+    query: $query,
     schema: $schema,
     specifiedBy: $specifiedBy,
     subscription: $subscription,

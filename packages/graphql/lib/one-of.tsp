@@ -1,5 +1,3 @@
-import "../dist/src/lib/one-of.js";
-
 using TypeSpec.Reflection;
 
 namespace TypeSpec.GraphQL;

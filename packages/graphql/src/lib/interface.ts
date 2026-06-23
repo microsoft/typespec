@@ -9,14 +9,11 @@ import {
 } from "@typespec/compiler";
 
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
-import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
+import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 import { propertiesEqual } from "./utils.js";
 
 declare const tags: unique symbol;
 type Tagged<BaseType, Tag extends PropertyKey> = BaseType & { [tags]: { [K in Tag]: void } };
-
-// This will set the namespace for decorators implemented in this file
-export const namespace = NAMESPACE;
 
 /** An Interface is a model that has been marked as an Interface */
 type Interface = Tagged<Model, "interface">;

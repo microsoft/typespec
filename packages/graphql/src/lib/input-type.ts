@@ -1,7 +1,4 @@
 import type { DecoratorContext, DecoratorFunction, Model, Type } from "@typespec/compiler";
-import { NAMESPACE } from "../lib.js";
-
-export const namespace = NAMESPACE;
 
 export const $inputType: DecoratorFunction = (
   _context: DecoratorContext,

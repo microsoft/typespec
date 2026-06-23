@@ -1,10 +1,7 @@
 import { type DecoratorContext, type Operation } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
-import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
-
-// This will set the namespace for decorators implemented in this file
-export const namespace = NAMESPACE;
+import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 
 export type GraphQLOperationKind = "Mutation" | "Query" | "Subscription";
 

@@ -1,5 +1,3 @@
-import "../dist/src/lib/operation-fields.js";
-
 using TypeSpec.Reflection;
 
 namespace TypeSpec.GraphQL;

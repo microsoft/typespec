@@ -6,10 +6,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { GraphQLKeys, NAMESPACE } from "../lib.js";
-
-// This will set the namespace for decorators implemented in this file
-export const namespace = NAMESPACE;
+import { GraphQLKeys } from "../lib.js";
 
 const [getSpecifiedByUrl, setSpecifiedByUrl] = useStateMap<Scalar, string>(GraphQLKeys.specifiedBy);
 

@@ -1,5 +1,3 @@
-import "../dist/src/lib/nullable.js";
-
 using TypeSpec.Reflection;
 
 namespace TypeSpec.GraphQL;

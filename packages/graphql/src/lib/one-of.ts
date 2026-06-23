@@ -1,8 +1,4 @@
 import type { DecoratorContext, DecoratorFunction, Model } from "@typespec/compiler";
-import { NAMESPACE } from "../lib.js";
-
-// This will set the namespace for decorators implemented in this file
-export const namespace = NAMESPACE;
 
 /**
  * Decorator implementation for `@oneOf`.

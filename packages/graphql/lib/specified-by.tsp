@@ -1,5 +1,3 @@
-import "../dist/src/lib/specified-by.js";
-
 using TypeSpec.Reflection;
 
 namespace TypeSpec.GraphQL;

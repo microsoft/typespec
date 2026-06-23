@@ -8,11 +8,8 @@ import {
   type Program,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { GraphQLKeys, NAMESPACE, reportDiagnostic } from "../lib.js";
+import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 import { operationsEqual } from "./utils.js";
-
-// This will set the namespace for decorators implemented in this file
-export const namespace = NAMESPACE;
 
 const [getOperationFieldsInternal, setOperationFields, _getOperationFieldsMap] = useStateMap<
   Model,
