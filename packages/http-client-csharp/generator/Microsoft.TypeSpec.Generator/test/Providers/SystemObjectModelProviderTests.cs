@@ -83,7 +83,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -119,7 +122,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -158,7 +164,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -229,7 +238,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 

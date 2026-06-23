@@ -1881,7 +1881,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (IsNonNullableValueType(propertyType) || (propertyIsRequired && !propertyIsNullable)))
             {
                 if (patchCheck == null)
+                {
                     return writePropertySerializationStatement;
+                }
 
                 return (propertyType.IsList || propertyType.IsArray)
                     ? CreateConditionalPatchSerializationStatement(jsonSerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
@@ -2208,18 +2210,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (valueType.IsStruct) // extensible enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke(nameof(ToString)));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
                 else // fixed enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(int)))
+                    {
                         // when the fixed enum is implemented as int, we cast to the value
                         return utf8JsonWriter.WriteNumberValue(value.CastTo(valueType.UnderlyingEnumType));
+                    }
 
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
@@ -2227,7 +2235,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Handle non-enum types
             if (!valueType.IsFrameworkType)
+            {
                 return utf8JsonWriter.WriteObjectValue(value.As(valueType), options: mrwOptionsParameter);
+            }
 
             // Handle framework types
             var frameworkType = valueType.FrameworkType;

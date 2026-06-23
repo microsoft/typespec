@@ -175,7 +175,9 @@ namespace Microsoft.TypeSpec.Generator
         public ModelProvider? CreateModel(InputModelType model)
         {
             if (InputTypeToModelProvider.TryGetValue(model, out var modelProvider))
+            {
                 return modelProvider;
+            }
 
             // Add sentinel before construction to prevent re-entrant creation of the same model
             // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
@@ -227,7 +229,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var enumCacheKey = new EnumCacheKey(enumType, declaringType);
             if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
+            {
                 return enumProvider;
+            }
 
             enumProvider = CreateEnumCore(enumType, declaringType);
 
@@ -340,7 +344,9 @@ namespace Microsoft.TypeSpec.Generator
         public PropertyProvider? CreateProperty(InputProperty property, TypeProvider enclosingType)
         {
             if (PropertyCache.TryGetValue(property, out var propertyProvider))
+            {
                 return propertyProvider;
+            }
 
             propertyProvider = CreatePropertyCore(property, enclosingType);
             PropertyCache.Add(property, propertyProvider);
@@ -466,7 +472,9 @@ namespace Microsoft.TypeSpec.Generator
         public IReadOnlyList<TypeProvider> CreateSerializations(InputType inputType, TypeProvider typeProvider)
         {
             if (SerializationsCache.TryGetValue(inputType, out var serializations))
+            {
                 return serializations;
+            }
 
             serializations = CreateSerializationsCore(inputType, typeProvider);
             SerializationsCache.Add(inputType, serializations);

@@ -325,7 +325,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _inputModel.Properties)
             {
                 if (IsDiscriminator(property))
+                {
                     continue;
+                }
 
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
@@ -659,9 +661,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
         {
             if (baseProperty.Type.Name != derivedProperty.Type.Name)
+            {
                 return false;
+            }
+
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
+            {
                 return false;
+            }
+
             var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
@@ -997,7 +1005,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
                 if (RawDataField != null && !SupportsBinaryDataAdditionalProperties)
+                {
                     constructorParameters.Add(RawDataField.AsParameter);
+                }
             }
 
             return (constructorParameters, constructorInitializer);
@@ -1222,12 +1232,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var wireInfo = property?.WireInfo ?? field?.WireInfo;
             // skip those non-spec properties
             if (wireInfo == null)
+            {
                 return;
+            }
 
             // skip if this is an overload / new of a base property
             // also skip if the base was required or the derived property is not required
             if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+            {
                 return;
+            }
 
             ValueExpression assignee = property != null
                 ? property.BackingField is null ? property : property.BackingField

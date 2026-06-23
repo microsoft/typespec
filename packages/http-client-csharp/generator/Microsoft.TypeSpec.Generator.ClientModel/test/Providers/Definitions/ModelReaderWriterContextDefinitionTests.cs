@@ -408,7 +408,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 {
                     // Map string property to a framework type that implements MRW
                     if (input == InputPrimitiveType.String)
+                    {
                         return new CSharpType(typeof(FrameworkModelWithMRW));
+                    }
+
                     return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
                 },
                 createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
@@ -448,7 +451,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 createModelCore: input =>
                 {
                     if (input.Name == "NonMRWModel")
+                    {
                         return new NonMRWModelProvider(input);
+                    }
+
                     return new ModelProvider(input);
                 });
 
@@ -562,7 +568,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 createCSharpTypeCore: input =>
                 {
                     if (input == InputPrimitiveType.String)
+                    {
                         return new CSharpType(typeof(ComplexFrameworkType));
+                    }
+
                     return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
                 },
                 createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
@@ -684,7 +693,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 createCSharpTypeCore: input =>
                 {
                     if (input == InputPrimitiveType.String)
+                    {
                         return new CSharpType(typeof(NestedFrameworkType));
+                    }
+
                     return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input)!;
                 });
 

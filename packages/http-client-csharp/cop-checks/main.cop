@@ -2,7 +2,7 @@
 #
 # Each rule's detection logic (predicates) lives in its own file:
 #
-#     braces.cop          -> inline control-flow statements must use braces
+#     braces.cop          -> control-flow statements must use braces
 #     snippet-factory.cop -> expressions must be created via the Snippet factory
 #
 # This file wires those predicates to the C# codebase and exposes one runnable
@@ -18,9 +18,9 @@ import csharp
 let cb : Codebase = provider('csharp')
 
 # Rule: braces.cop
-command CHECK-BRACES = foreach cb.Statements:missingBraces => '{error:@red} {item.File.Path}:{item.Line}: missing braces on inline {item.Kind} statement'
+command CHECK-BRACES = foreach cb.Statements:missingBraces => '{error:@red} {item.File.Path}:{item.Line}: missing braces on {item.Kind} statement'
 
-test no-missing-braces = assert(cb.Statements:missingBraces.Count == 0, 'inline control-flow statements must use braces')
+test no-missing-braces = assert(cb.Statements:missingBraces.Count == 0, 'control-flow statements must use braces')
 
 # Rule: snippet-factory.cop
 command CHECK-SNIPPETS = foreach cb.Lines:usesCtorOverSnippet => '{error:@red} {item.File.Path}:{item.Number}: use the Snippet factory instead of constructing the expression directly -> {item.Text}'

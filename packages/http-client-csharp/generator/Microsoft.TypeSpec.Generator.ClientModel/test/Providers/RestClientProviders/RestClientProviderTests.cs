@@ -636,7 +636,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 foreach (var response in inputOperation.Responses)
                 {
                     if (response.IsErrorResponse)
+                    {
                         continue;
+                    }
+
                     expectedStatusCodes.AddRange(response.StatusCodes);
                 }
 

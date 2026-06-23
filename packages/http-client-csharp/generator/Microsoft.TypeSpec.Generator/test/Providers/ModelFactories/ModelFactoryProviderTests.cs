@@ -40,7 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -63,7 +65,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -86,7 +90,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -108,7 +114,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);

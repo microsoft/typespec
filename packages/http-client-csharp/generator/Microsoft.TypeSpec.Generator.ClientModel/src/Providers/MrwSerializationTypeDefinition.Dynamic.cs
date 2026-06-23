@@ -505,7 +505,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsDirectDynamicListProperty(PropertyProvider property)
         {
             if (!property.Type.IsList && !property.Type.IsArray)
+            {
                 return false;
+            }
+
             return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                 property.Type.ElementType,
                 out var provider) &&

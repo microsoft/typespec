@@ -228,7 +228,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
             {
                 if (constructorSymbol.IsImplicitlyDeclared)
+                {
                     continue;
+                }
 
                 var initializer = ExtractConstructorInitializer(constructorSymbol);
                 var signature = new ConstructorSignature(
@@ -249,11 +251,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // skip property accessors
                 if (methodSymbol.AssociatedSymbol is IPropertySymbol)
+                {
                     continue;
+                }
 
                 // skip constructors
                 if (methodSymbol.MethodKind == MethodKind.Constructor)
+                {
                     continue;
+                }
 
                 var modifiers = GetAccessModifier(methodSymbol.DeclaredAccessibility);
 
@@ -540,16 +546,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Get the first syntax reference for the constructor
             var syntaxReference = constructorSymbol.DeclaringSyntaxReferences.FirstOrDefault();
             if (syntaxReference == null)
+            {
                 return null;
+            }
 
             // Get the syntax node and cast to constructor declaration
             var syntaxNode = syntaxReference.GetSyntax();
             if (syntaxNode is not ConstructorDeclarationSyntax constructorSyntax)
+            {
                 return null;
+            }
 
             // Check if there's an initializer
             if (constructorSyntax.Initializer == null)
+            {
                 return null;
+            }
 
             // Determine if it's 'this' or 'base'
             var isBase = constructorSyntax.Initializer.ThisOrBaseKeyword.IsKind(SyntaxKind.BaseKeyword);

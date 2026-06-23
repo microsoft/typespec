@@ -72,10 +72,15 @@ namespace Microsoft.TypeSpec.Generator.Perf
                 foreach (var parameter in Signature.Parameters)
                 {
                     if (parameter.Validation == ParameterValidationType.None)
+                    {
                         continue;
+                    }
 
                     if (!paramHash.ContainsKey(parameter.Validation))
+                    {
                         paramHash[parameter.Validation] = new List<ParameterProvider>();
+                    }
+
                     paramHash[parameter.Validation].Add(parameter);
                 }
             }
@@ -85,13 +90,18 @@ namespace Microsoft.TypeSpec.Generator.Perf
         private MethodBodyStatement GetStatementsWithHash(MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
             if (paramHash is null)
+            {
                 return bodyStatements;
+            }
 
             int count = 0;
             foreach (var kvp in paramHash)
             {
                 if (kvp.Key == ParameterValidationType.None)
+                {
                     continue;
+                }
+
                 count += kvp.Value.Count;
             }
 
@@ -132,7 +142,9 @@ namespace Microsoft.TypeSpec.Generator.Perf
                 }
             }
             if (wroteValidation)
+            {
                 statements.Add(MethodBodyStatement.EmptyLine);
+            }
 
             statements.Add(original);
             return statements;
@@ -150,7 +162,9 @@ namespace Microsoft.TypeSpec.Generator.Perf
                 }
             }
             if (wroteValidation)
+            {
                 yield return MethodBodyStatement.EmptyLine;
+            }
         }
 
         private IReadOnlyList<MethodBodyStatement> GetValidationStatements()
@@ -166,7 +180,10 @@ namespace Microsoft.TypeSpec.Generator.Perf
                 }
             }
             if (wroteValidation)
+            {
                 statements.Add(MethodBodyStatement.EmptyLine);
+            }
+
             return statements;
         }
     }

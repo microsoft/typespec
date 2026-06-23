@@ -1,34 +1,33 @@
-# Rule: enforce braces on inline control-flow statements in the C# emitter.
+# Rule: enforce braces on every control-flow body in the C# emitter.
 #
-# Flags `if` / `else` / `else if` / `for` / `foreach` / `while` whose body is
-# written inline on the same line as the header without a `{ ... }` block, e.g.:
+# Flags `if` / `else` / `else if` / `for` / `foreach` / `while` whose body is not
+# wrapped in a `{ ... }` block, whether the body is written inline or on its own
+# line, e.g.:
 #
-#     if (a) DoX();              -> violation
-#     if (x is null) throw ...;  -> violation (guard clause without braces)
+#     if (a) DoX();              -> violation (inline body)
+#     if (x is null) throw ...;  -> violation (inline guard clause)
+#     if (x is null)             -> violation (Allman guard clause)
+#         return;
 #     for (...) Step();          -> violation
 #     while (a) Tick();          -> violation
 #     else Two();                -> violation
-#     else if (a) DoY();         -> violation (inner `if` body is inline)
+#     else if (a) DoY();         -> violation (inner `if` body is unbraced)
 #
-# These are allowed (body is a brace-delimited block, or an Allman header whose
-# unbraced body sits on its own line):
+# These are allowed (body is a brace-delimited block):
 #
 #     if (a) { ... }
-#     if (a)                     # Allman: brace on the next line
+#     if (a)
 #     {
 #         ...
 #     }
-#     else if (a) { ... }        # `else if` chains are idiomatic
-#     if (x is null)             # Allman guard clause: body on the next line
-#         return;
+#     else if (a) { ... }        # `else if` chains are idiomatic when braced
 #
 # The rule is driven by the code provider's structural parse rather than line
 # text: a control-flow statement exposes `Braced` (true only when its body is a
-# `{ ... }` block) and `Children` (its body statements). A violation is an
-# unbraced control-flow statement whose body statement starts on the *same* line
-# as the header -- i.e. an inline body. Compared with the previous line-text
-# heuristic, keying on the structural model removes the false positives on
-# multi-line conditions and recognizes `else if` chains correctly.
+# `{ ... }` block) and `Children` (its body statements). A violation is any
+# unbraced control-flow statement. Keying on the structural model removes the
+# false positives on multi-line conditions and recognizes `else if` chains
+# correctly.
 #
 # An `else if` is modeled as an `else` whose body is the inner (braced or
 # unbraced) `if`, so the `else` itself reports `Braced == false`. That is
@@ -44,14 +43,9 @@ import code
 # statement kind does not poison the result with a null.
 predicate hasChildIf(Statement) => Statement.Children:where((c) => c.Kind == 'if').Count > 0
 
-# True when a body statement starts on the same line as the control-flow header,
-# i.e. the body is written inline rather than as a block or on its own line.
-predicate hasInlineBody(Statement) => Statement.Children:where((c) => c.Line == Statement.Line).Count > 0
-
-# A control-flow statement (if / else / for / foreach / while) with an unbraced
-# inline body, excluding the idiomatic `else if` chain header.
+# A control-flow statement (if / else / for / foreach / while) whose body is not a
+# brace-delimited block, excluding the idiomatic `else if` chain header.
 predicate missingBraces(Statement) =>
     Statement:isControlFlow
     && !Statement.Braced
     && !(Statement.Kind == 'else' && Statement:hasChildIf)
-    && Statement:hasInlineBody
