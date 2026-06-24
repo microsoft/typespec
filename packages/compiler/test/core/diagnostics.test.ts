@@ -1,10 +1,10 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
+import { getNodeForTarget } from "../../src/core/diagnostics.js";
+import { SyntaxKind } from "../../src/core/types.js";
 import { SourceLocationOptions, getSourceLocation } from "../../src/index.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
-import { getNodeForTarget } from "../../src/core/diagnostics.js";
-import { SyntaxKind } from "../../src/core/types.js";
 
 describe("compiler: diagnostics", () => {
   async function expectLocationMatch(code: string, options: SourceLocationOptions = {}) {
