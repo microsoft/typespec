@@ -24,6 +24,12 @@ export interface PythonEmitterOptions {
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
+  "keep-pyproject-fields"?: {
+    authors?: boolean;
+    description?: boolean;
+    classifiers?: boolean;
+    urls?: boolean;
+  };
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
 }
@@ -104,6 +110,36 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "keep-pyproject-fields": {
+      type: "object",
+      nullable: true,
+      description:
+        "Which manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Set a field to `true` to keep it. By default no fields are preserved.",
+      properties: {
+        authors: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `authors` field (e.g. a custom author name and email).",
+        },
+        description: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `description` field.",
+        },
+        classifiers: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `classifiers` field.",
+        },
+        urls: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `[project.urls]` table.",
+        },
+      },
+      required: [],
+      additionalProperties: false,
     },
     "clear-output-folder": {
       type: "boolean",

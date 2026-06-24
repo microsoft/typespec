@@ -181,7 +181,13 @@ namespace Microsoft.TypeSpec.Generator
             // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
             InputTypeToModelProvider[model] = null;
 
-            modelProvider = CreateModelCore(model);
+            // A model marked as external maps to a type that already exists in a framework or
+            // referenced assembly, so it must not be generated. Represent it with a
+            // SystemObjectModelProvider so that generated models deriving from it still get a
+            // ModelProvider base (enabling constructor chaining and discriminator forwarding)
+            // rather than a bare TypeProvider that cannot serve as a base model. This is handled
+            // here, before the overridable CreateModelCore, so all generators share the behavior.
+            modelProvider = CreateExternalModel(model) ?? CreateModelCore(model);
 
             foreach (var visitor in Visitors)
             {
@@ -203,7 +209,25 @@ namespace Microsoft.TypeSpec.Generator
             return modelProvider;
         }
 
-        protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
+        protected virtual ModelProvider? CreateModelCore(InputModelType model)
+            => new ModelProvider(model);
+
+        /// <summary>
+        /// Maps an external <see cref="InputModelType"/> (one marked via <c>@alternateType</c>) to a
+        /// <see cref="SystemObjectModelProvider"/> that wraps the resolved framework/referenced type.
+        /// Returns <c>null</c> when the model is not external or the external type cannot be resolved,
+        /// in which case normal model creation proceeds.
+        /// </summary>
+        private SystemObjectModelProvider? CreateExternalModel(InputModelType model)
+        {
+            if (model.External == null)
+            {
+                return null;
+            }
+
+            var externalType = CreateExternalType(model.External);
+            return externalType != null ? new SystemObjectModelProvider(externalType, model) : null;
+        }
 
         /// <summary>
         /// Factory method for creating the <see cref="ModelFactoryProvider"/> that emits the
@@ -228,6 +252,18 @@ namespace Microsoft.TypeSpec.Generator
             var enumCacheKey = new EnumCacheKey(enumType, declaringType);
             if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
                 return enumProvider;
+
+            // An enum marked as external maps to a type that already exists in a framework or
+            // referenced assembly, so it must not be generated. Unlike models there is no derived-type
+            // scenario for enums, so we simply skip generation; callers use the resolved external
+            // CSharpType produced by CreateCSharpType (which short-circuits on InputType.External)
+            // instead of a generated provider. This is handled here, before the overridable
+            // CreateEnumCore, so all generators share the behavior and mirror CreateExternalModel.
+            if (enumType.External != null)
+            {
+                EnumCache.TryAdd(enumCacheKey, null);
+                return null;
+            }
 
             enumProvider = CreateEnumCore(enumType, declaringType);
 

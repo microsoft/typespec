@@ -1043,6 +1043,31 @@ export function printArrayLiteral(
   ]);
 }
 
+// When the base is a multi-argument template, its argument list breaks on its
+// own, so keep `is`/`extends` inline instead of breaking the keyword too (#11009).
+function printHeritageClause<T extends Node>(
+  path: AstPath<T>,
+  print: PrettierChildPrint,
+  keyword: string,
+  propertyName: keyof T,
+): Doc {
+  const ref = path.node[propertyName] as Node | undefined;
+  if (!ref) {
+    return "";
+  }
+  const printed = [`${keyword} `, path.call(print, propertyName as any)];
+  if (isMultiArgTemplateReference(ref)) {
+    return [" ", printed];
+  }
+  return group(indent([ifBreak(line, " "), printed]));
+}
+
+function isMultiArgTemplateReference(node: Node): boolean {
+  return (
+    node.kind === SyntaxKind.TypeReference && (node as TypeReferenceNode).arguments.length >= 2
+  );
+}
+
 export function printModelStatement(
   path: AstPath<ModelStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -1050,10 +1075,8 @@ export function printModelStatement(
 ) {
   const node = path.node;
   const id = path.call(print, "id");
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
-  const isBase = node.is ? [ifBreak(line, " "), "is ", path.call(print, "is")] : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
+  const isBase = printHeritageClause(path, print, "is", "is");
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
@@ -1064,7 +1087,8 @@ export function printModelStatement(
     "model ",
     id,
     generic,
-    group(indent(["", heritage, isBase])),
+    heritage,
+    isBase,
     body,
   ];
 }
@@ -1240,9 +1264,7 @@ function printScalarStatement(
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
 
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
 
@@ -1253,7 +1275,7 @@ function printScalarStatement(
     "scalar ",
     id,
     template,
-    group(indent(["", heritage])),
+    heritage,
     members,
   ];
 }
