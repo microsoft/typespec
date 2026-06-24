@@ -424,6 +424,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
+        protected override IReadOnlyList<string> BuildHelperDependencyNames()
+        {
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.BodyStatements != null)
+                {
+                    return ["CancellationTokenExtensions", "ClientPipelineExtensions"];
+                }
+            }
+
+            return [];
+        }
+
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
         {
             var dependencies = new List<CSharpType>();

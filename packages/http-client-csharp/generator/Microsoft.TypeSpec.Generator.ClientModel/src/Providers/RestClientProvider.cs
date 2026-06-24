@@ -80,7 +80,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<string> BuildHelperDependencyNames()
         {
-            var dependencies = new HashSet<string>(StringComparer.Ordinal);
+            var dependencies = new HashSet<string>(StringComparer.Ordinal)
+            {
+                "ClientUriBuilder"
+            };
             foreach (var serviceMethod in _inputClient.Methods)
             {
                 foreach (var parameter in serviceMethod.Operation.Parameters)
