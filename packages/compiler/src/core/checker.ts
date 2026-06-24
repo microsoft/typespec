@@ -21,7 +21,6 @@ import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import {
-  isDeclarationInExpressionPosition,
   printIdentifier,
   printMemberExpressionPath,
   typeReferenceToString,
@@ -76,6 +75,7 @@ import {
   DocContent,
   Entity,
   Enum,
+  EnumDeclarationExpressionNode,
   EnumMember,
   EnumMemberNode,
   EnumStatementNode,
@@ -109,6 +109,7 @@ import {
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelIndexer,
   ModelProperty,
@@ -133,6 +134,7 @@ import {
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   ScalarValue,
   SignatureFunctionParameter,
@@ -170,6 +172,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
   Union,
+  UnionDeclarationExpressionNode,
   UnionExpressionNode,
   UnionStatementNode,
   UnionVariant,
@@ -1020,19 +1023,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkModel(ctx, node);
       case SyntaxKind.ModelStatement:
         return checkModel(ctx, node);
+      case SyntaxKind.ModelDeclarationExpression:
+        return checkModel(ctx, node);
       case SyntaxKind.ModelProperty:
         return checkModelProperty(ctx, node);
       case SyntaxKind.ScalarStatement:
         return checkScalar(ctx, node);
+      case SyntaxKind.ScalarDeclarationExpression:
+        return checkScalar(ctx, node);
       case SyntaxKind.AliasStatement:
         return checkAlias(ctx, node);
       case SyntaxKind.EnumStatement:
+        return checkEnum(ctx, node);
+      case SyntaxKind.EnumDeclarationExpression:
         return checkEnum(ctx, node);
       case SyntaxKind.EnumMember:
         return checkEnumMember(ctx, node);
       case SyntaxKind.InterfaceStatement:
         return checkInterface(ctx, node);
       case SyntaxKind.UnionStatement:
+        return checkUnion(ctx, node);
+      case SyntaxKind.UnionDeclarationExpression:
         return checkUnion(ctx, node);
       case SyntaxKind.UnionVariant:
         return checkUnionVariant(ctx, node);
@@ -1101,13 +1112,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node:
       | ModelStatementNode
       | ModelExpressionNode
+      | ModelDeclarationExpressionNode
       | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
       | AliasStatementNode
       | ConstStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
       | TemplateParameterDeclarationNode
-      | UnionStatementNode,
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode,
   ): Sym {
     const symbol =
       node.kind === SyntaxKind.OperationStatement &&
@@ -1169,7 +1183,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       if (grandParentNode) {
-        if (grandParentNode.locals?.has(node.id.sv)) {
+        if ("locals" in grandParentNode && grandParentNode.locals?.has(node.id.sv)) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "shadow",
@@ -2515,15 +2529,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node:
       | AliasStatementNode
       | ModelStatementNode
+      | ModelDeclarationExpressionNode
       | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
       | NamespaceStatementNode
       | JsNamespaceDeclarationNode
       | UnionExpressionNode
       | OperationStatementNode
       | EnumStatementNode
+      | EnumDeclarationExpressionNode
       | InterfaceStatementNode
       | IntersectionExpressionNode
       | UnionStatementNode
+      | UnionDeclarationExpressionNode
       | ModelExpressionNode
       | DecoratorDeclarationStatementNode
       | FunctionDeclarationStatementNode,
@@ -2534,11 +2552,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node.kind === SyntaxKind.ModelExpression ||
       node.kind === SyntaxKind.IntersectionExpression ||
       node.kind === SyntaxKind.UnionExpression ||
-      ((node.kind === SyntaxKind.ModelStatement ||
-        node.kind === SyntaxKind.EnumStatement ||
-        node.kind === SyntaxKind.UnionStatement ||
-        node.kind === SyntaxKind.ScalarStatement) &&
-        isDeclarationInExpressionPosition(node))
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.EnumDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression
     ) {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
@@ -4474,15 +4491,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getMemberKindName(node: Node) {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ModelExpression:
         return "Model";
       case SyntaxKind.ModelProperty:
         return "ModelProperty";
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.EnumDeclarationExpression:
         return "Enum";
       case SyntaxKind.InterfaceStatement:
         return "Interface";
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.UnionDeclarationExpression:
         return "Union";
       default:
         return "Type";
@@ -4999,11 +5019,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkModel(ctx: CheckContext, node: ModelExpressionNode | ModelStatementNode): Model {
-    if (node.kind === SyntaxKind.ModelStatement) {
-      return checkModelStatement(ctx, node);
-    } else {
+  function checkModel(
+    ctx: CheckContext,
+    node: ModelExpressionNode | ModelStatementNode | ModelDeclarationExpressionNode,
+  ): Model {
+    if (node.kind === SyntaxKind.ModelExpression) {
       return checkModelExpression(ctx, node);
+    } else {
+      return checkModelStatement(ctx, node);
     }
   }
 
@@ -5012,9 +5035,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * instantiated, so template parameters on it are meaningless. Report a diagnostic when present.
    */
   function checkExpressionDeclarationConstraints(
-    node: ModelStatementNode | UnionStatementNode | ScalarStatementNode,
+    node:
+      | ModelStatementNode
+      | ModelDeclarationExpressionNode
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode
+      | ScalarStatementNode
+      | ScalarDeclarationExpressionNode,
   ): void {
-    if (node.templateParameters.length > 0 && isDeclarationInExpressionPosition(node)) {
+    const isExpression =
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression;
+    if (isExpression && node.templateParameters.length > 0) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "templated-declaration-in-expression",
@@ -5024,7 +5057,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkModelStatement(ctx: CheckContext, node: ModelStatementNode): Model {
+  function checkModelStatement(
+    ctx: CheckContext,
+    node: ModelStatementNode | ModelDeclarationExpressionNode,
+  ): Model {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5051,7 +5087,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators,
       sourceModels: [],
       derivedModels: [],
-      expression: isDeclarationInExpressionPosition(node),
+      expression: node.kind === SyntaxKind.ModelDeclarationExpression,
     });
     linkType(ctx, links, type);
 
@@ -5226,7 +5262,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkModelProperties(
     ctx: CheckContext,
-    node: ModelExpressionNode | ModelStatementNode,
+    node: ModelExpressionNode | ModelStatementNode | ModelDeclarationExpressionNode,
     properties: Map<string, ModelProperty>,
     parentModel: Model,
   ) {
@@ -6470,7 +6506,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
   function checkClassHeritage(
     ctx: CheckContext,
-    model: ModelStatementNode,
+    model: ModelStatementNode | ModelDeclarationExpressionNode,
     heritageRef: Expression,
   ): Model | undefined {
     if (heritageRef.kind === SyntaxKind.ModelExpression) {
@@ -6538,7 +6574,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkModelIs(
     ctx: CheckContext,
-    model: ModelStatementNode,
+    model: ModelStatementNode | ModelDeclarationExpressionNode,
     isExpr: Expression | undefined,
   ): Model | undefined {
     if (!isExpr) return undefined;
@@ -6600,7 +6636,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /** Get the type for the spread target */
   function checkSpreadTarget(
     ctx: CheckContext,
-    model: ModelStatementNode | ModelExpressionNode,
+    model: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode,
     target: TypeReferenceNode,
   ): Type | undefined {
     const modelSymId = getNodeSym(model);
@@ -7289,7 +7325,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return decorators;
   }
 
-  function checkScalar(ctx: CheckContext, node: ScalarStatementNode): Scalar {
+  function checkScalar(
+    ctx: CheckContext,
+    node: ScalarStatementNode | ScalarDeclarationExpressionNode,
+  ): Scalar {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -7317,7 +7356,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       namespace: getParentNamespaceType(node),
       decorators,
       derivedScalars: [],
-      expression: isDeclarationInExpressionPosition(node),
+      expression: node.kind === SyntaxKind.ScalarDeclarationExpression,
     });
     linkType(ctx, links, type);
 
@@ -7344,7 +7383,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkScalarExtends(
     ctx: CheckContext,
-    scalar: ScalarStatementNode,
+    scalar: ScalarStatementNode | ScalarDeclarationExpressionNode,
     extendsRef: TypeReferenceNode,
   ): Scalar | undefined {
     const symId = getNodeSym(scalar);
@@ -7382,7 +7421,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkScalarConstructors(
     ctx: CheckContext,
     parentScalar: Scalar,
-    node: ScalarStatementNode,
+    node: ScalarStatementNode | ScalarDeclarationExpressionNode,
     constructors: Map<string, ScalarConstructor>,
   ) {
     if (parentScalar.baseScalar) {
@@ -7560,7 +7599,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
+  function checkEnum(
+    ctx: CheckContext,
+    node: EnumStatementNode | EnumDeclarationExpressionNode,
+  ): Type {
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
       checkModifiers(program, node);
@@ -7570,7 +7612,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         node,
         members: createRekeyableMap<string, EnumMember>(),
         decorators: [],
-        expression: isDeclarationInExpressionPosition(node),
+        expression: node.kind === SyntaxKind.EnumDeclarationExpression,
       }));
 
       const memberNames = new Set<string>();
@@ -7736,7 +7778,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return ownMembers;
   }
 
-  function checkUnion(ctx: CheckContext, node: UnionStatementNode) {
+  function checkUnion(
+    ctx: CheckContext,
+    node: UnionStatementNode | UnionDeclarationExpressionNode,
+  ) {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -7764,7 +7809,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       get options() {
         return Array.from(this.variants.values()).map((v) => v.type);
       },
-      expression: isDeclarationInExpressionPosition(node),
+      expression: node.kind === SyntaxKind.UnionDeclarationExpression,
     });
     linkType(ctx, links, unionType);
 
@@ -7790,7 +7835,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkUnionVariants(
     ctx: CheckContext,
     parentUnion: Union,
-    node: UnionStatementNode,
+    node: UnionStatementNode | UnionDeclarationExpressionNode,
     variants: Map<string, UnionVariant>,
   ) {
     for (const variantNode of node.options) {
@@ -8714,7 +8759,9 @@ function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   return paramDocs;
 }
 
-function extractPropDocs(node: ModelStatementNode): Map<string, string> {
+function extractPropDocs(
+  node: ModelStatementNode | ModelDeclarationExpressionNode,
+): Map<string, string> {
   if (node.docs === undefined) {
     return new Map();
   }

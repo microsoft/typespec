@@ -93,8 +93,11 @@ export function isRecordModelType(programOrType: Program | Model, maybeType?: Mo
 export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNode) | undefined {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
     case SyntaxKind.UnionStatement:
+    case SyntaxKind.UnionDeclarationExpression:
     case SyntaxKind.InterfaceStatement:
       return node.templateParameters.length > 0 ? node : undefined;
     case SyntaxKind.OperationStatement:

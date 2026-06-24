@@ -4,7 +4,16 @@
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
-import { Declaration, Modifier, ModifierFlags, SyntaxKind } from "./types.js";
+import {
+  Declaration,
+  EnumDeclarationExpressionNode,
+  ModelDeclarationExpressionNode,
+  Modifier,
+  ModifierFlags,
+  ScalarDeclarationExpressionNode,
+  SyntaxKind,
+  UnionDeclarationExpressionNode,
+} from "./types.js";
 
 /**
  * The compatibility of modifiers for a given declaration node type.
@@ -32,7 +41,19 @@ const NO_MODIFIERS: ModifierCompatibility = {
   required: ModifierFlags.None,
 };
 
-const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibility>> = {
+/**
+ * Declaration nodes whose modifiers can be checked. Includes the statement
+ * declarations as well as the declaration-expression nodes (which never carry
+ * modifiers, but go through the same checking path).
+ */
+type ModifierCheckableNode =
+  | Declaration
+  | ModelDeclarationExpressionNode
+  | ScalarDeclarationExpressionNode
+  | UnionDeclarationExpressionNode
+  | EnumDeclarationExpressionNode;
+
+const SYNTAX_MODIFIERS: Readonly<Record<ModifierCheckableNode["kind"], ModifierCompatibility>> = {
   [SyntaxKind.NamespaceStatement]: NO_MODIFIERS,
   [SyntaxKind.OperationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ModelStatement]: DEFAULT_COMPATIBILITY,
@@ -42,6 +63,10 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.EnumStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
+  [SyntaxKind.ModelDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.ScalarDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.UnionDeclarationExpression]: NO_MODIFIERS,
+  [SyntaxKind.EnumDeclarationExpression]: NO_MODIFIERS,
   [SyntaxKind.DecoratorDeclarationStatement]: {
     allowed: ModifierFlags.All,
     required: ModifierFlags.Extern,
@@ -61,7 +86,7 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
  * @param node - The declaration node to check.
  * @returns `true` if the modifiers are valid, `false` otherwise.
  */
-export function checkModifiers(program: Program, node: Declaration): boolean {
+export function checkModifiers(program: Program, node: ModifierCheckableNode): boolean {
   const compatibility = SYNTAX_MODIFIERS[node.kind];
 
   let isValid = true;
@@ -161,21 +186,25 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   return names;
 }
 
-function getDeclarationKindText(nodeKind: Declaration["kind"]): string {
+function getDeclarationKindText(nodeKind: ModifierCheckableNode["kind"]): string {
   switch (nodeKind) {
     case SyntaxKind.NamespaceStatement:
       return "namespace";
     case SyntaxKind.OperationStatement:
       return "op";
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
       return "model";
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
       return "scalar";
     case SyntaxKind.InterfaceStatement:
       return "interface";
     case SyntaxKind.UnionStatement:
+    case SyntaxKind.UnionDeclarationExpression:
       return "union";
     case SyntaxKind.EnumStatement:
+    case SyntaxKind.EnumDeclarationExpression:
       return "enum";
     case SyntaxKind.AliasStatement:
       return "alias";

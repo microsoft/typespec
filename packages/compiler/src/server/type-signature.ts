@@ -204,7 +204,12 @@ function getModelSignature(type: Model, includeBody: boolean): string {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+    if (
+      type.node &&
+      (type.node.kind === SyntaxKind.ModelStatement ||
+        type.node.kind === SyntaxKind.ModelDeclarationExpression) &&
+      type.node.templateParameters
+    ) {
       type.node.templateParameters.forEach((t) => {
         if (t.default) {
           getRawTextWithCache(t);

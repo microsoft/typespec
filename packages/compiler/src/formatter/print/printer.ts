@@ -169,7 +169,11 @@ export function printNode(
       );
     case SyntaxKind.ModelStatement:
       return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
+    case SyntaxKind.ModelDeclarationExpression:
+      return printModelStatement(path as AstPath<ModelStatementNode>, options, print);
     case SyntaxKind.ScalarStatement:
+      return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
+    case SyntaxKind.ScalarDeclarationExpression:
       return printScalarStatement(path as AstPath<ScalarStatementNode>, options, print);
     case SyntaxKind.ScalarConstructor:
       return printScalarConstructor(path as AstPath<ScalarConstructorNode>, options, print);
@@ -177,7 +181,11 @@ export function printNode(
       return printAliasStatement(path as AstPath<AliasStatementNode>, options, print);
     case SyntaxKind.EnumStatement:
       return printEnumStatement(path as AstPath<EnumStatementNode>, options, print);
+    case SyntaxKind.EnumDeclarationExpression:
+      return printEnumStatement(path as AstPath<EnumStatementNode>, options, print);
     case SyntaxKind.UnionStatement:
+      return printUnionStatement(path as AstPath<UnionStatementNode>, options, print);
+    case SyntaxKind.UnionDeclarationExpression:
       return printUnionStatement(path as AstPath<UnionStatementNode>, options, print);
     case SyntaxKind.InterfaceStatement:
       return printInterfaceStatement(path as AstPath<InterfaceStatementNode>, options, print);
@@ -1208,6 +1216,7 @@ function isModelAValue(path: AstPath<Node>): boolean {
   do {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.AliasStatement:
       case SyntaxKind.OperationStatement:
         return false;

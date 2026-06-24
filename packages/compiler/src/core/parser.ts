@@ -48,6 +48,7 @@ import {
   DocTextNode,
   DocUnknownTagNode,
   EmptyStatementNode,
+  EnumDeclarationExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
@@ -65,6 +66,7 @@ import {
   InvalidStatementNode,
   LineComment,
   MemberExpressionNode,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelSpreadPropertyNode,
@@ -85,6 +87,7 @@ import {
   ParseOptions,
   PositionDetail,
   ScalarConstructorNode,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -103,6 +106,7 @@ import {
   TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
+  UnionDeclarationExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
@@ -697,10 +701,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
-    allowAnonymous = false,
   ): UnionStatementNode {
     parseExpected(Token.UnionKeyword);
-    const id = parseDeclarationIdentifier(allowAnonymous);
+    const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
@@ -714,6 +717,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       decorators,
       modifiers,
       modifierFlags: modifiersToFlags(modifiers),
+      options,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseUnionDeclarationExpression(pos: number): UnionDeclarationExpressionNode {
+    parseExpected(Token.UnionKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const { items: options } = parseList(ListKind.UnionVariants, parseUnionVariant);
+
+    return {
+      kind: SyntaxKind.UnionDeclarationExpression,
+      id,
+      templateParameters,
+      templateParametersRange,
+      decorators: [],
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
       options,
       ...finishNode(pos),
     };
@@ -898,13 +922,60 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
-    allowAnonymous = false,
   ): ModelStatementNode {
     parseExpected(Token.ModelKeyword);
-    const id = parseDeclarationIdentifier(allowAnonymous);
+    const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
+    const { extends: optionalExtends, is: optionalIs, properties, bodyRange } = parseModelBody();
+
+    return {
+      kind: SyntaxKind.ModelStatement,
+      id,
+      extends: optionalExtends,
+      is: optionalIs,
+      templateParameters,
+      templateParametersRange,
+      decorators,
+      properties,
+      bodyRange,
+      modifiers,
+      modifierFlags: modifiersToFlags(modifiers),
+      ...finishNode(pos),
+    };
+  }
+
+  function parseModelDeclarationExpression(pos: number): ModelDeclarationExpressionNode {
+    parseExpected(Token.ModelKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const { extends: optionalExtends, is: optionalIs, properties, bodyRange } = parseModelBody();
+
+    return {
+      kind: SyntaxKind.ModelDeclarationExpression,
+      id,
+      extends: optionalExtends,
+      is: optionalIs,
+      templateParameters,
+      templateParametersRange,
+      decorators: [],
+      properties,
+      bodyRange,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseModelBody(): {
+    extends?: Expression;
+    is?: Expression;
+    properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+    bodyRange: TextRange;
+  } {
     expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
 
     const optionalExtends = parseOptionalModelExtends();
@@ -925,18 +996,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     }
 
     return {
-      kind: SyntaxKind.ModelStatement,
-      id,
       extends: optionalExtends,
       is: optionalIs,
-      templateParameters,
-      templateParametersRange,
-      decorators,
       properties: propDetail.items,
       bodyRange: propDetail.range,
-      modifiers,
-      modifierFlags: modifiersToFlags(modifiers),
-      ...finishNode(pos),
     };
   }
 
@@ -1104,15 +1167,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
-    allowAnonymous = false,
   ): ScalarStatementNode {
     parseExpected(Token.ScalarKeyword);
-    const id = parseDeclarationIdentifier(allowAnonymous);
+    const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
     const optionalExtends = parseOptionalScalarExtends();
-    const { items: members, range: bodyRange } = parseScalarMembers(allowAnonymous);
+    const { items: members, range: bodyRange } = parseScalarMembers();
 
     return {
       kind: SyntaxKind.ScalarStatement,
@@ -1129,6 +1191,30 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseScalarDeclarationExpression(pos: number): ScalarDeclarationExpressionNode {
+    parseExpected(Token.ScalarKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const optionalExtends = parseOptionalScalarExtends();
+    const { items: members, range: bodyRange } = parseScalarMembers(true);
+
+    return {
+      kind: SyntaxKind.ScalarDeclarationExpression,
+      id,
+      templateParameters,
+      templateParametersRange,
+      extends: optionalExtends,
+      members,
+      bodyRange,
+      decorators: [],
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
+      ...finishNode(pos),
+    };
+  }
+
   function parseOptionalScalarExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
       return parseReferenceExpression();
@@ -1136,10 +1222,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return undefined;
   }
 
-  function parseScalarMembers(allowAnonymous = false): ListDetail<ScalarConstructorNode> {
+  function parseScalarMembers(inExpressionPosition = false): ListDetail<ScalarConstructorNode> {
     // In expression position there is no `;` terminator: only parse a `{ ... }` body
     // when present, otherwise the scalar has no members.
-    if (allowAnonymous && token() !== Token.OpenBrace) {
+    if (inExpressionPosition && token() !== Token.OpenBrace) {
       return createEmptyList<ScalarConstructorNode>();
     }
     if (token() === Token.Semicolon) {
@@ -1171,10 +1257,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     pos: number,
     decorators: DecoratorExpressionNode[],
     modifiers: Modifier[],
-    allowAnonymous = false,
   ): EnumStatementNode {
     parseExpected(Token.EnumKeyword);
-    const id = parseDeclarationIdentifier(allowAnonymous);
+    const id = parseIdentifier();
     const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumStatement,
@@ -1182,6 +1267,21 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       decorators,
       modifiers,
       modifierFlags: modifiersToFlags(modifiers),
+      members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumDeclarationExpression(pos: number): EnumDeclarationExpressionNode {
+    parseExpected(Token.EnumKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
+    return {
+      kind: SyntaxKind.EnumDeclarationExpression,
+      id,
+      decorators: [],
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
       members,
       ...finishNode(pos),
     };
@@ -1734,13 +1834,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.OpenBrace:
           return parseModelExpression();
         case Token.ModelKeyword:
-          return parseModelStatement(tokenPos(), [], [], true);
+          return parseModelDeclarationExpression(tokenPos());
         case Token.EnumKeyword:
-          return parseEnumStatement(tokenPos(), [], [], true);
+          return parseEnumDeclarationExpression(tokenPos());
         case Token.UnionKeyword:
-          return parseUnionStatement(tokenPos(), [], [], true);
+          return parseUnionDeclarationExpression(tokenPos());
         case Token.ScalarKeyword:
-          return parseScalarStatement(tokenPos(), [], [], true);
+          return parseScalarDeclarationExpression(tokenPos());
         case Token.OpenBracket:
           return parseTupleExpression();
         case Token.OpenParen:
@@ -2020,15 +2120,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   /**
-   * Parse the identifier of a declaration. When {@link allowAnonymous} is true (the
-   * declaration is being used in expression position) the identifier is optional and
-   * only parsed when a name is actually present.
+   * Parse the optional identifier of a declaration used in expression position. The name
+   * is only parsed when actually present; an anonymous declaration expression has no `id`.
    */
-  function parseDeclarationIdentifier(allowAnonymous: boolean): IdentifierNode | undefined {
-    if (allowAnonymous && token() !== Token.Identifier) {
-      return undefined;
-    }
-    return parseIdentifier();
+  function parseOptionalDeclarationExpressionIdentifier(): IdentifierNode | undefined {
+    return token() === Token.Identifier ? parseIdentifier() : undefined;
   }
 
   function parseIdentifier(options?: {
@@ -3072,9 +3168,26 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
       );
+    case SyntaxKind.ModelDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.extends) ||
+        visitNode(cb, node.is) ||
+        visitEach(cb, node.properties)
+      );
     case SyntaxKind.ScalarStatement:
       return (
         visitEach(cb, node.modifiers) ||
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.members) ||
+        visitNode(cb, node.extends)
+      );
+    case SyntaxKind.ScalarDeclarationExpression:
+      return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3091,6 +3204,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitEach(cb, node.options)
       );
+    case SyntaxKind.UnionDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.options)
+      );
     case SyntaxKind.UnionVariant:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.EnumStatement:
@@ -3099,6 +3219,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.members)
+      );
+    case SyntaxKind.EnumDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
@@ -3442,6 +3566,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
           kind = IdentifierKind.ModelExpressionProperty;
           break;
         case SyntaxKind.ModelStatement:
+          kind = IdentifierKind.ModelStatementProperty;
+          break;
+        case SyntaxKind.ModelDeclarationExpression:
           kind = IdentifierKind.ModelStatementProperty;
           break;
         default:
