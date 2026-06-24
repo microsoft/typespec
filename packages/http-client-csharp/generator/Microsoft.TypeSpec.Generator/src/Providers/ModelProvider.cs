@@ -142,11 +142,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return existingProvider;
                 }
 
-                // Try to find the type in the customization compilation (excluding referenced assemblies)
+                // Try to find the type in the customization compilation. Referenced assemblies are
+                // included so custom bases from framework or external packages are represented by
+                // normal symbol-backed providers.
                 var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                     baseType.Namespace,
                     baseType.Name,
-                    baseType.DeclaringType?.Name);
+                    baseType.DeclaringType?.Name,
+                    includeReferencedAssemblies: true);
 
                 if (baseTypeProvider != null)
                 {
@@ -155,8 +158,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return baseTypeProvider;
                 }
 
-                // If we couldn't find the type symbol (e.g., type is from a referenced assembly),
-                // create a SystemObjectTypeProvider that represents the external type
+                // If we couldn't find the type symbol, create a SystemObjectTypeProvider that
+                // represents the external type without member metadata.
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
                 // Cache it in CSharpTypeMap for future lookups
                 CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;

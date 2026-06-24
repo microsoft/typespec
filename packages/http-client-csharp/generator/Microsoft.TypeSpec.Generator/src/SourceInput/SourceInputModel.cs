@@ -60,9 +60,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return nameMap;
         }
 
-        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
+        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null, bool includeReferencedAssemblies = false)
         {
-            return FindTypeInCustomization(Customization, ns, name, false, declaringTypeName);
+            return FindTypeInCustomization(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
