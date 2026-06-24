@@ -781,6 +781,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void ValidateDuplicateBaseProviderNameStillDiscoversFrameworkTypes()
+        {
+            var rootBaseInputModel = InputFactory.Model("SharedBaseModel", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: []);
+            var rootBaseProvider = new DuplicateBaseProvider(rootBaseInputModel, includeFrameworkProperty: false);
+            var derivedBaseProvider = new DuplicateBaseProvider(rootBaseInputModel, includeFrameworkProperty: true);
+            var outputLibrary = new TestOutputLibrary(
+            [
+                rootBaseProvider,
+                new DuplicateDerivedProvider(derivedInputModel, derivedBaseProvider)
+            ]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = contextDefinition.Attributes
+                .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(a => a.Arguments.First().ToDisplayString())
+                .ToList();
+
+            Assert.IsTrue(
+                buildableAttributes.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)"),
+                "Framework MRW types from a derived model's base provider must be discovered even when an output-library provider with the same type name was already visited.");
+        }
+
+        [Test]
+        public void ValidateCyclicBaseProviderTraversalStops()
+        {
+            var baseInputModel = InputFactory.Model("BaseModel", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: []);
+            var baseProviderA = new CyclicBaseProvider(baseInputModel, includeFrameworkProperty: false);
+            var baseProviderB = new CyclicBaseProvider(baseInputModel, includeFrameworkProperty: true);
+            baseProviderA.BaseProvider = baseProviderB;
+            baseProviderB.BaseProvider = baseProviderA;
+            var outputLibrary = new TestOutputLibrary([new DuplicateDerivedProvider(derivedInputModel, baseProviderA)]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = contextDefinition.Attributes
+                .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(a => a.Arguments.First().ToDisplayString())
+                .ToList();
+
+            Assert.IsTrue(
+                buildableAttributes.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)"),
+                "Framework MRW types from cyclic base providers should be discovered before the cycle is stopped.");
+        }
+
+        [Test]
         public void ValidateObsoleteFrameworkTypeHasAttributeSuppression()
         {
             // Create a model with a property that references an obsolete framework type
@@ -1077,6 +1125,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 throw new NotImplementedException();
             }
+        }
+
+        private class DuplicateBaseProvider : ModelProvider
+        {
+            private readonly bool _includeFrameworkProperty;
+
+            public DuplicateBaseProvider(InputModelType inputModelType, bool includeFrameworkProperty) : base(inputModelType)
+            {
+                _includeFrameworkProperty = includeFrameworkProperty;
+            }
+
+            protected override string BuildName() => "SharedBaseModel";
+
+            protected internal override PropertyProvider[] BuildProperties()
+            {
+                if (!_includeFrameworkProperty)
+                {
+                    return [];
+                }
+
+                return
+                [
+                    new PropertyProvider(
+                        null,
+                        MethodSignatureModifiers.Public,
+                        new CSharpType(typeof(FrameworkModelWithMRW)),
+                        "FrameworkProperty",
+                        new AutoPropertyBody(false),
+                        this)
+                ];
+            }
+        }
+
+        private class DuplicateDerivedProvider : ModelProvider
+        {
+            private readonly ModelProvider _baseProvider;
+
+            public DuplicateDerivedProvider(InputModelType inputModelType, ModelProvider baseProvider) : base(inputModelType)
+            {
+                _baseProvider = baseProvider;
+            }
+
+            protected override ModelProvider? BuildBaseModelProvider() => _baseProvider;
+
+            protected override string BuildName() => "DerivedModel";
+        }
+
+        private class CyclicBaseProvider : DuplicateBaseProvider
+        {
+            public CyclicBaseProvider(InputModelType inputModelType, bool includeFrameworkProperty) : base(inputModelType, includeFrameworkProperty)
+            {
+            }
+
+            public ModelProvider? BaseProvider { get; set; }
+
+            protected override ModelProvider? BuildBaseModelProvider() => BaseProvider;
         }
 
         public class FrameworkTypeImplementingOtherFrameworkType : ComplexFrameworkType

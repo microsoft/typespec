@@ -84,6 +84,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var visitedTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
             var visitedTypeProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
+            var visitedBaseProviders = new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance);
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
@@ -102,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     buildableProviders.Add(provider);
                 }
 
-                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
             }
 
             return (buildableTypes, buildableProviders);
@@ -131,6 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider currentProvider,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
+            HashSet<TypeProvider> visitedBaseProviders,
             HashSet<TypeProvider> buildableProviders,
             HashSet<CSharpType> buildableTypes)
         {
@@ -143,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process all providers to discover types from methods and properties
             if (currentProvider is not null)
             {
-                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
             }
         }
 
@@ -151,6 +153,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider provider,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
+            HashSet<TypeProvider> visitedBaseProviders,
             HashSet<TypeProvider> buildableProviders,
             HashSet<CSharpType> buildableTypes)
         {
@@ -187,7 +190,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Traverse base model properties for discoverable types, but do not add the base model
                 // itself as a context entry unless it was in the output-library seed set.
-                CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                if (visitedBaseProviders.Add(modelProvider.BaseModelProvider))
+                {
+                    CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                }
             }
             else
             {
