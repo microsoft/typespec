@@ -16,6 +16,7 @@ using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
 
@@ -362,6 +363,32 @@ namespace Microsoft.TypeSpec.Generator
                         $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Locates and parses the ApiCompat baseline (suppression) file for the current library, if
+        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>
+        /// relative to a repository root discovered by walking up from the project directory.
+        /// Returns <see cref="ApiCompatBaseline.Empty"/> when no baseline file is found.
+        /// </summary>
+        internal static ApiCompatBaseline LoadApiCompatBaseline()
+        {
+            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
+
+            while (directory != null)
+            {
+                var candidate = Path.Combine(directory.FullName, "eng", "apicompatbaselines", $"{packageName}.txt");
+                if (File.Exists(candidate))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
+                    return ApiCompatBaseline.FromFile(candidate);
+                }
+
+                directory = directory.Parent;
+            }
+
+            return ApiCompatBaseline.Empty;
         }
 
         internal static async Task<Compilation?> LoadBaselineContract()
