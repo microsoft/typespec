@@ -1,3 +1,4 @@
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { expect, describe, it } from "vitest";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
@@ -14,8 +15,7 @@ describe("emitter", () => {
       }
     `;
     const result = await emitSingleSchemaWithDiagnostics(code, {});
-    const errors = result.diagnostics.filter((d) => d.severity === "error");
-    expect(errors).toHaveLength(0);
+    expectDiagnosticEmpty(result.diagnostics);
     expect(result.graphQLOutput).toBeDefined();
     expect(result.graphQLOutput).toMatch(/type Query \{/);
     expect(result.graphQLOutput).toContain("getBooks");
