@@ -1,22 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator.fluent;
+package com.microsoft.typespec.http.client.generator;
 
-import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
-import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
-import com.microsoft.typespec.http.client.generator.mgmt.mapper.FluentMapper;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
@@ -149,13 +146,6 @@ public class TypeSpecFluentPlugin extends FluentGen {
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
         Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
         LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
-    }
-
-    @Override
-    protected FluentMapper getFluentMapper() {
-        FluentMapper fluentMapper = super.getFluentMapper();
-        Mappers.setFactory(new TypeSpecFluentMapperFactory());
-        return fluentMapper;
     }
 
     private static final Map<String, Object> SETTINGS_MAP = new LinkedHashMap<>();

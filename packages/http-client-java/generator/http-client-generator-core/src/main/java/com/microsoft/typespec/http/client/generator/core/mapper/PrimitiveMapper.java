@@ -64,7 +64,7 @@ public class PrimitiveMapper implements IMapper<PrimitiveSchema, IType> {
                 return PrimitiveType.CHAR;
 
             case DATE:
-                return isLowLevelClient ? ClassType.STRING : ClassType.LOCAL_DATE;
+                return ClassType.LOCAL_DATE;
 
             case DATE_TIME:
                 DateTimeSchema dateTimeSchema = (DateTimeSchema) primaryType;
@@ -127,7 +127,7 @@ public class PrimitiveMapper implements IMapper<PrimitiveSchema, IType> {
                 return durationType;
 
             case UNIXTIME:
-                return isLowLevelClient ? PrimitiveType.LONG : PrimitiveType.UNIX_TIME_LONG;
+                return PrimitiveType.UNIX_TIME_LONG;
 
             case UUID:
                 return isLowLevelClient || uuidAsString ? ClassType.STRING : ClassType.UUID;

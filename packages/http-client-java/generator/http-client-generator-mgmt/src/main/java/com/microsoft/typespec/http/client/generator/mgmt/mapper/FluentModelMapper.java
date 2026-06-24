@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
@@ -17,6 +18,11 @@ public class FluentModelMapper extends ModelMapper {
 
     public static FluentModelMapper getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public boolean isPlainObject(ObjectSchema compositeType) {
+        return false;
     }
 
     @Override

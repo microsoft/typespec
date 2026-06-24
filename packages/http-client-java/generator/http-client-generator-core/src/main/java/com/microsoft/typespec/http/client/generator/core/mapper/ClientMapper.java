@@ -49,6 +49,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.ModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
@@ -481,7 +482,16 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     protected Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client>
         processClients(List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> clients,
             CodeModel codeModel) {
-        return Map.of();
+        Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap
+            = new LinkedHashMap<>();
+        ServiceClientMapper mapper = new ServiceClientMapper();
+        for (com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client client : clients) {
+            ServiceClient serviceClient = mapper.map(client, codeModel);
+            if (serviceClient != null) {
+                serviceClientsMap.put(serviceClient, client);
+            }
+        }
+        return serviceClientsMap;
     }
 
     private void addBuilderTraits(ClientBuilder clientBuilder, ServiceClient serviceClient) {
@@ -615,9 +625,19 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     }
 
     protected String getResponseHeaderName(Header header) {
-        // We should use header.getLanguage().getDefault().getName()
-        // kept as header.getHeader() for backward compatibility
-        return header.getHeader();
+        String clientName;
+        if (header.getLanguage() != null
+            && header.getLanguage().getJava() != null
+            && !CoreUtils.isNullOrEmpty(header.getLanguage().getJava().getName())) {
+            clientName = header.getLanguage().getJava().getName();
+        } else if (header.getLanguage() != null
+            && header.getLanguage().getDefault() != null
+            && !CoreUtils.isNullOrEmpty(header.getLanguage().getDefault().getName())) {
+            clientName = header.getLanguage().getDefault().getName();
+        } else {
+            clientName = header.getHeader();
+        }
+        return clientName;
     }
 
     private ClientResponse parseResponse(Operation method, List<ClientModel> models, JavaSettings settings) {
@@ -693,26 +713,16 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
      */
     protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes,
         List<ClientResponse> responseModels) {
+        Set<String> packages = new LinkedHashSet<>();
 
-        List<String> ret = List.of();
+        clientModels.stream().filter(ModelUtil::isGeneratingModel).map(ClientModel::getPackage).forEach(packages::add);
+        enumTypes.stream().filter(ModelUtil::isGeneratingModel).map(EnumType::getPackage).forEach(packages::add);
+        responseModels.stream()
+            .filter(ModelUtil::isGeneratingModel)
+            .map(ClientResponse::getPackage)
+            .forEach(packages::add);
 
-        JavaSettings settings = JavaSettings.getInstance();
-        boolean hasModels = !settings.isDataPlaneClient()   // not DPG
-            // defined models package (it is defined by default)
-            && (settings.getModelsSubpackage() != null && !settings.getModelsSubpackage().isEmpty())
-            // models package is not same as implementation package
-            && !settings.getModelsSubpackage().equals(settings.getImplementationSubpackage());
-
-        if (hasModels) {
-            Set<String> packages = clientModels.stream().map(ClientModel::getPackage).collect(Collectors.toSet());
-
-            packages.addAll(enumTypes.stream().map(EnumType::getPackage).collect(Collectors.toSet()));
-            packages.addAll(responseModels.stream().map(ClientResponse::getPackage).collect(Collectors.toSet()));
-
-            ret = new ArrayList<>(packages);
-        }
-
-        return ret;
+        return new ArrayList<>(packages);
     }
 
     public static ClassType getClientResponseClassType(Operation method, List<ClientModel> models,

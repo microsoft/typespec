@@ -30,6 +30,11 @@ public class FluentObjectMapper extends ObjectMapper {
     }
 
     @Override
+    public boolean isPlainObject(ObjectSchema compositeType) {
+        return false;
+    }
+
+    @Override
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
         ClassType result = null;
         if (compositeType.getLanguage().getJava().getName().equals(FluentType.RESOURCE.getName())) {
