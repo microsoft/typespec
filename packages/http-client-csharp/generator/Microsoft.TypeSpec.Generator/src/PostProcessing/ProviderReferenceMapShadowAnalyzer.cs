@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -60,14 +61,20 @@ namespace Microsoft.TypeSpec.Generator
             // Generated-code dependencies come from providers. Custom code still needs Roslyn
             // because arbitrary user C# can reference generated types in ways providers cannot see.
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(project, graph.Nodes);
-            customPublicRoots.UnionWith(GetApiBaselineGeneratedTypeRoots(graph.Nodes));
+            var apiBaselineGeneratedTypeRoots = GetApiBaselineGeneratedTypeRoots(graph.Nodes);
+            customPublicRoots.UnionWith(apiBaselineGeneratedTypeRoots);
+            var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarations(generatedProviders, graph.Nodes);
+            customPublicRoots.UnionWith(generatedPublicDeclarations);
             var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
+            customRemovalRoots.UnionWith(apiBaselineGeneratedTypeRoots);
+            customRemovalRoots.UnionWith(generatedPublicDeclarations);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
 
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
             var generatedDiscriminatorBaseNames = GetGeneratedPersistableModelProxyTypeNames(project, publicGraph.Nodes);
+            AddGeneratedXmlDocCrefReferences(project, publicGraph, publicOnly: true);
             var internalizeReferences = CloneReferences(publicGraph.References);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true);
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
@@ -113,6 +120,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // Body-only generated dependencies are needed to avoid deleting helper files, but they do
             // not contribute to public API reachability for internalization.
+            AddGeneratedXmlDocCrefReferences(project, graph, publicOnly: false);
             AddGeneratedBodyReferences(project, providers, graph);
 
             var removeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: false);
@@ -121,9 +129,11 @@ namespace Microsoft.TypeSpec.Generator
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
+            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers);
             var removeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, removeReachableWithoutHelpers, graph.References);
             removeRoots.UnionWith(removeHelperRoots);
             var removeReachable = GetReachableTypes(removeRoots, graph.References);
+            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachable);
             var removeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: false);
             var removeCandidates = removeDeclaredNodes.Except(removeReachable, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
 
@@ -410,16 +420,27 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static HashSet<string> GetGeneratedInternalTypeDeclarations(IReadOnlyList<TypeProvider> generatedProviders, HashSet<string> generatedTypeNames)
+            => GetGeneratedTypeDeclarationsByLastContractAccessibility(generatedProviders, generatedTypeNames, Accessibility.Internal);
+
+        private static HashSet<string> GetGeneratedPublicTypeDeclarations(IReadOnlyList<TypeProvider> generatedProviders, HashSet<string> generatedTypeNames)
+            => GetGeneratedTypeDeclarationsByLastContractAccessibility(generatedProviders, generatedTypeNames, Accessibility.Public);
+
+        private static HashSet<string> GetGeneratedTypeDeclarationsByLastContractAccessibility(
+            IReadOnlyList<TypeProvider> generatedProviders,
+            HashSet<string> generatedTypeNames,
+            Accessibility accessibility)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
+            var lastContract = CodeModelGenerator.Instance.SourceInputModel.LastContract;
             foreach (var provider in generatedProviders)
             {
-                if (provider.LastContractView?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal) != true)
+                var providerTypeName = GetProviderTypeName(provider.Type);
+                if (lastContract?.GetTypeByMetadataName(providerTypeName)?.DeclaredAccessibility != accessibility)
                 {
                     continue;
                 }
 
-                AddMatchingName(declarations, GetProviderTypeName(provider.Type), generatedTypeNames);
+                AddMatchingName(declarations, providerTypeName, generatedTypeNames);
             }
 
             return declarations;
@@ -554,6 +575,11 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var method in provider.Methods)
                 {
+                    if (ShouldUseGeneratedSourceReferences(provider))
+                    {
+                        continue;
+                    }
+
                     if (publicOnly && !IsPublic(method.Signature.Modifiers))
                     {
                         continue;
@@ -676,6 +702,42 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        private static void AddBasePreservedReferences(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes,
+            IReadOnlyDictionary<string, HashSet<string>> references,
+            HashSet<string> reachableTypes)
+        {
+            var addedReference = true;
+            while (addedReference)
+            {
+                addedReference = false;
+                foreach (var provider in GetGeneratedProviders(providers))
+                {
+                    var providerName = GetProviderTypeName(provider.Type);
+                    if (!nodes.Contains(providerName) || reachableTypes.Contains(providerName))
+                    {
+                        continue;
+                    }
+
+                    var baseTypeName = provider.BaseType == null ? null : GetProviderTypeName(provider.BaseType);
+                    if (baseTypeName == null || !reachableTypes.Contains(baseTypeName))
+                    {
+                        continue;
+                    }
+
+                    reachableTypes.Add(providerName);
+                    foreach (var reference in references[providerName])
+                    {
+                        if (reachableTypes.Add(reference))
+                        {
+                            addedReference = true;
+                        }
+                    }
+                }
+            }
+        }
+
         private static IReadOnlyList<TypeProvider> GetGeneratedProviders(IReadOnlyList<TypeProvider> providers)
         {
             var generatedProviders = new List<TypeProvider>();
@@ -727,10 +789,10 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var bodyDependencyTypes = provider.BodyDependencyTypes;
+                var bodyDependencyTypes = ShouldUseGeneratedSourceReferences(provider) ? [] : provider.BodyDependencyTypes;
                 AddProviderBodyDependencyTypes(graph.References[providerName], bodyDependencyTypes, graph.Nodes);
 
-                if (bodyDependencyTypes.Count > 0)
+                if (bodyDependencyTypes.Count > 0 && !IsSerializationProvider(provider))
                 {
                     continue;
                 }
@@ -764,7 +826,23 @@ namespace Microsoft.TypeSpec.Generator
         {
             foreach (var dependency in dependencies)
             {
-                AddTypeReference(references, dependency, nodes);
+                AddProviderBodyDependencyType(references, dependency, nodes);
+            }
+        }
+
+        private static void AddProviderBodyDependencyType(HashSet<string> references, CSharpType? dependency, HashSet<string> nodes)
+        {
+            if (dependency == null)
+            {
+                return;
+            }
+
+            AddTypeReference(references, dependency, nodes);
+            AddMatchingName(references, $"{dependency.Name}Extensions", nodes);
+
+            foreach (var argument in dependency.Arguments)
+            {
+                AddProviderBodyDependencyType(references, argument, nodes);
             }
         }
 
@@ -782,6 +860,11 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider)
         {
+            if (ShouldUseGeneratedSourceReferences(provider))
+            {
+                return true;
+            }
+
             if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
             {
                 return true;
@@ -792,6 +875,54 @@ namespace Microsoft.TypeSpec.Generator
                 relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
                 provider.HelperDependencyNames.Count > 0 ||
                 provider.BodyDependencyTypes.Count > 0;
+        }
+
+        private static bool ShouldUseGeneratedSourceReferences(TypeProvider provider) =>
+            CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
+            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
+
+        private static void AddGeneratedXmlDocCrefReferences(Project project, ProviderReferenceGraph graph, bool publicOnly)
+        {
+            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
+            if (compilation == null)
+            {
+                return;
+            }
+
+            foreach (var providerName in graph.Nodes)
+            {
+                var symbol = compilation.GetTypeByMetadataName(providerName);
+                if (symbol == null || publicOnly && symbol.DeclaredAccessibility != Accessibility.Public)
+                {
+                    continue;
+                }
+
+                foreach (var property in symbol.GetMembers().OfType<IPropertySymbol>())
+                {
+                    if (publicOnly && property.DeclaredAccessibility != Accessibility.Public)
+                    {
+                        continue;
+                    }
+
+                    var xml = property.GetDocumentationCommentXml();
+                    if (string.IsNullOrEmpty(xml))
+                    {
+                        continue;
+                    }
+
+                    var cRefs = XDocument.Parse(xml)
+                        .Descendants()
+                        .Attributes("cref")
+                        .Select(static attribute => attribute.Value)
+                        .Where(static cref => cref.Length > 2 && cref[0] == 'T' && cref[1] == ':')
+                        .Select(static cref => cref.Substring(2));
+
+                    foreach (var cref in cRefs)
+                    {
+                        AddMatchingName(graph.References[providerName], cref, graph.Nodes);
+                    }
+                }
+            }
         }
 
         private static bool IsGeneratedHelperSimpleName(string name) =>
@@ -812,6 +943,11 @@ namespace Microsoft.TypeSpec.Generator
                 var semanticModel = compilation.GetSemanticModel(syntaxReference.SyntaxTree);
                 foreach (var typeSyntax in root.DescendantNodes().OfType<TypeSyntax>())
                 {
+                    if (IsNamespaceOrUsingName(typeSyntax))
+                    {
+                        continue;
+                    }
+
                     // Declaration names are the owner itself. The old Roslyn map captures references,
                     // not a declaration making itself reachable.
                     if (typeSyntax.Parent is BaseTypeDeclarationSyntax baseTypeDeclaration && baseTypeDeclaration.Identifier.Span == typeSyntax.Span)
@@ -823,7 +959,32 @@ namespace Microsoft.TypeSpec.Generator
                     AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
                     AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
                 }
+
+                foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+                    {
+                        continue;
+                    }
+
+                    AddBodyTypeReference(graph.References[ownerName], method.ContainingType, graph.Nodes);
+                    AddBodyTypeReference(graph.References[ownerName], method.ReducedFrom?.ContainingType, graph.Nodes);
+                }
             }
+        }
+
+        private static bool IsNamespaceOrUsingName(TypeSyntax typeSyntax)
+        {
+            for (SyntaxNode? node = typeSyntax; node != null; node = node.Parent)
+            {
+                if (node.Parent is BaseNamespaceDeclarationSyntax namespaceDeclaration && namespaceDeclaration.Name == node ||
+                    node.Parent is UsingDirectiveSyntax usingDirective && usingDirective.Name == node)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void AddUnresolvedBodyTypeSyntaxReference(HashSet<string> references, TypeSyntax typeSyntax, ITypeSymbol? symbol, HashSet<string> nodes)
@@ -842,7 +1003,7 @@ namespace Microsoft.TypeSpec.Generator
                 _ => null
             };
 
-            if (simpleName != null && IsGeneratedHelperSimpleName(simpleName))
+            if (simpleName != null)
             {
                 AddMatchingName(references, simpleName, nodes);
             }
