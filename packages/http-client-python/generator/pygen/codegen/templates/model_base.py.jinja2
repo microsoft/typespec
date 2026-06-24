@@ -348,6 +348,12 @@ def _deserialize_int_as_str(attr):
     return int(attr)
 
 
+def _deserialize_bool_as_str(attr):
+    if isinstance(attr, bool):
+        return attr
+    return attr.lower() == "true"
+
+
 _DESERIALIZE_MAPPING = {
     datetime: _deserialize_datetime,
     date: _deserialize_date,
@@ -375,6 +381,8 @@ _DESERIALIZE_MAPPING_WITHFORMAT = {
 def get_deserializer(annotation: typing.Any, rf: typing.Optional["_RestField"] = None):
     if annotation is int and rf and rf._format == "str":
         return _deserialize_int_as_str
+    if annotation is bool and rf and rf._format == "str":
+        return _deserialize_bool_as_str
     if annotation is str and rf and rf._format in _ARRAY_ENCODE_MAPPING:
         return functools.partial(_deserialize_array_encoded, _ARRAY_ENCODE_MAPPING[rf._format])
     if rf and rf._format:

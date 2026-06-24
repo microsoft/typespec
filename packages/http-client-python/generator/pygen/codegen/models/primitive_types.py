@@ -49,6 +49,11 @@ class PrimitiveType(BaseType):
 
 
 class BooleanType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        if yaml_data.get("encode") == "string":
+            self.encode = "str"
+
     def serialization_type(self, **kwargs: Any) -> str:
         return "bool"
 
