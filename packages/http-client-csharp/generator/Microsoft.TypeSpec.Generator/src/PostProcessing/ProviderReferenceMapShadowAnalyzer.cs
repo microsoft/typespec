@@ -15,7 +15,6 @@ using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -129,11 +128,11 @@ namespace Microsoft.TypeSpec.Generator
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
-            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers);
+            AddBasePreservedReferences(generatedProviders, graph.Nodes, graph.References, removeReachableWithoutHelpers);
             var removeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, removeReachableWithoutHelpers, graph.References);
             removeRoots.UnionWith(removeHelperRoots);
             var removeReachable = GetReachableTypes(removeRoots, graph.References);
-            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachable);
+            AddBasePreservedReferences(generatedProviders, graph.Nodes, graph.References, removeReachable);
             var removeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: false);
             var removeCandidates = removeDeclaredNodes.Except(removeReachable, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
 
@@ -703,7 +702,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static void AddBasePreservedReferences(
-            IReadOnlyList<TypeProvider> providers,
+            IReadOnlyList<TypeProvider> generatedProviders,
             HashSet<string> nodes,
             IReadOnlyDictionary<string, HashSet<string>> references,
             HashSet<string> reachableTypes)
@@ -712,7 +711,7 @@ namespace Microsoft.TypeSpec.Generator
             while (addedReference)
             {
                 addedReference = false;
-                foreach (var provider in GetGeneratedProviders(providers))
+                foreach (var provider in generatedProviders)
                 {
                     var providerName = GetProviderTypeName(provider.Type);
                     if (!nodes.Contains(providerName) || reachableTypes.Contains(providerName))
@@ -803,21 +802,6 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (!IsSerializationProvider(provider))
-                {
-                    AddGeneratedReferencesToHelper(project, compilation, graph, providerName, symbol);
-                    if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
-                    {
-                        foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>())
-                        {
-                            if (method.IsExtensionMethod)
-                            {
-                                AddGeneratedReferencesToHelper(project, compilation, graph, providerName, method);
-                            }
-                        }
-                    }
-                }
-
                 AddGeneratedBodyTypeReferences(project, compilation, graph, providerName, symbol);
             }
         }
@@ -905,7 +889,8 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     var xml = property.GetDocumentationCommentXml();
-                    if (string.IsNullOrEmpty(xml))
+                    if (string.IsNullOrEmpty(xml) ||
+                        !xml.Contains("cref=\"T:", StringComparison.Ordinal))
                     {
                         continue;
                     }
@@ -941,34 +926,37 @@ namespace Microsoft.TypeSpec.Generator
 
                 var root = syntaxReference.SyntaxTree.GetRoot();
                 var semanticModel = compilation.GetSemanticModel(syntaxReference.SyntaxTree);
-                foreach (var typeSyntax in root.DescendantNodes().OfType<TypeSyntax>())
+                foreach (var node in root.DescendantNodes())
                 {
-                    if (IsNamespaceOrUsingName(typeSyntax))
+                    if (node is TypeSyntax typeSyntax)
                     {
-                        continue;
+                        if (IsNamespaceOrUsingName(typeSyntax))
+                        {
+                            continue;
+                        }
+
+                        // Declaration names are the owner itself. The old Roslyn map captures references,
+                        // not a declaration making itself reachable.
+                        if (typeSyntax.Parent is BaseTypeDeclarationSyntax baseTypeDeclaration && baseTypeDeclaration.Identifier.Span == typeSyntax.Span)
+                        {
+                            continue;
+                        }
+
+                        var typeInfo = semanticModel.GetTypeInfo(typeSyntax).Type;
+                        AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
+                        AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
                     }
 
-                    // Declaration names are the owner itself. The old Roslyn map captures references,
-                    // not a declaration making itself reachable.
-                    if (typeSyntax.Parent is BaseTypeDeclarationSyntax baseTypeDeclaration && baseTypeDeclaration.Identifier.Span == typeSyntax.Span)
+                    if (node is InvocationExpressionSyntax invocation)
                     {
-                        continue;
+                        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+                        {
+                            continue;
+                        }
+
+                        AddBodyTypeReference(graph.References[ownerName], method.ContainingType, graph.Nodes);
+                        AddBodyTypeReference(graph.References[ownerName], method.ReducedFrom?.ContainingType, graph.Nodes);
                     }
-
-                    var typeInfo = semanticModel.GetTypeInfo(typeSyntax).Type;
-                    AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
-                    AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
-                }
-
-                foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
-                {
-                    if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
-                    {
-                        continue;
-                    }
-
-                    AddBodyTypeReference(graph.References[ownerName], method.ContainingType, graph.Nodes);
-                    AddBodyTypeReference(graph.References[ownerName], method.ReducedFrom?.ContainingType, graph.Nodes);
                 }
             }
         }
@@ -1029,46 +1017,6 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var typeArgument in namedType.TypeArguments)
             {
                 AddBodyTypeReference(references, typeArgument, nodes);
-            }
-        }
-
-        private static void AddGeneratedReferencesToHelper(Project project, Compilation compilation, ProviderReferenceGraph graph, string helperName, ISymbol symbol)
-        {
-            foreach (var reference in SymbolFinder.FindReferencesAsync(symbol, project.Solution).GetAwaiter().GetResult())
-            {
-                foreach (var location in reference.Locations)
-                {
-                    var document = location.Document;
-                    if (!IsGeneratedDocument(document))
-                    {
-                        continue;
-                    }
-
-                    var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                    if (root == null)
-                    {
-                        continue;
-                    }
-
-                    var node = root.FindNode(location.Location.SourceSpan);
-                    var owner = node.AncestorsAndSelf().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault();
-                    if (owner == null)
-                    {
-                        continue;
-                    }
-
-                    var semanticModel = compilation.GetSemanticModel(owner.SyntaxTree);
-                    if (semanticModel.GetDeclaredSymbol(owner) is not INamedTypeSymbol ownerSymbol)
-                    {
-                        continue;
-                    }
-
-                    var ownerName = ownerSymbol.GetFullyQualifiedName();
-                    if (graph.Nodes.Contains(ownerName))
-                    {
-                        graph.References[ownerName].Add(helperName);
-                    }
-                }
             }
         }
 
