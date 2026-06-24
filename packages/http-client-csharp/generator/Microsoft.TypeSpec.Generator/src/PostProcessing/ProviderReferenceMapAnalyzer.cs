@@ -112,9 +112,11 @@ namespace Microsoft.TypeSpec.Generator
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
+            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers);
             var removeHelperRoots = GetHelperRootNames(providers, graph.Nodes, removeReachableWithoutHelpers, graph.References);
             removeRoots.UnionWith(removeHelperRoots);
             var removeReachable = GetReachableTypes(removeRoots, graph.References);
+            AddBasePreservedReferences(providers, graph.Nodes, graph.References, removeReachable);
             var removeDeclaredNodes = GetPostProcessorDeclaredNodes(providers, graph.Nodes, publicOnly: false);
             var removeCandidates = removeDeclaredNodes.Except(removeReachable, StringComparer.Ordinal).OrderBy(static name => name, StringComparer.Ordinal).ToArray();
             var helperRoots = internalizeHelperRoots.Concat(removeHelperRoots).ToHashSet(StringComparer.Ordinal);
@@ -670,6 +672,42 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        private static void AddBasePreservedReferences(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes,
+            IReadOnlyDictionary<string, HashSet<string>> references,
+            HashSet<string> reachableTypes)
+        {
+            var addedReference = true;
+            while (addedReference)
+            {
+                addedReference = false;
+                foreach (var provider in GetGeneratedProviders(providers))
+                {
+                    var providerName = GetProviderTypeName(provider.Type);
+                    if (!nodes.Contains(providerName) || reachableTypes.Contains(providerName))
+                    {
+                        continue;
+                    }
+
+                    var baseTypeName = provider.BaseType == null ? null : GetProviderTypeName(provider.BaseType);
+                    if (baseTypeName == null || !reachableTypes.Contains(baseTypeName))
+                    {
+                        continue;
+                    }
+
+                    reachableTypes.Add(providerName);
+                    foreach (var reference in references[providerName])
+                    {
+                        if (reachableTypes.Add(reference))
+                        {
+                            addedReference = true;
+                        }
+                    }
+                }
+            }
+        }
+
         private static IReadOnlyList<TypeProvider> GetGeneratedProviders(IReadOnlyList<TypeProvider> providers)
         {
             var generatedProviders = new List<TypeProvider>();
@@ -890,6 +928,17 @@ namespace Microsoft.TypeSpec.Generator
                     var typeInfo = semanticModel.GetTypeInfo(typeSyntax).Type;
                     AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
                     AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
+                }
+
+                foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+                {
+                    if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
+                    {
+                        continue;
+                    }
+
+                    AddBodyTypeReference(graph.References[ownerName], method.ContainingType, graph.Nodes);
+                    AddBodyTypeReference(graph.References[ownerName], method.ReducedFrom?.ContainingType, graph.Nodes);
                 }
             }
         }
