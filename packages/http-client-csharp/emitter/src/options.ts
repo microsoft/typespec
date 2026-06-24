@@ -11,7 +11,7 @@ import { LoggerLevel } from "./lib/logger-level.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
-export type ApiVersionSelection = string | Record<string, string>;
+type ApiVersionSelection = string | Record<string, string>;
 
 export interface CSharpEmitterOptions {
   "api-version"?: ApiVersionSelection;
