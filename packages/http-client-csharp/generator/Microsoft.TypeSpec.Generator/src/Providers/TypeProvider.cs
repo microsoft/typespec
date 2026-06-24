@@ -64,13 +64,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomProperties = CustomCodeView?.Properties != null
                 ? new List<PropertyProvider>(CustomCodeView.Properties)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom properties from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomProperties.AddRange(baseTypeProvider.Properties);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomProperties.AddRange(customCodeView.Properties);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomProperties;
@@ -81,13 +91,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomFields = CustomCodeView?.Fields != null
                 ? new List<FieldProvider>(CustomCodeView.Fields)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom fields from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomFields.AddRange(baseTypeProvider.Fields);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomFields.AddRange(customCodeView.Fields);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomFields;

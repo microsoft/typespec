@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
+        private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
@@ -41,20 +42,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
+        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+
         protected override CSharpType? BuildBaseType()
         {
-            if (_namedTypeSymbol.BaseType == null
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
-                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
             {
                 return null;
             }
 
-            return _namedTypeSymbol.BaseType.GetCSharpType();
+            return _namedTypeSymbol.BaseType!.GetCSharpType();
         }
+
+        private TypeProvider? BuildBaseTypeProvider()
+        {
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
+            {
+                return null;
+            }
+
+            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
+        }
+
+        private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
+            => baseType == null
+                || baseType.SpecialType == SpecialType.System_Object
+                || baseType.SpecialType == SpecialType.System_ValueType
+                || baseType.SpecialType == SpecialType.System_Array
+                || baseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(baseType, _namedTypeSymbol);
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
