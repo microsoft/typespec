@@ -223,6 +223,7 @@ model Pet {
 
 ##### encode boolean type to string
 
+
 `@encode(string)` on boolean uses case-insensitive `true` / `false` values.
 
 ```tsp
@@ -1558,3 +1559,4 @@ model DogRead {
  ...Dog
 }
 ```
+
