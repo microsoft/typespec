@@ -620,10 +620,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
-                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
-                        BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    // If the previous property type (or a type nested in it) has been intentionally
+                    // removed and that removal is accepted in the ApiCompat baseline, preserving it
+                    // would reference a now-deleted type. Honor the baseline and allow the new type.
+                    if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.ReferencesSuppressedType(lastContractPropertyType) == true)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Allowing property '{Name}.{outputProperty.Name}' type change to '{outputProperty.Type}'; previous type '{lastContractPropertyType}' is an accepted removal in the ApiCompat baseline.",
+                            BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    }
+                    else
+                    {
+                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    }
                 }
 
                 if (!isDiscriminator)
