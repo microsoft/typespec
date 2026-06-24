@@ -3,8 +3,8 @@ import type {
   Range,
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
-import type { TextDocument } from "vscode-languageserver-textdocument";
 import { DiagnosticSeverity } from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
 import {
   getDiagnosticTemplateInstantitationTrace,
   getSourceLocation,

@@ -1,4 +1,3 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
   CodeActionKind,
@@ -49,6 +48,7 @@ import {
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
