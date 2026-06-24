@@ -10,8 +10,8 @@ catalogs:
       specifier: ^0.24.0
       version: 0.24.0
     '@alloy-js/core':
-      specifier: ^0.24.0
-      version: 0.24.0
+      specifier: ^0.24.1
+      version: 0.24.1
     '@alloy-js/csharp':
       specifier: ^0.24.0
       version: 0.24.0
@@ -905,7 +905,7 @@ importers:
         version: 0.24.0
       '@alloy-js/core':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.1
       '@alloy-js/python':
         specifier: 'catalog:'
         version: 0.5.0
@@ -1163,7 +1163,7 @@ importers:
         version: 0.24.0
       '@alloy-js/core':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.1
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.60.4)
@@ -1199,7 +1199,7 @@ importers:
     dependencies:
       '@alloy-js/core':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.1
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.24.0
@@ -1290,7 +1290,7 @@ importers:
     dependencies:
       '@alloy-js/core':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.1
       '@alloy-js/csharp':
         specifier: 'catalog:'
         version: 0.24.0
@@ -2708,7 +2708,7 @@ importers:
     dependencies:
       '@alloy-js/core':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.1
       '@alloy-js/markdown':
         specifier: 'catalog:'
         version: 0.24.0
@@ -3140,8 +3140,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.24.0':
-    resolution: {integrity: sha512-jqISI1UMs8S3tUFwV19J9LsnP7me/qwCd9c7C0ekpIeNr46tbI+wH1XiFhBC+TyhFea0Wgnm+Pl8ecbKDS1cVA==}
+  '@alloy-js/core@0.24.1':
+    resolution: {integrity: sha512-cye97/HGo0/G8XIc8UnS0PaSoSOj9DDPEiuKsXsn7xQgR1sbL+Nf0oTMZnL2fFb7mRnmULO84x5wK8R/YtReTg==}
 
   '@alloy-js/csharp@0.24.0':
     resolution: {integrity: sha512-TR+VAAnwbFV7YWnGSlyqL2X2/lrS3UBZ8JBKxszn7z+yk4Y5Sgs6dag3xPZMR5CsQXbxkN3gY/c4G3vqgKZf9A==}
@@ -13936,7 +13936,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.24.0':
+  '@alloy-js/core@0.24.1':
     dependencies:
       '@types/ws': 8.18.1
       '@vue/reactivity': 3.5.38
@@ -13951,7 +13951,7 @@ snapshots:
 
   '@alloy-js/csharp@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.0
+      '@alloy-js/core': 0.24.1
       '@alloy-js/msbuild': 0.24.0
       change-case: 5.4.4
       marked: 18.0.5
@@ -13962,7 +13962,7 @@ snapshots:
 
   '@alloy-js/markdown@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.0
+      '@alloy-js/core': 0.24.1
       yaml: 2.9.0
     transitivePeerDependencies:
       - bufferutil
@@ -13970,7 +13970,7 @@ snapshots:
 
   '@alloy-js/msbuild@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.0
+      '@alloy-js/core': 0.24.1
       change-case: 5.4.4
       marked: 18.0.5
       pathe: 2.0.3
@@ -13980,7 +13980,7 @@ snapshots:
 
   '@alloy-js/python@0.5.0':
     dependencies:
-      '@alloy-js/core': 0.24.0
+      '@alloy-js/core': 0.24.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -14000,7 +14000,7 @@ snapshots:
 
   '@alloy-js/typescript@0.24.0':
     dependencies:
-      '@alloy-js/core': 0.24.0
+      '@alloy-js/core': 0.24.1
       change-case: 5.4.4
       pathe: 2.0.3
     transitivePeerDependencies:
@@ -19538,7 +19538,7 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/braces@3.0.5': {}
 
@@ -19546,7 +19546,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.2.0
       '@types/keyv': 3.1.4
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
       '@types/responselike': 1.0.3
 
   '@types/chai@5.2.3':
@@ -19556,7 +19556,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/cross-spawn@6.0.6':
     dependencies:
@@ -19703,7 +19703,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -19732,7 +19732,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/mdast@4.0.4':
     dependencies:
@@ -19800,28 +19800,28 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/sarif@2.1.7': {}
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 24.13.2
+      '@types/node': 26.0.0
 
   '@types/semver@7.7.1': {}
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/ssri@7.1.5':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 26.0.0
 
   '@types/swagger-ui-dist@3.30.6': {}
 

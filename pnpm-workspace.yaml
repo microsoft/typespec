@@ -8,7 +8,7 @@ packages:
 
 catalog:
   "@alloy-js/cli": ^0.24.0
-  "@alloy-js/core": ^0.24.0
+  "@alloy-js/core": ^0.24.1
   "@alloy-js/csharp": ^0.24.0
   "@alloy-js/markdown": ^0.24.0
   "@alloy-js/msbuild": ^0.24.0
