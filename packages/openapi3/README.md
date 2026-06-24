@@ -172,6 +172,19 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 | `kind`      | `"parent-container" \| "fqn" \| "explicit-only"` | `"parent-container"` | Determines how to generate operation IDs when `@operationId` is not used.<br />Avaliable options are:<br /> - `parent-container`: Uses the parent namespace and operation name to generate the ID.<br /> - `fqn`: Uses the fully qualified name of the operation to generate the ID.<br /> - `explicit-only`: Only use explicitly defined operation IDs. |
 | `separator` | `string`                                         |                      | Separator used to join segment in the operation name.                                                                                                                                                                                                                                                                                                    |
 
+### `enum-strategy`
+
+**Type:** `"default" | "annotated"`
+
+**Default:** `"default"`
+
+How to emit TypeSpec enums. Options are:
+
+- `default`: Emit as a single schema using the `enum` keyword.
+- `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`
+  from each member's `@summary` and `@doc`. Follows the OpenAPI 3.1.1 annotated enumerations pattern.
+  Only supported by OpenAPI 3.1.0 and above; on 3.0.0 the `default` style is used and a warning is reported.
+
 ## Decorators
 
 ### TypeSpec.OpenAPI
