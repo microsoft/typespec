@@ -70,11 +70,7 @@ export interface BuildTaskGroupsOptions {
 
 // ---- Public constants ----
 
-export const SKIP_SPECS: string[] = [
-  "type/file",
-  "service/multiple-services",
-  "azure/client-generator-core/response-as-bool",
-];
+export const SKIP_SPECS: string[] = ["type/file"];
 
 export const SpecialFlags: Record<string, Record<string, any>> = {
   azure: {
@@ -716,15 +712,32 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     run(`git fetch --depth 1 origin ${branch}`);
     run(`git checkout FETCH_HEAD`);
 
+    // we don't copy whole generated folder, just the specific subfolders needed for tests
+    // to verify correct preservation/deletion of files and folders during regeneration,
+    // to avoid accidentally including any manually edited code that might be in the repo
+    // and cause confusion when it doesn't get updated during regeneration
+    const legacyCodePathNeededForTests = [
+      "azure/authentication-api-key",
+      "unbranded/authentication-api-key",
+      "azure/authentication-union",
+      "azure/generation-subdir",
+      "azure/generation-subdir2",
+      "unbranded/generation-subdir",
+      "unbranded/generation-subdir2",
+      "azure/azure-client-generator-core-alternate-type",
+    ];
+
     const sourceRoot = join(tempDir, ...sourceSubdir.split("/"));
-    for (const flavor of ["azure", "unbranded"]) {
-      const src = join(sourceRoot, flavor);
-      const dest = join(testsGeneratedDir, flavor);
+    for (const subPath of legacyCodePathNeededForTests) {
+      const segments = subPath.split("/");
+      const src = join(sourceRoot, ...segments);
+      const dest = join(testsGeneratedDir, ...segments);
       if (!existsSync(src)) {
         console.warn(pc.yellow(`Baseline folder not found: ${src}`));
         continue;
       }
-      console.log(pc.dim(`Copying ${flavor}/ -> ${dest}`));
+      console.log(pc.dim(`Copying ${subPath} -> ${dest}`));
+      await mkdir(dirname(dest), { recursive: true });
       await cp(src, dest, { recursive: true });
     }
 

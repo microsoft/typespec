@@ -26,3 +26,4 @@ applyTo: "packages/http-client-csharp/**/*"
 - Regenerate all generated libraries by running `eng/scripts/Generate.ps1`.
 - Ensure all unit tests are passing.
 - Do not comment out or delete any existing tests.
+- Run the Cop static-analysis checks locally with `npm run cop` (which invokes `eng/scripts/Invoke-Cop.ps1`). This downloads the pinned Agent Cop release and runs the rules under `cop-checks/` against the generator, failing on any violation. Ensure it reports `cop checks passed.` before committing C# changes.

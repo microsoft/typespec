@@ -87,12 +87,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
-            // Process all providers from the output library to discover types from methods and properties
-            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            // Base-model traversal can encounter equivalent provider instances that are not reference-equal to
+            // the output-library roots, so keep the output-library provider set name-comparable.
+            var contextEligibleOutputProviders = new HashSet<TypeProvider>(
+                ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders,
+                s_typeProviderNameComparer);
 
-            // Process each provider recursively
-            foreach (var provider in providers)
+            // Process each output-library provider recursively to discover types from methods and properties.
+            foreach (var provider in contextEligibleOutputProviders)
             {
+                // Only output-library providers get standalone context entries.
+                if (ImplementsModelReaderWriter(provider))
+                {
+                    buildableProviders.Add(provider);
+                }
+
                 CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
 
@@ -129,12 +138,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!visitedTypeProviders.Add(currentProvider))
             {
                 return;
-            }
-
-            // Only add to buildableProviders if it implements MRW
-            if (ImplementsModelReaderWriter(currentProvider))
-            {
-                buildableProviders.Add(currentProvider);
             }
 
             // Process all providers to discover types from methods and properties
@@ -182,8 +185,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
-                // For base model types, we need to process their properties as well, but we don't need to add the base model type itself
-                CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                // Traverse base model properties for discoverable types, but do not add the base model
+                // itself as a context entry unless it was in the output-library seed set.
+                CollectBuildableTypeProvidersRecursive(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
             }
             else
             {

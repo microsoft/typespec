@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.38
+
+### Features
+
+- [#10841](https://github.com/microsoft/typespec/pull/10841) add test for discriminator model without subtypes and query params with `# @typespec/http-specs prefixes
+
+
 ## 0.1.0-alpha.37
 
 ### Features

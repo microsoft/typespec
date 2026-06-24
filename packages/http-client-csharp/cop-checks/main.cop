@@ -1,0 +1,28 @@
+# Entry point for the C# emitter cop checks.
+#
+# Each rule's detection logic (predicates) lives in its own file:
+#
+#     braces.cop          -> control-flow statements must use braces
+#     snippet-factory.cop -> expressions must be created via the Snippet factory
+#
+# This file wires those predicates to the C# codebase and exposes one runnable
+# command (and assertion) per rule. Run everything with:
+#
+#     cop cop-checks/main.cop -t .
+#
+# Or a single rule with `-c CHECK-BRACES` / `-c CHECK-SNIPPETS`.
+
+import code
+import csharp
+
+let cb : Codebase = provider('csharp')
+
+# Rule: braces.cop
+command CHECK-BRACES = foreach cb.Lines:missingBraces => '{error:@red} {item.File.Path}:{item.Number}: missing braces -> {item.Text}'
+
+test no-missing-braces = assert(cb.Lines:missingBraces.Count == 0, 'control-flow statements must use braces')
+
+# Rule: snippet-factory.cop
+command CHECK-SNIPPETS = foreach cb.Lines:usesCtorOverSnippet => '{error:@red} {item.File.Path}:{item.Number}: use the Snippet factory instead of constructing the expression directly -> {item.Text}'
+
+test no-direct-expression-construction = assert(cb.Lines:usesCtorOverSnippet.Count == 0, 'expression types should be created via the Snippet factory')

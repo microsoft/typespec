@@ -1145,4 +1145,5 @@ const diagnostics = {
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;
+export const compilerDiagnosticCodes = new Set(Object.keys(diagnostics));
 export const { createDiagnostic, reportDiagnostic } = createDiagnosticCreator(diagnostics);

@@ -196,6 +196,20 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
+  const requestMediaTypes = getRequestMediaTypes(method.operation);
+  if (generateConvenience && isUnsupportedMultipart(requestMediaTypes)) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-multipart-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
+    generateConvenience = false;
+  }
+
   operation = {
     name: method.name,
     isExactName: method.isExactName,
@@ -217,7 +231,7 @@ export function fromSdkServiceMethodOperation(
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    requestMediaTypes: getRequestMediaTypes(method.operation),
+    requestMediaTypes: requestMediaTypes,
     bufferResponse: true,
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
@@ -749,6 +763,15 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
     statusCodes.push(i);
   }
   return statusCodes;
+}
+
+function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
+  return (
+    requestMediaTypes?.some((mediaType) => {
+      const normalized = mediaType.toLowerCase();
+      return normalized.startsWith("multipart/") && normalized !== "multipart/form-data";
+    }) ?? false
+  );
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
