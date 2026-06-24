@@ -1983,18 +1983,17 @@ union Foo {
 model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
 `,
         expected: `
-model Picked
-  is PickProperties<
-    Sample,
-    | "alpha"
-    | "bravo"
-    | "charlie"
-    | "delta"
-    | "echo"
-    | "foxtrot"
-    | "golf"
-    | "hotel"
-  >;
+model Picked is PickProperties<
+  Sample,
+  | "alpha"
+  | "bravo"
+  | "charlie"
+  | "delta"
+  | "echo"
+  | "foxtrot"
+  | "golf"
+  | "hotel"
+>;
 `,
       });
     });
@@ -2026,16 +2025,15 @@ model Picked
 model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
 `,
         expected: `
-model Created
-  is Operation<
-    Request,
-    | Response
-    | CreatedResponse<
-        ResponseBodyModel,
-        LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
-      >,
-    Error
-  >;
+model Created is Operation<
+  Request,
+  | Response
+  | CreatedResponse<
+      ResponseBodyModel,
+      LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
+    >,
+  Error
+>;
 `,
       });
     });
