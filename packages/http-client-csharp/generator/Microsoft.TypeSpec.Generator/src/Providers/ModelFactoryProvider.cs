@@ -54,7 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
+                {
                     continue;
+                }
 
                 var typeToInstantiate = GetModelToInstantiateForFactoryMethod(modelProvider);
                 if (typeToInstantiate is null)

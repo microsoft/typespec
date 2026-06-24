@@ -411,7 +411,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected internal override EnumProvider? PreVisitEnum(InputEnumType enumType, EnumProvider? type)
             {
                 if (type == null)
+                {
                     return type;
+                }
 
                 // Create a new enum provider with modified namespace
                 // replace ".Models" with ".SomeOtherNamespace"

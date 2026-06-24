@@ -42,7 +42,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return systemBase;
+                    }
+
                     return new ModelProvider(model);
                 },
                 createSerializationsCore: (inputType, typeProvider) =>

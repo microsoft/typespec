@@ -282,7 +282,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static char? ExtractApiVersionSeparator(string version)
         {
             if (string.IsNullOrEmpty(version))
+            {
                 return null;
+            }
 
             char[] versionSeparators = ['-', '.', '_', '/'];
             int separatorIndex = version.IndexOfAny(versionSeparators);

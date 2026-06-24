@@ -337,7 +337,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             if (!type.IsFrameworkType || type.IsEnum || type.IsLiteral)
+            {
                 return false;
+            }
 
             return type.FrameworkType.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
@@ -356,7 +358,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string RemovePeriods(string input)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
             Span<char> buffer = stackalloc char[input.Length];
             int index = 0;
@@ -364,7 +368,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (char c in input)
             {
                 if (c != '.')
+                {
                     buffer[index++] = c;
+                }
             }
 
             return buffer.Slice(0, index).ToString();
@@ -373,7 +379,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool ImplementsModelReaderWriter(Type type)
         {
             if (type.IsEnum || type.IsValueType)
+            {
                 return false;
+            }
 
             return type.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
