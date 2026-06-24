@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeS
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
