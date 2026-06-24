@@ -758,7 +758,26 @@ namespace Microsoft.TypeSpec.Generator
         {
             foreach (var dependency in dependencies)
             {
-                AddTypeReference(references, dependency, nodes);
+                AddProviderBodyDependencyType(references, dependency, nodes);
+            }
+        }
+
+        private static void AddProviderBodyDependencyType(HashSet<string> references, CSharpType? dependency, HashSet<string> nodes)
+        {
+            if (dependency == null)
+            {
+                return;
+            }
+
+            AddTypeReference(references, dependency, nodes);
+            if (dependency.IsEnum)
+            {
+                AddMatchingName(references, $"{dependency.Name}Extensions", nodes);
+            }
+
+            foreach (var argument in dependency.Arguments)
+            {
+                AddProviderBodyDependencyType(references, argument, nodes);
             }
         }
 
