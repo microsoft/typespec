@@ -97,7 +97,7 @@ export const libDef = {
     "invalid-interface": {
       severity: "error",
       messages: {
-        default: paramMessage`All models used with \`@compose\` must be marked with \`@interface\`, but ${"interface"} is not.`,
+        default: paramMessage`All models used with \`@compose\` must be marked with \`@graphqlInterface\`, but ${"interface"} is not.`,
       },
     },
     "circular-interface": {

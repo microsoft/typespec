@@ -182,10 +182,10 @@ type SearchResult {
 
 ### Interfaces
 
-GraphQL interfaces allow you to define a common set of fields that multiple types can implement. Use the [`@interface`](../reference/decorators#@TypeSpec.GraphQL.interface) decorator:
+GraphQL interfaces allow you to define a common set of fields that multiple types can implement. Use the [`@graphqlInterface`](../reference/decorators#@TypeSpec.GraphQL.graphqlInterface) decorator:
 
 ```typespec
-@`interface`(#{ interfaceOnly: true })
+@graphqlInterface(#{ interfaceOnly: true })
 model Node {
   id: string;
 }

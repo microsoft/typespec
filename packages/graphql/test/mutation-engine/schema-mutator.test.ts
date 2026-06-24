@@ -233,7 +233,7 @@ describe("mutateSchema", () => {
   it("mutateDecoratorTypeArgs does not corrupt source type decorator args", async () => {
     await tester.compile(
       t.code`
-        @\`interface\` model ${t.model("Animal")} { name: string; }
+        @graphqlInterface model ${t.model("Animal")} { name: string; }
         @compose(Animal)
         model ${t.model("Cat")} { name: string; breed: string; }
         op ${t.op("getCat")}(): Cat;
@@ -258,7 +258,7 @@ describe("mutateSchema", () => {
   it("interfaceOnly @interface model used as output does not produce name collision", async () => {
     await tester.compile(
       t.code`
-        @\`interface\`(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
+        @graphqlInterface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
         op ${t.op("getNode")}(): Node;
       `,
     );

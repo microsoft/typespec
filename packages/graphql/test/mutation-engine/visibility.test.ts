@@ -191,7 +191,7 @@ describe("GraphQL Mutation Engine - Visibility Filtering", () => {
 
     it("strips @compose from input variants to avoid spurious validation", async () => {
       const { User } = await tester.compile(t.code`
-        @\`interface\`(#{interfaceOnly: true})
+        @graphqlInterface(#{interfaceOnly: true})
         model Node {
           @visibility(Lifecycle.Read)
           id: string;

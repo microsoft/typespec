@@ -128,12 +128,12 @@ function validateImplementsInterfacesProperties(
   return valid;
 }
 
-export const $interface: DecoratorFunction = (
+export const $graphqlInterface: DecoratorFunction = (
   context: DecoratorContext,
   target: Model,
   options?: { interfaceOnly?: boolean },
 ) => {
-  validateDecoratorUniqueOnNode(context, target, $interface);
+  validateDecoratorUniqueOnNode(context, target, $graphqlInterface);
   setInterface(context.program, target as Interface);
   if (options?.interfaceOnly) {
     setInterfaceOnly(context.program, target as Interface);

@@ -1,6 +1,6 @@
 import type { DecoratorImplementations } from "@typespec/compiler";
 import { $lib } from "./lib.js";
-import { $compose, $interface } from "./lib/interface.js";
+import { $compose, $graphqlInterface } from "./lib/interface.js";
 import { $nullable, $nullableElements } from "./lib/nullable.js";
 import { $oneOf } from "./lib/one-of.js";
 import { $operationFields } from "./lib/operation-fields.js";
@@ -14,7 +14,7 @@ export { $lib, $onValidate };
 export const $decorators: DecoratorImplementations = {
   "TypeSpec.GraphQL": {
     compose: $compose,
-    interface: $interface,
+    graphqlInterface: $graphqlInterface,
     mutation: $mutation,
     nullable: $nullable,
     nullableElements: $nullableElements,

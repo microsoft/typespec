@@ -12,22 +12,22 @@ namespace TypeSpec.GraphQL;
  * @example
  *
  * ```typespec
- * @`interface`(#{interfaceOnly: true})
+ * @graphqlInterface(#{interfaceOnly: true})
  * model Node {
  *   id: string;
  * }
  *
- * @`interface`
+ * @graphqlInterface
  * model Person {
  *   name: string;
  * }
  * ```
  */
-extern dec `interface`(target: Model, options?: valueof {interfaceOnly?: boolean});
+extern dec graphqlInterface(target: Model, options?: valueof {interfaceOnly?: boolean});
 
 /**
  * Specify the GraphQL interfaces that should be implemented by a model.
- * The interfaces must be decorated with the @`interface` decorator,
+ * The interfaces must be decorated with the @graphqlInterface decorator,
  * and all of the interfaces' properties must be present and compatible.
  *
  * @example

@@ -36,11 +36,11 @@ model User {
 }
 
 
-### `@interface` {#@TypeSpec.GraphQL.interface}
+### `@graphqlInterface` {#@TypeSpec.GraphQL.graphqlInterface}
 
 Mark this model as a GraphQL Interface. Interfaces can be implemented by other models.
 ```typespec
-@TypeSpec.GraphQL.interface(options?: valueof { interfaceOnly: boolean })
+@TypeSpec.GraphQL.graphqlInterface(options?: valueof { interfaceOnly: boolean })
 ````
 
 #### Target
@@ -56,12 +56,12 @@ Mark this model as a GraphQL Interface. Interfaces can be implemented by other m
 #### Examples
 
 ```typespec
-@`interface`(#{ interfaceOnly: true })
+@graphqlInterface(#{ interfaceOnly: true })
 model Node {
   id: string;
 }
 
-@`interface`
+@graphqlInterface
 model Person {
   name: string;
 }
