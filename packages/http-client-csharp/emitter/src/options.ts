@@ -1,4 +1,7 @@
-import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
+import {
+  CreateSdkContextOptions,
+  UnbrandedSdkEmitterOptions,
+} from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
@@ -43,23 +46,7 @@ export const CSharpEmitterOptionsSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
-    "api-version": {
-      oneOf: [
-        {
-          type: "string",
-          nullable: true,
-        },
-        {
-          type: "object",
-          additionalProperties: { type: "string" },
-          required: [],
-          nullable: true,
-        },
-      ],
-      description:
-        "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
-        "set this option to the version that should be used to generate against. For multi-service packages, provide a map from service namespace full name to version.",
-    } as JSONSchemaType<ApiVersionSelection>,
+    ...UnbrandedSdkEmitterOptions["api-version"],
     "generate-protocol-methods": {
       type: "boolean",
       nullable: true,

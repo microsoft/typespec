@@ -1,6 +1,7 @@
 vi.resetModules();
 
 import { EmitContext, Program } from "@typespec/compiler";
+import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
@@ -189,21 +190,12 @@ describe("Configuration tests", async () => {
   });
 
   it("api-version schema accepts a string or namespace-to-version map", () => {
-    const schema = CSharpEmitterOptionsSchema.properties["api-version"] as {
+    const schema = CSharpEmitterOptionsSchema.properties["api-version"];
+    const tcgcSchema = UnbrandedSdkEmitterOptions["api-version"]["api-version"] as {
       oneOf?: unknown[];
     };
 
-    expect(schema.oneOf).toEqual([
-      {
-        type: "string",
-        nullable: true,
-      },
-      {
-        type: "object",
-        additionalProperties: { type: "string" },
-        required: [],
-        nullable: true,
-      },
-    ]);
+    expect(schema).toBe(tcgcSchema);
+    expect(tcgcSchema.oneOf).toBeDefined();
   });
 });
