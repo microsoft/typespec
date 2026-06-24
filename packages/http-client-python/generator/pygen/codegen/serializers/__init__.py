@@ -333,8 +333,8 @@ class JinjaSerializer(ReaderAndWriter):
             serializer = DpgModelSerializer
         else:
             serializer = MsrestModelSerializer
-        # Filter out typed-dict-only models — they only appear in types.py, not as model classes
-        class_models = [m for m in models if not m.is_typed_dict_only]
+        # Filter out typed-dict-only models and typeddict copies — they only appear in types.py, not as model classes
+        class_models = [m for m in models if not m.is_typed_dict_only and m.base != "typeddict"]
         if self.code_model.has_non_json_models(class_models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
@@ -481,7 +481,11 @@ class JinjaSerializer(ReaderAndWriter):
             # when there is client.py, there must be __init__.py
             self.write_file(
                 generation_path / Path(f"{async_path}__init__.py"),
-                general_serializer.serialize_init_file([c for c in clients if c.has_operations], has_types=has_types),
+                general_serializer.serialize_init_file(
+                    [c for c in clients if c.has_operations],
+                    # types.py is only generated at the sync (non-aio) level
+                    has_types=has_types and not async_mode,
+                ),
             )
 
             # if there was a patch file before, we keep it
