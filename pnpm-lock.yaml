@@ -915,6 +915,9 @@ importers:
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.23.0
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.0.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
