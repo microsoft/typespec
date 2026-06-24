@@ -306,6 +306,44 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
 
+    @staticmethod
+    def _find_existing_typeddict(code_model: dict[str, Any], cross_lang_id: Optional[str]) -> Optional[dict[str, Any]]:
+        """Find an existing typeddict copy with the given crossLanguageDefinitionId."""
+        if not cross_lang_id:
+            return None
+        return next(
+            (
+                t
+                for t in code_model["types"]
+                if t.get("type") == "model"
+                and t.get("base") == "typeddict"
+                and t.get("crossLanguageDefinitionId") == cross_lang_id
+            ),
+            None,
+        )
+
+    @staticmethod
+    def _insert_typeddict_overload(
+        code_model: dict[str, Any],
+        body_parameter: dict[str, Any],
+        source: dict[str, Any],
+        origin_type: str,
+        existing_td: Optional[dict[str, Any]],
+    ) -> None:
+        """Insert a typeddict type into the body parameter's combined types."""
+        if origin_type == "model":
+            td_type = existing_td or {**source, "base": "typeddict"}
+            body_parameter["type"]["types"].insert(1, td_type)
+            if not existing_td:
+                code_model["types"].append(td_type)
+        else:
+            td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+            td_elem = existing_td or {**source, "base": "typeddict"}
+            td_list_or_dict["elementType"] = td_elem
+            body_parameter["type"]["types"].insert(1, td_list_or_dict)
+            if not existing_td:
+                code_model["types"].append(td_elem)
+
     def add_body_param_type(
         self,
         code_model: dict[str, Any],
@@ -338,35 +376,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
             # Add typeddict overload for non-spread dpg models
             if self.options["models-mode"] == "dpg" and is_dpg_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
-                existing_td = next(
-                    (
-                        t
-                        for t in code_model["types"]
-                        if t.get("type") == "model"
-                        and t.get("base") == "typeddict"
-                        and t.get("crossLanguageDefinitionId") == cross_lang_id
-                    ),
-                    None,
-                )
-                if origin_type == "model":
-                    td_type = existing_td or {**model_type, "base": "typeddict"}
-                    body_parameter["type"]["types"].insert(1, td_type)
-                    if not existing_td:
-                        code_model["types"].append(td_type)
-                else:
-                    # dict or list — replace elementType with TypedDict reference
-                    td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                    td_elem = existing_td or {**model_type, "base": "typeddict"}
-                    td_list_or_dict["elementType"] = td_elem
-                    body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                    if not existing_td:
-                        code_model["types"].append(td_elem)
+                existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
 
             # For spread bodies (json base), add a typeddict overload that references
             # the original model. This replaces the JSON single-body overload.
             if is_json_model:
-                # Find the original non-cloned model (the emitter clones spread body types
-                # with a renamed name when the model is also used in other input/output)
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
                 original = None
                 if cross_lang_id:
@@ -391,31 +406,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         td_list_or_dict["elementType"] = original
                         body_parameter["type"]["types"].insert(1, td_list_or_dict)
                 else:
-                    # In DPG mode or when no original exists, create a typeddict copy
                     source = original or model_type
-                    # Reuse an existing typeddict copy if one was already created
-                    existing_td = next(
-                        (
-                            t
-                            for t in code_model["types"]
-                            if t.get("type") == "model"
-                            and t.get("base") == "typeddict"
-                            and t.get("crossLanguageDefinitionId") == cross_lang_id
-                        ),
-                        None,
-                    )
-                    if origin_type == "model":
-                        td_type = existing_td or {**source, "base": "typeddict"}
-                        body_parameter["type"]["types"].insert(1, td_type)
-                        if not existing_td:
-                            code_model["types"].append(td_type)
-                    else:
-                        td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                        td_elem = existing_td or {**source, "base": "typeddict"}
-                        td_list_or_dict["elementType"] = td_elem
-                        body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                        if not existing_td:
-                            code_model["types"].append(td_elem)
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                    self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
 
             code_model["types"].append(body_parameter["type"])
 
