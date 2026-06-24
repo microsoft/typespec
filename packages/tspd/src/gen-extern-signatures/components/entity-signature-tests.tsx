@@ -1,6 +1,6 @@
 import { Refkey, Show } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EntitySignature } from "../types.js";
+import { DecoratorSignature, EntitySignature } from "../types.js";
 
 export interface EntitySignatureTests {
   namespaceName: string;
@@ -19,12 +19,14 @@ export function EntitySignatureTests({
   dollarFunctionsRefKey,
   dollarFunctionsTypeRefKey,
 }: Readonly<EntitySignatureTests>) {
-  const hasDecorators = entities.some((e) => e.kind === "Decorator");
+  const hasExternDecorators = entities.some(
+    (e): e is DecoratorSignature => e.kind === "Decorator" && !e.isAuto,
+  );
   const hasFunctions = entities.some((e) => e.kind === "Function");
 
   return (
     <>
-      <Show when={hasDecorators}>
+      <Show when={hasExternDecorators}>
         <hbr />
         <hbr />
         <ts.VarDeclaration

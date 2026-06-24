@@ -1975,6 +1975,68 @@ union Foo {
 `,
       });
     });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("does not add a blank line or extra indent for a union used as a template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked is PickProperties<
+  Sample,
+  | "alpha"
+  | "bravo"
+  | "charlie"
+  | "delta"
+  | "echo"
+  | "foxtrot"
+  | "golf"
+  | "hotel"
+>;
+`,
+      });
+    });
+
+    it("keeps leading | and indent for a union used as the only template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<"alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked
+  is PickProperties<
+    | "alpha"
+    | "bravo"
+    | "charlie"
+    | "delta"
+    | "echo"
+    | "foxtrot"
+    | "golf"
+    | "hotel">;
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("keeps the variant alignment so a nested template argument stays indented", async () => {
+      await assertFormat({
+        code: `
+model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
+`,
+        expected: `
+model Created is Operation<
+  Request,
+  | Response
+  | CreatedResponse<
+      ResponseBodyModel,
+      LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
+    >,
+  Error
+>;
+`,
+      });
+    });
   });
 
   describe("namespaces", () => {
@@ -3071,6 +3133,28 @@ internal   extern    dec   foo(target: Type,    arg1: StringLiteral);
 `,
         expected: `
 internal extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format auto dec", async () => {
+      await assertFormat({
+        code: `
+auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+auto dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format internal auto dec", async () => {
+      await assertFormat({
+        code: `
+internal   auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+internal auto dec foo(target: Type, arg1: StringLiteral);
 `,
       });
     });

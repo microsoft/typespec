@@ -269,6 +269,13 @@ const diagnostics = {
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
     },
   },
+  "auto-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {
@@ -564,6 +571,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`Modifier '${"modifier"}' is invalid.`,
       "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "missing-required-one-of": paramMessage`Declaration of type '${"nodeKind"}' is missing one of the required modifiers: ${"modifiers"}.`,
+      "mutually-exclusive": paramMessage`Modifiers '${"modifierA"}' and '${"modifierB"}' cannot be used together.`,
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
