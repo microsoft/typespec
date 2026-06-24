@@ -8,8 +8,10 @@ import { LoggerLevel } from "./lib/logger-level.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
+export type ApiVersionSelection = string | Record<string, string>;
+
 export interface CSharpEmitterOptions {
-  "api-version"?: string;
+  "api-version"?: ApiVersionSelection;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
   "save-inputs"?: boolean;
@@ -37,17 +39,27 @@ export interface CSharpEmitterOptions {
  * The JSON schema for the CSharp emitter options.
  * @beta
  */
-export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = {
+export const CSharpEmitterOptionsSchema = {
   type: "object",
   additionalProperties: false,
   properties: {
     "api-version": {
-      type: "string",
-      nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          nullable: true,
+        },
+        {
+          type: "object",
+          additionalProperties: { type: "string" },
+          required: [],
+          nullable: true,
+        },
+      ],
       description:
         "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
-        "set this option to the version that should be used to generate against.",
-    },
+        "set this option to the version that should be used to generate against. For multi-service packages, provide a map from service namespace full name to version.",
+    } as JSONSchemaType<ApiVersionSelection>,
     "generate-protocol-methods": {
       type: "boolean",
       nullable: true,
@@ -162,7 +174,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     },
   },
   required: [],
-};
+} as unknown as JSONSchemaType<CSharpEmitterOptions>;
 
 /**
  * The default options for the CSharp emitter.

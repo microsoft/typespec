@@ -55,9 +55,9 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 ### `api-version`
 
-**Type:** `string`
+**Type:** `string | Record<string, string>`
 
-For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, set this option to the version that should be used to generate against.
+For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, set this option to the version that should be used to generate against. For multi-service packages, provide a map from service namespace full name to version.
 
 ### `generate-protocol-methods`
 
