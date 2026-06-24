@@ -46,7 +46,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
-    ...UnbrandedSdkEmitterOptions["api-version"],
+    "api-version": UnbrandedSdkEmitterOptions["api-version"]["api-version"],
     "generate-protocol-methods": {
       type: "boolean",
       nullable: true,
