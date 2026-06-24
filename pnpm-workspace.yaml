@@ -2,90 +2,90 @@ packages:
   - packages/*
   - e2e
   - website
-  - '!packages/http-client-csharp/**'
-  - '!packages/http-client-java/**'
-  - '!packages/http-client-python/**'
+  - "!packages/http-client-csharp/**"
+  - "!packages/http-client-java/**"
+  - "!packages/http-client-python/**"
 
 catalog:
-  '@alloy-js/cli': ^0.24.0
-  '@alloy-js/core': ^0.24.0
-  '@alloy-js/csharp': ^0.24.0
-  '@alloy-js/markdown': ^0.24.0
-  '@alloy-js/msbuild': ^0.24.0
-  '@alloy-js/python': ^0.5.0
-  '@alloy-js/rollup-plugin': ^0.1.2
-  '@alloy-js/typescript': ^0.24.0
-  '@astrojs/check': ^0.9.8
-  '@astrojs/react': ^5.0.3
-  '@astrojs/starlight': ^0.39.2
-  '@azure/identity': ^4.13.1
-  '@azure/storage-blob': ^12.31.0
-  '@babel/code-frame': ^7.29.0
-  '@babel/core': ^7.29.0
-  '@chronus/chronus': ^1.3.1
-  '@chronus/github': ^1.0.6
-  '@chronus/github-pr-commenter': ^1.0.6
-  '@docsearch/css': ^4.6.2
-  '@docsearch/js': ^4.6.2
-  '@eslint/js': ^10.0.1
-  '@expressive-code/core': ^0.42.0
-  '@fluentui/react-components': ^9.73.7
-  '@fluentui/react-icons': ^2.0.323
-  '@fluentui/react-list': ^9.6.13
-  '@inquirer/prompts': ^8.4.1
-  '@microsoft/api-extractor': ^7.58.1
-  '@microsoft/api-extractor-model': ^7.33.5
-  '@microsoft/tsdoc': ^0.16.0
-  '@microsoft/tsdoc-config': ^0.18.1
-  '@octokit/core': ^7.0.6
-  '@octokit/plugin-paginate-graphql': ^6.0.0
-  '@octokit/plugin-rest-endpoint-methods': ^17.0.0
-  '@playwright/test': ^1.60.0
-  '@pnpm/workspace.find-packages': ^1000.0.65
-  '@scalar/json-magic': ^0.12.15
-  '@scalar/openapi-parser': ^0.28.6
-  '@scalar/openapi-types': ^0.9.1
-  '@storybook/cli': ^10.3.5
-  '@storybook/react-vite': ^10.3.5
-  '@testing-library/dom': ^10.4.1
-  '@testing-library/jest-dom': ^6.9.1
-  '@testing-library/react': ^16.3.2
-  '@types/babel__code-frame': ^7.27.0
-  '@types/cross-spawn': ^6.0.6
-  '@types/debounce': ^1.2.4
-  '@types/express': ^5.0.6
-  '@types/micromatch': ^4.0.10
-  '@types/morgan': ^1.9.10
-  '@types/multer': ^2.1.0
-  '@types/mustache': ^4.2.6
-  '@types/node': ^25.5.2
-  '@types/react': ^19.2.16
-  '@types/react-dom': ^19.2.3
-  '@types/remark-heading-id': ^1.0.0
-  '@types/semver': ^7.7.1
-  '@types/swagger-ui': ^5.32.0
-  '@types/swagger-ui-dist': ^3.30.6
-  '@types/swagger-ui-express': ^4.1.8
-  '@types/which': ^3.0.4
-  '@types/yargs': ^17.0.35
-  '@typescript-eslint/parser': ^8.58.1
-  '@typescript-eslint/rule-tester': ^8.58.1
-  '@typescript-eslint/types': ^8.58.1
-  '@typescript-eslint/utils': ^8.58.1
-  '@typespec/ts-http-runtime': 0.3.5
-  '@vitejs/plugin-react': ^6.0.1
-  '@vitest/coverage-v8': ^4.1.3
-  '@vitest/eslint-plugin': ^1.6.16
-  '@vitest/ui': ^4.1.3
-  '@vscode/extension-telemetry': ^1.5.1
-  '@vscode/test-electron': ^2.5.2
-  '@vscode/test-web': ^0.0.80
-  '@vscode/vsce': ^3.7.1
-  '@yarnpkg/core': ^4.6.0
-  '@yarnpkg/fslib': ^3.1.4
-  '@yarnpkg/plugin-nm': ^4.0.8
-  '@yarnpkg/plugin-npm': ^3.4.0
-  '@yarnpkg/plugin-pnp': ^4.1.3
+  "@alloy-js/cli": ^0.24.0
+  "@alloy-js/core": ^0.24.0
+  "@alloy-js/csharp": ^0.24.0
+  "@alloy-js/markdown": ^0.24.0
+  "@alloy-js/msbuild": ^0.24.0
+  "@alloy-js/python": ^0.5.0
+  "@alloy-js/rollup-plugin": ^0.1.2
+  "@alloy-js/typescript": ^0.24.0
+  "@astrojs/check": ^0.9.8
+  "@astrojs/react": ^5.0.3
+  "@astrojs/starlight": ^0.39.2
+  "@azure/identity": ^4.13.1
+  "@azure/storage-blob": ^12.31.0
+  "@babel/code-frame": ^7.29.0
+  "@babel/core": ^7.29.0
+  "@chronus/chronus": ^1.3.1
+  "@chronus/github": ^1.0.6
+  "@chronus/github-pr-commenter": ^1.0.6
+  "@docsearch/css": ^4.6.2
+  "@docsearch/js": ^4.6.2
+  "@eslint/js": ^10.0.1
+  "@expressive-code/core": ^0.42.0
+  "@fluentui/react-components": ^9.73.7
+  "@fluentui/react-icons": ^2.0.323
+  "@fluentui/react-list": ^9.6.13
+  "@inquirer/prompts": ^8.4.1
+  "@microsoft/api-extractor": ^7.58.1
+  "@microsoft/api-extractor-model": ^7.33.5
+  "@microsoft/tsdoc": ^0.16.0
+  "@microsoft/tsdoc-config": ^0.18.1
+  "@octokit/core": ^7.0.6
+  "@octokit/plugin-paginate-graphql": ^6.0.0
+  "@octokit/plugin-rest-endpoint-methods": ^17.0.0
+  "@playwright/test": ^1.60.0
+  "@pnpm/workspace.find-packages": ^1000.0.65
+  "@scalar/json-magic": ^0.12.15
+  "@scalar/openapi-parser": ^0.28.6
+  "@scalar/openapi-types": ^0.9.1
+  "@storybook/cli": ^10.3.5
+  "@storybook/react-vite": ^10.3.5
+  "@testing-library/dom": ^10.4.1
+  "@testing-library/jest-dom": ^6.9.1
+  "@testing-library/react": ^16.3.2
+  "@types/babel__code-frame": ^7.27.0
+  "@types/cross-spawn": ^6.0.6
+  "@types/debounce": ^1.2.4
+  "@types/express": ^5.0.6
+  "@types/micromatch": ^4.0.10
+  "@types/morgan": ^1.9.10
+  "@types/multer": ^2.1.0
+  "@types/mustache": ^4.2.6
+  "@types/node": ^25.5.2
+  "@types/react": ^19.2.16
+  "@types/react-dom": ^19.2.3
+  "@types/remark-heading-id": ^1.0.0
+  "@types/semver": ^7.7.1
+  "@types/swagger-ui": ^5.32.0
+  "@types/swagger-ui-dist": ^3.30.6
+  "@types/swagger-ui-express": ^4.1.8
+  "@types/which": ^3.0.4
+  "@types/yargs": ^17.0.35
+  "@typescript-eslint/parser": ^8.58.1
+  "@typescript-eslint/rule-tester": ^8.58.1
+  "@typescript-eslint/types": ^8.58.1
+  "@typescript-eslint/utils": ^8.58.1
+  "@typespec/ts-http-runtime": 0.3.5
+  "@vitejs/plugin-react": ^6.0.1
+  "@vitest/coverage-v8": ^4.1.3
+  "@vitest/eslint-plugin": ^1.6.16
+  "@vitest/ui": ^4.1.3
+  "@vscode/extension-telemetry": ^1.5.1
+  "@vscode/test-electron": ^2.5.2
+  "@vscode/test-web": ^0.0.80
+  "@vscode/vsce": ^3.7.1
+  "@yarnpkg/core": ^4.6.0
+  "@yarnpkg/fslib": ^3.1.4
+  "@yarnpkg/plugin-nm": ^4.0.8
+  "@yarnpkg/plugin-npm": ^3.4.0
+  "@yarnpkg/plugin-pnp": ^4.1.3
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
   astro: ^6.4.6
@@ -182,10 +182,10 @@ catalog:
 minimumReleaseAge: 2880
 
 minimumReleaseAgeExclude:
-  - '@alloy-js/*'
+  - "@alloy-js/*"
 
 overrides:
-  cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
-  diff@>=6.0.0 <8.0.3: '>=8.0.3'
+  cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
+  diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
-  yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+  yaml@>=2.0.0 <2.8.3: ">=2.8.3"
