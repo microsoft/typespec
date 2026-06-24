@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
-from .imports import FileImport
+from .imports import FileImport, ImportType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -136,6 +136,12 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
+        is_operation_file = kwargs.get("is_operation_file", False)
+        use_list_import = (self.code_model.has_operation_named_list and is_operation_file) or (
+            self.code_model.has_property_named_list and not is_operation_file
+        )
+        if use_list_import:
+            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
         return file_import
 
     @property
