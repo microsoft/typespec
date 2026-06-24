@@ -20,6 +20,21 @@ namespace Microsoft.TypeSpec.Generator
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
+        // CS8019: Unnecessary using directive.
+        private const string UnnecessaryUsingDirectiveDiagnosticId = "CS8019";
+
+        // Diagnostics that indicate a type, namespace, or name could not be resolved. When any of these are
+        // present in a document the compiler cannot reliably determine whether a using directive is used, so
+        // the CS8019 ("unnecessary using") diagnostic may be a false positive and must not be trusted.
+        private static readonly HashSet<string> UnresolvedReferenceDiagnosticIds =
+        [
+            "CS0103", // The name does not exist in the current context.
+            "CS0234", // The type or namespace name does not exist in the namespace (missing assembly reference?).
+            "CS0246", // The type or namespace name could not be found (missing using or assembly reference?).
+            "CS0305", // Using the generic type requires type arguments.
+            "CS0308", // The non-generic type cannot be used with type arguments.
+        ];
+
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
@@ -156,20 +171,39 @@ namespace Microsoft.TypeSpec.Generator
                 project = MarkInternal(project, model, documentId);
             }
 
+            if (nodesToInternalize.Count > 0)
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Internalized {nodesToInternalize.Count} unreferenced public type(s).");
+            }
+
             var modelNamesToRemove =
                 nodesToInternalize.Keys.Select(item => item.Identifier.Text);
-            project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+            DocumentId? modelFactoryDocumentId;
+            (project, modelFactoryDocumentId) = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+
+            if (nodesToInternalize.Count > 0)
+            {
+                var documentsToClean = nodesToInternalize.Values.ToHashSet();
+                // Removing methods from the model factory can leave a using directive (for a model in a
+                // different namespace) unused, so include the model factory document in the cleanup pass.
+                if (modelFactoryDocumentId != null)
+                {
+                    documentsToClean.Add(modelFactoryDocumentId);
+                }
+                project = await RemoveUnusedUsingsAsync(project, documentsToClean);
+            }
 
             return project;
         }
 
-        private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
+        private async Task<(Project Project, DocumentId? ModelFactoryDocumentId)> RemoveMethodsFromModelFactoryAsync(Project project,
             TypeSymbols definitions,
             HashSet<string> namesToRemove)
         {
             var modelFactorySymbol = definitions.ModelFactorySymbol;
             if (modelFactorySymbol == null)
-                return project;
+                return (project, null);
 
             var nodesToRemove = new List<SyntaxNode>();
 
@@ -203,7 +237,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // maybe this is possible, for instance, we could be adding the customization all entries previously inside the generated model factory so that the generated model factory is empty and removed.
             if (modelFactoryGeneratedDocument == null)
-                return project;
+                return (project, null);
 
             var root = await modelFactoryGeneratedDocument.GetSyntaxRootAsync();
             Debug.Assert(root is not null);
@@ -214,10 +248,10 @@ namespace Microsoft.TypeSpec.Generator
             var methods = root.DescendantNodes().OfType<MethodDeclarationSyntax>();
             if (!methods.Any())
             {
-                return project.RemoveDocument(modelFactoryGeneratedDocument.Id);
+                return (project.RemoveDocument(modelFactoryGeneratedDocument.Id), null);
             }
 
-            return modelFactoryGeneratedDocument.Project;
+            return (modelFactoryGeneratedDocument.Project, modelFactoryGeneratedDocument.Id);
         }
 
         /// <summary>
@@ -336,6 +370,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
         {
+            CodeModelGenerator.Instance.Emitter.Debug(
+                $"Internalizing unreferenced public type '{declarationNode.Identifier.Text}'.");
+
             var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
             var tree = declarationNode.SyntaxTree;
             var document = project.GetDocument(documentId)!;
@@ -430,6 +467,76 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return solution.GetProject(project.Id)!;
+        }
+
+        private async Task<Project> RemoveUnusedUsingsAsync(Project project, IEnumerable<DocumentId> documentIds)
+        {
+            var solution = project.Solution;
+            foreach (var documentId in documentIds)
+            {
+                solution = await RemoveUnusedUsings(solution, documentId);
+            }
+
+            return solution.GetProject(project.Id) ?? project;
+        }
+
+        private async Task<Solution> RemoveUnusedUsings(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId);
+            if (document == null)
+            {
+                return solution;
+            }
+
+            document = await Simplifier.ReduceAsync(document);
+
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root is not CompilationUnitSyntax cu || model == null)
+            {
+                return solution;
+            }
+
+            var diagnostics = model.GetDiagnostics();
+
+            if (diagnostics.Any(d => UnresolvedReferenceDiagnosticIds.Contains(d.Id)))
+            {
+                return solution;
+            }
+
+            var unusedUsings = diagnostics
+                .Where(d => d.Id == UnnecessaryUsingDirectiveDiagnosticId)
+                .Select(d => cu.FindNode(d.Location.SourceSpan).FirstAncestorOrSelf<UsingDirectiveSyntax>())
+                .OfType<UsingDirectiveSyntax>()
+                .ToList();
+
+            if (unusedUsings.Count == 0)
+            {
+                return solution;
+            }
+
+            // Preserve any leading trivia on the first using directive (such as the file header and the
+            // #nullable directive) when that directive is removed, by carrying it over to the node that
+            // follows the removed directives.
+            var firstUsing = cu.Usings.FirstOrDefault();
+            var leadingTrivia = firstUsing is not null && unusedUsings.Contains(firstUsing)
+                ? firstUsing.GetLeadingTrivia()
+                : default;
+
+            var updatedRoot = cu.RemoveNodes(unusedUsings, SyntaxRemoveOptions.KeepNoTrivia);
+            if (updatedRoot == null)
+            {
+                return solution;
+            }
+
+            if (leadingTrivia.Count > 0)
+            {
+                var firstToken = updatedRoot.GetFirstToken();
+                updatedRoot = updatedRoot.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
+            }
+
+            return solution.WithDocumentSyntaxRoot(documentId, updatedRoot);
         }
 
         private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
