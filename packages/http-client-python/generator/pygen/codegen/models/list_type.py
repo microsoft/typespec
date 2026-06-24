@@ -6,6 +6,7 @@
 from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
 from .imports import FileImport, ImportType
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -42,11 +43,12 @@ class ListType(BaseType):
             return self.element_type.type_annotation(**kwargs)
 
         # if there is a function/property named `list` we have to make sure there's no conflict with the built-in `list`
-        is_operation_file = kwargs.get("is_operation_file", False)
-        use_list_import = (self.code_model.has_operation_named_list and is_operation_file) or (
-            self.code_model.has_property_named_list and not is_operation_file
-        )
-        list_type = "List" if use_list_import else "list"
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT):
+            use_uppercase = self.code_model.has_operation_named_list
+        else:
+            use_uppercase = self.code_model.has_property_named_list
+        list_type = "List" if use_uppercase else "list"
         return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:
@@ -136,11 +138,11 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
-        is_operation_file = kwargs.get("is_operation_file", False)
-        use_list_import = (self.code_model.has_operation_named_list and is_operation_file) or (
-            self.code_model.has_property_named_list and not is_operation_file
-        )
-        if use_list_import:
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT):
+            if self.code_model.has_operation_named_list:
+                file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
+        elif self.code_model.has_property_named_list:
             file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
         return file_import
 
