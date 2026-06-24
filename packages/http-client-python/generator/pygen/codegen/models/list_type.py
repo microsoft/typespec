@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from typing import Any, Optional, Union, TYPE_CHECKING
 from .base import BaseType
-from .imports import FileImport, ImportType
+from .imports import FileImport
 from .utils import NamespaceType
 
 if TYPE_CHECKING:
@@ -42,13 +42,13 @@ class ListType(BaseType):
             # this means we're version tolerant XML, we just return the XML element
             return self.element_type.type_annotation(**kwargs)
 
-        # if there is a function/property named `list` we have to make sure there's no conflict with the built-in `list`
+        # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
+        # in operation files. The operation_groups_serializer defines `List = list` alias for this case.
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
-        if serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT):
-            use_uppercase = self.code_model.has_operation_named_list
+        if serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT) and self.code_model.has_operation_named_list:
+            list_type = "List"
         else:
-            use_uppercase = self.code_model.has_property_named_list
-        list_type = "List" if use_uppercase else "list"
+            list_type = "list"
         return f"{list_type}[{self.element_type.type_annotation(**kwargs)}]"
 
     def description(self, *, is_operation_file: bool) -> str:
@@ -138,12 +138,6 @@ class ListType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
-        serialize_namespace_type = kwargs.get("serialize_namespace_type")
-        if serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT):
-            if self.code_model.has_operation_named_list:
-                file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
-        elif self.code_model.has_property_named_list:
-            file_import.add_submodule_import("typing", "List", ImportType.STDLIB)
         return file_import
 
     @property
