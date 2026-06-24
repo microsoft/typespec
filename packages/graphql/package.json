@@ -1,0 +1,74 @@
+{
+  "name": "@typespec/graphql",
+  "version": "0.1.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library for emitting GraphQL",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "tspMain": "lib/main.tsp",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": {
+      "typespec": "./lib/main.tsp",
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@alloy-js/core": "catalog:",
+    "@pinterest/alloy-graphql": "link:../../../alloy-graphql/packages/graphql",
+    "@alloy-js/typescript": "catalog:",
+    "change-case": "^5.4.4",
+    "graphql": "^16.9.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "alloy build",
+    "watch": "alloy build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "regen-docs": "tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/graphql/reference"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/emitter-framework": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/mutator-framework": "workspace:~"
+  },
+  "devDependencies": {
+    "@alloy-js/cli": "^0.23.0",
+    "@alloy-js/rollup-plugin": "^0.1.1",
+    "@types/node": "~22.13.13",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/emitter-framework": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/mutator-framework": "workspace:~",
+    "@typespec/tspd": "workspace:~",
+    "rimraf": "~6.0.1",
+    "source-map-support": "~0.5.21",
+    "typescript": "~5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

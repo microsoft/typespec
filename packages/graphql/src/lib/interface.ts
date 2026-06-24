@@ -1,0 +1,156 @@
+import {
+  type DecoratorContext,
+  type DecoratorFunction,
+  type Model,
+  type ModelProperty,
+  type Program,
+  validateDecoratorUniqueOnNode,
+  walkPropertiesInherited,
+} from "@typespec/compiler";
+
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
+import { GraphQLKeys, reportDiagnostic } from "../lib.js";
+import { propertiesEqual } from "./utils.js";
+
+declare const tags: unique symbol;
+type Tagged<BaseType, Tag extends PropertyKey> = BaseType & { [tags]: { [K in Tag]: void } };
+
+/** An Interface is a model that has been marked as an Interface */
+type Interface = Tagged<Model, "interface">;
+
+const [getInterface, setInterface] = useStateSet<Interface>(GraphQLKeys.interface);
+const [getInterfaceOnly, setInterfaceOnly] = useStateSet<Interface>(
+  GraphQLKeys.interfaceOnly,
+);
+const [getComposition, setComposition, _getCompositionMap] = useStateMap<Model, Interface[]>(
+  GraphQLKeys.compose,
+);
+
+export {
+  /**
+   * Get the implemented interfaces for a given model
+   * @param program Program
+   * @param model Model
+   * @returns Composed interfaces or undefined if no interfaces are composed.
+   */
+  getComposition,
+  setComposition,
+};
+
+/**
+ * Check if the model is defined as a schema.
+ * @param program Program
+ * @param model Model
+ * @returns Boolean
+ */
+export function isInterface(program: Program, model: Model | Interface): model is Interface {
+  return !!getInterface(program, model as Interface);
+}
+
+export function isInterfaceOnly(program: Program, model: Model): boolean {
+  return !!getInterfaceOnly(program, model as Interface);
+}
+
+function validateImplementedsAreInterfaces(context: DecoratorContext, interfaces: Model[]) {
+  let valid = true;
+
+  for (const iface of interfaces) {
+    if (!isInterface(context.program, iface)) {
+      valid = false;
+      reportDiagnostic(context.program, {
+        code: "invalid-interface",
+        format: { interface: iface.name },
+        target: context.decoratorTarget,
+      });
+    }
+  }
+
+  return valid;
+}
+
+function validateNoCircularImplementation(
+  context: DecoratorContext,
+  target: Model,
+  interfaces: Interface[],
+) {
+  const valid = !isInterface(context.program, target) || !interfaces.includes(target);
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "circular-interface",
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
+function validateImplementsInterfaceProperties(
+  context: DecoratorContext,
+  modelProperties: Map<string, ModelProperty>,
+  iface: Interface,
+) {
+  let valid = true;
+
+  for (const prop of walkPropertiesInherited(iface)) {
+    if (!modelProperties.has(prop.name)) {
+      valid = false;
+      reportDiagnostic(context.program, {
+        code: "missing-interface-property",
+        format: { interface: iface.name, property: prop.name },
+        target: context.decoratorTarget,
+      });
+    } else if (!propertiesEqual(modelProperties.get(prop.name)!, prop)) {
+      valid = false;
+      reportDiagnostic(context.program, {
+        code: "incompatible-interface-property",
+        format: { interface: iface.name, property: prop.name },
+        target: context.decoratorTarget,
+      });
+    }
+  }
+
+  return valid;
+}
+
+function validateImplementsInterfacesProperties(
+  context: DecoratorContext,
+  target: Model,
+  interfaces: Interface[],
+) {
+  let valid = true;
+  const allModelProperties = new Map(
+    [...walkPropertiesInherited(target)].map((prop) => [prop.name, prop]),
+  );
+  for (const iface of interfaces) {
+    if (!validateImplementsInterfaceProperties(context, allModelProperties, iface)) {
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+export const $graphqlInterface: DecoratorFunction = (
+  context: DecoratorContext,
+  target: Model,
+  options?: { interfaceOnly?: boolean },
+) => {
+  validateDecoratorUniqueOnNode(context, target, $graphqlInterface);
+  setInterface(context.program, target as Interface);
+  if (options?.interfaceOnly) {
+    setInterfaceOnly(context.program, target as Interface);
+  }
+};
+
+export const $compose: DecoratorFunction = (
+  context: DecoratorContext,
+  target: Model,
+  ...interfaces: Interface[]
+) => {
+  validateImplementedsAreInterfaces(context, interfaces);
+  validateNoCircularImplementation(context, target, interfaces);
+  validateImplementsInterfacesProperties(context, target, interfaces);
+  const existingCompose = getComposition(context.program, target);
+  if (existingCompose) {
+    interfaces = [...existingCompose, ...interfaces];
+  }
+  setComposition(context.program, target, interfaces);
+};
