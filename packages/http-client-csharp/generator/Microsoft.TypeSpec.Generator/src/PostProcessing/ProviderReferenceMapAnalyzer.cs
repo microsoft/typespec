@@ -724,7 +724,7 @@ namespace Microsoft.TypeSpec.Generator
                 var bodyDependencyTypes = ShouldUseGeneratedSourceReferences(provider) ? [] : provider.BodyDependencyTypes;
                 AddProviderBodyDependencyTypes(graph.References[providerName], bodyDependencyTypes, graph.Nodes);
 
-                if (bodyDependencyTypes.Count > 0)
+                if (bodyDependencyTypes.Count > 0 && !IsSerializationProvider(provider))
                 {
                     continue;
                 }
