@@ -42,7 +42,7 @@ export interface CSharpEmitterOptions {
  * The JSON schema for the CSharp emitter options.
  * @beta
  */
-export const CSharpEmitterOptionsSchema = {
+export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -161,7 +161,7 @@ export const CSharpEmitterOptionsSchema = {
     },
   },
   required: [],
-} as unknown as JSONSchemaType<CSharpEmitterOptions>;
+};
 
 /**
  * The default options for the CSharp emitter.
