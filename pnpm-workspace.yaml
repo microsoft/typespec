@@ -108,7 +108,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.1
   eslint: ^10.2.0
   eslint-plugin-react-hooks: 7.1.1
-  eslint-plugin-unicorn: ^64.0.0
+  eslint-plugin-unicorn: ^68.0.0
   execa: ^9.6.1
   express: ^5.2.1
   fast-xml-parser: ^5.7.0
