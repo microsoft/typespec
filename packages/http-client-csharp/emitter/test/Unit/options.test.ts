@@ -1,7 +1,7 @@
 vi.resetModules();
 
-import { EmitContext, Program } from "@typespec/compiler";
 import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
+import { EmitContext, Program } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
