@@ -48,7 +48,7 @@ import {
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";

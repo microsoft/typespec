@@ -4,7 +4,7 @@ import type {
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
 import type { TextDocument } from "vscode-languageserver-textdocument";
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { DiagnosticSeverity } from "vscode-languageserver";
 import {
   getDiagnosticTemplateInstantitationTrace,
   getSourceLocation,

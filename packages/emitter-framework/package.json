@@ -80,6 +80,7 @@
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",
+    "@types/node": "catalog:",
     "concurrently": "catalog:",
     "pathe": "catalog:",
     "prettier": "catalog:",

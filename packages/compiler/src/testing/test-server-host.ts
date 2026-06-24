@@ -1,6 +1,6 @@
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver/node.js";
+import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver";
 import { CompilerOptions } from "../core/options.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";

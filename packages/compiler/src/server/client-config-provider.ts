@@ -1,4 +1,4 @@
-import { Connection } from "vscode-languageserver/node.js";
+import type { Connection } from "vscode-languageserver/node";
 import { ServerHost } from "./types.js";
 
 interface LSPConfig {

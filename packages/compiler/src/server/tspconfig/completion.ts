@@ -5,7 +5,7 @@ import {
   Position,
   Range,
   TextEdit,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
 import { Document, isMap, isPair, Node } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import { compilerFeatureNames, compilerFeatures } from "../../core/features.js";

@@ -7,28 +7,28 @@ packages:
   - "!packages/http-client-python/**"
 
 catalog:
-  "@alloy-js/cli": ^0.23.0
-  "@alloy-js/core": ^0.23.0
-  "@alloy-js/csharp": ^0.23.0
-  "@alloy-js/markdown": ^0.23.0
-  "@alloy-js/msbuild": ^0.23.0
-  "@alloy-js/python": ^0.4.0
+  "@alloy-js/cli": ^0.24.0
+  "@alloy-js/core": ^0.24.0
+  "@alloy-js/csharp": ^0.24.0
+  "@alloy-js/markdown": ^0.24.0
+  "@alloy-js/msbuild": ^0.24.0
+  "@alloy-js/python": ^0.5.0
   "@alloy-js/rollup-plugin": ^0.1.1
-  "@alloy-js/typescript": ^0.23.0
+  "@alloy-js/typescript": ^0.24.0
   "@astrojs/check": ^0.9.8
-  "@astrojs/react": ^5.0.3
-  "@astrojs/starlight": ^0.39.2
+  "@astrojs/react": ^6.0.0
+  "@astrojs/starlight": ^0.40.0
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
-  "@babel/code-frame": ^7.29.0
-  "@babel/core": ^7.29.0
+  "@babel/code-frame": ^8.0.0
+  "@babel/core": ^8.0.1
   "@chronus/chronus": ^1.3.1
   "@chronus/github": ^1.0.6
   "@chronus/github-pr-commenter": ^1.0.6
   "@docsearch/css": ^4.6.2
   "@docsearch/js": ^4.6.2
   "@eslint/js": ^10.0.1
-  "@expressive-code/core": ^0.42.0
+  "@expressive-code/core": ^0.43.1
   "@fluentui/react-components": ^9.73.7
   "@fluentui/react-icons": ^2.0.323
   "@fluentui/react-list": ^9.6.13
@@ -58,7 +58,7 @@ catalog:
   "@types/morgan": ^1.9.10
   "@types/multer": ^2.1.0
   "@types/mustache": ^4.2.6
-  "@types/node": ^25.5.2
+  "@types/node": ^26.0.0
   "@types/react": ^19.2.16
   "@types/react-dom": ^19.2.3
   "@types/remark-heading-id": ^1.0.0
@@ -72,13 +72,13 @@ catalog:
   "@typescript-eslint/rule-tester": ^8.58.1
   "@typescript-eslint/types": ^8.58.1
   "@typescript-eslint/utils": ^8.58.1
-  "@typespec/ts-http-runtime": 0.3.5
+  "@typespec/ts-http-runtime": 0.3.6
   "@vitejs/plugin-react": ^6.0.1
   "@vitest/coverage-v8": ^4.1.3
   "@vitest/eslint-plugin": ^1.6.16
   "@vitest/ui": ^4.1.3
   "@vscode/extension-telemetry": ^1.5.1
-  "@vscode/test-electron": ^2.5.2
+  "@vscode/test-electron": ^3.0.0
   "@vscode/test-web": ^0.0.80
   "@vscode/vsce": ^3.7.1
   "@yarnpkg/core": ^4.6.0
@@ -88,8 +88,8 @@ catalog:
   "@yarnpkg/plugin-pnp": ^4.1.3
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
-  astro: ^6.4.6
-  astro-expressive-code: ^0.42.0
+  astro: ^7.0.0
+  astro-expressive-code: ^0.43.1
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^11.0.0
   change-case: ^5.4.4
@@ -108,7 +108,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.1
   eslint: ^10.2.0
   eslint-plugin-react-hooks: 7.1.1
-  eslint-plugin-unicorn: ^64.0.0
+  eslint-plugin-unicorn: ^68.0.0
   execa: ^9.6.1
   express: ^5.2.1
   fast-xml-parser: ^5.7.0
@@ -144,7 +144,7 @@ catalog:
   rimraf: ^6.1.3
   rollup-plugin-visualizer: 7.0.1
   semver: ^7.7.4
-  sharp: ^0.34.5
+  sharp: ^0.35.2
   simple-git: ^3.36.0
   source-map-support: ^0.5.21
   storybook: ^10.3.5
@@ -152,7 +152,7 @@ catalog:
   swagger-ui-dist: ^5.32.2
   swagger-ui-express: ^5.0.1
   tar: ^7.5.13
-  temporal-polyfill: ^0.3.2
+  temporal-polyfill: ^1.0.1
   tree-sitter-c-sharp: ^0.23.1
   tree-sitter-java: ^0.23.5
   tree-sitter-javascript: ^0.25.0
@@ -167,10 +167,10 @@ catalog:
   uri-template: ^2.0.0
   vite: ^8.0.8
   vite-plugin-checker: ^0.14.1
-  vite-plugin-dts: 5.0.1
+  vite-plugin-dts: 5.0.2
   vitest: ^4.1.3
-  vscode-languageclient: ^9.0.1
-  vscode-languageserver: ^9.0.1
+  vscode-languageclient: ^10.0.0
+  vscode-languageserver: ^10.0.0
   vscode-languageserver-textdocument: ^1.0.12
   vscode-oniguruma: ^2.0.1
   vscode-textmate: ^9.3.2
