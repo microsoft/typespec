@@ -345,7 +345,7 @@ jobs:
       copilot-requests: write
       deployments: read
       discussions: read
-      id-token: read
+      id-token: none
       issues: read
       models: read
       packages: read
