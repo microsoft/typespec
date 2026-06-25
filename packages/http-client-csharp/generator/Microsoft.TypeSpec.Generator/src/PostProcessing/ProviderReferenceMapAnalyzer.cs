@@ -263,11 +263,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var apiText = string.Join("\n", Directory.GetFiles(apiDirectory, "*.cs", SearchOption.AllDirectories).Select(File.ReadAllText));
+            var apiDeclaredTypeNames = GetApiDeclaredTypeNames(apiText);
             foreach (var fullName in generatedTypeNames)
             {
                 var simpleName = StripGenericArity(GetSimpleName(fullName));
                 var normalizedFullName = StripGenericArity(fullName);
-                if (!ContainsApiTypeReference(apiText, normalizedFullName, simpleName))
+                if (!ContainsApiTypeReference(apiText, apiDeclaredTypeNames, normalizedFullName, simpleName))
                 {
                     continue;
                 }
@@ -278,7 +279,35 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
-        private static bool ContainsApiTypeReference(string apiText, string fullName, string simpleName)
+        private static HashSet<string> GetApiDeclaredTypeNames(string apiText)
+        {
+            var declaredTypeNames = new HashSet<string>(StringComparer.Ordinal);
+            string? currentNamespace = null;
+            foreach (var line in apiText.Split('\n'))
+            {
+                var namespaceMatch = Regex.Match(line, @"^namespace\s+([\w.]+)\s*\{?\s*$");
+                if (namespaceMatch.Success)
+                {
+                    currentNamespace = namespaceMatch.Groups[1].Value;
+                    continue;
+                }
+
+                if (currentNamespace == null)
+                {
+                    continue;
+                }
+
+                var declarationMatch = Regex.Match(line, @"^    \S.*?\b(class|struct|interface|enum)\s+([A-Za-z_][A-Za-z0-9_]*)(?!\s*<)(?!\w)");
+                if (declarationMatch.Success)
+                {
+                    declaredTypeNames.Add($"{currentNamespace}.{declarationMatch.Groups[2].Value}");
+                }
+            }
+
+            return declaredTypeNames;
+        }
+
+        private static bool ContainsApiTypeReference(string apiText, HashSet<string> apiDeclaredTypeNames, string fullName, string simpleName)
         {
             var fullNamePattern = $@"(?<![\w.]){Regex.Escape(fullName)}(?!\s*<)(?![\w.])";
             if (Regex.IsMatch(apiText, fullNamePattern))
@@ -286,8 +315,7 @@ namespace Microsoft.TypeSpec.Generator
                 return true;
             }
 
-            var declarationPattern = $@"(?m)^    \S.*?\b(class|struct|interface|enum)\s+{Regex.Escape(simpleName)}(?!\s*<)(?!\w)";
-            return Regex.IsMatch(apiText, declarationPattern);
+            return apiDeclaredTypeNames.Contains(fullName);
         }
 
         private static bool IsDeclaredInSyntaxTree(ISymbol symbol, SyntaxTree syntaxTree, Microsoft.CodeAnalysis.Text.TextSpan span)
@@ -451,10 +479,13 @@ namespace Microsoft.TypeSpec.Generator
         {
             var serializationProviderNamesByType = generatedProviders
                 .Where(static provider => provider.SerializationProviders.Count > 0)
+                .GroupBy(static provider => GetProviderTypeName(provider.Type), StringComparer.Ordinal)
                 .ToDictionary(
-                    static provider => GetProviderTypeName(provider.Type),
-                    static provider => provider.SerializationProviders
+                    static group => group.Key,
+                    static group => group
+                        .SelectMany(static provider => provider.SerializationProviders)
                         .Select(static serializationProvider => GetProviderTypeName(serializationProvider.Type))
+                        .Distinct(StringComparer.Ordinal)
                         .ToArray(),
                     StringComparer.Ordinal);
             IReadOnlyDictionary<string, string[]>? serializationReferenceNamesByType = publicOnly ? null : serializationProviderNamesByType;
