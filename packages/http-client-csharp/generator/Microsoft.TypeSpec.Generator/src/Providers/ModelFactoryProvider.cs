@@ -488,6 +488,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
         {
+            // Externally-linked models are reused from another shipped package (e.g. the OpenAI .NET
+            // SDK), so this library does not own or emit their constructors. Their real constructor
+            // surface (accessibility and parameter set) is unknown here; emitting a
+            // `new ExternalType(...)` mocking factory produces calls that may be inaccessible
+            // (protected/internal) or have a non-matching arity. Skip factory generation for them.
+            if (modelProvider.IsExternal)
+            {
+                return null;
+            }
+
             var fullConstructor = modelProvider.FullConstructor;
             if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
                 || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic && !IsEnumDiscriminator(p)))
