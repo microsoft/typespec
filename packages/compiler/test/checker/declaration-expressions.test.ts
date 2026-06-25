@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Enum, Model, Scalar, Union } from "../../src/core/types.js";
-import { getTypeName } from "../../src/index.js";
+import { getDoc, getTypeName } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -373,8 +373,61 @@ describe("type name", () => {
 });
 
 describe("decorators", () => {
-  it("cannot decorate the declaration expression itself", async () => {
-    const diagnostics = await Tester.diagnose(`model Foo { x: @doc("hi") enum { a, b } }`);
+  it("applies a decorator to an anonymous enum expression", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        status: @doc("the status") enum { active, inactive };
+      }
+    `);
+    const type = Foo.properties.get("status")!.type as Enum;
+    expect(type.kind).toBe("Enum");
+    expect(type.expression).toBe(true);
+    expect(getDoc(program, type)).toBe("the status");
+  });
+
+  it("applies a decorator to a named model declaration expression", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        inner: @doc("the inner") model Inner { x: string };
+      }
+    `);
+    const type = Foo.properties.get("inner")!.type as Model;
+    expect(type.kind).toBe("Model");
+    expect(type.name).toBe("Inner");
+    expect(type.expression).toBe(true);
+    expect(getDoc(program, type)).toBe("the inner");
+  });
+
+  it("applies a decorator to a keyword union expression", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: @doc("the value") union { string, int32 };
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.kind).toBe("Union");
+    expect(type.expression).toBe(true);
+    expect(getDoc(program, type)).toBe("the value");
+  });
+
+  it("applies a decorator to a scalar expression", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        unit: @doc("the unit") scalar extends string;
+      }
+    `);
+    const type = Foo.properties.get("unit")!.type as Scalar;
+    expect(type.kind).toBe("Scalar");
+    expect(type.expression).toBe(true);
+    expect(getDoc(program, type)).toBe("the unit");
+  });
+
+  it("still rejects a decorator before a non-declaration expression", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Foo {
+        prop: @doc("nope") string;
+      }
+    `);
     expectDiagnostics(diagnostics, {
       code: "invalid-decorator-location",
       message: "Cannot decorate expression.",
@@ -390,6 +443,78 @@ describe("decorators", () => {
     const type = Foo.properties.get("value")!.type as Enum;
     expect(type.expression).toBe(true);
     expect(type.members.has("a")).toBe(true);
+  });
+});
+
+describe("augment decorators", () => {
+  it("can augment a named model declaration expression via ::type", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        inner: model Inner { x: string };
+      }
+      @@doc(Foo.inner::type, "augmented");
+    `);
+    const type = Foo.properties.get("inner")!.type as Model;
+    expect(type.kind).toBe("Model");
+    expect(getDoc(program, type)).toBe("augmented");
+  });
+
+  it("can augment an anonymous enum declaration expression via ::type", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        status: enum { active, inactive };
+      }
+      @@doc(Foo.status::type, "augmented");
+    `);
+    const type = Foo.properties.get("status")!.type as Enum;
+    expect(type.kind).toBe("Enum");
+    expect(getDoc(program, type)).toBe("augmented");
+  });
+
+  it("can augment a union declaration expression via ::type", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        value: union { string, int32 };
+      }
+      @@doc(Foo.value::type, "augmented");
+    `);
+    const type = Foo.properties.get("value")!.type as Union;
+    expect(type.kind).toBe("Union");
+    expect(getDoc(program, type)).toBe("augmented");
+  });
+
+  it("can augment a scalar declaration expression via ::type", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        unit: scalar Celsius extends int32;
+      }
+      @@doc(Foo.unit::type, "augmented");
+    `);
+    const type = Foo.properties.get("unit")!.type as Scalar;
+    expect(type.kind).toBe("Scalar");
+    expect(getDoc(program, type)).toBe("augmented");
+  });
+
+  it("still rejects augmenting an anonymous model expression", async () => {
+    const diagnostics = await Tester.diagnose(`
+      alias M = { x: string };
+      @@doc(M, "nope");
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "augment-decorator-target",
+      message: "Cannot augment model expressions.",
+    });
+  });
+
+  it("still rejects augmenting a union expression", async () => {
+    const diagnostics = await Tester.diagnose(`
+      alias U = string | int32;
+      @@doc(U, "nope");
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "augment-decorator-target",
+      message: "Cannot augment union expressions.",
+    });
   });
 });
 

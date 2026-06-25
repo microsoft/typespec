@@ -722,7 +722,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseUnionDeclarationExpression(pos: number): UnionDeclarationExpressionNode {
+  function parseUnionDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): UnionDeclarationExpressionNode {
     parseExpected(Token.UnionKeyword);
     const id = parseOptionalDeclarationExpressionIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
@@ -735,7 +738,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       id,
       templateParameters,
       templateParametersRange,
-      decorators: [],
+      decorators,
       modifiers: [],
       modifierFlags: ModifierFlags.None,
       options,
@@ -946,7 +949,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseModelDeclarationExpression(pos: number): ModelDeclarationExpressionNode {
+  function parseModelDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): ModelDeclarationExpressionNode {
     parseExpected(Token.ModelKeyword);
     const id = parseOptionalDeclarationExpressionIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
@@ -961,7 +967,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       is: optionalIs,
       templateParameters,
       templateParametersRange,
-      decorators: [],
+      decorators,
       properties,
       bodyRange,
       modifiers: [],
@@ -1191,7 +1197,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseScalarDeclarationExpression(pos: number): ScalarDeclarationExpressionNode {
+  function parseScalarDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): ScalarDeclarationExpressionNode {
     parseExpected(Token.ScalarKeyword);
     const id = parseOptionalDeclarationExpressionIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
@@ -1208,7 +1217,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       extends: optionalExtends,
       members,
       bodyRange,
-      decorators: [],
+      decorators,
       modifiers: [],
       modifierFlags: ModifierFlags.None,
       ...finishNode(pos),
@@ -1272,14 +1281,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseEnumDeclarationExpression(pos: number): EnumDeclarationExpressionNode {
+  function parseEnumDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): EnumDeclarationExpressionNode {
     parseExpected(Token.EnumKeyword);
     const id = parseOptionalDeclarationExpressionIdentifier();
     const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
     return {
       kind: SyntaxKind.EnumDeclarationExpression,
       id,
-      decorators: [],
+      decorators,
       modifiers: [],
       modifierFlags: ModifierFlags.None,
       members,
@@ -1845,10 +1857,26 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseTupleExpression();
         case Token.OpenParen:
           return parseParenthesizedExpression();
-        case Token.At:
+        case Token.At: {
+          const pos = tokenPos();
           const decorators = parseDecoratorList();
-          reportInvalidDecorators(decorators, "expression");
-          continue;
+          // Decorators are only valid in expression position when they decorate a
+          // declaration expression (the keyword forms below). `pos` starts at the `@`
+          // so the resulting node span includes the decorators.
+          switch (token()) {
+            case Token.ModelKeyword:
+              return parseModelDeclarationExpression(pos, decorators);
+            case Token.EnumKeyword:
+              return parseEnumDeclarationExpression(pos, decorators);
+            case Token.UnionKeyword:
+              return parseUnionDeclarationExpression(pos, decorators);
+            case Token.ScalarKeyword:
+              return parseScalarDeclarationExpression(pos, decorators);
+            default:
+              reportInvalidDecorators(decorators, "expression");
+              continue;
+          }
+        }
         case Token.Hash:
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");

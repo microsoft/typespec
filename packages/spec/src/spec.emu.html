@@ -577,17 +577,17 @@ ModelExpression :
     `{` ModelBody? `}`
 
 ModelDeclarationExpression :
-    `model` Identifier? TemplateParameters? ExtendsModelHeritage? `{` ModelBody? `}`
+    DecoratorList? `model` Identifier? TemplateParameters? ExtendsModelHeritage? `{` ModelBody? `}`
 
 ScalarDeclarationExpression :
-    `scalar` Identifier? TemplateParameters? ScalarExtends?
-    `scalar` Identifier? TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
+    DecoratorList? `scalar` Identifier? TemplateParameters? ScalarExtends?
+    DecoratorList? `scalar` Identifier? TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
 
 EnumDeclarationExpression :
-    `enum` Identifier? `{` EnumBody? `}`
+    DecoratorList? `enum` Identifier? `{` EnumBody? `}`
 
 UnionDeclarationExpression :
-    `union` Identifier? `{` UnionBody? `}`
+    DecoratorList? `union` Identifier? `{` UnionBody? `}`
 
 TupleExpression :
     `[` ExpressionList? `]`
