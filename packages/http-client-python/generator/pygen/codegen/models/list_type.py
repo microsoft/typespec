@@ -46,7 +46,9 @@ class ListType(BaseType):
         # in operation files. The operation_groups_serializer defines `List = list` alias for this case.
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
         is_operation_file = kwargs.get("is_operation_file", False)
-        in_operation_context = serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT) or is_operation_file
+        in_operation_context = (
+            serialize_namespace_type in (NamespaceType.OPERATION, NamespaceType.CLIENT) or is_operation_file
+        )
         if in_operation_context and self.code_model.has_operation_named_list:
             list_type = "List"
         else:

@@ -182,9 +182,7 @@ class JinjaSerializer(ReaderAndWriter):
                     )
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
-                self._serialize_client_and_config_files(
-                    client_namespace, client_namespace_type.clients, env
-                )
+                self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
                 # When generation-subdir is configured, generated code goes into a subdirectory
                 # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
                 # so that the package is discoverable by find_packages() / pip install.
