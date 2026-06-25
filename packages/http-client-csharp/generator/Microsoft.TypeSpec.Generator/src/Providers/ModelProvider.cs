@@ -59,6 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
         private Lazy<bool> _useObjectAdditionalProperties;
         private FieldProvider? _rawDataField;
+        private bool _buildingRawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
@@ -141,11 +142,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return existingProvider;
                 }
 
-                // Try to find the type in the customization compilation (excluding referenced assemblies)
+                // Try to find the type in the customization compilation. Referenced assemblies are
+                // included so custom bases from framework or external packages are represented by
+                // normal symbol-backed providers.
                 var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                     baseType.Namespace,
                     baseType.Name,
-                    baseType.DeclaringType?.Name);
+                    baseType.DeclaringType?.Name,
+                    includeReferencedAssemblies: true);
 
                 if (baseTypeProvider != null)
                 {
@@ -154,8 +158,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return baseTypeProvider;
                 }
 
-                // If we couldn't find the type symbol (e.g., type is from a referenced assembly),
-                // create a SystemObjectTypeProvider that represents the external type
+                // If we couldn't find the type symbol, create a SystemObjectTypeProvider that
+                // represents the external type without member metadata.
                 var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
                 // Cache it in CSharpTypeMap for future lookups
                 CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
@@ -178,7 +182,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _fullConstructor = null;
         }
 
-        protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+        protected FieldProvider? RawDataField
+        {
+            get
+            {
+                if (_rawDataField is not null)
+                {
+                    return _rawDataField;
+                }
+
+                if (_buildingRawDataField)
+                {
+                    // BuildRawDataField walks base models and can re-enter this property when custom
+                    // base models form a cycle.
+                    return null;
+                }
+
+                _buildingRawDataField = true;
+                try
+                {
+                    return _rawDataField = BuildRawDataField();
+                }
+                finally
+                {
+                    _buildingRawDataField = false;
+                }
+            }
+        }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
@@ -325,7 +355,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var property in _inputModel.Properties)
             {
                 if (IsDiscriminator(property))
+                {
                     continue;
+                }
 
                 var derivedProperty = InputDerivedProperties.FirstOrDefault(p => p.Value.ContainsKey(property.Name)).Value?[property.Name];
                 if (derivedProperty is not null)
@@ -593,10 +625,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
-                    outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
-                        BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    // If the previous property type (or a type nested in it) has been intentionally
+                    // removed and that removal is accepted in the ApiCompat baseline, preserving it
+                    // would reference a now-deleted type. Honor the baseline and allow the new type.
+                    if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.ReferencesSuppressedType(lastContractPropertyType) == true)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Allowing property '{Name}.{outputProperty.Name}' type change to '{outputProperty.Type}'; previous type '{lastContractPropertyType}' is an accepted removal in the ApiCompat baseline.",
+                            BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    }
+                    else
+                    {
+                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
+                            BackCompatibilityChangeCategory.PropertyTypePreserved);
+                    }
                 }
 
                 if (!isDiscriminator)
@@ -648,8 +692,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
         {
+            // Custom code can create base-model cycles; include this model in the visited set so a cycle
+            // back to it is not yielded as one of its own bases.
+            HashSet<ModelProvider> visited = [this];
             var model = BaseModelProvider;
-            while (model != null)
+            while (model != null && visited.Add(model))
             {
                 yield return model;
                 model = model.BaseModelProvider;
@@ -659,9 +706,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool DomainEqual(InputProperty baseProperty, InputProperty derivedProperty)
         {
             if (baseProperty.Type.Name != derivedProperty.Type.Name)
+            {
                 return false;
+            }
+
             if (baseProperty.IsRequired != derivedProperty.IsRequired)
+            {
                 return false;
+            }
+
             var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
@@ -859,9 +912,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();
-            var modelProvider = BaseModelProvider;
             bool isDirectBase = true;
-            while (modelProvider != null)
+            foreach (var modelProvider in EnumerateBaseModelProviders())
             {
                 properties.Push([]);
                 foreach (var property in modelProvider.CanonicalView.Properties)
@@ -880,7 +932,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                modelProvider = modelProvider.BaseModelProvider;
                 isDirectBase = false;
             }
 
@@ -891,15 +942,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
         {
             var fields = new Stack<List<FieldProvider>>();
-            var modelProvider = BaseModelProvider;
-            while (modelProvider != null)
+            foreach (var modelProvider in EnumerateBaseModelProviders())
             {
                 fields.Push([]);
                 foreach (var field in modelProvider.CanonicalView.Fields)
                 {
                     fields.Peek().Add(field);
                 }
-                modelProvider = modelProvider.BaseModelProvider;
             }
 
             return fields.SelectMany(l => l);
@@ -918,7 +967,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider?.FullConstructor.Signature != null)
+            else if (BaseModelProvider is not null && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
@@ -997,10 +1046,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // only add the raw data field if it has not already been added as a parameter for BinaryData additional properties
                 if (RawDataField != null && !SupportsBinaryDataAdditionalProperties)
+                {
                     constructorParameters.Add(RawDataField.AsParameter);
+                }
             }
 
             return (constructorParameters, constructorInitializer);
+        }
+
+        private bool HasBaseModelProviderCycle()
+        {
+            // FullConstructor reads the base constructor signature. If the custom base chain loops back
+            // to this model, skip that read rather than recursively building this constructor again.
+            HashSet<ModelProvider> visited = [this];
+            var modelProvider = BaseModelProvider;
+            while (modelProvider != null)
+            {
+                if (!visited.Add(modelProvider))
+                {
+                    return true;
+                }
+
+                modelProvider = modelProvider.BaseModelProvider;
+            }
+
+            return false;
         }
 
         private ValueExpression? EnsureDiscriminatorValueExpression()
@@ -1222,12 +1292,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var wireInfo = property?.WireInfo ?? field?.WireInfo;
             // skip those non-spec properties
             if (wireInfo == null)
+            {
                 return;
+            }
 
             // skip if this is an overload / new of a base property
             // also skip if the base was required or the derived property is not required
             if (property?.BaseProperty is not null && (!isPrimaryConstructor || wireInfo.IsRequired == false || property.BaseProperty.WireInfo?.IsRequired == true))
+            {
                 return;
+            }
 
             ValueExpression assignee = property != null
                 ? property.BackingField is null ? property : property.BackingField
@@ -1300,14 +1374,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // check if there is a raw data field on any of the base models, if so, we do not have to have one here.
-            var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 if (baseModelProvider.RawDataField != null)
                 {
                     return null;
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             var modifiers = FieldModifiers.Private;

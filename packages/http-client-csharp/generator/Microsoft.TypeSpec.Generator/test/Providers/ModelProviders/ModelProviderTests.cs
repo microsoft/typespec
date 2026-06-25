@@ -525,6 +525,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             protected override CSharpType? BuildBaseType() => _redirectedBaseType;
         }
 
+        // Regression: custom code (such as an inheritable system base model) can produce a base
+        // ModelProvider chain that cycles back on itself. Base-model traversal during constructor,
+        // field, and raw-data discovery must terminate instead of recursing infinitely.
+        [Test]
+        public void BaseModelProviderCycleDoesNotRecurseInfinitely()
+        {
+            var inputA = InputFactory.Model(
+                "ModelA",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Output,
+                properties: [InputFactory.Property("aProp", InputPrimitiveType.String, isRequired: true)]);
+            var inputB = InputFactory.Model(
+                "ModelB",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json | InputModelTypeUsage.Output,
+                properties: [InputFactory.Property("bProp", InputPrimitiveType.String, isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputA, inputB]);
+
+            var modelA = new CyclicBaseModelProvider(inputA);
+            var modelB = new CyclicBaseModelProvider(inputB);
+
+            // Wire the base-model providers into a cycle: A -> B -> A.
+            modelA.CyclicBase = modelB;
+            modelB.CyclicBase = modelA;
+
+            Assert.AreSame(modelB, modelA.BaseModelProvider);
+            Assert.AreSame(modelA, modelB.BaseModelProvider);
+
+            // Each of these walks the base-model chain and previously stack-overflowed on a cycle.
+            Assert.DoesNotThrow(() => _ = modelA.FullConstructor);
+            Assert.DoesNotThrow(() => _ = modelA.Constructors);
+            Assert.DoesNotThrow(() => _ = modelA.Fields);
+        }
+
+        private sealed class CyclicBaseModelProvider : ModelProvider
+        {
+            public CyclicBaseModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            public ModelProvider? CyclicBase { get; set; }
+
+            protected override ModelProvider? BuildBaseModelProvider() => CyclicBase;
+        }
+
         [Test]
         public void BuildModelAsStruct()
         {
@@ -1329,6 +1372,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_PropertyTypeChangeAllowedWhenPreviousTypeSuppressed()
+        {
+            // The last contract has `string Count { get; set; }` and the new spec says int. Normally
+            // the generator preserves the last contract's `string` type. Here the previous type has
+            // been intentionally removed and that removal is accepted in the ApiCompat baseline, so the
+            // generator must allow the property to take its current (spec) type instead of preserving
+            // a now-removed type.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompat_ScalarPropertyTypeOverriddenWhenTypeNameDiffers"),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var countProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Count");
+            Assert.IsNotNull(countProperty);
+            // The previous `string` type is a baseline-accepted removal, so the current spec type
+            // (int) is kept rather than being reverted to `string`.
+            Assert.IsTrue(countProperty!.Type.Equals(typeof(int)));
+        }
+
+        [Test]
         public async Task BackCompat_InternalPropertyInLastContractIsIgnored()
         {
             var inputModel = InputFactory.Model(
@@ -1449,7 +1524,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicModelsAreNotIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
                 "MockInputModel",
@@ -1462,7 +1537,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
-            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
         [Test]

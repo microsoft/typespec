@@ -117,7 +117,7 @@ export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
   return typespecCompiler.Type;
 }
 
-function TargetParameterTsType(props: { type: Type | undefined }) {
+export function TargetParameterTsType(props: { type: Type | undefined }) {
   const type = props.type;
   if (type === undefined) {
     return typespecCompiler.Type;

@@ -49,7 +49,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // fixed enum with int based types, we do not write a method for serialization because it was embedded in the definition
             bool isIntValueType = _enumProvider.EnumUnderlyingType.Equals(typeof(int)) || _enumProvider.EnumUnderlyingType.Equals(typeof(long));
             if (!_enumType.IsExtensible && isIntValueType)
+            {
                 return false;
+            }
 
             // otherwise we need a serialization method with the name of `ToSerial{UnderlyingTypeName}`
             return true;

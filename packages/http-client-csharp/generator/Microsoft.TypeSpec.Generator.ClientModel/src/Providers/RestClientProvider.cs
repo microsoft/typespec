@@ -499,7 +499,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var inputParameter in operation.Parameters)
             {
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
+                {
                     continue;
+                }
 
                 var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
@@ -1023,7 +1025,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var response in operation.Responses)
             {
                 if (response.IsErrorResponse)
+                {
                     continue;
+                }
 
                 foreach (var statusCode in response.StatusCodes)
                 {

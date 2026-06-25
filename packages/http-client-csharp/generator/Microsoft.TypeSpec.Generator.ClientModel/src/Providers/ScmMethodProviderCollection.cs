@@ -278,7 +278,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var parameter in convenienceMethodParameters)
             {
                 if (parameter.SpreadSource != null)
+                {
                     continue;
+                }
 
                 if (parameter.Location == ParameterLocation.Body)
                 {

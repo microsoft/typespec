@@ -20,12 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' && 
+      !contains(github.event.pull_request.title, '[skip chg]') &&
       !startsWith(github.head_ref, 'publish/') &&
       !startsWith(github.head_ref, 'dependabot/') &&
       !startsWith(github.head_ref, 'backmerge/') &&
       !startsWith(github.head_ref, 'revert-')
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
@@ -56,7 +57,7 @@ jobs:
     name: Spell check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: ./.github/actions/setup
@@ -72,7 +73,7 @@ jobs:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - uses: ./.github/actions/setup
@@ -91,7 +92,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -121,7 +122,7 @@ jobs:
     name: Versions consistency
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
 

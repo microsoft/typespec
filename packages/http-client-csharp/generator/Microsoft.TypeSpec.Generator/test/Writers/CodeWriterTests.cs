@@ -515,7 +515,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             foreach (var bit in Enum.GetValues<TypeSignatureModifiers>())
             {
                 if (bit == TypeSignatureModifiers.None)
+                {
                     continue;
+                }
 
                 var expected = bit.ToString().ToLower();
                 if (modifiers.HasFlag(bit))

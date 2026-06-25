@@ -34,7 +34,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<IReadOnlyList<string>>? apiVersions = null,
             string? configuration = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
-            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            string? outputPath = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -44,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 apiVersions: apiVersions,
                 configuration: configuration,
                 createCSharpTypeCore: createCSharpTypeCore,
-                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback);
+                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback,
+                outputPath: outputPath);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
@@ -76,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<OutputLibrary>? createOutputLibrary = null,
             bool includeXmlDocs = false,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            Func<InputModelType, ModelProvider?>? createModelCore = null)
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            string? outputPath = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -150,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             {
                 configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
             }
-            object?[] parameters = [_configFilePath, configuration];
+            object?[] parameters = [outputPath ?? _configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockGeneratorInstance = new Mock<ScmCodeModelGenerator>(mockGeneratorContext.Object) { CallBase = true };

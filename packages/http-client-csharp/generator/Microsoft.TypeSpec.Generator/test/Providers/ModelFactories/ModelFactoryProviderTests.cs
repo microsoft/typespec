@@ -40,7 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -63,7 +65,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -86,7 +90,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -108,7 +114,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -377,6 +385,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
+        {
+            // The previous contract contains a "PublicModel1OldName" factory method that no longer
+            // exists in the current contract. Normally a back-compat shim would be regenerated, but
+            // here the removal has been accepted in the ApiCompat baseline, so it must be skipped.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NoCurrentOverloadFound"),
+                apiCompatBaseline: baseline)).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+
+            // The suppressed back-compat method should NOT have been regenerated.
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1OldName");
+            Assert.IsNull(backwardCompatibilityMethod);
+
+            // No extra back-compat method beyond the current factory methods.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
         }
 
         [Test]

@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -130,7 +131,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await MeasureAsync<Compilation?>("PostProcessor.Internalize.GetCompilationAsync", () => project.GetCompilationAsync());
             if (compilation == null)
+            {
                 return project;
+            }
 
             var useShadowResult = ProviderReferenceMapShadowAnalyzer.UseShadowMap &&
                 ProviderReferenceMapShadowAnalyzer.LatestResult is { } latestResult &&
@@ -264,7 +267,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var modelFactorySymbol = definitions.ModelFactorySymbol;
             if (modelFactorySymbol == null)
+            {
                 return project;
+            }
 
             var nodesToRemove = new List<SyntaxNode>();
 
@@ -298,7 +303,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // maybe this is possible, for instance, we could be adding the customization all entries previously inside the generated model factory so that the generated model factory is empty and removed.
             if (modelFactoryGeneratedDocument == null)
+            {
                 return project;
+            }
 
             var root = await modelFactoryGeneratedDocument.GetSyntaxRootAsync();
             Debug.Assert(root is not null);
@@ -329,7 +336,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await MeasureAsync<Compilation?>("PostProcessor.Remove.GetCompilationAsync", () => project.GetCompilationAsync());
             if (compilation == null)
+            {
                 return project;
+            }
 
             // find all the declarations, including non-public declared
             var definitions = await MeasureAsync("PostProcessor.Remove.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, false));
@@ -357,7 +366,9 @@ namespace Microsoft.TypeSpec.Generator
                 // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
                 // helpers that are required by the model factory.
                 if (_modelFactorySymbol != null)
+                {
                     rootSymbols.Add(_modelFactorySymbol);
+                }
                 // traverse the map to determine the declarations that we are about to remove, starting from root nodes
                 var referencedSymbols = Measure("PostProcessor.Remove.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray().AsEnumerable());
 
@@ -391,7 +402,12 @@ namespace Microsoft.TypeSpec.Generator
             });
 
             // remove them one by one
-            project = await MeasureAsync("PostProcessor.Remove.RemoveModelsAsync", () => RemoveModelsAsync(project, nodesToRemove));
+            var referencedTypeNames = referencedSet
+                .Select(static symbol => symbol.GetFullyQualifiedName())
+                .ToHashSet(StringComparer.Ordinal);
+            project = await MeasureAsync(
+                "PostProcessor.Remove.RemoveModelsAsync",
+                () => RemoveModelsAsync(project, nodesToRemove, referencedTypeNames));
 
             return project;
         }
@@ -400,7 +416,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var baseType = symbol.BaseType;
             if (baseType == null || baseType.SpecialType == SpecialType.System_Object)
+            {
                 return symbol;
+            }
             return GetBase(baseType);
         }
 
@@ -437,7 +455,9 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var definition = queue.Dequeue();
                 if (visited.Contains(definition))
+                {
                     continue;
+                }
                 visited.Add(definition);
                 // add this definition to the result
                 yield return definition;
@@ -453,7 +473,9 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<T, IEnumerable<T>> referenceMap) where T : notnull
         {
             if (referenceMap.TryGetValue(definition, out var references))
+            {
                 return references;
+            }
 
             return Enumerable.Empty<T>();
         }
@@ -520,7 +542,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private async Task<Project> RemoveModelsAsync(Project project,
-            IEnumerable<BaseTypeDeclarationSyntax> unusedModels)
+            IEnumerable<BaseTypeDeclarationSyntax> unusedModels,
+            HashSet<string> referencedTypeNames)
         {
             // accumulate the definitions from the same document together
             var documents = Measure("PostProcessor.Remove.RemoveModelsAsync.GroupByDocument", () =>
@@ -551,7 +574,9 @@ namespace Microsoft.TypeSpec.Generator
             });
 
             // remove what are now invalid references due to the models being removed
-            project = await MeasureAsync("PostProcessor.Remove.RemoveModelsAsync.RemoveInvalidRefs", () => RemoveInvalidRefs(project));
+            project = await MeasureAsync(
+                "PostProcessor.Remove.RemoveModelsAsync.RemoveInvalidRefs",
+                () => RemoveInvalidRefs(project, referencedTypeNames));
 
             return project;
         }
@@ -564,7 +589,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // skip this if there is nothing to replace
             if (originalTokenInList == default)
+            {
                 return memberDeclaration;
+            }
 
             var newToken =
                 SyntaxFactory.Token(originalTokenInList.LeadingTrivia, to, originalTokenInList.TrailingTrivia);
@@ -578,7 +605,9 @@ namespace Microsoft.TypeSpec.Generator
             var tree = models.First().SyntaxTree;
             var document = project.GetDocument(tree);
             if (document == null)
+            {
                 return project;
+            }
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
 
@@ -597,7 +626,7 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private async Task<Project> RemoveInvalidRefs(Project project)
+        private async Task<Project> RemoveInvalidRefs(Project project, HashSet<string> referencedTypeNames)
         {
             var solution = project.Solution;
 
@@ -619,7 +648,19 @@ namespace Microsoft.TypeSpec.Generator
                 var updatedSolution = solution;
                 foreach (var documentId in project.DocumentIds)
                 {
-                    updatedSolution = await RemoveInvalidAttributes(updatedSolution, documentId);
+                    updatedSolution = await RemoveInvalidAttributes(updatedSolution, documentId, referencedTypeNames);
+                }
+
+                return updatedSolution;
+            });
+
+            // Process each document for invalid XML documentation references (with fresh semantic models)
+            solution = await MeasureAsync("PostProcessor.Remove.RemoveInvalidRefs.RemoveInvalidXmlDocReferences", async () =>
+            {
+                var updatedSolution = solution;
+                foreach (var documentId in project.DocumentIds)
+                {
+                    updatedSolution = await RemoveInvalidXmlDocReferences(updatedSolution, documentId);
                 }
 
                 return updatedSolution;
@@ -635,7 +676,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var invalidUsings = cu.Usings
                 .Where(u =>
@@ -655,14 +698,16 @@ namespace Microsoft.TypeSpec.Generator
             return solution;
         }
 
-        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId, HashSet<string> referencedTypeNames)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
             var firstAttribute = attributes.FirstOrDefault();
@@ -677,7 +722,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var attr in attributes)
             {
                 if (IsInternalRecordBuildableAttribute(attr) ||
-                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr))
+                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr, referencedTypeNames))
                 {
                     invalidAttributes.Add(attr);
                 }
@@ -759,7 +804,8 @@ namespace Microsoft.TypeSpec.Generator
         private static async Task<bool> ShouldRemoveUnreferencedInternalBuildableAttribute(
             Solution solution,
             SemanticModel model,
-            AttributeListSyntax attributeList)
+            AttributeListSyntax attributeList,
+            HashSet<string> referencedTypeNames)
         {
             if (attributeList.Attributes.Count != 1)
             {
@@ -793,6 +839,11 @@ namespace Microsoft.TypeSpec.Generator
                 typeSymbol.Name.StartsWith("Update", StringComparison.Ordinal) && typeSymbol.Name.EndsWith("Record", StringComparison.Ordinal))
             {
                 return true;
+            }
+
+            if (referencedTypeNames.Contains(typeSymbol.GetFullyQualifiedName()))
+            {
+                return false;
             }
 
             foreach (var referencedSymbol in await SymbolFinder.FindReferencesAsync(typeSymbol, solution))
@@ -891,6 +942,41 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        private async Task<Solution> RemoveInvalidXmlDocReferences(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root == null || model == null)
+            {
+                return solution;
+            }
+
+            var invalidSeeElements = root.DescendantTrivia(descendIntoTrivia: true)
+                .SelectMany(static trivia => trivia.GetStructure()?.DescendantNodes().OfType<XmlEmptyElementSyntax>() ?? [])
+                .Where(element => string.Equals(element.Name.LocalName.ValueText, "see", StringComparison.Ordinal))
+                .Where(element => element.Attributes.OfType<XmlCrefAttributeSyntax>().Any(attribute => model.GetSymbolInfo(attribute.Cref).Symbol == null))
+                .ToArray();
+
+            if (invalidSeeElements.Length == 0)
+            {
+                return solution;
+            }
+
+            var text = await document.GetTextAsync();
+            var source = text.ToString();
+            foreach (var element in invalidSeeElements)
+            {
+                var cref = element.Attributes.OfType<XmlCrefAttributeSyntax>().First().Cref.ToString();
+                var colonIndex = cref.IndexOf(':');
+                var replacement = colonIndex >= 0 ? cref.Substring(colonIndex + 1) : cref;
+                source = source.Replace(element.ToFullString(), replacement, StringComparison.Ordinal);
+            }
+
+            return solution.WithDocumentText(documentId, SourceText.From(source, text.Encoding));
+        }
+
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
         {
             var result = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -900,7 +986,9 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     var document = project.GetDocument(declarationNode.SyntaxTree);
                     if (document == null)
+                    {
                         continue;
+                    }
                     if (await IsRootDocument(document))
                     {
                         result.Add(symbol);
@@ -927,7 +1015,9 @@ namespace Microsoft.TypeSpec.Generator
         private static bool ShouldKeepType(SyntaxNode? root, HashSet<string> typesToKeep)
         {
             if (root is null)
+            {
                 return false;
+            }
 
             // use `BaseTypeDeclarationSyntax` to also include enums because `EnumDeclarationSyntax` extends `BaseTypeDeclarationSyntax`
             // `ClassDeclarationSyntax` and `StructDeclarationSyntax` both inherit `TypeDeclarationSyntax`
@@ -977,9 +1067,13 @@ namespace Microsoft.TypeSpec.Generator
             {
                 TList newList;
                 if (collectionConstructor == null)
+                {
                     newList = new TList();
+                }
                 else
+                {
                     newList = collectionConstructor();
+                }
                 newList.Add(value);
                 dictionary.Add(key, newList);
             }
