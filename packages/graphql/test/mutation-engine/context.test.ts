@@ -1,5 +1,5 @@
 import type { Model } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isOneOf } from "../../src/lib/one-of.js";
 import {
@@ -13,7 +13,7 @@ function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine
 }
 
 describe("GraphQL Mutation Engine - Input/Output Context", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -55,7 +55,7 @@ describe("GraphQL Mutation Engine - Input/Output Context", () => {
 });
 
 describe("GraphQL Mutation Engine - Operation Context Propagation", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

@@ -1,4 +1,4 @@
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import * as gql from "@pinterest/alloy-graphql";
 import { beforeEach, describe, expect, it } from "vitest";
 import { UnionType, type GraphQLUnion } from "../../src/components/types/index.js";
@@ -10,7 +10,7 @@ import { Tester } from "../test-host.js";
 import { renderToSDL } from "./test-utils.js";
 
 describe("UnionType component", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

@@ -1,5 +1,5 @@
 import { getDoc, type Model, type Union } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isNullable } from "../../src/lib/nullable.js";
 import { isOneOf } from "../../src/lib/one-of.js";
@@ -15,7 +15,7 @@ function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine
 }
 
 describe("GraphQL Mutation Engine - Unions", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -376,7 +376,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
 });
 
 describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

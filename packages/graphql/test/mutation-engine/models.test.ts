@@ -1,5 +1,5 @@
 import { isArrayModelType, type Model } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createGraphQLMutationEngine,
@@ -12,7 +12,7 @@ function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine
 }
 
 describe("GraphQL Mutation Engine - Models", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -50,7 +50,7 @@ describe("GraphQL Mutation Engine - Models", () => {
 });
 
 describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -118,7 +118,7 @@ describe("GraphQL Mutation Engine - Record-to-Scalar", () => {
 });
 
 describe("GraphQL Mutation Engine - Inner Nullable Array Fix", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -141,7 +141,7 @@ describe("GraphQL Mutation Engine - Inner Nullable Array Fix", () => {
 });
 
 describe("GraphQL Mutation Engine - Model Properties", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -171,7 +171,7 @@ describe("GraphQL Mutation Engine - Model Properties", () => {
 });
 
 describe("GraphQL Mutation Engine - Edge Cases", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

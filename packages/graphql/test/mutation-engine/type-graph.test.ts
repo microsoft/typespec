@@ -9,7 +9,7 @@ const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
 });
 
 describe("buildTypeGraph", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
 
   beforeEach(async () => {
     tester = await Tester.createInstance();

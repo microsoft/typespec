@@ -1,5 +1,5 @@
 import type { Model } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createGraphQLMutationEngine,
@@ -13,7 +13,7 @@ function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine
 }
 
 describe("GraphQL Mutation Engine - Visibility Filtering", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   let filters: ReturnType<typeof createVisibilityFilters>;
   beforeEach(async () => {
     tester = await Tester.createInstance();

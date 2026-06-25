@@ -1,4 +1,4 @@
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createGraphQLMutationEngine,
@@ -8,7 +8,7 @@ import { printMutatedType } from "../../src/mutation-engine/print-type.js";
 import { Tester } from "../test-host.js";
 
 describe("printMutatedType", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
 
   beforeEach(async () => {
     tester = await Tester.createInstance();

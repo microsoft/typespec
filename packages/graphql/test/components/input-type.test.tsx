@@ -1,5 +1,5 @@
 import { type Model } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { InputType } from "../../src/components/types/index.js";
 import { createGraphQLMutationEngine, GraphQLTypeContext } from "../../src/mutation-engine/index.js";
@@ -7,7 +7,7 @@ import { Tester } from "../test-host.js";
 import { renderToSDL } from "./test-utils.js";
 
 describe("InputType component", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

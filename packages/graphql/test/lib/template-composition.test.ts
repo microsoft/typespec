@@ -1,25 +1,19 @@
 import { resolvePath, type Model } from "@typespec/compiler";
 import { createTester, t } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { composeTemplateName } from "../../src/lib/template-composition.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
   libraries: [],
 });
 
+function getReturnType(ns: Record<string, any>, opName: string): Model {
+  return ns.operations.get(opName)!.returnType as Model;
+}
+
 describe("composeTemplateName", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
-
-  beforeEach(async () => {
-    tester = await Tester.createInstance();
-  });
-
-  function getReturnType(ns: Record<string, any>, opName: string): Model {
-    return ns.operations.get(opName)!.returnType as Model;
-  }
-
   it("composes single arg: PaginatedModel<AdAccount> → PaginatedModelOfAdAccount", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model AdAccount { id: string; }
         model PaginatedModel<T> { items: T[]; }
@@ -32,7 +26,7 @@ describe("composeTemplateName", () => {
   });
 
   it("composes multiple args joined with And: MyMap<string, int32> → MyMapOfStringAndInt32", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model MyMap<K, V> { key: K; value: V; }
         op get(): MyMap<string, int32>;
@@ -44,7 +38,7 @@ describe("composeTemplateName", () => {
   });
 
   it("handles array arg: GetResponse<Fruit[]> → GetResponseOfFruitArray", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model Fruit { name: string; }
         model GetResponse<T> { data: T; }
@@ -57,7 +51,7 @@ describe("composeTemplateName", () => {
   });
 
   it("handles nested template: Wrapper<PaginatedModel<Board>> → WrapperOfPaginatedModelOfBoard", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model Board { id: string; }
         model PaginatedModel<T> { items: T[]; }
@@ -71,7 +65,7 @@ describe("composeTemplateName", () => {
   });
 
   it("handles deeply nested: A<B<C<D>>> → AOfBOfCOfD", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model D { id: string; }
         model C<T> { c: T; }
@@ -86,7 +80,7 @@ describe("composeTemplateName", () => {
   });
 
   it("strips namespace from args: Response<Pinterest.API.User> → ResponseOfUser", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace Pinterest.API {
         model User { id: string; }
       }
@@ -101,7 +95,7 @@ describe("composeTemplateName", () => {
   });
 
   it("returns raw name for non-template types", async () => {
-    const { TestNs } = await tester.compile(t.code`
+    const { TestNs } = await Tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {
         model PlainModel { id: string; }
       }

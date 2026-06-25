@@ -1,5 +1,5 @@
 import type { EnumMember } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
 import { Tester } from "../test-host.js";
@@ -9,7 +9,7 @@ function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine
 }
 
 describe("GraphQL Mutation Engine - Enums", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
@@ -57,7 +57,7 @@ describe("GraphQL Mutation Engine - Enums", () => {
 });
 
 describe("GraphQL Mutation Engine - Enum Members", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });

@@ -1,10 +1,10 @@
-import { t } from "@typespec/compiler/testing";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { GraphQLTypeUsage, resolveTypeUsage } from "../src/type-usage.js";
 import { Tester } from "./test-host.js";
 
 describe("type-usage", () => {
-  let tester: Awaited<ReturnType<typeof Tester.createInstance>>;
+  let tester: TesterInstance;
   beforeEach(async () => {
     tester = await Tester.createInstance();
   });
