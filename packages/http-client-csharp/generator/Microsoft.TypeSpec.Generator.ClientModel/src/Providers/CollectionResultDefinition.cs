@@ -256,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new ConstructorSignature(
                         Type,
                         $"Initializes a new instance of {Name}, which is used to iterate over the pages of a collection.",
-                        MethodSignatureModifiers.Internal,
+                        MethodSignatureModifiers.Public,
                         [
                             clientParameter,
                             .. CreateRequestParameters
