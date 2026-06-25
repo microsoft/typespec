@@ -24,6 +24,9 @@ jobs:
           gh aw compile
           # Restore dependabot.yml — gh aw compile reformats it even without --dependabot (known bug)
           git checkout -- .github/dependabot.yml 2>/dev/null || true
+          # gh aw compile expands 'all: read' to include 'id-token: read', which GitHub Actions
+          # rejects as invalid (id-token only accepts 'none' or 'write'). Replace it after compile.
+          sed -i 's/      id-token: read$/      id-token: none/' .github/workflows/*.lock.yml
           if ! git diff --exit-code .github/workflows/*.lock.yml; then
             echo "::error::Lock files are out of date. Run 'gh aw compile' locally and commit the changes."
             exit 1
