@@ -21,14 +21,14 @@ describe("Python Class Members", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from typing import Optional
+              from typing import Optional
 
 
           @dataclass(kw_only=True)
           class MyModel:
-            name: str = "default"
-            description: Optional[str] = "optional with default"
-            empty_string: str = ""
+              name: str = "default"
+              description: Optional[str] = "optional with default"
+              empty_string: str = ""
           
           `,
       );
@@ -49,14 +49,14 @@ describe("Python Class Members", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from typing import Optional
+              from typing import Optional
 
 
           @dataclass(kw_only=True)
           class BooleanModel:
-            is_active: bool = True
-            is_deleted: bool = False
-            optional: Optional[bool] = True
+              is_active: bool = True
+              is_deleted: bool = False
+              optional: Optional[bool] = True
           
           `,
       );
@@ -78,9 +78,9 @@ describe("Python Class Members", () => {
 
           @dataclass(kw_only=True)
           class ArrayModel:
-            tags: list[str] = ["tag1", "tag2"]
-            empty_array: list[int] = []
-            numbers: list[int] = [1, 2, 3]
+              tags: list[str] = ["tag1", "tag2"]
+              empty_array: list[int] = []
+              numbers: list[int] = [1, 2, 3]
           
           `,
       );
@@ -104,11 +104,11 @@ describe("Python Class Members", () => {
 
           @dataclass(kw_only=True)
           class IntegerModel:
-            count: int = 42
-            big_number: int = 1000000
-            small_number: int = 127
-            unsigned_value: int = 100
-            safe_int_value: int = 999
+              count: int = 42
+              big_number: int = 1000000
+              small_number: int = 127
+              unsigned_value: int = 100
+              safe_int_value: int = 999
           
           `,
       );
@@ -149,23 +149,23 @@ describe("Python Class Members", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from decimal import Decimal
+              from decimal import Decimal
 
 
           @dataclass(kw_only=True)
           class NumericDefaults:
-            float_base: float = 1.5
-            float32_value: float = 2.5
-            float64_value: float = 3.5
-            custom_float_value: float = 4.5
-            float_int: float = 10.0
-            float32_int: float = 20.0
-            float64_int: float = 30.0
-            decimal_base: Decimal = 100.25
-            decimal128_value: Decimal = 200.75
-            custom_decimal_value: Decimal = 300.125
-            decimal_int: Decimal = 400.0
-            decimal128_int: Decimal = 500.0
+              float_base: float = 1.5
+              float32_value: float = 2.5
+              float64_value: float = 3.5
+              custom_float_value: float = 4.5
+              float_int: float = 10.0
+              float32_int: float = 20.0
+              float64_int: float = 30.0
+              decimal_base: Decimal = 100.25
+              decimal128_value: Decimal = 200.75
+              custom_decimal_value: Decimal = 300.125
+              decimal_int: Decimal = 400.0
+              decimal128_int: Decimal = 500.0
           
           `,
       );
@@ -188,16 +188,16 @@ describe("Python Class Members", () => {
           from typing import TYPE_CHECKING
 
           if TYPE_CHECKING:
-            from decimal import Decimal
+              from decimal import Decimal
 
 
           @dataclass(kw_only=True)
           class MixedNumeric:
-            int_value: int = 100
-            int64_value: int = 100
-            float_value: float = 100.0
-            float64_value: float = 100.0
-            decimal_value: Decimal = 100.0
+              int_value: int = 100
+              int64_value: int = 100
+              float_value: float = 100.0
+              float64_value: float = 100.0
+              decimal_value: Decimal = 100.0
           
           `,
       );
