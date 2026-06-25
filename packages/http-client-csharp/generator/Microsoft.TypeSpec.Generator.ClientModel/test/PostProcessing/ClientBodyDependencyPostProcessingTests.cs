@@ -87,6 +87,54 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task AzureClientPublicMethodSignatureReferencesStayPublic()
+        {
+            var signatureModel = InputFactory.Model("SignatureModel", @namespace: "Azure.Sample.Models");
+            var methodParameter = InputFactory.MethodParameter("signature", signatureModel, isRequired: true);
+            var operation = InputFactory.Operation(
+                "Create",
+                parameters: [InputFactory.BodyParameter("signature", signatureModel, isRequired: true)],
+                httpMethod: "POST");
+            var method = InputFactory.BasicServiceMethod("Create", operation, parameters: [methodParameter]);
+            var client = InputFactory.Client("SampleClient", clientNamespace: "Azure.Sample", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [signatureModel],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [],
+                publicModelNames: ["SignatureModel"],
+                packageName: "Azure.Sample");
+        }
+
+        [Test]
+        public async Task BasePreservedDerivedModelTraversesTransitiveDependencies()
+        {
+            var transitiveDependency = InputFactory.Model("TransitiveDependency");
+            var dependency = InputFactory.Model(
+                "DerivedDependency",
+                properties: [InputFactory.Property("Transitive", transitiveDependency)]);
+            var baseModel = InputFactory.Model("BaseResult");
+            var derivedModel = InputFactory.Model(
+                "DerivedResult",
+                properties: [InputFactory.Property("Dependency", dependency)],
+                baseModel: baseModel);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: baseModel)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation, response: InputFactory.ServiceMethodResponse(baseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [baseModel, derivedModel, dependency, transitiveDependency],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [],
+                publicModelNames: ["BaseResult"],
+                internalModelNames: ["DerivedResult", "DerivedDependency", "TransitiveDependency"]);
+        }
+
+        [Test]
         public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
         {
             var statusEnum = InputFactory.StringEnum(
@@ -200,7 +248,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             (string Path, string Content)[] customFiles,
             string[] expectedFiles,
             string[] publicModelNames = null!,
-            string[] internalModelNames = null!)
+            string[] internalModelNames = null!,
+            string packageName = "Sample")
         {
             publicModelNames ??= [];
             internalModelNames ??= [];
@@ -220,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                     inputEnums: () => enums,
                     inputModels: () => models,
                     clients: () => clients,
-                    configuration: "{\"package-name\": \"Sample\", \"disable-xml-docs\": true}",
+                    configuration: $$"""{ "package-name": "{{packageName}}", "disable-xml-docs": true }""",
                     outputPath: outputPath);
 
                 await new CSharpGen().ExecuteAsync();

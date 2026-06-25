@@ -539,11 +539,6 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var method in provider.Methods)
                 {
-                    if (ShouldUseGeneratedSourceReferences(provider))
-                    {
-                        continue;
-                    }
-
                     if (method.IsMethodSuppressed())
                     {
                         continue;
@@ -555,7 +550,7 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly);
-                    if (!publicOnly)
+                    if (!publicOnly && !ShouldUseGeneratedSourceReferences(provider))
                     {
                         AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes, serializationReferenceNamesByType);
                     }
@@ -677,14 +672,15 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<string, HashSet<string>> references,
             HashSet<string> reachableTypes)
         {
-            var addedReference = true;
-            while (addedReference)
+            var basePreservedRoots = new HashSet<string>(StringComparer.Ordinal);
+            var addedRoot = true;
+            while (addedRoot)
             {
-                addedReference = false;
+                addedRoot = false;
                 foreach (var provider in GetGeneratedProviders(providers))
                 {
                     var providerName = GetProviderTypeName(provider.Type);
-                    if (!nodes.Contains(providerName) || reachableTypes.Contains(providerName))
+                    if (!nodes.Contains(providerName) || reachableTypes.Contains(providerName) || basePreservedRoots.Contains(providerName))
                     {
                         continue;
                     }
@@ -695,14 +691,15 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    reachableTypes.Add(providerName);
-                    foreach (var reference in references[providerName])
+                    if (basePreservedRoots.Add(providerName))
                     {
-                        if (reachableTypes.Add(reference))
-                        {
-                            addedReference = true;
-                        }
+                        addedRoot = true;
                     }
+                }
+
+                if (addedRoot)
+                {
+                    reachableTypes.UnionWith(GetReachableTypes(basePreservedRoots, references));
                 }
             }
         }
