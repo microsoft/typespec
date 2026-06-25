@@ -833,7 +833,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root == null || model == null)
+            {
                 return solution;
+            }
 
             var invalidSeeElements = root.DescendantTrivia(descendIntoTrivia: true)
                 .SelectMany(static trivia => trivia.GetStructure()?.DescendantNodes().OfType<XmlEmptyElementSyntax>() ?? [])
@@ -842,7 +844,9 @@ namespace Microsoft.TypeSpec.Generator
                 .ToArray();
 
             if (invalidSeeElements.Length == 0)
+            {
                 return solution;
+            }
 
             var text = await document.GetTextAsync();
             var source = text.ToString();
