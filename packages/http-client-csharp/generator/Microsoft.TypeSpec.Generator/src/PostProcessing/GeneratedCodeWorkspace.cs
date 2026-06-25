@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
-using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
@@ -19,6 +18,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
+using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -250,7 +250,9 @@ namespace Microsoft.TypeSpec.Generator
             foreach (string sourceFile in Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories))
             {
                 if (skipPredicate != null && skipPredicate(sourceFile))
+                {
                     continue;
+                }
 
                 project = project.AddDocument(sourceFile, File.ReadAllText(sourceFile), folders ?? Array.Empty<string>(), sourceFile).Project;
             }
@@ -397,12 +399,16 @@ namespace Microsoft.TypeSpec.Generator
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))
+            {
                 return null;
+            }
 
             var projectRoot = ProjectRootElement.Open(projectFilePath);
             var baselineVersion = projectRoot.Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
             if (baselineVersion == null)
+            {
                 return null;
+            }
 
             var targetFrameworksValue = projectRoot.Properties
                 .FirstOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
@@ -421,7 +427,9 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
                 {
                     if (parsedTargetFrameworks != null && !parsedTargetFrameworks.Contains(preferredTargetFramework))
+                    {
                         continue;
+                    }
 
                     nugetFolderPathToAssembly = Path.Combine(
                         nugetGlobalPackageFolder,

@@ -105,22 +105,34 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteFields(writer);
 
                 if (sectionWritten && _provider.Constructors.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteConstructors(writer);
                 sectionWritten |= _provider.Constructors.Any();
 
                 if (sectionWritten && _provider.Properties.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteProperties(writer);
                 sectionWritten |= _provider.Properties.Any();
 
                 if (sectionWritten && _provider.Methods.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteMethods(writer);
                 sectionWritten |= _provider.Methods.Any();
 
                 if (sectionWritten = _provider.NestedTypes.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteNestedTypes(writer);
             }
         }

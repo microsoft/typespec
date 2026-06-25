@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
-using System.Text.Json;
 
 namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
