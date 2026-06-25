@@ -415,6 +415,12 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddSymbolRoot(HashSet<string> roots, ITypeSymbol? symbol, HashSet<string> generatedTypeNames)
         {
+            if (symbol is IArrayTypeSymbol arrayType)
+            {
+                AddSymbolRoot(roots, arrayType.ElementType, generatedTypeNames);
+                return;
+            }
+
             if (symbol is not INamedTypeSymbol namedType)
             {
                 return;

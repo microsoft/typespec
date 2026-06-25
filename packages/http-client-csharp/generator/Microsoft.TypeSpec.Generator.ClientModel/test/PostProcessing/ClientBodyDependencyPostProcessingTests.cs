@@ -135,6 +135,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task PublicCustomCodeArraySignatureReferencesStayPublic()
+        {
+            var generatedModel = InputFactory.Model("GeneratedModel");
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [generatedModel],
+                clients: [],
+                customFiles: [
+                    (Path.Combine("src", "PublicCustomApi.cs"), """
+                        using Sample.Models;
+
+                        namespace Sample;
+
+                        public partial class PublicCustomApi
+                        {
+                            public GeneratedModel[] Items { get; } = System.Array.Empty<GeneratedModel>();
+                        }
+                        """)
+                ],
+                expectedFiles: [],
+                publicModelNames: ["GeneratedModel"]);
+        }
+
+        [Test]
         public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
         {
             var statusEnum = InputFactory.StringEnum(
