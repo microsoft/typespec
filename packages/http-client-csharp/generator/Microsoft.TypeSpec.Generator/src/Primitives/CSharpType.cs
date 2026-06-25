@@ -470,9 +470,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj))
+            {
                 return false;
+            }
+
             if (ReferenceEquals(this, obj))
+            {
                 return true;
+            }
+
             return obj is CSharpType csType && Equals(csType, ignoreNullable: false);
         }
 
@@ -513,7 +519,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         {
             // we cache the hashcode since `CSharpType` is meant to be immutable.
             if (_hashCode != null)
+            {
                 return _hashCode.Value;
+            }
 
             var hashCode = new HashCode();
             foreach (var arg in Arguments)
@@ -583,15 +591,21 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             if (!IsNameMatch(other))
+            {
                 return false;
+            }
 
             if (Arguments.Count != other.Arguments.Count)
+            {
                 return false;
+            }
 
             for (int i = 0; i < Arguments.Count; i++)
             {
                 if (!Arguments[i].AreNamesEqual(other.Arguments[i]))
+                {
                     return false;
+                }
             }
 
             return true;
@@ -692,7 +706,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+        public static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
 
         public sealed class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
         {

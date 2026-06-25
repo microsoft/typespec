@@ -24,6 +24,7 @@ import {
   camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getClientNamespace,
   getImplementation,
 } from "./utils.js";
@@ -233,7 +234,8 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   return {
-    clientName: camelToSnakeCase(property.name),
+    clientName: getClientName(property),
+    isExactName: property.isExactName,
     wireName:
       (property.serializationOptions?.multipart
         ? property.serializationOptions?.multipart?.name
@@ -395,7 +397,8 @@ function emitEnumMember(
   }
 
   const result = {
-    name: enumName(type.name),
+    name: type.isExactName ? type.name : enumName(type.name),
+    isExactName: type.isExactName,
     value: type.value,
     description: type.summary ? type.summary : type.doc,
     enumType,
@@ -474,6 +477,13 @@ function emitBuiltInType(
         return getSimpleTypeResult(context, {
           type: type.kind,
           encode: type.encode,
+        });
+      }
+      if (type.encode === "seconds" || type.encode === "milliseconds") {
+        return getSimpleTypeResult(context, {
+          type: type.kind,
+          encode: type.encode,
+          wireType: getType(context, type.wireType),
         });
       }
     }

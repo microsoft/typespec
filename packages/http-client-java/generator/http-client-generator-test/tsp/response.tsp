@@ -26,9 +26,8 @@ op RpcOperationWithAdditionalResponse<
   TErrorResponse = Azure.Core.Foundations.ErrorResponse
 > is Foundations.Operation<
   TParams & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Parameters>,
-
-    | (TResponse & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Response>)
-    | TAdditionalResponse,
+  | (TResponse & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Response>)
+  | TAdditionalResponse,
   Traits,
   TErrorResponse
 >;

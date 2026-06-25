@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { Hover, MarkupKind } from "vscode-languageserver/node.js";
+import { Hover, MarkupKind } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -310,6 +310,22 @@ describe("compiler: server: on hover", () => {
         contents: {
           kind: MarkupKind.Markdown,
           value: "```typespec\n" + "model Animal\n" + "```",
+        },
+      });
+    });
+
+    it("model property with function type", async () => {
+      const hover = await getHoverAtCursor(`
+        model Test {
+          fu┆nc: fn(v: valueof string) => valueof string;
+        }
+      `);
+
+      deepStrictEqual(hover, {
+        contents: {
+          kind: MarkupKind.Markdown,
+          value:
+            "(model property)\n```typespec\nTest.func: fn (v: valueof string) => valueof string\n```",
         },
       });
     });

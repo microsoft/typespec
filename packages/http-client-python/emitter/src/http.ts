@@ -26,9 +26,9 @@ import { HttpStatusCodeRange } from "@typespec/http";
 import { PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { getType, KnownTypes } from "./types.js";
 import {
-  camelToSnakeCase,
   emitParamBase,
   getAddedOn,
+  getClientName,
   getDelimiterAndExplode,
   getImplementation,
   isAbstract,
@@ -100,7 +100,7 @@ export function emitBasicHttpMethod(
         serviceApiVersions,
       ),
       abstract: isAbstract(method),
-      name: camelToSnakeCase(method.name),
+      name: getClientName(method),
       description: method.doc ?? "",
       summary: method.summary,
     },
@@ -123,7 +123,7 @@ function emitInitialLroHttpMethod(
       method,
       serviceApiVersions,
     ),
-    name: `_${camelToSnakeCase(method.name)}_initial`,
+    name: `_${getClientName(method)}_initial`,
     isLroInitialOperation: true,
     wantTracing: false,
     exposeStreamKeyword: false,
@@ -148,7 +148,7 @@ function addLroInformation(
       method,
       serviceApiVersions,
     ),
-    name: camelToSnakeCase(method.name),
+    name: getClientName(method),
     discriminator: "lro",
     initialOperation: emitInitialLroHttpMethod(
       context,
@@ -311,7 +311,7 @@ function addPagingInformation(
   }
   return {
     ...base,
-    name: camelToSnakeCase(method.name),
+    name: getClientName(method),
     discriminator: "paging",
     exposeStreamKeyword: false,
     itemName,
@@ -423,6 +423,7 @@ function emitHttpOperation(
     crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
     samples: arrayToRecord(method?.operation.examples),
     internal: method.access === "internal",
+    isExactName: method.isExactName,
   };
   if (result.bodyParameter && isSpreadBody(operation.bodyParam)) {
     result.bodyParameter["propertyToParameterName"] = {};
@@ -459,6 +460,7 @@ function emitFlattenedParameter(
     checkClientInput: false,
     clientDefaultValue: null,
     clientName: property.clientName,
+    isExactName: property.isExactName,
     delimiter: null,
     description: property.description,
     implementation: "Method",
@@ -622,7 +624,7 @@ function emitHttpBodyParameter(
     ...emitParamBase(context, bodyParam, undefined, serviceApiVersions),
     contentTypes: bodyParam.contentTypes,
     location: bodyParam.kind,
-    clientName: bodyParam.isGeneratedName ? "body" : camelToSnakeCase(bodyParam.name),
+    clientName: bodyParam.isGeneratedName ? "body" : getClientName(bodyParam),
     wireName: bodyParam.isGeneratedName ? "body" : bodyParam.name,
     implementation: getImplementation(context, bodyParam),
     clientDefaultValue: bodyParam.clientDefaultValue,

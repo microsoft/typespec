@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,7 @@ using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public partial class MrwSerializationTypeDefinition
@@ -279,6 +281,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? value.As<BinaryData>().ToArray()
                     : value.NullableStructValue(valueType),
                     serializationFormat.ToFormatSpecifier()),
+                Type t when t == typeof(FileBinaryContent)
+                    => _xmlWriterSnippet.WriteObjectValue(value.As<FileBinaryContent>(), _mrwOptionsParameterSnippet),
                 _ => ScmCodeModelGenerator.Instance.TypeFactory.SerializeXmlValue(valueType, value, _xmlWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat)
             };
         }
@@ -1026,6 +1030,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : BinaryDataSnippets.FromString(element.Value()),
                 Type t when t == typeof(DateTimeOffset) => element.GetDateTimeOffset(serializationFormat.ToFormatSpecifier()),
                 Type t when t == typeof(TimeSpan) => element.GetTimeSpan(serializationFormat.ToFormatSpecifier()),
+                Type t when t == typeof(FileBinaryContent) =>
+                    New.Instance<FileBinaryContent>(New.Instance<MemoryStream>(ConvertSnippets.InvokeFromBase64String(element.Value()), Literal(false))),
                 Type t when t == typeof(byte) => element.CastTo(typeof(int)).CastTo(typeof(byte)),
                 Type t when t == typeof(sbyte) => element.CastTo(typeof(int)).CastTo(typeof(sbyte)),
                 Type t when t == typeof(short) => element.CastTo(typeof(int)).CastTo(typeof(short)),

@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
@@ -554,6 +555,87 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(0, enumType.EnumValues.Count);
         }
 
+        // Validates that an IsExactName-marked value on a fixed string-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            // first value is not exact-name, regular casing applies
+            Assert.AreEqual("One", fields[0].Name);
+            // second value is exact-name, the spec name is preserved verbatim (no PascalCasing)
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on a fixed int-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedIntEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.Int32,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.Int32("One", 1, enumType));
+            enumValues.Add(InputFactory.EnumMember.Int32("snake_case_value", 2, enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("One", fields[0].Name);
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on an extensible string-based enum preserves
+        // its exact-case name (skipping .ToIdentifierName()) on both the generated field (with
+        // the `Value` suffix appended) and the generated public property.
+        [TestCase]
+        public void BuildEnumType_ExtensibleStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: true);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+            var properties = enumProvider.Properties;
+
+            // a private `_value` field + two values
+            Assert.AreEqual(3, fields.Count);
+            Assert.AreEqual("_value", fields[0].Name);
+            Assert.AreEqual("OneValue", fields[1].Name);
+            // exact-name value: name preserved verbatim, with the `Value` suffix appended
+            Assert.AreEqual("snake_case_valueValue", fields[2].Name);
+
+            Assert.AreEqual(2, properties.Count);
+            Assert.AreEqual("One", properties[0].Name);
+            Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");
@@ -565,6 +647,95 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(
                 "global::System.ComponentModel.EditorBrowsableState.Never",
                 getHashCodeMethod.Signature.Attributes[0].Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateGeneratedIntFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("WeatherIconCode", [
+                ("Sunny", 1),
+                ("MostlySunny", 2),
+                ("PartlyCloudy", 3),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public void ValidateGeneratedLongFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(long));
+
+            var input = InputFactory.Int64Enum("WeatherTimestamp", [
+                ("Epoch", 0L),
+                ("Y2K", 946684800L),
+                ("MaxValue", long.MaxValue),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public void ValidateGeneratedFloatFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
+
+            var input = InputFactory.Float32Enum("TemperatureScale", [
+                ("OneDotOne", 1.1f),
+                ("TwoDotTwo", 2.2f),
+                ("FourDotFour", 4.4f),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [TestCase("byte")]
+        [TestCase("sbyte")]
+        [TestCase("short")]
+        [TestCase("ushort")]
+        [TestCase("int")]
+        [TestCase("uint")]
+        [TestCase("long")]
+        [TestCase("ulong")]
+        [TestCase("float")]
+        [TestCase("double")]
+        [TestCase("string")]
+        public void FixedEnumBaseType_OnlyEmittedForAllowedIntegralTypes(string underlyingKeyword)
+        {
+            var underlying = underlyingKeyword switch
+            {
+                "byte" => typeof(byte),
+                "sbyte" => typeof(sbyte),
+                "short" => typeof(short),
+                "ushort" => typeof(ushort),
+                "int" => typeof(int),
+                "uint" => typeof(uint),
+                "long" => typeof(long),
+                "ulong" => typeof(ulong),
+                "float" => typeof(float),
+                "double" => typeof(double),
+                "string" => typeof(string),
+                _ => throw new ArgumentOutOfRangeException(nameof(underlyingKeyword)),
+            };
+
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (_) => underlying);
+
+            var input = InputFactory.Int32Enum("MockEnum", [("One", 1), ("Two", 2)]);
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(underlyingKeyword), content);
         }
     }
 }

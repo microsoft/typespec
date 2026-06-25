@@ -505,7 +505,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsDirectDynamicListProperty(PropertyProvider property)
         {
             if (!property.Type.IsList && !property.Type.IsArray)
+            {
                 return false;
+            }
+
             return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                 property.Type.ElementType,
                 out var provider) &&
@@ -531,7 +534,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var dataDeclStatement = Declare("data", typeof(BinaryData),
                 Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Write), [
                     new InvokeMethodExpression(null, $"Active{property.Name}", []),
-                    New.Instance(typeof(ModelReaderWriterOptions), Literal("J"))
+                    ModelReaderWriterOptionsSnippets.JsonFormatProperty,
+                    ModelReaderWriterContextSnippets.Default
                 ]),
                 out var dataVar);
 

@@ -240,3 +240,6 @@ packages/http-server-js/test/e2e/generated
 .pnpm-store/
 packages/http-client-python/tests/.uv-cache/
 packages/http-client-python/tests/.wheels/
+
+# Turborepo
+.turbo

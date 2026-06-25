@@ -1,3 +1,4 @@
+import { isCompilerFeatureName } from "../core/features.js";
 import { createDiagnostic } from "../core/messages.js";
 import {
   getBaseFileName,
@@ -10,7 +11,7 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { createSourceFile } from "../core/source-file.js";
 import { Diagnostic, NoTarget, SourceFile, SystemHost } from "../core/types.js";
 import { doIO } from "../utils/io.js";
-import { deepClone, deepFreeze, omitUndefined } from "../utils/misc.js";
+import { deepFreeze, omitUndefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/index.js";
 import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";
@@ -92,7 +93,7 @@ export async function loadTypeSpecConfigForPath(
   const typespecConfigPath = await findTypeSpecConfigPath(host, path, lookup);
   if (typespecConfigPath === undefined) {
     const projectRoot = getDirectoryPath(path);
-    const tsConfig = { ...deepClone(defaultConfig), projectRoot: projectRoot };
+    const tsConfig = { ...structuredClone(defaultConfig), projectRoot: projectRoot };
     if (errorIfNotFound) {
       tsConfig.diagnostics.push(
         createDiagnostic({
@@ -137,7 +138,7 @@ export async function loadTypeSpecConfigFile(
   }
 
   return {
-    ...deepClone(defaultConfig),
+    ...structuredClone(defaultConfig),
     ...config,
   };
 }
@@ -181,7 +182,7 @@ async function loadConfigFile(
     // NOTE: Don't trust the data if there are errors and use default
     // config. Otherwise, we may return an object that does not conform to
     // TypeSpecConfig's typing.
-    data = deepClone(defaultConfig) as TypeSpecRawConfig;
+    data = structuredClone(defaultConfig) as TypeSpecRawConfig;
   }
 
   // Validate project-specific constraints
@@ -205,6 +206,31 @@ async function loadConfigFile(
     );
   }
 
+  if (data.features !== undefined && data.kind !== "project") {
+    diagnostics.push(
+      createDiagnostic({
+        code: "config-project-only-option",
+        format: { option: "features" },
+        target: NoTarget,
+      }),
+    );
+  }
+
+  const features = Array.isArray(data.features) ? data.features : undefined;
+  if (data.kind === "project" && features !== undefined) {
+    for (const feature of features) {
+      if (!isCompilerFeatureName(feature)) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "config-unknown-feature",
+            format: { feature },
+            target: getLocationInYamlScript(yamlScript, ["features", feature]),
+          }),
+        );
+      }
+    }
+  }
+
   const emit = data.emit;
   const options = data.options;
 
@@ -216,6 +242,7 @@ async function loadConfigFile(
     extends: data.extends,
     kind: data.kind,
     entrypoint: data.entrypoint,
+    features,
     environmentVariables: data["environment-variables"],
     parameters: data.parameters,
     outputDir: data["output-dir"] ?? "{cwd}/tsp-output",

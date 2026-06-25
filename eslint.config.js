@@ -41,7 +41,7 @@ const allFilesConfig = defineConfig({
     /**
      * Unicorn
      */
-    "unicorn/filename-case": ["error", { case: "kebabCase" }],
+    "unicorn/filename-case": ["error", { case: "kebabCase", checkDirectories: false }],
 
     /**
      * Core

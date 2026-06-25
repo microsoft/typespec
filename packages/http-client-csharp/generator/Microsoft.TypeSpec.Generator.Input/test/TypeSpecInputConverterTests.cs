@@ -691,6 +691,52 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsEnumsWithIntegerAndLongValues()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var inputNamespace = TypeSpecSerialization.Deserialize(content);
+
+            Assert.IsNotNull(inputNamespace);
+            Assert.AreEqual(3, inputNamespace!.Enums.Count);
+
+            // 1) Base `integer` kind
+            var integerEnum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "WeatherIconCode");
+            Assert.IsNotNull(integerEnum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Integer, integerEnum!.ValueType.Kind);
+            Assert.AreEqual(2, integerEnum.Values.Count);
+            var sunny = integerEnum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(sunny);
+            Assert.AreEqual("Sunny", sunny!.Name);
+            Assert.AreEqual(1L, sunny.IntegerValue);
+            var mostlySunny = integerEnum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(mostlySunny);
+            Assert.AreEqual(2L, mostlySunny!.IntegerValue);
+
+            // 2) Explicit int32 kind, including a negative value.
+            var int32Enum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "Int32WeatherCode");
+            Assert.IsNotNull(int32Enum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Int32, int32Enum!.ValueType.Kind);
+            var cold = int32Enum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(cold);
+            Assert.AreEqual(-10L, cold!.IntegerValue);
+            var hot = int32Enum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(hot);
+            Assert.AreEqual(100L, hot!.IntegerValue);
+
+            // 3) int64 (long) kind, including long.MaxValue to confirm we use GetInt64.
+            var longEnum = inputNamespace.Enums.SingleOrDefault(e => e.Name == "LongWeatherTimestamp");
+            Assert.IsNotNull(longEnum);
+            Assert.AreEqual(InputPrimitiveTypeKind.Int64, longEnum!.ValueType.Kind);
+            var epoch = longEnum.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(epoch);
+            Assert.AreEqual(0L, epoch!.IntegerValue);
+            var maxValue = longEnum.Values[1] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(maxValue);
+            Assert.AreEqual(long.MaxValue, maxValue!.IntegerValue);
+        }
+
+        [Test]
         public void LoadsXmlOnlyModelDoesNotAddJsonUsage()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
@@ -720,6 +766,39 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Xml), "Model should have Xml usage flag");
             Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "XML-only model should NOT have Json usage flag added");
+            Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
+        }
+
+        [Test]
+        public void LoadsMultipartOnlyModelDoesNotAddJsonUsage()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.MultipartFormData), "Model should have MultipartFormData usage flag");
+            Assert.IsFalse(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Multipart-only model should NOT have Json usage flag added");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
         }
 
@@ -787,6 +866,454 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Json), "Model should have Json usage flag");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Input), "Model should have Input usage flag");
             Assert.IsTrue(inputModel.Usage.HasFlag(InputModelTypeUsage.Output), "Model should have Output usage flag");
+        }
+
+        private static JsonSerializerOptions CreateSerializationOptionsTestOptions()
+        {
+            var referenceHandler = new TypeSpecReferenceHandler();
+            return new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputSerializationOptionsConverter(),
+                    new InputJsonSerializationOptionsConverter(),
+                    new InputXmlSerializationOptionsConverter(),
+                    new InputXmlNamespaceOptionsConverter(),
+                    new InputBinarySerializationOptionsConverter(),
+                    new InputTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputConstantConverter(),
+                    new InputBodyParameterConverter(referenceHandler),
+                    new InputOperationResponseConverter(),
+                    new InputOperationResponseHeaderConverter(),
+                }
+            };
+        }
+
+        [Test]
+        public void ParsesEmptySerializationOptions()
+        {
+            const string json = "{}";
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.Json);
+            Assert.IsNull(result.Xml);
+            Assert.IsNull(result.Multipart);
+            Assert.IsNull(result.Binary);
+        }
+
+        [Test]
+        public void ParsesJsonSerializationOptions()
+        {
+            const string json = """
+                {
+                  "json": { "name": "message" }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Json);
+            Assert.AreEqual("message", result.Json!.Name);
+            Assert.IsNull(result.Xml);
+            Assert.IsNull(result.Binary);
+        }
+
+        [Test]
+        public void ParsesXmlSerializationOptions()
+        {
+            const string json = """
+                {
+                  "xml": { "name": "Book", "attribute": false }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Xml);
+            Assert.AreEqual("Book", result.Xml!.Name);
+            Assert.AreEqual(false, result.Xml.Attribute);
+        }
+
+        [Test]
+        public void ParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "binary": {
+                    "isFile": true,
+                    "isText": false,
+                    "contentTypes": [ "application/octet-stream" ],
+                    "filename": {
+                      "$id": "1",
+                      "kind": "property",
+                      "name": "filename",
+                      "serializedName": "filename",
+                      "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                      "optional": true,
+                      "readOnly": false,
+                      "discriminator": false,
+                      "flatten": false,
+                      "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Binary);
+            Assert.IsTrue(result.Binary!.IsFile);
+            Assert.AreEqual(false, result.Binary.IsText);
+            Assert.IsNotNull(result.Binary.ContentTypes);
+            Assert.AreEqual(1, result.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.Binary.Filename);
+            Assert.AreEqual("filename", result.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void ParsesBinarySerializationOptionsWithDefaults()
+        {
+            const string json = """
+                {
+                  "binary": { "isFile": false }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Binary);
+            Assert.IsFalse(result.Binary!.IsFile);
+            Assert.IsNull(result.Binary.IsText);
+            Assert.IsNull(result.Binary.ContentTypes);
+            Assert.IsNull(result.Binary.Filename);
+        }
+
+        [Test]
+        public void InputBodyParameterParsesSerializationOptions()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "body",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "body",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/json" ],
+                  "defaultContentType": "application/json",
+                  "serializationOptions": {
+                    "json": { "name": "body" }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Json);
+            Assert.AreEqual("body", result.SerializationOptions.Json!.Name);
+        }
+
+        [Test]
+        public void InputBodyParameterParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "data",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "bytes", "name": "bytes", "crossLanguageDefinitionId": "TypeSpec.bytes" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "data",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/octet-stream" ],
+                  "defaultContentType": "application/octet-stream",
+                  "serializationOptions": {
+                    "binary": {
+                      "isFile": true,
+                      "isText": false,
+                      "contentTypes": [ "application/octet-stream" ],
+                      "filename": {
+                        "$id": "3",
+                        "kind": "property",
+                        "name": "filename",
+                        "serializedName": "filename",
+                        "type": { "$id": "4", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                        "optional": true,
+                        "readOnly": false,
+                        "discriminator": false,
+                        "flatten": false,
+                        "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Binary);
+            Assert.IsTrue(result.SerializationOptions.Binary!.IsFile);
+            Assert.AreEqual(false, result.SerializationOptions.Binary.IsText);
+            Assert.IsNotNull(result.SerializationOptions.Binary.ContentTypes);
+            Assert.AreEqual(1, result.SerializationOptions.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.SerializationOptions.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.SerializationOptions.Binary.Filename);
+            Assert.AreEqual("filename", result.SerializationOptions.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void InputBodyParameterDefaultsSerializationOptionsToNull()
+        {
+            const string json = """
+                {
+                  "$id": "1",
+                  "name": "body",
+                  "kind": "body",
+                  "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                  "optional": false,
+                  "readOnly": false,
+                  "serializedName": "body",
+                  "isApiVersion": false,
+                  "scope": "method",
+                  "contentTypes": [ "application/json" ],
+                  "defaultContentType": "application/json"
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputBodyParameter>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.SerializationOptions);
+        }
+
+        [Test]
+        public void InputOperationResponseParsesSerializationOptions()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 200 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": [ "application/xml" ],
+                  "serializationOptions": {
+                    "xml": { "name": "Book" }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Xml);
+            Assert.AreEqual("Book", result.SerializationOptions.Xml!.Name);
+        }
+
+        [Test]
+        public void InputOperationResponseParsesBinarySerializationOptions()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 200 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": [ "application/octet-stream" ],
+                  "serializationOptions": {
+                    "binary": {
+                      "isFile": true,
+                      "isText": false,
+                      "contentTypes": [ "application/octet-stream" ],
+                      "filename": {
+                        "$id": "1",
+                        "kind": "property",
+                        "name": "filename",
+                        "serializedName": "filename",
+                        "type": { "$id": "2", "kind": "string", "name": "string", "crossLanguageDefinitionId": "TypeSpec.string" },
+                        "optional": true,
+                        "readOnly": false,
+                        "discriminator": false,
+                        "flatten": false,
+                        "crossLanguageDefinitionId": "TypeSpec.Http.File.filename"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.SerializationOptions);
+            Assert.IsNotNull(result.SerializationOptions!.Binary);
+            Assert.IsTrue(result.SerializationOptions.Binary!.IsFile);
+            Assert.AreEqual(false, result.SerializationOptions.Binary.IsText);
+            Assert.IsNotNull(result.SerializationOptions.Binary.ContentTypes);
+            Assert.AreEqual(1, result.SerializationOptions.Binary.ContentTypes!.Count);
+            Assert.AreEqual("application/octet-stream", result.SerializationOptions.Binary.ContentTypes[0]);
+            Assert.IsNotNull(result.SerializationOptions.Binary.Filename);
+            Assert.AreEqual("filename", result.SerializationOptions.Binary.Filename!.Name);
+        }
+
+        [Test]
+        public void InputOperationResponseDefaultsSerializationOptionsToNull()
+        {
+            const string json = """
+                {
+                  "statusCodes": [ 204 ],
+                  "headers": [],
+                  "isErrorResponse": false,
+                  "contentTypes": []
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputOperationResponse>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNull(result!.SerializationOptions);
+        }
+
+        [Test]
+        public void IgnoresUnknownPropertiesInSerializationOptions()
+        {
+            const string json = """
+                {
+                  "json": { "name": "msg" },
+                  "unknown": "ignored"
+                }
+                """;
+
+            var result = JsonSerializer.Deserialize<InputSerializationOptions>(json, CreateSerializationOptionsTestOptions());
+
+            Assert.IsNotNull(result);
+            Assert.IsNotNull(result!.Json);
+            Assert.AreEqual("msg", result.Json!.Name);
+        }
+
+        private static JsonSerializerOptions CreateEnumValueTestOptions()
+        {
+            var referenceHandler = new TypeSpecReferenceHandler();
+            return new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputEnumTypeConverter(referenceHandler),
+                    new InputEnumTypeValueConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                }
+            };
+        }
+
+        private static string CreateEnumJson(string valueKindJson, string rawValueJson)
+        {
+            return $$"""
+                {
+                  "$id": "1",
+                  "kind": "enum",
+                  "name": "TestEnum",
+                  "namespace": "Test.Models",
+                  "crossLanguageDefinitionId": "Test.Models.TestEnum",
+                  "valueType": { "$id": "2", "kind": {{valueKindJson}}, "name": "valueType", "crossLanguageDefinitionId": "TypeSpec.numeric" },
+                  "values": [
+                    {
+                      "$id": "3",
+                      "kind": "enumvalue",
+                      "name": "One",
+                      "value": {{rawValueJson}},
+                      "valueType": { "$ref": "2" },
+                      "enumType": { "$ref": "1" }
+                    }
+                  ],
+                  "isFixed": true
+                }
+                """;
+        }
+
+        [TestCase("\"integer\"", "1", 1L)]
+        [TestCase("\"int8\"", "1", 1L)]
+        [TestCase("\"int16\"", "1", 1L)]
+        [TestCase("\"int32\"", "1", 1L)]
+        [TestCase("\"uint8\"", "1", 1L)]
+        [TestCase("\"uint16\"", "1", 1L)]
+        [TestCase("\"int64\"", "9223372036854775807", 9223372036854775807L)]
+        [TestCase("\"uint32\"", "4294967295", 4294967295L)]
+        [TestCase("\"uint64\"", "9223372036854775807", 9223372036854775807L)]
+        [TestCase("\"safeInt\"", "9007199254740991", 9007199254740991L)]
+        public void DeserializeEnumWithIntegerKind(string valueKindJson, string rawValueJson, long expected)
+        {
+            var json = CreateEnumJson(valueKindJson, rawValueJson);
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            var value = enumType.Values[0] as InputEnumTypeIntegerValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(expected, value!.IntegerValue);
+            Assert.AreEqual("One", value.Name);
+        }
+
+        [TestCase("\"float\"", "1.5", 1.5f)]
+        [TestCase("\"float32\"", "1.5", 1.5f)]
+        [TestCase("\"float64\"", "1.5", 1.5f)]
+        [TestCase("\"numeric\"", "1.5", 1.5f)]
+        [TestCase("\"decimal\"", "1.5", 1.5f)]
+        [TestCase("\"decimal128\"", "1.5", 1.5f)]
+        public void DeserializeEnumWithFloatKind(string valueKindJson, string rawValueJson, float expected)
+        {
+            var json = CreateEnumJson(valueKindJson, rawValueJson);
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            var value = enumType.Values[0] as InputEnumTypeFloatValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual(expected, value!.FloatValue);
+            Assert.AreEqual("One", value.Name);
+        }
+
+        [Test]
+        public void DeserializeEnumWithStringKind()
+        {
+            var json = CreateEnumJson("\"string\"", "\"sunny\"");
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions());
+
+            Assert.IsNotNull(enumType);
+            Assert.AreEqual(1, enumType!.Values.Count);
+            var value = enumType.Values[0] as InputEnumTypeStringValue;
+            Assert.IsNotNull(value);
+            Assert.AreEqual("sunny", value!.StringValue);
+        }
+
+        [Test]
+        public void DeserializeEnumWithUnsupportedKindThrows()
+        {
+            var json = CreateEnumJson("\"boolean\"", "true");
+            Assert.Throws<JsonException>(() =>
+                JsonSerializer.Deserialize<InputEnumType>(json, CreateEnumValueTestOptions()));
         }
     }
 }

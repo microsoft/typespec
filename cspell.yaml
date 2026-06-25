@@ -62,6 +62,7 @@ words:
   - dedented
   - Dedupes
   - deps
+  - deser
   - destructures
   - devdiv
   - Diagnoser
@@ -166,6 +167,7 @@ words:
   - multis
   - munge
   - muscidae
+  - myblob
   - mylib
   - myname
   - mypy
@@ -236,6 +238,7 @@ words:
   - reinjected
   - repr
   - respecify
+  - responseasbool
   - rjust
   - rollup
   - rpaas
@@ -248,6 +251,8 @@ words:
   - sdkcore
   - segmentof
   - serde
+  - servicea
+  - serviceb
   - setuppy
   - sfixed
   - shiki
@@ -305,6 +310,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - vnet
   - VNEXT
   - vsix
   - vsmarketplace

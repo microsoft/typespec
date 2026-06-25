@@ -9,6 +9,7 @@ Welcome! This guide will help you set up your development environment and contri
 - [Development Workflow](#development-workflow)
 - [Creating Pull Requests](#creating-pull-requests)
 - [Downstream Testing](#downstream-testing)
+- [Release Process](#release-process)
 
 ## Prerequisites
 
@@ -157,6 +158,40 @@ Once a new version of the branded emitter (`@azure-tools/typespec-python`) is re
 5. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated/`](https://github.com/Azure/azure-sdk-for-python/tree/main/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
    - `azure/` — Tests generated with the branded emitter (Azure SDK specs)
    - `unbranded/` — Tests generated with the unbranded emitter (TypeSpec HTTP specs)
+
+## Release Process
+
+The release process for `@typespec/http-client-python` follows these steps:
+
+### 1. Version Bump
+
+From the root of the TypeSpec repository, run:
+
+```bash
+pnpm chronus version --only @typespec/http-client-python --ignore-policies
+```
+
+This consumes all pending change files under `.chronus/changes/` for this package and bumps the version in `package.json` accordingly. Run `npm install` to update the `package-lock.json`.
+
+### 2. Create a Release PR
+
+Create a branch from the version bump commit and open a PR to `main`:
+
+```bash
+git checkout -b publish/python-release-<MM-DD>
+git push origin publish/python-release-<MM-DD>
+```
+
+> **Note:** The branch **must** use the `publish/` prefix. This tells CI to skip certain checks (consistency, external-integration) and enables auto-publish on merge.
+
+### 3. Merge and Publish
+
+Once the release PR is reviewed and merged to `main`, the CI publish pipeline automatically:
+
+1. Builds the package with the new version
+2. Publishes the npm tarball to the public npm registry
+
+No manual publish step is needed — merging the `publish/` branch triggers the release.
 
 ## Getting Help
 

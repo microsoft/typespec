@@ -3,6 +3,7 @@ import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -16,6 +17,7 @@ import {
   ignoreDiagnostics,
   reportDeprecated,
 } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
@@ -95,6 +97,7 @@ import {
   IntersectionExpressionNode,
   IntrinsicScalarName,
   JsNamespaceDeclarationNode,
+  JsSourceFileNode,
   LiteralNode,
   LiteralType,
   LocationContext,
@@ -111,6 +114,7 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -529,6 +533,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const spreadResolutionAncestors = new Map<Sym, Set<Sym>>();
   const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
@@ -2115,8 +2120,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    const implementation = symbol.value;
-    if (implementation === undefined) {
+    const isAuto = (node.modifierFlags & ModifierFlags.Auto) !== 0;
+    if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "auto-decorator-disabled",
+          target: node,
+        }),
+      );
+    }
+    let implementation = symbol.value;
+    if (isAuto) {
+      implementation = createAutoDecoratorImplementation(symbol, node);
+    } else if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
     const decoratorType: Decorator = createType({
@@ -2127,6 +2143,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       target: checkFunctionParameter(ctx, node.target, true),
       parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
+      declarationKind: isAuto ? "auto" : "extern",
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -2149,13 +2166,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     checkModifiers(program, node);
 
-    reportCheckerDiagnostic(
-      createDiagnostic({
-        code: "experimental-feature",
-        messageId: "functionDeclarations",
-        target: node,
-      }),
-    );
+    if (!isCompilerFeatureEnabled(program, "function-declarations", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "functionDeclarations",
+          target: node,
+        }),
+      );
+    }
 
     const namespace = getParentNamespaceType(node);
     compilerAssert(
@@ -4848,6 +4867,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkSourceFile(file);
     }
 
+    checkOrphanedFunctionImplementations();
     internalDecoratorValidation();
     assertNoPendingResolutions();
     runPostValidators(postCheckValidators);
@@ -4876,6 +4896,44 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       for (const ns of file.namespaces) {
         const exports = getMergedSymbol(ns.symbol).exports ?? ns.symbol.exports;
         program.reportDuplicateSymbols(exports);
+      }
+    }
+  }
+
+  /**
+   * Check that all function implementations exported via $functions have a corresponding
+   * `extern fn` declaration in TypeSpec. Reports an error for each orphaned implementation.
+   */
+  function checkOrphanedFunctionImplementations() {
+    for (const file of program.jsSourceFiles.values()) {
+      checkSymbolTableForOrphanedFunctions(file.symbol.exports, file);
+    }
+  }
+
+  function checkSymbolTableForOrphanedFunctions(
+    exports: SymbolTable | undefined,
+    sourceFile: JsSourceFileNode,
+  ) {
+    if (!exports) return;
+    for (const sym of exports.values()) {
+      if (sym.flags & SymbolFlags.Function && sym.flags & SymbolFlags.Implementation) {
+        const merged = getMergedSymbol(sym);
+        const hasFunctionDeclaration = merged.declarations.some(
+          (d) => d.kind === SyntaxKind.FunctionDeclarationStatement,
+        );
+        if (!hasFunctionDeclaration) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "missing-extern-declaration",
+              format: { name: sym.name },
+              target: sourceFile,
+            }),
+          );
+        }
+      }
+      // Recurse into namespace symbols
+      if (sym.flags & SymbolFlags.Namespace && sym.exports) {
+        checkSymbolTableForOrphanedFunctions(sym.exports, sourceFile);
       }
     }
   }
@@ -5771,7 +5829,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: CallExpressionNode,
     target: FunctionValue<unknown[]>,
   ): Type | Value | null {
-    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target);
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(ctx, node.arguments, target, node);
 
     const canCall =
       satisfied &&
@@ -5873,6 +5931,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     args: Expression[],
     target: FunctionValue,
+    diagnosticTarget: Node,
   ): [boolean, any[]] {
     let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
@@ -5886,7 +5945,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           code: "invalid-argument-count",
           messageId: "atLeast",
           format: { actual: args.length.toString(), expected: minArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       return [false, []];
@@ -5895,7 +5954,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         createDiagnostic({
           code: "invalid-argument-count",
           format: { actual: args.length.toString(), expected: maxArgs.toString() },
-          target: target.node!,
+          target: diagnosticTarget,
         }),
       );
       // This error doesn't actually prevent us from checking the arguments and evaluating the function.
@@ -5927,11 +5986,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        resolvedArgs.push(
-          ...restArgs.map((v, idx) =>
-            v !== null && isValue(v) ? marshalTypeForJs(v, undefined) : v,
-          ),
-        );
+        for (const [idx, restArg] of restArgs.entries()) {
+          const resolved = collector.pipe(
+            checkEntityAssignableToConstraint(restArg!, constraint, restArgExpressions[idx]),
+          );
+
+          satisfied &&= !!resolved;
+
+          resolvedArgs.push(
+            resolved
+              ? isValue(resolved)
+                ? marshalTypeForJs(resolved, undefined)
+                : resolved
+              : undefined,
+          );
+        }
       } else {
         const arg = args[idx++];
 
@@ -6532,6 +6601,34 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       return undefined;
     }
+
+    // Ancestors are models that already depend on this model via spread.
+    const modelAncestors = spreadResolutionAncestors.get(modelSymId);
+    if (targetSym && modelAncestors?.has(targetSym)) {
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "spread-model",
+            messageId: "selfSpread",
+            target: target,
+          }),
+        );
+      }
+      return undefined;
+    }
+
+    if (targetSym) {
+      let targetAncestors = spreadResolutionAncestors.get(targetSym);
+      if (!targetAncestors) {
+        targetAncestors = new Set<Sym>();
+        spreadResolutionAncestors.set(targetSym, targetAncestors);
+      }
+      targetAncestors.add(modelSymId);
+      for (const ancestor of modelAncestors ?? []) {
+        targetAncestors.add(ancestor);
+      }
+    }
+
     const type = getTypeForNode(target, ctx);
     return type;
   }
@@ -6824,9 +6921,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    const impl = sym.value ?? symbolLinks.declaredType?.implementation;
     return {
       definition: symbolLinks.declaredType,
-      decorator: sym.value ?? ((...args: any[]) => {}),
+      decorator: impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };
@@ -7360,7 +7458,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return inProgressType;
         }
       }
-
+      if (node.value.kind === SyntaxKind.ModelExpression) {
+        return getTypeForNode(node.value, ctx);
+      }
       if (ctx.mapper === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

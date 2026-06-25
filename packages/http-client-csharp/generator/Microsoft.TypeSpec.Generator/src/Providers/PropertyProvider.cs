@@ -101,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            var identifierName = inputProperty.Name.ToIdentifierName();
+            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
             Name = identifierName == enclosingType.Name
                 ? $"{identifierName}Property"
                 : identifierName;
@@ -238,7 +238,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
+            {
                 return null;
+            }
 
             if (propertyType.IsLiteral)
             {

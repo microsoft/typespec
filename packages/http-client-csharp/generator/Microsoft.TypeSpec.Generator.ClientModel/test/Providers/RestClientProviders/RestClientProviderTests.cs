@@ -395,6 +395,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
         }
 
+        [Test]
+        public void ExactNameMethodParameterPreservedInRestClient()
+        {
+            var queryParam = InputFactory.QueryParameter(
+                "api_key",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "api_key",
+                isExactName: true);
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation, parameters:
+            [
+                InputFactory.MethodParameter(
+                    "api_key",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Query,
+                    serializedName: "api_key",
+                    isExactName: true)
+            ]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCase(true, true)]
         [TestCase(true, false)]
         [TestCase(false, true)]
@@ -607,7 +636,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 foreach (var response in inputOperation.Responses)
                 {
                     if (response.IsErrorResponse)
+                    {
                         continue;
+                    }
+
                     expectedStatusCodes.AddRange(response.StatusCodes);
                 }
 

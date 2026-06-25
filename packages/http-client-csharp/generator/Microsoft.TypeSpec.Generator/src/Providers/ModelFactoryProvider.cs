@@ -12,7 +12,6 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -25,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
-        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
+        protected internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }
@@ -55,7 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
+                {
                     continue;
+                }
 
                 var typeToInstantiate = GetModelToInstantiateForFactoryMethod(modelProvider);
                 if (typeToInstantiate is null)
@@ -114,6 +115,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (currentMethodSignatures.Contains(previousMethod.Signature))
                 {
+                    continue;
+                }
+
+                // If the removal of this factory method has already been accepted in the ApiCompat
+                // baseline, honor that decision and do not resurrect a compatibility shim for it.
+                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
+                        Type.FullyQualifiedName,
+                        previousMethod.Signature.Name,
+                        previousMethod.Signature.Parameters.Count) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
                     continue;
                 }
 
@@ -476,7 +490,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var fullConstructor = modelProvider.FullConstructor;
             if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
+                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic && !IsEnumDiscriminator(p)))
             {
                 return null;
             }

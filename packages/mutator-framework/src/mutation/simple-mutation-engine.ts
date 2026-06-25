@@ -144,8 +144,11 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
   }
 
   startPropertyEdge() {
-    return this.#createHalfEdge("property", (tail) =>
-      this.#mutationNode.connectProperty(tail.mutationNode as ModelPropertyMutationNode),
+    return new MutationHalfEdge(
+      "property",
+      this,
+      (tail) => this.#mutationNode.connectProperty(tail.mutationNode as ModelPropertyMutationNode),
+      "ModelProperty",
     );
   }
 
@@ -239,9 +242,14 @@ export class SimpleUnionMutation<TOptions extends SimpleMutationOptions>
   }
 
   protected startVariantEdge(): MutationHalfEdge {
-    return new MutationHalfEdge("variant", this, (tail) => {
-      this.#mutationNode.connectVariant(tail.mutationNode as UnionVariantMutationNode);
-    });
+    return new MutationHalfEdge(
+      "variant",
+      this,
+      (tail) => {
+        this.#mutationNode.connectVariant(tail.mutationNode as UnionVariantMutationNode);
+      },
+      "UnionVariant",
+    );
   }
 
   #mutationNode: UnionMutationNode;

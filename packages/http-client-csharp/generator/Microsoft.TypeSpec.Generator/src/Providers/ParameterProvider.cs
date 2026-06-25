@@ -197,6 +197,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             CodeWriterDeclaration? declaration = parameter._asVariable?.Declaration ?? parameter._asArgument?.Declaration;
 
+            var variableName = parameter.InputParameter?.IsExactName == true
+                ? parameter.Name
+                : parameter.Name.ToVariableName();
+
             if (includeModifiers)
             {
                 if (parameter._asArgument == null)
@@ -213,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         parameter._asArgument = new VariableExpression(
                             parameter.Type,
-                            parameter.Name.ToVariableName(),
+                            variableName,
                             parameter.IsRef,
                             parameter.IsOut);
                     }
@@ -235,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     parameter._asVariable = new VariableExpression(
                         parameter.Type,
-                        parameter.Name.ToVariableName(),
+                        variableName,
                         includeModifiers && parameter.IsRef,
                         includeModifiers && parameter.IsOut);
                 }
@@ -252,26 +256,38 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ParameterValidationType GetParameterValidation()
         {
             if (Field is not null && !Field.Type.IsNullable)
+            {
                 return ParameterValidationType.AssertNotNull;
+            }
 
             if (Property is null || Property.WireInfo is null)
+            {
                 return ParameterValidationType.None;
+            }
 
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (Property.Type.IsValueType)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is readonly
             if (Property.WireInfo.IsReadOnly)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is optional
             if (!Property.WireInfo.IsRequired)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is nullable
             if (Property.Type.IsNullable)
+            {
                 return ParameterValidationType.None;
+            }
 
             return ParameterValidationType.AssertNotNull;
         }

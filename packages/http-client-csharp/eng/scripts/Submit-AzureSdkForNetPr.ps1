@@ -19,6 +19,8 @@ When specified, builds the Azure emitter locally and regenerates Azure data plan
 When specified, builds the management plane emitter locally and regenerates mgmt SDK libraries. Implies Azure emitter build since mgmt depends on it.
 .PARAMETER BuildArtifactsPath
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
+.PARAMETER PipelineRunUrl
+The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -48,6 +50,9 @@ param(
 
   [Parameter(Mandatory = $false)]
   [string]$BuildArtifactsPath,
+
+  [Parameter(Mandatory = $false)]
+  [string]$PipelineRunUrl,
 
   [Parameter(Mandatory = $false)]
   [switch]$UseTypeSpecNext
@@ -80,7 +85,12 @@ This PR updates the UnbrandedGeneratorVersion property in eng/centralpackagemana
 
 ## Details
 
-- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl
+- TypeSpec commit that triggered this PR: $TypeSpecCommitUrl$(if ($PipelineRunUrl) {
+@"
+
+- Pipeline run that produced this PR: $PipelineRunUrl
+"@
+})
 
 ## Changes
 
@@ -687,6 +697,24 @@ try {
     git commit -m $commitMessage
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to commit changes"
+    }
+
+    $loginScript = Join-Path $PSScriptRoot "../../../../eng/common/scripts/login-to-github.ps1"
+    if (Test-Path $loginScript) {
+        Write-Host "Refreshing GitHub App installation token before push..."
+        try {
+            & $loginScript -InstallationTokenOwners 'Azure' -VariableNamePrefix 'GH_TOKEN'
+            if ($LASTEXITCODE -eq 0 -and (Test-Path Env:GH_TOKEN)) {
+                $AuthToken = $env:GH_TOKEN
+                Write-Host "GitHub App installation token refreshed."
+            } else {
+                Write-Warning "login-to-github.ps1 did not produce a fresh token (exit code $LASTEXITCODE); falling back to existing token."
+            }
+        } catch {
+            Write-Warning "Failed to refresh GitHub App installation token: $($_.Exception.Message). Falling back to existing token."
+        }
+    } else {
+        Write-Host "login-to-github.ps1 not found at $loginScript; skipping token refresh (assuming a non-pipeline run with a long-lived token)."
     }
 
     # Push the branch. Use the x-access-token username scheme so the URL works

@@ -8,7 +8,7 @@ description: |
 
 on:
   issues:
-    types: [opened, reopened]
+    types: [opened]
   workflow_dispatch:
     inputs:
       issue-number:
@@ -17,7 +17,9 @@ on:
   roles: all
   reaction: eyes
 
-permissions: read-all
+permissions:
+  all: read
+  copilot-requests: write
 
 network: defaults
 
