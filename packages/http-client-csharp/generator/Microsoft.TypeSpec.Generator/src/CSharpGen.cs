@@ -69,7 +69,8 @@ namespace Microsoft.TypeSpec.Generator
 
             CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
                 await customCodeWorkspace.GetCompilationAsync(),
-                await GeneratedCodeWorkspace.LoadBaselineContract());
+                await GeneratedCodeWorkspace.LoadBaselineContract(),
+                GeneratedCodeWorkspace.LoadApiCompatBaseline());
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 

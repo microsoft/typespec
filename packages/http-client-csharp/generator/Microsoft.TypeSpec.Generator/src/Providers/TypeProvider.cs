@@ -64,13 +64,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomProperties = CustomCodeView?.Properties != null
                 ? new List<PropertyProvider>(CustomCodeView.Properties)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom properties from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomProperties.AddRange(baseTypeCustomCodeView.Properties);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomProperties.AddRange(baseTypeProvider.Properties);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomProperties.AddRange(customCodeView.Properties);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomProperties;
@@ -81,13 +91,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var allCustomFields = CustomCodeView?.Fields != null
                 ? new List<FieldProvider>(CustomCodeView.Fields)
                 : [];
-            var baseTypeCustomCodeView = BaseTypeProvider?.CustomCodeView;
+            var baseTypeProvider = BaseTypeProvider;
+            var includeBaseProviderMembers = CustomCodeView?.BaseType != null;
+            var visited = new HashSet<TypeProvider>();
 
             // add all custom fields from base types
-            while (baseTypeCustomCodeView != null)
+            while (baseTypeProvider != null && visited.Add(baseTypeProvider))
             {
-                allCustomFields.AddRange(baseTypeCustomCodeView.Fields);
-                baseTypeCustomCodeView = baseTypeCustomCodeView.BaseTypeProvider?.CustomCodeView;
+                if (includeBaseProviderMembers)
+                {
+                    allCustomFields.AddRange(baseTypeProvider.Fields);
+                }
+
+                if (baseTypeProvider.CustomCodeView is { } customCodeView)
+                {
+                    allCustomFields.AddRange(customCodeView.Fields);
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
             }
 
             return allCustomFields;
@@ -421,12 +441,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static MethodProvider CreatePartialMethodFromCustomSignature(MethodSignature customSignature, MethodProvider generatedMethod)
         {
             // Partial method implementations require all parameters to be required (no default values).
+            // The generator's parameters carry the metadata and the declarations referenced by the
+            // method body and XML docs; the custom signature only supplies the parameter names.
             var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                customSignature.Parameters,
+                generatedMethod.Signature.Parameters,
                 customSignature.Parameters,
                 removeDefaults: true);
 
-            var partialSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredParameters);
+            var partialSignature = PartialMethodCustomization.BuildPartialSignature(
+                customSignature,
+                requiredParameters,
+                generatedMethod.Signature.ReturnType);
 
             MethodProvider partialMethod = generatedMethod.BodyExpression != null
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)

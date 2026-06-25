@@ -71,7 +71,7 @@ export async function compileAndDiagnoseValueOrType(
       import "./collect.js";
       extern dec collect(target, value: ${constraint});
 
-      ${disableDeprecatedSuppression ? "" : `#suppress "deprecated" "for testing"`}
+      ${disableDeprecatedSuppression === false ? `#suppress "deprecated" "for testing"` : ""}
       @collect(${code})
       model ${t.model("Test")} {}
       ${other ?? ""}

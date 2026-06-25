@@ -1,49 +1,51 @@
-# Rule: enforce braces on control-flow statements in the C# emitter.
+# Rule: enforce braces on every control-flow body in the C# emitter.
 #
-# Flags `if` / `else` / `else if` / `for` / `foreach` / `while` whose body is
-# written inline on the same line without a `{ ... }` block, e.g.:
+# Flags `if` / `else` / `else if` / `for` / `foreach` / `while` whose body is not
+# wrapped in a `{ ... }` block, whether the body is written inline or on its own
+# line, e.g.:
 #
-#     if (a) DoX();              -> violation
-#     if (x is null) throw ...;  -> violation (guard clause without braces)
+#     if (a) DoX();              -> violation (inline body)
+#     if (x is null) throw ...;  -> violation (inline guard clause)
+#     if (x is null)             -> violation (Allman guard clause)
+#         return;
 #     for (...) Step();          -> violation
 #     while (a) Tick();          -> violation
 #     else Two();                -> violation
+#     else if (a) DoY();         -> violation (inner `if` body is unbraced)
 #
-# These are allowed (body is a brace-delimited block, Allman or K&R):
+# These are allowed (body is a brace-delimited block):
 #
 #     if (a) { ... }
-#     if (a)                     # Allman: brace on the next line
+#     if (a)
 #     {
 #         ...
 #     }
+#     else if (a) { ... }        # `else if` chains are idiomatic when braced
 #
-# A line is reported when it is a control-flow header that also contains an
-# inline body terminated by `;` and introduces no `{` block. Keying on a
-# trailing `;` avoids false positives on multi-line conditions whose first
-# line ends in an operator (e.g. `if (a &&`), which are not complete headers.
+# The rule is driven by the code provider's structural parse rather than line
+# text: a control-flow statement exposes `Braced` (true only when its body is a
+# `{ ... }` block) and `Children` (its body statements). A violation is any
+# unbraced control-flow statement. Keying on the structural model removes the
+# false positives on multi-line conditions and recognizes `else if` chains
+# correctly.
 #
-# Known limitation: an unbraced body written on a *separate* line (Allman
-# header followed by a single unbraced statement) is not detected, because the
-# header line is indistinguishable from a valid Allman braced header.
+# An `else if` is modeled as an `else` whose body is the inner (braced or
+# unbraced) `if`, so the `else` itself reports `Braced == false`. That is
+# idiomatic C#, so the `else` is excluded; the inner `if` is still checked on its
+# own, so `else if (a) DoY();` is reported via that inner `if`.
 #
 # Predicates only; the runnable command/test live in main.cop.
 
 import code
 
-# A control-flow header whose condition closes on this line.
-predicate isControlHeader(Line) => Line.Text:matches('^\s*(else\s+)?(if|for|foreach|while)\s*\(.*\)')
+# True when the statement has a direct child `if` -- i.e. it is the `else` of an
+# `else if` chain. `where` is used instead of `any` so a child that carries no
+# statement kind does not poison the result with a null.
+predicate hasChildIf(Statement) => Statement.Children:where((c) => c.Kind == 'if').Count > 0
 
-# An `else` that is not `else if`.
-predicate isElseHeader(Line) => Line.Text:matches('^\s*else\b') && !Line.Text:matches('^\s*else\s+if\b')
-
-# The line introduces a `{ ... }` block.
-predicate hasBrace(Line) => Line.Text:matches('\{')
-
-# The line ends with a `;`-terminated statement (the inline body), optionally
-# followed by a trailing line comment.
-predicate hasInlineBody(Line) => Line.Text:matches(';\s*(//.*)?$')
-
-predicate missingBraces(Line) =>
-    !Line:hasBrace
-    && Line:hasInlineBody
-    && (Line:isControlHeader || Line:isElseHeader)
+# A control-flow statement (if / else / for / foreach / while) whose body is not a
+# brace-delimited block, excluding the idiomatic `else if` chain header.
+predicate missingBraces(Statement) =>
+    Statement:isControlFlow
+    && !Statement.Braced
+    && !(Statement.Kind == 'else' && Statement:hasChildIf)

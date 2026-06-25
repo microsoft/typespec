@@ -38,7 +38,7 @@ jobs:
           node-version: lts/*
 
       - name: Checkout Azure/typespec-azure repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: Azure/typespec-azure
           submodules: true
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: true
           fetch-depth: 0

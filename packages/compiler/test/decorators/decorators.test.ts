@@ -665,6 +665,20 @@ describe("compiler: built-in decorators", () => {
           strictEqual(encodeData.encoding, undefined);
           strictEqual(encodeData.type.name, "string");
         });
+
+        it(`@encode(string) on boolean model property`, async () => {
+          const { prop, program } = await Tester.compile(t.code`
+            model Foo {
+              @encode(string)
+              ${t.modelProperty("prop")}: boolean;
+            }
+          `);
+
+          const encodeData = getEncode(program, prop);
+          ok(encodeData);
+          strictEqual(encodeData.encoding, undefined);
+          strictEqual(encodeData.type.name, "string");
+        });
       });
       describe("invalid", () => {
         invalidCases.forEach(([target, encoding, encodeAs, expectedCode, expectedMessage]) => {
@@ -693,7 +707,7 @@ describe("compiler: built-in decorators", () => {
           expectDiagnostics(diagnostics, {
             code: "invalid-encode",
             severity: "error",
-            message: "Encoding 'string' cannot be used on type 's'. Expected: numeric.",
+            message: "Encoding 'string' cannot be used on type 's'. Expected: numeric, boolean.",
           });
         });
       });
