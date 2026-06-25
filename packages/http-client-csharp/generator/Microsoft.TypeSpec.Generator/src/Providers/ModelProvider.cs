@@ -77,6 +77,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
+        // Whether this model is reused from another shipped package (linked via an `external` block)
+        // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
+        internal bool IsExternal => _inputModel.External is not null;
+
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
         private ValueExpression? _discriminatorValueExpression;
