@@ -1,3 +1,4 @@
+import { Model } from "@typespec/compiler";
 import { t, TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isInputType } from "../../src/lib/input-type.js";
@@ -13,12 +14,10 @@ describe("mutateSchema", () => {
   });
 
   it("produces a TypeGraph with mutated models", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("ad_account")} { id: int32; }
-        op ${t.op("getAccount")}(): ad_account;
-      `,
-    );
+    await tester.compile(`
+      model ad_account { id: int32; }
+      op getAccount(): ad_account;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -29,11 +28,9 @@ describe("mutateSchema", () => {
   });
 
   it("produces a TypeGraph with mutated operations", async () => {
-    await tester.compile(
-      t.code`
-        op ${t.op("get_items")}(): string;
-      `,
-    );
+    await tester.compile(`
+      op get_items(): string;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -44,13 +41,11 @@ describe("mutateSchema", () => {
   });
 
   it("produces a TypeGraph with mutated enums", async () => {
-    await tester.compile(
-      t.code`
-        enum ${t.enum("status")} { active, inactive }
-        model ${t.model("Foo")} { s: status; }
-        op ${t.op("getFoo")}(): Foo;
-      `,
-    );
+    await tester.compile(`
+      enum status { active, inactive }
+      model Foo { s: status; }
+      op getFoo(): Foo;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -61,14 +56,12 @@ describe("mutateSchema", () => {
   });
 
   it("produces a TypeGraph with mutated unions", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Cat")} { name: string; }
-        model ${t.model("Dog")} { breed: string; }
-        union ${t.union("Pet")} { cat: Cat; dog: Dog; }
-        op ${t.op("getPet")}(): Pet;
-      `,
-    );
+    await tester.compile(`
+      model Cat { name: string; }
+      model Dog { breed: string; }
+      union Pet { cat: Cat; dog: Dog; }
+      op getPet(): Pet;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -79,13 +72,11 @@ describe("mutateSchema", () => {
   });
 
   it("skips unreachable types when omitUnreachableTypes is true", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Reachable")} { x: int32; }
-        model ${t.model("Unreachable")} { y: string; }
-        op ${t.op("getReachable")}(): Reachable;
-      `,
-    );
+    await tester.compile(`
+      model Reachable { x: int32; }
+      model Unreachable { y: string; }
+      op getReachable(): Reachable;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, true);
@@ -97,13 +88,11 @@ describe("mutateSchema", () => {
   });
 
   it("includes all declared types when omitUnreachableTypes is false", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Reachable")} { x: int32; }
-        model ${t.model("Unreachable")} { y: string; }
-        op ${t.op("getReachable")}(): Reachable;
-      `,
-    );
+    await tester.compile(`
+      model Reachable { x: int32; }
+      model Unreachable { y: string; }
+      op getReachable(): Reachable;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -115,13 +104,11 @@ describe("mutateSchema", () => {
   });
 
   it("T | null unions do not appear in the TypeGraph (engine replaces with inner type)", async () => {
-    await tester.compile(
-      t.code`
-        union ${t.union("MaybeString")} { string, null }
-        model ${t.model("Foo")} { x: int32; }
-        op ${t.op("getFoo")}(): Foo;
-      `,
-    );
+    await tester.compile(`
+      union MaybeString { string, null }
+      model Foo { x: int32; }
+      op getFoo(): Foo;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -133,13 +120,11 @@ describe("mutateSchema", () => {
   });
 
   it("includes wrapper models from union scalar variants", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Cat")} { name: string; }
-        union ${t.union("Mixed")} { cat: Cat; text: string; num: int32; }
-        op ${t.op("getMixed")}(): Mixed;
-      `,
-    );
+    await tester.compile(`
+      model Cat { name: string; }
+      union Mixed { cat: Cat; text: string; num: int32; }
+      op getMixed(): Mixed;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -152,13 +137,11 @@ describe("mutateSchema", () => {
   });
 
   it("produces Input variant for models used as operation parameters", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Book")} { title: string; }
-        op ${t.op("getBooks")}(): Book[];
-        op ${t.op("createBook")}(input: Book): Book;
-      `,
-    );
+    await tester.compile(`
+      model Book { title: string; }
+      op getBooks(): Book[];
+      op createBook(input: Book): Book;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -172,12 +155,10 @@ describe("mutateSchema", () => {
   });
 
   it("does not produce Input variant for output-only models", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Book")} { title: string; }
-        op ${t.op("getBooks")}(): Book[];
-      `,
-    );
+    await tester.compile(`
+      model Book { title: string; }
+      op getBooks(): Book[];
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -189,14 +170,12 @@ describe("mutateSchema", () => {
   });
 
   it("does not produce Output variant for input-only models", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Book")} { title: string; }
-        model ${t.model("Payload")} { title: string; }
-        op ${t.op("getBooks")}(): Book[];
-        op ${t.op("createBook")}(input: Payload): Book;
-      `,
-    );
+    await tester.compile(`
+      model Book { title: string; }
+      model Payload { title: string; }
+      op getBooks(): Book[];
+      op createBook(input: Payload): Book;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, true);
@@ -210,13 +189,11 @@ describe("mutateSchema", () => {
   });
 
   it("marks input models with isInputType decorator", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Book")} { title: string; }
-        op ${t.op("getBooks")}(): Book[];
-        op ${t.op("createBook")}(input: Book): Book;
-      `,
-    );
+    await tester.compile(`
+      model Book { title: string; }
+      op getBooks(): Book[];
+      op createBook(input: Book): Book;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
@@ -231,22 +208,21 @@ describe("mutateSchema", () => {
   });
 
   it("mutateDecoratorTypeArgs does not corrupt source type decorator args", async () => {
-    await tester.compile(
+    const { Cat } = await tester.compile(
       t.code`
-        @graphqlInterface model ${t.model("Animal")} { name: string; }
+        @graphqlInterface model Animal { name: string; }
         @compose(Animal)
         model ${t.model("Cat")} { name: string; breed: string; }
-        op ${t.op("getCat")}(): Cat;
-        op ${t.op("createCat")}(input: Cat): Cat;
+        op getCat(): Cat;
+        op createCat(input: Cat): Cat;
       `,
     );
 
-    const ns = tester.program.getGlobalNamespaceType();
-    const sourceCat = ns.models.get("Cat")!;
-    const sourceComposeArg = sourceCat.decorators.find(
+    const sourceComposeArg = (Cat as Model).decorators.find(
       (d) => d.decorator.name === "$compose",
     )?.args[0];
 
+    const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, true);
     const engine = createGraphQLMutationEngine(tester.program);
     mutateSchema(tester.program, engine, ns, typeUsage);
@@ -255,13 +231,11 @@ describe("mutateSchema", () => {
     expect((sourceComposeArg!.value as any).name).toBe("Animal");
   });
 
-  it("interfaceOnly @interface model used as output does not produce name collision", async () => {
-    await tester.compile(
-      t.code`
-        @graphqlInterface(#{interfaceOnly: true}) model ${t.model("Node")} { id: string; }
-        op ${t.op("getNode")}(): Node;
-      `,
-    );
+  it("interfaceOnly @graphqlInterface model used as output does not produce name collision", async () => {
+    await tester.compile(`
+      @graphqlInterface(#{interfaceOnly: true}) model Node { id: string; }
+      op getNode(): Node;
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, true);
@@ -278,14 +252,12 @@ describe("mutateSchema", () => {
   });
 
   it("reports diagnostic when two types produce the same GraphQL name", async () => {
-    const [_, diagnostics] = await tester.compileAndDiagnose(
-      t.code`
-        model ${t.model("BookInput")} { x: int32; }
-        model ${t.model("Book")} { title: string; }
-        op ${t.op("getBooks")}(): Book[];
-        op ${t.op("createBook")}(input: Book): Book;
-      `,
-    );
+    await tester.compileAndDiagnose(`
+      model BookInput { x: int32; }
+      model Book { title: string; }
+      op getBooks(): Book[];
+      op createBook(input: Book): Book;
+    `);
 
     // Book used as input → Input mutation → "BookInput"
     // BookInput declared explicitly → Output mutation → "BookInput"
@@ -302,12 +274,10 @@ describe("mutateSchema", () => {
   });
 
   it("skips array models (they are list types, not object types)", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Item")} { name: string; }
-        op ${t.op("getItems")}(): Item[];
-      `,
-    );
+    await tester.compile(`
+      model Item { name: string; }
+      op getItems(): Item[];
+    `);
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, false);
