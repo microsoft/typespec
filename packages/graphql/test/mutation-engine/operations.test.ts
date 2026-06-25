@@ -24,7 +24,7 @@ describe("GraphQL Mutation Engine - Operations", () => {
   });
 
   it("renames invalid operation names", async () => {
-    await tester.compile(t.code`op ${t.op("$Do$")}(): void;`);
+    await tester.compile(`op \`$Do$\`(): void;`);
 
     const DoOp = tester.program.getGlobalNamespaceType().operations.get("$Do$")!;
     const engine = createTestEngine(tester.program);
@@ -34,7 +34,7 @@ describe("GraphQL Mutation Engine - Operations", () => {
   });
 
   it("renames operation names with hyphens", async () => {
-    await tester.compile(t.code`op \`get-data\`(): void;`);
+    await tester.compile(`op \`get-data\`(): void;`);
 
     const GetDataOp = tester.program.getGlobalNamespaceType().operations.get("get-data")!;
     const engine = createTestEngine(tester.program);

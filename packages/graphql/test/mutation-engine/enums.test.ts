@@ -28,11 +28,11 @@ describe("GraphQL Mutation Engine - Enums", () => {
   });
 
   it("renames invalid enum names", async () => {
-    await tester.compile(
-      t.code`enum ${t.enum("$Invalid$")} {
+    await tester.compile(`
+      enum \`$Invalid$\` {
         Value
-      }`,
-    );
+      }
+    `);
 
     const InvalidEnum = tester.program.getGlobalNamespaceType().enums.get("$Invalid$")!;
     const engine = createTestEngine(tester.program);

@@ -147,13 +147,11 @@ describe("GraphQL Mutation Engine - Unions", () => {
   });
 
   it("names anonymous return type union as OperationUnion", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Foo")} { x: int32; }
-        model ${t.model("Bar")} { y: string; }
-        op ${t.op("getBaz")}(): Foo | Bar;
-      `,
-    );
+    await tester.compile(`
+      model Foo { x: int32; }
+      model Bar { y: string; }
+      op getBaz(): Foo | Bar;
+    `);
 
     const getBaz = tester.program.getGlobalNamespaceType().operations.get("getBaz")!;
     const engine = createTestEngine(tester.program);
@@ -198,13 +196,11 @@ describe("GraphQL Mutation Engine - Unions", () => {
   });
 
   it("flattened union variant types get their mutation pipeline applied", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("ad_account")} { id: int32; }
-        model ${t.model("board")} { title: string; }
-        union ${t.union("Mixed")} { a: ad_account; b: board; null; }
-      `,
-    );
+    await tester.compile(`
+      model ad_account { id: int32; }
+      model board { title: string; }
+      union Mixed { a: ad_account; b: board; null; }
+    `);
 
     const Mixed = tester.program.getGlobalNamespaceType().unions.get("Mixed")!;
     const engine = createTestEngine(tester.program);
@@ -235,12 +231,10 @@ describe("GraphQL Mutation Engine - Unions", () => {
   });
 
   it("T | null replacement gets its mutation pipeline applied", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("ad_account")} { id: int32; }
-        union ${t.union("MaybeAccount")} { ad_account, null }
-      `,
-    );
+    await tester.compile(`
+      model ad_account { id: int32; }
+      union MaybeAccount { ad_account, null }
+    `);
 
     const MaybeAccount = tester.program.getGlobalNamespaceType().unions.get("MaybeAccount")!;
     const engine = createTestEngine(tester.program);
@@ -252,13 +246,11 @@ describe("GraphQL Mutation Engine - Unions", () => {
   });
 
   it("collapsed type gets its mutation pipeline applied (e.g. naming)", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("ad_account")} { id: int32; }
-        union ${t.union("Inner")} { a: ad_account; }
-        union ${t.union("Outer")} { inner: Inner; dup: ad_account; }
-      `,
-    );
+    await tester.compile(`
+      model ad_account { id: int32; }
+      union Inner { a: ad_account; }
+      union Outer { inner: Inner; dup: ad_account; }
+    `);
 
     const Outer = tester.program.getGlobalNamespaceType().unions.get("Outer")!;
     const engine = createTestEngine(tester.program);
@@ -400,13 +392,11 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
   });
 
   it("PascalCases oneOf model name for snake_case unions", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Cat")} { name: string; }
-        model ${t.model("Dog")} { breed: string; }
-        union ${t.union("pet_type")} { cat: Cat; dog: Dog; }
-      `,
-    );
+    await tester.compile(`
+      model Cat { name: string; }
+      model Dog { breed: string; }
+      union pet_type { cat: Cat; dog: Dog; }
+    `);
 
     const petType = tester.program.getGlobalNamespaceType().unions.get("pet_type")!;
     const engine = createTestEngine(tester.program);
@@ -416,13 +406,11 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
   });
 
   it("camelCases oneOf field names for snake_case variants", async () => {
-    await tester.compile(
-      t.code`
-        model ${t.model("Cat")} { name: string; }
-        model ${t.model("Dog")} { breed: string; }
-        union ${t.union("Pet")} { my_cat: Cat; my_dog: Dog; }
-      `,
-    );
+    await tester.compile(`
+      model Cat { name: string; }
+      model Dog { breed: string; }
+      union Pet { my_cat: Cat; my_dog: Dog; }
+    `);
 
     const Pet = tester.program.getGlobalNamespaceType().unions.get("Pet")!;
     const engine = createTestEngine(tester.program);
