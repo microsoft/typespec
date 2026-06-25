@@ -13,7 +13,6 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ListWithStringNextLinkResponse. </summary>
     internal partial class ListWithStringNextLinkResponse : IJsonModel<ListWithStringNextLinkResponse>
     {
         /// <summary> Initializes a new instance of <see cref="ListWithStringNextLinkResponse"/> for deserialization. </summary>

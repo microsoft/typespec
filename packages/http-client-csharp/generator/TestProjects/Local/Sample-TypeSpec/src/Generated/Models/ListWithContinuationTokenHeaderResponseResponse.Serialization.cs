@@ -13,7 +13,6 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
     internal partial class ListWithContinuationTokenHeaderResponseResponse : IJsonModel<ListWithContinuationTokenHeaderResponseResponse>
     {
         /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/> for deserialization. </summary>

@@ -5,6 +5,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -144,6 +145,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 "Expected a JSON (MRW) serialization provider for a model with Json usage.");
             Assert.IsTrue(serializations.Any(s => s is MultipartFormDataSerializationDefinition),
                 "Expected a multipart serialization provider for a model with MultipartFormData usage.");
+        }
+
+        [Test]
+        public void FileTypeDoesNotCreateModelProvider()
+        {
+            var file = InputFactory.Model("File", @namespace: "TypeSpec.Http");
+            typeof(InputModelType).GetProperty(nameof(InputModelType.IsFileType))!.SetValue(file, true);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [file]);
+
+            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(file);
+            Assert.IsNull(provider);
         }
 
         // ScmTypeFactory overrides CreateModelCore to return ScmModelProvider. External-type

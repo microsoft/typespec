@@ -122,8 +122,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            var provider = ResolveType(type);
-            if (provider != null)
+            foreach (var provider in ResolveTypes(type))
             {
                 referencedTypes.Add(provider);
             }
@@ -144,19 +143,19 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private TypeProvider? ResolveType(CSharpType type)
+        private IEnumerable<TypeProvider> ResolveTypes(CSharpType type)
         {
             if (type.IsFrameworkType)
             {
-                return null;
+                return [];
             }
 
             if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) && provider != null)
             {
-                return provider;
+                return _providers.Where(candidate => ReferenceEquals(candidate, provider) || candidate.Type.AreNamesEqual(type));
             }
 
-            return _providers.FirstOrDefault(provider =>
+            return _providers.Where(provider =>
                 provider.Type.AreNamesEqual(type) || provider.CanonicalView.Type.AreNamesEqual(type));
         }
 

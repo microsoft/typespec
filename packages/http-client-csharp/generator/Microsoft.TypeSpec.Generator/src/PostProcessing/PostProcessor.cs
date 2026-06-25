@@ -138,7 +138,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private bool IsRootProvider(TypeProvider provider)
-            => IsClientProvider(provider) || ShouldKeepProvider(provider, _typesToKeep);
+            => IsClientProvider(provider) || provider.CustomCodeView != null || ShouldKeepProvider(provider, _typesToKeep);
 
         private bool IsExcludedProvider(TypeProvider provider)
             => IsModelFactoryProvider(provider) || ShouldKeepProvider(provider, _additionalNonRootTypeNames);

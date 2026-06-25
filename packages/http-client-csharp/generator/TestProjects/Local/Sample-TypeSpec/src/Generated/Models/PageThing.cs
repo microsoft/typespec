@@ -11,7 +11,6 @@ using System.Linq;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The PageThing. </summary>
     internal partial class PageThing
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>

@@ -269,7 +269,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             SerializationFormat format)
                 => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, format);
 
-        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
+        protected override ModelProvider? CreateModelCore(InputModelType model)
+            => model.IsFileType ? null : new ScmModelProvider(model);
 
         protected override ModelFactoryProvider CreateModelFactoryCore(IEnumerable<InputModelType> models)
             => new ScmModelFactoryProvider(models);
