@@ -261,32 +261,6 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either internalize or do nothing
-        /// </summary>
-        public async Task PostProcessAsync(IReadOnlyList<TypeProvider> typeProviders)
-        {
-            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
-            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
-            var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
-                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeNames: nonRootTypes);
-
-            switch (Configuration.UnreferencedTypesHandling)
-            {
-                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project, typeProviders);
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project, typeProviders);
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
         /// as metadata references so that custom code referencing external NuGet types compiles correctly.
         /// </summary>

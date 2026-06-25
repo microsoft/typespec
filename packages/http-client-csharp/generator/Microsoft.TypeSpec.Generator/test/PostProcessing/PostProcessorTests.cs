@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -294,13 +293,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         }
 
         [Test]
-        public async Task InternalizeUsesProviderPublicApiReferences()
+        public void InternalizeUsesProviderPublicApiReferences()
         {
             MockHelpers.LoadMockGenerator();
 
-            var request = new TestTypeProvider("RequestBody", Path.Combine("src", "Generated", "Models", "RequestBody.cs"));
-            var dependency = new TestTypeProvider("Dependency", Path.Combine("src", "Generated", "Models", "Dependency.cs"));
-            var response = new TestTypeProvider("ResponseBody", Path.Combine("src", "Generated", "Models", "ResponseBody.cs"));
+            var request = new TestTypeProvider("RequestBody");
+            var dependency = new TestTypeProvider("Dependency");
+            var response = new TestTypeProvider("ResponseBody");
             response.PropertiesToBuild.Add(new PropertyProvider(
                 null,
                 MethodSignatureModifiers.Public,
@@ -309,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 new AutoPropertyBody(false),
                 response));
 
-            var client = new TestTypeProvider("SampleClient", Path.Combine("src", "Generated", "SampleClient.cs"));
+            var client = new TestTypeProvider("SampleClient");
             client.FieldsToBuild.Add(new FieldProvider(FieldModifiers.Private, request.Type, "_request", client));
             client.MethodsToBuild.Add(new MethodProvider(
                 new MethodSignature("Get", null, MethodSignatureModifiers.Public, response.Type, null, []),
@@ -317,52 +316,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
                 client));
 
             var providers = new[] { client, request, response, dependency };
-            var project = CreateProject(providers);
 
             var postProcessor = new PostProcessor([]);
-            var resultProject = await postProcessor.InternalizeAsync(project, providers);
+            postProcessor.Internalize(providers);
 
-            AssertTypeAccessibility(resultProject, "SampleClient", SyntaxKind.PublicKeyword);
-            AssertTypeAccessibility(resultProject, "ResponseBody", SyntaxKind.PublicKeyword);
-            AssertTypeAccessibility(resultProject, "Dependency", SyntaxKind.PublicKeyword);
-            AssertTypeAccessibility(resultProject, "RequestBody", SyntaxKind.InternalKeyword);
-        }
-
-        private static Project CreateProject(IEnumerable<TypeProvider> providers)
-        {
-            var workspace = new AdhocWorkspace();
-            var projectInfo = ProjectInfo.Create(
-                    ProjectId.CreateNewId(),
-                    VersionStamp.Create(),
-                    name: "TestProj",
-                    assemblyName: "TestProj",
-                    language: LanguageNames.CSharp)
-                .WithMetadataReferences(new[]
-                {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
-                });
-
-            var project = workspace.AddProject(projectInfo);
-            foreach (var provider in providers)
-            {
-                var codeFile = new TypeProviderWriter(provider).Write();
-                project = project.AddDocument(codeFile.Name, codeFile.Content, ["Generated"]).Project;
-            }
-
-            return project;
-        }
-
-        private static void AssertTypeAccessibility(Project project, string typeName, SyntaxKind expectedAccessibility)
-        {
-            var type = project.Documents
-                .Select(document => document.GetSyntaxRootAsync().Result)
-                .Where(root => root != null)
-                .SelectMany(root => root!.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                .Single(t => t.Identifier.Text == typeName);
-
-            Assert.IsTrue(
-                type.Modifiers.Any(expectedAccessibility),
-                $"Expected {typeName} to have {expectedAccessibility}.");
+            Assert.IsTrue(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(response.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         private class TestPostProcessor : PostProcessor
@@ -383,12 +345,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         private class TestTypeProvider : TypeProvider
         {
             private readonly string _name;
-            private readonly string _relativeFilePath;
 
-            public TestTypeProvider(string name, string relativeFilePath)
+            public TestTypeProvider(string name = "Test")
             {
                 _name = name;
-                _relativeFilePath = relativeFilePath;
             }
 
             public List<FieldProvider> FieldsToBuild { get; } = [];
@@ -399,7 +359,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
 
             protected override string BuildNamespace() => "Sample";
 
-            protected override string BuildRelativeFilePath() => _relativeFilePath;
+            protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
             protected override TypeSignatureModifiers BuildDeclarationModifiers()
                 => TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

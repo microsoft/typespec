@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
@@ -114,6 +115,95 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual bool ShouldIncludeDocument(Document document) =>
             !GeneratedCodeWorkspace.IsGeneratedTestDocument(document);
 
+        public void Internalize(IReadOnlyList<TypeProvider> typeProviders)
+        {
+            var allProviders = ProviderReferenceMapBuilder.GetAllProviders(typeProviders).ToArray();
+            var candidateProviders = allProviders
+                .Where(IsPublicType)
+                .Where(provider => !IsExcludedProvider(provider))
+                .ToArray();
+            var rootProviders = candidateProviders.Where(IsRootProvider).ToArray();
+            var referenceMap = new ProviderReferenceMapBuilder(typeProviders).BuildPublicReferenceMap(rootProviders);
+            var referencedProviders = VisitProvidersFromRoot(rootProviders, referenceMap).ToHashSet();
+            var providersToInternalize = candidateProviders
+                .Where(provider => !referencedProviders.Contains(provider))
+                .ToArray();
+
+            foreach (var provider in providersToInternalize)
+            {
+                provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
+            }
+
+            RemoveMethodsFromModelFactory(providersToInternalize.Select(provider => provider.Name).ToHashSet());
+        }
+
+        private bool IsRootProvider(TypeProvider provider)
+            => IsClientProvider(provider) || ShouldKeepProvider(provider, _typesToKeep);
+
+        private bool IsExcludedProvider(TypeProvider provider)
+            => IsModelFactoryProvider(provider) || ShouldKeepProvider(provider, _additionalNonRootTypeNames);
+
+        private bool IsModelFactoryProvider(TypeProvider provider)
+            => _modelFactoryFullName != null && provider.Type.FullyQualifiedName == _modelFactoryFullName;
+
+        private static bool IsClientProvider(TypeProvider provider)
+            => provider.Name.EndsWith("Client", StringComparison.Ordinal);
+
+        private static bool ShouldKeepProvider(TypeProvider provider, HashSet<string> typesToKeep)
+            => typesToKeep.Contains(provider.Name) || typesToKeep.Contains(provider.Type.FullyQualifiedName);
+
+        private static bool IsPublicType(TypeProvider provider)
+            => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public);
+
+        private static TypeSignatureModifiers MakeInternal(TypeSignatureModifiers modifiers)
+            => (modifiers & ~(TypeSignatureModifiers.Public | TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected)) | TypeSignatureModifiers.Internal;
+
+        private static IEnumerable<TypeProvider> VisitProvidersFromRoot(
+            IEnumerable<TypeProvider> rootProviders,
+            IReadOnlyDictionary<TypeProvider, IReadOnlyList<TypeProvider>> referenceMap)
+        {
+            var queue = new Queue<TypeProvider>(rootProviders);
+            var visited = new HashSet<TypeProvider>();
+            while (queue.Count > 0)
+            {
+                var provider = queue.Dequeue();
+                if (!visited.Add(provider))
+                {
+                    continue;
+                }
+
+                yield return provider;
+                if (!referenceMap.TryGetValue(provider, out var references))
+                {
+                    continue;
+                }
+
+                foreach (var reference in references)
+                {
+                    queue.Enqueue(reference);
+                }
+            }
+        }
+
+        private void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove)
+        {
+            if (_modelFactoryFullName == null || namesToRemove.Count == 0)
+            {
+                return;
+            }
+
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            if (modelFactory.Type.FullyQualifiedName != _modelFactoryFullName)
+            {
+                return;
+            }
+
+            var methodsToKeep = modelFactory.Methods
+                .Where(method => !namesToRemove.Contains(method.Signature.Name))
+                .ToArray();
+            modelFactory.Update(methods: methodsToKeep);
+        }
+
         /// <summary>
         /// This method marks the "not publicly" referenced types as internal if they are previously defined as public. It will do this job in the following steps:
         /// 1. This method will read all the public types defined in the given <paramref name="project"/>, and build a cache for those symbols
@@ -124,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="project">The project to process</param>
         /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
-        public async Task<Project> InternalizeAsync(Project project, IReadOnlyList<TypeProvider>? typeProviders = null)
+        public async Task<Project> InternalizeAsync(Project project)
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
@@ -137,11 +227,9 @@ namespace Microsoft.TypeSpec.Generator
             // get the root symbols
             var rootSymbols = await GetRootSymbolsAsync(project, definitions);
             // build the reference map
-            var referenceMap = typeProviders == null
-                ? await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache)
-                : new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMap(
-                    typeProviders, rootSymbols, definitions.DeclaredSymbols);
+            var referenceMap =
+                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
             // traverse all the root and recursively add all the things we met
             var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
