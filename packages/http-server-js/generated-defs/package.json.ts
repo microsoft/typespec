@@ -6,7 +6,7 @@
 export const hsjsDependencies: Record<string, string> = {
   "@types/express": "^5.0.6",
   "@types/morgan": "^1.9.10",
-  "@types/node": "^25.5.2",
+  "@types/node": "^26.0.0",
   "@types/swagger-ui-express": "^4.1.8",
   "@typespec/compiler": "workspace:^",
   "@typespec/http": "workspace:^",
@@ -26,7 +26,7 @@ export const hsjsDependencies: Record<string, string> = {
   "pathe": "^2.0.3",
   "picocolors": "^1.1.1",
   "swagger-ui-express": "^5.0.1",
-  "temporal-polyfill": "^0.3.2",
+  "temporal-polyfill": "^1.0.1",
   "tsx": "^4.21.0",
   "typescript": "~6.0.2",
   "vitest": "^4.1.3",

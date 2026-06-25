@@ -1,6 +1,6 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
-import { CompletionList } from "vscode-languageserver/node.js";
+import { CompletionList } from "vscode-languageserver";
 import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
