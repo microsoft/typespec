@@ -13,7 +13,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={getName} />])).toRenderTo(`
       def get_name(id: str) -> str:
-        pass
+          pass
       
       `);
   });
@@ -25,7 +25,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration async type={getName} />])).toRenderTo(`
       async def get_name(id: str) -> str:
-        pass
+          pass
       
       `);
   });
@@ -38,7 +38,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration name="new_name" type={getName} />]))
       .toRenderTo(`
       def new_name(id: str) -> str:
-        pass
+          pass
       
       `);
   });
@@ -60,7 +60,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str, *, name: str, age: float) -> str:
-        pass
+          pass
       
       `);
   });
@@ -76,7 +76,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str, *, name, age) -> str:
-        pass
+          pass
       
       `);
   });
@@ -96,7 +96,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(*, name, age) -> str:
-        pass
+          pass
       
       `);
   });
@@ -119,7 +119,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(*, name: str = "alice", age: int = 30) -> str:
-        pass
+          pass
       
       `);
   });
@@ -141,7 +141,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str, *, locale: str = "en-US", limit: int = 10, verbose: bool = True) -> str:
-        pass
+          pass
       
       `);
   });
@@ -159,7 +159,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} parametersModel={Foo} />]))
       .toRenderTo(`
       def create_person(name: str, age: int) -> str:
-        pass
+          pass
       
       `);
   });
@@ -177,7 +177,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} parametersModel={Foo} />]))
       .toRenderTo(`
       def create_person(*, required_name: str = "alice", optional_age: int = None) -> str:
-        pass
+          pass
       
       `);
   });
@@ -198,7 +198,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(name: str, age: int) -> str:
-        pass
+          pass
       
       `);
   });
@@ -211,7 +211,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={getName} returnType="ASpecialString" />]))
       .toRenderTo(`
       def get_name(id: str) -> ASpecialString:
-        pass
+          pass
       
       `);
   });
@@ -228,7 +228,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str) -> str:
-        print("Hello World!")
+          print("Hello World!")
       
       `);
   });
@@ -241,11 +241,11 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={getName} doc={"This is a test doc"} />]))
       .toRenderTo(`
       def get_name(id: str) -> str:
-        """
-        This is a test doc
-        """
+          """
+          This is a test doc
+          """
 
-        pass
+          pass
       
       `);
   });
@@ -264,13 +264,13 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def get_name(id: str) -> str:
-        """
-        First paragraph
+          """
+          First paragraph
 
-        Second paragraph
-        """
+          Second paragraph
+          """
 
-        pass
+          pass
       
       `);
   });
@@ -286,13 +286,13 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def get_name(id: str) -> str:
-        """
-        First paragraph
+          """
+          First paragraph
 
-        Second paragraph
-        """
+          Second paragraph
+          """
 
-        pass
+          pass
       
       `);
   });
@@ -308,13 +308,13 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def get_name(id: str) -> str:
-        """
-        First paragraph
+          """
+          First paragraph
 
-        Second paragraph
-        """
+          Second paragraph
+          """
 
-        pass
+          pass
       
       `);
   });
@@ -327,12 +327,12 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={getName} doc={"Line 1\nLine 2"} />]))
       .toRenderTo(`
       def get_name(id: str) -> str:
-        """
-        Line 1
-        Line 2
-        """
+          """
+          Line 1
+          Line 2
+          """
 
-        pass
+          pass
       
       `);
   });
@@ -344,7 +344,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={ping} />])).toRenderTo(`
       def ping() -> str:
-        pass
+          pass
       
       `);
   });
@@ -356,7 +356,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={ping} />])).toRenderTo(`
       def ping() -> None:
-        pass
+          pass
       
       `);
   });
@@ -370,11 +370,11 @@ describe("Python Function Declaration", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import Never
+          from typing import Never
 
 
       def abort() -> Never:
-        pass
+          pass
       
       `);
   });
@@ -386,7 +386,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={get} />])).toRenderTo(`
       def get() -> int | str:
-        pass
+          pass
       
       `);
   });
@@ -398,7 +398,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
       def create_person(*, name: str = "alice", age: int = 30) -> str:
-        pass
+          pass
       
       `);
   });
@@ -420,7 +420,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str, *, version: int, locale: str = "en-US", debug: bool = False) -> str:
-        pass
+          pass
       
       `);
   });
@@ -432,7 +432,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
       def create_person(id: str, *, locale: str = "en-US") -> str:
-        pass
+          pass
       
       `);
   });
@@ -445,7 +445,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={ping} parameters={["name", "age"]} />]))
       .toRenderTo(`
       def ping(name, age) -> str:
-        pass
+          pass
       
       `);
   });
@@ -457,7 +457,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
       def create_person(id: str, name: str, age: int) -> str:
-        pass
+          pass
       
       `);
   });
@@ -479,7 +479,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def create_person(id: str, name: str, *, email, notify: bool = False) -> str:
-        pass
+          pass
       
       `);
   });
@@ -495,7 +495,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={search} />])).toRenderTo(`
       def search(*, limit: int = 10, offset: int = 0, sort_by: str = "name") -> str:
-        pass
+          pass
       
       `);
   });
@@ -508,7 +508,7 @@ describe("Python Function Declaration", () => {
     expect(getOutput(program, [<FunctionDeclaration type={search} parameters={["query"]} />]))
       .toRenderTo(`
       def search(*, query, limit: int = 10, offset: int = 0) -> str:
-        pass
+          pass
       
       `);
   });
@@ -535,7 +535,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def complex_op(required1: str, required2: int, *, additional_required, optional1: str = "default", optional2: int = 42, additional_optional: bool = True) -> str:
-        pass
+          pass
       
       `);
   });
@@ -556,7 +556,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def get_user(id: str, *, include_deleted: bool = False) -> str:
-        pass
+          pass
       
       `);
   });
@@ -578,7 +578,7 @@ describe("Python Function Declaration", () => {
       ]),
     ).toRenderTo(`
       def ping(*, timeout: int = 30, retries: int = 3) -> str:
-        pass
+          pass
       
       `);
   });

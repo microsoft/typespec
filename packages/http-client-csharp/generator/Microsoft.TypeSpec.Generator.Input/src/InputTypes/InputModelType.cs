@@ -94,7 +94,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             internal set
             {
                 if (value is null || DiscriminatorProperty == null || DiscriminatorValue == UnknownDiscriminatorValue)
+                {
                     return;
+                }
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 

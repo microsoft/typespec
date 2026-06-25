@@ -42,5 +42,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A back-compat overload of a client method was added because new optional non-body parameter(s) were introduced relative to the last contract.</summary>
         SvcMethodNewOptionalParameterOverloadAdded,
+
+        /// <summary>A back-compat change was skipped because the removal was accepted in the ApiCompat baseline.</summary>
+        BaselineAcceptedRemovalSkipped,
     }
 }

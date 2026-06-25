@@ -90,7 +90,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Perf
         private static InputModelType? GetRecursiveNestedModel(int modelNumber, int simplePropertyCount, int nestingLevel)
         {
             if (nestingLevel <= 0)
+            {
                 return null;
+            }
 
             var nestedModel = GetRecursiveNestedModel(modelNumber, simplePropertyCount, nestingLevel - 1);
             return InputFactory.Model(

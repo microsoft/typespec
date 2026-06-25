@@ -1,6 +1,6 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
-import { CompletionList } from "vscode-languageserver/node.js";
+import { CompletionList } from "vscode-languageserver";
 import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
@@ -134,19 +134,19 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"function-declarations"'],
+      expected: ['"auto-decorators"', '"function-declarations"'],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["function-declarations"],
+      expected: ["auto-decorators", "function-declarations"],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["function-declarations"],
+      expected: ["auto-decorators", "function-declarations"],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: [],
+      expected: ['"auto-decorators"'],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -156,7 +156,10 @@ describe("Test completion items for features", () => {
     await checkCompletionItems(
       `features:\n  - ┆`,
       true,
-      ["Allows use of function declarations without experimental warnings in project code."],
+      [
+        "Allows use of auto decorator declarations without experimental warnings in project code.",
+        "Allows use of function declarations without experimental warnings in project code.",
+      ],
       true,
     );
   });

@@ -14,12 +14,25 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public Compilation? Customization { get; }
         public Compilation? LastContract { get; }
 
+        /// <summary>
+        /// The set of intentional, already-accepted breaking changes recorded in the ApiCompat
+        /// baseline file for this library. The backward-compatibility system consults this to avoid
+        /// regenerating compatibility shims for members whose removal has already been accepted.
+        /// </summary>
+        public ApiCompatBaseline ApiCompatBaseline { get; }
+
         private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
 
         public SourceInputModel(Compilation? customization, Compilation? lastContract)
+            : this(customization, lastContract, ApiCompatBaseline.Empty)
+        {
+        }
+
+        public SourceInputModel(Compilation? customization, Compilation? lastContract, ApiCompatBaseline apiCompatBaseline)
         {
             Customization = customization;
             LastContract = lastContract;
+            ApiCompatBaseline = apiCompatBaseline ?? ApiCompatBaseline.Empty;
 
             _nameMap = new(PopulateNameMap);
         }
@@ -47,9 +60,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return nameMap;
         }
 
-        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null)
+        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null, bool includeReferencedAssemblies = false)
         {
-            return FindTypeInCustomization(Customization, ns, name, false, declaringTypeName);
+            return FindTypeInCustomization(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)

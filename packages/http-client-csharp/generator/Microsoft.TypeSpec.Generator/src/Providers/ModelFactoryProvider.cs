@@ -54,7 +54,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
+                {
                     continue;
+                }
 
                 var typeToInstantiate = GetModelToInstantiateForFactoryMethod(modelProvider);
                 if (typeToInstantiate is null)
@@ -113,6 +115,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (currentMethodSignatures.Contains(previousMethod.Signature))
                 {
+                    continue;
+                }
+
+                // If the removal of this factory method has already been accepted in the ApiCompat
+                // baseline, honor that decision and do not resurrect a compatibility shim for it.
+                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
+                        Type.FullyQualifiedName,
+                        previousMethod.Signature.Name,
+                        previousMethod.Signature.Parameters.Count) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
                     continue;
                 }
 
@@ -473,6 +488,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
         {
+            // Externally-linked models are reused from another shipped package (e.g. the OpenAI .NET
+            // SDK), so this library does not own or emit their constructors. Their real constructor
+            // surface (accessibility and parameter set) is unknown here; emitting a
+            // `new ExternalType(...)` mocking factory produces calls that may be inaccessible
+            // (protected/internal) or have a non-matching arity. Skip factory generation for them.
+            if (modelProvider.IsExternal)
+            {
+                return null;
+            }
+
             var fullConstructor = modelProvider.FullConstructor;
             if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
                 || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic && !IsEnumDiscriminator(p)))
