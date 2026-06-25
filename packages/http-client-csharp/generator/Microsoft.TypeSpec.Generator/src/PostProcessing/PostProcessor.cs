@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -123,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="project">The project to process</param>
         /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
-        public async Task<Project> InternalizeAsync(Project project)
+        public async Task<Project> InternalizeAsync(Project project, IReadOnlyList<TypeProvider>? typeProviders = null)
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
@@ -133,12 +134,14 @@ namespace Microsoft.TypeSpec.Generator
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            // build the reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
             // get the root symbols
             var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+            // build the reference map
+            var referenceMap = typeProviders == null
+                ? await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache)
+                : new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMap(
+                    typeProviders, rootSymbols, definitions.DeclaredSymbols);
             // traverse all the root and recursively add all the things we met
             var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 

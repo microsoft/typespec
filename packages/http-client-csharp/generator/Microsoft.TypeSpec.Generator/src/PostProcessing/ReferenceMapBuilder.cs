@@ -10,6 +10,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -41,6 +43,69 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var definition in definitions)
             {
                 await ProcessSymbolAsync(definition, referenceMap, documentCache);
+            }
+
+            return referenceMap;
+        }
+
+        public ReferenceMap BuildPublicReferenceMap(
+            IEnumerable<TypeProvider> providers,
+            IEnumerable<INamedTypeSymbol> rootSymbols,
+            IEnumerable<INamedTypeSymbol> definitions)
+        {
+            var referenceMap = new ReferenceMap();
+            var definitionSymbols = definitions.ToArray();
+            var symbolByProvider = BuildProviderSymbolMap(providers, definitionSymbols);
+            var providerBySymbol = new Dictionary<INamedTypeSymbol, TypeProvider>(SymbolEqualityComparer.Default);
+            foreach (var (provider, symbol) in symbolByProvider)
+            {
+                providerBySymbol.TryAdd(symbol, provider);
+            }
+
+            var queue = new Queue<TypeProvider>();
+            foreach (var rootSymbol in rootSymbols)
+            {
+                if (providerBySymbol.TryGetValue(rootSymbol, out var provider))
+                {
+                    queue.Enqueue(provider);
+                }
+            }
+
+            var visited = new HashSet<TypeProvider>();
+            while (queue.Count > 0)
+            {
+                var provider = queue.Dequeue();
+                if (!visited.Add(provider))
+                {
+                    continue;
+                }
+
+                var canonicalView = provider.CanonicalView;
+                if (!symbolByProvider.TryGetValue(canonicalView, out var providerSymbol))
+                {
+                    continue;
+                }
+
+                var referencedSymbols = ProcessPublicApi(canonicalView, providerSymbol, referenceMap, definitionSymbols);
+                foreach (var referencedSymbol in referencedSymbols)
+                {
+                    if (providerBySymbol.TryGetValue(referencedSymbol, out var referencedProvider))
+                    {
+                        queue.Enqueue(referencedProvider);
+                    }
+                }
+
+                foreach (var (derivedProvider, derivedSymbol) in symbolByProvider)
+                {
+                    var baseSymbol = derivedProvider.BaseType == null ? null : ResolveType(derivedProvider.BaseType, definitionSymbols);
+                    if (!SymbolEqualityComparer.Default.Equals(baseSymbol, providerSymbol))
+                    {
+                        continue;
+                    }
+
+                    referenceMap.AddInList(providerSymbol, derivedSymbol);
+                    queue.Enqueue(derivedProvider);
+                }
             }
 
             return referenceMap;
@@ -205,6 +270,158 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
         }
+
+        private static IReadOnlyDictionary<TypeProvider, INamedTypeSymbol> BuildProviderSymbolMap(
+            IEnumerable<TypeProvider> providers,
+            IReadOnlyList<INamedTypeSymbol> definitions)
+        {
+            var result = new Dictionary<TypeProvider, INamedTypeSymbol>();
+            foreach (var provider in GetProviders(providers))
+            {
+                var canonicalView = provider.CanonicalView;
+                var symbol = ResolveType(canonicalView.Type, definitions);
+                if (symbol != null)
+                {
+                    result[canonicalView] = symbol;
+                    if (!ReferenceEquals(provider, canonicalView))
+                    {
+                        result[provider] = symbol;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private static IEnumerable<TypeProvider> GetProviders(IEnumerable<TypeProvider> providers)
+        {
+            foreach (var provider in providers)
+            {
+                yield return provider;
+                foreach (var nestedType in GetProviders(provider.CanonicalView.NestedTypes))
+                {
+                    yield return nestedType;
+                }
+            }
+        }
+
+        private static IEnumerable<INamedTypeSymbol> ProcessPublicApi(
+            TypeProvider provider,
+            INamedTypeSymbol providerSymbol,
+            ReferenceMap referenceMap,
+            IReadOnlyList<INamedTypeSymbol> definitions)
+        {
+            var referencedSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
+            AddType(providerSymbol, provider.Type, referenceMap, definitions, referencedSymbols);
+            AddType(providerSymbol, provider.BaseType, referenceMap, definitions, referencedSymbols);
+            foreach (var implementedType in provider.Implements)
+            {
+                AddType(providerSymbol, implementedType, referenceMap, definitions, referencedSymbols);
+            }
+
+            foreach (var constructor in provider.Constructors.Where(static c => IsPublicApi(c.Signature.Modifiers)))
+            {
+                ProcessMethodSignature(providerSymbol, constructor.Signature, referenceMap, definitions, referencedSymbols);
+            }
+
+            foreach (var method in provider.Methods.Where(static m => IsPublicApi(m.Signature.Modifiers)))
+            {
+                ProcessMethodSignature(providerSymbol, method.Signature, referenceMap, definitions, referencedSymbols);
+                AddType(providerSymbol, method.Signature.ExplicitInterface, referenceMap, definitions, referencedSymbols);
+                foreach (var genericArgument in method.Signature.GenericArguments ?? [])
+                {
+                    AddType(providerSymbol, genericArgument, referenceMap, definitions, referencedSymbols);
+                }
+            }
+
+            foreach (var property in provider.Properties.Where(static p => IsPublicApi(p.Modifiers)))
+            {
+                AddType(providerSymbol, property.Type, referenceMap, definitions, referencedSymbols);
+                AddType(providerSymbol, property.ExplicitInterface, referenceMap, definitions, referencedSymbols);
+            }
+
+            foreach (var field in provider.Fields.Where(static f => IsPublicApi(f.Modifiers)))
+            {
+                AddType(providerSymbol, field.Type, referenceMap, definitions, referencedSymbols);
+            }
+
+            foreach (var nestedType in provider.NestedTypes.Where(static t => IsPublicApi(t.DeclarationModifiers)))
+            {
+                AddType(providerSymbol, nestedType.Type, referenceMap, definitions, referencedSymbols);
+            }
+
+            return referencedSymbols;
+        }
+
+        private static void ProcessMethodSignature(
+            INamedTypeSymbol keySymbol,
+            MethodSignatureBase signature,
+            ReferenceMap referenceMap,
+            IReadOnlyList<INamedTypeSymbol> definitions,
+            HashSet<INamedTypeSymbol> referencedSymbols)
+        {
+            AddType(keySymbol, signature.ReturnType, referenceMap, definitions, referencedSymbols);
+            foreach (var parameter in signature.Parameters)
+            {
+                AddType(keySymbol, parameter.Type, referenceMap, definitions, referencedSymbols);
+            }
+        }
+
+        private static void AddType(
+            INamedTypeSymbol keySymbol,
+            CSharpType? type,
+            ReferenceMap referenceMap,
+            IReadOnlyList<INamedTypeSymbol> definitions,
+            HashSet<INamedTypeSymbol> referencedSymbols)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            var valueSymbol = ResolveType(type, definitions);
+            if (valueSymbol != null && referenceMap.AddInList(keySymbol, valueSymbol))
+            {
+                referencedSymbols.Add(valueSymbol);
+            }
+
+            AddType(keySymbol, type.BaseType, referenceMap, definitions, referencedSymbols);
+            AddType(keySymbol, type.DeclaringType, referenceMap, definitions, referencedSymbols);
+            foreach (var argument in type.Arguments)
+            {
+                AddType(keySymbol, argument, referenceMap, definitions, referencedSymbols);
+            }
+        }
+
+        private static INamedTypeSymbol? ResolveType(CSharpType type, IReadOnlyList<INamedTypeSymbol> definitions)
+        {
+            if (type.IsFrameworkType)
+            {
+                return null;
+            }
+
+            foreach (var definition in definitions)
+            {
+                if (definition.IsSameType(type))
+                {
+                    return definition;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
+            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
+        private static bool IsPublicApi(FieldModifiers modifiers)
+            => (modifiers.HasFlag(FieldModifiers.Public) || modifiers.HasFlag(FieldModifiers.Protected))
+                && !modifiers.HasFlag(FieldModifiers.Private);
+
+        private static bool IsPublicApi(TypeSignatureModifiers modifiers)
+            => (modifiers.HasFlag(TypeSignatureModifiers.Public) || modifiers.HasFlag(TypeSignatureModifiers.Protected))
+                && !modifiers.HasFlag(TypeSignatureModifiers.Private);
 
         /// <summary>
         /// This method recursively adds all related types in <paramref name="valueSymbol"/> to the reference map as the value of key <paramref name="keySymbol"/>

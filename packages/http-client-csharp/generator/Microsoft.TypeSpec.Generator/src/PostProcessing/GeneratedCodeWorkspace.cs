@@ -262,9 +262,9 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
+        /// Depending on the configuration, it will either internalize or do nothing
         /// </summary>
-        public async Task PostProcessAsync()
+        public async Task PostProcessAsync(IReadOnlyList<TypeProvider> typeProviders)
         {
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
@@ -278,11 +278,10 @@ namespace Microsoft.TypeSpec.Generator
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
+                    _project = await postProcessor.InternalizeAsync(_project, typeProviders);
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    _project = await postProcessor.RemoveAsync(_project);
+                    _project = await postProcessor.InternalizeAsync(_project, typeProviders);
                     break;
             }
         }

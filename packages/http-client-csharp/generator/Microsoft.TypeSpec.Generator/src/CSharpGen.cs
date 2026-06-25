@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
-            await generatedCodeWorkspace.PostProcessAsync();
+            await generatedCodeWorkspace.PostProcessAsync(output.TypeProviders);
 
             // Write the generated files to the output directory
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
