@@ -410,7 +410,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
 
+            if len(body_parameter["type"]["types"]) == 1:
+                # Only one body variant remains (e.g. typeddict-only mode where the
+                # binary and JSON overloads are omitted). Collapse the combined
+                # wrapper back to the single type so we don't emit a lone
+                # ``@overload`` (mypy rejects a single overload definition).
+                body_parameter["type"] = body_parameter["type"]["types"][0]
+                return
+
             code_model["types"].append(body_parameter["type"])
+
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well

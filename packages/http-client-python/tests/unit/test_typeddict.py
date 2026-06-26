@@ -233,13 +233,14 @@ def test_typed_dict_only_still_in_types_file():
 
 
 def test_typed_dict_only_type_annotation():
-    """Typed-dict-only models should use types.Name, not _models.Name."""
+    """Typed-dict-only models should use the types module alias, not _models."""
     code_model = _make_code_model(models_mode="typeddict")
     model = _make_typed_dict_only_model(code_model, "Foo")
 
-    # In operation files, should be types.Name
+    # In operation files, the types module is imported as ``types as _types``,
+    # so the annotation references the ``_types`` alias.
     annotation = model.type_annotation(is_operation_file=True)
-    assert annotation == "types.Foo"
+    assert annotation == "_types.Foo"
     assert "_models" not in annotation
 
 
