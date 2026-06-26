@@ -11,12 +11,12 @@ import {
 } from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
-import { deepEquals, isDefined, mutate } from "../utils/misc.js";
+import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
-import { resolveEmitterOptions } from "./emitter-options.js";
+import { resolveEmitterOptions, validateEmitterOptionsAgainstModel } from "./emitter-options.js";
 import { flushEmittedFilesPaths } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
@@ -224,6 +224,18 @@ export interface TypeGraph {
    */
   readonly entrypoint: string;
 
+  /**
+   * TypeSpec source files that make up this type graph.
+   * @internal
+   */
+  readonly sourceFiles: Map<string, TypeSpecScriptNode>;
+
+  /**
+   * JS source files that make up this type graph.
+   * @internal
+   */
+  readonly jsSourceFiles: Map<string, JsSourceFileNode>;
+
   /** @internal */
   sourceResolution: SourceResolution;
 
@@ -238,7 +250,8 @@ async function createTypeGraph(
   resolvedMain: string,
   options: CompilerOptions,
   sourceFileCache: Map<string, TypeSpecScriptNode> | undefined,
-): Promise<TypeGraph> {
+  oldProgram?: Program,
+): Promise<{ typeGraph: TypeGraph; reusedProgram?: Program }> {
   const host = program.host;
   const binder = createBinder(program);
   const runtimeStats: Partial<RuntimeStats> = {};
@@ -254,6 +267,8 @@ async function createTypeGraph(
     entrypoint: resolvedMain,
     globalNamespace: undefined!,
     checker: undefined!,
+    sourceFiles: undefined!,
+    jsSourceFiles: undefined!,
     complexityStats,
     runtimeStats: runtimeStats as any,
     sourceResolution: sourceLoader.resolution,
@@ -263,6 +278,17 @@ async function createTypeGraph(
   mutate(program).typeGraph = typeGraph;
 
   runtimeStats.loader = await timeAsync(() => loadSources(sourceLoader, resolvedMain));
+
+  // Incremental reuse: if the source files and compiler options are unchanged from
+  // a previous compilation, skip resolving/checking entirely and reuse the old
+  // program. This is the fast-path the language server / watch mode rely on.
+  if (
+    oldProgram &&
+    mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
+    deepEquals(oldProgram.compilerOptions, program.compilerOptions)
+  ) {
+    return { typeGraph, reusedProgram: oldProgram };
+  }
 
   const resolver = createResolver(program);
 
@@ -279,7 +305,7 @@ async function createTypeGraph(
   complexityStats.finishedTypes = checker.stats.finishedTypes;
   await validateLoadedLibraries(sourceLoader);
 
-  return typeGraph;
+  return { typeGraph };
   /**
    * Validate the libraries loaded during the compilation process are compatible.
    */
@@ -353,6 +379,8 @@ async function createTypeGraph(
 
     const sourceResolution = sourceLoader.resolution;
 
+    mutate(typeGraph).sourceFiles = sourceResolution.sourceFiles;
+    mutate(typeGraph).jsSourceFiles = sourceResolution.jsSourceFiles;
     program.sourceFiles = sourceResolution.sourceFiles;
     program.jsSourceFiles = sourceResolution.jsSourceFiles;
 
@@ -495,16 +523,17 @@ async function createProgram(
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  // if (
-  //   oldProgram &&
-  //   mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
-  //   deepEquals(oldProgram.compilerOptions, program.compilerOptions)
-  // ) {
-  //   return { program: oldProgram, shouldAbort: true };
-  // }
-
   // let GC reclaim old program, we do not reuse it beyond this point.
-  const typeGraph = await createTypeGraph(program, resolvedMain, options, oldProgram?.sourceFiles);
+  const { typeGraph, reusedProgram } = await createTypeGraph(
+    program,
+    resolvedMain,
+    options,
+    oldProgram?.sourceFiles,
+    oldProgram,
+  );
+  if (reusedProgram) {
+    return { program: reusedProgram, shouldAbort: true };
+  }
   oldProgram = undefined;
   program.checker = typeGraph.checker;
   Object.assign(complexityStats, typeGraph.complexityStats);
@@ -649,14 +678,12 @@ async function createProgram(
       const optionsEntrypoint =
         library.module.type === "module" &&
         (library.module.manifest.exports as any)?.["./options"]?.["typespec"];
-      if (optionsEntrypoint) {
-        const fullPath = resolvePath(library.module.path, optionsEntrypoint);
-        const typeGraph = await createTypeGraph(program, fullPath, options, program.sourceFiles);
-        const [model, diagnostics] = resolveEmitterOptions(typeGraph);
-        program.reportDiagnostics(diagnostics);
-      }
-
       if (libDefinition?.emitter?.options) {
+        // Legacy JSON-schema based validation. While an emitter still ships a
+        // legacy validator it remains authoritative; the TypeSpec-options graph is
+        // only enforced once an emitter has fully migrated (see `else if` below).
+        // This is transitional: the experimental option models are not yet a
+        // complete source of truth for already-shipped emitters.
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
           options.configFile?.file
@@ -670,6 +697,33 @@ async function createProgram(
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
           return;
+        }
+      } else if (optionsEntrypoint) {
+        // Emitter declares its options as a TypeSpec file (and has no legacy
+        // validator): compile it into its own type graph and validate the user
+        // options against the exported `EmitterOptions` model.
+        const fullPath = resolvePath(library.module.path, optionsEntrypoint);
+        const { typeGraph } = await createTypeGraph(
+          program,
+          fullPath,
+          options,
+          program.sourceFiles,
+        );
+        const [model, diagnostics] = resolveEmitterOptions(typeGraph);
+        program.reportDiagnostics(diagnostics);
+        if (model) {
+          const validationDiagnostics = validateEmitterOptionsAgainstModel(
+            program,
+            emitterOptions,
+            model,
+            options.configFile?.file
+              ? { script: options.configFile.file, basePath: ["options", emitterNameOrPath] }
+              : NoTarget,
+          );
+          if (validationDiagnostics.length > 0) {
+            program.reportDiagnostics(validationDiagnostics);
+            return;
+          }
         }
       }
       return {

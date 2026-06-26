@@ -130,3 +130,80 @@ describe("compiler: emitter options", () => {
     });
   });
 });
+
+describe("compiler: emitter options defined in TypeSpec", () => {
+  const tspOptionsEmitter = createTypeSpecLibrary({
+    name: "tsp-options-emitter",
+    diagnostics: {},
+  });
+
+  async function diagnoseEmitterOptions(
+    options: Record<string, unknown>,
+  ): Promise<readonly Diagnostic[]> {
+    const host = await createTestHost();
+    host.addTypeSpecFile("main.tsp", "");
+    host.addTypeSpecFile(
+      "node_modules/tsp-options-emitter/package.json",
+      JSON.stringify({
+        main: "index.js",
+        exports: {
+          ".": "./index.js",
+          "./options": { typespec: "./options.tsp" },
+        },
+      }),
+    );
+    host.addTypeSpecFile(
+      "node_modules/tsp-options-emitter/options.tsp",
+      `model EmitterOptions {
+        name?: string;
+        count?: int32;
+        format?: "yaml" | "json";
+      }`,
+    );
+    host.addJsFile("node_modules/tsp-options-emitter/index.js", {
+      $lib: tspOptionsEmitter,
+      $onEmit: () => {},
+    });
+
+    return host.diagnose("main.tsp", {
+      emit: ["tsp-options-emitter"],
+      options: {
+        "tsp-options-emitter": options,
+      },
+    });
+  }
+
+  it("passes valid options", async () => {
+    const diagnostics = await diagnoseEmitterOptions({
+      "emitter-output-dir": "/out",
+      name: "hello",
+      count: 3,
+      format: "json",
+    });
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emits diagnostic for an unknown property", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ "not-an-option": true });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: `Unknown property "not-an-option"`,
+    });
+  });
+
+  it("emits diagnostic for an invalid value type", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ count: "not a number" });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: "Expected type number",
+    });
+  });
+
+  it("emits diagnostic for a value outside an allowed union", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ format: "xml" });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: `Value "xml" is not one of the allowed values: "yaml", "json"`,
+    });
+  });
+});
