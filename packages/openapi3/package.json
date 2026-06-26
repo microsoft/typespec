@@ -62,6 +62,7 @@
   },
   "files": [
     "lib/*.tsp",
+    "options/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],

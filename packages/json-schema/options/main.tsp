@@ -44,6 +44,15 @@ model EmitterOptions {
    * @defaultValue false
    */
   `seal-object-schemas`?: boolean;
+
+  /**
+   * Strategy for emitting models with the discriminator decorator.
+   * - ignore: Emit as regular object schema (default)
+   * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+   * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+   * @defaultValue "ignore"
+   */
+  `polymorphic-models-strategy`?: PolymorphicModelsStrategy;
 }
 
 /**
@@ -58,3 +67,11 @@ alias FileType = "yaml" | "json";
  *
  */
 alias Int64Strategy = "string" | "number";
+
+/**
+ * Strategy for emitting models with the `@discriminator` decorator.
+ * - ignore: Emit as regular object schema (default)
+ * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+ * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+ */
+alias PolymorphicModelsStrategy = "ignore" | "oneOf" | "anyOf";

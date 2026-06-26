@@ -1,9 +1,4 @@
-import {
-  createTypeSpecLibrary,
-  definePackageFlags,
-  type JSONSchemaType,
-  paramMessage,
-} from "@typespec/compiler";
+import { createTypeSpecLibrary, definePackageFlags, paramMessage } from "@typespec/compiler";
 
 /**
  * File type
@@ -81,76 +76,6 @@ export interface JSONSchemaEmitterOptions {
   "polymorphic-models-strategy"?: PolymorphicModelsStrategy;
 }
 
-/**
- * Internal: Json Schema emitter options schema
- */
-export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
-  type: "object",
-  additionalProperties: false,
-  properties: {
-    "file-type": {
-      type: "string",
-      enum: ["yaml", "json"],
-      nullable: true,
-      description: "Serialize the schema as either yaml or json.",
-    },
-    "int64-strategy": {
-      type: "string",
-      enum: ["string", "number"],
-      nullable: true,
-      description: `How to handle 64 bit integers on the wire. Options are:
-
-* string: serialize as a string (widely interoperable)
-* number: serialize as a number (not widely interoperable)`,
-    },
-    bundleId: {
-      type: "string",
-      nullable: true,
-      description:
-        "When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.",
-    },
-    emitAllModels: {
-      type: "boolean",
-      nullable: true,
-      description:
-        "When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.",
-    },
-    emitAllRefs: {
-      type: "boolean",
-      nullable: true,
-      description:
-        "When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.",
-    },
-    "seal-object-schemas": {
-      type: "boolean",
-      nullable: true,
-      default: false,
-      description: [
-        "If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,",
-        "if not explicitly specified elsewhere.",
-        "Default: `false`",
-      ].join("\n"),
-    },
-    "polymorphic-models-strategy": {
-      type: "string",
-      enum: ["ignore", "oneOf", "anyOf"],
-      nullable: true,
-      default: "ignore",
-      description: [
-        "Strategy for emitting models with the @discriminator decorator:",
-        "- ignore: Emit as regular object schema (default). Derived models use allOf to reference their base model.",
-        "- oneOf: Emit a oneOf schema with references to all derived models (closed union)",
-        "- anyOf: Emit an anyOf schema with references to all derived models (open union)",
-        "",
-        "When using oneOf or anyOf, derived models will inline all properties from their base model",
-        "instead of using allOf references. This avoids circular references in the generated schemas,",
-        "since the base model references derived models via oneOf/anyOf.",
-      ].join("\n"),
-    },
-  },
-  required: [],
-};
-
 /** Internal: TypeSpec library definition */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/json-schema",
@@ -173,9 +98,6 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Scalar '${"name"}' is not a known scalar type and doesn't extend a known scalar type.`,
       },
     },
-  },
-  emitter: {
-    options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
   },
   state: {
     JsonSchema: { description: "State indexing types marked with @jsonSchema" },

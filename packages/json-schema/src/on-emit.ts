@@ -9,7 +9,7 @@ import {
 import { getJsonSchemaTypes } from "./decorators.js";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "./lib.js";
-export { $flags, $lib, EmitterOptionsSchema, type JSONSchemaEmitterOptions } from "./lib.js";
+export { $flags, $lib, type JSONSchemaEmitterOptions } from "./lib.js";
 
 export const namespace = "TypeSpec.JsonSchema";
 export type JsonSchemaDeclaration = Model | Union | Enum | Scalar;

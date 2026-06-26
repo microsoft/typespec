@@ -3,9 +3,10 @@ import "@typespec/compiler/emitter";
 model EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
+   * Can be a single value or an array to emit multiple formats.
    * @default yaml, it not specified infer from the `output-file` extension
    */
-  `file-type`?: FileType;
+  `file-type`?: FileType | FileType[];
 
   /**
    * Name of the output file.
@@ -96,16 +97,28 @@ model EmitterOptions {
    * - `explicit-only`: Only use explicitly defined operation IDs.
    * @default parent-container
    */
-  `operation-id-strategy`?: OperationIdStrategy | {
-    /** Strategy used to generate the operation ID. */
-    kind: OperationIdStrategy;
+  `operation-id-strategy`?:
+    | OperationIdStrategy
+    | {
+        /** Strategy used to generate the operation ID. */
+        kind: OperationIdStrategy;
 
-    /** Separator used to join segment in the operation name. */
-    separator?: string;
-  };
+        /** Separator used to join segment in the operation name. */
+        separator?: string;
+      };
+
+  /**
+   * How to emit TypeSpec enums. Options are:
+   * - `default`: Emit as a single schema using the `enum` keyword.
+   * - `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`
+   *   from each member's `@summary` and `@doc`. Only supported by OpenAPI 3.1.0 and above.
+   * @default "default"
+   */
+  `enum-strategy`?: EnumStrategy;
 }
 
 alias FileType = "yaml" | "json";
-alias OpenAPIVersion = "3.0.0" | "3.1.0";
+alias OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 alias ExperimentalParameterExamplesStrategy = "data" | "serialized";
 alias OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
+alias EnumStrategy = "default" | "annotated";
