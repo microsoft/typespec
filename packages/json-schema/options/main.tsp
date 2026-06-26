@@ -6,7 +6,7 @@ import "@typespec/compiler/emitter";
 model EmitterOptions {
   /**
    * Serialize the schema as either yaml or json.
-   * @defaultValue yaml it not specified infer from the `output-file` extension
+   * Default `yaml`, if not specified infer from the `output-file` extension.
    */
   `file-type`?: FileType;
 
@@ -41,7 +41,7 @@ model EmitterOptions {
   /**
    * If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
    * if not explicitly specified elsewhere.
-   * @defaultValue false
+   * @default false
    */
   `seal-object-schemas`?: boolean;
 
@@ -50,7 +50,7 @@ model EmitterOptions {
    * - ignore: Emit as regular object schema (default)
    * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
    * - anyOf: Emit an anyOf schema with references to all derived models (open union)
-   * @defaultValue "ignore"
+   * @default "ignore"
    */
   `polymorphic-models-strategy`?: PolymorphicModelsStrategy;
 }

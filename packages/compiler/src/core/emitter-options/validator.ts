@@ -30,7 +30,7 @@ export function validateEmitterOptions(
 ): readonly ValidationError[] {
   switch (type.kind) {
     case "Model":
-      if (isArrayModelType(program, type)) {
+      if (isArrayModelType(type)) {
         return validateArray(program, value, type);
       }
       return validateModel(program, value, type);

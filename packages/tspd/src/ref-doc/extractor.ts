@@ -13,6 +13,7 @@ import {
   getSourceLocation,
   getTypeName,
   Interface,
+  isArrayModelType,
   isDeclaredType,
   isTemplateDeclaration,
   joinPaths,
@@ -122,6 +123,20 @@ export async function extractLibraryRefDocs(
       refDoc.emitter = {
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
+    } else {
+      // No legacy JSON-schema options: look for a `./options` export pointing at a
+      // TypeSpec model (the `EmitterOptions` model) and extract the options from it.
+      const optionsEntry = getExport(pkgJson, "./options", "typespec");
+      if (optionsEntry) {
+        const options = await extractEmitterOptionsRefDocFromTypeSpec(
+          libraryPath,
+          optionsEntry,
+          diagnostics,
+        );
+        if (options) {
+          refDoc.emitter = { options };
+        }
+      }
     }
     const linter = entrypoint.$linter;
     if (lib && linter) {
@@ -779,6 +794,241 @@ function extractEmitterOptionsRefDoc(
   return Object.entries(options.properties).map(([name, value]: [string, any]) => {
     return extractEmitterOptionInfo(name, value);
   });
+}
+
+/**
+ * Extract emitter option ref docs from an emitter that declares its options as a
+ * TypeSpec model. The `./options` export is expected to point at a TypeSpec entrypoint
+ * defining an `EmitterOptions` model.
+ */
+async function extractEmitterOptionsRefDocFromTypeSpec(
+  libraryPath: string,
+  tspEntry: string,
+  diagnostics: { add: (d: Diagnostic) => void },
+): Promise<EmitterOptionRefDoc[] | undefined> {
+  const main = resolvePath(libraryPath, tspEntry);
+  let program: Program;
+  try {
+    program = await compile(NodeHost, main, {
+      parseOptions: { comments: true, docs: true },
+    });
+  } catch {
+    return undefined;
+  }
+  for (const diag of program.diagnostics ?? []) {
+    diagnostics.add(diag);
+  }
+
+  const model = program.getGlobalNamespaceType().models.get("EmitterOptions");
+  if (model === undefined) {
+    return undefined;
+  }
+
+  return extractEmitterOptionsRefDocFromModel(program, model);
+}
+
+/**
+ * Extract emitter option ref docs from an `EmitterOptions` TypeSpec model, mapping each
+ * model property to an {@link EmitterOptionRefDoc}.
+ */
+export function extractEmitterOptionsRefDocFromModel(
+  program: Program,
+  model: Model,
+): EmitterOptionRefDoc[] {
+  return [...model.properties.values()].map((prop) =>
+    extractEmitterOptionFromModelProperty(program, prop),
+  );
+}
+
+interface OptionTypeDescription {
+  type: string;
+  allowedValues?: string[];
+  nestedOptions?: EmitterOptionRefDoc[];
+  variants?: EmitterOptionVariantRefDoc[];
+}
+
+function extractEmitterOptionFromModelProperty(
+  program: Program,
+  prop: ModelProperty,
+): EmitterOptionRefDoc {
+  const desc = describeEmitterOptionType(program, prop.type);
+  const option: Mutable<EmitterOptionRefDoc> = {
+    name: prop.name,
+    type: desc.type,
+    doc: getDoc(program, prop) ?? "",
+  };
+
+  if (desc.allowedValues) option.allowedValues = desc.allowedValues;
+  if (desc.nestedOptions) option.nestedOptions = desc.nestedOptions;
+  if (desc.variants) option.variants = desc.variants;
+
+  const defaultValue = getOptionDefaultDoc(prop);
+  if (defaultValue !== undefined) option.default = defaultValue;
+
+  const deprecated = getDeprecated(program, prop);
+  if (deprecated !== undefined) option.deprecated = deprecated;
+
+  return option;
+}
+
+/** Read the `@default` doc tag value (verbatim) from a type's doc comment, if present. */
+function getOptionDefaultDoc(type: Type): string | undefined {
+  for (const doc of type.node?.docs ?? []) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocUnknownTag && tag.tagName.sv === "default") {
+        const content = getDocContent(tag.content).trim();
+        return content.length > 0 ? content : undefined;
+      }
+    }
+  }
+  return undefined;
+}
+
+function describeEmitterOptionType(program: Program, type: Type): OptionTypeDescription {
+  switch (type.kind) {
+    case "Scalar":
+      return { type: scalarToOptionType(type) };
+    case "String":
+    case "Number":
+    case "Boolean":
+    case "Enum": {
+      const values = literalOptionValues(type)!;
+      return { type: values.join(" | "), allowedValues: values };
+    }
+    case "Model": {
+      if (isArrayModelType(type)) {
+        const element = type.indexer!.value;
+        const elementValues = literalOptionValues(element);
+        if (elementValues) {
+          return { type: `(${elementValues.join(" | ")})[]`, allowedValues: elementValues };
+        }
+        return { type: `${optionTypeToString(element)}[]` };
+      }
+      return {
+        type: `object { ${[...type.properties.keys()].join(", ")} }`,
+        nestedOptions: [...type.properties.values()].map((p) =>
+          extractEmitterOptionFromModelProperty(program, p),
+        ),
+      };
+    }
+    case "Union": {
+      const variantTypes = [...type.variants.values()].map((v) => v.type);
+      const literals = variantTypes.filter((v) => isLiteralOptionType(v));
+      const complex = variantTypes.filter((v) => !isLiteralOptionType(v));
+
+      if (complex.length === 0) {
+        const values = literalOptionValues(type)!;
+        return { type: values.join(" | "), allowedValues: values };
+      }
+
+      const variants: EmitterOptionVariantRefDoc[] = [];
+      const typeParts: string[] = [];
+      const literalValues = literals.flatMap((l) => literalOptionValues(l) ?? []);
+      if (literalValues.length > 0) {
+        variants.push({ type: literalValues.join(" | "), allowedValues: literalValues });
+        typeParts.push(literalValues.join(" | "));
+      }
+      for (const variantType of complex) {
+        const desc = describeEmitterOptionType(program, variantType);
+        // Complex variants (arrays/objects/scalars) display their full type string;
+        // do not copy `allowedValues` (which would hide e.g. the array brackets).
+        const variant: Mutable<EmitterOptionVariantRefDoc> = { type: desc.type };
+        if (desc.nestedOptions) variant.nestedOptions = desc.nestedOptions;
+        variants.push(variant);
+        typeParts.push(optionTypeToString(variantType));
+      }
+      return { type: typeParts.join(" | "), variants };
+    }
+    default:
+      return { type: getTypeName(type) };
+  }
+}
+
+/** Map a TypeSpec scalar to a simple JSON-schema-like type name for documentation. */
+function scalarToOptionType(type: Scalar): string {
+  let scalar: Scalar | undefined = type;
+  while (scalar) {
+    switch (scalar.name) {
+      case "boolean":
+        return "boolean";
+      case "string":
+      case "url":
+        return "string";
+      case "numeric":
+      case "integer":
+      case "float":
+      case "decimal":
+        return "number";
+    }
+    scalar = scalar.baseScalar;
+  }
+  return type.name;
+}
+
+/** Whether a type is a literal, an enum, or a union of only literals/enums. */
+function isLiteralOptionType(type: Type): boolean {
+  switch (type.kind) {
+    case "String":
+    case "Number":
+    case "Boolean":
+    case "Enum":
+    case "EnumMember":
+      return true;
+    case "Union":
+      return [...type.variants.values()].every((v) => isLiteralOptionType(v.type));
+    default:
+      return false;
+  }
+}
+
+/** Return the list of quoted allowed values for a literal/enum/literal-union type. */
+function literalOptionValues(type: Type): string[] | undefined {
+  switch (type.kind) {
+    case "String":
+      return [`"${type.value}"`];
+    case "Number":
+      return [String(type.value)];
+    case "Boolean":
+      return [String(type.value)];
+    case "EnumMember":
+      return [typeof type.value === "string" ? `"${type.value}"` : String(type.value ?? type.name)];
+    case "Enum":
+      return [...type.members.values()].flatMap((m) => literalOptionValues(m) ?? []);
+    case "Union": {
+      const all = [...type.variants.values()].map((v) => literalOptionValues(v.type));
+      if (all.every((x) => x !== undefined)) {
+        return all.flat() as string[];
+      }
+      return undefined;
+    }
+    default:
+      return undefined;
+  }
+}
+
+function optionTypeToString(type: Type): string {
+  switch (type.kind) {
+    case "String":
+      return `"${type.value}"`;
+    case "Number":
+      return String(type.value);
+    case "Boolean":
+      return String(type.value);
+    case "Scalar":
+      return scalarToOptionType(type);
+    case "Enum":
+      return literalOptionValues(type)!.join(" | ");
+    case "Union":
+      return [...type.variants.values()].map((v) => optionTypeToString(v.type)).join(" | ");
+    case "Model":
+      if (isArrayModelType(type)) {
+        const element = optionTypeToString(type.indexer!.value);
+        return element.includes("|") ? `(${element})[]` : `${element}[]`;
+      }
+      return `object { ${[...type.properties.keys()].join(", ")} }`;
+    default:
+      return getTypeName(type);
+  }
 }
 
 function extractEmitterOptionInfo(name: string, prop: any): EmitterOptionRefDoc {

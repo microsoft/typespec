@@ -4,7 +4,7 @@ model EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
    * Can be a single value or an array to emit multiple formats.
-   * @default yaml, it not specified infer from the `output-file` extension
+   * Default `yaml`, if not specified infer from the `output-file` extension.
    */
   `file-type`?: FileType | FileType[];
 
@@ -14,8 +14,10 @@ model EmitterOptions {
    *  - service-name: Name of the service
    *  - service-name-if-multiple: Name of the service if multiple
    *  - version: Version of the service if multiple
+   *  - file-type: The file type being emitted (json or yaml). Useful when `file-type` is an array.
    *
-   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`.
+   * When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`.
    *
    * @example Single service no versioning
    *  - `openapi.yaml`
@@ -41,14 +43,14 @@ model EmitterOptions {
    * If more than one version is specified, then the output file
    * will be created inside a directory matching each specification version.
    *
-   * @default ["v3.0"]
+   * @default ["3.0.0"]
    * @internal
    */
   `openapi-versions`?: OpenAPIVersion[];
 
   /**
    * Set the newline character for emitting files.
-   * @default lf
+   * @default "lf"
    */
   `new-line`?: "crlf" | "lf";
 
@@ -95,7 +97,7 @@ model EmitterOptions {
    * - `parent-container`: Uses the parent namespace/interface and operation name to generate the ID.
    * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
    * - `explicit-only`: Only use explicitly defined operation IDs.
-   * @default parent-container
+   * @default "parent-container"
    */
   `operation-id-strategy`?:
     | OperationIdStrategy
