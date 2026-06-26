@@ -1105,6 +1105,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  function reportDeclarationExpressionFeature(
+    node:
+      | ModelStatementNode
+      | ModelDeclarationExpressionNode
+      | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
+      | EnumStatementNode
+      | EnumDeclarationExpressionNode
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode,
+  ) {
+    const isExpression =
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression ||
+      node.kind === SyntaxKind.EnumDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression;
+    if (!isExpression) {
+      return;
+    }
+    if (!isCompilerFeatureEnabled(program, "declaration-expressions", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "experimental-feature",
+          messageId: "declarationExpressions",
+          target: node,
+        }),
+      );
+    }
+  }
+
   /**
    * Return a fully qualified id of node
    */
@@ -5076,6 +5106,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     checkTemplateDeclaration(ctx, node);
     checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -7364,6 +7397,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     checkTemplateDeclaration(ctx, node);
     checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const decorators: DecoratorApplication[] = [];
 
@@ -7625,6 +7661,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
       checkModifiers(program, node);
+      reportDeclarationExpressionFeature(node);
       const enumType: Enum = (links.type = createType({
         kind: "Enum",
         name: node.id?.sv ?? "",
@@ -7816,6 +7853,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     checkTemplateDeclaration(ctx, node);
     checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({

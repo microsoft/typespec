@@ -1,8 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { Enum, Model, Scalar, Type, Union } from "../../src/core/types.js";
-import { getDoc, getTypeName } from "../../src/index.js";
+import { getDoc, getTypeName, resolvePath } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
-import { Tester } from "../tester.js";
+import { createTester } from "../../src/testing/tester.js";
+import { Tester as BaseTester } from "../tester.js";
+
+/**
+ * Declaration expressions are an experimental feature gated behind the
+ * `declaration-expressions` compiler feature. Enable it for these tests so they
+ * exercise the feature without the experimental warning.
+ */
+const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
+  libraries: [],
+  compilerOptions: {
+    configFile: { features: ["declaration-expressions"] } as any,
+  },
+});
 
 describe("enum", () => {
   it("can be used as a property type", async () => {
@@ -628,5 +641,53 @@ describe("doc comments", () => {
     const prop = Foo.properties.get("status")!;
     expect(getDoc(program, prop)).toBe("the status property");
     expect(getDoc(program, prop.type)).toBeUndefined();
+  });
+});
+
+describe("experimental feature flag", () => {
+  it("reports an experimental-feature warning when the feature is not enabled", async () => {
+    const diagnostics = await BaseTester.diagnose(`
+      model Foo {
+        status: enum { active, inactive };
+      }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "experimental-feature",
+      severity: "warning",
+    });
+  });
+
+  it("reports the warning for each kind of declaration expression", async () => {
+    const diagnostics = await BaseTester.diagnose(`
+      model Foo {
+        a: model { x: string };
+        b: enum { active, inactive };
+        c: union { string, int32 };
+        d: scalar myStr extends string;
+      }
+    `);
+    const experimental = diagnostics.filter((d) => d.code === "experimental-feature");
+    expect(experimental).toHaveLength(4);
+  });
+
+  it("reports the warning only once for a declaration expression in a template instantiated multiple times", async () => {
+    const diagnostics = await BaseTester.diagnose(`
+      model Foo<T> {
+        x: model { y: T };
+      }
+      model A is Foo<string>;
+      model B is Foo<int32>;
+    `);
+    const experimental = diagnostics.filter((d) => d.code === "experimental-feature");
+    expect(experimental).toHaveLength(1);
+  });
+
+  it("does not report the warning when the feature is enabled", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model Foo {
+        status: enum { active, inactive };
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
   });
 });

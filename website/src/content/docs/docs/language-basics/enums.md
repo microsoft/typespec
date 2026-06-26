@@ -81,6 +81,17 @@ alias North = Direction.North;
 
 ## In expression position
 
+:::warning
+Declaration expressions are an experimental TypeSpec feature. Using a `model`, `enum`, `union`, or `scalar` declaration in expression position yields an `experimental-feature` warning. Enable them without the warning by adding `declaration-expressions` to the `features` list in your `tspconfig.yaml`:
+
+```yaml
+kind: project
+features:
+  - declaration-expressions
+```
+
+:::
+
 The `enum` keyword can also be used anywhere a type expression is expected — for example as an alias value, a property type, a decorator or template argument, or a tuple element.
 
 ```typespec

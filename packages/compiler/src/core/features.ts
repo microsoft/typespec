@@ -11,6 +11,10 @@ export const compilerFeatures = {
     description:
       "Allows use of function declarations without experimental warnings in project code.",
   },
+  "declaration-expressions": {
+    description:
+      "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;

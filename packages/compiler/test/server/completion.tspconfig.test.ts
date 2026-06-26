@@ -134,19 +134,19 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"function-declarations"'],
+      expected: ['"declaration-expressions"', '"function-declarations"'],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["function-declarations"],
+      expected: ["declaration-expressions", "function-declarations"],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["function-declarations"],
+      expected: ["declaration-expressions", "function-declarations"],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: [],
+      expected: ['"declaration-expressions"'],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -156,7 +156,10 @@ describe("Test completion items for features", () => {
     await checkCompletionItems(
       `features:\n  - ┆`,
       true,
-      ["Allows use of function declarations without experimental warnings in project code."],
+      [
+        "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
+        "Allows use of function declarations without experimental warnings in project code.",
+      ],
       true,
     );
   });

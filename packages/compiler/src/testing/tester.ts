@@ -39,6 +39,11 @@ export interface TesterOptions {
   libraries: string[];
 
   /**
+   * Default compiler options applied to every compilation. Per-call options are merged on top.
+   */
+  compilerOptions?: CompilerOptions;
+
+  /**
    * System host for loading libraries
    * @internal
    */
@@ -48,6 +53,7 @@ export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
     fs: once(() => createTesterFs(base, options)),
     libraries: options.libraries,
+    compilerOptions: options.compilerOptions,
   });
 }
 
@@ -417,11 +423,10 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     const typesCollected = addTestLib(fs);
     const { markerPositions, markerConfigs } = addCode(fs, code);
 
-    const program = await coreCompile(
-      fs.compilerHost,
-      resolveVirtualPath("main.tsp"),
-      options?.compilerOptions,
-    );
+    const program = await coreCompile(fs.compilerHost, resolveVirtualPath("main.tsp"), {
+      ...params.compilerOptions,
+      ...options?.compilerOptions,
+    });
     savedProgram = program;
     saved$ = $(program);
     const entities = extractMarkedEntities(program, markerPositions, markerConfigs);
