@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import vscode, { workspace } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
+import { Executable } from "vscode-languageclient/node";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { normalizeSlashes } from "./path-utils.js";

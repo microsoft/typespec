@@ -1,11 +1,11 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
   CompletionItemKind,
   Position,
   Range,
   TextEdit,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { Document, isMap, isPair, Node } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import { compilerFeatureNames, compilerFeatures } from "../../core/features.js";

@@ -94,7 +94,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
         .filter((d) => d.tags !== undefined && d.tags.length > 0)
         .map((d) => ({
           severity: monaco.MarkerSeverity.Hint,
-          message: d.message,
+          message: LspToMonaco.markupContentToString(d.message),
           startLineNumber: d.range.start.line + 1,
           startColumn: d.range.start.character + 1,
           endLineNumber: d.range.end.line + 1,
