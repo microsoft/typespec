@@ -26,11 +26,8 @@ op RpcOperationWithAdditionalResponse<
   TErrorResponse = Azure.Core.Foundations.ErrorResponse
 > is Foundations.Operation<
   TParams & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Parameters>,
-  (TResponse &
-    Azure.Core.Traits.Private.TraitProperties<
-      Traits,
-      TraitLocation.Response
-    >) | TAdditionalResponse,
+  | (TResponse & Azure.Core.Traits.Private.TraitProperties<Traits, TraitLocation.Response>)
+  | TAdditionalResponse,
   Traits,
   TErrorResponse
 >;
@@ -218,4 +215,46 @@ interface ResponseOp {
   // expect BinaryData as response
   @route("/union-response")
   getUnionResponse(): OperationDetails1 | OperationDetails2;
+
+  @route("/text-boolean-response")
+  @get
+  getTextBoolean(): OkResponse & {
+    @body body: boolean;
+  };
+
+  @route("/text-byte-response")
+  @get
+  getTextByte(): OkResponse & {
+    @body body: int8;
+  };
+
+  @route("/text-int32-response")
+  @get
+  getTextInt32(): OkResponse & {
+    @body body: int32;
+  };
+
+  @route("/text-int64-response")
+  @get
+  getTextInt64(): OkResponse & {
+    @body body: int64;
+  };
+
+  @route("/text-float32-response")
+  @get
+  getTextFloat32(): OkResponse & {
+    @body body: float32;
+  };
+
+  @route("/text-float64-response")
+  @get
+  getTextFloat64(): OkResponse & {
+    @body body: float64;
+  };
+
+  @route("/text-char-response")
+  @get
+  getTextChar(): OkResponse & {
+    @body body: int16;
+  };
 }

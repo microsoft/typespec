@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -24,8 +23,9 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaTyp
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import java.util.HashSet;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +64,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             }
 
             // Request body
-            Set<IType> typesInJavadoc = new HashSet<>();
+            Set<IType> typesInJavadoc = new LinkedHashSet<>();
 
             Optional<ProxyMethodParameter> bodyParameter = clientMethod.getProxyMethod()
                 .getAllParameters()

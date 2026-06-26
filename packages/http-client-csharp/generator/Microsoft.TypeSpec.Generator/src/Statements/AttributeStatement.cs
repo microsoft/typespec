@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 writer.AppendRaw(")");
             }
-            writer.WriteRawLine("]");
+            writer.AppendRaw("]");
         }
     }
 }

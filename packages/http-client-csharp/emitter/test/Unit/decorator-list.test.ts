@@ -34,7 +34,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const clients = root.clients;
     strictEqual(clients.length, 1);
     ok(clients[0].children);
@@ -66,7 +66,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const methods = root.clients[0].methods;
     strictEqual(methods.length, 1);
     const operation = methods[0].operation;
@@ -97,7 +97,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
@@ -127,7 +127,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].properties[0].decorators, [
@@ -153,7 +153,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const methods = root.clients[0].methods;
     strictEqual(methods.length, 1);
     const operation = methods[0].operation;

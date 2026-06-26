@@ -3,6 +3,7 @@ import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Decorator,
   Enum,
+  FunctionValue,
   Interface,
   ListenerFlow,
   Model,
@@ -15,11 +16,13 @@ import {
   StringTemplate,
   StringTemplateSpan,
   TemplateParameter,
+  TemplateParameterAccess,
   Tuple,
   Type,
   TypeListeners,
   Union,
   UnionVariant,
+  Value,
 } from "./types.js";
 
 export interface NavigationOptions {
@@ -84,12 +87,12 @@ export function navigateType(
  * @param options Scope options
  * @returns wrapped listeners that that can be used with `navigateType`
  */
-export function scopeNavigationToNamespace<T extends TypeListeners>(
+export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   namespace: Namespace,
   listeners: T,
   options: NamespaceNavigationOptions = {},
 ): T {
-  const wrappedListeners: TypeListeners = {};
+  const wrappedListeners: SemanticNodeListener = {};
   for (const [name, callback] of Object.entries(listeners)) {
     wrappedListeners[name as any as keyof TypeListeners] = (x) => {
       if (x !== namespace && "namespace" in x) {
@@ -108,7 +111,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
 
 export function navigateTypesInNamespace(
   namespace: Namespace,
-  listeners: TypeListeners,
+  listeners: SemanticNodeListener,
   options: NamespaceNavigationOptions & NavigationOptions = {},
 ) {
   navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
@@ -201,10 +204,14 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
     navigateDecoratorDeclaration(decorator, context);
   }
 
+  for (const func of namespace.functionDeclarations.values()) {
+    navigateFunctionDeclaration(func, context);
+  }
+
   context.emit("exitNamespace", namespace);
 }
 
-function checkVisited(visited: Set<any>, item: Type) {
+function checkVisited(visited: Set<any>, item: Type | Value) {
   if (visited.has(item)) {
     return true;
   }
@@ -378,6 +385,19 @@ function navigateTemplateParameter(type: TemplateParameter, context: NavigationC
     return;
   }
   if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameter", type);
+}
+
+/** Emit semantic walker events for template parameter access nodes. */
+function navigateTemplateParameterAccess(
+  type: TemplateParameterAccess,
+  context: NavigationContext,
+) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("templateParameterAccess", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitTemplateParameterAccess", type);
 }
 
 function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
@@ -394,50 +414,68 @@ function navigateScalarConstructor(type: ScalarConstructor, context: NavigationC
   if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateTypeInternal(type: Type, context: NavigationContext) {
-  switch (type.kind) {
-    case "Model":
-      return navigateModelType(type, context);
-    case "Scalar":
-      return navigateScalarType(type, context);
-    case "ModelProperty":
-      return navigateModelTypeProperty(type, context);
-    case "Namespace":
-      return navigateNamespaceType(type, context);
-    case "Interface":
-      return navigateInterfaceType(type, context);
-    case "Enum":
-      return navigateEnumType(type, context);
-    case "Operation":
-      return navigateOperationType(type, context);
-    case "Union":
-      return navigateUnionType(type, context);
-    case "UnionVariant":
-      return navigateUnionTypeVariant(type, context);
-    case "Tuple":
-      return navigateTupleType(type, context);
-    case "StringTemplate":
-      return navigateStringTemplate(type, context);
-    case "StringTemplateSpan":
-      return navigateStringTemplateSpan(type, context);
-    case "TemplateParameter":
-      return navigateTemplateParameter(type, context);
-    case "Decorator":
-      return navigateDecoratorDeclaration(type, context);
-    case "ScalarConstructor":
-      return navigateScalarConstructor(type, context);
-    case "FunctionParameter":
-    case "Boolean":
-    case "EnumMember":
-    case "Intrinsic":
-    case "Number":
-    case "String":
-      return;
-    default:
-      // Dummy const to ensure we handle all types.
-      // If you get an error here, add a case for the new type you added
-      const _assertNever: never = type;
-      return;
+function navigateFunctionDeclaration(value: FunctionValue, context: NavigationContext) {
+  if (checkVisited(context.visited, value)) {
+    return;
+  }
+  if (context.emit("function", value) === ListenerFlow.NoRecursion) return;
+}
+
+function navigateTypeInternal(entity: Type | Value, context: NavigationContext) {
+  if (entity.entityKind === "Type") {
+    switch (entity.kind) {
+      case "Model":
+        return navigateModelType(entity, context);
+      case "Scalar":
+        return navigateScalarType(entity, context);
+      case "ModelProperty":
+        return navigateModelTypeProperty(entity, context);
+      case "Namespace":
+        return navigateNamespaceType(entity, context);
+      case "Interface":
+        return navigateInterfaceType(entity, context);
+      case "Enum":
+        return navigateEnumType(entity, context);
+      case "Operation":
+        return navigateOperationType(entity, context);
+      case "Union":
+        return navigateUnionType(entity, context);
+      case "UnionVariant":
+        return navigateUnionTypeVariant(entity, context);
+      case "Tuple":
+        return navigateTupleType(entity, context);
+      case "StringTemplate":
+        return navigateStringTemplate(entity, context);
+      case "StringTemplateSpan":
+        return navigateStringTemplateSpan(entity, context);
+      case "TemplateParameter":
+        return navigateTemplateParameter(entity, context);
+      case "TemplateParameterAccess":
+        return navigateTemplateParameterAccess(entity, context);
+      case "Decorator":
+        return navigateDecoratorDeclaration(entity, context);
+      case "ScalarConstructor":
+        return navigateScalarConstructor(entity, context);
+      case "FunctionParameter":
+      case "FunctionType":
+      case "Boolean":
+      case "EnumMember":
+      case "Intrinsic":
+      case "Number":
+      case "String":
+        return;
+      default:
+        // Dummy const to ensure we handle all types.
+        // If you get an error here, add a case for the new type you added
+        const _assertNever: never = entity;
+        return;
+    }
+  } else {
+    if (entity.valueKind === "Function") {
+      return navigateFunctionDeclaration(entity, context);
+    }
+
+    return;
   }
 }
 
@@ -477,7 +515,9 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
   "templateParameter",
+  "templateParameterAccess",
   "exitTemplateParameter",
+  "exitTemplateParameterAccess",
   "scalar",
   "exitScalar",
   "model",

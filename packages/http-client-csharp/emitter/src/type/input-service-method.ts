@@ -16,6 +16,7 @@ export type InputServiceMethod =
 interface InputServiceMethodBase {
   kind: string;
   name: string;
+  isExactName?: boolean;
   accessibility?: string;
   apiVersions: string[];
   doc?: string;
@@ -48,6 +49,7 @@ export interface InputPagingServiceMetadata {
   nextLink?: InputNextLink;
   continuationToken?: InputContinuationToken;
   itemPropertySegments: string[];
+  pageSizeParameterSegments?: string[];
 }
 
 export interface InputNextLink {

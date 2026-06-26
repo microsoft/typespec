@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AndSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -34,11 +33,11 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.extensi
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -80,7 +79,7 @@ public class Transformer {
         if (schemas.getGroups() != null) {
             schemas.getGroups().forEach(group -> {
                 if (group.getUsage() == null) {
-                    group.setUsage(new HashSet<>());
+                    group.setUsage(new LinkedHashSet<>());
                 }
                 group.getUsage().add(SchemaContext.OPTIONS_GROUP);
             });
@@ -249,7 +248,7 @@ public class Transformer {
                     }
 
                     if (flattenedSchemas == null) {
-                        flattenedSchemas = new HashMap<>();
+                        flattenedSchemas = new LinkedHashMap<>();
                     }
                     flattenedSchemas.put(property.getLanguage().getJava().getName(), flattenedSchema);
 
@@ -291,10 +290,10 @@ public class Transformer {
         }
     }
 
-    private final Map<OperationSignature, Schema> pagingNextOperationResponseSchemaMap = new HashMap<>();
+    private final Map<OperationSignature, Schema> pagingNextOperationResponseSchemaMap = new LinkedHashMap<>();
 
     // Operation -> next page operation
-    private final Map<OperationSignature, Operation> operationNextPageOperationMap = new HashMap<>();
+    private final Map<OperationSignature, Operation> operationNextPageOperationMap = new LinkedHashMap<>();
 
     /**
      * Adds next page operation for the given operation.
@@ -589,7 +588,10 @@ public class Transformer {
     private void renameProperty(Property property) {
         Language language = property.getLanguage().getDefault();
         Language java = addJavaLanguage(property);
-        java.setName(CodeNamer.getPropertyName(language.getName()));
+        if (property.getLanguage().getJava().getName() == null
+            || property.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getPropertyName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         property.getLanguage().setJava(java);
@@ -607,7 +609,9 @@ public class Transformer {
     private void renameClient(Metadata client) {
         Language language = client.getLanguage().getDefault();
         Language java = addJavaLanguage(client);
-        java.setName(CodeNamer.getClientName(language.getName()));
+        if (client.getLanguage().getJava().getName() == null || client.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getClientName(language.getName()));
+        }
         java.setDescription(language.getDescription());
         client.getLanguage().setJava(java);
     }
@@ -615,7 +619,9 @@ public class Transformer {
     private void renameVariable(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getParameterName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getParameterName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         schema.getLanguage().setJava(java);
@@ -624,7 +630,9 @@ public class Transformer {
     private void renameMethodGroup(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getMethodGroupName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getMethodGroupName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         schema.getLanguage().setJava(java);
@@ -633,7 +641,9 @@ public class Transformer {
     private void renameMethod(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getMethodName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getMethodName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
     }
@@ -684,12 +694,10 @@ public class Transformer {
         }
 
         // rename if name conflict
-        Set<String> parameterNames = new HashSet<>();
-        ListIterator<Parameter> iter = parameters.listIterator();
-        while (iter.hasNext()) {
-            Parameter parameter = iter.next();
+        Set<String> parameterNames = new LinkedHashSet<>();
+        for (Parameter parameter : parameters) {
             if (parameter.getOriginalParameter() == null // skip the parameters resulted from parameter-flattening as
-                                                         // they are not in proxy method
+                // they are not in proxy method
                 && parameterNames.contains(parameter.getLanguage().getJava().getName())) {
                 parameter.getLanguage().getJava().setName(parameter.getLanguage().getJava().getName() + "Param");
             }
@@ -698,11 +706,8 @@ public class Transformer {
         }
     }
 
-    private final static Map<String, String> ODATA_PARAMETER_NAME_CONVERSION = new HashMap<>(2);
-    static {
-        ODATA_PARAMETER_NAME_CONVERSION.put("maxpagesize", "maxPageSize");
-        ODATA_PARAMETER_NAME_CONVERSION.put("orderby", "orderBy");
-    }
+    private final static Map<String, String> ODATA_PARAMETER_NAME_CONVERSION
+        = Map.of("maxpagesize", "maxPageSize", "orderby", "orderBy");
 
     private static void renameOdataParameterNames(Request request) {
         List<Parameter> parameters = request.getParameters();

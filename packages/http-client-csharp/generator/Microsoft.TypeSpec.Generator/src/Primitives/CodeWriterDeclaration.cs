@@ -38,7 +38,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal string GetActualName(CodeWriter.CodeScope scope)
         {
             if (!_actualNames.TryGetValue(scope, out var actualName))
+            {
                 throw new InvalidOperationException($"Declaration {RequestedName} is not initialized");
+            }
 
             return actualName;
         }

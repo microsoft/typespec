@@ -15,7 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 
 /** Client initialization example writer for DPG methods. */
 public class ClientInitializationExampleWriter {
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
     private final Consumer<JavaBlock> clientInitializationWriter;
     private final String clientVarName;
 
@@ -44,7 +44,7 @@ public class ClientInitializationExampleWriter {
 
         // client initialization
         List<String> clientParameterLines = new ArrayList<>();
-        Set<ServiceClientProperty> processedServiceClientProperties = new HashSet<>();
+        Set<ServiceClientProperty> processedServiceClientProperties = new LinkedHashSet<>();
 
         // proxy method parameters which value comes from client
         method.getProxyMethod().getAllParameters().stream().filter(ProxyMethodParameter::isFromClient).forEach(p -> {
@@ -118,7 +118,7 @@ public class ClientInitializationExampleWriter {
     }
 
     public Set<String> getImports() {
-        return new HashSet<>(this.imports);
+        return new LinkedHashSet<>(this.imports);
     }
 
     public void write(JavaBlock methodBlock) {

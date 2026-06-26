@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ApiVersion;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -38,7 +37,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import java.util.Collections;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -166,7 +165,7 @@ public class Javagen extends NewPlugin {
                     && client.getSyncClients().stream().anyMatch(c -> c.getClientBuilder() != null)) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
-                        serviceClients = Collections.singletonList(client.getServiceClient());
+                        serviceClients = List.of(client.getServiceClient());
                     }
                     TestContext<Void> testContext = new TestContext<>(serviceClients, client.getSyncClients());
 

@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
         public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
+        public static ScopedApi<bool> IsNot(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is not", parameter, other).As<bool>();
 
         public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
         public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();
@@ -123,6 +124,13 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             IReadOnlyList<ValueExpression> args,
             IReadOnlyList<CSharpType> typeArgs)
             => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs };
+
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter,
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs,
+            CSharpType? extensionType)
+            => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs, ExtensionType = extensionType };
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
             => new InvokeMethodExpression(parameter, methodName, args);

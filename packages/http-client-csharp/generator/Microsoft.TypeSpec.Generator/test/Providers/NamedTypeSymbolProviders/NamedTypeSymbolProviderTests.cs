@@ -334,6 +334,91 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public async Task ValidatePartialMethodIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var partial = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsTrue(partial.IsPartialMethod, "Expected DoIt to be detected as partial.");
+            Assert.IsTrue(partial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            var nonPartial = provider.Methods.Single(m => m.Signature.Name == "NonPartial");
+            Assert.IsFalse(nonPartial.IsPartialMethod, "Expected NonPartial to not be detected as partial.");
+            Assert.IsFalse(nonPartial.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+        }
+
+        [Test]
+        public async Task ValidatePartialMethodWithBodyIsNotDetectedAsPartialDeclaration()
+        {
+            // A partial method *with* a body is the implementation half - not the declaration we
+            // want to treat as a customization signal.
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithPartial")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var doIt = provider.Methods.Single(m => m.Signature.Name == "DoIt");
+            Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
+        }
+
+        // Operator signatures parsed from a customization partial must compare equal to the corresponding generated signatures.
+        [Test]
+        public async Task ValidateOperatorSignaturesMatchGenerated()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithOperators")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+            var typeFromCustomization = provider.Type;
+
+            var leftParam = new ParameterProvider("left", $"left", typeFromCustomization);
+            var rightParam = new ParameterProvider("right", $"right", typeFromCustomization);
+            var valueParam = new ParameterProvider("value", $"value", typeof(string));
+            var operatorModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Operator;
+            var implicitOperatorModifiers = operatorModifiers | MethodSignatureModifiers.Implicit;
+
+            // Mirror the signatures emitted by generated providers (e.g. ExtensibleEnumProvider).
+            var generatedEquality = new MethodSignature("==", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedInequality = new MethodSignature("!=", null, operatorModifiers, typeof(bool), null, [leftParam, rightParam]);
+            var generatedImplicit = new MethodSignature(string.Empty, null, implicitOperatorModifiers, typeFromCustomization, null, [valueParam]);
+
+            var customEquality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("=="));
+            var customInequality = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)
+                && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Name.EndsWith("!="));
+            var customImplicit = provider.Methods.Single(m =>
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
+
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedEquality, customEquality.Signature),
+                "Generated `==` operator should match the `==` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedInequality, customInequality.Signature),
+                "Generated `!=` operator should match the `!=` operator parsed from the customization partial.");
+            Assert.IsTrue(MethodSignatureBase.SignatureComparer.Equals(generatedImplicit, customImplicit.Signature),
+                "Generated implicit conversion operator should match the implicit operator parsed from the customization partial.");
+
+            // Sanity check: `==` and `!=` parsed from customization must remain distinguishable.
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(customEquality.Signature, customInequality.Signature),
+                "`==` and `!=` operators must not compare as equal even though their parameter shapes match.");
+        }
+
+        [Test]
         public void ValidateMethods()
         {
             Dictionary<string, MethodProvider> methods = _namedTypeSymbolProvider.Methods.ToDictionary(p => p.Signature.Name);
@@ -483,7 +568,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             protected override string BuildNamespace() => "Sample.Models";
             protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
 
-            protected override FieldProvider[] BuildFields()
+            protected internal override FieldProvider[] BuildFields()
             {
                 return
                 [
@@ -499,7 +584,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             protected override string BuildNamespace() => "Sample.Models";
             protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
 
-            protected override FieldProvider[] BuildFields()
+            protected internal override FieldProvider[] BuildFields()
             {
                 return
                 [

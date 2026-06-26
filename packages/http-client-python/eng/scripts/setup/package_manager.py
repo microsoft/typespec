@@ -25,7 +25,7 @@ def _check_command_available(command: str) -> bool:
     try:
         subprocess.run([command, "--version"], capture_output=True, check=True)
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         return False
 
 
@@ -50,7 +50,7 @@ def detect_package_manager() -> str:
     try:
         subprocess.run([sys.executable, "-m", "pip", "--version"], capture_output=True, check=True)
         return "python -m pip"
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, PermissionError):
         pass
 
     raise PackageManagerNotFoundError("No suitable package manager found. Please install either uv or pip.")
@@ -100,10 +100,20 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
 
     try:
         if cwd:
-            subprocess.check_call(install_cmd + packages, cwd=cwd)
+            result = subprocess.run(install_cmd + packages, cwd=cwd, capture_output=True, text=True)
         else:
-            subprocess.check_call(install_cmd + packages)
-    except subprocess.CalledProcessError as e:
+            result = subprocess.run(install_cmd + packages, capture_output=True, text=True)
+        if result.returncode != 0:
+            error_output = (result.stderr or "") + (result.stdout or "")
+            error_msg = f"Failed to install packages with {package_manager}: command exited with code {result.returncode}\n{error_output}"
+            if "401" in error_output or "Unauthorized" in error_output:
+                error_msg += (
+                    "\n\nReceived a 401 Unauthorized error from the Azure feed. "
+                    "A pip dependency may not yet be cached. To fix this, follow the authentication steps at: "
+                    "https://github.com/Azure/azure-sdk-for-python/blob/main/CONTRIBUTING.md#authentication-for-upstream-pull-through"
+                )
+            raise RuntimeError(error_msg)
+    except OSError as e:
         raise RuntimeError(f"Failed to install packages with {package_manager}: {e}")
 
 

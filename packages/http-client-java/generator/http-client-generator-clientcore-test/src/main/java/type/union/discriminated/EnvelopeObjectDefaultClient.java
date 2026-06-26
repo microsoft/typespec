@@ -44,7 +44,7 @@ public final class EnvelopeObjectDefaultClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with default envelope serialization.
      * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
+     * and "value" as envelope property along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -96,7 +96,7 @@ public final class EnvelopeObjectDefaultClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with default envelope serialization.
      * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
+     * and "value" as envelope property along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

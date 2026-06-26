@@ -18,8 +18,6 @@ namespace Sample
 
         public CatClientGetCatsAsyncCollectionResultOfT(global::Sample.CatClient client, string animalKind, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::Sample.Argument.AssertNotNullOrEmpty(animalKind, nameof(animalKind));
-
             _client = client;
             _animalKind = animalKind;
             _options = options;
@@ -28,7 +26,7 @@ namespace Sample
         public override async global::System.Collections.Generic.IAsyncEnumerable<global::System.ClientModel.ClientResult> GetRawPagesAsync()
         {
             global::System.ClientModel.Primitives.PipelineMessage message = _client.CreateGetCatsRequest(_animalKind, _options);
-            yield return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+            yield return await this.GetNextResponseAsync(message).ConfigureAwait(false);
         }
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
@@ -43,6 +41,11 @@ namespace Sample
                 yield return item;
                 await global::System.Threading.Tasks.Task.Yield();
             }
+        }
+
+        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

@@ -34,11 +34,7 @@ from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
-from .utils import (
-    extract_sample_name,
-    get_namespace_from_package_name,
-    get_namespace_config,
-)
+from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,15 +42,15 @@ __all__ = [
     "JinjaSerializer",
 ]
 
-_PACKAGE_FILES = [
+_DEFAULT_PACKAGE_FILES = (
     "CHANGELOG.md.jinja2",
     "dev_requirements.txt.jinja2",
     "LICENSE.jinja2",
     "MANIFEST.in.jinja2",
     "README.md.jinja2",
-]
+)
 
-_REGENERATE_FILES = {"MANIFEST.in"}
+_DEFAULT_REGENERATE_FILES = frozenset({"MANIFEST.in"})
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
 
@@ -79,15 +75,17 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         super().__init__(output_folder=output_folder, **kwargs)
         self.code_model = code_model
+        self._package_files: list[str] = list(_DEFAULT_PACKAGE_FILES)
+        self._regenerate_files: set[str] = set(_DEFAULT_REGENERATE_FILES)
         self._regenerate_setup_py()
 
     def _regenerate_setup_py(self):
         if self.code_model.options["keep-setup-py"] or self.code_model.options["basic-setup-py"]:
-            _PACKAGE_FILES.append("setup.py.jinja2")
-            _REGENERATE_FILES.add("setup.py")
+            self._package_files.append("setup.py.jinja2")
+            self._regenerate_files.add("setup.py")
         else:
-            _PACKAGE_FILES.append("pyproject.toml.jinja2")
-            _REGENERATE_FILES.add("pyproject.toml")
+            self._package_files.append("pyproject.toml.jinja2")
+            self._regenerate_files.add("pyproject.toml")
 
     @property
     def has_aio_folder(self) -> bool:
@@ -184,6 +182,17 @@ class JinjaSerializer(ReaderAndWriter):
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
+                # When generation-subdir is configured, generated code goes into a subdirectory
+                # (e.g., _generated/). We also need an __init__.py in the parent namespace dir
+                # so that the package is discoverable by find_packages() / pip install.
+                root_dir = self.code_model.get_root_dir()
+                if self.code_model.options.get("generation-subdir") and not self.read_file(
+                    root_dir / Path("__init__.py")
+                ):
+                    self.write_file(
+                        root_dir / Path("__init__.py"),
+                        general_serializer.serialize_pkgutil_init_file(),
+                    )
             else:
                 # add pkgutil init file if no clients in this namespace
                 self.write_file(
@@ -246,7 +255,7 @@ class JinjaSerializer(ReaderAndWriter):
                 lstrip_blocks=True,
             )
 
-            package_files = _PACKAGE_FILES
+            package_files = list(self._package_files)
             if not self.code_model.license_description:
                 package_files.remove("LICENSE.jinja2")
         elif Path(self.code_model.options["package-mode"]).exists():
@@ -265,7 +274,7 @@ class JinjaSerializer(ReaderAndWriter):
                 continue
             file = template_name.replace(".jinja2", "")
             output_file = root_of_sdk / file
-            if not self.read_file(output_file) or file in _REGENERATE_FILES:
+            if not self.read_file(output_file) or file in self._regenerate_files:
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
@@ -486,32 +495,34 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         root_dir = self.code_model.get_root_dir()
+        generation_dir = self.code_model.get_generation_dir(namespace)
         # write _utils folder
         self._serialize_and_write_utils_folder(env, self.code_model.namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _version.py
+        # Always write at root namespace since pyproject.toml references it there
         self._serialize_and_write_version_file(general_serializer)
-        # if there's a subdir, we need to write another version file in the subdir
         if self.code_model.options.get("generation-subdir"):
             self._serialize_and_write_version_file(general_serializer, namespace)
 
         # write the empty py.typed file
+        # Always write at root namespace since MANIFEST.in references it there
         pytyped_value = "# Marker file for PEP 561."
         self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
-                root_dir / Path("_validation.py"),
+                generation_dir / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
 
         # write _types.py
         if self.code_model.named_unions:
             self.write_file(
-                root_dir / Path("_types.py"),
+                generation_dir / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 
@@ -536,39 +547,72 @@ class JinjaSerializer(ReaderAndWriter):
     def _generated_tests_samples_folder(self, folder_name: str) -> Path:
         return self._root_of_sdk / folder_name
 
+    def _process_operation_samples(
+        self,
+        samples: dict,
+        env: Environment,
+        op_group,
+        operation,
+        import_sample_cache: dict[tuple[str, str], str],
+        out_path: Path,
+        sample_additional_folder: Path,
+    ) -> None:
+        """Process samples for a single operation."""
+        for sample_value in samples.values():
+            file = sample_value.get("x-ms-original-file", "sample.json")
+            file_name = to_snake_case(extract_sample_name(file)) + ".py"
+            try:
+                sample_ser = SampleSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                    operation_group=op_group,
+                    operation=operation,
+                    sample=sample_value,
+                    file_name=file_name,
+                )
+                file_import = sample_ser.get_file_import()
+                imports_hash_string = hash_file_import(file_import)
+                cache_key = (op_group.client.client_namespace, imports_hash_string)
+                if cache_key not in import_sample_cache:
+                    import_sample_cache[cache_key] = sample_ser.get_imports_from_file_import(file_import)
+                sample_ser.imports = import_sample_cache[cache_key]
+
+                content = sample_ser.serialize()
+                output_path = out_path / sample_additional_folder / _sample_output_path(file) / file_name
+                self.write_file(output_path, content)
+            except Exception as e:  # pylint: disable=broad-except
+                _LOGGER.error("error happens in sample %s: %s", file, e)
+
     def _serialize_and_write_sample(self, env: Environment):
         out_path = self._generated_tests_samples_folder("generated_samples")
+        sample_additional_folder = self.sample_additional_folder
+
+        # Cache import_test per (client_namespace, imports_hash_string) since it's expensive to compute
+        import_sample_cache: dict[tuple[str, str], str] = {}
+
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
                     samples = operation.yaml_data.get("samples")
                     if not samples or operation.name.startswith("_"):
                         continue
-                    for value in samples.values():
-                        file = value.get("x-ms-original-file", "sample.json")
-                        file_name = to_snake_case(extract_sample_name(file)) + ".py"
-                        try:
-                            self.write_file(
-                                out_path / self.sample_additional_folder / _sample_output_path(file) / file_name,
-                                SampleSerializer(
-                                    code_model=self.code_model,
-                                    env=env,
-                                    operation_group=op_group,
-                                    operation=operation,
-                                    sample=value,
-                                    file_name=file_name,
-                                ).serialize(),
-                            )
-                        except Exception as e:  # pylint: disable=broad-except
-                            # sample generation shall not block code generation, so just log error
-                            log_error = f"error happens in sample {file}: {e}"
-                            _LOGGER.error(log_error)
+                    self._process_operation_samples(
+                        samples,
+                        env,
+                        op_group,
+                        operation,
+                        import_sample_cache,
+                        out_path,
+                        sample_additional_folder,
+                    )
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
         out_path = self._generated_tests_samples_folder("generated_tests")
+
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
+
         if not self.code_model.options["azure-arm"]:
             for async_mode in (True, False):
                 async_suffix = "_async" if async_mode else ""
@@ -578,18 +622,24 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_testpreparer(),
                 )
 
+        # Generate test files - reuse serializer per operation group, toggle async_mode
+        # Cache import_test per (client.name, async_mode) since it's expensive to compute
+        import_test_cache: dict[tuple[str, bool], str] = {}
         for client in self.code_model.clients:
             for og in client.operation_groups:
+                # Create serializer once per operation group
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
-                for async_mode in (True, False):
-                    try:
+                try:
+                    for async_mode in (True, False):
                         test_serializer.async_mode = async_mode
-                        self.write_file(
-                            out_path / f"{to_snake_case(test_serializer.test_class_name)}.py",
-                            test_serializer.serialize_test(),
-                        )
-                    except Exception as e:  # pylint: disable=broad-except
-                        # test generation shall not block code generation, so just log error
-                        log_error = f"error happens in test generation for operation group {og.class_name}: {e}"
-                        _LOGGER.error(log_error)
+                        cache_key = (client.name, async_mode)
+                        if cache_key not in import_test_cache:
+                            import_test_cache[cache_key] = test_serializer.get_import_test()
+                        test_serializer.import_test = import_test_cache[cache_key]
+                        content = test_serializer.serialize_test()
+                        output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
+                        self.write_file(output_path, content)
+                except Exception as e:  # pylint: disable=broad-except
+                    _LOGGER.error("error happens in test generation for operation group %s: %s", og.class_name, e)
+
         self.code_model.for_test = False

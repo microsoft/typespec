@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel],
                 createSerializationsCore: (inputType, typeProvider) =>
-                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
             if (isRootInput)
             {
                 generator.Object.TypeFactory.RootInputModels.Add(inputModel);
@@ -599,6 +599,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void IsExactNamePropertySerializationUsesExactName()
+        {
+            // When a property has IsExactName, both the C# property identifier and the wire name
+            // should appear verbatim in the generated JsonModelWriteCore body — i.e. the wire name
+            // is written via WritePropertyName and the C# property reference uses the exact name.
+            var property = InputFactory.Property(
+                "access_token",
+                InputPrimitiveType.String,
+                wireName: "access_token",
+                isRequired: true,
+                isExactName: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# property name preserves the exact-case name.
+            Assert.AreEqual("access_token", model.Properties[0].Name);
+
+            var serializationMethod = serialization.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+            var serializationBody = serializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("serialize"), serializationBody);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("deserialize"), deserializationBody);
+        }
+
+        [Test]
+        public void IsExactNameModelSerializationUsesExactName()
+        {
+            // When a model has IsExactName, the model name is preserved verbatim and
+            // generated Deserialize method signature uses the exact name.
+            var property = InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true, wireName: "Name");
+            var inputModel = InputFactory.Model("snake_case_model", properties: [property], isExactName: true);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // C# model name preserves the exact-case name.
+            Assert.AreEqual("snake_case_model", model.Name);
+
+            // The deserialization method name is built from the model name verbatim.
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            // cspell:ignore Deserializesnake
+            Assert.AreEqual("Deserializesnake_case_model", deserializationMethod.Signature.Name);
+
+            // Full deserialization body uses the exact model name verbatim throughout.
+            var deserializationBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), deserializationBody);
+        }
+
+        [Test]
+        public void GetUtf8BytesIsUsedForMrwFallback()
+        {
+            var property = InputFactory.Property(
+                "mockProperty",
+                InputFactory.Model("SomeExternalModel", external: new InputExternalTypeMetadata("System.IO.File", null, null)));
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
             var baseModel = InputFactory.Model("BaseModel");
@@ -833,9 +897,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt64())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
@@ -851,10 +917,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return expr.ToDisplayString();
         }
 
-        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalSeconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalSeconds)));\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
-        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalMilliseconds));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(global::System.Math.Round(value.TotalMilliseconds)));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Int64, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt64(global::System.Math.Round(value.TotalMilliseconds)));\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
@@ -904,7 +972,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             public bool PropertiesAccessed => _propertiesAccessed;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 _propertiesAccessed = true;
                 return base.BuildProperties();
@@ -924,5 +992,531 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             MethodBodyStatements statements => statements.Statements.Any(s => HasMethodBodyStatement(s, predicate)),
             _ => predicate(statement)
         };
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_FrameworkType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that framework types are handled via DeserializeJsonValueCore
+            // which uses MRW.Read as a fallback for unsupported types
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // String is a framework type that should be handled by DeserializeJsonValueCore
+            var frameworkType = new CSharpType(typeof(string));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                frameworkType,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Framework types now go through the type's Deserialize method
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_ModelType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that model types use the model's deserialize method
+            var inputModel = InputFactory.Model("TestModel");
+            var (model, _) = CreateModelAndSerialization(inputModel);
+
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                model.Type,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Model types should use the Deserialize extension method
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+            Assert.IsTrue(resultString.Contains("TestModel"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_NonModelCSharpType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that non-model CSharpTypes use the type's deserialize method
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // Use a type that's not in the type factory
+            var customType = new CSharpType(typeof(int));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                customType,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should call Deserialize on the type
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_WithoutOptions()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that the method works when options are not provided
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+
+            var frameworkType = new CSharpType(typeof(string));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                frameworkType,
+                jsonElementVar,
+                dataVar,
+                null);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should still deserialize even without options parameter
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_FrameworkTypeWithMrwFallback()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that DeserializeJsonValueCore uses MRW fallback for unsupported framework types
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Use a framework type that's not explicitly handled in DeserializeJsonValueCore
+            // This should fall back to ModelReaderWriter.Read
+            var unsupportedType = new CSharpType(typeof(System.Reflection.Assembly));
+            var result = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                unsupportedType,
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should use MRW.Read as fallback
+            Assert.IsTrue(resultString.Contains("global::System.ClientModel.Primitives.ModelReaderWriter.Read"));
+            Assert.IsTrue(resultString.Contains("data"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_SupportedFrameworkTypes()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that common framework types are handled correctly without MRW fallback
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Test string
+            var stringResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(string)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(stringResult.ToDisplayString().Contains("GetString"));
+
+            // Test int
+            var intResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(int)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(intResult.ToDisplayString().Contains("GetInt32"));
+
+            // Test bool
+            var boolResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(bool)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(boolResult.ToDisplayString().Contains("GetBoolean"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_DynamicModel()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that dynamic models handle data parameter correctly
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("DynamicModel", properties: properties, modelAsStruct: false);
+            MockHelpers.LoadMockGenerator();
+
+            // Create a model provider
+            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // Call the internal method directly from the test assembly
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                modelProvider!.Type,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_InDeserializationMethod()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that GetDeserializationMethodInvocationForType is used correctly in the deserialization method
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("modelProperty", InputFactory.Model("InnerModel"), isRequired: true)
+            };
+
+            var innerModel = InputFactory.Model("InnerModel");
+            var inputModel = InputFactory.Model("OuterModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, innerModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(innerModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(innerModel);
+
+            var outerModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(outerModel);
+
+            var serialization = outerModel!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that the deserialization method contains calls to deserialize the inner model
+            Assert.IsTrue(methodBody.Contains("InnerModel"));
+            Assert.IsTrue(methodBody.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_CollectionOfModels()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test deserialization of collections containing model types
+            var innerModel = InputFactory.Model("ItemModel");
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("items", InputFactory.Array(innerModel), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("CollectionModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, innerModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(innerModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(innerModel);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that array deserialization includes item model deserialization
+            Assert.IsTrue(methodBody.Contains("ItemModel"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_DictionaryOfModels()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test deserialization of dictionaries with model values
+            var valueModel = InputFactory.Model("ValueModel");
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("values", InputFactory.Dictionary(valueModel), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("DictionaryModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, valueModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(valueModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(valueModel);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that dictionary deserialization includes value model deserialization
+            Assert.IsTrue(methodBody.Contains("ValueModel"));
+        }
+
+        [Test]
+        public void TestSerializationTypeNameMatchesModelProviderName()
+        {
+            // This test validates that MrwSerializationTypeDefinition.BuildName() uses _model.Name
+            // Create a simple model
+            var inputModel = InputFactory.Model("testModel");
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // The serialization type name should match the model provider name
+            Assert.AreEqual(model.Name, serialization.Name,
+                "Serialization type name should match ModelProvider name");
+
+            // The deserialization method should also use the model provider name
+            var deserializationMethod = serialization.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+            Assert.AreEqual($"Deserialize{model.Name}", deserializationMethod.Signature.Name,
+                "Deserialization method name should use ModelProvider name");
+        }
+
+        [TestCase("commaDelimited", ",")]
+        [TestCase("spaceDelimited", " ")]
+        [TestCase("pipeDelimited", "|")]
+        [TestCase("newlineDelimited", "\\n")]
+        public void TestArrayEncodingSerializationStatement(string encoding, string expectedDelimiter)
+        {
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
+            var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
+            var arrayProperty = new InputModelProperty(
+                "TestArray",
+                "Test array property summary",
+                "Test array property",
+                arrayType,
+                true,
+                false,
+                null,
+                false,
+                "testArray",
+                false,
+                false,
+                null,
+                new(json: new("testArray")),
+                arrayEncoding);
+
+            var properties = new List<InputModelProperty> { arrayProperty };
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var writeMethod = serialization.BuildJsonModelWriteCoreMethod();
+            var methodBody = writeMethod.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains($"string.Join(\"{expectedDelimiter}\", TestArray)"),
+                $"Expected serialization to use string.Join with delimiter '{expectedDelimiter}', but got: {methodBody}");
+        }
+
+        [TestCase("commaDelimited", ",")]
+        [TestCase("spaceDelimited", " ")]
+        [TestCase("pipeDelimited", "|")]
+        [TestCase("newlineDelimited", "\\n")]
+        public void TestArrayEncodingDeserializationStatement(string encoding, string expectedDelimiter)
+        {
+            Enum.TryParse<ArrayKnownEncoding>(encoding, ignoreCase: true, out var arrayEncoding);
+            var arrayType = new InputArrayType("TestArray", "TypeSpec.Array", InputPrimitiveType.String);
+            var arrayProperty = new InputModelProperty(
+                "TestArray",
+                "Test array property summary",
+                "Test array property",
+                arrayType,
+                true,
+                false,
+                null,
+                false,
+                "testArray",
+                false,
+                false,
+                null,
+                new(json: new("testArray")),
+                arrayEncoding);
+
+            var properties = new List<InputModelProperty> { arrayProperty };
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
+
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var deserializeMethod = serialization.BuildDeserializationMethod();
+            var methodBody = deserializeMethod.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains($".Split('{expectedDelimiter}')") || methodBody.Contains($".Split(\"{expectedDelimiter}\")"),
+                $"Expected deserialization to use Split with delimiter '{expectedDelimiter}', but got: {methodBody}");
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_DualFormatModel_MethodGenerated()
+        {
+            // Create a model that supports both JSON and XML
+            var inputModel = InputFactory.Model("DualFormatModel", usage: InputModelTypeUsage.Json | InputModelTypeUsage.Xml);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNotNull(toBinaryContentMethod, "ToBinaryContent method should be generated for dual-format models");
+            Assert.AreEqual(1, toBinaryContentMethod!.Signature.Parameters.Count);
+            Assert.AreEqual("format", toBinaryContentMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual(typeof(string), toBinaryContentMethod.Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_JsonOnlyModel_MethodNotGenerated()
+        {
+            // Create a model that supports only JSON
+            var inputModel = InputFactory.Model("JsonOnlyModel", usage: InputModelTypeUsage.Json);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is NOT generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for JSON-only models");
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_XmlOnlyModel_MethodNotGenerated()
+        {
+            // Create a model that supports only XML
+            var inputModel = InputFactory.Model("XmlOnlyModel", usage: InputModelTypeUsage.Xml);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+
+            // Verify the ToBinaryContent method is NOT generated
+            var toBinaryContentMethod = serialization.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "ToBinaryContent" &&
+                m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+
+            Assert.IsNull(toBinaryContentMethod, "ToBinaryContent method should not be generated for XML-only models");
+        }
+
+        [Test]
+        public void TestDeserializationOfByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"D\")"),
+                $"byte[] property with Base64 format should use GetBytesFromBase64(\"D\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfBase64UrlByteArrayPropertyUsesGetBytesFromBase64()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", InputPrimitiveType.Base64Url)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetBytesFromBase64(\"U\")"),
+                $"byte[] property with Base64Url format should use GetBytesFromBase64(\"U\"). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
+        [Test]
+        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        {
+            var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("data", bytesNoEncoding)]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
+                createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
+                    ? new CSharpType(typeof(byte[]))
+                    : null!,
+                createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("GetRawText"),
+                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("ToArray"),
+                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("EnumerateArray"),
+                $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
+        }
+
     }
 }

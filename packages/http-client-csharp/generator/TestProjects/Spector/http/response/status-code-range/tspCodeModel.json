@@ -12,6 +12,12 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.ErrorInRange",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "ErrorInRange"
+        }
+      },
+      "isExactName": false,
       "properties": [
         {
           "$id": "2",
@@ -36,7 +42,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "4",
@@ -61,7 +68,8 @@
               "name": "message"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -73,6 +81,12 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.DefaultError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "DefaultError"
+        }
+      },
+      "isExactName": false,
       "properties": [
         {
           "$id": "7",
@@ -97,7 +111,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -109,6 +124,12 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.NotFoundError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "NotFoundError"
+        }
+      },
+      "isExactName": false,
       "properties": [
         {
           "$id": "10",
@@ -133,7 +154,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         },
         {
           "$id": "12",
@@ -158,7 +180,8 @@
               "name": "resourceId"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     },
@@ -170,6 +193,12 @@
       "crossLanguageDefinitionId": "Response.StatusCodeRange.Standard4XXError",
       "usage": "Json,Exception",
       "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "Standard4XXError"
+        }
+      },
+      "isExactName": false,
       "properties": [
         {
           "$id": "15",
@@ -194,7 +223,8 @@
               "name": "code"
             }
           },
-          "isHttpMetadata": false
+          "isHttpMetadata": false,
+          "isExactName": false
         }
       ]
     }
@@ -204,6 +234,7 @@
       "$id": "17",
       "kind": "client",
       "name": "StatusCodeRangeClient",
+      "isExactName": false,
       "namespace": "Response.StatusCodeRange",
       "doc": "Test for range of status code.",
       "methods": [
@@ -211,11 +242,13 @@
           "$id": "18",
           "kind": "basic",
           "name": "errorResponseStatusCodeInRange",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "19",
             "name": "errorResponseStatusCodeInRange",
+            "isExactName": false,
             "resourceName": "StatusCodeRange",
             "accessibility": "public",
             "parameters": [],
@@ -225,7 +258,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "GET",
@@ -235,7 +269,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},
@@ -248,11 +283,13 @@
           "$id": "20",
           "kind": "basic",
           "name": "errorResponseStatusCode404",
+          "isExactName": false,
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
             "$id": "21",
             "name": "errorResponseStatusCode404",
+            "isExactName": false,
             "resourceName": "StatusCodeRange",
             "accessibility": "public",
             "parameters": [],
@@ -262,7 +299,8 @@
                   204
                 ],
                 "headers": [],
-                "isErrorResponse": false
+                "isErrorResponse": false,
+                "serializationOptions": {}
               }
             ],
             "httpMethod": "GET",
@@ -272,7 +310,8 @@
             "generateProtocolMethod": true,
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
-            "decorators": []
+            "decorators": [],
+            "namespace": "Response.StatusCodeRange"
           },
           "parameters": [],
           "response": {},
@@ -311,13 +350,15 @@
           "serverUrlTemplate": "{endpoint}",
           "skipUrlEncoding": false,
           "readOnly": false,
-          "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint"
+          "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint",
+          "isExactName": false
         }
       ],
       "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Response.StatusCodeRange",
-      "apiVersions": []
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
   ]
 }

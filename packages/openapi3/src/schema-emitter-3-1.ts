@@ -12,16 +12,17 @@ import {
   compilerAssert,
   Enum,
   getDiscriminatedUnion,
+  getDoc,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
+  getSummary,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
   ModelProperty,
   Program,
   Scalar,
-  serializeValueAsJson,
   Tuple,
   Type,
   Union,
@@ -29,6 +30,7 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { serializeExample } from "./examples.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
@@ -80,7 +82,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       setProperty(
         target,
         "examples",
-        examples.map((example) => serializeValueAsJson(program, example.value, type)),
+        examples.map((example) => serializeExample(program, example.value, type)),
       );
     }
   }
@@ -183,6 +185,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       return {};
     }
 
+    if (this._options.enumStrategy === "annotated") {
+      return this.#annotatedEnumSchema(en);
+    }
+
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
@@ -198,6 +204,26 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     };
 
     return this.applyConstraints(en, schema);
+  }
+
+  #annotatedEnumSchema(en: Enum): OpenAPISchema3_1 {
+    const program = this.emitter.getProgram();
+    const oneOf: OpenAPISchema3_1[] = [];
+    for (const member of en.members.values()) {
+      const value = member.value ?? member.name;
+      const subschema: OpenAPISchema3_1 = { const: value };
+      const title = getSummary(program, member);
+      if (title !== undefined) {
+        subschema.title = title;
+      }
+      const description = getDoc(program, member);
+      if (description !== undefined) {
+        subschema.description = description;
+      }
+      oneOf.push(subschema);
+    }
+
+    return this.applyConstraints(en, { oneOf });
   }
 
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {

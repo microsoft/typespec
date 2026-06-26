@@ -1,11 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import {
+  SdkClientType,
+  SdkEnumType,
+  SdkHttpOperation,
+} from "@azure-tools/typespec-client-generator-core";
+import { createDiagnosticCollector, Diagnostic, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputEnumType, InputLiteralType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
+import { createDiagnostic } from "./lib.js";
 import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
@@ -13,32 +19,78 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
 
 /**
  * Creates the code model from the SDK context.
+ * This function follows TypeSpec best practices by returning diagnostics alongside the result.
+ *
+ * @example
+ * ```typescript
+ * import { createModel } from "@typespec/http-client-csharp";
+ *
+ * const sdkContext = createCSharpEmitterContext(context, logger);
+ * const [codeModel, diagnostics] = createModel(sdkContext);
+ * // Process the code model and handle diagnostics
+ * ```
+ *
  * @param sdkContext - The SDK context
- * @returns The code model
+ * @returns A tuple containing the code model and any diagnostics that were generated
  * @beta
  */
-export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
+export function createModel(sdkContext: CSharpEmitterContext): [CodeModel, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   const sdkPackage = sdkContext.sdkPackage;
 
   // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
-  fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
+  diagnostics.pipe(fromSdkNamespaces(sdkContext, sdkPackage.namespaces));
   // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
-  navigateModels(sdkContext);
+  diagnostics.pipe(navigateModels(sdkContext));
 
-  const types = Array.from(sdkContext.__typeCache.types.values());
-  const [models, enums] = [
-    types.filter((type) => type.kind === "model") as InputModelType[],
-    types.filter((type) => type.kind === "enum") as InputEnumType[],
-  ];
+  // Snapshot the set of type identities discovered during model/enum navigation before
+  // processing clients. This lets us identify any *new* types added during operation
+  // processing without duplicating types that were already captured.
+  const typesBeforeClients = new Set(sdkContext.__typeCache.types.values());
 
-  const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
-  const rootApiVersions =
-    sdkApiVersionEnums.length > 0
-      ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
-      : (rootClients[0]?.apiVersions ?? []);
+  const rootApiVersions = parseApiVersions(sdkPackage.enums, rootClients);
+  const inputClients = diagnostics.pipe(fromSdkClients(sdkContext, rootClients, rootApiVersions));
 
-  const inputClients = fromSdkClients(sdkContext, rootClients, rootApiVersions);
+  const models: InputModelType[] = [];
+  const enums: InputEnumType[] = [];
+  const existingModelKeys = new Set<string>();
+  for (const type of typesBeforeClients) {
+    if (type.kind === "model") {
+      const model = type as InputModelType;
+      models.push(model);
+      existingModelKeys.add(typeDedupeKey(model));
+    } else if (type.kind === "enum") {
+      enums.push(type as InputEnumType);
+    }
+  }
+  // Include models and enums discovered only via operation processing (e.g., anonymous
+  // response models for protocol-only paging operations where TCGC does not include the
+  // response model in sdkPackage.models, or enums only reachable through nested property
+  // types of such models). See https://github.com/microsoft/typespec/issues/9391. Dedupe
+  // by crossLanguageDefinitionId when available, falling back to a name-only key for
+  // anonymous types (empty crossLanguageDefinitionId). This avoids duplicates when TCGC
+  // produces a different reference for the same logical anonymous type (e.g. inline-union
+  // operation-parameter enums) where the namespace can be inconsistent across emission
+  // paths. Distinct named types that share a name across different namespaces still have
+  // distinct crossLanguageDefinitionIds and are preserved.
+  const existingEnumKeys = new Set(enums.map((e) => typeDedupeKey(e)));
+  for (const type of sdkContext.__typeCache.types.values()) {
+    if (typesBeforeClients.has(type)) continue;
+    if (type.kind === "model") {
+      const model = type as InputModelType;
+      const key = typeDedupeKey(model);
+      if (existingModelKeys.has(key)) continue;
+      models.push(model);
+      existingModelKeys.add(key);
+    } else if (type.kind === "enum") {
+      const enumType = type as InputEnumType;
+      const key = typeDedupeKey(enumType);
+      if (existingEnumKeys.has(key)) continue;
+      enums.push(enumType);
+      existingEnumKeys.add(key);
+    }
+  }
 
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
@@ -46,19 +98,47 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // Fix naming conflicts for constants, enums, and models
   fixNamingConflicts(models, constants);
 
+  // Resolve the root namespace. When this cannot be determined the generated code model
+  // has no name, which the .NET generator rejects with an opaque root-level deserialization
+  // failure. Surface a clear, actionable diagnostic here instead and let the caller skip
+  // generation. See https://github.com/microsoft/typespec/issues/10914.
+  const clientNamespace = getClientNamespaceString(sdkContext);
+  if (clientNamespace === undefined) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unresolved-client-namespace",
+        target: NoTarget,
+      }),
+    );
+  }
+
   const clientModel: CodeModel = {
-    // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
-    // if the typespec is changed.
-    name: getClientNamespaceString(sdkContext)!,
+    name: clientNamespace ?? "",
     apiVersions: rootApiVersions,
     enums: enums,
     constants: constants,
     models: models,
     clients: inputClients,
-    auth: processServiceAuthentication(sdkContext, sdkPackage),
+    auth: diagnostics.pipe(processServiceAuthentication(sdkContext, sdkPackage)),
   };
 
-  return clientModel;
+  return diagnostics.wrap(clientModel);
+}
+
+/**
+ * Parses and returns the correct API versions for the library.
+ * Handles both regular and multiservice client libraries.
+ *
+ * @param enums - Array of enums from the SDK package
+ * @param rootClients - Array of root clients from the SDK package
+ * @returns Array of API version strings
+ */
+function parseApiVersions(
+  enums: SdkEnumType[],
+  rootClients: SdkClientType<SdkHttpOperation>[],
+): string[] {
+  // Always use client.apiVersions as the source of truth.
+  return rootClients[0]?.apiVersions ?? [];
 }
 
 /**
@@ -126,11 +206,25 @@ function fixNamingConflicts(models: InputModelType[], constants: InputLiteralTyp
   }
 }
 
-function navigateModels(sdkContext: CSharpEmitterContext) {
+/**
+ * Dedupe key for a model or enum. Uses `crossLanguageDefinitionId` when present;
+ * otherwise falls back to `anon:${name}` since TCGC may report inconsistent
+ * namespaces for the same anonymous type across emission paths.
+ */
+function typeDedupeKey(type: InputModelType | InputEnumType): string {
+  if (type.crossLanguageDefinitionId) {
+    return type.crossLanguageDefinitionId;
+  }
+  return `anon:${type.name}`;
+}
+
+function navigateModels(sdkContext: CSharpEmitterContext): [void, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
   for (const m of sdkContext.sdkPackage.models) {
-    fromSdkType(sdkContext, m);
+    diagnostics.pipe(fromSdkType(sdkContext, m));
   }
   for (const e of sdkContext.sdkPackage.enums) {
-    fromSdkType(sdkContext, e);
+    diagnostics.pipe(fromSdkType(sdkContext, e));
   }
+  return diagnostics.wrap(undefined as void);
 }

@@ -62,6 +62,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? location = null;
+            string? paramAlias = null;
+            bool isExactName = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -80,7 +82,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("contentTypes", options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadString("location", ref location)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadString("paramAlias", ref paramAlias)
+                    || reader.TryReadBoolean("isExactName", ref isExactName);
 
                 if (!isKnownProperty)
                 {
@@ -100,6 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
             parameter.Scope = InputParameter.ParseScope(type, name, scope);;
+            parameter.IsExactName = isExactName;
 
             if (location == null)
             {
@@ -107,6 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             Enum.TryParse<InputRequestLocation>(location, ignoreCase: true, out var requestLocation);
             parameter.Location = requestLocation;
+            parameter.ParamAlias = paramAlias;
 
             return parameter;
         }

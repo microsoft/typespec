@@ -1,6 +1,6 @@
 import { pathToFileURL } from "url";
+import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver/node.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
@@ -112,6 +112,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
 
       return Promise.resolve({ applied: true });
     },
+    getDocumentUpdateDebounceDelay: () => 0,
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";

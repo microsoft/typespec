@@ -13,7 +13,7 @@ parameters:
   # Node version
   - name: NodeVersion
     type: string
-    default: "20.x"
+    default: "22.x"
 
   # Arguments needed to run tests
   - name: TestArgs
@@ -44,6 +44,10 @@ parameters:
     type: string
     default: "3.12"
 
+  - name: UseTypeSpecNext
+    type: boolean
+    default: false
+
 steps:
   - checkout: self
 
@@ -56,6 +60,7 @@ steps:
     retryCountOnTaskFailure: 3
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
+      checkLatest: true
 
   - task: UsePythonVersion@0
     displayName: "Use Python ${{ parameters.PythonVersion }}"
@@ -69,7 +74,7 @@ steps:
     inputs:
       pwsh: true
       filePath: $(selfRepositoryPath)${{ parameters.PackagePath }}/eng/scripts/Initialize-Repository.ps1
-      arguments: -BuildArtifactsPath '$(buildArtifactsPath)'
+      arguments: -BuildArtifactsPath '$(buildArtifactsPath)' -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
       workingDirectory: $(selfRepositoryPath)
 
   - task: PowerShell@2

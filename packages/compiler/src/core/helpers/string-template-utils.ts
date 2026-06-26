@@ -1,5 +1,6 @@
 import { createDiagnosticCollector } from "../diagnostics.js";
 import { createDiagnostic } from "../messages.js";
+import { isErrorType } from "../type-utils.js";
 import type { Diagnostic, StringTemplate } from "../types.js";
 
 export function isStringTemplateSerializable(
@@ -30,17 +31,20 @@ export function explainStringTemplateNotSerializable(
           diagnostics.pipe(isStringTemplateSerializable(span.type));
           break;
         case "TemplateParameter":
+        case "TemplateParameterAccess":
           if (span.type.constraint && span.type.constraint.valueType !== undefined) {
             break; // Value types will be serializable in the template instance.
           }
         // eslint-disable-next-line no-fallthrough
         default:
-          diagnostics.add(
-            createDiagnostic({
-              code: "non-literal-string-template",
-              target: span,
-            }),
-          );
+          if (!isErrorType(span.type)) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "non-literal-string-template",
+                target: span,
+              }),
+            );
+          }
       }
     }
   }

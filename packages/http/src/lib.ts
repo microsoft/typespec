@@ -195,10 +195,10 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`The 'contents' property of the file model must be a scalar type that extends 'string' or 'bytes'. Found '${"type"}'.`,
       },
     },
-    "patch-implicit-optional": {
+    "deprecated-implicit-optionality": {
       severity: "warning",
       messages: {
-        default: `Patch operation stopped applying an implicit optional transform to the body in 1.0.0. Use @patch(#{implicitOptionality: true}) to restore the old behavior.`,
+        default: `The implicitOptionality option is deprecated. To preserve previous behavior, use an explicit patch model with optional properties. For actual merge-patch semantics, use MergePatchUpdate<T> for the @body type.`,
       },
     },
     "merge-patch-contains-null": {

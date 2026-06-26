@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
@@ -22,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Imple
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
-import java.util.Collections;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -302,7 +301,7 @@ public class SchemaUtil {
      */
     public static Set<ImplementationDetails.Usage> mapSchemaContext(Set<SchemaContext> schemaContexts) {
         if (schemaContexts == null) {
-            return Collections.emptySet();
+            return Set.of();
         }
         return schemaContexts.stream().map(ImplementationDetails.Usage::fromSchemaContext).collect(Collectors.toSet());
     }

@@ -101,4 +101,11 @@ public interface ArmClient {
      * @return the ImmutableResourceModelsClient object.
      */
     ImmutableResourceModelsClient getImmutableResourceModels();
+
+    /**
+     * Gets the LroNoBodiesClient object to access its operations.
+     * 
+     * @return the LroNoBodiesClient object.
+     */
+    LroNoBodiesClient getLroNoBodies();
 }

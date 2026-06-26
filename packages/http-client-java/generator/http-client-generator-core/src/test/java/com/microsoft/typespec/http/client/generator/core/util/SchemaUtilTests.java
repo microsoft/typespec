@@ -66,17 +66,17 @@ public class SchemaUtilTests {
         Assertions.assertEquals(PET, SchemaUtil.getLowestCommonParent(List.of(CAT, DOG, CORGI)));
         ObjectSchema dummy = new ObjectSchema();
         dummy.set$key("dummy");
-        Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(dummy, DOG)) instanceof AnySchema);
+        Assertions.assertInstanceOf(AnySchema.class, SchemaUtil.getLowestCommonParent(List.of(dummy, DOG)));
     }
 
     @Test
     public void testAllSchemaFindParent() {
-        Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(new ArraySchema(), PET)) instanceof AnySchema);
-        Assertions
-            .assertTrue(SchemaUtil.getLowestCommonParent(List.of(new DictionarySchema(), PET)) instanceof AnySchema);
+        Assertions.assertInstanceOf(AnySchema.class, SchemaUtil.getLowestCommonParent(List.of(new ArraySchema(), PET)));
+        Assertions.assertInstanceOf(AnySchema.class,
+            SchemaUtil.getLowestCommonParent(List.of(new DictionarySchema(), PET)));
         StringSchema stringSchema = new StringSchema();
-        Assertions.assertTrue(SchemaUtil.getLowestCommonParent(List.of(stringSchema)) instanceof StringSchema);
-        Assertions
-            .assertTrue(SchemaUtil.getLowestCommonParent(List.of(stringSchema, stringSchema)) instanceof StringSchema);
+        Assertions.assertInstanceOf(StringSchema.class, SchemaUtil.getLowestCommonParent(List.of(stringSchema)));
+        Assertions.assertInstanceOf(StringSchema.class,
+            SchemaUtil.getLowestCommonParent(List.of(stringSchema, stringSchema)));
     }
 }

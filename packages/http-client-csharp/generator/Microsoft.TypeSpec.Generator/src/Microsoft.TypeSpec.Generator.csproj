@@ -4,6 +4,10 @@
     <PackageId>Microsoft.TypeSpec.Generator</PackageId>
     <OutputType>Exe</OutputType>
     <Version>1.0.0-beta.1</Version>
+    <!-- This override is necessary to use MEF in .NET 10+ -->
+    <AppContextSwitchOverrides>
+      Switch.System.ComponentModel.Composition.UseCscLoadContext=true
+    </AppContextSwitchOverrides>
   </PropertyGroup>
 
   <ItemGroup>

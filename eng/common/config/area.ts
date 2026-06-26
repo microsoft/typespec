@@ -5,7 +5,7 @@ import type { AreaLabels } from "./labels.js";
  */
 export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "compiler:core": ["packages/compiler/"],
-  "compiler:emitter-framework": [],
+  "emitter-framework": ["packages/emitter-framework/"],
   ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
   "lib:http": ["packages/http/"],
   "lib:openapi": ["packages/openapi/"],
@@ -48,20 +48,4 @@ export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
   Java: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:java"], ".editorconfig"],
   Python: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:python"], ".editorconfig"],
-
-  Core: [
-    "**/*",
-    "!.prettierignore", // Prettier is already run as its dedicated CI(via github action)
-    "!.prettierrc.json",
-    "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
-    "!eslint.config.json", // Eslint is already run as its dedicated CI(via github action)
-    ...ignore(isolatedEmitters),
-    ...ignore(AreaPaths["emitter:client:csharp"]),
-    ...ignore(AreaPaths["emitter:client:java"]),
-    ...ignore(AreaPaths["emitter:client:python"]),
-  ],
 };
-
-function ignore(paths: string[]) {
-  return paths.map((x) => `!${x}`);
-}

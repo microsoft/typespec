@@ -481,5 +481,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
+
+        [TestCase("http://localhost", "param1", "value1", "http://localhost/?param1=value1")]
+        [TestCase("http://localhost?existing=old", "param1", "value1", "http://localhost/?existing=old&param1=value1")]
+        [TestCase("http://localhost?param1=old", "param1", "new", "http://localhost/?param1=new")]
+        [TestCase("http://localhost?param1=old&param2=value2", "param1", "new", "http://localhost/?param1=new&param2=value2")]
+        [TestCase("http://localhost?param2=value2&param1=old", "param1", "new", "http://localhost/?param2=value2&param1=new")]
+        [TestCase("http://localhost?param2=value2&param1=old&param3=value3", "param1", "new", "http://localhost/?param2=value2&param1=new&param3=value3")]
+        [TestCase("http://localhost?fooparam1=value2&param1=old", "param1", "new", "http://localhost/?fooparam1=value2&param1=new")]
+        [TestCase("http://localhost?param1prefix=value2&param1=old", "param1", "new", "http://localhost/?param1prefix=value2&param1=new")]
+        public void UpdateQuery(string endpoint, string name, string value, string expected)
+        {
+            var builder = new SampleTypeSpec.ClientUriBuilder();
+            builder.Reset(new Uri(endpoint));
+
+            builder.UpdateQuery(name, value);
+
+            Assert.AreEqual(expected, builder.ToUri().ToString());
+        }
     }
 }

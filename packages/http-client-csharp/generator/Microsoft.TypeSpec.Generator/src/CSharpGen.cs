@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -27,9 +28,22 @@ namespace Microsoft.TypeSpec.Generator
             CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
             CodeModelGenerator.Instance.Stopwatch.Start();
 
-            GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
+
+            // Resolve PackageReference items from the .csproj so custom code referencing
+            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+
+            // Pre-walk the input library and resolve any external types that point at NuGet packages.
+            // This populates ExternalTypeReferenceResolver's cache and registers each resolved assembly
+            // as an additional metadata reference *before* the generated/custom code workspaces are
+            // constructed, so their cached Roslyn projects pick the references up.
+            await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+            // Initialize the workspace project AFTER all metadata references have been added so the
+            // eagerly-cached project sees them.
+            GeneratedCodeWorkspace.Initialize();
 
             GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
@@ -45,7 +59,8 @@ namespace Microsoft.TypeSpec.Generator
 
             CodeModelGenerator.Instance.SourceInputModel = new SourceInputModel(
                 await customCodeWorkspace.GetCompilationAsync(),
-                await GeneratedCodeWorkspace.LoadBaselineContract());
+                await GeneratedCodeWorkspace.LoadBaselineContract(),
+                GeneratedCodeWorkspace.LoadApiCompatBaseline());
 
             GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 
@@ -67,10 +82,15 @@ namespace Microsoft.TypeSpec.Generator
                 visitor.VisitLibrary(output);
             }
 
+            FilterAllCustomizedMembers(output);
+
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
+                // Ensure back-compatibility processing is done after all visitors have run
+                outputType.ProcessTypeForBackCompatibility();
+
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
@@ -106,13 +126,41 @@ namespace Microsoft.TypeSpec.Generator
                 await File.WriteAllTextAsync(filename, file.Text);
             }
 
-            // Write project scaffolding files
+            // Write additional output files (e.g. configuration schemas, .targets files)
+            await CodeModelGenerator.Instance.WriteAdditionalFiles(outputPath);
+
+            // Write project scaffolding files (after additional files so schema existence can be checked)
             if (CodeModelGenerator.Instance.IsNewProject)
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
+        }
+
+        internal static void FilterAllCustomizedMembers(OutputLibrary output)
+        {
+            foreach (var typeProvider in output.TypeProviders)
+            {
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                FilterCustomizedMembers(typeProvider);
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    FilterCustomizedMembers(serializationProvider);
+                }
+            }
+        }
+
+        private static void FilterCustomizedMembers(TypeProvider typeProvider)
+        {
+            // Update applies customization filtering internally, so passing the current cached members
+            // is sufficient to apply the filter (e.g., after EnsureBuilt populated unfiltered caches).
+            typeProvider.Update(
+                typeProvider.Methods,
+                typeProvider.Constructors,
+                typeProvider.Properties,
+                typeProvider.Fields);
         }
 
         /// <summary>

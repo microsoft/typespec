@@ -1,5 +1,77 @@
 # Change Log - @typespec/openapi
 
+## 1.13.0
+
+### Features
+
+- [#10769](https://github.com/microsoft/typespec/pull/10769) Add `summary` and `kind` fields to `@tagMetadata` decorator.
+  
+  For OpenAPI 3.2, these fields are emitted as native tag object fields. For OpenAPI 3.0/3.1, they are emitted as `x-oai-summary` and `x-oai-kind` extensions. The OpenAPI converter also supports importing `x-oai-summary`, `x-oai-kind` (from 3.0/3.1) and native `summary`, `kind` (from 3.2) back to TypeSpec.
+  
+  ```typespec
+  @tagMetadata("foo", #{ summary: "all operations that allow doing Foo", kind: "FooGroup" })
+  ```
+- [#10770](https://github.com/microsoft/typespec/pull/10770) Add array form for `@tagMetadata` decorator to allow explicit control of tag declaration order.
+  
+  ```typespec
+  @service
+  @tagMetadata(#[
+    #{ name: "First Tag", description: "First tag description" },
+    #{ name: "Second Tag", description: "Second tag description" },
+  ])
+  namespace PetStore {}
+  ```
+  
+  Using `@tagMetadata(#[...])` and `@tagMetadata("name", #{...})` on the same namespace is a diagnostic error.
+- [#10555](https://github.com/microsoft/typespec/pull/10555) Added a warning diagnostic when `@defaultResponse` is used on a model that already has a `@statusCode` property or is marked with `@error`.
+
+### Bug Fixes
+
+- [#10919](https://github.com/microsoft/typespec/pull/10919) Reject duplicate tag names in @tagMetadata array form.
+- [#10776](https://github.com/microsoft/typespec/pull/10776) Fix tagMetadata extension diagnostic targets
+
+
+## 1.12.0
+
+No changes, version bump only.
+
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Features
+
+- [#9577](https://github.com/microsoft/typespec/pull/9577) Add support for OpenAPI 3.2 nested tags via `parent` field in `@tagMetadata` decorator
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9686](https://github.com/microsoft/typespec/pull/9686) [API] Expose `setOperationId`
+
+
+## 1.9.0
+
+No changes, version bump only.
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 1.7.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 1.6.0
 
 ### Bump dependencies

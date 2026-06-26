@@ -21,8 +21,14 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> IsNullOrWhiteSpace(ScopedApi<string> value, params ValueExpression[] args)
             => Static<string>().Invoke(nameof(string.IsNullOrWhiteSpace), args.Prepend(value).ToArray()).As<bool>();
 
+        public static ScopedApi<bool> IsNullOrEmpty(ScopedApi<string> value)
+            => Static<string>().Invoke(nameof(string.IsNullOrEmpty), [value]).As<bool>();
+
         public static ScopedApi<string> Join(ValueExpression separator, ValueExpression values)
             => Static<string>().Invoke(nameof(string.Join), [separator, values]).As<string>();
+
+        public static ValueExpression Split(this ScopedApi<string> stringExpression, ValueExpression separator)
+            => stringExpression.Invoke(nameof(string.Split), [separator], null, false);
 
         public static ScopedApi<string> Substring(this ScopedApi<string> stringExpression, ValueExpression startIndex)
             => stringExpression.Invoke(nameof(string.Substring), [startIndex], null, false).As<string>();
@@ -32,5 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static ScopedApi<char> Index(this ScopedApi<string> stringExpression, ValueExpression index)
             => new IndexableExpression(stringExpression)[index].As<char>();
+
+        public static ScopedApi<bool> StartsWith(this ScopedApi<string> stringExpression, ValueExpression value, StringComparison comparisonType)
+            => stringExpression.Invoke(nameof(string.StartsWith), [value, FrameworkEnumValue(comparisonType)]).As<bool>();
     }
 }

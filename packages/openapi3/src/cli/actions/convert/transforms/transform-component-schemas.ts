@@ -8,7 +8,7 @@ import {
   TypeSpecUnion,
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
-import { getDecoratorsForSchema } from "../utils/decorators.js";
+import { getDecoratorsForSchema, getDirectivesForSchema } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 
 /**
@@ -78,7 +78,8 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const tsEnum: TypeSpecEnum = {
       kind: "enum",
       ...getScopeAndName(name),
-      decorators: getDecoratorsForSchema(schema),
+      directives: getDirectivesForSchema(schema),
+      decorators: getDecoratorsForSchema(schema, context),
       doc: schema.description,
       schema,
     };
@@ -105,14 +106,24 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const encoding = isModelReferencedAsMultipartRequestBody
       ? context.getMultipartSchemaEncoding(refName)
       : undefined;
+    const decorators = [...getDecoratorsForSchema(effectiveSchema, context)];
+    if (
+      context.isErrorResponseSchema(refName) &&
+      !decorators.some((decorator) => decorator.name === "error")
+    ) {
+      decorators.push({ name: "error", args: [] });
+    }
     types.push({
       kind: "model",
       name,
       scope,
-      decorators: [...getDecoratorsForSchema(effectiveSchema)],
+      directives: [...getDirectivesForSchema(effectiveSchema)],
+      decorators,
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
+        ...("$ref" in effectiveSchema
+          ? []
+          : getModelPropertiesFromObjectSchema(effectiveSchema, context)),
         ...allOfDetails.properties,
       ],
       additionalProperties:
@@ -141,19 +152,20 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
-    let decorators = [...getDecoratorsForSchema(schema), ...unionMetadata.decorators];
+    let decorators = [...getDecoratorsForSchema(schema, context), ...unionMetadata.decorators];
 
     // Check if this is an SSE event schema - if so, replace @oneOf with @events
     const schemaRef = `#/components/schemas/${name}`;
     if (context.isSSEEventSchema(schemaRef)) {
       // Remove @oneOf decorator if present and add @events
       decorators = decorators.filter((d) => d.name !== "oneOf");
-      decorators.push({ name: "events", args: [] });
+      decorators.push({ name: "TypeSpec.Events.events", args: [] });
     }
 
     const union: TypeSpecUnion = {
       kind: "union",
       ...getScopeAndName(name),
+      directives: getDirectivesForSchema(schema),
       decorators,
       doc: schema.description ?? unionMetadata.description,
       schema,
@@ -184,7 +196,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
         if (!("$ref" in meaningfulMember)) {
           return {
             description: meaningfulMember.description,
-            decorators: getDecoratorsForSchema(meaningfulMember),
+            decorators: getDecoratorsForSchema(meaningfulMember, context),
           };
         }
       }
@@ -198,7 +210,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       if (nonNullTypes.length === 1) {
         // Create a schema without the null type to extract decorators for the non-null part
         const nonNullSchema = { ...schema, type: nonNullTypes[0] };
-        return { decorators: getDecoratorsForSchema(nonNullSchema) };
+        return { decorators: getDecoratorsForSchema(nonNullSchema, context) };
         // The description should already be on the main schema, so we don't override it here
       }
     }
@@ -214,7 +226,8 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types.push({
       kind: "scalar",
       ...getScopeAndName(name),
-      decorators: getDecoratorsForSchema(schema),
+      directives: getDirectivesForSchema(schema),
+      decorators: getDecoratorsForSchema(schema, context),
       doc: schema.description,
       schema: "$ref" in schema ? {} : schema,
     });
@@ -243,7 +256,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     for (const member of schema.allOf) {
       // inline-schemas treated as normal objects with properties
       if (!("$ref" in member)) {
-        details.properties.push(...getModelPropertiesFromObjectSchema(member));
+        details.properties.push(...getModelPropertiesFromObjectSchema(member, context));
         continue;
       }
 
@@ -310,8 +323,13 @@ function unwrapSingleAnyOfOneOf(
     return (member as any).type !== "null";
   });
 
-  // If there's exactly one meaningful inline member AND it's an object type, unwrap it
-  if (meaningfulInlineMembers.length === 1) {
+  // Check if there are any $ref members in the union alongside the inline members
+  const hasRefMembers = unionMembers.some((member) => "$ref" in member);
+
+  // If there's exactly one meaningful inline member AND it's an object type
+  // AND there are no $ref members alongside it, unwrap it.
+  // If $ref members are present, the schema is truly a union (e.g. $ref + object).
+  if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
     const member = meaningfulInlineMembers[0];
     // Only unwrap if the member is an object schema
     if (!("$ref" in member) && (member.type === "object" || member.properties)) {
@@ -331,10 +349,10 @@ function unwrapSingleAnyOfOneOf(
   return schema;
 }
 
-function getModelPropertiesFromObjectSchema({
-  properties,
-  required = [],
-}: SupportedOpenAPISchema): TypeSpecModelProperty[] {
+function getModelPropertiesFromObjectSchema(
+  { properties, required = [] }: SupportedOpenAPISchema,
+  context: Context,
+): TypeSpecModelProperty[] {
   if (!properties) return [];
 
   const modelProperties: TypeSpecModelProperty[] = [];
@@ -346,7 +364,8 @@ function getModelPropertiesFromObjectSchema({
       doc: property.description,
       schema: property,
       isOptional: !required.includes(name),
-      decorators: [...getDecoratorsForSchema(property)],
+      directives: [...getDirectivesForSchema(property)],
+      decorators: [...getDecoratorsForSchema(property, context)],
     });
   }
 
@@ -379,8 +398,13 @@ function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataT
         return (member as any).type !== "null";
       });
 
-      // If there's exactly one meaningful inline member AND it's an object type, treat it as a model
-      if (meaningfulInlineMembers.length === 1) {
+      // Check if there are any $ref members in the union alongside the inline members
+      const hasRefMembers = unionMembers.some((member) => "$ref" in member);
+
+      // If there's exactly one meaningful inline member AND it's an object type
+      // AND there are no $ref members alongside it, treat it as a model.
+      // If $ref members are present, the schema is truly a union (e.g. $ref + object).
+      if (meaningfulInlineMembers.length === 1 && !hasRefMembers) {
         const member = meaningfulInlineMembers[0];
         // Only unwrap if the member is an object schema
         if (!("$ref" in member) && (member.type === "object" || member.properties)) {

@@ -23,6 +23,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
 
+        /// <summary>
+        /// Indicates whether this method is declared as a <c>partial</c> method.
+        /// Derived from the <see cref="MethodSignatureModifiers.Partial"/> modifier on the signature.
+        /// </summary>
+        public bool IsPartialMethod => Signature?.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ?? false;
+
+        /// <summary>
+        /// Determines whether this method is suppressed via a <c>CodeGenSuppress</c> attribute on its
+        /// enclosing type. A suppressed method may still be provided by custom code, so callers that need to
+        /// know whether the method exists in the final output must additionally check for a custom replacement.
+        /// </summary>
+        public bool IsMethodSuppressed()
+        {
+            foreach (var attribute in EnclosingType.GetMemberSuppressionAttributes())
+            {
+                if (TypeProvider.IsMatch(EnclosingType, Signature, attribute))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected MethodProvider()
@@ -45,9 +69,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
-            var paramHash = MethodProviderHelpers.GetParamHash(signature);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature, enclosingType);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
@@ -68,9 +92,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
             Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with only a method signature and no body,
+        /// for use with partial method declarations.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="enclosingType">The enclosing type.</param>
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default)
+        {
+            Signature = signature;
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
+            EnclosingType = enclosingType;
+            Suppressions = [];
         }
 
         public void Update(
@@ -84,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Signature = signature;
                 // rebuild the XML docs if the signature changes
-                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature);
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature, EnclosingType);
             }
             if (bodyStatements != null)
             {
@@ -129,9 +171,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     BodyExpression = expression;
                 }
             }
-            else
+            else if (BodyStatements != null)
             {
-                var updatedStatements = BodyStatements!.Accept(visitor, this);
+                var updatedStatements = BodyStatements.Accept(visitor, this);
                 if (!ReferenceEquals(updatedStatements, BodyStatements))
                 {
                     BodyStatements = updatedStatements;

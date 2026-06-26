@@ -75,6 +75,7 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   NamespaceStatementNode,
   Node,
   NodeFlags,
@@ -135,6 +136,8 @@ export interface NameResolver {
 
   /** Get the meta member by name */
   resolveMetaMemberByName(sym: Sym, name: string): ResolutionResult;
+  /** Get the list of available meta member names */
+  getMetaMemberNames(sym: Sym): readonly string[];
 
   /** Resolve the given type reference. This should only need to be called on dynamically created nodes that want to resolve which symbol they reference */
   resolveTypeReference(
@@ -167,6 +170,7 @@ export function createResolver(program: Program): NameResolver {
   const augmentedSymbolTables = new Map<SymbolTable, SymbolTable>();
   const nodeLinks = new Map<number, NodeLinks>();
   const symbolLinks = new Map<number, SymbolLinks>();
+  const visitedNode = new Set<Node>();
 
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(
@@ -226,6 +230,7 @@ export function createResolver(program: Program): NameResolver {
 
     resolveMemberExpressionForSym,
     resolveMetaMemberByName,
+    getMetaMemberNames,
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
@@ -321,7 +326,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     let result = resolveTypeReferenceWorker(node, options);
-
     const resolvedSym = result.resolvedSymbol;
     Object.assign(links, result);
 
@@ -610,6 +614,14 @@ export function createResolver(program: Program): NameResolver {
         resolutionResult: slinks.aliasResolutionResult,
         isTemplateInstantiation: result.isTemplateInstantiation,
       };
+    } else if (node.value.kind === SyntaxKind.CallExpression) {
+      // The alias resolves to a function call expression. We want to resolve the constrained return type of the call.
+      const resolutionResult = resolveReturnType(node.value.target);
+
+      slinks.aliasedSymbol = resolutionResult.finalSymbol;
+      slinks.aliasResolutionResult = resolutionResult.resolutionResult;
+      slinks.aliasResolutionIsTemplate = resolutionResult.isTemplateInstantiation;
+      return resolutionResult;
     } else if (node.value.symbol) {
       // a type literal
       slinks.aliasedSymbol = node.value.symbol;
@@ -620,6 +632,38 @@ export function createResolver(program: Program): NameResolver {
       slinks.aliasResolutionResult = ResolutionResultFlags.Unknown;
       return failedResult(ResolutionResultFlags.Unknown);
     }
+  }
+
+  function resolveReturnType(node: MemberExpressionNode | IdentifierNode): ResolutionResult {
+    const baseResult = resolveTypeReference(node, { resolveDecorators: false });
+
+    if (baseResult.resolutionResult & ResolutionResultFlags.ResolutionFailed) {
+      return baseResult;
+    }
+
+    const baseSym = baseResult.finalSymbol;
+
+    compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
+
+    // If the base symbol is a function, get its return type
+    if (baseSym.flags & SymbolFlags.Function) {
+      const funcNode = baseSym.declarations.find(
+        (decl) => decl.kind === SyntaxKind.FunctionDeclarationStatement,
+      );
+
+      if (funcNode) {
+        const returnTypeNode = funcNode.returnType;
+
+        if (returnTypeNode) {
+          return resolveExpression(returnTypeNode);
+        }
+      }
+      // Default (no function declaration or no return type), return nothing.
+      return failedResult(ResolutionResultFlags.None);
+    }
+
+    // Any other kind of callable is something we cannot analyze right now.
+    return failedResult(ResolutionResultFlags.Unknown);
   }
 
   function resolveTemplateParameter(node: TemplateParameterDeclarationNode): ResolutionResult {
@@ -673,10 +717,9 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
+    const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
 
-    const prototype = metaTypePrototypes.get(baseNode.kind);
-
-    if (!prototype) {
+    if (!prototype || isReflectionMetaProjectionSymbol(baseSym, baseNode)) {
       return failedResult(ResolutionResultFlags.NotFound);
     }
 
@@ -687,6 +730,47 @@ export function createResolver(program: Program): NameResolver {
     }
 
     return getter(baseSym);
+  }
+
+  /** Get the available meta-member names for a symbol's meta-type prototype. */
+  function getMetaMemberNames(baseSym: Sym): readonly string[] {
+    const baseNode = getSymNode(baseSym);
+    const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
+    return prototype ? [...prototype.keys()] : [];
+  }
+
+  /**
+   * Resolve the meta-type prototype for a symbol, including Reflection model aliases.
+   */
+  function getMetaTypePrototypeForSymbol(baseSym: Sym, baseNode: Node): TypePrototype | undefined {
+    const prototype = metaTypePrototypes.get(baseNode.kind);
+    if (prototype) {
+      return prototype;
+    }
+
+    if (
+      baseNode.kind === SyntaxKind.ModelStatement &&
+      baseSym.parent?.name === "Reflection" &&
+      baseSym.parent?.parent?.name === "TypeSpec"
+    ) {
+      switch (baseSym.name) {
+        case "ModelProperty":
+          return metaTypePrototypes.get(SyntaxKind.ModelProperty);
+        case "Operation":
+          return metaTypePrototypes.get(SyntaxKind.OperationStatement);
+      }
+    }
+
+    return undefined;
+  }
+
+  /** Return true for TypeSpec.Reflection model symbols backed by projection metadata. */
+  function isReflectionMetaProjectionSymbol(baseSym: Sym, baseNode: Node): boolean {
+    return (
+      baseNode.kind === SyntaxKind.ModelStatement &&
+      baseSym.parent?.name === "Reflection" &&
+      baseSym.parent?.parent?.name === "TypeSpec"
+    );
   }
 
   function tableLookup(table: SymbolTable, node: IdentifierNode, resolveDecorator = false) {
@@ -788,6 +872,7 @@ export function createResolver(program: Program): NameResolver {
       sym = node.symbol;
     }
     compilerAssert(sym, "Should have a symbol");
+
     links.resolvedSymbol = sym;
     links.resolutionResult = ResolutionResultFlags.Resolved;
   }
@@ -1211,12 +1296,23 @@ export function createResolver(program: Program): NameResolver {
       symbol: undefined!,
       locals: createSymbolTable(),
       flags: NodeFlags.Synthetic,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
     };
 
     return nsNode;
   }
 
   function bindAndResolveNode(node: Node) {
+    if (visitedNode.has(node)) {
+      return;
+    }
+    visitedNode.add(node);
+
+    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
+      bindDeclarationIdentifier(node as any);
+    }
+
     switch (node.kind) {
       case SyntaxKind.TypeReference:
         resolveTypeReference(node);
@@ -1248,11 +1344,6 @@ export function createResolver(program: Program): NameResolver {
       case SyntaxKind.CallExpression:
         resolveTypeReference(node.target);
         break;
-        break;
-    }
-
-    if ("id" in node && node.kind !== SyntaxKind.MemberExpression && node.id) {
-      bindDeclarationIdentifier(node as any);
     }
 
     visitChildren(node, bindAndResolveNode);

@@ -1,0 +1,36 @@
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-subtitle {
+  color: var(--colorNeutralForeground3);
+}
+
+.empty {
+  color: var(--colorNeutralForeground3);
+  font-style: italic;
+}

@@ -38,10 +38,10 @@ namespace SampleTypeSpec
             string nextToken = null;
             while (true)
             {
-                ClientResult result = ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+                if (result.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
                 {
                     nextToken = value;
                 }
@@ -58,7 +58,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value))
+            if (page.GetRawResponse().Headers.TryGetValue("next-token", out string value) && !string.IsNullOrEmpty(value))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(value));
             }
@@ -78,6 +78,13 @@ namespace SampleTypeSpec
                 yield return item;
                 await Task.Yield();
             }
+        }
+
+        /// <summary> Sends the request in the pipeline message and returns the response. </summary>
+        /// <param name="message"> The pipeline message containing the request to send. </param>
+        private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
+        {
+            return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

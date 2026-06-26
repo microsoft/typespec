@@ -3,6 +3,7 @@ import {
   Decorator,
   EnumMember,
   FunctionParameter,
+  FunctionType,
   getEntityName,
   getTypeName,
   Interface,
@@ -54,11 +55,21 @@ export function getTypeSignature(type: Type): string {
     case "EnumMember":
       return `(enum member) ${getEnumMemberSignature(type)}`;
     case "TemplateParameter":
-      return (type.node! as any).id.sv;
+      return getTemplateConstraintSignature(
+        getTypeName(type),
+        (type as { constraint?: TemplateConstraintLike }).constraint,
+      );
+    case "TemplateParameterAccess":
+      return getTemplateConstraintSignature(
+        getTypeName(type),
+        (type as { constraint?: TemplateConstraintLike }).constraint,
+      );
     case "UnionVariant":
       return `(union variant) ${getUnionVariantSignature(type)}`;
     case "Tuple":
       return `(tuple) [${type.values.map(getTypeSignature).join(", ")}]`;
+    case "FunctionType":
+      return `(fn) ${getFunctionSignature(type)}`;
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
@@ -84,6 +95,11 @@ function getDecoratorSignature(type: Decorator) {
   return signature;
 }
 
+function getFunctionSignature(type: FunctionType) {
+  const parameters = [...type.parameters].map((x) => getFunctionParameterSignature(x));
+  return `fn (${parameters.join(", ")}) => ${getEntityName(type.returnType)}`;
+}
+
 function getInterfaceSignature(type: Interface) {
   const ns = getQualifier(type.namespace);
 
@@ -97,6 +113,32 @@ function getTemplateParameters(templateParameters: readonly TemplateParameterDec
   const params = templateParameters.map((x) => `${x.id.sv}`);
   return `<${params.join(", ")}>`;
 }
+
+/** Format `T extends ...` style signatures for template parameters/access paths. */
+function getTemplateConstraintSignature(
+  nameOrPath: string,
+  constraint?: TemplateConstraintLike,
+): string {
+  if (!constraint) {
+    return nameOrPath;
+  }
+
+  const parts: string[] = [];
+  if (constraint.type) {
+    parts.push(getTypeName(constraint.type));
+  }
+  if (constraint.valueType) {
+    parts.push(`valueof ${getTypeName(constraint.valueType)}`);
+  }
+
+  return parts.length > 0 ? `${nameOrPath} extends ${parts.join(" | ")}` : nameOrPath;
+}
+
+type TemplateConstraintLike = {
+  type?: Type;
+  valueType?: Type;
+};
+
 function getOperationSignature(type: Operation) {
   const qualifier = getQualifier(type.interface ?? type.namespace);
   const parameters = [...type.parameters.properties.values()].map(getModelPropertySignature);

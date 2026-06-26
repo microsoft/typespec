@@ -3,15 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
 import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,18 +31,18 @@ public class FluentJavaSettings {
     /**
      * Java class names for extra Inner classes.
      */
-    private final Set<String> javaNamesForAddInner = new HashSet<>();
+    private final Set<String> javaNamesForAddInner = new LinkedHashSet<>();
 
     /**
      * Java class names for excluded Inner classes.
      */
-    private final Set<String> javaNamesForRemoveInner = new HashSet<>();
+    private final Set<String> javaNamesForRemoveInner = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForRemoveModel = new HashSet<>();
+    private final Set<String> javaNamesForRemoveModel = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForPreserveModel = new HashSet<>();
+    private final Set<String> javaNamesForPreserveModel = new LinkedHashSet<>();
 
-    private final Set<String> javaNamesForRemoveOperationGroup = new HashSet<>();
+    private final Set<String> javaNamesForRemoveOperationGroup = new LinkedHashSet<>();
 
     private final List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
@@ -64,11 +64,11 @@ public class FluentJavaSettings {
     /**
      * Naming override.
      */
-    private final Map<String, String> namingOverride = new HashMap<>();
+    private final Map<String, String> namingOverride = new LinkedHashMap<>();
 
-    private final Set<String> javaNamesForPropertyIncludeAlways = new HashSet<>();
+    private final Set<String> javaNamesForPropertyIncludeAlways = new LinkedHashSet<>();
 
-    private final Map<String, String> renameOperationGroup = new HashMap<>();
+    private final Map<String, String> renameOperationGroup = new LinkedHashMap<>();
 
     private String pomFilename = "pom.xml";
 

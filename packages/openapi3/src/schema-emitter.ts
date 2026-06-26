@@ -440,6 +440,7 @@ export class OpenAPI3SchemaEmitterBase<
     if (isReadonlyProperty(program, prop)) {
       additionalProps.readOnly = true;
     }
+    this.#applyExternalDocs(prop, additionalProps);
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);
@@ -454,7 +455,7 @@ export class OpenAPI3SchemaEmitterBase<
       }
     }
 
-    if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
+    if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
         return schema;
       } else {
@@ -631,15 +632,31 @@ export class OpenAPI3SchemaEmitterBase<
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
+
+      // Add named variants to the oneOf array
       for (const variant of union.variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));
       }
+
+      // Add default variant to the oneOf array if it exists
+      if (union.defaultVariant) {
+        items.push(this.emitter.emitTypeReference(union.defaultVariant));
+      }
+
+      // Build discriminator mapping
+      const mapping = this.getDiscriminatorMapping(union.variants);
+
+      // For default variant in versions < 3.2, add it to the mapping with its discriminator value
+      if (union.defaultVariant) {
+        this.#addDefaultVariantToMapping(union, mapping);
+      }
+
       schema = {
         type: "object",
         oneOf: items,
         discriminator: {
           propertyName: union.options.discriminatorPropertyName,
-          mapping: this.getDiscriminatorMapping(union.variants),
+          mapping,
         },
       };
     } else {
@@ -669,12 +686,47 @@ export class OpenAPI3SchemaEmitterBase<
     return this.applyConstraints(union.type, schema);
   }
 
+  #addDefaultVariantToMapping(union: DiscriminatedUnion, mapping: Record<string, string>) {
+    if (!union.defaultVariant || union.defaultVariant.kind !== "Model") {
+      return;
+    }
+
+    // Try to get the discriminator property value from the default variant
+    const discriminatorProp = union.defaultVariant.properties.get(
+      union.options.discriminatorPropertyName,
+    );
+    if (discriminatorProp) {
+      const discriminatorValue = this.#getStringValueFromType(discriminatorProp.type);
+      if (discriminatorValue) {
+        const ref = this.emitter.emitTypeReference(union.defaultVariant);
+        compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
+        mapping[discriminatorValue] = (ref.value as any).$ref;
+      }
+    }
+  }
+
+  #getStringValueFromType(type: Type): string | undefined {
+    if (type.kind === "String") {
+      return type.value;
+    }
+    if (type.kind === "EnumMember") {
+      return typeof type.value === "string" ? type.value : type.name;
+    }
+    return undefined;
+  }
+
   getDiscriminatorMapping(variants: Map<string, Type>) {
     const mapping: Record<string, string> | undefined = {};
     for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
-      mapping[key] = (ref.value as any).$ref;
+      if (ref.value instanceof Placeholder) {
+        ref.value.onValue((resolvedValue) => {
+          mapping[key] = (resolvedValue as any).$ref;
+        });
+      } else {
+        mapping[key] = (ref.value as any).$ref;
+      }
     }
     return mapping;
   }

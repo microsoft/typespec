@@ -50,7 +50,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             // only add to reference when myself is public
             if (symbol.DeclaredAccessibility != Accessibility.Public)
+            {
                 return;
+            }
 
             // process myself, adding base and generic arguments
             AddTypeSymbol(symbol, symbol, referenceMap);
@@ -70,7 +72,9 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // only go through the public members
                 if (member.DeclaredAccessibility != Accessibility.Public)
+                {
                     continue;
+                }
 
                 switch (member)
                 {
@@ -109,15 +113,21 @@ namespace Microsoft.TypeSpec.Generator
         private async Task ProcessExtensionSymbol(INamedTypeSymbol extensionClassSymbol, ReferenceMap referenceMap, IReadOnlyDictionary<Document, HashSet<INamedTypeSymbol>> documentCache)
         {
             if (!extensionClassSymbol.IsStatic)
+            {
                 return;
+            }
 
             foreach (var member in extensionClassSymbol.GetMembers())
             {
                 if (member is not IMethodSymbol methodSymbol)
+                {
                     continue;
+                }
 
                 if (!methodSymbol.IsExtensionMethod)
+                {
                     continue;
+                }
 
                 foreach (var reference in await SymbolFinder.FindReferencesAsync(member, _project.Solution))
                 {
@@ -134,12 +144,16 @@ namespace Microsoft.TypeSpec.Generator
                 // if this is an extension method, we add it to the reference map of the type it is extending to pretend that this class is a part of that type
                 // handle the first method above
                 if (methodSymbol.Parameters.FirstOrDefault()?.Type is INamedTypeSymbol typeSymbol)
+                {
                     referenceMap.AddInList(typeSymbol, extensionClassSymbol);
+                }
 
                 // we also add the return type into the reference map of the extension class to cover both cases
                 // handle the second method above
                 if (methodSymbol.ReturnType is INamedTypeSymbol returnTypeSymbol)
+                {
                     referenceMap.AddInList(returnTypeSymbol, extensionClassSymbol);
+                }
             }
         }
 
@@ -151,7 +165,9 @@ namespace Microsoft.TypeSpec.Generator
 
                 // skip this reference if it comes from a document that does not define any symbol
                 if (!documentCache.TryGetValue(document, out var candidateReferenceSymbols))
+                {
                     continue;
+                }
 
                 if (candidateReferenceSymbols.Count == 1)
                 {
@@ -164,7 +180,9 @@ namespace Microsoft.TypeSpec.Generator
                     // customized code might have this issue
                     var root = await document.GetSyntaxRootAsync();
                     if (root == null)
+                    {
                         continue;
+                    }
                     // get the node of this reference
                     var node = root.FindNode(location.Location.SourceSpan);
                     var owner = GetOwnerTypeOfReference(node);
@@ -178,7 +196,9 @@ namespace Microsoft.TypeSpec.Generator
                         var ownerSymbol = semanticModel.GetDeclaredSymbol(owner);
 
                         if (ownerSymbol == null)
+                        {
                             continue;
+                        }
                         // add it to the map
                         referenceMap.AddInList(ownerSymbol, symbol);
                     }
@@ -195,9 +215,14 @@ namespace Microsoft.TypeSpec.Generator
         private void AddTypeSymbol(ITypeSymbol keySymbol, ITypeSymbol? valueSymbol, ReferenceMap referenceMap)
         {
             if (keySymbol is not INamedTypeSymbol keyTypeSymbol)
+            {
                 return;
+            }
+
             if (valueSymbol is not INamedTypeSymbol valueTypeSymbol)
+            {
                 return;
+            }
             // add the class and all its partial classes to the map
             // this will make all the partial classes are referencing each other in the reference map
             // when we make the travesal over the reference map, we will not only remove one of the partial class, instead we will either keep all the partial classes (if at least one of them has references), or remove all of them (if none of them has references)
@@ -267,7 +292,9 @@ namespace Microsoft.TypeSpec.Generator
             while (current != null)
             {
                 if (current is BaseTypeDeclarationSyntax declarationNode)
+                {
                     return declarationNode;
+                }
 
                 current = current.Parent;
             }

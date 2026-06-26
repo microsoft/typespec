@@ -108,11 +108,12 @@ model TopLevelArmResource is TrackedResource<TopLevelArmResourceProperties> {
 @doc("Top Level Arm Resource Properties.")
 model TopLevelArmResourceProperties {
   description?: string;
+  builtin: Builtin;
 }
 
 @error
-model ErrorResponse {
-  error: Error;
+model ErrorResponseMax {
+  error: ErrorMax;
 }
 
 @error
@@ -120,11 +121,11 @@ model ErrorResponseMin {
   error: ErrorMin;
 }
 
-model Error {
+model ErrorMax {
   code: string;
   message: string;
   target: string;
-  details?: Error[];
+  details?: ErrorMax[];
   additionalInfo?: AdditionalInfo[];
   additionalProperty: string;
 }
@@ -221,7 +222,7 @@ union Priority {
 @route("/model")
 interface Fishes {
   @get
-  getModel(): Fish | ErrorResponse;
+  getModel(): Fish | ErrorResponseMax;
 
   @put
   putModel(@body fish: Fish): Fish | ErrorResponseMin;
@@ -252,6 +253,7 @@ interface Functions {
 interface Priorities {
   @post
   setPriority(@query priority: Priority): {
+    @header("Content-Type") contentType: "application/json";
     @body body: Priority;
   };
 }
@@ -262,6 +264,33 @@ interface Items {
   @get
   @list
   list(): ListResult & ArmLroLocationHeader;
+
+  @get
+  @list
+  @route("summary")
+  summary(): ListResultSummary;
+
+  @get
+  @list
+  @route("list2")
+  list2(): ListResult2;
+
+  @get
+  @route("summary2")
+  summary2(): ListResultSummary2;
+
+  @get
+  @list
+  @route("list3")
+  list3(): ListResult3;
+
+  @post
+  post(@body body: ListResult3): void;
+}
+
+// model does not contain `@pageItems` property, but inherit them from parent
+model ListResultSummary extends ListResult {
+  summary?: string;
 }
 
 model ListResult {
@@ -270,6 +299,29 @@ model ListResult {
 
   @nextLink
   nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as its child ListResultSummary2 is public
+model ListResult2 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+// This paged model need to be public (instead of in "implementation" package), as it is referenced in public API or public model
+@access(Access.public)
+model ListResult3 {
+  @pageItems
+  items: Result[];
+
+  @nextLink
+  nextLink?: string;
+}
+
+model ListResultSummary2 extends ListResult2 {
+  summary?: string;
 }
 
 model Result {
@@ -284,6 +336,74 @@ model ResultData {
 
   @visibility(Lifecycle.Read)
   prop2: string;
+}
+
+// test the serializaton of "unknown"
+@usage(Usage.input | Usage.output)
+model Builtin {
+  boolean: boolean;
+  string: string;
+  bytes: bytes;
+  int: int32;
+  safeint: safeint;
+  decimal: decimal;
+  long: int64;
+  float: float32;
+  double: float64;
+  duration: duration;
+  date: plainDate;
+  dateTime: utcDateTime;
+  stringList: string[];
+  bytesDict: Record<bytes>;
+  url: url;
+  nullableFloatDict: Record<float64 | null>;
+  encoding: Encoded;
+  uuid: Azure.Core.uuid;
+  `unknown`: unknown;
+  unknownDict: Record<unknown>;
+  unknownArray: unknown[];
+  unknownDictArray: Record<unknown>[];
+}
+
+@encode(DurationKnownEncoding.seconds, float32)
+scalar myDuration extends duration;
+
+model Encoded {
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSeconds?: duration;
+
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSecondsPrimitive: duration;
+
+  timeInSecondsFraction?: myDuration;
+  timeInSecondsFractionPrimitive: myDuration;
+
+  @encode(DateTimeKnownEncoding.rfc3339)
+  dateTime?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.rfc7231)
+  dateTimeRfc7231?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestamp?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestampPrimitive: utcDateTime;
+
+  @encode(BytesKnownEncoding.base64)
+  base64?: bytes;
+
+  @encode(BytesKnownEncoding.base64url)
+  base64url?: bytes;
+
+  @encode("unknown-duration")
+  unknownDurationFormat?: duration;
+
+  @encode("unknown-datetime")
+  unknownDateTimeFormat?: utcDateTime;
+
+  @encode("unknown-bytes")
+  unknownBytes?: bytes;
 }
 
 @@flattenProperty(Fish.properties);

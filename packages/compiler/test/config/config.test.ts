@@ -7,7 +7,8 @@ import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
-import { findTestPackageRoot } from "../../src/testing/test-utils.js";
+import { createTestFileSystem } from "../../src/testing/fs.js";
+import { findTestPackageRoot, resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
   await findTestPackageRoot(import.meta.url),
@@ -112,6 +113,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when not found", async () => {
+      // eslint-disable-next-line no-useless-assignment
       let config = await loadTestConfig("empty", false, false);
       config = await loadTestConfig("empty", false, false);
       deepStrictEqual(config, {
@@ -121,6 +123,7 @@ describe("compiler: config file loading", () => {
     });
 
     it("deep clones defaults when found", async () => {
+      // eslint-disable-next-line no-useless-assignment
       let config = await loadTestConfig("simple", false, false);
 
       config = await loadTestConfig("simple");
@@ -128,6 +131,60 @@ describe("compiler: config file loading", () => {
         diagnostics: [],
         outputDir: "{cwd}/tsp-output",
         emit: ["openapi"],
+      });
+    });
+
+    it("loads config with kind: project", async () => {
+      const config = await loadTestConfig("project-basic");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
+        emit: ["openapi"],
+      });
+    });
+
+    it("loads config with kind: project and entrypoint", async () => {
+      const config = await loadTestConfig("project-entrypoint");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
+        entrypoint: "src/service.tsp",
+        emit: ["openapi"],
+      });
+    });
+
+    it("loads config with kind: project and features", async () => {
+      const config = await loadTestConfig("project-features");
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
+        features: ["function-declarations"],
+      });
+    });
+
+    it("loads config with kind: project and blank features", async () => {
+      const fs = createTestFileSystem();
+      fs.addTypeSpecFile(
+        "project/tspconfig.yaml",
+        `
+        kind: project
+        features:
+        `,
+      );
+
+      const { filename, projectRoot, file, ...config } = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath("project/tspconfig.yaml"),
+        true,
+        false,
+      );
+      deepStrictEqual(config, {
+        diagnostics: [],
+        outputDir: "{cwd}/tsp-output",
+        kind: "project",
       });
     });
   });
@@ -166,5 +223,73 @@ describe("compiler: config file loading", () => {
     it("succeeds if config is valid", () => {
       deepStrictEqual(validate({ options: { openapi: {} } }), []);
     });
+
+    it("succeeds with kind: project", () => {
+      deepStrictEqual(validate({ kind: "project" }), []);
+    });
+
+    it("succeeds with kind: project and entrypoint", () => {
+      deepStrictEqual(validate({ kind: "project", entrypoint: "src/service.tsp" }), []);
+    });
+
+    it("succeeds with kind: project and features", () => {
+      deepStrictEqual(validate({ kind: "project", features: ["function-declarations"] }), []);
+    });
+
+    it("fails with non-string features", () => {
+      const diagnostics = validate({ kind: "project", features: [123] } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
+
+    it("fails with invalid kind value", () => {
+      const diagnostics = validate({ kind: "invalid" } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
+
+    it("fails with non-string entrypoint", () => {
+      const diagnostics = validate({ entrypoint: 123 } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
+  });
+
+  describe("project config validation", () => {
+    it("errors when kind: project is used in a non-tspconfig.yaml file", async () => {
+      const fullPath = join(scenarioRoot, "project-custom-name/my-config.yaml");
+      const config = await loadTypeSpecConfigForPath(NodeHost, fullPath, true, false);
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-project-kind-filename");
+    });
+
+    it("errors when entrypoint is used without kind: project", async () => {
+      const config = await loadTestConfigFile("entrypoint-no-project");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-project-only-option");
+    });
+
+    it("errors when features is used without kind: project", async () => {
+      const config = await loadTestConfigFile("features-no-project");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-project-only-option");
+    });
+
+    it("errors when project config references unknown features", async () => {
+      const config = await loadTestConfigFile("project-unknown-feature");
+      strictEqual(config.diagnostics.length, 1);
+      strictEqual(config.diagnostics[0].code, "config-unknown-feature");
+    });
+
+    it("allows kind: project in tspconfig.yaml", async () => {
+      const config = await loadTestConfigFile("project-basic");
+      strictEqual(config.diagnostics.length, 0);
+      strictEqual(config.kind, "project");
+    });
   });
 });
+
+async function loadTestConfigFile(scenarioName: string) {
+  const fullPath = join(scenarioRoot, scenarioName, "tspconfig.yaml");
+  return loadTypeSpecConfigForPath(NodeHost, fullPath, true, false);
+}

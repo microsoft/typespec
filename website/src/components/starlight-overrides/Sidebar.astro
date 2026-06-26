@@ -1,0 +1,51 @@
+---
+import MobileMenuFooter from "@astrojs/starlight/components/MobileMenuFooter.astro";
+import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
+import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
+import { getCollection } from "astro:content";
+
+const { sidebar } = Astro.locals.starlightRoute;
+const pathname = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+
+type SidebarEntry = (typeof sidebar)[number];
+
+const isReleaseNotes = pathname.startsWith(base + "release-notes");
+
+/** Returns true for sidebar groups that contain release notes entries. */
+function isReleaseNotesGroup(entry: SidebarEntry): boolean {
+  if (entry.type !== "group") return false;
+  return entry.entries.some((e) => e.type === "link" && e.href.startsWith(base + "release-notes/"));
+}
+
+const filtered = sidebar.filter((entry) =>
+  isReleaseNotes ? isReleaseNotesGroup(entry) : !isReleaseNotesGroup(entry),
+);
+
+// Sort release notes entries by releaseDate so newest appear first.
+if (isReleaseNotes) {
+  const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("release-notes/"));
+  const dateByHref = new Map<string, number>();
+  for (const note of releaseNotes) {
+    const href = base + note.id + "/";
+    dateByHref.set(href, note.data.releaseDate?.getTime() ?? 0);
+  }
+  for (const entry of filtered) {
+    if (entry.type === "group" && isReleaseNotesGroup(entry)) {
+      entry.entries.sort((a, b) => {
+        const dateA = a.type === "link" ? (dateByHref.get(a.href) ?? 0) : 0;
+        const dateB = b.type === "link" ? (dateByHref.get(b.href) ?? 0) : 0;
+        return dateB - dateA;
+      });
+    }
+  }
+}
+---
+
+<SidebarPersister>
+  <SidebarSublist sublist={filtered} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>

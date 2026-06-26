@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
         /// Converts this property to a parameter.
@@ -91,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             EnclosingType = enclosingType;
-            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty);
             _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
@@ -100,9 +101,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
             Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            Name = inputProperty.Name == enclosingType.Name
-                ? $"{inputProperty.Name.ToIdentifierName()}Property"
-                : inputProperty.Name.ToIdentifierName();
+            var identifierName = inputProperty.IsExactName ? inputProperty.Name : inputProperty.Name.ToIdentifierName();
+            Name = identifierName == enclosingType.Name
+                ? $"{identifierName}Property"
+                : identifierName;
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
@@ -236,7 +238,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
+            {
                 return null;
+            }
 
             if (propertyType.IsLiteral)
             {

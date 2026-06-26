@@ -3,22 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
+using NuGet.Repositories;
+using NuGet.RuntimeModel;
 using NuGet.Versioning;
 using NUnit.Framework;
-using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
-using NuGet.Common;
-using System.IO;
-using NuGet.Repositories;
-using NuGet.Packaging;
-using NuGet.RuntimeModel;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {
@@ -101,6 +101,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             {
                 Assert.ThrowsAsync<InvalidOperationException>(downloader.DownloadAndInstallPackage);
             }
+        }
+
+        // This test validates that when target frameworks don't match any existing directory,
+        // it falls back to the first available preferred version
+        [Test]
+        public async Task TestGetDotNetFolderPathFallback()
+        {
+            var packageName = "mockPackage";
+            var packageVersion = "1.0.0";
+            var mockDownloadResource = new Mock<DownloadResource>();
+
+            mockDownloadResource.Setup(d => d.GetDownloadResourceResultAsync(
+                It.IsAny<PackageIdentity>(),
+                It.IsAny<PackageDownloadContext>(),
+                It.IsAny<string>(),
+                It.IsAny<ILogger>(),
+                It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new DownloadResourceResult(new Mock<Stream>().Object, "mockSource")));
+            
+            var mockPackageSourceRepository = new Mock<SourceRepository>();
+            mockPackageSourceRepository.Setup(s => s.GetResourceAsync<DownloadResource>())
+                .Returns(Task.FromResult(mockDownloadResource.Object));
+            
+            TestNugetSettings mockSettings = new()
+            {
+                Sections =
+                [
+                    new TestNugetSettingSection(ConfigurationConstants.PackageSources, new SourceItem("mockSource", "mockSourceUri"))
+                ]
+            };
+
+            // Set up: target framework is "net9.0" but only "netstandard2.0" directory exists
+            var packagePath = "c:\\mockPath";
+            var libPath = Path.Combine(packagePath, "lib");
+            var existingDirs = new HashSet<string>
+            {
+                libPath,
+                Path.Combine(libPath, "netstandard2.0")
+            };
+
+            var mockLocalPackageInfo = new LocalPackageInfo(
+                packageName,
+                NuGetVersion.Parse(packageVersion),
+                packagePath,
+                "mockSourceUri",
+                "mockManifestPath",
+                "mockSha512Path",
+                new Lazy<NuspecReader>(),
+                new Lazy<IReadOnlyList<string>>(),
+                new Lazy<string>(),
+                new Lazy<RuntimeGraph>());
+
+            var downloader = new TestNugetPackageDownloader(
+                packageName,
+                packageVersion,
+                mockSettings,
+                mockPackageSourceRepository.Object,
+                true,
+                true,
+                ["net9.0"],
+                mockLocalPackageInfo,
+                existingDirs);
+
+            var result = await downloader.DownloadAndInstallPackage();
+            
+            Assert.NotNull(result);
+            Assert.AreEqual(Path.Combine(libPath, "netstandard2.0"), result);
         }
 
         public static IEnumerable<TestCaseData> ParseVersionStringTestCases

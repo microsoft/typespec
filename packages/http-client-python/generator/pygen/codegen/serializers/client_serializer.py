@@ -178,15 +178,14 @@ class ClientSerializer:
         client_models_str = "client_models" if is_msrest_model else ""
         retval.append(f"self._serialize = Serializer({client_models_str})")
         retval.append(f"self._deserialize = Deserializer({client_models_str})")
-        if not self.client.code_model.options["client-side-validation"]:
+        if self.client.code_model.need_utils_serialization:
             retval.append("self._serialize.client_side_validation = False")
         operation_groups = [og for og in self.client.operation_groups if not og.is_mixin]
         for og in operation_groups:
-            api_version = ""
             retval.extend(
                 [
                     f"self.{og.property_name} = {og.class_name}(",
-                    f"    self._client, self._config, self._serialize, self._deserialize{api_version}",
+                    "    self._client, self._config, self._serialize, self._deserialize",
                     ")",
                 ]
             )

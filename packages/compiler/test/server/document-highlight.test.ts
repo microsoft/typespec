@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { DocumentHighlight } from "vscode-languageserver/node.js";
+import { DocumentHighlight } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -166,6 +166,46 @@ describe("compiler: server: documentHighlight", () => {
           start: {
             character: 5,
             line: 3,
+          },
+        },
+      },
+    ]);
+  });
+
+  it("includes template access references in highlighting", async () => {
+    const ranges = await findDocumentHighlight(`
+    model X {
+      a: string;
+    }
+    model Y<M extends X> {
+      p1: M.a┆::type;
+      p2: M.a::type;
+    }`);
+
+    deepStrictEqual(ranges, [
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 5,
+          },
+          start: {
+            character: 12,
+            line: 5,
+          },
+        },
+      },
+      {
+        kind: 2,
+        range: {
+          end: {
+            character: 13,
+            line: 6,
+          },
+          start: {
+            character: 12,
+            line: 6,
           },
         },
       },

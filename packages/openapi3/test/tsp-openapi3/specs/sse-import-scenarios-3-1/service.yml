@@ -93,7 +93,7 @@ components:
 paths:
   /channel/no-terminal:
     get:
-      operationId: subscribeToChannelNoTerminal
+      operationId: subscribeToChannelNoTerminalGet
       responses:
         "200":
           description: A request body to add a stream of typed data.
@@ -103,7 +103,7 @@ paths:
                 $ref: "#/components/schemas/ChannelEventsNoTerminal"
   /channel/no-terminal-post:
     post:
-      operationId: subscribeToChannelNoTerminal
+      operationId: subscribeToChannelNoTerminalPost
       requestBody:
         description: Request body for subscribing to a channel without terminal event.
         required: true

@@ -135,6 +135,18 @@ const diagnostics = {
       topLevel: "Imports must be top-level and come prior to namespaces or other declarations.",
     },
   },
+  "duplicate-import": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Duplicate import of "${"importPath"}"`,
+    },
+  },
+  "self-import": {
+    severity: "warning",
+    messages: {
+      default: "A file cannot import itself.",
+    },
+  },
   "token-expected": {
     severity: "error",
     messages: {
@@ -249,6 +261,21 @@ const diagnostics = {
   /**
    * Checker
    */
+  "experimental-feature": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
+      functionDeclarations:
+        "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "auto-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {
@@ -325,12 +352,14 @@ const diagnostics = {
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
+      internal: paramMessage`Symbol '${"id"}' is internal and can only be accessed from within its declaring package.`,
     },
   },
   "duplicate-property": {
     severity: "error",
     messages: {
       default: paramMessage`Model already has a property named ${"propName"}`,
+      withModel: paramMessage`Model ${"modelName"} already has a property named ${"propName"}`,
     },
   },
   "override-property-mismatch": {
@@ -395,12 +424,14 @@ const diagnostics = {
       modelExpression: `Is a model expression type, but is being used as a value here. Use #{} to create an object value.`,
       tuple: `Is a tuple type, but is being used as a value here. Use #[] to create an array value.`,
       templateConstraint: paramMessage`${"name"} template parameter can be a type but is being used as a value here.`,
+      functionReturn: paramMessage`Function returned a type, but a value was expected.`,
     },
   },
   "non-callable": {
     severity: "error",
     messages: {
       default: paramMessage`Type ${"type"} is not is not callable.`,
+      templateParameter: paramMessage`Template parameter '${"name"} extends ${"constraint"}' is not callable. Ensure it is constrained to a function value or callable type (scalar or scalar constructor).`,
     },
   },
   "named-init-required": {
@@ -438,6 +469,14 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propName"}' is required in type '${"targetType"}' but here is optional.`,
+    },
+  },
+  "parameter-required": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Parameter '${"paramName"}' is required, but optional in the target function.`,
+      missing: paramMessage`Parameter '${"paramName"}' is required, but missing in the target function.`,
+      "rest-to-required": paramMessage`Parameter '${"paramName"}' is required and not satisfied by a rest parameter, as rest parameters are effectively optional.`,
     },
   },
   "value-in-type": {
@@ -527,28 +566,43 @@ const diagnostics = {
       default: "A rest parameter must be of an array type.",
     },
   },
-  "decorator-extern": {
+  "invalid-modifier": {
     severity: "error",
     messages: {
-      default: "A decorator declaration must be prefixed with the 'extern' modifier.",
+      default: paramMessage`Modifier '${"modifier"}' is invalid.`,
+      "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "missing-required-one-of": paramMessage`Declaration of type '${"nodeKind"}' is missing one of the required modifiers: ${"modifiers"}.`,
+      "mutually-exclusive": paramMessage`Modifiers '${"modifierA"}' and '${"modifierB"}' cannot be used together.`,
+      "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
-  "function-extern": {
+  "function-return": {
     severity: "error",
     messages: {
-      default: "A function declaration must be prefixed with the 'extern' modifier.",
+      default: "Function implementation returned an invalid result.",
+      "invalid-value": paramMessage`Function implementation returned invalid JS value '${"value"}'.`,
+      unassignable: paramMessage`Implementation of '${"name"}' returned ${"entityKind"} '${"return"}', which is not assignable to the declared return type '${"type"}'.`,
     },
   },
-  "function-unsupported": {
+  "fn-in-union-expression": {
     severity: "error",
     messages: {
-      default: "Function are currently not supported.",
+      default: "Function types in anonymous union expressions must be parenthesized.",
     },
   },
   "missing-implementation": {
     severity: "error",
     messages: {
       default: "Extern declaration must have an implementation in JS file.",
+    },
+  },
+  "missing-extern-declaration": {
+    severity: "error",
+    description:
+      "Report when a function is registered in $functions in a JS file but has no corresponding `extern fn` declaration in TypeSpec.",
+    url: "https://typespec.io/docs/standard-library/diags/missing-extern-declaration",
+    messages: {
+      default: paramMessage`Function implementation "${"name"}" is exported in JS via $functions but has no corresponding 'extern fn' declaration in TypeSpec.`,
     },
   },
   "overload-same-parent": {
@@ -614,6 +668,31 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`No configuration file found at config path "${"path"}".`,
+    },
+  },
+  "config-project-kind-filename": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Config with \`kind: project\` must be named "tspconfig.yaml". Found in "${"filename"}".`,
+    },
+  },
+  "config-project-only-option": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property "${"option"}" can only be used in a project config (with \`kind: project\`).`,
+    },
+  },
+  "config-unknown-feature": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown compiler feature "${"feature"}".`,
+    },
+  },
+  "config-project-not-as-cli-config": {
+    severity: "error",
+    messages: {
+      default:
+        "`--config` cannot point to a project config (with `kind: project`). Use a non-project build config that `extends` the project config instead.",
     },
   },
   /**
@@ -772,6 +851,12 @@ const diagnostics = {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
     },
   },
+  "invalid-rule-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
 
   /**
    * Formatter
@@ -851,7 +936,7 @@ const diagnostics = {
       default: paramMessage`Union variant "${"name"}" must be a model type.`,
       noEnvelopeModel: paramMessage`Union variant "${"name"}" must be a model type when the union has envelope: none.`,
       discriminantMismatch: paramMessage`Variant "${"name"}" explicitly defines the discriminator property "${"discriminant"}" but the value "${"propertyValue"}" do not match the variant name "${"variantName"}".`,
-      duplicateDefaultVariant: `Discriminated union only allow a single default variant(Without a variant name).`,
+      duplicateDefaultVariant: paramMessage`Discriminated union ${"unionName"} only allow a single default variant(Without a variant name).`,
       noDiscriminant: paramMessage`Variant "${"name"}" type is missing the discriminant property "${"discriminant"}".`,
       wrongDiscriminantType: paramMessage`Variant "${"name"}" type's discriminant property "${"discriminant"}" must be a string literal or string enum member.`,
     },
@@ -878,7 +963,7 @@ const diagnostics = {
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
       wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
-      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric types.`,
+      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric or boolean types.`,
     },
   },
 
@@ -1081,4 +1166,5 @@ const diagnostics = {
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;
+export const compilerDiagnosticCodes = new Set(Object.keys(diagnostics));
 export const { createDiagnostic, reportDiagnostic } = createDiagnosticCreator(diagnostics);

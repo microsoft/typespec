@@ -31,9 +31,12 @@ export function deepFreeze<T>(value: T): T {
  *
  * Does not support cycles. Intended to be used only on plain data that can
  * be directly represented in JSON.
+ *
+ * @deprecated Use `structuredClone` instead.
  */
 export function deepClone<T>(value: T): T {
   if (Array.isArray(value)) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     return value.map(deepClone) as any;
   }
 
@@ -44,6 +47,7 @@ export function deepClone<T>(value: T): T {
   if (typeof value === "object") {
     const obj: any = {};
     for (const prop in value) {
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       obj[prop] = deepClone(value[prop]);
     }
     return obj;
@@ -487,4 +491,15 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
 
 export function isPromise(value: unknown): value is Promise<unknown> {
   return !!value && typeof (value as any).then === "function";
+}
+
+export function getEnvironmentVariable(
+  envVarName: string,
+  defaultWhenNotAvailable?: string,
+): string | undefined {
+  // make sure we are fine in both node and browser environments
+  if (typeof process !== "undefined") {
+    return process?.env?.[envVarName] ?? defaultWhenNotAvailable;
+  }
+  return defaultWhenNotAvailable;
 }

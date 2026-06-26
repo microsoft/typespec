@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.model.inheritance.singlediscriminator.Bird;
 import type.model.inheritance.singlediscriminator.Eagle;
+import type.model.inheritance.singlediscriminator.Fish;
 import type.model.inheritance.singlediscriminator.Goose;
 import type.model.inheritance.singlediscriminator.SeaGull;
 import type.model.inheritance.singlediscriminator.SingleDiscriminatorClient;
@@ -35,5 +36,14 @@ public class SingleDiscriminatorTest {
         Assertions.assertEquals(SeaGull.class, recursiveModel.getFriends().get(0).getClass());
         Assertions.assertEquals(Sparrow.class, recursiveModel.getHate().get("key3").getClass());
         client.putRecursiveModel(recursiveModel);
+    }
+
+    @Test
+    public void testNoSubtypesModel() {
+        Fish fish = client.getNoSubtypesModel();
+        Assertions.assertNotNull(fish);
+        Assertions.assertEquals(10, fish.getSize());
+
+        client.putNoSubtypesModel(fish);
     }
 }

@@ -13,6 +13,20 @@ namespace _Type.Property.AdditionalProperties
     {
         internal SpreadRecordForNonDiscriminatedUnion3() => throw null;
 
+        protected virtual SpreadRecordForNonDiscriminatedUnion3 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Write(ModelReaderWriterOptions options) => throw null;
+
+        SpreadRecordForNonDiscriminatedUnion3 IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion3 spreadRecordForNonDiscriminatedUnion3) => throw null;
+
+        public static explicit operator SpreadRecordForNonDiscriminatedUnion3(ClientResult result) => throw null;
+
         void IJsonModel<SpreadRecordForNonDiscriminatedUnion3>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -20,19 +34,5 @@ namespace _Type.Property.AdditionalProperties
         SpreadRecordForNonDiscriminatedUnion3 IJsonModel<SpreadRecordForNonDiscriminatedUnion3>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual SpreadRecordForNonDiscriminatedUnion3 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        SpreadRecordForNonDiscriminatedUnion3 IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual SpreadRecordForNonDiscriminatedUnion3 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<SpreadRecordForNonDiscriminatedUnion3>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(SpreadRecordForNonDiscriminatedUnion3 spreadRecordForNonDiscriminatedUnion3) => throw null;
-
-        public static explicit operator SpreadRecordForNonDiscriminatedUnion3(ClientResult result) => throw null;
     }
 }

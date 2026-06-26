@@ -34,6 +34,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
+        public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
+
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
         public WireInformation WireInfo { get; private set; }
         public ParameterLocation Location { get; private set; }
@@ -49,11 +51,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? Field { get; set; }
 
         /// <summary>
+        /// This property stores the InputParameter that this ParameterProvider was created from.
+        /// Used to access metadata like MethodParameterSegments for override scenarios.
+        /// </summary>
+        public InputParameter? InputParameter { get; private set; }
+
+        /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
+            InputParameter = inputParameter;
             Name = inputParameter.Name;
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
@@ -88,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? initializationValue = null,
             ParameterLocation? location = null,
             WireInformation? wireInfo = null,
-            ParameterValidationType? validation = null)
+            ParameterValidationType? validation = null,
+            InputParameter? inputParameter = null)
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
@@ -107,6 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InitializationValue = initializationValue;
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
+            InputParameter = inputParameter;
         }
 
         private ParameterProvider? _inputParameter;
@@ -136,7 +147,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 validation: Validation)
             {
                 _asVariable = _asVariable,
-                SpreadSource = SpreadSource
+                SpreadSource = SpreadSource,
+                InputParameter = InputParameter
             };
         }
 
@@ -185,6 +197,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             CodeWriterDeclaration? declaration = parameter._asVariable?.Declaration ?? parameter._asArgument?.Declaration;
 
+            var variableName = parameter.InputParameter?.IsExactName == true
+                ? parameter.Name
+                : parameter.Name.ToVariableName();
+
             if (includeModifiers)
             {
                 if (parameter._asArgument == null)
@@ -201,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         parameter._asArgument = new VariableExpression(
                             parameter.Type,
-                            parameter.Name.ToVariableName(),
+                            variableName,
                             parameter.IsRef,
                             parameter.IsOut);
                     }
@@ -223,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     parameter._asVariable = new VariableExpression(
                         parameter.Type,
-                        parameter.Name.ToVariableName(),
+                        variableName,
                         includeModifiers && parameter.IsRef,
                         includeModifiers && parameter.IsOut);
                 }
@@ -240,26 +256,38 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ParameterValidationType GetParameterValidation()
         {
             if (Field is not null && !Field.Type.IsNullable)
+            {
                 return ParameterValidationType.AssertNotNull;
+            }
 
             if (Property is null || Property.WireInfo is null)
+            {
                 return ParameterValidationType.None;
+            }
 
             // We do not validate a parameter when it is a value type (struct or int, etc)
             if (Property.Type.IsValueType)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is readonly
             if (Property.WireInfo.IsReadOnly)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is optional
             if (!Property.WireInfo.IsRequired)
+            {
                 return ParameterValidationType.None;
+            }
 
             // or it is nullable
             if (Property.Type.IsNullable)
+            {
                 return ParameterValidationType.None;
+            }
 
             return ParameterValidationType.AssertNotNull;
         }

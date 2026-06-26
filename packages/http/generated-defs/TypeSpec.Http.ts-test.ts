@@ -7,4 +7,4 @@ import type { TypeSpecHttpDecorators } from "./TypeSpec.Http.js";
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: TypeSpecHttpDecorators = $decorators["TypeSpec.Http"];
+const _decs: TypeSpecHttpDecorators = $decorators["TypeSpec.Http"];

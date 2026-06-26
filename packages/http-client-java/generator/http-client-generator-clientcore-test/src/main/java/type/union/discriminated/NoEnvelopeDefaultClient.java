@@ -44,7 +44,7 @@ public final class NoEnvelopeDefaultClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with inline discriminator (no envelope).
      * The discriminated union should serialize with discriminator property
-     * injected directly into the variant object.
+     * injected directly into the variant object along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -96,7 +96,7 @@ public final class NoEnvelopeDefaultClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with inline discriminator (no envelope).
      * The discriminated union should serialize with discriminator property
-     * injected directly into the variant object.
+     * injected directly into the variant object along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

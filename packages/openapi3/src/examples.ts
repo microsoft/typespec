@@ -101,19 +101,23 @@ export function resolveOperationExamples(
     if (example.returnType && op.responses) {
       const match = findResponseForExample(program, example.returnType, op.responses);
       if (match) {
-        const value = getBodyValue(example.returnType, match.response.properties);
-        if (value) {
-          for (const statusCode of match.statusCodes) {
-            result.responses[statusCode] ??= {};
-            result.responses[statusCode][match.contentType] ??= [];
-            result.responses[statusCode][match.contentType].push([
-              {
-                value,
-                title: example.title,
-                description: example.description,
-              },
-              match.response.body!.type,
-            ]);
+        // Try each response content in the matched group to find one that can extract a body value
+        for (const response of match.responses) {
+          const value = getBodyValue(example.returnType, response.properties);
+          if (value) {
+            for (const statusCode of match.statusCodes) {
+              result.responses[statusCode] ??= {};
+              result.responses[statusCode][match.contentType] ??= [];
+              result.responses[statusCode][match.contentType].push([
+                {
+                  value,
+                  title: example.title,
+                  description: example.description,
+                },
+                response.body!.type,
+              ]);
+            }
+            break;
           }
         }
       }
@@ -153,67 +157,87 @@ function findResponseForExample(
   exampleValue: Value,
   responses: HttpOperationResponse[],
 ):
-  | { contentType: string; statusCodes: string[]; response: HttpOperationResponseContent }
+  | { contentType: string; statusCodes: string[]; responses: HttpOperationResponseContent[] }
   | undefined {
-  const tentatives: [
-    { response: HttpOperationResponseContent; contentType?: string; statusCodes?: string[] },
-    number,
-  ][] = [];
+  // Group response contents by (statusCodes, contentType), then pick the best matching group.
+  // This ensures that when multiple response contents share the same status code and content type
+  // (e.g., union variants like ModelA | ModelB both returning 200/json), they are treated as a
+  // single group rather than competing for individual matching.
+  const groups = new Map<
+    string,
+    {
+      statusCodes: string[];
+      contentType: string;
+      responses: HttpOperationResponseContent[];
+      score: number;
+    }
+  >();
+
   for (const statusCodeResponse of responses) {
+    const openApiStatusCodes = ignoreDiagnostics(
+      getOpenAPI3StatusCodes(program, statusCodeResponse.statusCodes, statusCodeResponse.type),
+    );
+
     for (const response of statusCodeResponse.responses) {
       if (response.body === undefined) {
         continue;
       }
       const contentType = getContentTypeValue(exampleValue, response.properties);
       const statusCode = getStatusCodeValue(exampleValue, response.properties);
-      const contentTypeProp = response.properties.find((x) => x.kind === "contentType"); // if undefined MUST be application/json
-      const statusCodeProp = response.properties.find((x) => x.kind === "statusCode"); // if undefined MUST be 200
+      const contentTypeProp = response.properties.find((x) => x.kind === "contentType");
+      const statusCodeProp = response.properties.find((x) => x.kind === "statusCode");
 
       const statusCodeMatch =
         statusCode && statusCodeProp && isStatusCodeIn(statusCode, statusCodeResponse.statusCodes);
       const contentTypeMatch = contentType && response.body?.contentTypes.includes(contentType);
+
+      let score: number;
+      let resolvedContentType: string;
+
       if (statusCodeMatch && contentTypeMatch) {
-        return {
-          contentType,
-          statusCodes: ignoreDiagnostics(
-            getOpenAPI3StatusCodes(
-              program,
-              statusCodeResponse.statusCodes,
-              statusCodeResponse.type,
-            ),
-          ),
-          response,
-        };
+        score = 2;
+        resolvedContentType = contentType;
       } else if (statusCodeMatch && contentTypeProp === undefined) {
-        tentatives.push([
-          {
-            response,
-            statusCodes: ignoreDiagnostics(
-              getOpenAPI3StatusCodes(
-                program,
-                statusCodeResponse.statusCodes,
-                statusCodeResponse.type,
-              ),
-            ),
-          },
-          1,
-        ]);
+        score = 1;
+        resolvedContentType = "application/json";
       } else if (contentTypeMatch && statusCodeMatch === undefined) {
-        tentatives.push([{ response, contentType }, 1]);
+        score = 1;
+        resolvedContentType = contentType;
       } else if (contentTypeProp === undefined && statusCodeProp === undefined) {
-        tentatives.push([{ response }, 0]);
+        score = 0;
+        resolvedContentType = "application/json";
+      } else {
+        continue;
+      }
+
+      const key = `${openApiStatusCodes.join(",")}|${resolvedContentType}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.responses.push(response);
+        existing.score = Math.max(existing.score, score);
+      } else {
+        groups.set(key, {
+          statusCodes: openApiStatusCodes,
+          contentType: resolvedContentType,
+          responses: [response],
+          score,
+        });
       }
     }
   }
-  const tentative = tentatives.sort((a, b) => a[1] - b[1]).pop();
-  if (tentative) {
-    return {
-      contentType: tentative[0].contentType ?? "application/json",
-      statusCodes: tentative[0].statusCodes ?? ["200"],
-      response: tentative[0].response,
-    };
+
+  let bestGroup:
+    | { statusCodes: string[]; contentType: string; responses: HttpOperationResponseContent[] }
+    | undefined;
+  let bestScore = -1;
+  for (const group of groups.values()) {
+    if (group.score > bestScore) {
+      bestScore = group.score;
+      bestGroup = group;
+    }
   }
-  return undefined;
+
+  return bestGroup;
 }
 
 /**
@@ -373,6 +397,10 @@ function getQueryParameterValue(
       return getParameterDelimitedValue(program, originalValue, property, " ");
     case "pipeDelimited":
       return getParameterDelimitedValue(program, originalValue, property, "|");
+    case "commaDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, ",");
+    case "newlineDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, "\n");
   }
 }
 
@@ -518,7 +546,7 @@ function getParameterDelimitedValue(
   program: Program,
   originalValue: Value,
   property: Extract<HttpParameterProperties, { kind: "query" }>,
-  delimiter: " " | "|",
+  delimiter: " " | "|" | "," | "\n",
 ): Value | undefined {
   const { explode, name } = property.options;
   // Serialization is undefined for explode=true
@@ -686,4 +714,24 @@ function getValueByPath(value: Value, path: (string | number)[]): Value | undefi
     }
   }
   return current;
+}
+
+export function serializeExample(program: Program, value: Value, type: Type): unknown | undefined {
+  return serializeValueAsJson(program, value, type, undefined, {
+    serializeScalarValue: (value, type, encodeAs, originalFn) => {
+      const scalar = value.scalar;
+      if (scalar.name === "utcDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "offsetDateTime" && value.value.name === "now") {
+        return new Date().toUTCString();
+      } else if (scalar.name === "plainDate" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[0];
+      } else if (scalar.name === "plainTime" && value.value.name === "now") {
+        const now = new Date();
+        return now.toISOString().split("T")[1].replace("Z", "");
+      }
+      return originalFn(value, type, encodeAs);
+    },
+  });
 }

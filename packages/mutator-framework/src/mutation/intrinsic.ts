@@ -1,6 +1,6 @@
 import type { IntrinsicType, MemberType } from "@typespec/compiler";
 import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
 export class IntrinsicMutation<
   TOptions extends MutationOptions,
@@ -11,10 +11,11 @@ export class IntrinsicMutation<
   constructor(
     engine: TEngine,
     sourceType: IntrinsicType,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   mutate() {

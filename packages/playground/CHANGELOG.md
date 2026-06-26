@@ -1,5 +1,91 @@
 # Change Log - @typespec/playground
 
+## 0.15.1
+
+### Bug Fixes
+
+- [#10697](https://github.com/microsoft/typespec/pull/10697) Don't show file tree view in output when there is only a single file
+- [#10455](https://github.com/microsoft/typespec/pull/10455) Retain the emitter query parameter in the URL when a sample is selected
+- [#10815](https://github.com/microsoft/typespec/pull/10815) Fix unused `using` statements not being dimmed in the playground editor
+
+
+## 0.15.0
+
+### Breaking Changes
+
+- [#10468](https://github.com/microsoft/typespec/pull/10468) Remove the `newChangeDiff` emitter option. Diff highlighting of changed files and lines is now always enabled in the output viewer.
+
+### Features
+
+- [#10349](https://github.com/microsoft/typespec/pull/10349) Add compilation spinner, diff highlighting, and output preservation
+
+### Bug Fixes
+
+- [#10442](https://github.com/microsoft/typespec/pull/10442) Fix line-level diff highlighting not appearing in the playground output editor, and reduce typing freezes by coalescing recompilations triggered while a compile is already running.
+
+
+## 0.14.0
+
+### Features
+
+- [#10024](https://github.com/microsoft/typespec/pull/10024) Add file tree view for output
+- [#10018](https://github.com/microsoft/typespec/pull/10018) Make UI more mobile friendly. 
+    - Add a new switch to toggle between TypeSpec and output panels
+    - Command bar hides less important tools behind `...`
+    - [API] Update custom toolbar to take a menu item instead of generic react node.
+- [#10256](https://github.com/microsoft/typespec/pull/10256) Add search and category grouping to samples
+
+### Bug Fixes
+
+- [#10212](https://github.com/microsoft/typespec/pull/10212) Don't show file tree view in output when there is only a single file
+
+
+## 0.13.0
+
+### Features
+
+- [#9819](https://github.com/microsoft/typespec/pull/9819) Add codefix support in the playground. Quick fixes are now surfaced as Monaco code actions when the cursor is on a diagnostic.
+- [#9890](https://github.com/microsoft/typespec/pull/9890) Add support for oneOf option schemas.
+- [#9843](https://github.com/microsoft/typespec/pull/9843) Redesigned emitter options dialog into a config panel allowing to edit the raw `tspconfig.yaml`
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9760](https://github.com/microsoft/typespec/pull/9760) Optimization: Fetch all libraries in parallel
+
+
+## 0.12.0
+
+### Features
+
+- [#9535](https://github.com/microsoft/typespec/pull/9535) Update sample dropdown to a drawer opening a sample gallery
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.11.4
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9174](https://github.com/microsoft/typespec/pull/9174) [a11y] Fix problem pane not usable via keyboard
+
+
+## 0.11.3
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.11.2
 
 ### Bump dependencies

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
   describe("query parameters", () => {
     async function getQueryParam(code: string): Promise<OpenAPI3QueryParameter> {
       const res = await openApiFor(code);
@@ -35,6 +35,8 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     it.each([
       { encoding: "ArrayEncoding.pipeDelimited", style: "pipeDelimited" },
       { encoding: "ArrayEncoding.spaceDelimited", style: "spaceDelimited" },
+      { encoding: "ArrayEncoding.commaDelimited", style: "commaDelimited" },
+      { encoding: "ArrayEncoding.newlineDelimited", style: "newlineDelimited" },
     ])("can set style to $style with @encode($encoding)", async ({ encoding, style }) => {
       const param = await getQueryParam(
         `op test(@query @encode(${encoding}) myParam: string[]): void;`,
@@ -45,6 +47,17 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       });
       expect(param.schema).toStrictEqual({
         type: "array",
+        items: { type: "string" },
+      });
+    });
+
+    it("propagates @JsonSchema.uniqueItems to a query parameter schema", async () => {
+      const param = await getQueryParam(
+        `op test(@query @JsonSchema.uniqueItems myParam: string[]): void;`,
+      );
+      expect(param.schema).toStrictEqual({
+        type: "array",
+        uniqueItems: true,
         items: { type: "string" },
       });
     });
@@ -613,5 +626,25 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
         expectDiagnostics(diagnostics, { code: "@typespec/openapi3/path-reserved-expansion" });
       });
     });
+  });
+
+  it("parmeter with default value and $ref wraps $ref in allOf in OpenAPI 3.0 only", async () => {
+    const res = await openApiFor(
+      `
+      enum Example { a, b}
+      op test(@query example?: Example = Example.b): void;
+      `,
+    );
+
+    const schema = res.paths["/"].get.parameters[0].schema;
+    if (version === "3.0.0") {
+      // In OpenAPI 3.0, $ref cannot have sibling properties, so we wrap in allOf
+      expect(schema.allOf).toEqual([{ $ref: "#/components/schemas/Example" }]);
+      expect(schema.default).toBe("b");
+    } else {
+      // In OpenAPI 3.1+, $ref can have sibling properties
+      expect(schema.$ref).toBe("#/components/schemas/Example");
+      expect(schema.default).toBe("b");
+    }
   });
 });

@@ -244,6 +244,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task CanCustomizeGuidProperty()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputPrimitiveType.String),
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props, usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public async Task CanCustomizeModelName()
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
@@ -367,13 +388,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var customCodeView = modelProvider.CustomCodeView;
             Assert.IsNotNull(customCodeView, "CustomCodeView should be detected");
             var customMethods = customCodeView!.Methods;
-            var customOperator = customMethods.FirstOrDefault(m => 
+            var customOperator = customMethods.FirstOrDefault(m =>
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNotNull(customOperator, "Custom explicit operator should be detected in CustomCodeView");
 
             // Verify that the custom explicit operator is recognized and not generated
-            var explicitOperator = serializationProvider!.Methods.FirstOrDefault(m => 
+            var explicitOperator = serializationProvider!.Methods.FirstOrDefault(m =>
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNull(explicitOperator, "Custom explicit operator should not be generated");

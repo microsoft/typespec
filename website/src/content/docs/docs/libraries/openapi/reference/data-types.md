@@ -85,8 +85,31 @@ model TypeSpec.OpenAPI.TagMetadata
 
 #### Properties
 
-| Name          | Type                                                            | Description                              |
-| ------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| description?  | `string`                                                        | A description of the API.                |
-| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | An external Docs information of the API. |
-|               | `unknown`                                                       | Additional properties                    |
+| Name          | Type                                                            | Description                                                                                                                                                                                  |
+| ------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| description?  | `string`                                                        | A description of the tag.                                                                                                                                                                    |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | External documentation information for the tag.                                                                                                                                              |
+| parent?       | `string`                                                        | The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`.                                                       |
+| summary?      | `string`                                                        | A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`.                                     |
+| kind?         | `string`                                                        | A machine-readable string to categorize what sort of tag it is. Any string value can be used. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-kind`. |
+|               | `unknown`                                                       | Additional properties                                                                                                                                                                        |
+
+### `TagMetadataWithName` {#TypeSpec.OpenAPI.TagMetadataWithName}
+
+Metadata for a tag that includes the name of the tag. Used with the array form of `@tagMetadata`.
+
+```typespec
+model TypeSpec.OpenAPI.TagMetadataWithName
+```
+
+#### Properties
+
+| Name          | Type                                                            | Description                                                                                                                                                                                  |
+| ------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name          | `string`                                                        | The name of the tag.                                                                                                                                                                         |
+| description?  | `string`                                                        | A description of the tag.                                                                                                                                                                    |
+| externalDocs? | [`ExternalDocs`](./data-types.md#TypeSpec.OpenAPI.ExternalDocs) | External documentation information for the tag.                                                                                                                                              |
+| parent?       | `string`                                                        | The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`.                                                       |
+| summary?      | `string`                                                        | A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`.                                     |
+| kind?         | `string`                                                        | A machine-readable string to categorize what sort of tag it is. Any string value can be used. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-kind`. |
+|               | `unknown`                                                       | Additional properties                                                                                                                                                                        |

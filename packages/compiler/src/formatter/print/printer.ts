@@ -15,6 +15,7 @@ import {
   CallExpressionNode,
   Comment,
   ConstStatementNode,
+  DeclarationNode,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   DirectiveExpressionNode,
@@ -24,6 +25,7 @@ import {
   EnumStatementNode,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
+  FunctionTypeExpressionNode,
   IdentifierNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -241,6 +243,12 @@ export function printNode(
         options,
         print,
       );
+    case SyntaxKind.FunctionTypeExpression:
+      return printFunctionTypeExpression(
+        path as AstPath<FunctionTypeExpressionNode>,
+        options,
+        print,
+      );
     case SyntaxKind.FunctionParameter:
       return printFunctionParameterDeclaration(
         path as AstPath<FunctionParameterNode>,
@@ -249,6 +257,10 @@ export function printNode(
       );
     case SyntaxKind.ExternKeyword:
       return "extern";
+    case SyntaxKind.InternalKeyword:
+      return "internal";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -333,7 +345,15 @@ export function printAliasStatement(
 ) {
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
-  return ["alias ", id, template, " = ", path.call(print, "value"), ";"];
+  return [
+    printModifiers(path, options, print),
+    "alias ",
+    id,
+    template,
+    " = ",
+    path.call(print, "value"),
+    ";",
+  ];
 }
 
 export function printConstStatement(
@@ -344,7 +364,15 @@ export function printConstStatement(
   const node = path.node;
   const id = path.call(print, "id");
   const type = node.type ? [": ", path.call(print, "type")] : "";
-  return ["const ", id, type, " = ", path.call(print, "value"), ";"];
+  return [
+    printModifiers(path, options, print),
+    "const ",
+    id,
+    type,
+    " = ",
+    path.call(print, "value"),
+    ";",
+  ];
 }
 
 export function printCallExpression(
@@ -381,15 +409,15 @@ export function canAttachComment(node: Node): boolean {
   const kind = node.kind as SyntaxKind;
   return Boolean(
     kind &&
-      kind !== SyntaxKind.LineComment &&
-      kind !== SyntaxKind.BlockComment &&
-      kind !== SyntaxKind.EmptyStatement &&
-      kind !== SyntaxKind.DocParamTag &&
-      kind !== SyntaxKind.DocReturnsTag &&
-      kind !== SyntaxKind.DocTemplateTag &&
-      kind !== SyntaxKind.DocText &&
-      kind !== SyntaxKind.DocUnknownTag &&
-      !(node.flags & NodeFlags.Synthetic),
+    kind !== SyntaxKind.LineComment &&
+    kind !== SyntaxKind.BlockComment &&
+    kind !== SyntaxKind.EmptyStatement &&
+    kind !== SyntaxKind.DocParamTag &&
+    kind !== SyntaxKind.DocReturnsTag &&
+    kind !== SyntaxKind.DocTemplateTag &&
+    kind !== SyntaxKind.DocText &&
+    kind !== SyntaxKind.DocUnknownTag &&
+    !(node.flags & NodeFlags.Synthetic),
   );
 }
 
@@ -539,7 +567,7 @@ function printAugmentDecoratorArgs(
     group([
       indent(
         join(", ", [
-          path.call(print, "targetType"),
+          [softline, path.call(print, "targetType")],
           ...path.map((arg) => [softline, print(arg)], "arguments"),
         ]),
       ),
@@ -661,7 +689,14 @@ export function printEnumStatement(
 ) {
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const id = path.call(print, "id");
-  return [decorators, "enum ", id, " ", printEnumBlock(path, options, print)];
+  return [
+    decorators,
+    printModifiers(path, options, print),
+    "enum ",
+    id,
+    " ",
+    printEnumBlock(path, options, print),
+  ];
 }
 
 function printEnumBlock(
@@ -708,7 +743,15 @@ export function printUnionStatement(
   const id = path.call(print, "id");
   const { decorators } = printDecorators(path, options, print, { tryInline: false });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
-  return [decorators, "union ", id, generic, " ", printUnionVariantsBlock(path, options, print)];
+  return [
+    decorators,
+    printModifiers(path, options, print),
+    "union ",
+    id,
+    generic,
+    " ",
+    printUnionVariantsBlock(path, options, print),
+  ];
 }
 
 export function printUnionVariantsBlock(
@@ -750,6 +793,7 @@ export function printInterfaceStatement(
 
   return [
     decorators,
+    printModifiers(path, options, print),
     "interface ",
     id,
     generic,
@@ -927,12 +971,19 @@ export function printModelExpression(
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
-    const properties =
-      node.properties.length === 0
-        ? ""
-        : indent(
-            joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
-          );
+    const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+    if (node.properties.length === 0) {
+      if (nodeHasComments) {
+        return group([
+          indent(printDanglingComments(path, options, { sameIndent: true })),
+          softline,
+        ]);
+      }
+      return group(["", softline]);
+    }
+    const properties = indent(
+      joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
+    );
     return group([properties, softline]);
   }
 }
@@ -994,6 +1045,31 @@ export function printArrayLiteral(
   ]);
 }
 
+// When the base is a multi-argument template, its argument list breaks on its
+// own, so keep `is`/`extends` inline instead of breaking the keyword too (#11009).
+function printHeritageClause<T extends Node>(
+  path: AstPath<T>,
+  print: PrettierChildPrint,
+  keyword: string,
+  propertyName: keyof T,
+): Doc {
+  const ref = path.node[propertyName] as Node | undefined;
+  if (!ref) {
+    return "";
+  }
+  const printed = [`${keyword} `, path.call(print, propertyName as any)];
+  if (isMultiArgTemplateReference(ref)) {
+    return [" ", printed];
+  }
+  return group(indent([ifBreak(line, " "), printed]));
+}
+
+function isMultiArgTemplateReference(node: Node): boolean {
+  return (
+    node.kind === SyntaxKind.TypeReference && (node as TypeReferenceNode).arguments.length >= 2
+  );
+}
+
 export function printModelStatement(
   path: AstPath<ModelStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -1001,20 +1077,20 @@ export function printModelStatement(
 ) {
   const node = path.node;
   const id = path.call(print, "id");
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
-  const isBase = node.is ? [ifBreak(line, " "), "is ", path.call(print, "is")] : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
+  const isBase = printHeritageClause(path, print, "is", "is");
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
   const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
+    printModifiers(path, options, print),
     "model ",
     id,
     generic,
-    group(indent(["", heritage, isBase])),
+    heritage,
+    isBase,
     body,
   ];
 }
@@ -1190,19 +1266,18 @@ function printScalarStatement(
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
 
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
 
   const members = shouldPrintBody ? [" ", printScalarBody(path, options, print)] : ";";
   return [
     printDecorators(path, options, print, { tryInline: false }).decorators,
+    printModifiers(path, options, print),
     "scalar ",
     id,
     template,
-    group(indent(["", heritage])),
+    heritage,
     members,
   ];
 }
@@ -1296,6 +1371,7 @@ export function printOperationStatement(
 
   return [
     decorators,
+    printModifiers(path, options, print),
     inInterface ? "" : "op ",
     path.call(print, "id"),
     templateParams,
@@ -1351,31 +1427,38 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const node = path.node;
-  const shouldHug = shouldHugType(node);
+  // A union that is one of several template arguments must not add its own
+  // leading line + indent: the argument list already provides them, so stacking
+  // both yields a blank line and an extra indent level for the variants.
+  // The per-variant align(2) is always kept though (matching prettier's union
+  // printer): it accounts for the "| " prefix so a variant that breaks (e.g. a
+  // nested template) stays aligned under its content.
+  // https://github.com/microsoft/typespec/issues/11009
+  const inMultiTemplateArgumentList = isInMultiTemplateArgumentList(path);
+  const types = path.map((typePath) => align(2, print(typePath)), "options");
 
-  const types = path.map((typePath) => {
-    let printedType: string | Doc = print(typePath);
-    if (!shouldHug) {
-      printedType = align(2, printedType);
-    }
-    return printedType;
-  }, "options");
-
-  if (shouldHug) {
-    return join(" | ", types);
-  }
-
-  const shouldAddStartLine = true;
+  const shouldAddStartLine = !inMultiTemplateArgumentList;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
-  return group(indent(code));
+  return inMultiTemplateArgumentList ? group(code) : group(indent(code));
 }
 
-function shouldHugType(node: Node) {
-  if (node.kind === SyntaxKind.UnionExpression || node.kind === SyntaxKind.IntersectionExpression) {
-    return node.options.length < 4;
+/** Whether the node is a direct argument of a template reference with more than one argument. */
+function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
+  // A `TemplateArgument` only ever lives in `TypeReference.arguments`, so the
+  // owning `TypeReference` is always the next node ancestor.
+  const argument = path.getParentNode();
+  if (argument?.kind !== SyntaxKind.TemplateArgument) {
+    return false;
   }
-  return false;
+  // Named arguments (`Name = <union>`) print the union after `Name = `, so the
+  // argument list's line break + indent does not apply to the union variants.
+  // The union must therefore provide its own line break + indent like a
+  // standalone union. https://github.com/microsoft/typespec/issues/11092
+  if (argument.name !== undefined) {
+    return false;
+  }
+  const reference = path.getParentNode(1);
+  return reference?.kind === SyntaxKind.TypeReference && reference.arguments.length > 1;
 }
 
 export function printTypeReference(
@@ -1483,6 +1566,27 @@ function printFunctionDeclarationStatement(
   return [printModifiers(path, options, print), "fn ", id, "(", parameters, ")", returnType, ";"];
 }
 
+function printFunctionTypeExpression(
+  path: AstPath<FunctionTypeExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  const node = path.node;
+  const parameters = [
+    group([
+      indent(
+        join(
+          ", ",
+          path.map((arg) => [softline, print(arg)], "parameters"),
+        ),
+      ),
+      softline,
+    ]),
+  ];
+  const returnType = node.returnType ? [" => ", path.call(print, "returnType")] : "";
+  return ["fn", "(", parameters, ")", returnType];
+}
+
 function printFunctionParameterDeclaration(
   path: AstPath<FunctionParameterNode>,
   options: TypeSpecPrettierOptions,
@@ -1503,12 +1607,12 @@ function printFunctionParameterDeclaration(
 }
 
 export function printModifiers(
-  path: AstPath<DecoratorDeclarationStatementNode | FunctionDeclarationStatementNode>,
+  path: AstPath<DeclarationNode & Node>,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
-  if (node.modifiers.length === 0) {
+  if (node.modifiers === undefined || node.modifiers.length === 0) {
     return "";
   }
 

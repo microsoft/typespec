@@ -4,6 +4,7 @@ import {
   MockRequest,
   passOnSuccess,
   ScenarioMockApi,
+  ValidationError,
 } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
@@ -22,6 +23,7 @@ function createBodyServerTests(uri: string, data: any, value: any) {
     kind: "MockApiDefinition",
   });
 }
+
 Scenarios.Encode_Duration_Property_default = createBodyServerTests(
   "/encode/duration/property/default",
   {
@@ -146,6 +148,73 @@ function createQueryServerTests(
     kind: "MockApiDefinition",
   });
 }
+
+function createQueryFloatServerTests(uri: string, paramData: any, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: paramData,
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      const actualNum = parseFloat(actual);
+      if (isNaN(actualNum) || actualNum !== value) {
+        throw new ValidationError(
+          `Expected query param input=${value} but got ${actual}`,
+          String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+// Validates that a duration whose value carries more precision than the target encoding (a lossy
+// encode) is serialized as an integer. The allowed values cover floor, round and ceil so the test
+// does not take a position on an emitter's rounding mode while still rejecting floating point output.
+function createLossyQueryServerTests(uri: string, allowed: number[]) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      query: {
+        input: allowed[0],
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.query["input"] as string;
+      if (!/^[-+]?\d+$/.test(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be serialized as an integer but got ${actual}`,
+          "an integer",
+          actual,
+        );
+      }
+      if (!allowed.map(String).includes(actual)) {
+        throw new ValidationError(
+          `Expected query param input to be one of ${allowed.join(", ")} but got ${actual}`,
+          allowed.join(" | "),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
+    },
+    kind: "MockApiDefinition",
+  });
+}
 Scenarios.Encode_Duration_Query_default = createQueryServerTests(
   "/encode/duration/query/default",
   {
@@ -197,19 +266,19 @@ Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryFloatServerTests(
   "/encode/duration/query/float-milliseconds",
   {
     input: 35625,
   },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryServerTests(
+Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryFloatServerTests(
   "/encode/duration/query/float64-milliseconds",
   {
     input: 35625,
   },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsArray = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-array",
@@ -226,12 +295,12 @@ Scenarios.Encode_Duration_Query_int32SecondsLargerUnit = createQueryServerTests(
   },
   "120",
 );
-Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryFloatServerTests(
   "/encode/duration/query/float-seconds-larger-unit",
   {
-    input: 150.0,
+    input: 150,
   },
-  "150.0",
+  150,
 );
 Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerTests(
   "/encode/duration/query/int32-milliseconds-larger-unit",
@@ -240,12 +309,12 @@ Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerT
   },
   "180000",
 );
-Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryServerTests(
+Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryFloatServerTests(
   "/encode/duration/query/float-milliseconds-larger-unit",
   {
-    input: 210000.0,
+    input: 210000,
   },
-  "210000.0",
+  210000,
 );
 
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
@@ -257,6 +326,36 @@ function createHeaderServerTests(uri: string, headersData: any, value: any) {
     },
     response: {
       status: 204,
+    },
+    kind: "MockApiDefinition",
+  });
+}
+
+function createHeaderFloatServerTests(uri: string, value: number) {
+  return passOnSuccess({
+    uri,
+    method: "get",
+    request: {
+      headers: {
+        duration: String(value),
+      },
+    },
+    response: {
+      status: 204,
+    },
+    handler: (req: MockRequest) => {
+      const actual = req.headers["duration"];
+      const actualNum = parseFloat(actual);
+      if (isNaN(actualNum) || actualNum !== value) {
+        throw new ValidationError(
+          `Expected header duration=${value} but got ${actual}`,
+          String(value),
+          actual,
+        );
+      }
+      return {
+        status: 204,
+      };
     },
     kind: "MockApiDefinition",
   });
@@ -312,19 +411,13 @@ Scenarios.Encode_Duration_Header_int32Milliseconds = createHeaderServerTests(
   },
   "36000",
 );
-Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
-Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderFloatServerTests(
   "/encode/duration/header/float64-milliseconds",
-  {
-    duration: "35625",
-  },
-  "35625",
+  35625,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsArray = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-array",
@@ -340,12 +433,9 @@ Scenarios.Encode_Duration_Header_int32SecondsLargerUnit = createHeaderServerTest
   },
   "120",
 );
-Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-seconds-larger-unit",
-  {
-    duration: "150.0",
-  },
-  "150.0",
+  150,
 );
 Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServerTests(
   "/encode/duration/header/int32-milliseconds-larger-unit",
@@ -354,10 +444,18 @@ Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServe
   },
   "180000",
 );
-Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderServerTests(
+Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderFloatServerTests(
   "/encode/duration/header/float-milliseconds-larger-unit",
-  {
-    duration: "210000.0",
-  },
-  "210000.0",
+  210000,
+);
+
+// Lossy encode scenarios: the source duration carries more precision than the target integer
+// encoding, so floor/round/ceil are all acceptable results (e.g. 36.25s -> 36 or 37).
+Scenarios.Encode_Duration_Lossy_intSeconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/int32-seconds",
+  [36, 37],
+);
+Scenarios.Encode_Duration_Lossy_intMilliseconds = createLossyQueryServerTests(
+  "/encode/duration/lossy/int32-milliseconds",
+  [36250, 36251],
 );

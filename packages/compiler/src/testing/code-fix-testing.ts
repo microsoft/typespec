@@ -1,10 +1,10 @@
 import { ok, strictEqual } from "assert";
-import { applyCodeFix } from "../core/code-fixes.js";
+import { applyCodeFix, applyCodeFixes } from "../core/code-fixes.js";
 import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import { createSourceFile } from "../core/source-file.js";
-import type { CodeFix, Node } from "../core/types.js";
+import type { CodeFix, Diagnostic, Node } from "../core/types.js";
 import { mutate } from "../utils/misc.js";
-import { extractCursor } from "./source-utils.js";
+import { extractCursor, extractCursors } from "./source-utils.js";
 import { createTestHost } from "./test-host.js";
 import { trimBlankLines } from "./test-utils.js";
 
@@ -59,6 +59,48 @@ export function expectCodeFixOnAst(code: string, callback: (node: Node) => CodeF
         },
       },
       codefix,
+    );
+    ok(updatedContent);
+    strictEqual(trimBlankLines(updatedContent), trimBlankLines(expectedCode));
+  }
+}
+
+export function expectCodeFixesOnAst(
+  code: string,
+  warningCode: string,
+  callback: (diagnostics: readonly Diagnostic[]) => readonly CodeFix[],
+): CodeFixExpect {
+  return { toChangeTo };
+
+  async function toChangeTo(expectedCode: string) {
+    const { pos, source } = extractCursors(code);
+    const virtualFile = createSourceFile(source, "test.tsp");
+    const script = parse(virtualFile);
+    linkAstParents(script);
+    const diagnostics: Diagnostic[] = [];
+    for (const position of pos) {
+      const node = getNodeAtPosition(script, position);
+      ok(node, "Expected node at cursor. Make sure to have ┆ to mark which node.");
+      diagnostics.push({
+        code: warningCode,
+        message: "",
+        severity: "warning",
+        target: { file: virtualFile, pos: node.pos, end: node.end },
+      });
+    }
+    ok(diagnostics.length > 0, "Expected node at cursor. Make sure to have ┆ to mark which node.");
+    const codeFixes = callback(diagnostics);
+    const host = await createTestHost();
+    let updatedContent: string | undefined;
+    await applyCodeFixes(
+      {
+        ...host.compilerHost,
+        writeFile: async (path, value) => {
+          strictEqual(path, "test.tsp");
+          updatedContent = value;
+        },
+      },
+      codeFixes,
     );
     ok(updatedContent);
     strictEqual(trimBlankLines(updatedContent), trimBlankLines(expectedCode));

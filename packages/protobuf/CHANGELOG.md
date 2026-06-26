@@ -1,5 +1,49 @@
 # Change Log - @typespec/protobuf
 
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+### Features
+
+- [#10598](https://github.com/microsoft/typespec/pull/10598) Map TypeSpec optionality (`?`) to protobuf `optional` where appropriate.
+  
+  - `optional` is applied to fields with protobuf scalar types to set explicit presence.
+  - `optional` is _not_ applied to fields with message types, because they _always_ have explicit presence.
+  - Attempting to convert a TypeSpec optional property where the type is an array or `Protobuf.Map` instance produces a warning, because protobuf cannot differentiate between "empty" and "unset" `repeated`/`map`-typed fields.
+
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+No changes, version bump only.
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.76.0
 
 ### Bump dependencies

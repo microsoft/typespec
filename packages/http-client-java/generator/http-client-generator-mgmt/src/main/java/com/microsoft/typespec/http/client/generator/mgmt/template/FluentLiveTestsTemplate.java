@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.util.CoreUtils;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestCase;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestStep;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTests;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 
 public class FluentLiveTestsTemplate {
@@ -72,12 +73,10 @@ public class FluentLiveTestsTemplate {
 
     private void addImports(FluentLiveTests liveTests, JavaFile javaFile) {
         javaFile.declareImport(liveTests.getImports());
-        javaFile.declareImport(liveTests.getManagerType().getFullName());
-        javaFile.declareImport("org.junit.jupiter.api.Test", "org.junit.jupiter.api.BeforeEach");
-        javaFile.declareImport("com.azure.identity.DefaultAzureCredentialBuilder",
-            FluentType.AZURE_PROFILE.getFullName(), "com.azure.core.models.AzureCloud");
-        javaFile.declareImport("com.azure.core.test.annotation.DoNotRecord", "com.azure.core.test.TestBase");
-        javaFile.declareImport("com.azure.core.http.policy.HttpLogOptions",
-            "com.azure.core.http.policy.HttpLogDetailLevel");
+        javaFile.declareImport(liveTests.getManagerType().getFullName(), "org.junit.jupiter.api.Test",
+            "org.junit.jupiter.api.BeforeEach", "com.azure.identity.DefaultAzureCredentialBuilder",
+            FluentType.AZURE_PROFILE.getFullName(), ClassType.AZURE_CLOUD.getFullName(),
+            "com.azure.core.test.annotation.DoNotRecord", "com.azure.core.test.TestBase",
+            ClassType.HTTP_LOG_OPTIONS.getFullName(), ClassType.HTTP_LOG_DETAIL_LEVEL.getFullName());
     }
 }

@@ -358,6 +358,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void PropagateModelListPropertyHelperMethods()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1",
+                        InputFactory.Array(InputFactory.Model(
+                            "anotherDynamic",
+                            isDynamicModel: true,
+                            properties:
+                            [
+                                InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
+                            ])))
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "TryResolveP1Array" or "ActiveP1"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void PropagateModelDictionaryProperty()
         {
             var inputModel = InputFactory.Model(
@@ -962,14 +997,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void DeserializeMultiplePrimitiveProperties()
         {
+            var fooSerializationOptions = InputFactory.Serialization.Json("foo");
+            var catSerializationOptions = InputFactory.Serialization.Json("x-cat");
+            var barSerializationOptions = InputFactory.Serialization.Json("bar");
             var inputModel = InputFactory.Model(
                "dynamicModel",
                isDynamicModel: true,
                properties:
                [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("cat", InputPrimitiveType.String, serializedName: "x-cat", isRequired: true),
-                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: false)
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(fooSerializationOptions)),
+                    InputFactory.Property("cat", InputPrimitiveType.String, isRequired: true, serializationOptions: InputFactory.Serialization.Options(catSerializationOptions)),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: false, serializationOptions: InputFactory.Serialization.Options(barSerializationOptions))
                ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
@@ -1315,7 +1353,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
             Assert.IsFalse(model.HasDynamicProperties, "Derived model should not have dynamic properties when neither it nor base have dynamic property types");
-            
+
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
@@ -1364,12 +1402,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, baseDynamicModel]);
-            
+
             // Validate base model has dynamic properties and propagators
             var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
             Assert.IsNotNull(baseModelProvider);
             Assert.IsTrue(baseModelProvider!.HasDynamicProperties, "Base model should have dynamic properties");
-            
+
             var baseSerialization = baseModelProvider.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(baseSerialization);
             var baseMethods = baseSerialization!.Methods;
@@ -1381,7 +1419,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(derivedModelProvider);
             Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
             Assert.IsFalse(derivedModelProvider.HasDynamicProperties, "Derived model should not have dynamic properties when it has no dynamic property types of its own");
-            
+
             var derivedSerialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(derivedSerialization);
 
@@ -1397,6 +1435,170 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
                 StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when it has no dynamic properties");
             }
+        }
+
+        [Test]
+        public void WriteDynamicDerivedModelWithNonDiscriminatedBase()
+        {
+            var baseModel = InputFactory.Model(
+                "animal",
+                isDynamicModel: false,
+                properties:
+                [
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var dynamicDerivedModel = InputFactory.Model(
+                "dog",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
+
+            // Verify base model is NOT dynamic
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsFalse(baseModelProvider!.IsDynamicModel, "Base model should NOT be dynamic");
+
+            // Get the derived model and validate it's dynamic
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(dynamicDerivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be dynamic");
+            Assert.IsTrue(derivedModelProvider.Constructors.Count > 0);
+
+            var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void DeserializeDynamicDerivedModelWithNonDiscriminatedBase()
+        {
+            var baseModel = InputFactory.Model(
+                "animal",
+                isDynamicModel: false,
+                properties:
+                [
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var dynamicDerivedModel = InputFactory.Model(
+                "dog",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
+
+            // Verify base model is NOT dynamic
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsFalse(baseModelProvider!.IsDynamicModel, "Base model should NOT be dynamic");
+
+            // Get the derived model and validate it's dynamic
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(dynamicDerivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be dynamic");
+            Assert.IsTrue(derivedModelProvider.Constructors.Count > 0);
+
+            var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Deserialize")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task WriteModelWithBinaryDataAdditionalPropsBackCompat()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                additionalProperties: InputPrimitiveType.Any,
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            Assert.IsTrue(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Backcompat model should still generate AdditionalProperties");
+
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            // Ensure Constructors have been built (which updates FullConstructor parameters
+            // used by the serialization provider). In the full pipeline, the model's Constructors
+            // are always written before the serialization file.
+            Assert.AreEqual(2, model.Constructors.Count);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task DeserializeModelWithBinaryDataAdditionalPropsBackCompat()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                additionalProperties: InputPrimitiveType.Any,
+                properties:
+                [
+                    InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            Assert.IsTrue(model.Properties.Any(p => p.IsAdditionalProperties),
+                "Backcompat model should still generate AdditionalProperties");
+
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            // Ensure Constructors have been built (which updates FullConstructor parameters
+            // used by the serialization provider). In the full pipeline, the model's Constructors
+            // are always written before the serialization file.
+            Assert.AreEqual(2, model.Constructors.Count);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Deserialize")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

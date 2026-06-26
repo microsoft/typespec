@@ -7,38 +7,42 @@ import {
   compileForOpenAPI3,
   renderTypeSpecForOpenAPI3,
   tspForOpenAPI3,
+  validateTsp,
 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level parameters", () => {
-  it.each(["query", "header", "path"] as const)(`Supports location: %s`, async (location) => {
-    const serviceNamespace = await tspForOpenAPI3({
-      parameters: {
-        Foo: {
-          name: "foo",
-          in: location,
-          required: true,
-          schema: {
-            type: "string",
+  it.each(["query", "header", "path", "cookie"] as const)(
+    `Supports location: %s`,
+    async (location) => {
+      const serviceNamespace = await tspForOpenAPI3({
+        parameters: {
+          Foo: {
+            name: "foo",
+            in: location,
+            required: true,
+            schema: {
+              type: "string",
+            },
           },
         },
-      },
-    });
+      });
 
-    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
-    assert(parametersNamespace, "Parameters namespace not found");
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
 
-    const models = parametersNamespace.models;
+      const models = parametersNamespace.models;
 
-    /* model Foo { @<location> foo: string, } */
-    const Foo = models.get("Foo");
-    assert(Foo, "Foo model not found");
-    expect(Foo.properties.size).toBe(1);
-    expect(Foo.properties.get("foo")).toMatchObject({
-      optional: false,
-      type: { kind: "Scalar", name: "string" },
-      decorators: [{ definition: { name: `@${location}` } }],
-    });
-  });
+      /* model Foo { @<location> foo: string, } */
+      const Foo = models.get("Foo");
+      assert(Foo, "Foo model not found");
+      expect(Foo.properties.size).toBe(1);
+      expect(Foo.properties.get("foo")).toMatchObject({
+        optional: false,
+        type: { kind: "Scalar", name: "string" },
+        decorators: [{ definition: { name: `@${location}` } }],
+      });
+    },
+  );
 
   it(`Supports string schema constraints`, async () => {
     const serviceNamespace = await tspForOpenAPI3({
@@ -407,6 +411,71 @@ describe("header", () => {
   });
 });
 
+describe("cookie", () => {
+  it("renders @cookie for OpenAPI 3.0 nullable cookie parameters", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/widgets": {
+          get: {
+            operationId: "Widgets_get",
+            parameters: [
+              {
+                name: "session_id",
+                in: "cookie",
+                required: false,
+                explode: false,
+                schema: { type: "string", nullable: true },
+              },
+            ],
+            responses: {
+              "200": { description: "OK" },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toContain('import "@typespec/http";');
+    expect(tsp).toContain("using Http;");
+    expect(tsp).toContain("@cookie session_id?: string | null");
+  });
+
+  it.each([
+    { openapi: "3.1.0", required: false, expected: "@cookie session_id?: string | null" },
+    { openapi: "3.2.0", required: true, expected: "@cookie session_id: string | null" },
+  ] as const)(
+    "renders @cookie for OpenAPI $openapi type-null cookie parameters",
+    async ({ openapi, required, expected }) => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        openapi: openapi as any,
+        paths: {
+          "/widgets": {
+            get: {
+              operationId: "Widgets_get",
+              parameters: [
+                {
+                  name: "session_id",
+                  in: "cookie",
+                  required,
+                  explode: false,
+                  schema: { type: ["string", "null"] as any },
+                },
+              ],
+              responses: {
+                "200": { description: "OK" },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toContain('import "@typespec/http";');
+      expect(tsp).toContain("using Http;");
+      expect(tsp).toContain(expected);
+    },
+  );
+});
+
 describe("query", () => {
   it(`sets explode: true for default OpenAPI 3 parameter`, async () => {
     const serviceNamespace = await tspForOpenAPI3({
@@ -578,5 +647,302 @@ describe("query", () => {
       assert(fooProperty, "foo property not found");
       expectDecorators(fooProperty.decorators, []);
     });
+  });
+
+  describe("x-ms-list-page-index extension", () => {
+    it("adds @pageIndex decorator when x-ms-list-page-index is true", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          PageIndex: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+            "x-ms-list-page-index": true,
+          } as any,
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const models = parametersNamespace.models;
+
+      /* model PageIndex { @query @extension("x-ms-list-page-index", true) @pageIndex idx: int32 } */
+      const PageIndex = models.get("PageIndex");
+      assert(PageIndex, "PageIndex model not found");
+      expect(PageIndex.properties.size).toBe(1);
+      const idx = PageIndex.properties.get("idx");
+      assert(idx, "idx property not found");
+      expectDecorators(
+        idx.decorators,
+        [
+          { name: "extension", args: ["x-ms-list-page-index", true] },
+          { name: "pageIndex" },
+          { name: "query" },
+        ],
+        { strict: false },
+      );
+    });
+
+    it("renders correctly in TypeSpec output", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        paths: {
+          "/widgets": {
+            get: {
+              operationId: "Widgets_list",
+              parameters: [
+                {
+                  name: "idx",
+                  in: "query",
+                  required: true,
+                  schema: {
+                    type: "integer",
+                    format: "int32",
+                  },
+                  "x-ms-list-page-index": true,
+                  explode: false,
+                } as any,
+              ],
+              responses: {
+                "200": {
+                  description: "The request has succeeded.",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toContain('@extension("x-ms-list-page-index", true)');
+      expect(tsp).toContain("@pageIndex");
+      expect(tsp).toContain("idx: int32");
+      expect(tsp).toContain("@query");
+      await validateTsp(tsp);
+    });
+
+    it("does not add @pageIndex when x-ms-list-page-index is false", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          NotPageIndex: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+            "x-ms-list-page-index": false,
+          } as any,
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const NotPageIndex = parametersNamespace.models.get("NotPageIndex");
+      assert(NotPageIndex, "NotPageIndex model not found");
+      const idx = NotPageIndex.properties.get("idx");
+      assert(idx, "idx property not found");
+
+      // Should have extension decorator but not pageIndex
+      const decoratorNames = Array.from(idx.decorators).map((d) => d.definition?.name);
+      expect(decoratorNames).not.toContain("@pageIndex");
+      expect(decoratorNames).toContain("@query");
+    });
+
+    it("does not add @pageIndex when x-ms-list-page-index is missing", async () => {
+      const { namespace: serviceNamespace } = await compileForOpenAPI3({
+        parameters: {
+          NoExtension: {
+            name: "idx",
+            in: "query",
+            required: true,
+            schema: {
+              type: "integer",
+              format: "int32",
+            },
+          },
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+
+      const NoExtension = parametersNamespace.models.get("NoExtension");
+      assert(NoExtension, "NoExtension model not found");
+      const idx = NoExtension.properties.get("idx");
+      assert(idx, "idx property not found");
+
+      const decoratorNames = Array.from(idx.decorators).map((d) => d.definition?.name);
+      expect(decoratorNames).not.toContain("@pageIndex");
+      expect(decoratorNames).toContain("@query");
+    });
+  });
+});
+
+describe("x-ms-list-page-size extension", () => {
+  it("adds @pageSize decorator when x-ms-list-page-size is true", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        PageSize: {
+          name: "page_size",
+          in: "query",
+          required: true,
+          schema: {
+            type: "integer",
+            format: "int32",
+          },
+          "x-ms-list-page-size": true,
+        } as any,
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+    const PageSize = models.get("PageSize");
+    assert(PageSize, "PageSize model not found");
+    expect(PageSize.properties.size).toBe(1);
+
+    const pageSizeProperty = PageSize.properties.get("page_size");
+    assert(pageSizeProperty, "page_size property not found");
+
+    // Should have @query, @extension, and @pageSize decorators
+    expectDecorators(
+      pageSizeProperty.decorators,
+      [
+        { name: "extension", args: ["x-ms-list-page-size", true] },
+        { name: "pageSize" },
+        { name: "query" },
+      ],
+      { strict: false },
+    );
+  });
+
+  it("renders complete TypeSpec with @pageSize decorator", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      paths: {
+        "/widgets": {
+          get: {
+            operationId: "listWidgets",
+            description: "List widgets",
+            parameters: [
+              {
+                name: "page_size",
+                in: "query",
+                required: true,
+                schema: {
+                  type: "integer",
+                  format: "int32",
+                },
+                "x-ms-list-page-size": true,
+                explode: false,
+              } as any,
+            ],
+            responses: {
+              "200": {
+                description: "The request has succeeded.",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should include @pageSize and @extension decorators
+    expect(tsp).toContain("@pageSize");
+    expect(tsp).toContain('@extension("x-ms-list-page-size", true)');
+  });
+
+  it("does not add @pageSize decorator when x-ms-list-page-size is false", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        PageSize: {
+          name: "page_size",
+          in: "query",
+          required: true,
+          schema: {
+            type: "integer",
+            format: "int32",
+          },
+          "x-ms-list-page-size": false,
+        } as any,
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+    const PageSize = models.get("PageSize");
+    assert(PageSize, "PageSize model not found");
+
+    const pageSizeProperty = PageSize.properties.get("page_size");
+    assert(pageSizeProperty, "page_size property not found");
+
+    // Should only have @query and @extension decorators, not @pageSize
+    const hasPageSize = pageSizeProperty.decorators.some((d) => d.definition?.name === "@pageSize");
+    expect(hasPageSize).toBe(false);
+  });
+
+  it("does not add @pageSize decorator when x-ms-list-page-size is absent", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      parameters: {
+        PageSize: {
+          name: "page_size",
+          in: "query",
+          required: true,
+          schema: {
+            type: "integer",
+            format: "int32",
+          },
+        },
+      },
+    });
+
+    const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+    assert(parametersNamespace, "Parameters namespace not found");
+
+    const models = parametersNamespace.models;
+    const PageSize = models.get("PageSize");
+    assert(PageSize, "PageSize model not found");
+
+    const pageSizeProperty = PageSize.properties.get("page_size");
+    assert(pageSizeProperty, "page_size property not found");
+
+    // Should only have @query decorator, not @pageSize
+    const hasPageSize = pageSizeProperty.decorators.some((d) => d.definition?.name === "@pageSize");
+    expect(hasPageSize).toBe(false);
   });
 });

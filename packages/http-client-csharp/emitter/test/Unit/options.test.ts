@@ -1,10 +1,11 @@
 vi.resetModules();
 
+import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, Program } from "@typespec/compiler";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createConfiguration } from "../../src/emitter.js";
-import { CSharpEmitterOptions } from "../../src/options.js";
+import { CSharpEmitterOptions, CSharpEmitterOptionsSchema } from "../../src/options.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,
@@ -125,6 +126,7 @@ describe("Configuration tests", async () => {
       "package-name": "custom-package",
       "unreferenced-types-handling": "removeOrInternalize",
       "disable-xml-docs": true,
+      "disable-roslyn-reduce": true,
       license: {
         name: "Custom License",
         company: "Custom Company",
@@ -141,6 +143,7 @@ describe("Configuration tests", async () => {
     expect(config["package-name"]).toBe("custom-package");
     expect(config["unreferenced-types-handling"]).toBe("removeOrInternalize");
     expect(config["disable-xml-docs"]).toBe(true);
+    expect(config["disable-roslyn-reduce"]).toBe(true);
     expect(config.license).toEqual({
       name: "Custom License",
       company: "Custom Company",
@@ -161,5 +164,38 @@ describe("Configuration tests", async () => {
     expect(config["api-version"]).toBeUndefined();
     expect(config["generate-protocol-methods"]).toBeUndefined();
     expect(config["generate-convenience-methods"]).toBeUndefined();
+  });
+
+  it("should pass plugins option to configuration", async () => {
+    const options: CSharpEmitterOptions = {
+      "package-name": "test-package",
+      plugins: ["/path/to/Plugin.dll", "/path/to/plugin-dir"],
+    };
+    const context = createEmitterContext(program, options);
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(options, "namespace", sdkContext);
+
+    expect(config["plugins"]).toEqual(["/path/to/Plugin.dll", "/path/to/plugin-dir"]);
+  });
+
+  it("should not include plugins in configuration when not set", async () => {
+    const options: CSharpEmitterOptions = {
+      "package-name": "test-package",
+    };
+    const context = createEmitterContext(program, options);
+    const sdkContext = await createCSharpSdkContext(context);
+    const config = createConfiguration(options, "namespace", sdkContext);
+
+    expect(config["plugins"]).toBeUndefined();
+  });
+
+  it("api-version schema accepts a string or namespace-to-version map", () => {
+    const schema = CSharpEmitterOptionsSchema.properties["api-version"];
+    const tcgcSchema = UnbrandedSdkEmitterOptions["api-version"]["api-version"] as {
+      oneOf?: unknown[];
+    };
+
+    expect(schema).toBe(tcgcSchema);
+    expect(tcgcSchema.oneOf).toBeDefined();
   });
 });

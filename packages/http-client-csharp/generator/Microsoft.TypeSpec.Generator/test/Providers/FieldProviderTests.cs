@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var field = new FieldProvider(FieldModifiers.Private, new CSharpType(typeof(int)), "name", new TestTypeProvider());
             field.Type = new CSharpType(typeof(string));
-            field.WireInfo = new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "newName", false);
+            field.WireInfo = new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "newName", false, false);
             var parameter = field.AsParameter;
 
             Assert.IsTrue(parameter.Type.Equals(typeof(string)));

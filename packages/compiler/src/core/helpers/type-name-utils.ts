@@ -3,6 +3,7 @@ import { isTemplateInstance, isType, isValue } from "../type-utils.js";
 import type {
   Entity,
   Enum,
+  FunctionType,
   Interface,
   Model,
   ModelProperty,
@@ -30,6 +31,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getNamespaceFullName(type, options);
     case "TemplateParameter":
       return getIdentifierName(type.node.id.sv, options);
+    case "TemplateParameterAccess":
+      return type.path;
     case "Scalar":
       return getScalarName(type, options);
     case "Model":
@@ -60,9 +63,20 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return type.value.toString();
     case "Intrinsic":
       return type.name;
+    case "FunctionType":
+      return getFunctionSignature(type);
     default:
       return `(unnamed type)`;
   }
+}
+
+function getFunctionSignature(type: FunctionType) {
+  const parameters = [...type.parameters].map((x) => {
+    const rest = x.rest ? "..." : "";
+    const optional = x.optional ? "?" : "";
+    return `${rest}${x.name}${optional}: ${getEntityName(x.type)}`;
+  });
+  return `fn (${parameters.join(", ")}) => ${getEntityName(type.returnType)}`;
 }
 
 function getValuePreview(value: Value, options?: TypeNameOptions): string {
@@ -83,6 +97,9 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
       return "null";
     case "ScalarValue":
       return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
+    case "Function": {
+      return `fn ${value.name ?? "<anonymous>"}`;
+    }
   }
 }
 

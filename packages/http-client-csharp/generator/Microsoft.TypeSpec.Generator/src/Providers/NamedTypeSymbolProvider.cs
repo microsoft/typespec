@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
+        private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
@@ -41,20 +42,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
+        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+
         protected override CSharpType? BuildBaseType()
         {
-            if (_namedTypeSymbol.BaseType == null
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
-                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
             {
                 return null;
             }
 
-            return _namedTypeSymbol.BaseType.GetCSharpType();
+            return _namedTypeSymbol.BaseType!.GetCSharpType();
         }
+
+        private TypeProvider? BuildBaseTypeProvider()
+        {
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
+            {
+                return null;
+            }
+
+            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
+        }
+
+        private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
+            => baseType == null
+                || baseType.SpecialType == SpecialType.System_Object
+                || baseType.SpecialType == SpecialType.System_ValueType
+                || baseType.SpecialType == SpecialType.System_Array
+                || baseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(baseType, _namedTypeSymbol);
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
@@ -103,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = new List<FieldProvider>();
             foreach (var fieldSymbol in _namedTypeSymbol.GetMembers().OfType<IFieldSymbol>())
@@ -122,7 +138,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Name,
                         this,
                         GetSymbolXmlDoc(fieldSymbol, "summary"),
-                        initializationValue: GetFieldInitializer(fieldSymbol))
+                        initializationValue: GetFieldInitializer(fieldSymbol),
+                        attributes: fieldSymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -133,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
@@ -146,7 +163,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     new AutoPropertyBody(
                         propertySymbol.SetMethod is not null,
                         InitializationExpression: GetPropertyInitializer(propertySymbol)),
-                    this)
+                    this,
+                    attributes: propertySymbol.GetAttributes().Select(a => new AttributeStatement(a)).ToArray())
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
@@ -220,13 +238,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return originalName;
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             List<ConstructorProvider> constructors = new List<ConstructorProvider>();
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
             {
                 if (constructorSymbol.IsImplicitlyDeclared)
+                {
                     continue;
+                }
 
                 var initializer = ExtractConstructorInitializer(constructorSymbol);
                 var signature = new ConstructorSignature(
@@ -240,18 +260,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             List<MethodProvider> methods = new List<MethodProvider>();
             foreach (var methodSymbol in _namedTypeSymbol.GetMembers().OfType<IMethodSymbol>())
             {
                 // skip property accessors
                 if (methodSymbol.AssociatedSymbol is IPropertySymbol)
+                {
                     continue;
+                }
 
                 // skip constructors
                 if (methodSymbol.MethodKind == MethodKind.Constructor)
+                {
                     continue;
+                }
 
                 var modifiers = GetAccessModifier(methodSymbol.DeclaredAccessibility);
 
@@ -261,6 +285,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     kindOptions: SymbolDisplayKindOptions.None);
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
+
+                bool isPartialDeclaration = IsPartialMethodDeclaration(methodSymbol);
+                if (isPartialDeclaration)
+                {
+                    modifiers |= MethodSignatureModifiers.Partial;
+                }
+
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
 
                 // For conversion operators, use the target type name as the method name to match generated code
@@ -288,6 +319,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. methods];
+        }
+
+        private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
+        {
+            foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is MethodDeclarationSyntax methodSyntax)
+                {
+                    bool hasPartialModifier = methodSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
+                    bool hasNoBody = methodSyntax.Body == null && methodSyntax.ExpressionBody == null;
+                    if (hasPartialModifier && hasNoBody)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;
@@ -513,16 +562,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Get the first syntax reference for the constructor
             var syntaxReference = constructorSymbol.DeclaringSyntaxReferences.FirstOrDefault();
             if (syntaxReference == null)
+            {
                 return null;
+            }
 
             // Get the syntax node and cast to constructor declaration
             var syntaxNode = syntaxReference.GetSyntax();
             if (syntaxNode is not ConstructorDeclarationSyntax constructorSyntax)
+            {
                 return null;
+            }
 
             // Check if there's an initializer
             if (constructorSyntax.Initializer == null)
+            {
                 return null;
+            }
 
             // Determine if it's 'this' or 'base'
             var isBase = constructorSyntax.Initializer.ThisOrBaseKeyword.IsKind(SyntaxKind.BaseKeyword);

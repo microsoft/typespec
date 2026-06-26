@@ -15,8 +15,10 @@ using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
+using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -147,7 +149,10 @@ namespace Microsoft.TypeSpec.Generator
             }
             document = document.WithSyntaxRoot(root);
 
-            document = await Simplifier.ReduceAsync(document);
+            if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+            {
+                document = await Simplifier.ReduceAsync(document);
+            }
 
             // Reformat if any custom rewriters have been applied
             if (CodeModelGenerator.Instance.Rewriters.Count > 0)
@@ -245,7 +250,9 @@ namespace Microsoft.TypeSpec.Generator
             foreach (string sourceFile in Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories))
             {
                 if (skipPredicate != null && skipPredicate(sourceFile))
+                {
                     continue;
+                }
 
                 project = project.AddDocument(sourceFile, File.ReadAllText(sourceFile), folders ?? Array.Empty<string>(), sourceFile).Project;
             }
@@ -280,18 +287,128 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        /// <summary>
+        /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
+        /// as metadata references so that custom code referencing external NuGet types compiles correctly.
+        /// </summary>
+        internal static async Task AddPackageReferencesFromProject()
+        {
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
+            string projectFilePath = Path.GetFullPath(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
+            if (!File.Exists(projectFilePath))
+            {
+                return;
+            }
+
+            var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            // Build a set of assembly names already registered so we can skip them
+            var existingRefs = new HashSet<string>(
+                CodeModelGenerator.Instance.AdditionalMetadataReferences
+                    .Where(r => r.Display is not null)
+                    .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
+                    .Where(n => !string.IsNullOrEmpty(n)),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
+            {
+                var refPackageName = item.Include;
+
+                if (string.IsNullOrEmpty(refPackageName))
+                {
+                    continue;
+                }
+
+                // Skip packages already added as metadata references (e.g., by a plugin)
+                if (existingRefs.Contains(refPackageName))
+                {
+                    continue;
+                }
+
+                // Search the NuGet global packages folder for any cached version of this package.
+                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName);
+
+                // If not found in cache, download the latest version from NuGet feeds
+                if (resolvedAssemblyPath == null)
+                {
+                    try
+                    {
+                        var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
+                        if (latestVersion != null)
+                        {
+                            var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
+                            var downloadedPath = await downloader.DownloadAndInstallPackage();
+                            var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
+                            if (File.Exists(downloadedAssembly))
+                            {
+                                resolvedAssemblyPath = downloadedAssembly;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Could not download package {refPackageName}: {ex.Message}");
+                    }
+                }
+
+                if (resolvedAssemblyPath != null)
+                {
+                    CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(resolvedAssemblyPath));
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Locates and parses the ApiCompat baseline (suppression) file for the current library, if
+        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>
+        /// relative to a repository root discovered by walking up from the project directory.
+        /// Returns <see cref="ApiCompatBaseline.Empty"/> when no baseline file is found.
+        /// </summary>
+        internal static ApiCompatBaseline LoadApiCompatBaseline()
+        {
+            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
+
+            while (directory != null)
+            {
+                var candidate = Path.Combine(directory.FullName, "eng", "apicompatbaselines", $"{packageName}.txt");
+                if (File.Exists(candidate))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
+                    return ApiCompatBaseline.FromFile(candidate);
+                }
+
+                directory = directory.Parent;
+            }
+
+            return ApiCompatBaseline.Empty;
+        }
+
         internal static async Task<Compilation?> LoadBaselineContract()
         {
             var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))
+            {
                 return null;
+            }
 
             var projectRoot = ProjectRootElement.Open(projectFilePath);
             var baselineVersion = projectRoot.Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
             if (baselineVersion == null)
+            {
                 return null;
+            }
 
             var targetFrameworksValue = projectRoot.Properties
                 .FirstOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
@@ -310,7 +427,9 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
                 {
                     if (parsedTargetFrameworks != null && !parsedTargetFrameworks.Contains(preferredTargetFramework))
+                    {
                         continue;
+                    }
 
                     nugetFolderPathToAssembly = Path.Combine(
                         nugetGlobalPackageFolder,

@@ -1,4 +1,11 @@
-import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorValidatorCallbacks,
+  Model,
+  Namespace,
+  Operation,
+  Type,
+} from "@typespec/compiler";
 
 export interface AdditionalInfo {
   readonly [key: string]: unknown;
@@ -10,10 +17,23 @@ export interface AdditionalInfo {
   readonly license?: License;
 }
 
+export interface TagMetadataWithName {
+  readonly [key: string]: unknown;
+  readonly name: string;
+  readonly description?: string;
+  readonly externalDocs?: ExternalDocs;
+  readonly parent?: string;
+  readonly summary?: string;
+  readonly kind?: string;
+}
+
 export interface TagMetadata {
   readonly [key: string]: unknown;
   readonly description?: string;
   readonly externalDocs?: ExternalDocs;
+  readonly parent?: string;
+  readonly summary?: string;
+  readonly kind?: string;
 }
 
 export interface Contact {
@@ -49,7 +69,7 @@ export type OperationIdDecorator = (
   context: DecoratorContext,
   target: Operation,
   operationId: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
@@ -68,7 +88,7 @@ export type ExtensionDecorator = (
   target: Type,
   key: string,
   value: unknown,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
@@ -82,7 +102,10 @@ export type ExtensionDecorator = (
  * op listPets(): Pet[] | PetStoreResponse;
  * ```
  */
-export type DefaultResponseDecorator = (context: DecoratorContext, target: Model) => void;
+export type DefaultResponseDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the OpenAPI `externalDocs` property for this type.
@@ -100,7 +123,7 @@ export type ExternalDocsDecorator = (
   target: Type,
   url: string,
   description?: string,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify OpenAPI additional information.
@@ -112,26 +135,38 @@ export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
   additionalInfo: AdditionalInfo,
-) => void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
- * Specify OpenAPI additional information.
+ * Specify OpenAPI tag metadata. Can be used in two forms:
+ * - Inline form: specify a single tag by name with optional metadata.
+ * - Array form: specify an ordered list of tags with their metadata in a single decorator call.
  *
- * @param name tag name
- * @param tagMetadata Additional information
- * @example
+ * @param name Tag name (inline form) or array of tags with metadata (array form).
+ * @param tagMetadata Additional information for the tag. Only used in inline form.
+ * @example Inline form
  * ```typespec
  * @service()
  * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * @tagMetadata("Child Tag", #{description: "Child tag description", parent: "Tag Name"})
+ * namespace PetStore {}
+ * ```
+ * @example Array form (preserves explicit tag order)
+ * ```typespec
+ * @service()
+ * @tagMetadata(#[
+ *   #{ name: "First Tag", description: "First tag description" },
+ *   #{ name: "Second Tag", description: "Second tag description" },
+ * ])
  * namespace PetStore {}
  * ```
  */
 export type TagMetadataDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  name: string,
-  tagMetadata: TagMetadata,
-) => void;
+  name: string | readonly TagMetadataWithName[],
+  tagMetadata?: TagMetadata,
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecOpenAPIDecorators = {
   operationId: OperationIdDecorator;

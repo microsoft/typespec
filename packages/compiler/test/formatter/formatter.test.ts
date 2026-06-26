@@ -210,6 +210,21 @@ model Foo
 `,
         });
       });
+
+      it("keeps extends inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName> {}
+`,
+          expected: `
+model Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+> {}
+`,
+        });
+      });
     });
 
     describe("model `is`", () => {
@@ -255,6 +270,21 @@ model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillB
           expected: `
 model Foo
   is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
+`,
+        });
+      });
+
+      it("keeps is inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo is Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+          expected: `
+model Foo is Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
         });
       });
@@ -737,6 +767,21 @@ op foo(
         });
       });
 
+      it("keeps block comment in empty parameter list", async () => {
+        await assertFormat({
+          code: `
+namespace MyApp;
+
+op find( /* conditions */) : unknown;
+`,
+          expected: `
+namespace MyApp;
+
+op find(/* conditions */): unknown;
+`,
+        });
+      });
+
       it("wrap in new lines parameters with block comments", async () => {
         await assertFormat({
           code: `
@@ -790,6 +835,21 @@ scalar
 `,
         expected: `
 scalar Foo extends string;
+`,
+      });
+    });
+
+    it("keeps extends inline and breaks the template arguments when too long", async () => {
+      await assertFormat({
+        code: `
+scalar Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+        expected: `
+scalar Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
       });
     });
@@ -1705,6 +1765,32 @@ alias Foo = A | (B & C);
     });
   });
 
+  describe("union of intersections", () => {
+    it("breaks long union of intersections onto multiple lines", async () => {
+      await assertFormat({
+        code: `
+op create(@body body: CreateUserRequest): (CreatedResponse & Body<User>) | (BadRequestResponse & Body<ValidationError>);
+`,
+        expected: `
+op create(@body body: CreateUserRequest):
+  | (CreatedResponse & Body<User>)
+  | (BadRequestResponse & Body<ValidationError>);
+`,
+      });
+    });
+
+    it("keeps short union of intersections inline", async () => {
+      await assertFormat({
+        code: `
+alias Foo = (A   &   B)  |  (C   &   D);
+`,
+        expected: `
+alias Foo = (A & B) | (C & D);
+`,
+      });
+    });
+  });
+
   describe("enum", () => {
     it("format simple enum", async () => {
       await assertFormat({
@@ -1797,6 +1883,31 @@ enum Foo {
 `,
       });
     });
+
+    it("does not escape modifier keywords used as enum member names", async () => {
+      await assertFormat({
+        code: `
+enum Foo { internal, extern }
+        `,
+        expected: `
+enum Foo {
+  internal,
+  extern,
+}
+`,
+      });
+    });
+
+    it("does not escape modifier keywords in member expressions", async () => {
+      await assertFormat({
+        code: `
+const   x  =    Foo.internal;
+`,
+        expected: `
+const x = Foo.internal;
+`,
+      });
+    });
   });
 
   describe("union", () => {
@@ -1861,6 +1972,91 @@ union Foo {
   @doc("third")
   c: C,
 }
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("does not add a blank line or extra indent for a union used as a template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked is PickProperties<
+  Sample,
+  | "alpha"
+  | "bravo"
+  | "charlie"
+  | "delta"
+  | "echo"
+  | "foxtrot"
+  | "golf"
+  | "hotel"
+>;
+`,
+      });
+    });
+
+    it("keeps leading | and indent for a union used as the only template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<"alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked
+  is PickProperties<
+    | "alpha"
+    | "bravo"
+    | "charlie"
+    | "delta"
+    | "echo"
+    | "foxtrot"
+    | "golf"
+    | "hotel">;
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11092
+    it("keeps leading | and indent for a union used as a named template argument", async () => {
+      await assertFormat({
+        code: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<A = "Some long value", TakesALongUnion = string | int32 | int64 | "Some very long string that split line">;
+`,
+        expected: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<
+  A = "Some long value",
+  TakesALongUnion =
+    | string
+    | int32
+    | int64
+    | "Some very long string that split line"
+>;
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("keeps the variant alignment so a nested template argument stays indented", async () => {
+      await assertFormat({
+        code: `
+model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
+`,
+        expected: `
+model Created is Operation<
+  Request,
+  | Response
+  | CreatedResponse<
+      ResponseBodyModel,
+      LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
+    >,
+  Error
+>;
 `,
       });
     });
@@ -2443,10 +2639,24 @@ namespace Foo {
 @@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
       `,
         expected: `
-@@doc(Foo,
+@@doc(
+  Foo,
   "This is getting very very very long 1",
   "This is getting very very very long 2",
   "This is getting very very very long 3"
+);
+      `,
+      });
+    });
+
+    it("break arguments per lines when decorator name is very long", async () => {
+      await assertFormat({
+        code: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(subscribe1);
+      `,
+        expected: `
+@@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(
+  subscribe1
 );
       `,
       });
@@ -2827,6 +3037,158 @@ const     a  : in32=   123;
 `,
         expected: `
 const a: in32 = 123;
+`,
+      });
+    });
+  });
+
+  describe("internal modifier", () => {
+    it("format internal model", async () => {
+      await assertFormat({
+        code: `
+internal    model   Foo { }
+`,
+        expected: `
+internal model Foo {}
+`,
+      });
+    });
+
+    it("format internal model with decorators", async () => {
+      await assertFormat({
+        code: `
+@doc("A model")
+internal    model   Foo { x: string; }
+`,
+        expected: `
+@doc("A model")
+internal model Foo {
+  x: string;
+}
+`,
+      });
+    });
+
+    it("format internal op", async () => {
+      await assertFormat({
+        code: `
+internal    op   foo(): void;
+`,
+        expected: `
+internal op foo(): void;
+`,
+      });
+    });
+
+    it("format internal scalar", async () => {
+      await assertFormat({
+        code: `
+internal    scalar   foo;
+`,
+        expected: `
+internal scalar foo;
+`,
+      });
+    });
+
+    it("format internal interface", async () => {
+      await assertFormat({
+        code: `
+internal    interface   Foo { }
+`,
+        expected: `
+internal interface Foo {}
+`,
+      });
+    });
+
+    it("format internal union", async () => {
+      await assertFormat({
+        code: `
+internal    union   Foo { }
+`,
+        expected: `
+internal union Foo {}
+`,
+      });
+    });
+
+    it("format internal enum", async () => {
+      await assertFormat({
+        code: `
+internal    enum   Foo { a, b }
+`,
+        expected: `
+internal enum Foo {
+  a,
+  b,
+}
+`,
+      });
+    });
+
+    it("format internal alias", async () => {
+      await assertFormat({
+        code: `
+internal    alias   Foo  =  string;
+`,
+        expected: `
+internal alias Foo = string;
+`,
+      });
+    });
+
+    it("format internal const", async () => {
+      await assertFormat({
+        code: `
+internal    const   x  =   123;
+`,
+        expected: `
+internal const x = 123;
+`,
+      });
+    });
+
+    it("format internal extern dec", async () => {
+      await assertFormat({
+        code: `
+internal   extern    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+internal extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format auto dec", async () => {
+      await assertFormat({
+        code: `
+auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+auto dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format internal auto dec", async () => {
+      await assertFormat({
+        code: `
+internal   auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+internal auto dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format internal extern fn", async () => {
+      await assertFormat({
+        code: `
+internal   extern    fn   foo(arg1: StringLiteral): void;
+`,
+        expected: `
+internal extern fn foo(arg1: StringLiteral): void;
 `,
       });
     });

@@ -2,6 +2,7 @@ using Sample;
 using System;
 using System.Collections.Generic;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models;
 

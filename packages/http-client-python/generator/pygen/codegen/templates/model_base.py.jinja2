@@ -19,13 +19,21 @@ from datetime import datetime, date, time, timedelta, timezone
 from json import JSONEncoder
 import xml.etree.ElementTree as ET
 from collections.abc import MutableMapping
-from typing_extensions import Self
 import isodate
 from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
+
+{% if code_model.has_external_type %}
+from {{ code_model.core_library }}.serialization import TypeHandlerRegistry
+{% endif %}
 from {{ code_model.core_library }}.rest import HttpResponse
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +41,11 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+_NONE_TYPE = type(None)
+
+{% if code_model.has_external_type %}
+TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
+{% endif %}
 
 
 def _timedelta_as_isostr(td: timedelta) -> str:
@@ -99,6 +112,29 @@ def _serialize_bytes(o, format: typing.Optional[str] = None) -> str:
     return encoded
 
 
+def _serialize_duration(td: timedelta, format: typing.Optional[str] = None):
+    """Serialize a timedelta to its wire representation.
+
+    For the ``seconds``/``milliseconds`` encodings the value is converted to a
+    numeric value, otherwise it falls back to an ISO 8601 duration string.
+
+    :param timedelta td: The timedelta to serialize.
+    :param str format: The duration encoding format.
+    :rtype: int or float or str
+    :return: serialized duration
+    """
+    seconds = td.total_seconds()
+    if format == "duration-seconds-int":
+        return int(seconds)
+    if format == "duration-seconds-float":
+        return seconds
+    if format == "duration-milliseconds-int":
+        return int(seconds * 1000)
+    if format == "duration-milliseconds-float":
+        return seconds * 1000
+    return _timedelta_as_isostr(td)
+
+
 def _serialize_datetime(o, format: typing.Optional[str] = None):
     if hasattr(o, "year") and hasattr(o, "hour"):
         if format == "rfc7231":
@@ -158,6 +194,11 @@ class SdkJSONEncoder(JSONEncoder):
             except AttributeError:
                 # This will be raised when it hits value.total_seconds in the method above
                 pass
+            {% if code_model.has_external_type %}
+            custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+            if custom_serializer:
+                return custom_serializer(o)
+            {% endif %}
             return super(SdkJSONEncoder, self).default(o)
 
 
@@ -167,6 +208,19 @@ _VALID_RFC7231 = re.compile(
     r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s\d{4}\s\d{2}:\d{2}:\d{2}\sGMT"
 )
 
+_ARRAY_ENCODE_MAPPING = {
+    "pipeDelimited": "|",
+    "spaceDelimited": " ",
+    "commaDelimited": ",",
+    "newlineDelimited": "\n",
+}
+
+def _deserialize_array_encoded(delimit: str, attr):
+    if isinstance(attr, str):
+        if attr == "":
+            return []
+        return attr.split(delimit)
+    return attr
 
 def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     """Deserialize ISO-8601 formatted string into Datetime object.
@@ -198,7 +252,7 @@ def _deserialize_datetime(attr: typing.Union[str, datetime]) -> datetime:
     test_utc = date_obj.utctimetuple()
     if test_utc.tm_year > 9999 or test_utc.tm_year < 1:
         raise OverflowError("Hit max or min date")
-    return date_obj
+    return date_obj  # type: ignore[no-any-return]
 
 
 def _deserialize_datetime_rfc7231(attr: typing.Union[str, datetime]) -> datetime:
@@ -252,7 +306,7 @@ def _deserialize_time(attr: typing.Union[str, time]) -> time:
     """
     if isinstance(attr, time):
         return attr
-    return isodate.parse_time(attr)
+    return isodate.parse_time(attr)  # type: ignore[no-any-return]
 
 
 def _deserialize_bytes(attr):
@@ -274,6 +328,12 @@ def _deserialize_duration(attr):
     if isinstance(attr, timedelta):
         return attr
     return isodate.parse_duration(attr)
+
+
+def _deserialize_duration_numeric(attr, unit):
+    if isinstance(attr, timedelta):
+        return attr
+    return timedelta(**{unit: float(attr)})
 
 
 def _deserialize_decimal(attr):
@@ -305,15 +365,27 @@ _DESERIALIZE_MAPPING_WITHFORMAT = {
     "unix-timestamp": _deserialize_datetime_unix_timestamp,
     "base64": _deserialize_bytes,
     "base64url": _deserialize_bytes_base64,
+    "duration-seconds-int": functools.partial(_deserialize_duration_numeric, unit="seconds"),
+    "duration-seconds-float": functools.partial(_deserialize_duration_numeric, unit="seconds"),
+    "duration-milliseconds-int": functools.partial(_deserialize_duration_numeric, unit="milliseconds"),
+    "duration-milliseconds-float": functools.partial(_deserialize_duration_numeric, unit="milliseconds"),
 }
 
 
 def get_deserializer(annotation: typing.Any, rf: typing.Optional["_RestField"] = None):
     if annotation is int and rf and rf._format == "str":
         return _deserialize_int_as_str
+    if annotation is str and rf and rf._format in _ARRAY_ENCODE_MAPPING:
+        return functools.partial(_deserialize_array_encoded, _ARRAY_ENCODE_MAPPING[rf._format])
     if rf and rf._format:
         return _DESERIALIZE_MAPPING_WITHFORMAT.get(rf._format)
+    {% if code_model.has_external_type %}
+    if _DESERIALIZE_MAPPING.get(annotation):  # pyright: ignore
+        return _DESERIALIZE_MAPPING.get(annotation)  # pyright: ignore
+    return TYPE_HANDLER_REGISTRY.get_deserializer(annotation)  # pyright: ignore
+    {% else %}
     return _DESERIALIZE_MAPPING.get(annotation)  # pyright: ignore
+    {% endif %}
 
 
 def _get_type_alias_type(module_name: str, alias_name: str):
@@ -349,9 +421,39 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return key in self._data
 
     def __getitem__(self, key: str) -> typing.Any:
+        # If this key has been deserialized (for mutable types), we need to handle serialization
+        if hasattr(self, "_attr_to_rest_field"):
+            cache_attr = f"_deserialized_{key}"
+            if hasattr(self, cache_attr):
+                rf = _get_rest_field(getattr(self, "_attr_to_rest_field"), key)
+                if rf:
+                    value = self._data.get(key)
+                    if isinstance(value, (dict, list, set)):
+                        # For mutable types, serialize and return
+                        # But also update _data with serialized form and clear flag
+                        # so mutations via this returned value affect _data
+                        serialized = _serialize(value, rf._format)
+                        # If serialized form is same type (no transformation needed),
+                        # return _data directly so mutations work
+                        if isinstance(serialized, type(value)) and serialized == value:
+                          return self._data.get(key)
+                        # Otherwise return serialized copy and clear flag
+                        try:
+                            object.__delattr__(self, cache_attr)
+                        except AttributeError:
+                            pass
+                        # Store serialized form back
+                        self._data[key] = serialized
+                        return serialized
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
+        # Clear any cached deserialized value when setting through dictionary access
+        cache_attr = f"_deserialized_{key}"
+        try:
+            object.__delattr__(self, cache_attr)
+        except AttributeError:
+            pass
         self._data.__setitem__(key, value)
 
     def __delitem__(self, key: str) -> None:
@@ -463,6 +565,8 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return self._data.setdefault(key, default)
 
     def __eq__(self, other: typing.Any) -> bool:
+        if isinstance(other, _MyMutableMapping):
+            return self._data == other._data
         try:
             other_model = self.__class__(other)
         except Exception:
@@ -479,6 +583,8 @@ def _is_model(obj: typing.Any) -> bool:
 
 def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-many-return-statements
     if isinstance(o, list):
+        if format in _ARRAY_ENCODE_MAPPING and all(isinstance(x, str) for x in o):
+            return _ARRAY_ENCODE_MAPPING[format].join(o)
         return [_serialize(x, format) for x in o]
     if isinstance(o, dict):
         return {k: _serialize(v, format) for k, v in o.items()}
@@ -503,10 +609,18 @@ def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-m
         pass
     # Last, try datetime.timedelta
     try:
-        return _timedelta_as_isostr(o)
+        return _serialize_duration(o, format)
     except AttributeError:
         # This will be raised when it hits value.total_seconds in the method above
         pass
+    {% if code_model.has_external_type %}
+
+    # Check if there's a custom serializer for the type
+    custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+    if custom_serializer:
+        return custom_serializer(o)
+
+    {% endif %}
     return o
 
 
@@ -531,6 +645,239 @@ def _create_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typin
     return _serialize(value, rf._format)
 
 
+# ============================================================================
+# Fast-path scalar deserializer functions for rest_field(deserializer=...)
+# These are referenced from rest_field declarations to bypass the generic
+# _deserialize -> _deserialize_with_callable chain.
+# Only simple/primitive types — no models or container types.
+# ============================================================================
+
+
+def _xml_deser_str(value):
+    if isinstance(value, ET.Element):
+        return value.text or ""
+    return str(value) if value is not None else None
+
+
+def _xml_deser_int(value):
+    if isinstance(value, ET.Element):
+        return int(value.text) if value.text else None
+    return int(value) if value is not None else None
+
+
+def _xml_deser_float(value):
+    if isinstance(value, ET.Element):
+        return float(value.text) if value.text else None
+    return float(value) if value is not None else None
+
+
+def _xml_deser_bool(value):
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    if text in (True, False):
+        return text
+    return text.lower() == "true"
+
+
+# pylint: disable=docstring-missing-param
+def _xml_deser_bytes(value):
+    """Deserialize bytes from XML (base64)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_bytes(text)
+
+
+def _xml_deser_bytes_base64url(value):
+    """Deserialize bytes from XML (base64url)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_bytes_base64(text)
+
+
+def _xml_deser_datetime(value):
+    """Deserialize a datetime from XML (ISO 8601 / rfc3339)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_datetime(text)
+
+
+def _xml_deser_datetime_rfc7231(value):
+    """Deserialize a datetime from XML (RFC7231 format)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_datetime_rfc7231(text)
+
+
+def _xml_deser_datetime_unix_timestamp(value):
+    """Deserialize a datetime from XML (Unix timestamp)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_datetime_unix_timestamp(float(text))
+
+
+def _xml_deser_date(value):
+    """Deserialize a date from XML (ISO 8601)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_date(text)
+
+
+def _xml_deser_time(value):
+    """Deserialize a time from XML (ISO 8601)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_time(text)
+
+
+def _xml_deser_duration(value):
+    """Deserialize a timedelta from XML (ISO 8601 duration)."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_duration(text)
+
+
+def _xml_deser_decimal(value):
+    """Deserialize a Decimal from XML."""
+    if isinstance(value, ET.Element):
+        text = value.text
+    else:
+        text = value
+    if text is None:
+        return None
+    return _deserialize_decimal(text)
+
+
+def _xml_deser_enum_or_str(enum_cls, value):
+    """Deserialize a Union[EnumType, str] from XML."""
+    text = value.text if isinstance(value, ET.Element) else value
+    if text is None:
+        return None
+    try:
+        return enum_cls(text)
+    except ValueError:
+        return text
+
+
+def _extract_xml_model_type(rf_type):
+    """Extract the concrete Model class from a resolved rf._type partial chain.
+
+    Unwraps ``Optional[Model]`` and ``_deserialize_model(Model, ...)``
+    wrappers.  Only handles Model and Optional[Model] — other composite
+    types (List, Dict, Union, etc.) return None and fall through to the
+    generic ``_deserialize`` path at runtime.
+    """
+    if rf_type is None:
+        return None
+    if isinstance(rf_type, type) and _is_model(rf_type):
+        return rf_type
+    if not isinstance(rf_type, functools.partial):
+        return None
+    func = rf_type.func
+    args = rf_type.args
+    if func is _deserialize_with_optional and args:
+        return _extract_xml_model_type(args[0])
+    if func is _deserialize_model and args:
+        cls = args[0]
+        return cls if isinstance(cls, type) and _is_model(cls) else None
+    return None
+
+
+def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstring-missing-rtype, unused-variable
+    cls, attr_to_rest_field: dict
+) -> list:
+    """Build a precomputed XML field plan for fast _init_from_xml iteration.
+
+    Called once per model class in __new__. Returns a list of tuples:
+        (rest_name, xml_name, kind, deser, rf_type, is_optional, items_name)
+
+    kind: 0=wrapped, 1=attribute, 2=unwrapped, 3=text
+
+    For Model and Optional[Model] fields that lack a scalar
+    ``_deserializer``, this function precomputes the Model class as the
+    deserializer so ``_init_from_xml`` can call ``ModelClass(element)``
+    directly instead of going through the expensive
+    ``_get_deserialize_callable_from_annotation`` chain at runtime.
+    """
+    model_meta = getattr(cls, "_xml", {})
+    model_ns = model_meta.get("ns") or model_meta.get("namespace")
+    plan = []
+
+    for rf in attr_to_rest_field.values():
+        prop_meta = getattr(rf, "_xml", {})
+        deser = rf._deserializer
+
+        xml_name = prop_meta.get("name", rf._rest_name)
+        xml_ns = _resolve_xml_ns(prop_meta, model_meta)
+        if xml_ns:
+            xml_name = "{" + xml_ns + "}" + xml_name
+
+        is_optional = rf._is_optional
+
+        # For Model / Optional[Model] fields without a scalar deserializer,
+        # precompute the Model class as the deserializer.
+        if deser is None and rf._type is not None:
+            model_cls = _extract_xml_model_type(rf._type)
+            if model_cls is not None:
+                deser = model_cls
+
+        if prop_meta.get("attribute", False):
+            plan.append((rf._rest_name, xml_name, 1, deser, rf._type, is_optional, None))
+        elif prop_meta.get("unwrapped", False):
+            items_name = prop_meta.get("itemsName")
+            if items_name:
+                items_ns = prop_meta.get("itemsNs")
+                if items_ns is not None:
+                    xml_ns = items_ns
+                if xml_ns:
+                    items_name = "{" + xml_ns + "}" + items_name
+            else:
+                items_name = xml_name
+            plan.append((rf._rest_name, xml_name, 2, deser, rf._type, is_optional, items_name))
+        elif prop_meta.get("text", False):
+            plan.append((rf._rest_name, xml_name, 3, deser, rf._type, is_optional, None))
+        else:
+            plan.append((rf._rest_name, xml_name, 0, deser, rf._type, is_optional, None))
+
+    return plan
+
+
+# pylint: enable=docstring-missing-param
 class Model(_MyMutableMapping):
     _is_model = True
     # label whether current class's _attr_to_rest_field has been calculated
@@ -541,59 +888,10 @@ class Model(_MyMutableMapping):
         class_name = self.__class__.__name__
         if len(args) > 1:
             raise TypeError(f"{class_name}.__init__() takes 2 positional arguments but {len(args) + 1} were given")
-        dict_to_pass = {
-            rest_field._rest_name: rest_field._default
-            for rest_field in self._attr_to_rest_field.values()
-            if rest_field._default is not _UNSET
-        }
-        if args:  # pylint: disable=too-many-nested-blocks
+        dict_to_pass: dict[str, typing.Any] = {}
+        if args:
             if isinstance(args[0], ET.Element):
-                existed_attr_keys = []
-                model_meta = getattr(self, "_xml", {})
-
-                for rf in self._attr_to_rest_field.values():
-                    prop_meta = getattr(rf, "_xml", {})
-                    xml_name = prop_meta.get("name", rf._rest_name)
-                    xml_ns = prop_meta.get("ns", model_meta.get("ns", None))
-                    if xml_ns:
-                        xml_name = "{" + xml_ns + "}" + xml_name
-
-                    # attribute
-                    if prop_meta.get("attribute", False) and args[0].get(xml_name) is not None:
-                        existed_attr_keys.append(xml_name)
-                        dict_to_pass[rf._rest_name] = _deserialize(rf._type, args[0].get(xml_name))
-                        continue
-
-                    # unwrapped element is array
-                    if prop_meta.get("unwrapped", False):
-                        # unwrapped array could either use prop items meta/prop meta
-                        if prop_meta.get("itemsName"):
-                            xml_name = prop_meta.get("itemsName")
-                            xml_ns = prop_meta.get("itemNs")
-                            if xml_ns:
-                                xml_name = "{" + xml_ns + "}" + xml_name
-                        items = args[0].findall(xml_name)  # pyright: ignore
-                        if len(items) > 0:
-                            existed_attr_keys.append(xml_name)
-                            dict_to_pass[rf._rest_name] = _deserialize(rf._type, items)
-                        continue
-
-                    # text element is primitive type
-                    if prop_meta.get("text", False):
-                        if args[0].text is not None:
-                            dict_to_pass[rf._rest_name] = _deserialize(rf._type, args[0].text)
-                        continue
-
-                    # wrapped element could be normal property or array, it should only have one element
-                    item = args[0].find(xml_name)
-                    if item is not None:
-                        existed_attr_keys.append(xml_name)
-                        dict_to_pass[rf._rest_name] = _deserialize(rf._type, item)
-
-                # rest thing is additional properties
-                for e in args[0]:
-                    if e.tag not in existed_attr_keys:
-                        dict_to_pass[e.tag] = _convert_element(e)
+                dict_to_pass.update(self._init_from_xml(args[0]))
             else:
                 dict_to_pass.update(
                     {k: _create_value(_get_rest_field(self._attr_to_rest_field, k), v) for k, v in args[0].items()}
@@ -610,7 +908,116 @@ class Model(_MyMutableMapping):
                     if v is not None
                 }
             )
+        # Apply client default values for fields the caller didn't set so that
+        # defaults are part of `_data` and therefore included during serialization.
+        for rf in self._attr_to_rest_field.values():
+            if rf._default is _UNSET:
+                continue
+            if rf._rest_name in dict_to_pass:
+                continue
+            dict_to_pass[rf._rest_name] = _create_value(rf, rf._default)
         super().__init__(dict_to_pass)
+
+    def _init_from_xml(  # pylint: disable=too-many-branches, too-many-statements
+        self, element: ET.Element
+    ) -> dict[str, typing.Any]:
+        """Deserialize an XML element into a dict mapping rest field names to values.
+
+        :param ET.Element element: The XML element to deserialize from.
+        :returns: A dictionary of rest_name to deserialized value pairs.
+        :rtype: dict
+        """
+        result: dict[str, typing.Any] = {}
+        existed_attr_keys: list[str] = []
+
+        field_plan = getattr(self, "_xml_field_plan", None)
+        if field_plan:
+            for rest_name, xml_name, kind, deser, rf_type, is_optional, items_name in field_plan:
+                if kind == 0:  # wrapped element (most common)
+                    item = element.find(xml_name)
+                    if item is not None:
+                        existed_attr_keys.append(xml_name)
+                        if deser:
+                            result[rest_name] = deser(item)
+                        else:
+                            result[rest_name] = _deserialize(rf_type, item)
+                elif kind == 1:  # attribute
+                    attr_val = element.get(xml_name)
+                    if attr_val is not None:
+                        existed_attr_keys.append(xml_name)
+                        if deser:
+                            result[rest_name] = deser(attr_val)
+                        else:
+                            result[rest_name] = attr_val
+                elif kind == 2:  # unwrapped array
+                    items = element.findall(items_name)  # pyright: ignore
+                    if len(items) > 0:
+                        existed_attr_keys.append(items_name)
+                        if deser:
+                            result[rest_name] = deser(items)
+                        else:
+                            result[rest_name] = _deserialize(rf_type, items)
+                    elif not is_optional:
+                        existed_attr_keys.append(items_name)
+                        result[rest_name] = []
+                elif kind == 3:  # text
+                    if element.text is not None:
+                        if deser:
+                            result[rest_name] = deser(element.text)
+                        else:
+                            result[rest_name] = element.text
+        else:
+            model_meta = getattr(self, "_xml", {})
+            for rf in self._attr_to_rest_field.values():
+                prop_meta = getattr(rf, "_xml", {})
+                xml_name = prop_meta.get("name", rf._rest_name)
+                xml_ns = _resolve_xml_ns(prop_meta, model_meta)
+                if xml_ns:
+                    xml_name = "{" + xml_ns + "}" + xml_name
+
+                # attribute
+                if prop_meta.get("attribute", False) and element.get(xml_name) is not None:
+                    existed_attr_keys.append(xml_name)
+                    result[rf._rest_name] = _deserialize(rf._type, element.get(xml_name))
+                    continue
+
+                # unwrapped element is array
+                if prop_meta.get("unwrapped", False):
+                    _items_name = prop_meta.get("itemsName")
+                    if _items_name:
+                        xml_name = _items_name
+                        _items_ns = prop_meta.get("itemsNs")
+                        if _items_ns is not None:
+                            xml_ns = _items_ns
+                        if xml_ns:
+                            xml_name = "{" + xml_ns + "}" + xml_name
+                    items = element.findall(xml_name)  # pyright: ignore
+                    if len(items) > 0:
+                        existed_attr_keys.append(xml_name)
+                        result[rf._rest_name] = _deserialize(rf._type, items)
+                    elif not rf._is_optional:
+                        existed_attr_keys.append(xml_name)
+                        result[rf._rest_name] = []
+                    continue
+
+                # text element is primitive type
+                if prop_meta.get("text", False):
+                    if element.text is not None:
+                        result[rf._rest_name] = _deserialize(rf._type, element.text)
+                    continue
+
+                # wrapped element could be normal property or array
+                item = element.find(xml_name)
+                if item is not None:
+                    existed_attr_keys.append(xml_name)
+                    result[rf._rest_name] = _deserialize(rf._type, item)
+
+        # rest thing is additional properties
+        for e in element:
+            if e.tag not in existed_attr_keys:
+                result[e.tag] = _convert_element(e)
+
+        return result
 
     def copy(self) -> "Model":
         return Model(self.__dict__)
@@ -636,6 +1043,15 @@ class Model(_MyMutableMapping):
                 if not rf._rest_name_input:
                     rf._rest_name_input = attr
             cls._attr_to_rest_field: dict[str, _RestField] = dict(attr_to_rest_field.items())
+            {% if code_model.has_padded_model_property %}
+            cls._backcompat_attr_to_rest_field: dict[str, _RestField] = {
+                Model._get_backcompat_attribute_name(cls._attr_to_rest_field, attr): rf for attr, rf in cls
+                ._attr_to_rest_field.items()
+            }
+            {% endif %}
+            # Build XML field plan for fast _init_from_xml (only for XML models)
+            if getattr(cls, "_xml", None):
+                cls._xml_field_plan = _build_xml_field_plan(cls, attr_to_rest_field)
             cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
 
         return super().__new__(cls)
@@ -644,6 +1060,18 @@ class Model(_MyMutableMapping):
         for base in cls.__bases__:
             if hasattr(base, "__mapping__"):
                 base.__mapping__[discriminator or cls.__name__] = cls  # type: ignore
+
+    {% if code_model.has_padded_model_property %}
+    @classmethod
+    def _get_backcompat_attribute_name(cls, attr_to_rest_field: dict[str, "_RestField"], attr_name: str) -> str:
+        rest_field_obj = attr_to_rest_field.get(attr_name)  # pylint: disable=protected-access
+        if rest_field_obj is None:
+            return attr_name
+        original_tsp_name = getattr(rest_field_obj, "_original_tsp_name", None)  # pylint: disable=protected-access
+        if original_tsp_name:
+            return original_tsp_name
+        return attr_name
+    {% endif %}
 
     @classmethod
     def _get_discriminator(cls, exist_discriminators) -> typing.Optional["_RestField"]:
@@ -664,7 +1092,7 @@ class Model(_MyMutableMapping):
             model_meta = getattr(cls, "_xml", {})
             prop_meta = getattr(discriminator, "_xml", {})
             xml_name = prop_meta.get("name", discriminator._rest_name)
-            xml_ns = prop_meta.get("ns", model_meta.get("ns", None))
+            xml_ns = _resolve_xml_ns(prop_meta, model_meta)
             if xml_ns:
                 xml_name = "{" + xml_ns + "}" + xml_name
 
@@ -756,6 +1184,14 @@ def _deserialize_multiple_sequence(
     return type(obj)(_deserialize(deserializer, entry, module) for entry, deserializer in zip(obj, entry_deserializers))
 
 
+def _is_array_encoded_deserializer(deserializer: functools.partial) -> bool:
+    return (
+        isinstance(deserializer, functools.partial)
+        and isinstance(deserializer.args[0], functools.partial)
+        and deserializer.args[0].func == _deserialize_array_encoded  # pylint: disable=comparison-with-callable
+    )
+
+
 def _deserialize_sequence(
     deserializer: typing.Optional[typing.Callable],
     module: typing.Optional[str],
@@ -765,6 +1201,19 @@ def _deserialize_sequence(
         return obj
     if isinstance(obj, ET.Element):
         obj = list(obj)
+
+    # encoded string may be deserialized to sequence
+    if isinstance(obj, str) and isinstance(deserializer, functools.partial):
+        # for list[str]
+        if _is_array_encoded_deserializer(deserializer):
+            return deserializer(obj)
+
+        # for list[Union[...]]
+        if isinstance(deserializer.args[0], list):
+            for sub_deserializer in deserializer.args[0]:
+                if _is_array_encoded_deserializer(sub_deserializer):
+                    return sub_deserializer(obj)
+
     return type(obj)(_deserialize(deserializer, entry, module) for entry in obj)
 
 
@@ -814,16 +1263,18 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     # is it optional?
     try:
-        if any(a for a in annotation.__args__ if a == type(None)):  # pyright: ignore
+        if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
+            if rf:
+                rf._is_optional = True
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if a != type(None)), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
-            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a != type(None)]  # pyright: ignore
+            annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
             return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
     except AttributeError:
         pass
@@ -907,16 +1358,20 @@ def _deserialize_with_callable(
                 return float(value.text) if value.text else None
             if deserializer is bool:
                 return value.text == "true" if value.text else None
+            if deserializer and deserializer in _DESERIALIZE_MAPPING.values():
+                return deserializer(value.text) if value.text else None
+            if deserializer and deserializer in _DESERIALIZE_MAPPING_WITHFORMAT.values():
+                return deserializer(value.text) if value.text else None
         if deserializer is None:
             return value
         if deserializer in [int, float, bool]:
             return deserializer(value)
         if isinstance(deserializer, CaseInsensitiveEnumMeta):
             try:
-                return deserializer(value)
+                return deserializer(value.text if isinstance(value, ET.Element) else value)
             except ValueError:
                 # for unknown value, return raw value
-                return value
+                return value.text if isinstance(value, ET.Element) else value
         if isinstance(deserializer, type) and issubclass(deserializer, Model):
             return deserializer._deserialize(value, [])
         return typing.cast(typing.Callable[[typing.Any], typing.Any], deserializer)(value)
@@ -949,7 +1404,7 @@ def _failsafe_deserialize(
 ) -> typing.Any:
   try:
       return _deserialize(deserializer, response.json(), module, rf, format)
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -959,11 +1414,11 @@ def _failsafe_deserialize(
 
 def _failsafe_deserialize_xml(
   deserializer: typing.Any,
-  response: HttpResponse, 
+  response: HttpResponse,
 ) -> typing.Any:
   try:
       return _deserialize_xml(deserializer, response.text())
-  except DeserializationError:
+  except Exception:  # pylint: disable=broad-except
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
@@ -971,6 +1426,7 @@ def _failsafe_deserialize_xml(
       return None
 
 
+# pylint: disable=too-many-instance-attributes
 class _RestField:
     def __init__(
         self,
@@ -983,6 +1439,10 @@ class _RestField:
         format: typing.Optional[str] = None,
         is_multipart_file_input: bool = False,
         xml: typing.Optional[dict[str, typing.Any]] = None,
+        deserializer: typing.Optional[typing.Callable] = None,
+        {% if code_model.has_padded_model_property %}
+        original_tsp_name: typing.Optional[str] = None,
+        {% endif %}
     ):
         self._type = type
         self._rest_name_input = name
@@ -990,14 +1450,23 @@ class _RestField:
         self._is_discriminator = is_discriminator
         self._visibility = visibility
         self._is_model = False
+        self._is_optional = False
         self._default = default
         self._format = format
         self._is_multipart_file_input = is_multipart_file_input
         self._xml = xml if xml is not None else {}
+        self._deserializer = deserializer
+        {% if code_model.has_padded_model_property %}
+        self._original_tsp_name = original_tsp_name
+        {% endif %}
 
     @property
     def _class_type(self) -> typing.Any:
-        return getattr(self._type, "args", [None])[0]
+        result = getattr(self._type, "args", [None])[0]
+        # type may be wrapped by nested functools.partial so we need to check for that
+        if isinstance(result, functools.partial):
+            return getattr(result, "args", [None])[0]
+        return result
 
     @property
     def _rest_name(self) -> str:
@@ -1008,14 +1477,44 @@ class _RestField:
     def __get__(self, obj: Model, type=None):  # pylint: disable=redefined-builtin
         # by this point, type and rest_name will have a value bc we default
         # them in __new__ of the Model class
-        item = obj.get(self._rest_name)
+        # Use _data.get() directly to avoid triggering __getitem__ which clears the cache
+        item = obj._data.get(self._rest_name, _UNSET)
+        if item is _UNSET:
+            # Field not set by user; return the client default if one exists, otherwise None
+            return self._default if self._default is not _UNSET else None
         if item is None:
             return item
         if self._is_model:
             return item
-        return _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, we want mutations to directly affect _data
+        # Check if we've already deserialized this value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            # Return the value from _data directly (it's been deserialized in place)
+            return obj._data.get(self._rest_name)
+
+        # Fast path: use _deserializer directly (avoids _serialize/_deserialize chain)
+        if self._deserializer:
+            deserialized = self._deserializer(item)
+        else:
+            deserialized = _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # For mutable types, store the deserialized value back in _data
+        # so mutations directly affect _data
+        if isinstance(deserialized, (dict, list, set)):
+            obj._data[self._rest_name] = deserialized
+            object.__setattr__(obj, cache_attr, True)  # Mark as deserialized
+            return deserialized
+
+        return deserialized
 
     def __set__(self, obj: Model, value) -> None:
+        # Clear the cached deserialized object when setting a new value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            object.__delattr__(obj, cache_attr)
+
         if value is None:
             # we want to wipe out entries if users set attr to None
             try:
@@ -1045,6 +1544,10 @@ def rest_field(
     format: typing.Optional[str] = None,
     is_multipart_file_input: bool = False,
     xml: typing.Optional[dict[str, typing.Any]] = None,
+    deserializer: typing.Optional[typing.Callable] = None,
+    {% if code_model.has_padded_model_property %}
+    original_tsp_name: typing.Optional[str] = None,
+    {% endif %}
 ) -> typing.Any:
     return _RestField(
         name=name,
@@ -1054,6 +1557,10 @@ def rest_field(
         format=format,
         is_multipart_file_input=is_multipart_file_input,
         xml=xml,
+        deserializer=deserializer,
+        {% if code_model.has_padded_model_property %}
+        original_tsp_name=original_tsp_name,
+        {% endif %}
     )
 
 
@@ -1078,6 +1585,58 @@ def serialize_xml(model: Model, exclude_readonly: bool = False) -> str:
     return ET.tostring(_get_element(model, exclude_readonly), encoding="unicode")  # type: ignore
 
 
+def _get_xml_ns(meta: dict[str, typing.Any]) -> typing.Optional[str]:
+    """Return the XML namespace from a metadata dict, checking both 'ns' (old-style) and 'namespace' (DPG) keys.
+
+    :param dict meta: The metadata dictionary to extract namespace from.
+    :returns: The namespace string if 'ns' or 'namespace' key is present, None otherwise.
+    :rtype: str or None
+    """
+    ns = meta.get("ns")
+    if ns is None:
+        ns = meta.get("namespace")
+    return ns
+
+
+def _resolve_xml_ns(
+    prop_meta: dict[str, typing.Any], model_meta: typing.Optional[dict[str, typing.Any]] = None
+) -> typing.Optional[str]:
+    """Resolve XML namespace for a property, falling back to model namespace when appropriate.
+
+    Checks the property metadata first; if no namespace is found and the model does not declare
+    an explicit prefix, falls back to the model-level namespace.
+
+    :param dict prop_meta: The property metadata dictionary.
+    :param dict model_meta: The model metadata dictionary, used as fallback.
+    :returns: The resolved namespace string, or None.
+    :rtype: str or None
+    """
+    ns = _get_xml_ns(prop_meta)
+    if ns is None and model_meta is not None and not model_meta.get("prefix"):
+        ns = _get_xml_ns(model_meta)
+    return ns
+
+
+def _set_xml_attribute(
+    element: ET.Element, name: str, value: typing.Any, prop_meta: dict[str, typing.Any]
+) -> None:
+    """Set an XML attribute on an element, handling namespace prefix registration.
+
+    :param ET.Element element: The element to set the attribute on.
+    :param str name: The default attribute name (wire name).
+    :param any value: The attribute value.
+    :param dict prop_meta: The property metadata dictionary.
+    """
+    xml_name = prop_meta.get("name", name)
+    _attr_ns = _get_xml_ns(prop_meta)
+    if _attr_ns:
+        _attr_prefix = prop_meta.get("prefix")
+        if _attr_prefix:
+            _safe_register_namespace(_attr_prefix, _attr_ns)
+        xml_name = "{" + _attr_ns + "}" + xml_name
+    element.set(xml_name, _get_primitive_type_value(value))
+
+
 def _get_element(
     o: typing.Any,
     exclude_readonly: bool = False,
@@ -1089,10 +1648,16 @@ def _get_element(
 
         # if prop is a model, then use the prop element directly, else generate a wrapper of model
         if wrapped_element is None:
+            # When serializing as an array item (parent_meta is set), check if the parent has an
+            # explicit itemsName. This ensures correct element names for unwrapped arrays (where
+            # the element tag is the property/items name, not the model type name).
+            _items_name = parent_meta.get("itemsName") if parent_meta is not None else None
+            element_name = _items_name if _items_name else (model_meta.get("name") or o.__class__.__name__)
+            _model_ns = _get_xml_ns(model_meta)
             wrapped_element = _create_xml_element(
-                model_meta.get("name", o.__class__.__name__),
+                element_name,
                 model_meta.get("prefix"),
-                model_meta.get("ns"),
+                _model_ns,
             )
 
         readonly_props = []
@@ -1114,7 +1679,9 @@ def _get_element(
                 # additional properties will not have rest field, use the wire name as xml name
                 prop_meta = {"name": k}
 
-            # if no ns for prop, use model's
+            # Propagate model namespace to properties only for old-style "ns"-keyed models.
+            # DPG-generated models use the "namespace" key and explicitly declare namespace on
+            # each property that needs it, so propagation is intentionally skipped for them.
             if prop_meta.get("ns") is None and model_meta.get("ns"):
                 prop_meta["ns"] = model_meta.get("ns")
                 prop_meta["prefix"] = model_meta.get("prefix")
@@ -1126,12 +1693,7 @@ def _get_element(
                 # text could only set on primitive type
                 wrapped_element.text = _get_primitive_type_value(v)
             elif prop_meta.get("attribute", False):
-                xml_name = prop_meta.get("name", k)
-                if prop_meta.get("ns"):
-                    ET.register_namespace(prop_meta.get("prefix"), prop_meta.get("ns"))  # pyright: ignore
-                    xml_name = "{" + prop_meta.get("ns") + "}" + xml_name  # pyright: ignore
-                # attribute should be primitive type
-                wrapped_element.set(xml_name, _get_primitive_type_value(v))
+                _set_xml_attribute(wrapped_element, k, v, prop_meta)
             else:
                 # other wrapped prop element
                 wrapped_element.append(_get_wrapped_element(v, exclude_readonly, prop_meta))
@@ -1140,6 +1702,7 @@ def _get_element(
         return [_get_element(x, exclude_readonly, parent_meta) for x in o]  # type: ignore
     if isinstance(o, dict):
         result = []
+        _dict_ns = _get_xml_ns(parent_meta) if parent_meta else None
         for k, v in o.items():
             result.append(
                 _get_wrapped_element(
@@ -1147,7 +1710,7 @@ def _get_element(
                     exclude_readonly,
                     {
                         "name": k,
-                        "ns": parent_meta.get("ns") if parent_meta else None,
+                        "ns": _dict_ns,
                         "prefix": parent_meta.get("prefix") if parent_meta else None,
                     },
                 )
@@ -1156,13 +1719,16 @@ def _get_element(
 
     # primitive case need to create element based on parent_meta
     if parent_meta:
+        _items_ns = parent_meta.get("itemsNs")
+        if _items_ns is None:
+            _items_ns = _get_xml_ns(parent_meta)
         return _get_wrapped_element(
             o,
             exclude_readonly,
             {
                 "name": parent_meta.get("itemsName", parent_meta.get("name")),
                 "prefix": parent_meta.get("itemsPrefix", parent_meta.get("prefix")),
-                "ns": parent_meta.get("itemsNs", parent_meta.get("ns")),
+                "ns": _items_ns,
             },
         )
 
@@ -1174,8 +1740,9 @@ def _get_wrapped_element(
     exclude_readonly: bool,
     meta: typing.Optional[dict[str, typing.Any]],
 ) -> ET.Element:
+    _meta_ns = _get_xml_ns(meta) if meta else None
     wrapped_element = _create_xml_element(
-        meta.get("name") if meta else None, meta.get("prefix") if meta else None, meta.get("ns") if meta else None
+        meta.get("name") if meta else None, meta.get("prefix") if meta else None, _meta_ns
     )
     if isinstance(v, (dict, list)):
         wrapped_element.extend(_get_element(v, exclude_readonly, meta))
@@ -1183,7 +1750,7 @@ def _get_wrapped_element(
         _get_element(v, exclude_readonly, meta, wrapped_element)
     else:
         wrapped_element.text = _get_primitive_type_value(v)
-    return wrapped_element
+    return wrapped_element  # type: ignore[no-any-return]
 
 
 def _get_primitive_type_value(v) -> str:
@@ -1196,9 +1763,29 @@ def _get_primitive_type_value(v) -> str:
     return str(v)
 
 
-def _create_xml_element(tag, prefix=None, ns=None):
-    if prefix and ns:
+def _safe_register_namespace(prefix: str, ns: str) -> None:
+    """Register an XML namespace prefix, handling reserved prefix patterns.
+
+    Some prefixes (e.g. 'ns2') match Python's reserved 'ns\\d+' pattern used for
+    auto-generated prefixes, causing register_namespace to raise ValueError.
+    Falls back to directly registering in the internal namespace map.
+
+    :param str prefix: The namespace prefix to register.
+    :param str ns: The namespace URI.
+    """
+    try:
         ET.register_namespace(prefix, ns)
+    except ValueError:
+        _ns_map = getattr(ET, "_namespace_map", None)
+        if _ns_map is not None:
+            _ns_map[ns] = prefix
+
+
+def _create_xml_element(
+  tag: typing.Any, prefix: typing.Optional[str] = None, ns: typing.Optional[str] = None
+) -> ET.Element:
+    if prefix and ns:
+        _safe_register_namespace(prefix, ns)
     if ns:
         return ET.Element("{" + ns + "}" + tag)
     return ET.Element(tag)
@@ -1209,6 +1796,8 @@ def _deserialize_xml(
     value: str,
 ) -> typing.Any:
     element = ET.fromstring(value) # nosec
+    if _is_model(deserializer):
+        return deserializer._deserialize(element, [])
     return _deserialize(deserializer, element)
 
 

@@ -58,7 +58,7 @@ describe("fixNamingConflicts", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // Find the real enum
     const realEnum = root.enums.find(
@@ -142,7 +142,7 @@ describe("fixNamingConflicts", () => {
       namespace: targetNamespace,
     } as any);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
 
     // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
     const errorModels = root.models.filter(
@@ -174,5 +174,422 @@ describe("fixNamingConflicts", () => {
       renamedModels.some((m) => m.name === "ErrorResponse2"),
       "Should have ErrorResponse2",
     );
+  });
+});
+
+describe("parseApiVersions", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should pick up apiVersion enum used as input parameter in root apiVersions", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/test")
+        op test(@query apiVersion: Versions): void;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The root apiVersions should include the version from the Versions enum
+    // which is defined in the default namespace with version "2023-01-01-preview"
+    ok(root.apiVersions.length > 0, "Root apiVersions should not be empty");
+    ok(
+      root.apiVersions.includes("2023-01-01-preview"),
+      "Root apiVersions should include the version from the Versions enum",
+    );
+  });
+
+  it("should pick up apiVersion enum with multiple versions in root apiVersions", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{
+          title: "Test Service",
+        })
+        @versioned(TestVersions)
+        namespace TestService;
+        
+        enum TestVersions {
+          v1: "2023-01-01",
+          v2: "2023-06-01",
+          v3: "2024-01-01",
+        }
+        
+        @route("/test")
+        op test(@query apiVersion: TestVersions): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // The root apiVersions should include all versions from the TestVersions enum
+    strictEqual(root.apiVersions.length, 3, "Root apiVersions should have 3 versions");
+    ok(root.apiVersions.includes("2023-01-01"), "Root apiVersions should include 2023-01-01");
+    ok(root.apiVersions.includes("2023-06-01"), "Root apiVersions should include 2023-06-01");
+    ok(root.apiVersions.includes("2024-01-01"), "Root apiVersions should include 2024-01-01");
+  });
+
+  it("should have apiVersions for single service client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @route("/test")
+        op test(): void;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Single service client should have apiVersions from the @versioned decorator
+    ok(root.apiVersions.length > 0, "Root apiVersions should not be empty for single service");
+    ok(
+      root.apiVersions.includes("2023-01-01-preview"),
+      "Root apiVersions should include the service version",
+    );
+  });
+
+  it("should have apiVersions for multiservice client combining multiple services using subclients", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+          
+          @route("/a")
+          interface AI {
+            @route("test")
+            op aTest(): void;
+          }
+        }
+        
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+            bv2,
+          }
+          
+          @route("/b")
+          interface BI {
+            @route("test")
+            op bTest(): void;
+          }
+        }
+        
+        @client({
+          name: "CombinedClient",
+          service: [ServiceA, ServiceB],
+          autoMergeService: true,
+        })
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
+
+    // each child client should have its own apiVersions
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    ok(client.children, "Client should have children");
+    ok(client.children.length > 0, "Client should have at least one child");
+
+    const serviceAClient = client.children.find((c) => c.name === "AI");
+    ok(serviceAClient, "ServiceA client should exist");
+    strictEqual(serviceAClient.apiVersions.length, 1, "ServiceA client should have 1 apiVersion");
+    ok(serviceAClient.apiVersions.includes("av1"), "ServiceA client should include av1");
+
+    const serviceBClient = client.children.find((c) => c.name === "BI");
+    ok(serviceBClient, "ServiceB client should exist");
+    strictEqual(serviceBClient.apiVersions.length, 2, "ServiceB client should have 2 apiVersions");
+    ok(serviceBClient.apiVersions.includes("bv1"), "ServiceB client should include bv1");
+    ok(serviceBClient.apiVersions.includes("bv2"), "ServiceB client should include bv2");
+  });
+
+  it("should have apiVersions for multiservice root client", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+          }
+          
+
+          @route("/test")
+          op testOne(@query("api-version") apiVersion: VersionsA): void;
+        }
+        
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+            bv2,
+          }
+          
+          @route("/test")
+          op testTwo(@query("api-version") apiVersion: VersionsB): void;
+        }
+        
+        @client({
+          name: "CombinedClient",
+          service: [ServiceA, ServiceB],
+        })
+
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    ok(root.apiVersions.length === 0, "Root apiVersions should be empty for multiservice");
+  });
+
+  it("should have apiVersions for multiservice mixed clients", async () => {
+    const program = await typeSpecCompile(
+      `
+        @versioned(VersionsA)
+        namespace ServiceA {
+          enum VersionsA {
+            av1,
+            av2,
+          }
+
+          @route("/test")
+          op testA(@query("api-version") apiVersion: VersionsA): void;
+
+          @route("foo")
+          interface Foo {
+            @route("/test")
+            testB(@query("api-version") apiVersion: VersionsA): void;
+          }
+        }
+
+        /**
+         * Second service definition in a multi-service package with versioning
+         */
+        @versioned(VersionsB)
+        namespace ServiceB {
+          enum VersionsB {
+            bv1,
+            bv2,
+          }
+
+          @route("/test")
+          op testC(@query("api-version") apiVersion: VersionsB): void;
+
+          @route("bar")
+          interface Bar {
+            @route("/test")
+            testD(@query("api-version") apiVersion: VersionsB): void;
+          }
+        }
+        
+        @client({
+          name: "CombinedClient",
+          service: [ServiceA, ServiceB],
+          autoMergeService: true,
+        })
+
+        namespace Service.MultiService {}
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    ok(
+      root.apiVersions.length === 0,
+      "Root apiVersions should not be empty for multiservice mixed clients",
+    );
+
+    // each child client should have its own apiVersions
+    const client = root.clients[0];
+    ok(client, "Client should exist");
+    ok(client.children, "Client should have children");
+    ok(client.children.length > 0, "Client should have at least one child");
+
+    const fooClient = client.children.find((c) => c.name === "Foo");
+    ok(fooClient, "Foo client should exist");
+    strictEqual(fooClient.apiVersions.length, 2, "Foo client should have 2 apiVersions");
+    ok(fooClient.apiVersions.includes("av1"), "Foo client should include av1");
+    ok(fooClient.apiVersions.includes("av2"), "Foo client should include av2");
+
+    const barClient = client.children.find((c) => c.name === "Bar");
+    ok(barClient, "Bar client should exist");
+    strictEqual(barClient.apiVersions.length, 2, "Bar client should have 2 apiVersions");
+    ok(barClient.apiVersions.includes("bv1"), "Bar client should include bv1");
+    ok(barClient.apiVersions.includes("bv2"), "Bar client should include bv2");
+  });
+
+  it("should include all API versions from @versioned enum", async () => {
+    const program = await typeSpecCompile(
+      `
+      @service(#{
+        title: "Test Service",
+      })
+      @versioned(Versions)
+      namespace TestService;
+      
+      enum Versions {
+        v1: "v1",
+        v2: "v2",
+        v3: "v3",
+      }
+      
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Verify all three versions are present in the root apiVersions
+    strictEqual(root.apiVersions.length, 3, "Should have 3 apiVersions");
+    ok(root.apiVersions.includes("v1"), "Should include v1");
+    ok(root.apiVersions.includes("v2"), "Should include v2");
+    ok(root.apiVersions.includes("v3"), "Should include v3");
+  });
+
+  it("should preserve version order from TCGC", async () => {
+    const program = await typeSpecCompile(
+      `
+      @service(#{
+        title: "Test Service",
+      })
+      @versioned(Versions)
+      namespace TestService;
+      
+      enum Versions {
+        "2023-01-01",
+        "2024-01-01",
+        "2025-01-01",
+      }
+      
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    // Verify versions are in the order TCGC provides them
+    strictEqual(root.apiVersions.length, 3, "Should have 3 apiVersions");
+    strictEqual(root.apiVersions[0], "2023-01-01", "First version should be 2023-01-01");
+    strictEqual(root.apiVersions[1], "2024-01-01", "Second version should be 2024-01-01");
+    strictEqual(root.apiVersions[2], "2025-01-01", "Third version should be 2025-01-01");
+  });
+});
+
+describe("createModel diagnostic collection", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should return a tuple with CodeModel and diagnostics array", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const result = createModel(sdkContext);
+
+    // Verify the result is a tuple
+    ok(Array.isArray(result), "Result should be an array (tuple)");
+    strictEqual(result.length, 2, "Result should have exactly 2 elements");
+
+    const [codeModel, diagnostics] = result;
+
+    // Verify the code model
+    ok(codeModel, "CodeModel should be defined");
+    strictEqual(
+      codeModel.name,
+      "Azure.Csharp.Testing",
+      "CodeModel name should be Azure.Csharp.Testing",
+    );
+
+    // Verify diagnostics is an array
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+
+  it("should collect diagnostics when using diagnostic collection mode", async () => {
+    const program = await typeSpecCompile(
+      `
+      model TestModel {
+        name: string;
+      }
+      
+      @route("/test")
+      op test(): TestModel;
+      `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [, diagnostics] = createModel(sdkContext);
+
+    // Verify diagnostics array exists (may be empty or contain diagnostics)
+    ok(diagnostics !== undefined, "Diagnostics should not be undefined");
+    ok(Array.isArray(diagnostics), "Diagnostics should be an array");
+  });
+
+  it("reports an unresolved-client-namespace diagnostic when no namespace can be resolved", async () => {
+    const program = await typeSpecCompile(
+      `
+      @route("/test")
+      op test(): void;
+      `,
+      runner,
+      { IsNamespaceNeeded: false, IsVersionNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [codeModel, diagnostics] = createModel(sdkContext);
+
+    ok(
+      diagnostics.some(
+        (d) => d.code === "@typespec/http-client-csharp/unresolved-client-namespace",
+      ),
+      "Expected an unresolved-client-namespace diagnostic",
+    );
+    // The code model name is empty so callers can skip generation instead of
+    // sending an unnamed model that fails to deserialize in the generator.
+    strictEqual(codeModel.name, "", "CodeModel name should be empty when unresolved");
   });
 });

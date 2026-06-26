@@ -5,8 +5,10 @@ dictionaries:
   - node
   - typescript
 words:
+  - Ablack
   - Adoptium
   - agentic
+  - agentics
   - aiohttp
   - alzimmer
   - amqp
@@ -25,6 +27,7 @@ words:
   - azsdkengsys
   - azurecr
   - azuresdk
+  - azuresdkengkeyvault
   - azurev
   - azurevnext
   - bifilter
@@ -36,7 +39,10 @@ words:
   - cadleditor
   - cadleng
   - cadlplayground
+  - canidae
   - canonicalizer
+  - Cblack
+  - Cbrown
   - clsx
   - cobertura
   - codehaus
@@ -45,6 +51,7 @@ words:
   - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
+  - Creds
   - CRUDL
   - ctxt
   - dbaeumer
@@ -55,6 +62,7 @@ words:
   - dedented
   - Dedupes
   - deps
+  - deser
   - destructures
   - devdiv
   - Diagnoser
@@ -80,14 +88,15 @@ words:
   - ESRP
   - etree
   - fastify
+  - felidae
   - fluentui
   - français
   - freadme
   - fslib
   - genproto
   - getpgid
+  - ghapp
   - giacamo
-  - globby
   - graalvm
   - Gson
   - Hdvcmxk
@@ -111,6 +120,7 @@ words:
   - IOHTTP
   - isdigit
   - isinstance
+  - issecret
   - issubclass
   - itertype
   - itor
@@ -124,6 +134,7 @@ words:
   - jsyaml
   - keyer
   - killpg
+  - kwarg
   - kwargs
   - labelledby
   - libc
@@ -141,6 +152,7 @@ words:
   - lzutf
   - MACVMIMAGE
   - MACVMIMAGEM
+  - marshal
   - mday
   - methodsubscriptionid
   - mgmt
@@ -154,6 +166,8 @@ words:
   - msrest
   - multis
   - munge
+  - muscidae
+  - myblob
   - mylib
   - myname
   - mypy
@@ -162,6 +176,7 @@ words:
   - nexted
   - nihao
   - nint
+  - noauth
   - NODEFS
   - noformat
   - nologo
@@ -188,6 +203,7 @@ words:
   - Packument
   - Perfolizer
   - picocolors
+  - pkgs
   - pnpx
   - posargs
   - primitivea
@@ -222,6 +238,7 @@ words:
   - reinjected
   - repr
   - respecify
+  - responseasbool
   - rjust
   - rollup
   - rpaas
@@ -234,10 +251,13 @@ words:
   - sdkcore
   - segmentof
   - serde
+  - servicea
+  - serviceb
   - setuppy
   - sfixed
   - shiki
   - sint
+  - slnx
   - snakeyaml
   - srnagar
   - ssdlrs
@@ -245,9 +265,10 @@ words:
   - ssvs
   - statment
   - strs
+  - stubbed
   - swaggerui
-  - syncpack
   - TCGC
+  - TEAMPROJECTID
   - terlson
   - timegm
   - tomli
@@ -260,6 +281,7 @@ words:
   - tspwebsitepr
   - tsvs
   - typespec
+  - typespecacr
   - typespecvs
   - tzname
   - Uhoh
@@ -267,6 +289,7 @@ words:
   - unassignable
   - Uncapitalize
   - uncollapsed
+  - unconfigure
   - undifferentiable
   - undoc
   - Ungroup
@@ -274,16 +297,20 @@ words:
   - unioned
   - unionified
   - unionify
+  - unmarshal
   - unparented
   - unprefixed
   - unprojected
   - unrepresentable
   - unsourced
+  - unstub
+  - unstubbed
   - unversioned
   - venv
   - venvtools
   - VITE
   - vitest
+  - vnet
   - VNEXT
   - vsix
   - vsmarketplace
@@ -296,6 +323,8 @@ words:
   - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
+  - workerid
+  - xdist
   - xiangyan
   - xiaofei
   - xlarge
@@ -325,6 +354,9 @@ ignorePaths:
   - packages/mutator-framework/**/*.test.ts
   - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
+  - "**/*.lock.yml"
+  - pnpm-workspace.yaml
+  - "**/dependabot.yml"
   - "**/*.mp4"
   - "**/*.plist"
   - .git/**
@@ -345,6 +377,10 @@ patterns:
   - name: Authorization_Basic
     description: Ignore Base64 authorization tokens
     pattern: "/Authorization: Basic\\s+\\S+/g"
+  - name: Todo
+    description: Ignore TODO comments with usernames
+    pattern: /TODO[\/\s\(][a-zA-Z0-9_-]+/g
 ignoreRegExpList:
   - cursortest
   - Authorization_Basic
+  - Todo

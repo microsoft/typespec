@@ -1,4 +1,4 @@
-import { type Typekit, TypekitPrototype } from "../../typekit/define-kit.js";
+import { TypekitPrototype, type Typekit } from "../../typekit/define-kit.js";
 import { Realm } from "../realm.js";
 
 /**

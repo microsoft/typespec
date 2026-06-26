@@ -1,5 +1,106 @@
 # Change Log - @typespec/http
 
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+### Deprecations
+
+- [#9884](https://github.com/microsoft/typespec/pull/9884) Deprecate use of `@patch(#{implicitOptionality: true})`.
+  
+  Migrate using one of the following patterns depending on intended semantics:
+  
+  1. Preserve previous behavior with an explicit patch model (optional properties)
+  
+  ```diff lang=typespec
+    model Pet {
+      name: string;
+      age: int32;
+    }
+  
+  + model PetPatch {
+  +    name?: string;
+  +    age?: int32;
+  + }
+  
+    
+  - @patch(#{implicitOptionality: true}) op updatePet(@body patch: Pet): void;
+  + @patch op updatePet(@body patch: PetPatch): void;
+  ```
+  
+  2. Use merge-patch semantics explicitly with `MergePatchUpdate<T>`
+  
+  ```typespec
+  model Pet {
+    name: string;
+    age: int32;
+  }
+  
+  @patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Use `MergePatchCreateOrUpdate<T>` when the operation supports create-or-update behavior.
+
+### Features
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) [API] Operation returning a union of types without status code or content type will be treated as a single response
+
+
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9935](https://github.com/microsoft/typespec/pull/9935) Do not join routes starting with `?` or `:` with `/`(e.g. `@route("?pet=cat)` would result in `/?pet=cat`)
+- [#9887](https://github.com/microsoft/typespec/pull/9887) Remove `patch-implicit-optional` warning.
+
+
+## 1.9.1
+
+### Bug Fixes
+
+- [API] Fix `Content-Type` header will not be dropped in the response headers of `HttpOperationResponseContent` for `HEAD` requests.
+
+
+## 1.9.0
+
+Version Bump only.
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9311](https://github.com/microsoft/typespec/pull/9311) Fix empty response models with `statusCode` defined in a base model
+
+
+## 1.7.0
+
+### Features
+
+- [#8962](https://github.com/microsoft/typespec/pull/8962) support documentation on union variants for response descriptions
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
 ## 1.6.0
 
 ### Bump dependencies

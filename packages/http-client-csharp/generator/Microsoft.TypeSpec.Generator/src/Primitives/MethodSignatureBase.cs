@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 
@@ -83,6 +84,113 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (returnType != null)
             {
                 ReturnType = returnType;
+            }
+        }
+
+        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+
+        private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
+        {
+            public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
+            {
+                if (ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                if (x.Parameters.Count != y.Parameters.Count)
+                {
+                    return false;
+                }
+
+                bool xIsOperator = x.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                bool yIsOperator = y.Modifiers.HasFlag(MethodSignatureModifiers.Operator);
+                if (xIsOperator != yIsOperator)
+                {
+                    return false;
+                }
+
+                // For operators, we need to also check the return type and operator type (explicit vs implicit)
+                // since operators can have the same "name" (the target type) but different signatures
+                if (xIsOperator)
+                {
+                    // Check explicit vs implicit - both flags must match
+                    bool xIsExplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                    bool yIsExplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                    bool xIsImplicit = x.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                    bool yIsImplicit = y.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                    if (xIsExplicit != yIsExplicit || xIsImplicit != yIsImplicit)
+                    {
+                        return false;
+                    }
+
+                    // For operators, the return type is crucial for matching.
+                    // Nullability is part of the conversion-operator signature in C#
+                    // (e.g., `implicit operator T(string)` and `implicit operator T?(string)`
+                    // are distinct), so we compare both the type name and the nullability.
+                    if (x.ReturnType != null && y.ReturnType != null)
+                    {
+                        if (!x.ReturnType.AreNamesEqual(y.ReturnType)
+                            || x.ReturnType.IsNullable != y.ReturnType.IsNullable)
+                        {
+                            return false;
+                        }
+                    }
+                    else if (x.ReturnType != y.ReturnType) // One is null, the other is not
+                    {
+                        return false;
+                    }
+
+                    // Compare user-defined operators by symbol; conversion operators are fully identified by modifiers/return type/params.
+                    if (!xIsImplicit && !xIsExplicit
+                        && NormalizeOperatorName(GetFullMethodName(x)) != NormalizeOperatorName(GetFullMethodName(y)))
+                    {
+                        return false;
+                    }
+                }
+                else if (GetFullMethodName(x) != GetFullMethodName(y))
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < x.Parameters.Count; i++)
+                {
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public int GetHashCode([DisallowNull] MethodSignatureBase obj)
+            {
+                return HashCode.Combine(obj.Name, obj.ReturnType);
+            }
+
+            private static string GetFullMethodName(MethodSignatureBase method)
+            {
+                if (method is MethodSignature methodSignature)
+                {
+                    return methodSignature.FullMethodName;
+                }
+
+                return method.Name;
+            }
+
+            private static string NormalizeOperatorName(string name)
+            {
+                // Strip Roslyn's "operator " prefix so "operator ==" matches "==".
+                const string operatorPrefix = "operator ";
+                return name.StartsWith(operatorPrefix, StringComparison.Ordinal)
+                    ? name.Substring(operatorPrefix.Length)
+                    : name;
             }
         }
     }

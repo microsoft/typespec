@@ -50,5 +50,12 @@ stages:
           inputs:
             displayName: "Install .NET 9"
             performMultiLevelLookup: true
+            useGlobalJson: false
+            version: 9.x
+            workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+        - task: UseDotNet@2
+          inputs:
+            displayName: "Install .NET 10"
+            performMultiLevelLookup: true
             useGlobalJson: true
             workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp

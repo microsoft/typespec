@@ -409,6 +409,43 @@ const [_getPatchOptions, setPatchOptions] = useStateMap<Operation, PatchOptions 
   HttpStateKeys.patchOptions,
 );
 
+/**
+ * Determines whether a decorator is being applied as the original source-level application,
+ * as opposed to being inherited via `op is` or `interface extends`.
+ *
+ * @param context - The decorator context.
+ * @param entity - The operation the decorator is being applied to.
+ * @returns `true` if the decorator was directly written on this operation, `false` if inherited.
+ */
+function isOriginalDecoratorApplication(context: DecoratorContext, entity: Operation): boolean {
+  const decoratorNode = context.decoratorTarget as any;
+
+  // If inherited via `interface extends`, the cloned operation retains the original node,
+  // but its interface is different from the node's parent.
+  if (
+    entity.interface !== undefined &&
+    entity.node !== undefined &&
+    entity.node.parent !== entity.interface.node
+  ) {
+    return false;
+  }
+
+  // If inherited via `op is`, the operation has a sourceOperation set.
+  if (entity.sourceOperation !== undefined) {
+    return false;
+  }
+
+  // If inherited via `op is` (fallback for when sourceOperation isn't yet set),
+  // the decorator expression's parent won't match the entity's node.
+  if (decoratorNode?.kind === SyntaxKind.DecoratorExpression && decoratorNode.parent) {
+    if (decoratorNode.parent !== entity.node) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export const $patch: PatchDecorator = (
   context: DecoratorContext,
   entity: Operation,
@@ -416,7 +453,19 @@ export const $patch: PatchDecorator = (
 ) => {
   _patch(context, entity);
 
-  if (options) setPatchOptions(context.program, entity, options);
+  if (options) {
+    if (options.implicitOptionality === true) {
+      // Only emit the deprecation warning on the original use of the decorator,
+      // not when inherited via `op is` or `interface extends`.
+      if (isOriginalDecoratorApplication(context, entity)) {
+        reportDiagnostic(context.program, {
+          code: "deprecated-implicit-optionality",
+          target: entity,
+        });
+      }
+    }
+    setPatchOptions(context.program, entity, options);
+  }
 };
 
 /**

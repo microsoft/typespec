@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -83,18 +84,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var visitedTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
             var visitedTypeProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
+            var visitedBaseProviders = new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance);
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
 
-            // Get all providers from the output library that are models or implement MRW interface types
-            var providers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .Where(t => t is ModelProvider || ImplementsModelReaderWriter(t))
-                .ToHashSet(s_typeProviderNameComparer);
+            // Base-model traversal can encounter equivalent provider instances that are not reference-equal to
+            // the output-library roots, so keep the output-library provider set name-comparable.
+            var contextEligibleOutputProviders = new HashSet<TypeProvider>(
+                ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders,
+                s_typeProviderNameComparer);
 
-            // Process each provider recursively
-            foreach (var provider in providers)
+            // Process each output-library provider recursively to discover types from methods and properties.
+            foreach (var provider in contextEligibleOutputProviders)
             {
-                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                // Only output-library providers get standalone context entries.
+                if (ImplementsModelReaderWriter(provider))
+                {
+                    buildableProviders.Add(provider);
+                }
+
+                CollectBuildableTypeProvidersRecursive(provider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
             }
 
             return (buildableTypes, buildableProviders);
@@ -123,19 +132,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider currentProvider,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
+            HashSet<TypeProvider> visitedBaseProviders,
             HashSet<TypeProvider> buildableProviders,
             HashSet<CSharpType> buildableTypes)
         {
             // Avoid duplicate processing
-            if (!ShouldProcessTypeProvider(currentProvider, visitedTypeProviders))
+            if (!visitedTypeProviders.Add(currentProvider))
             {
                 return;
             }
-            buildableProviders.Add(currentProvider);
 
+            // Process all providers to discover types from methods and properties
             if (currentProvider is not null)
             {
-                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                CollectBuildableTypesRecursiveCore(currentProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
             }
         }
 
@@ -143,11 +153,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider provider,
             HashSet<CSharpType> visitedTypes,
             HashSet<TypeProvider> visitedTypeProviders,
+            HashSet<TypeProvider> visitedBaseProviders,
             HashSet<TypeProvider> buildableProviders,
             HashSet<CSharpType> buildableTypes)
         {
-            // Process all properties of the provider
-            foreach (var property in provider.Properties)
+            // Process all properties of the provider (includes both generated and custom code properties)
+            foreach (var property in provider.CanonicalView.Properties)
             {
                 var propertyType = property.Type.IsCollection ? GetInnerMostElement(property.Type) : property.Type;
 
@@ -158,10 +169,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            // Process method return types (includes both generated and custom code methods)
+            foreach (var method in provider.CanonicalView.Methods)
+            {
+                if (method.Signature.ReturnType != null)
+                {
+                    var returnType = method.Signature.ReturnType;
+
+                    // Unwrap Task/Task<T> and collection types to get to the actual model type
+                    var actualType = UnwrapReturnType(returnType);
+
+                    if (actualType != null && actualType.IsFrameworkType)
+                    {
+                        CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
+                    }
+                }
+            }
+
             if (provider is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
-                // For base model types, we need to process their properties as well, but we don't need to add the base model type itself
-                CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, buildableProviders, buildableTypes);
+                // Traverse base model properties for discoverable types, but do not add the base model
+                // itself as a context entry unless it was in the output-library seed set.
+                if (visitedBaseProviders.Add(modelProvider.BaseModelProvider))
+                {
+                    CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                }
             }
             else
             {
@@ -225,17 +257,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static bool ShouldProcessTypeProvider(TypeProvider provider, HashSet<TypeProvider> visitedTypeProviders)
-        {
-            if (!visitedTypeProviders.Add(provider))
-            {
-                return false;
-            }
-
-            // Check if the type provider implements the model reader/writer interface
-            return ImplementsModelReaderWriter(provider);
-        }
-
         private static bool ShouldProcessCSharpType(CSharpType type, HashSet<CSharpType> visitedTypes)
         {
             if (!type.IsFrameworkType || !visitedTypes.Add(type))
@@ -256,6 +277,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 result = result.ElementType;
             }
             return result;
+        }
+
+        /// <summary>
+        /// Unwraps a return type to get the actual model type by stripping away Task, Task&lt;T&gt;, and collection wrappers.
+        /// </summary>
+        private static CSharpType? UnwrapReturnType(CSharpType? returnType)
+        {
+            if (returnType == null)
+            {
+                return null;
+            }
+
+            var type = returnType;
+
+            // Unwrap Task<T> or ValueTask<T>
+            if (type.IsFrameworkType &&
+                (type.FrameworkType.Equals(typeof(Task)) || type.FrameworkType.Equals(typeof(ValueTask))))
+            {
+                if (type.Arguments.Count > 0)
+                {
+                    type = type.Arguments[0];
+                }
+                else
+                {
+                    // Task without type argument doesn't have a model
+                    return null;
+                }
+            }
+
+            // Unwrap collection types to get the element type
+            if (type.IsCollection)
+            {
+                type = GetInnerMostElement(type);
+            }
+
+            return type;
         }
 
         /// <summary>
@@ -280,7 +337,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             if (!type.IsFrameworkType || type.IsEnum || type.IsLiteral)
+            {
                 return false;
+            }
 
             return type.FrameworkType.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
@@ -299,7 +358,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string RemovePeriods(string input)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
             Span<char> buffer = stackalloc char[input.Length];
             int index = 0;
@@ -307,7 +368,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (char c in input)
             {
                 if (c != '.')
+                {
                     buffer[index++] = c;
+                }
             }
 
             return buffer.Slice(0, index).ToString();
@@ -316,7 +379,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool ImplementsModelReaderWriter(Type type)
         {
             if (type.IsEnum || type.IsValueType)
+            {
                 return false;
+            }
 
             return type.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
         }
@@ -338,6 +403,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var implementedType in typeProvider.Implements)
             {
                 if (IsModelReaderWriterInterfaceType(implementedType))
+                {
+                    return true;
+                }
+            }
+
+            // Also consider serialization providers that may implement MRW
+            foreach (var serializationProvider in typeProvider.SerializationProviders)
+            {
+                if (ImplementsModelReaderWriter(serializationProvider))
                 {
                     return true;
                 }

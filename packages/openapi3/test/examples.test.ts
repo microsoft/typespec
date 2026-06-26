@@ -171,6 +171,74 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       });
     });
 
+    it("set examples on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } }, #{ title: "ExampleA" })
+        @opExample(#{ returnType: #{ b: "B" } }, #{ title: "ExampleB" })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].examples).toEqual({
+        ExampleA: {
+          summary: "ExampleA",
+          value: { a: "A" },
+        },
+        ExampleB: {
+          summary: "ExampleB",
+          value: { b: "B" },
+        },
+      });
+    });
+
+    it("set single example on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].example).toEqual({
+        a: "A",
+      });
+    });
+
+    it("set example on union of response envelopes with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        @error model Error { @statusCode _: 400; }
+        model Error1 is Error { @body body: { error1: string } }
+        model Error2 is Error { @body body: { error2: string } }
+
+        @opExample(#{ returnType: #{ _: 400, body: #{ error1: "abc" } } })
+        op bad(): Error1 | Error2;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      const resp400 = (res.paths["/"].get.responses as Record<string, any>)["400"];
+      ok(typeof resp400 === "object" && "content" in resp400);
+      expect(resp400.content?.["application/json"].example).toEqual({
+        error1: "abc",
+      });
+    });
+
     it("apply to status code ranges", async () => {
       const res: OpenAPI3Document = await openApiFor(
         `
@@ -436,6 +504,78 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       {
         desc: "pipeDelimited (object) explode: true",
         param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (string)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%2Cblack%2Cbrown",
+      },
+      {
+        desc: "commaDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%2C100%2CG%2C200%2CB%2C150",
+      },
+      {
+        desc: "commaDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (string)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%0Ablack%0Abrown",
+      },
+      {
+        desc: "newlineDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%0A100%0AG%0A200%0AB%0A150",
+      },
+      {
+        desc: "newlineDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: undefined,
       },

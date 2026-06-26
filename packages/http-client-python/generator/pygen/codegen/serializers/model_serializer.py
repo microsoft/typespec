@@ -6,11 +6,71 @@
 from typing import Optional
 from abc import ABC, abstractmethod
 
-from ..models import ModelType, Property, ConstantType, EnumValue
+from ..models import ModelType, Property, ConstantType, EnumValue, EnumType
 from ..models.imports import FileImport, TypingSection, MsrestImportType, ImportType
+from ..models.primitive_types import (
+    BooleanType,
+    IntegerType,
+    FloatType,
+    DecimalType,
+    StringType,
+    DatetimeType,
+    UnixTimeType,
+    TimeType,
+    DateType,
+    DurationType,
+    ByteArraySchema,
+)
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType
+
+
+def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
+    """Return the _xml_deser_* function name for a scalar XML property, or None."""
+    prop_type = prop.type
+    # Unwrap ConstantType to get the underlying value type
+    if isinstance(prop_type, ConstantType):
+        prop_type = prop_type.value_type
+
+    if isinstance(prop_type, StringType):
+        return "_xml_deser_str"
+    if isinstance(prop_type, IntegerType):
+        return "_xml_deser_int"
+    if isinstance(prop_type, FloatType):
+        return "_xml_deser_float"
+    if isinstance(prop_type, BooleanType):
+        return "_xml_deser_bool"
+    if isinstance(prop_type, DecimalType):
+        return "_xml_deser_decimal"
+    if isinstance(prop_type, DatetimeType):
+        if prop_type.encode == "rfc7231":
+            return "_xml_deser_datetime_rfc7231"
+        return "_xml_deser_datetime"
+    if isinstance(prop_type, UnixTimeType):
+        return "_xml_deser_datetime_unix_timestamp"
+    if isinstance(prop_type, TimeType):
+        return "_xml_deser_time"
+    if isinstance(prop_type, DateType):
+        return "_xml_deser_date"
+    if isinstance(prop_type, DurationType):
+        return "_xml_deser_duration"
+    if isinstance(prop_type, ByteArraySchema):
+        encode = getattr(prop_type, "encode", None) or getattr(prop, "encode", None)
+        if encode == "base64url":
+            return "_xml_deser_bytes_base64url"
+        return "_xml_deser_bytes"
+    if isinstance(prop_type, EnumType):
+        return f"enum:{prop_type.name}"
+    return None
+
+
+def _get_xml_deserializer_enum_type(prop: Property) -> Optional[EnumType]:
+    """Return the EnumType for an XML enum property (unwrapping ConstantType), or None."""
+    prop_type = prop.type
+    if isinstance(prop_type, ConstantType):
+        prop_type = prop_type.value_type
+    return prop_type if isinstance(prop_type, EnumType) else None
 
 
 def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> list[str]:
@@ -173,9 +233,7 @@ class MsrestModelSerializer(_ModelSerializer):
 
     def declare_model(self, model: ModelType) -> str:
         basename = (
-            "msrest.serialization.Model"
-            if self.code_model.options["client-side-validation"]
-            else "_serialization.Model"
+            "msrest.serialization.Model" if not self.code_model.need_utils_serialization else "_serialization.Model"
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
@@ -255,6 +313,9 @@ class DpgModelSerializer(_ModelSerializer):
                 TypingSection.REGULAR,
                 alias="_Model",
             )
+        # Collect XML deserializer functions needed by models in this file
+        xml_deser_names: set[str] = set()
+        xml_deser_enums: dict[str, EnumType] = {}
         for model in self.models:
             if model.base == "json":
                 continue
@@ -273,6 +334,15 @@ class DpgModelSerializer(_ModelSerializer):
                         called_by_property=True,
                     )
                 )
+                # Track XML deserializer functions needed
+                if prop.xml_metadata:
+                    deser_name = _get_xml_deserializer_name(prop)
+                    if deser_name:
+                        xml_deser_names.add(deser_name)
+                    if deser_name and deser_name.startswith("enum:"):
+                        enum_type = _get_xml_deserializer_enum_type(prop)
+                        if enum_type is not None:
+                            xml_deser_enums[enum_type.name] = enum_type
             for parent in model.parents:
                 if parent.client_namespace != model.client_namespace:
                     file_import.add_submodule_import(
@@ -287,6 +357,41 @@ class DpgModelSerializer(_ModelSerializer):
                 file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Mapping", ImportType.STDLIB)
                 file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+        # Add imports for XML deserializer functions
+        has_enum_deser = False
+        for deser_name in sorted(xml_deser_names):
+            if deser_name.startswith("enum:"):
+                has_enum_deser = True
+                continue
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_utils.model_base"),
+                deser_name,
+                ImportType.LOCAL,
+            )
+        if has_enum_deser:
+            file_import.add_import("functools", ImportType.STDLIB)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(self.serialize_namespace, module_name="_utils.model_base"),
+                "_xml_deser_enum_or_str",
+                ImportType.LOCAL,
+            )
+            # Ensure each referenced enum class is imported at runtime (not just
+            # under TYPE_CHECKING), so functools.partial can bind the class at
+            # class-body evaluation time.
+            for enum_name, enum_type in xml_deser_enums.items():
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(
+                        self.serialize_namespace,
+                        self.code_model.get_imported_namespace_for_model(enum_type.client_namespace),
+                        module_name=self.code_model.enums_filename,
+                    ),
+                    enum_name,
+                    ImportType.LOCAL,
+                    TypingSection.REGULAR,
+                )
+        # if there is a property named `list` we have to make sure there's no conflict with the built-in `list`
+        if self.code_model.has_property_named_list:
+            file_import.define_mypy_type("List", "list")
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
@@ -331,9 +436,22 @@ class DpgModelSerializer(_ModelSerializer):
             args.append("is_multipart_file_input=True")
         elif hasattr(prop.type, "encode") and prop.type.encode:  # type: ignore
             args.append(f'format="{prop.type.encode}"')  # type: ignore
+        elif prop.encode:
+            args.append(f'format="{prop.encode}"')
 
         if prop.xml_metadata:
             args.append(f"xml={prop.xml_metadata}")
+            # Add fast-path deserializer for scalar XML fields
+            deser_name = _get_xml_deserializer_name(prop)
+            if deser_name:
+                if deser_name.startswith("enum:"):
+                    enum_name = deser_name[5:]
+                    args.append(f"deserializer=functools.partial(_xml_deser_enum_or_str, {enum_name})")
+                else:
+                    args.append(f"deserializer={deser_name}")
+
+        if prop.original_tsp_name:
+            args.append(f'original_tsp_name="{prop.original_tsp_name}"')
 
         field = "rest_discriminator" if prop.is_discriminator else "rest_field"
         type_ignore = (

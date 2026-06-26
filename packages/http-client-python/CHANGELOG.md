@@ -1,5 +1,299 @@
 # Change Log - @typespec/http-client-python
 
+## 0.33.0
+
+### Features
+
+- [#10987](https://github.com/microsoft/typespec/pull/10987) Add a `keep-pyproject-fields` emitter option that selects which `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Supported fields: `authors`, `description`, `classifiers`, `urls`.
+  
+  ```yaml
+  # tspconfig.yaml
+  options:
+    "@typespec/http-client-python":
+      keep-pyproject-fields:
+        authors: true
+        description: true
+  ```
+
+### Bug Fixes
+
+- [#11013](https://github.com/microsoft/typespec/pull/11013) Place docstring annotations such as `Required.` in front of the description when it ends with an RST code block, and stop appending a sentence period inside the block. Previously the period landed on the code block's last line (e.g. `].`) and `Required.` was appended after the block (`]. Required.`), both of which broke Sphinx rendering.
+
+
+## 0.32.0
+
+### Features
+
+- [#10947](https://github.com/microsoft/typespec/pull/10947) Support `datetime.timedelta` for `duration` types encoded as `seconds` or `milliseconds`. SDK users can now pass a `datetime.timedelta` (instead of a raw `int`/`float`) and responses are deserialized back into `datetime.timedelta`.
+
+### Bug Fixes
+
+- [#10957](https://github.com/microsoft/typespec/pull/10957) Fix `UnboundLocalError` for paging operations with a flattened JSON model body. The request body is now constructed once outside the `prepare_request` callback (and before the body is serialized into the request content) instead of inside the closure, where assigning `body` made it an unbound local on every page fetch.
+- [#10955](https://github.com/microsoft/typespec/pull/10955) Fix Sphinx docstring rendering when a `Required.` (or other) annotation followed a code block. The annotation is now inserted into the prose before the code block instead of being appended after it.
+
+
+## 0.31.1
+
+### Bump dependencies
+
+-  Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.31.0
+
+### Features
+
+- [#10246](https://github.com/microsoft/typespec/pull/10246) Add Python 3.14 classifier to generated pyproject.toml
+
+### Bug Fixes
+
+- [#10920](https://github.com/microsoft/typespec/pull/10920) Support `exact` client names for enum members and operations
+
+
+## 0.30.1
+
+### Bug Fixes
+
+- [#10843](https://github.com/microsoft/typespec/pull/10843) Synthesize filename in multipart Content-Disposition for bare file inputs. When callers pass bare bytes/str/IO instead of a (filename, content) tuple for multipart file fields, the `prepare_multipart_form_data` helper now wraps them with a synthesized filename so servers that require `filename=` in the Content-Disposition header no longer reject the upload.
+- [#10816](https://github.com/microsoft/typespec/pull/10816) Fix `etag`/`match_condition` clientName collision when an operation has more than one `Azure.Core.eTag`-typed header (e.g. Storage's `copyFromUrl`, which has both `If-Match`/`If-None-Match` and `x-ms-source-if-match`/`x-ms-source-if-none-match`). The standard `If-Match`/`If-None-Match` pair is now preferred for the `etag`/`match_condition` slot, and any additional etag-typed headers retain their natural client name (e.g. `source_if_match`).
+
+## 0.30.0
+
+### Features
+
+- [#10750](https://github.com/microsoft/typespec/pull/10750) add support for `exact` client names
+
+### Bug Fixes
+
+- [#10804](https://github.com/microsoft/typespec/pull/10804) Lower `black` version to `24.4.0` to be consistent with what's in main
+
+
+## 0.29.2
+
+### Bug Fixes
+
+- [#10698](https://github.com/microsoft/typespec/pull/10698) Improve generated XML deserialization performance in Python by avoiding unnecessary parent traversal during field lookup.
+
+
+## 0.29.1
+
+### Bump dependencies
+
+- [#10668](https://github.com/microsoft/typespec/pull/10668) Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+### Bug Fixes
+
+- [#10563](https://github.com/microsoft/typespec/pull/10563) Fix TypeSpec `numeric` scalar type being emitted as `int` in Python; it is now emitted as `float`.
+- [#10525](https://github.com/microsoft/typespec/pull/10525) Fix typing in generated paging operations when an operation is named `list` and the page item is a collection type. The return type annotation now correctly uses the `List` alias (e.g. `AsyncItemPaged[List[str]]`) instead of the built-in `list` (which would shadow the operation name) to stay consistent with other annotations in the same file.
+
+
+## 0.29.0
+
+### Deprecations
+
+- [#10500](https://github.com/microsoft/typespec/pull/10500) Drop support for Python 3.9. The minimum supported Python version is now 3.10. Python 3.9 reached end-of-life and is no longer supported by upstream Python.
+
+### Features
+
+- [#10378](https://github.com/microsoft/typespec/pull/10378) Add "Use with AI tools" section to Azure packages README template
+- [#10587](https://github.com/microsoft/typespec/pull/10587) add `CrossLanguageVersion` to `apiview-properties.json`
+
+### Bug Fixes
+
+- [#10399](https://github.com/microsoft/typespec/pull/10399) Fix enum member names with hyphens generating invalid Python identifiers
+- [#10385](https://github.com/microsoft/typespec/pull/10385) Fix grouped parameter attribute access for reserved words in code generation
+- [#10303](https://github.com/microsoft/typespec/pull/10303) fix import for _validation.py/_types.py when "generation-subdir" is configured
+- [#10494](https://github.com/microsoft/typespec/pull/10494) Support custom wire names for etags defined with `Azure.Core.eTag` (e.g. `x-ms-blob-if-match`)
+- [#10546](https://github.com/microsoft/typespec/pull/10546) Fix serialization regression where `@clientDefaultValue` defaults on model properties were no longer included in the request body. Defaults are again materialized in the model's data dictionary at construction time so they are sent on the wire, while the attribute-access fallback for unset fields is preserved.
+- [#10254](https://github.com/microsoft/typespec/pull/10254) Contain emitter changes when used with `generation-subdir` to solely within that subdirectory
+- [#10328](https://github.com/microsoft/typespec/pull/10328) Pass `headers` kwarg through to next requests in paging calls
+- [#10326](https://github.com/microsoft/typespec/pull/10326) Fix padding of keys in splatted body parameter method signature
+- [#10557](https://github.com/microsoft/typespec/pull/10557) Update Python emitter browser behavior to only load Pyodide once instead of on every emit
+- [#10348](https://github.com/microsoft/typespec/pull/10348) Refine `api_version` argument doc to show `None` as default value and include note about operation's default API version being used when not set
+- [#10545](https://github.com/microsoft/typespec/pull/10545) Revert wrong code to avoid overwrite customized code when generation-subdir is set
+
+
+## 0.28.3
+
+### Bump dependencies
+
+- [#10297](https://github.com/microsoft/typespec/pull/10297) Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.28.2
+
+### Bug Fixes
+
+- [#10167](https://github.com/microsoft/typespec/pull/10167) Fix import of `_deserialize` in mix of xml and non-xml models
+
+
+## 0.28.1
+
+### Bug Fixes
+
+- [#10084](https://github.com/microsoft/typespec/pull/10084) Fix PermissionError when detecting package manager on WSL
+- [#10105](https://github.com/microsoft/typespec/pull/10105) Remove `None` from "Known values" in `api_version` parameter docstring since the parameter is typed as `str` and `None` is not a valid API version value.
+- [#10117](https://github.com/microsoft/typespec/pull/10117) Fix model usage which is referred both in request and response
+
+
+## 0.28.0
+
+### Features
+
+- [#9898](https://github.com/microsoft/typespec/pull/9898) Remove enum value padding because we generate our enum value names with upper case so there is no need
+
+### Bug Fixes
+
+- [#9778](https://github.com/microsoft/typespec/pull/9778) Return empty list instead of None for non-optional unwrapped XML list fields during deserialization
+- [#9952](https://github.com/microsoft/typespec/pull/9952) Fix extensible enum member names incorrectly getting an `Enum` suffix when the member name matched a Python reserved word (e.g. `ANDEnum` → `AND`, `CLASSEnum` → `CLASS`).
+- [#9964](https://github.com/microsoft/typespec/pull/9964) Remove includeRootSlash client option logic, which should be handled at the TypeSpec core level
+
+
+## 0.27.2
+
+### Bump dependencies
+
+- [#9713](https://github.com/microsoft/typespec/pull/9713) Upgrade dependencies to match root package.json versions (@types/node, rimraf, tsx, typescript, typescript-eslint, vitest)
+
+### Bug Fixes
+
+- [#9812](https://github.com/microsoft/typespec/pull/9812) Fix `__eq__` method in `_MyMutableMapping` to use `isinstance` check instead of attempting to construct a new instance from the other object.
+- [#9776](https://github.com/microsoft/typespec/pull/9776) Allow client options on child clients to override parent clients
+- [#9769](https://github.com/microsoft/typespec/pull/9769) Add pylint disable for list of elem deserialization
+- [#9779](https://github.com/microsoft/typespec/pull/9779) allow decompression in version tolerant
+
+
+## 0.27.1
+
+### Bug Fixes
+
+- [#9640](https://github.com/microsoft/typespec/pull/9640) Fall back to wire type for unknown or unsupported encode
+- [#9571](https://github.com/microsoft/typespec/pull/9571) Fix import for xml paging
+
+
+## 0.27.0
+
+### Features
+
+- [#9587](https://github.com/microsoft/typespec/pull/9587) Add support for `@clientOption("includeRootSlash")` to control stripping of the slash after the root url
+
+
+## 0.26.3
+
+### Bug Fixes
+
+- [#9573](https://github.com/microsoft/typespec/pull/9573) Ignore all errors thrown during error deserialization, not just `DeserializationError`
+
+
+## 0.26.2
+
+### Bug Fixes
+
+- [#9517](https://github.com/microsoft/typespec/pull/9517) Properly cache enum values
+
+
+## 0.26.1
+
+### Bug Fixes
+
+- [#9482](https://github.com/microsoft/typespec/pull/9482) Don't remove azure-sdk tool definitions from pyproject.toml
+- [#9466](https://github.com/microsoft/typespec/pull/9466) Fix additional indentation issues
+- [#9488](https://github.com/microsoft/typespec/pull/9488) `_failsafe_deserialize_xml` xml errors
+
+
+## 0.26.0
+
+### Features
+
+- [#9456](https://github.com/microsoft/typespec/pull/9456) Add support for xml paging
+
+### Bump dependencies
+
+- [#9464](https://github.com/microsoft/typespec/pull/9464) Bump TCGC 0.64.4
+
+
+## 0.25.0
+
+### Features
+
+- [#9407](https://github.com/microsoft/typespec/pull/9407) Support enum type for array encode
+
+### Bug Fixes
+
+- [#9417](https://github.com/microsoft/typespec/pull/9417) support "apiVersions" of TCGC metadata
+
+
+## 0.24.1
+
+### Bug Fixes
+
+- [#9298](https://github.com/microsoft/typespec/pull/9298) Fix clients with `NoAuth` credentials to have optional generated `credential` parameters
+
+
+## 0.24.0
+
+### Features
+
+- [#9257](https://github.com/microsoft/typespec/pull/9257) Support multi-service scenario.
+- [#9272](https://github.com/microsoft/typespec/pull/9272) Support lro-paging operation
+
+### Bump dependencies
+
+- [#9335](https://github.com/microsoft/typespec/pull/9335) Bump tcgc dep to `0.63.4`
+- [#9245](https://github.com/microsoft/typespec/pull/9245) Bump generated code's dependency on `azure-core` to `1.37.0`
+
+### Bug Fixes
+
+- [#9256](https://github.com/microsoft/typespec/pull/9256) Fix syntax error when model property is named "list" by using type alias to avoid naming conflicts
+- [#9255](https://github.com/microsoft/typespec/pull/9255) Fix import error about apiversion validation for nested operation groups
+- [#9014](https://github.com/microsoft/typespec/pull/9014) Fix import when body parameter is union of models
+- [#9334](https://github.com/microsoft/typespec/pull/9334) Fix linting errors caused by too many vars, next-mypy issues
+
+
+## 0.23.1
+
+### Bug Fixes
+
+- [#9219](https://github.com/microsoft/typespec/pull/9219) fix client default value for special headers
+- [#9222](https://github.com/microsoft/typespec/pull/9222) Persist mutations to mutable properties when accessed via attribute syntax
+- [#9206](https://github.com/microsoft/typespec/pull/9206) Remove `# nosec` comments from Python SDK to avoid security confusion
+
+
+## 0.23.0
+
+### Features
+
+- [#9146](https://github.com/microsoft/typespec/pull/9146) Support encode for array of string in serialization and deserialization
+
+### Bug Fixes
+
+- [#8927](https://github.com/microsoft/typespec/pull/8927) Fix bad indent
+
+
+## 0.22.0
+
+### Features
+
+- [#8767](https://github.com/microsoft/typespec/pull/8767) Support SDK users defined customized serialization/deserialization function for external models
+
+### Bug Fixes
+
+- [#9017](https://github.com/microsoft/typespec/pull/9017) Keep original client name for backcompat reasons when the name is only padded for tsp generations
+- [#9129](https://github.com/microsoft/typespec/pull/9129) Fix for optional properties in flatten model to keep compatibility
+- [#9144](https://github.com/microsoft/typespec/pull/9144) Fix multipart when files part is optional
+- [#9138](https://github.com/microsoft/typespec/pull/9138) Fix serialization name for multipart
+
+
+## 0.21.0
+
+### Features
+
+- [#9112](https://github.com/microsoft/typespec/pull/9112) Support customized http method to call next link for paging operation
+
+### Bug Fixes
+
+- [#9108](https://github.com/microsoft/typespec/pull/9108) fix logic about which scenario to add msrest as dependency
+- [#9107](https://github.com/microsoft/typespec/pull/9107) Fix @override to avoid duplicated subscriptionId or api-version signatures
+
+
 ## 0.20.3
 
 ### Bump dependencies

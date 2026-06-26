@@ -8,6 +8,7 @@
     <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/ClientPipelineExtensions.cs" />
     <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/ErrorResult.cs" />
     <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/BinaryContentHelper.cs" />
+    <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/MultipartFormDataHelper.cs" />
     <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/Utf8JsonBinaryContent.cs" />
     <Compile Remove="../../TestProjects/Local/Sample-TypeSpec/src/Generated/Internal/PipelineRequestHeadersExtensions.cs" />
   </ItemGroup>

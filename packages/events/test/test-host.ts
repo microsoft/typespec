@@ -1,13 +1,8 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { EventsTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createEventsTestHost() {
-  return createTestHost({
-    libraries: [EventsTestLibrary],
-  });
-}
-
-export async function createEventsTestRunner() {
-  const host = await createEventsTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Events"] });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/events"],
+})
+  .importLibraries()
+  .using("Events");

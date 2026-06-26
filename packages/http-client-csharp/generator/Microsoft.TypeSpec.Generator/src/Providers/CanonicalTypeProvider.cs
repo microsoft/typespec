@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             _specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = _specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
+            _specPropertiesMap = _specProperties.ToDictionary(p => p.IsExactName ? p.Name : p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -44,27 +44,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
+        private protected override bool FilterCustomizedMembers => false;
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
 
-        internal override PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> canonicalProperties) => [..canonicalProperties];
-        internal override FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> canonicalFields) => [..canonicalFields];
-
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
-            return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+            return [.. FilterCustomizedConstructors(_generatedTypeProvider.Constructors), .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
-            return [.. _generatedTypeProvider.Methods, .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
+            return [.. FilterCustomizedMethods(_generatedTypeProvider.Methods), .. _generatedTypeProvider.CustomCodeView?.Methods ?? []];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var generatedProperties = _generatedTypeProvider.Properties;
             var customProperties = _generatedTypeProvider.CustomCodeView?.Properties ?? [];
@@ -121,6 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customProperty.Type.IsNullable,
                             false,
                             serializedName ?? customProperty.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else
@@ -133,6 +133,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customProperty.InputProperty = specProperty;
             }
 
+            // Filter out generated properties that have been customized to avoid duplicates.
+            // This is needed because EnsureBuilt caches members without applying customization
+            // filtering, so _generatedTypeProvider.Properties may contain unfiltered results.
+            var filteredGeneratedProperties = FilterCustomizedProperties(generatedProperties);
+
             if (_specProperties.Count > 0)
             {
                 // Input properties will only contain this types properties, i.e. it won't include base type properties.
@@ -140,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var nonSpecProperties = new List<PropertyProvider>();
 
                 // Process all properties in single pass, categorizing them
-                foreach (var prop in generatedProperties)
+                foreach (var prop in filteredGeneratedProperties)
                 {
                     if (prop.InputProperty != null)
                     {
@@ -186,10 +191,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..generatedProperties, ..customProperties];
+            return [..filteredGeneratedProperties, ..customProperties];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             var generatedFields = _generatedTypeProvider.Fields;
             var customFields = _generatedTypeProvider.CustomCodeView?.Fields ?? [];
@@ -238,6 +243,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             customField.Type.IsNullable,
                             false,
                             serializedName ?? customField.Name.ToVariableName(),
+                            false,
                             false);
                     }
                     else
@@ -250,7 +256,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..generatedFields, ..customFields];
+            return [..FilterCustomizedFields(generatedFields), ..customFields];
         }
 
         private bool TryGetSpecProperty(

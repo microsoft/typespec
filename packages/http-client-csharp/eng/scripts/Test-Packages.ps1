@@ -21,6 +21,9 @@ try {
             Invoke-LoggedCommand "npm run build" -GroupOutput
             Invoke-LoggedCommand "npm run test:emitter" -GroupOutput
 
+            # enforce cop static-analysis rules on the generator sources
+            Invoke-LoggedCommand "./eng/scripts/Invoke-Cop.ps1" -GroupOutput
+
             # test the generator
             Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
 

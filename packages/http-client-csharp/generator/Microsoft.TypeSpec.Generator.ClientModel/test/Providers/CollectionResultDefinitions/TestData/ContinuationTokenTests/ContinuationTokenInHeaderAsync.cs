@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sample
 {
@@ -17,8 +18,6 @@ namespace Sample
 
         public CatClientGetCatsAsyncCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::Sample.Argument.AssertNotNullOrEmpty(myToken, nameof(myToken));
-
             _client = client;
             _myToken = myToken;
             _options = options;
@@ -30,10 +29,10 @@ namespace Sample
             string nextToken = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
+                global::System.ClientModel.ClientResult result = await this.GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                if (result.GetRawResponse().Headers.TryGetValue("nextPage", out string value))
+                if ((result.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
                 {
                     nextToken = value;
                 }
@@ -47,7 +46,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            if (page.GetRawResponse().Headers.TryGetValue("nextPage", out string value))
+            if ((page.GetRawResponse().Headers.TryGetValue("nextPage", out string value) && !string.IsNullOrEmpty(value)))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(value));
             }
@@ -55,6 +54,11 @@ namespace Sample
             {
                 return null;
             }
+        }
+
+        private async global::System.Threading.Tasks.ValueTask<global::System.ClientModel.ClientResult> GetNextResponseAsync(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
     }
 }

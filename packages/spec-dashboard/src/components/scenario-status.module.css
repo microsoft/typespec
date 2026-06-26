@@ -1,0 +1,32 @@
+.status-box {
+  height: 100%;
+  width: 100%;
+  color: var(--colorNeutralForegroundOnBrand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pass {
+  background-color: #5e9732;
+}
+
+.fail {
+  background-color: #ef3e36;
+}
+
+.not-supported {
+  background-color: var(--colorNeutralStroke3);
+}
+
+.not-applicable {
+  background-color: var(--colorNeutralStroke3);
+}
+
+.not-implemented {
+  background-color: #ef3e36;
+}
+
+.not-reported {
+  background-color: #ef3e36;
+}

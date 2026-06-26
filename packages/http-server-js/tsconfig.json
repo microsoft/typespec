@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [{ "path": "../compiler/tsconfig.json" }],
+  "references": [{ "path": "../compiler/tsconfig.build.json" }],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",

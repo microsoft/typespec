@@ -12,11 +12,13 @@ import {
   EnumMember,
   FunctionParameter,
   Interface,
+  MixedParameterConstraint,
   Model,
   ModelProperty,
   Operation,
   StringTemplate,
   Sym,
+  SymbolFlags,
   SyntaxKind,
   Type,
   UnionVariant,
@@ -44,7 +46,7 @@ export async function getSymbolSignature(
     case SyntaxKind.AliasStatement:
       return fence(`alias ${await getAliasSignature(decl)}`);
   }
-  const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
+  const entity = sym.type ?? (decl ? program.checker.getTypeOrValueForNode(decl) : null);
   return getEntitySignature(sym, entity, options);
 }
 
@@ -57,6 +59,15 @@ function getEntitySignature(
     return "(error)";
   }
   if ("valueKind" in entity) {
+    if (sym.flags & SymbolFlags.Function && entity.valueKind === "Function") {
+      const parameters = [...entity.parameters].map(
+        (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
+      );
+      return fence(
+        `fn ${entity.name ?? "<anonymous>"}(${parameters.join(", ")}) => ${getEntityName(entity.returnType)}`,
+      );
+    }
+
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
@@ -100,15 +111,45 @@ function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): strin
     case "EnumMember":
       return `(enum member)\n${fence(getEnumMemberSignature(type))}`;
     case "TemplateParameter":
-      return `(template parameter)\n${fence(type.node.id.sv)}`;
+      return `(template parameter)\n${fence(
+        getTemplateConstraintSignature(type.node.id.sv, type.constraint),
+      )}`;
+    case "TemplateParameterAccess":
+      return `(template access)\n${fence(getTemplateConstraintSignature(type.path, type.constraint))}`;
     case "UnionVariant":
       return `(union variant)\n${fence(getUnionVariantSignature(type))}`;
     case "Tuple":
       return `(tuple)\n[${fence(type.values.map((v) => getTypeSignature(v, options)).join(", "))}]`;
+    case "FunctionType":
+      return fence(
+        `fn (${type.parameters.map((p) => getFunctionParameterSignature(p)).join(", ")}) => ${getEntityName(
+          type.returnType,
+        )}`,
+      );
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
   }
+}
+
+/** Format `T extends ...` style signatures for template parameters/access paths. */
+function getTemplateConstraintSignature(
+  nameOrPath: string,
+  constraint?: MixedParameterConstraint,
+): string {
+  if (!constraint) {
+    return nameOrPath;
+  }
+
+  const parts: string[] = [];
+  if (constraint.type) {
+    parts.push(getTypeName(constraint.type, { printable: true }));
+  }
+  if (constraint.valueType) {
+    parts.push(`valueof ${getTypeName(constraint.valueType, { printable: true })}`);
+  }
+
+  return parts.length > 0 ? `${nameOrPath} extends ${parts.join(" | ")}` : nameOrPath;
 }
 
 function getDecoratorSignature(type: Decorator) {

@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
-import { it } from "vitest";
-import { supportedVersions, worksFor } from "./works-for.js";
+import { describe, expect, it } from "vitest";
+import { OpenAPISpecHelpers, supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor, openapisFor }) => {
   const testCases: [string, string, string, any][] = [
     [
       "set tag metadata",
@@ -100,5 +100,321 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     );
 
     deepStrictEqual(res.tags, expected);
+  });
+
+  it("tagMetadata do not gets applied to another service without tags", async () => {
+    const res = await openapisFor(`
+      @service
+      @tagMetadata(
+        "CatTag", #{ description: "Cat operations" }
+      )
+      namespace CatStore {}
+
+      @service
+      namespace DogStore {}
+    `);
+    expect(res["openapi.CatStore.json"].tags).toEqual([
+      {
+        description: "Cat operations",
+        name: "CatTag",
+      },
+    ]);
+    expect(res["openapi.DogStore.json"].tags).toEqual([]);
+  });
+
+  it("tagMetadata only affect the service they are defined on", async () => {
+    const res = await openapisFor(`
+      @service
+      @tagMetadata(
+        "CatTag", #{ description: "Cat operations" }
+      )
+      namespace CatStore {}
+
+      @service
+      @tagMetadata(
+        "DogTag", #{ description: "Dog operations" }
+      )
+      namespace DogStore {}
+    `);
+    expect(res["openapi.CatStore.json"].tags).toEqual([
+      {
+        description: "Cat operations",
+        name: "CatTag",
+      },
+    ]);
+    expect(res["openapi.DogStore.json"].tags).toEqual([
+      {
+        description: "Dog operations",
+        name: "DogTag",
+      },
+    ]);
+  });
+
+  it("array form preserves explicit tag declaration order", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata(#[
+        #{name: "First", description: "First tag"},
+        #{name: "Second", description: "Second tag"},
+        #{name: "Third", description: "Third tag"},
+      ])
+      namespace PetStore {};
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      { name: "First", description: "First tag" },
+      { name: "Second", description: "Second tag" },
+      { name: "Third", description: "Third tag" },
+    ]);
+  });
+
+  it("operation-level tag not defined in @tagMetadata is inserted before tagMetadata tags", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata("MetaTag", #{description: "Metadata tag"})
+      namespace PetStore {
+        @tag("OpOnlyTag") op op1(): string;
+      };
+      `,
+    );
+
+    // Tags used only in operations (not in @tagMetadata) are emitted first,
+    // followed by tags defined with @tagMetadata.
+    deepStrictEqual(res.tags, [
+      { name: "OpOnlyTag" },
+      { name: "MetaTag", description: "Metadata tag" },
+    ]);
+  });
+
+  it("operation-level tag also defined in @tagMetadata (array form) is emitted once in its declared position", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @tagMetadata(#[
+        #{name: "First", description: "First tag"},
+        #{name: "Second", description: "Second tag"},
+      ])
+      namespace PetStore {
+        @tag("First") op op1(): string;
+      };
+      `,
+    );
+
+    // Tags used in both operations and @tagMetadata are not duplicated;
+    // they appear in their @tagMetadata-declared position with metadata.
+    deepStrictEqual(res.tags, [
+      { name: "First", description: "First tag" },
+      { name: "Second", description: "Second tag" },
+    ]);
+  });
+});
+
+// Test for parent field - version specific behavior
+describe("tag metadata with parent field", () => {
+  it("OpenAPI 3.2 should emit parent field as-is", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    // Decorators execute bottom-up, so ChildTag (closer to entity) is stored first
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        parent: "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.1 should emit parent field as x-oai-parent", async () => {
+    const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        "x-oai-parent": "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.0 should emit parent field as x-oai-parent", async () => {
+    const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("ParentTag", #{description: "Parent tag"})
+      @tagMetadata("ChildTag", #{description: "Child tag", parent: "ParentTag"})
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        "x-oai-parent": "ParentTag",
+      },
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+    ]);
+  });
+
+  it("array form with parent field emits tags in declared order", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata(#[
+        #{name: "ParentTag", description: "Parent tag"},
+        #{name: "ChildTag", description: "Child tag", parent: "ParentTag"},
+      ])
+      namespace PetStore {
+        @tag("ChildTag") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "ParentTag",
+        description: "Parent tag",
+      },
+      {
+        name: "ChildTag",
+        description: "Child tag",
+        parent: "ParentTag",
+      },
+    ]);
+  });
+});
+
+// Tests for summary and kind fields - version specific behavior
+describe("tag metadata with summary and kind fields", () => {
+  it("OpenAPI 3.2 should emit summary and kind as native fields", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        summary: "all operations that allow doing Foo",
+        kind: "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.1 should emit summary as x-oai-summary and kind as x-oai-kind", async () => {
+    const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        "x-oai-summary": "all operations that allow doing Foo",
+        "x-oai-kind": "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.0 should emit summary as x-oai-summary and kind as x-oai-kind", async () => {
+    const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo", kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        "x-oai-summary": "all operations that allow doing Foo",
+        "x-oai-kind": "FooGroup",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.2 should emit summary only if kind is absent", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{summary: "all operations that allow doing Foo"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        summary: "all operations that allow doing Foo",
+      },
+    ]);
+  });
+
+  it("OpenAPI 3.2 should emit kind only if summary is absent", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @tagMetadata("foo", #{kind: "FooGroup"})
+      namespace PetStore {
+        @tag("foo") op test(): string;
+      }
+      `,
+    );
+
+    deepStrictEqual(res.tags, [
+      {
+        name: "foo",
+        kind: "FooGroup",
+      },
+    ]);
   });
 });

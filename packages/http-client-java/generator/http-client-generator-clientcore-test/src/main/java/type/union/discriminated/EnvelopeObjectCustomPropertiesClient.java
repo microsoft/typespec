@@ -45,7 +45,7 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with custom property names.
      * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
+     * and envelope property names along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -98,7 +98,7 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with custom property names.
      * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
+     * and envelope property names along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

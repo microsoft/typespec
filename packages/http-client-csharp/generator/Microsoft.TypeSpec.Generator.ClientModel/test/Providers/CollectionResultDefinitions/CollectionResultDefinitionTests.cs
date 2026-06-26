@@ -59,6 +59,276 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(1, ctorParameters.Count);
         }
 
+        [Test]
+        public void TestPageSizeRootFieldSetWhenPageSizeParameterSegmentsPopulated()
+        {
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var continuationParameter = InputFactory.QueryParameter("myToken", InputPrimitiveType.String, isRequired: true);
+            var pageSizeParameter = InputFactory.QueryParameter("pageSize", InputPrimitiveType.Int32, isRequired: false);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(
+                continuationParameter,
+                ["cats"],
+                ["nextPage"],
+                InputResponseLocation.Body,
+                ["pageSize"]);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var pageSizeProperty = InputFactory.Property("pageSize", InputPrimitiveType.Int32);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty, pageSizeProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [continuationParameter, pageSizeParameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition!.PageSizeField);
+            Assert.AreEqual("_pageSize", collectionResultDefinition.PageSizeField!.Name);
+        }
+
+        [Test]
+        public void TestPageSizeNestedFieldSetWhenMultiplePageSizeParameterSegments()
+        {
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var continuationParameter = InputFactory.QueryParameter("myToken", InputPrimitiveType.String, isRequired: true);
+            var pageSizeParameter = InputFactory.QueryParameter("pageSize", InputPrimitiveType.Int32, isRequired: false);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(
+                continuationParameter,
+                ["cats"],
+                ["nextPage"],
+                InputResponseLocation.Body,
+                ["nested", "pageSize"]);
+            var pageSizeProperty = InputFactory.Property("pageSize", InputPrimitiveType.Int32);
+            var nestedProperty = InputFactory.Property("nested", InputFactory.Model("nested", properties: [pageSizeProperty]));
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty, nestedProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [continuationParameter, pageSizeParameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition!.PageSizeField);
+            Assert.AreEqual("_pageSize", collectionResultDefinition.PageSizeField!.Name);
+        }
+
+        [Test]
+        public void TestEmptyStringHandlingForStringContinuationToken()
+        {
+            // Test that empty strings are handled gracefully for string continuation tokens
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var continuationParameter = InputFactory.QueryParameter("myToken", InputPrimitiveType.String, isRequired: true);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(
+                continuationParameter,
+                ["cats"],
+                ["nextPage"],
+                InputResponseLocation.Body);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [continuationParameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+
+            // Verify the generated code includes empty string check
+            Assert.IsTrue(file.Content.Contains("string.IsNullOrEmpty"),
+                "Generated code should check for empty strings in continuation tokens");
+        }
+
+        [Test]
+        public void TestEmptyStringHandlingForUriNextLink()
+        {
+            // Test that empty strings are handled gracefully for URI next links
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["cats"], ["nextCat"], InputResponseLocation.Body);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextCat", InputPrimitiveType.Url);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty]));
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+
+            // Verify the generated code handles URI types correctly (null check is sufficient for Uri type)
+            Assert.IsTrue(file.Content.Contains("if ((nextPageUri == null))"),
+                "Generated code should check for null URI");
+        }
+
+        [Test]
+        public void TestCollectionResultNamesDoNotCollideWhenOperationsAreRenamed()
+        {
+            // Two paging operations "list" and "listAll" both get renamed to "GetAll" by CleanOperationNames.
+            // The CollectionResult names should use OriginalName to avoid collision.
+            var thingModel = InputFactory.Model("thing", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var thingsProperty = InputFactory.Property("things", InputFactory.Array(thingModel));
+            var nextProperty = InputFactory.Property("next", InputPrimitiveType.Url);
+            var pageModel = InputFactory.Model("page", properties: [thingsProperty, nextProperty]);
+            var response = InputFactory.OperationResponse([200], pageModel);
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["things"], ["next"], InputResponseLocation.Body);
+
+            // "list" will be renamed to "GetAll", "listAll" will also be renamed to "GetAll"
+            var listOperation = InputFactory.Operation("list", responses: [response]);
+            var listAllOperation = InputFactory.Operation("listAll", responses: [response]);
+
+            var listServiceMethod = InputFactory.PagingServiceMethod("list", listOperation, pagingMetadata: pagingMetadata);
+            var listAllServiceMethod = InputFactory.PagingServiceMethod("listAll", listAllOperation, pagingMetadata: pagingMetadata);
+
+            var client = InputFactory.Client("FooClient", methods: [listServiceMethod, listAllServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
+
+            var collectionResults = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(t => t is CollectionResultDefinition)
+                .ToList();
+
+            // Should have 8 CollectionResult types (2 ops × 2 sync/async × 2 typed/untyped) and they should all have unique names
+            Assert.AreEqual(8, collectionResults.Count,
+                $"Expected 8 CollectionResult types but found {collectionResults.Count}");
+            var collectionResultNames = collectionResults.Select(t => t.Name).ToList();
+            Assert.AreEqual(collectionResultNames.Distinct().Count(), collectionResultNames.Count,
+                $"CollectionResult names should be unique but found duplicates: {string.Join(", ", collectionResultNames)}");
+
+            // Both should use the original names for disambiguation
+            Assert.IsTrue(collectionResultNames.Any(n => n == "FooClientListCollectionResult"),
+                $"Expected 'FooClientListCollectionResult' in [{string.Join(", ", collectionResultNames)}]");
+            Assert.IsTrue(collectionResultNames.Any(n => n == "FooClientListAllCollectionResult"),
+                $"Expected 'FooClientListAllCollectionResult' in [{string.Join(", ", collectionResultNames)}]");
+        }
+
+        [Test]
+        public void TestCollectionResultNameUsesCurrentNameWhenNoCollision()
+        {
+            // A single paging operation should use the current (cleaned) name, not the original name.
+            var thingModel = InputFactory.Model("thing", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var thingsProperty = InputFactory.Property("things", InputFactory.Array(thingModel));
+            var nextProperty = InputFactory.Property("next", InputPrimitiveType.Url);
+            var pageModel = InputFactory.Model("page", properties: [thingsProperty, nextProperty]);
+            var response = InputFactory.OperationResponse([200], pageModel);
+
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(["things"], ["next"], InputResponseLocation.Body);
+
+            // "listAll" gets renamed to "GetAll" by CleanOperationNames, no collision
+            var listAllOperation = InputFactory.Operation("listAll", responses: [response]);
+            var listAllServiceMethod = InputFactory.PagingServiceMethod("listAll", listAllOperation, pagingMetadata: pagingMetadata);
+
+            var client = InputFactory.Client("FooClient", methods: [listAllServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
+
+            // When there's no collision, the cleaned name "GetAll" should be used
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "FooClientGetAllCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition,
+                "CollectionResult should use cleaned name 'GetAll' when there's no collision");
+        }
+
+        [Test]
+        public void TestContinuationTokenParameterNameMatchIsCaseInsensitive()
+        {
+            // The continuation token parameter name (e.g. "MyToken") may differ in casing from the
+            // request field's parameter name (e.g. "myToken" after camel-casing). The match used to
+            // associate the request field with the continuation token must be case-insensitive,
+            // otherwise NextTokenField is left null and code generation throws a NullReferenceException
+            // when emitting the continuation token paging logic.
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+            // Note the PascalCase parameter name; the generated request field parameter will be camelCased.
+            var continuationParameter = InputFactory.QueryParameter("MyToken", InputPrimitiveType.String, isRequired: true);
+            var pagingMetadata = InputFactory.ContinuationTokenPagingMetadata(
+                continuationParameter,
+                ["cats"],
+                ["nextPage"],
+                InputResponseLocation.Body);
+            var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
+            var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [catsProperty, nextCatProperty]));
+            var operation = InputFactory.Operation("getCats", parameters: [continuationParameter], responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("getCats", operation, pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("catClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
+
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
+            Assert.IsNotNull(collectionResultDefinition);
+
+            // Code generation dereferences NextTokenField; if the case-insensitive match regresses,
+            // this Write call will throw a NullReferenceException.
+            var writer = new TypeProviderWriter(collectionResultDefinition!);
+            var file = writer.Write();
+
+            // The request field for the continuation token parameter should be referenced in the
+            // generated code, demonstrating the field was correctly identified as the next-token field.
+            Assert.IsTrue(file.Content.Contains("_myToken"),
+                "Generated code should reference the continuation token request field '_myToken'.");
+            Assert.IsTrue(file.Content.Contains("nextToken"),
+                "Generated code should contain the continuation token paging logic.");
+        }
+
         internal static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
         {
             var inputModel = InputFactory.Model("cat", properties:

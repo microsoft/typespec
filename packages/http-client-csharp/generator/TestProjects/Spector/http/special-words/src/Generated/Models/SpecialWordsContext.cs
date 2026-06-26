@@ -5,6 +5,7 @@
 using System.ClientModel.Primitives;
 using SpecialWords._ModelProperties;
 using SpecialWords._Models;
+using SpecialWords._ReservedOperationBodyParams;
 
 namespace SpecialWords
 {
@@ -19,6 +20,7 @@ namespace SpecialWords
     [ModelReaderWriterBuildable(typeof(Continue))]
     [ModelReaderWriterBuildable(typeof(Def))]
     [ModelReaderWriterBuildable(typeof(Del))]
+    [ModelReaderWriterBuildable(typeof(DictMethods))]
     [ModelReaderWriterBuildable(typeof(Elif))]
     [ModelReaderWriterBuildable(typeof(Else))]
     [ModelReaderWriterBuildable(typeof(Except))]
@@ -32,6 +34,7 @@ namespace SpecialWords
     [ModelReaderWriterBuildable(typeof(In))]
     [ModelReaderWriterBuildable(typeof(Is))]
     [ModelReaderWriterBuildable(typeof(Lambda))]
+    [ModelReaderWriterBuildable(typeof(ModelWithList))]
     [ModelReaderWriterBuildable(typeof(Not))]
     [ModelReaderWriterBuildable(typeof(Or))]
     [ModelReaderWriterBuildable(typeof(Pass))]

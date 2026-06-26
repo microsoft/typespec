@@ -2,13 +2,17 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using Client.Structure.Service;
 
 namespace Client.Structure.Service._Baz
 {
     public partial class Baz
     {
         protected Baz() => throw null;
+
+        internal Baz(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

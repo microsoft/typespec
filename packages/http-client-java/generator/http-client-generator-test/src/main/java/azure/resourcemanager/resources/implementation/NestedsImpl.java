@@ -30,12 +30,8 @@ public final class NestedsImpl implements Nesteds {
         String nextedProxyResourceName, Context context) {
         Response<NestedProxyResourceInner> inner = this.serviceClient()
             .getWithResponse(resourceGroupName, topLevelTrackedResourceName, nextedProxyResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new NestedProxyResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new NestedProxyResourceImpl(inner.getValue(), this.manager()));
     }
 
     public NestedProxyResource get(String resourceGroupName, String topLevelTrackedResourceName,

@@ -41,8 +41,9 @@ export type Experimental_CustomTypeToProps<TCustomType extends Type> =
           ? VarDeclarationProps
           : VarDeclarationProps | ObjectPropertyProps;
 
-export interface Experimental_OverrideReferenceProps<TCustomType extends Type>
-  extends Experimental_OverrideEmitPropsBase<TCustomType> {
+export interface Experimental_OverrideReferenceProps<
+  TCustomType extends Type,
+> extends Experimental_OverrideEmitPropsBase<TCustomType> {
   /**
    * The member this type is referenced from, if any. This member may contain
    * additional metadata that should be represented in the emitted output.
@@ -50,8 +51,9 @@ export interface Experimental_OverrideReferenceProps<TCustomType extends Type>
   member?: ModelProperty;
 }
 
-export interface Experimental_OverrideDeclareProps<TCustomType extends Type>
-  extends Experimental_OverrideEmitPropsBase<TCustomType> {
+export interface Experimental_OverrideDeclareProps<
+  TCustomType extends Type,
+> extends Experimental_OverrideEmitPropsBase<TCustomType> {
   Declaration: ComponentDefinition<Experimental_CustomTypeToProps<TCustomType>>;
   declarationProps: Experimental_CustomTypeToProps<TCustomType>;
 }
@@ -95,8 +97,9 @@ export interface Experimental_OverrideTypeComponentCommonProps<T extends Type> {
   children: Children;
 }
 
-export interface Experimental_OverridableComponentReferenceProps<T extends Type>
-  extends Experimental_OverrideTypeComponentCommonProps<T> {
+export interface Experimental_OverridableComponentReferenceProps<
+  T extends Type,
+> extends Experimental_OverrideTypeComponentCommonProps<T> {
   /**
    * Pass when rendering a reference to the provided type or type kind.
    */

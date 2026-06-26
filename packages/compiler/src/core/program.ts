@@ -4,11 +4,7 @@ import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
-import {
-  ModuleResolutionResult,
-  ResolveModuleHost,
-  ResolvedModule,
-} from "../module-resolver/types.js";
+import { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -17,7 +13,7 @@ import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveEmitterOptions, validateEmitterOptionsAgainstModel } from "./emitter-options.js";
-import { flushEmittedFilesPaths } from "./emitter-utils.js";
+import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
@@ -30,11 +26,13 @@ import {
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolveModuleHost } from "./module-host.js";
 import { NameResolver, createResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import { createPerfReporter, perf } from "./perf.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -43,12 +41,15 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { ComplexityStats, RuntimeStats, Stats, startTimer, time, timeAsync } from "./stats.js";
+import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import {
+  SuppressionTracker,
+  createSuppressionTracker,
+  findDirectiveSuppressingOnNode,
+} from "./suppression-tracking.js";
 import {
   CompilerHost,
   Diagnostic,
-  Directive,
-  DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -62,11 +63,11 @@ import {
   Namespace,
   NoTarget,
   Node,
+  PerfReporter,
   SourceFile,
   Sym,
   SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateInstanceTarget,
   Tracer,
   Type,
@@ -120,6 +121,8 @@ export interface Program {
 
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  /** @internal */
+  readonly suppressionTracker: SuppressionTracker | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -151,7 +154,9 @@ interface EmitterRef {
 
 interface Validator {
   metadata: LibraryMetadata;
-  callback: (program: Program) => void | Promise<void>;
+  callback: (
+    program: Program,
+  ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
 }
 
 interface TypeSpecLibraryReference {
@@ -188,17 +193,17 @@ export async function compile(
     total: 0,
     emitters: {},
   };
-  const timer = startTimer();
+  const timer = perf.startTimer();
   // Emitter stage
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
       continue;
     }
-    const { duration } = await emit(emitter, program);
-    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = duration;
+    const emitterStats = await emit(emitter, program);
+    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
     if (options.listFiles) {
-      logEmittedFilesPath(host.logSink);
+      logEmittedFilesPath(program);
     }
   }
   emitStats.total = timer.end();
@@ -277,7 +282,7 @@ async function createTypeGraph(
   };
   mutate(program).typeGraph = typeGraph;
 
-  runtimeStats.loader = await timeAsync(() => loadSources(sourceLoader, resolvedMain));
+  runtimeStats.loader = await perf.timeAsync(() => loadSources(sourceLoader, resolvedMain));
 
   // Incremental reuse: if the source files and compiler options are unchanged from
   // a previous compilation, skip resolving/checking entirely and reuse the old
@@ -290,16 +295,20 @@ async function createTypeGraph(
     return { typeGraph, reusedProgram: oldProgram };
   }
 
+  // Set up suppression tracking for this graph now that sources are resolved, so
+  // diagnostics reported during checking can be marked as suppressed.
+  mutate(program).suppressionTracker = createSuppressionTracker(sourceLoader.resolution);
+
   const resolver = createResolver(program);
 
   program.resolver = resolver; // Update the current resolver for back compat
-  runtimeStats.resolver = time(() => resolver.resolveProgram());
+  runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
   const checker = createChecker(program, resolver);
   mutate(typeGraph).checker = checker;
   mutate(typeGraph).globalNamespace = checker.getGlobalNamespaceType();
   program.checker = checker; // Update current checker for back compat
 
-  runtimeStats.checker = time(() => checker.checkProgram());
+  runtimeStats.checker = perf.time(() => checker.checkProgram());
 
   complexityStats.createdTypes = checker.stats.createdTypes;
   complexityStats.finishedTypes = checker.stats.finishedTypes;
@@ -484,6 +493,7 @@ async function createProgram(
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
+    suppressionTracker: undefined,
     hasError() {
       return error;
     },
@@ -786,13 +796,16 @@ async function createProgram(
   }
 
   async function runValidators() {
-    const start = startTimer();
+    const start = perf.startTimer();
     runtimeStats.validation = { total: 0, validators: {} };
     runCompilerValidators();
     runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
-      const start = startTimer();
-      await runValidator(validator);
+      const start = perf.startTimer();
+      const diagnostics = await runValidator(validator);
+      if (diagnostics && Array.isArray(diagnostics)) {
+        program.reportDiagnostics(diagnostics);
+      }
       runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
     runtimeStats.validation.total = start.end();
@@ -800,7 +813,7 @@ async function createProgram(
 
   async function runValidator(validator: Validator) {
     try {
-      await validator.callback(program);
+      return await validator.callback(program);
     } catch (error: any) {
       if (options.designTimeBuild) {
         program.reportDiagnostic(
@@ -847,7 +860,10 @@ async function createProgram(
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [
-        await resolveModule(getResolveModuleHost(), specifier, { baseDir, conditions: ["import"] }),
+        await resolveModule(createResolveModuleHost(host), specifier, {
+          baseDir,
+          conditions: ["import"],
+        }),
         [],
       ];
     } catch (e: any) {
@@ -857,17 +873,6 @@ async function createProgram(
         throw e;
       }
     }
-  }
-
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
   }
 
   // It's important that we use the compiler version that resolves locally
@@ -979,6 +984,7 @@ async function createProgram(
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
+        program.suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -988,57 +994,11 @@ async function createProgram(
 
         return false;
       } else {
+        program.suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
-  }
-
-  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
-    let current: Node | undefined = node;
-    do {
-      if (current.directives) {
-        const directive = findDirectiveSuppressingCode(code, current.directives);
-        if (directive) {
-          return directive;
-        }
-      }
-    } while ((current = current.parent));
-    return undefined;
-  }
-
-  /**
-   * Returns the directive node that is suppressing this code.
-   * @param code Code to check for suppression.
-   * @param directives List of directives.
-   * @returns Directive suppressing this code if found, `undefined` otherwise
-   */
-  function findDirectiveSuppressingCode(
-    code: string,
-    directives: readonly DirectiveExpressionNode[],
-  ): Directive | undefined {
-    for (const directive of directives.map((x) => parseDirective(x))) {
-      if (directive.name === "suppress") {
-        if (directive.code === code) {
-          return directive;
-        }
-      }
-    }
-    return undefined;
-  }
-
-  function parseDirective(node: DirectiveExpressionNode): Directive {
-    const args = node.arguments.map((x) => {
-      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-    });
-    switch (node.target.sv) {
-      case "suppress":
-        return { name: "suppress", code: args[0], message: args[1], node };
-      case "deprecated":
-        return { name: "deprecated", message: args[0], node };
-      default:
-        throw new Error("Unexpected directive name.");
-    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
@@ -1105,7 +1065,10 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   return { ...options };
 }
 
-async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: number }> {
+async function emit(
+  emitter: EmitterRef,
+  program: Program,
+): Promise<{ total: number; steps: Record<string, number> }> {
   const emitterName = emitter.metadata.name ?? "";
   const relativePathForEmittedFiles =
     transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
@@ -1114,8 +1077,8 @@ async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: 
   const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
   return await logger.trackAction(`Running ${emitterName}...`, "", async (task) => {
-    const start = startTimer();
-    await runEmitter(emitter, program);
+    const start = perf.startTimer();
+    const emitterPerfReporter = await runEmitter(emitter, program);
     const duration = start.end();
     const message = `${emitterName} ${pc.green(`${Math.round(duration)}ms`)} ${pc.dim(relativePathForEmittedFiles)}`;
     const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
@@ -1127,30 +1090,33 @@ async function emit(emitter: EmitterRef, program: Program): Promise<{ duration: 
     } else {
       task.succeed(message);
     }
-    return { duration };
+    return { total: duration, steps: emitterPerfReporter.measures };
   });
 }
 
 /**
  * @param emitter Emitter ref to run
  */
-async function runEmitter(emitter: EmitterRef, program: Program) {
+async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfReporter> {
+  const perfReporter = createPerfReporter();
   const context: EmitContext<any> = {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
+    perf: perfReporter,
   };
   try {
     await emitter.emitFunction(context);
+    return perfReporter;
   } catch (error: unknown) {
     throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
   }
 }
 
-function logEmittedFilesPath(logSink: LogSink) {
-  flushEmittedFilesPaths().forEach((filePath) => {
+function logEmittedFilesPath(program: Program) {
+  getEmittedFilesForProgram(program).forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
+    console.log(`    ${pc.dim(transformPathForSink(program.host.logSink, filePath))}`);
   });
 }
 function transformPathForSink(logSink: LogSink, path: string) {

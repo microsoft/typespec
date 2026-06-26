@@ -11,7 +11,7 @@ Values cannot be used as types, and types cannot be used as values, they are com
 
 ## Value kinds
 
-There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and initializers, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
+There are four kinds of values: objects, arrays, scalars, and null. These values can be created with object values, array values, scalar values and constructors, and the null literal respectively. Additionally, values can result from referencing enum members and union variants.
 
 ### Object values
 
@@ -56,7 +56,7 @@ const exampleTags2: Tags = #["TypeSpec", "JSON", "OpenAPI"]; // error
 
 ### Scalar values
 
-There are two ways to create scalar values: with a literal syntax like `"string value"`, and with a scalar initializer like `utcDateTime.fromISO("2020-12-01T12:00:00Z")`.
+There are two ways to create scalar values: with a literal syntax like `"string value"`, and with a scalar constructor like `utcDateTime.fromISO("2020-12-01T12:00:00Z")`.
 
 #### Scalar literals
 
@@ -74,16 +74,16 @@ extern dec setNumberTypeOrValue(target: unknown, color: numeric | (valueof numer
 model A {}
 ```
 
-#### Scalar initializers
+#### Scalar constructors
 
-Scalar initializers create scalar values by calling an initializer with one or more values. Scalar initializers for types extended from `numeric`, `string`, and `boolean` are called by adding parenthesis after the scalar reference:
+Scalar constructors create scalar values by calling a constructor with one or more values. Scalar constructors for types extended from `numeric`, `string`, and `boolean` are called by adding parenthesis after the scalar reference:
 
 ```typespec
 const n = int8(100);
 const s = string("hello");
 ```
 
-Any scalar can additionally be declared with named initializers that take one or more value parameters. For example, `utcDateTime` provides a `fromISO` initializer that takes an ISO string. Named scalars can be declared like so:
+Any scalar can additionally be declared with named constructors that take one or more value parameters. For example, `utcDateTime` provides a `fromISO` constructor that takes an ISO string. Named constructors can be declared like so:
 
 ```typespec
 scalar ipv4 extends string {

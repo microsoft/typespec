@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package tsptest.armstreamstyleserialization;
 
 import com.azure.core.http.HttpClient;
@@ -8,10 +11,14 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
 import com.azure.json.JsonProviders;
+import com.azure.json.JsonReader;
+import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.models.FunctionConfiguration;
-import tsptest.armstreamstyleserialization.models.Error;
+import tsptest.armstreamstyleserialization.models.ErrorMax;
 import tsptest.armstreamstyleserialization.models.Priority;
 import tsptest.armstreamstyleserialization.models.SawShark;
 import tsptest.armstreamstyleserialization.models.Shark;
@@ -45,12 +52,12 @@ public class StreamStyleSerializationTests {
         final String errorBodyWithoutError
             = "{\"code\":\"WepAppError\",\"message\":\"Web app error.\",\"additionalProperty\":\"Deployment error.\",\"details\":[{\"code\":\"InnerError\", \"additionalProperty\": \"nested\"}]}";
         SerializerAdapter serializerAdapter = SerializerFactory.createDefaultManagementSerializerAdapter();
-        Error error = serializerAdapter.deserialize(errorBodyWithError, Error.class, SerializerEncoding.JSON);
+        ErrorMax error = serializerAdapter.deserialize(errorBodyWithError, ErrorMax.class, SerializerEncoding.JSON);
         Assertions.assertEquals("WepAppError", error.getCode());
         Assertions.assertEquals("Deployment error.", error.getAdditionalProperty());
         Assertions.assertEquals("nested", error.getDetails().iterator().next().getAdditionalProperty());
 
-        error = serializerAdapter.deserialize(errorBodyWithoutError, Error.class, SerializerEncoding.JSON);
+        error = serializerAdapter.deserialize(errorBodyWithoutError, ErrorMax.class, SerializerEncoding.JSON);
         Assertions.assertEquals("WepAppError", error.getCode());
         Assertions.assertEquals("Deployment error.", error.getAdditionalProperty());
         Assertions.assertEquals("nested", error.getDetails().iterator().next().getAdditionalProperty());
@@ -101,6 +108,79 @@ public class StreamStyleSerializationTests {
         jsonDict = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
         Assertions.assertTrue(jsonDict.containsKey("input"));
         Assertions.assertEquals("input", jsonDict.get("input"));
+    }
+
+    public final static class TestBinary implements JsonSerializable<TestBinary> {
+        private Map<String, BinaryData> unknownDict;
+
+        public Map<String, BinaryData> unknownDict() {
+            return this.unknownDict;
+        }
+
+        public TestBinary() {
+        }
+
+        public TestBinary withUnknownDict(Map<String, BinaryData> unknownDict) {
+            this.unknownDict = unknownDict;
+            return this;
+        }
+
+        @Override
+        public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+            jsonWriter.writeStartObject();
+            jsonWriter.writeMapField("unknownDict", this.unknownDict, (writer, element) -> {
+                if (element == null) {
+                    writer.writeNull();
+                } else {
+                    element.writeTo(writer);
+                }
+            });
+            return jsonWriter.writeEndObject();
+        }
+
+        public static TestBinary fromJson(JsonReader jsonReader) throws IOException {
+            return jsonReader.readObject(reader -> {
+                TestBinary deserializedTestBinary = new TestBinary();
+                while (reader.nextToken() != JsonToken.END_OBJECT) {
+                    String fieldName = reader.getFieldName();
+                    reader.nextToken();
+
+                    if ("unknownDict".equals(fieldName)) {
+                        Map<String, BinaryData> unknownDict = reader.readMap(reader1 -> reader1
+                            .getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
+                        deserializedTestBinary.unknownDict = unknownDict;
+                    } else {
+                        reader.skipChildren();
+                    }
+                }
+
+                return deserializedTestBinary;
+            });
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testBinaryDataInContainer() {
+        // use a simple class
+        TestBinary model = new TestBinary().withUnknownDict(
+            Map.of("string", BinaryData.fromString("\"value\""), "object", BinaryData.fromString("{\"k\", \"v\"}")));
+
+        com.azure.core.util.BinaryData binaryData = BinaryData.fromObject(model);
+        String jsonString = binaryData.toString();
+        Map<String, Object> jsonMap = BinaryData.fromString(jsonString).toObject(Map.class);
+        Assertions.assertTrue(jsonMap.containsKey("unknownDict"));
+        Map<String, Object> unknownDict = (Map<String, Object>) jsonMap.get("unknownDict");
+        Assertions.assertEquals("\"value\"", unknownDict.get("string"));
+        Assertions.assertEquals("{\"k\", \"v\"}", unknownDict.get("object"));
+
+        model = binaryData.toObject(TestBinary.class);
+    }
+
+    @Test
+    public void ensureInstantMaxValue() {
+        // ensure Integer.MAX_VALUE doesn't exceeds Instant.MAX
+        Instant.ofEpochSecond(Integer.MAX_VALUE);
     }
 
     private static HttpClient createExpandableEnumHttpClient() {

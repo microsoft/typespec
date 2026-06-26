@@ -23,13 +23,13 @@ VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
     "azure-mgmt-core": "1.6.0",
-    "azure-core": "1.35.0",
+    "azure-core": "1.37.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
 
-MIN_PYTHON_VERSION = "3.9"
-MAX_PYTHON_VERSION = "3.13"
+MIN_PYTHON_VERSION = "3.10"
+MAX_PYTHON_VERSION = "3.14"
 
 
 class GeneralSerializer(BaseSerializer):
@@ -57,7 +57,35 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-    def _keep_pyproject_fields(self, file_content: str) -> dict:
+    def _update_version_map(self, version_map: dict[str, str], dep_name: str, dep: str) -> None:
+        # For tracked dependencies, check if the version is higher than our default
+        default_version = parse_version(version_map[dep_name])
+        dep_version = self._extract_min_dependency(dep)
+        # If the version is higher than the default, update VERSION_MAP
+        # with higher min dependency version
+        if dep_version > default_version:
+            version_map[dep_name] = str(dep_version)
+
+    # Project-level pyproject.toml fields that may be preserved across regeneration
+    # via the "keep-pyproject-fields" option.
+    KEEPABLE_PROJECT_FIELDS = ("authors", "description", "classifiers", "urls")
+
+    @staticmethod
+    def _parse_keep_pyproject_fields(value: Any) -> tuple[str, ...]:
+        # The "keep-pyproject-fields" option may be a comma-separated string (e.g.
+        # "authors,description") or an already-parsed sequence of field names.
+        if not value:
+            return ()
+        if isinstance(value, str):
+            return tuple(field.strip() for field in value.split(",") if field.strip())
+        return tuple(value)
+
+    def external_lib_version_map(
+        self,
+        file_content: str,
+        additional_version_map: dict[str, str],
+        keep_pyproject_fields: tuple[str, ...] = (),
+    ) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
@@ -66,29 +94,35 @@ class GeneralSerializer(BaseSerializer):
             # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
             return result
 
-        # Keep "azure-sdk-build" and "packaging" configuration
-        if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
-            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+        # Keep "azure-sdk-*" and "packaging" configuration
+        if "tool" in loaded_pyproject_toml:
+            for key in loaded_pyproject_toml["tool"]:
+                if key.startswith("azure-sdk"):
+                    result["KEEP_FIELDS"][f"tool.{key}"] = loaded_pyproject_toml["tool"][key]
         if "packaging" in loaded_pyproject_toml:
             result["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
 
         # Process dependencies
         if "project" in loaded_pyproject_toml:
+            project = loaded_pyproject_toml["project"]
+
+            # Keep manually customized project fields the emitter would otherwise overwrite.
+            # Only the fields explicitly listed in the "keep-pyproject-fields" option are preserved.
+            for field in keep_pyproject_fields:
+                if field in self.KEEPABLE_PROJECT_FIELDS and field in project:
+                    result["KEEP_FIELDS"][f"project.{field}"] = project[field]
+
             # Handle main dependencies
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
                 for dep in loaded_pyproject_toml["project"]["dependencies"]:
                     dep_name = re.split(r"[<>=\[]", dep)[0].strip()
 
-                    # Check if dependency is one we track in VERSION_MAP
+                    # Check if dependency is one we track in version map
                     if dep_name in VERSION_MAP:
-                        # For tracked dependencies, check if the version is higher than our default
-                        default_version = parse_version(VERSION_MAP[dep_name])
-                        dep_version = self._extract_min_dependency(dep)
-                        # If the version is higher than the default, update VERSION_MAP
-                        # with higher min dependency version
-                        if dep_version > default_version:
-                            VERSION_MAP[dep_name] = str(dep_version)
+                        self._update_version_map(VERSION_MAP, dep_name, dep)
+                    elif dep_name in additional_version_map:
+                        self._update_version_map(additional_version_map, dep_name, dep)
                     else:
                         # Keep non-default dependencies
                         kept_deps.append(dep)
@@ -107,9 +141,23 @@ class GeneralSerializer(BaseSerializer):
     def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
 
+        additional_version_map = {}
+        if self.code_model.has_external_type:
+            for item in self.code_model.external_types:
+                if item.package_name:
+                    if item.min_version:
+                        additional_version_map[item.package_name] = item.min_version
+                    else:
+                        # Use "0" as a placeholder when min_version is not specified for external types.
+                        # This allows the dependency to be included without a specific version constraint.
+                        additional_version_map[item.package_name] = "0"
+
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self._keep_pyproject_fields(file_content)
+            keep_pyproject_fields = self._parse_keep_pyproject_fields(
+                self.code_model.options.get("keep-pyproject-fields")
+            )
+            params = self.external_lib_version_map(file_content, additional_version_map, keep_pyproject_fields)
         else:
             params = {}
 
@@ -126,6 +174,7 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
+
         params |= {
             "code_model": self.code_model,
             "dev_status": dev_status,
@@ -136,6 +185,10 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            "ADDITIONAL_DEPENDENCIES": [
+                dep if dep.startswith('"') else f'"{dep}"'
+                for dep in (f"{item[0]}>={item[1]}" for item in additional_version_map.items())
+            ],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs
@@ -219,6 +272,7 @@ class GeneralSerializer(BaseSerializer):
                 ImportType.LOCAL,
             )
             file_import.add_import("json", ImportType.STDLIB)
+            file_import.add_import("os", ImportType.STDLIB)
 
         return template.render(
             code_model=self.code_model,
@@ -306,6 +360,7 @@ class GeneralSerializer(BaseSerializer):
             {
                 "CrossLanguagePackageId": self.code_model.cross_language_package_id,
                 "CrossLanguageDefinitionId": cross_langauge_def_dict,
+                "CrossLanguageVersion": self.code_model.cross_language_version,
             },
             indent=4,
         )

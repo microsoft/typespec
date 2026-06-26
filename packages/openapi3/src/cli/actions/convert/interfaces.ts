@@ -32,6 +32,10 @@ export interface TypeSpecTagMetadata {
   name: string;
   description?: string;
   externalDocs?: TypeSpecExternalDocs;
+  /** Only supported in OpenAPI 3.2. */
+  parent?: string;
+  summary?: string;
+  kind?: string;
 }
 
 export interface TypeSpecExternalDocs {
@@ -39,9 +43,15 @@ export interface TypeSpecExternalDocs {
   description?: string;
 }
 
+export interface TypeSpecDirective {
+  name: string;
+  message: string;
+}
+
 export interface TypeSpecDeclaration {
   name: string;
   doc?: string;
+  directives?: TypeSpecDirective[];
   decorators: TypeSpecDecorator[];
   scope: string[];
   fixmes?: string[];
@@ -142,6 +152,7 @@ export interface TypeSpecModelProperty {
   name: string;
   isOptional: boolean;
   doc?: string;
+  directives?: TypeSpecDirective[];
   /**
    * A partial list of decorators that can't be ascertained from
    * the schema.
@@ -163,6 +174,7 @@ export interface TypeSpecOperationParameter {
   name: string;
   in: string;
   doc?: string;
+  directives?: TypeSpecDirective[];
   decorators: TypeSpecDecorator[];
   isOptional: boolean;
   schema: Refable<SupportedOpenAPISchema>;

@@ -3,10 +3,11 @@ import eslint from "@eslint/js";
 import vitest from "@vitest/eslint-plugin";
 import reactHooks from "eslint-plugin-react-hooks";
 import unicorn from "eslint-plugin-unicorn";
+import { defineConfig } from "eslint/config";
 import tsEslint from "typescript-eslint";
 
 /** Config that will apply to all files */
-const allFilesConfig = tsEslint.config({
+const allFilesConfig = defineConfig({
   plugins: {
     unicorn,
   },
@@ -40,7 +41,7 @@ const allFilesConfig = tsEslint.config({
     /**
      * Unicorn
      */
-    "unicorn/filename-case": ["error", { case: "kebabCase" }],
+    "unicorn/filename-case": ["error", { case: "kebabCase", checkDirectories: false }],
 
     /**
      * Core
@@ -71,7 +72,7 @@ const allFilesConfig = tsEslint.config({
  * @param {string} root
  */
 export function getTypeScriptProjectRules(root) {
-  return tsEslint.config({
+  return defineConfig({
     files: [
       "**/packages/*/src/**/*.ts",
       "**/packages/*/src/**/*.tsx",
@@ -96,7 +97,7 @@ export function getTypeScriptProjectRules(root) {
 }
 
 /** Config that will apply to all test files only */
-const testFilesConfig = tsEslint.config({
+const testFilesConfig = defineConfig({
   /**
    * Test files specific rules
    */
@@ -117,11 +118,16 @@ const testFilesConfig = tsEslint.config({
   },
 });
 
-const jsxFilesConfig = tsEslint.config({
+const jsxFilesConfig = defineConfig({
   files: ["**/*.tsx"],
+  // @ts-expect-error --- plugins typing issue
   plugins: { "react-hooks": reactHooks },
   // Exclude need **/ to make sure this can be reused in typespec-azure
-  ignores: ["**/packages/emitter-framework/src/**/*", "**/packages/http-client-js/**/*"],
+  ignores: [
+    "**/packages/emitter-framework/src/**/*",
+    "**/packages/http-client-js/**/*",
+    "**/packages/http-server-csharp/**/*",
+  ],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -136,7 +142,7 @@ export const TypeSpecCommonEslintConfigs = [
   ...testFilesConfig,
 ];
 
-export default tsEslint.config(
+export default defineConfig(
   {
     ignores: [
       "**/dist/**/*",

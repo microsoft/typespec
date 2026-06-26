@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serialization = unknownModel!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(serialization);
             var deserializeMethod = serialization!.Methods.FirstOrDefault(m => m.Signature.Name == "DeserializeUnknownPet");
-            foreach(var property in _baseModel.Properties)
+            foreach (var property in _baseModel.Properties)
             {
                 Assert.IsNotNull(
                     deserializeMethod!.BodyStatements!.ToDisplayString().Contains($"if (property.NameEquals(\"{property.Name}\"u8))"),
@@ -253,6 +253,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(
                 "this.JsonModelCreateCore(ref reader, options)",
                 invocationExpression!.ToDisplayString());
+        }
+
+        // When an unknown discriminator model has a base that is itself a discriminated subtype
+        // (e.g. UnknownTree : Tree : Plant), the explicit IJsonModel<T>.Create / IPersistableModel<T>.Create
+        // methods need to cast the *CreateCore result. The cast must be to the interface type argument
+        // (Tree), not the concrete unknown type (UnknownTree), because CreateCore dispatches through the
+        // base discriminator deserializer and can return any Tree subtype.
+        [Test]
+        public void TestUnknownNestedDiscriminatorCastsToInterfaceType()
+        {
+            var oakTreeModel = InputFactory.Model(
+                "oakTree",
+                discriminatedKind: "oak",
+                properties:
+                [
+                    InputFactory.Property("treeType", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var treeModel = InputFactory.Model(
+                "tree",
+                discriminatedKind: "tree",
+                properties:
+                [
+                    InputFactory.Property("treeType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "oak", oakTreeModel } });
+            var plantModel = InputFactory.Model(
+                "plant",
+                properties:
+                [
+                    InputFactory.Property("plantType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [plantModel, treeModel, oakTreeModel]);
+            var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
+            var unknownTree = outputLibrary.TypeProviders.OfType<ModelProvider>().FirstOrDefault(t => t.Name == "UnknownTree");
+            Assert.IsNotNull(unknownTree);
+
+            var serialization = unknownTree!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            // Validate the generated serialization output against the expected TestData file.
+            // This guards the cast in the explicit IJsonModel<Tree>.Create / IPersistableModel<Tree>.Create
+            // methods, which must cast to Tree (the interface type argument) instead of UnknownTree
+            // (the concrete unknown discriminator type).
+            var writer = new TypeProviderWriter(serialization!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // This test validates that a discriminated sub-type with its own discriminator property

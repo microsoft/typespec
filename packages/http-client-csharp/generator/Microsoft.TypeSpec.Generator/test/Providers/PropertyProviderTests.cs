@@ -79,6 +79,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Description for kebab-case", property.Description!.ToString());
         }
 
+        [Test]
+        public void TestExactNamePropertySkipsCasingTransformation()
+        {
+            // When isExactName is true, the property name should be used as-is without casing transformations.
+            InputModelProperty inputModelProperty = InputFactory.Property("snake_case", InputPrimitiveType.String, wireName: "snake_case", isRequired: true, isExactName: true);
+            InputFactory.Model("TestModel", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, new TestTypeProvider());
+
+            Assert.AreEqual("snake_case", property.Name);
+            Assert.AreEqual("snake_case", property.WireInfo?.SerializedName);
+        }
+
+        [Test]
+        public void TestExactNameModelSkipsCasingTransformation()
+        {
+            // When isExactName is true on a model, the model name should be used as-is.
+            var inputModel = InputFactory.Model("my_model", isExactName: true);
+
+            var modelProvider = new ModelProvider(inputModel);
+
+            Assert.AreEqual("my_model", modelProvider.Name);
+        }
+
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
         public void CollectionProperty(CSharpType coreType, InputModelProperty collectionProperty, CSharpType expectedType)
         {
@@ -127,6 +151,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
             Assert.AreEqual(inputPropertyName.ToIdentifierName() + "Property", property.Name);
+        }
+
+        [Test]
+        public void TestPropertyNameConflictsWithTypeNameAfterPascalCase()
+        {
+            var testTypeProvider = new TestTypeProvider(name: "Filter");
+            InputModelProperty inputModelProperty = InputFactory.Property("filter", InputPrimitiveType.String);
+            InputFactory.Model("Filter", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+            Assert.AreEqual("FilterProperty", property.Name);
         }
 
         [Test]

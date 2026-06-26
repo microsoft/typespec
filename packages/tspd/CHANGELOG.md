@@ -1,5 +1,53 @@
 # Changelog - @typespec/tspd
 
+## 0.75.0
+
+### Features
+
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Improve render of complex emitter options
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Render documentation for sub exports
+
+### Bug Fixes
+
+- [#10880](https://github.com/microsoft/typespec/pull/10880) Render function type signatures with arrow syntax and avoid internal compiler imports.
+
+
+## 0.74.2
+
+### Bug Fixes
+
+- [#10501](https://github.com/microsoft/typespec/pull/10501) Fix broken (404) links to linter rule pages on auto-generated linter reference pages. The links no longer drop the website base path.
+
+
+## 0.74.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.73.3
+
+### Bump dependencies
+
+- [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.73.2
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.73.1
 
 ### Bump dependencies

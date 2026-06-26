@@ -3,11 +3,11 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using Payload.MultiPart._FormData;
-using Payload.MultiPart._FormData.HttpParts.NonString;
+using Payload.MultiPart._FormData.File;
 
 namespace Payload.MultiPart
 {
+    [ModelReaderWriterBuildable(typeof(Address))]
     public partial class PayloadMultiPartContext : ModelReaderWriterContext
     {
     }

@@ -1,8 +1,12 @@
 import { FolderListRegular } from "@fluentui/react-icons";
-import { useCallback, useEffect, useState } from "react";
+import { Pane, SplitPane } from "@typespec/react-components";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { FileBreadcrumb } from "../breadcrumb/index.js";
 import { FileOutput } from "../file-output/file-output.js";
+import { FileTreeExplorer } from "../file-tree/index.js";
 import { OutputTabs } from "../output-tabs/output-tabs.js";
 import type { FileOutputViewer, OutputViewerProps, ProgramViewer } from "../types.js";
+import { useFileChanges } from "./use-file-changes.js";
 
 import style from "./output-view.module.css";
 
@@ -10,9 +14,19 @@ const FileViewerComponent = ({
   program,
   outputFiles,
   fileViewers,
-}: OutputViewerProps & { fileViewers: Record<string, FileOutputViewer> }) => {
+}: OutputViewerProps & {
+  fileViewers: Record<string, FileOutputViewer>;
+}) => {
   const [filename, setFilename] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const { changedFiles, changedLines } = useFileChanges(program, outputFiles);
+
+  const showFileTree = useMemo(
+    () =>
+      outputFiles.length > 1 &&
+      (outputFiles.some((f) => f.includes("/")) || outputFiles.length >= 3),
+    [outputFiles],
+  );
 
   const loadOutputFile = useCallback(
     async (path: string) => {
@@ -33,23 +47,61 @@ const FileViewerComponent = ({
     }
   }, [program, outputFiles, loadOutputFile, filename]);
 
-  const handleTabSelection = useCallback(
+  const handleFileSelection = useCallback(
     (newFilename: string) => {
-      setFilename(newFilename);
-      void loadOutputFile(newFilename);
+      // Only select files, not directories
+      if (outputFiles.includes(newFilename)) {
+        setFilename(newFilename);
+        void loadOutputFile(newFilename);
+      }
     },
-    [loadOutputFile],
+    [loadOutputFile, outputFiles],
   );
 
   if (outputFiles.length === 0) {
     return <>No files emitted.</>;
   }
 
+  if (showFileTree) {
+    return (
+      <div className={style["file-viewer"]}>
+        <SplitPane initialSizes={["220px", undefined]}>
+          <Pane minSize={120} maxSize={400}>
+            <FileTreeExplorer
+              files={outputFiles}
+              selected={filename}
+              onSelect={handleFileSelection}
+              changedFiles={changedFiles}
+            />
+          </Pane>
+          <Pane>
+            <div className={style["file-viewer-content-with-breadcrumb"]}>
+              <FileBreadcrumb path={filename} />
+              <div className={style["file-viewer-content"]}>
+                <FileOutput
+                  filename={filename}
+                  content={content}
+                  viewers={fileViewers}
+                  changedLineNumbers={changedLines.get(filename)}
+                />
+              </div>
+            </div>
+          </Pane>
+        </SplitPane>
+      </div>
+    );
+  }
+
   return (
     <div className={style["file-viewer"]}>
-      <OutputTabs filenames={outputFiles} selected={filename} onSelect={handleTabSelection} />
+      <OutputTabs filenames={outputFiles} selected={filename} onSelect={handleFileSelection} />
       <div className={style["file-viewer-content"]}>
-        <FileOutput filename={filename} content={content} viewers={fileViewers} />
+        <FileOutput
+          filename={filename}
+          content={content}
+          viewers={fileViewers}
+          changedLineNumbers={changedLines.get(filename)}
+        />
       </div>
     </div>
   );

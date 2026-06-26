@@ -19,6 +19,7 @@ public class CSharpProjectWriter
         PackageReferences = new List<CSProjDependencyPackage>();
         PrivatePackageReferences = new List<CSProjDependencyPackage>();
         CompileIncludes = new List<CSharpProjectCompileInclude>();
+        PackItems = new List<CSProjPackItem>();
     }
 
     public CSProjProperty? Description { get; init; }
@@ -60,6 +61,8 @@ public class CSharpProjectWriter
     public IList<CSProjDependencyPackage> PrivatePackageReferences { get; }
 
     public IList<CSharpProjectCompileInclude> CompileIncludes { get; }
+
+    public IList<CSProjPackItem> PackItems { get; }
 
     public string Write()
     {
@@ -132,6 +135,19 @@ public class CSharpProjectWriter
             writer.WriteEndElement();
         }
 
+        // write pack items for NuGet package
+        if (PackItems.Count > 0)
+        {
+            writer.Flush();
+            builder.Append(NewLine);
+            writer.WriteStartElement("ItemGroup");
+            foreach (var item in PackItems)
+            {
+                WritePackItem(writer, item);
+            }
+            writer.WriteEndElement();
+        }
+
         writer.WriteEndDocument();
         writer.Close();
         writer.Flush();
@@ -153,7 +169,9 @@ public class CSharpProjectWriter
         {
             // only include those CSProjProperty types
             if (property.PropertyType != typeof(CSProjProperty))
+            {
                 continue;
+            }
             // invoke the WriteElementIfNotNull method on each of them
             var value = (CSProjProperty?)property.GetValue(this);
             WriteElementIfNotNull(writer, property.Name, value);
@@ -164,7 +182,9 @@ public class CSharpProjectWriter
     private void WriteElementIfNotNull(XmlWriter writer, string name, CSProjProperty? property)
     {
         if (property == null)
+        {
             return;
+        }
 
         if (property.Comment != null)
         {
@@ -207,6 +227,15 @@ public class CSharpProjectWriter
         writer.WriteEndElement();
     }
 
+    private static void WritePackItem(XmlWriter writer, CSProjPackItem item)
+    {
+        writer.WriteStartElement("None");
+        writer.WriteAttributeString("Include", item.Include);
+        writer.WriteAttributeString("Pack", "true");
+        writer.WriteAttributeString("PackagePath", item.PackagePath);
+        writer.WriteEndElement();
+    }
+
     public record CSProjProperty(string Value, string? Comment)
     {
         public CSProjProperty(string value) : this(value, null)
@@ -220,4 +249,6 @@ public class CSharpProjectWriter
     {
         public CSProjDependencyPackage(string packageName) : this(packageName, null) { }
     }
+
+    public record CSProjPackItem(string Include, string PackagePath);
 }

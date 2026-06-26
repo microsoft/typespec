@@ -261,6 +261,27 @@ model NginxConfigurationRequest {
 
 model ChildResourceListResult is Azure.Core.Page<ChildResource>;
 
+@resource("resourceLroNoBody")
+model ResourceLroNoBody is TrackedResource<ResourceLroNoBodyProperties> {
+  ...ResourceNameParameter<ResourceLroNoBody>;
+}
+
+model ResourceLroNoBodyProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState?: ProvisioningState;
+}
+
+// this model should not be generated
+model ActionInitiateResult {
+  status: string;
+}
+
+// this model should be generated
+model ActionFinalResult {
+  result: string;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
@@ -283,6 +304,14 @@ interface TopLevelArmResourceInterface
     TopLevelArmResource,
     void,
     Result,
+    Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
+  >;
+
+  @action("publishxml")
+  publishXml is ArmResourceActionSync<
+    TopLevelArmResource,
+    void,
+    File<"application/xml", bytes>,
     Azure.ResourceManager.Foundations.BaseParameters<TopLevelArmResource>
   >;
 }
@@ -360,15 +389,38 @@ interface ImmutableResourceModel {
       Azure.ResourceManager.Foundations.DefaultBaseParameters<NginxConfigurationResponse>
     >,
     NginxConfigurationRequest,
-    NginxConfigurationResponse | ArmResourceCreatedResponse<
-      NginxConfigurationResponse,
-      LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
-    >,
+    | NginxConfigurationResponse
+    | ArmResourceCreatedResponse<
+        NginxConfigurationResponse,
+        LroHeaders = ArmAsyncOperationHeader<FinalResult = NginxConfigurationResponse>
+      >,
     ErrorResponse,
     OptionalRequestBody = true
   >;
 }
 
+// LRO without body in response
+@armResourceOperations
+interface LroNoBody {
+  @put
+  createOrUpdate is Azure.ResourceManager.Legacy.CreateOrReplaceAsync<
+    ResourceLroNoBody,
+    Request = ResourceLroNoBody,
+    Response = ArmAcceptedLroResponse<LroHeaders = ArmCombinedLroHeaders<FinalResult = ResourceLroNoBody> &
+      Azure.Core.Foundations.RetryAfterHeader>
+  >;
+
+  @post
+  action is ArmResourceActionAsync<
+    ResourceLroNoBody,
+    void,
+    ActionInitiateResult,
+    LroHeaders = ArmCombinedLroHeaders<FinalResult = ActionFinalResult> &
+      Azure.Core.Foundations.RetryAfterHeader
+  >;
+}
+
+// client configure
 @@clientName(TspTest.ArmResourceProvider, "ArmClient");
 @@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
 @@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");

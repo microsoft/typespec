@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -18,9 +19,20 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public virtual CodeFile Write()
         {
             using var writer = new CodeWriter();
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.DisableStatement.Write(writer);
+            }
+
             using (var ns = writer.SetNamespace(_provider.Type.Namespace))
             {
                 WriteType(writer);
+            }
+
+            foreach (var suppression in _provider.DisabledFileWarnings)
+            {
+                suppression.RestoreStatement.Write(writer);
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
         }
@@ -40,6 +52,10 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             foreach (var attribute in _provider.GetAttributes())
             {
                 attribute.Write(writer);
+                if (attribute is AttributeStatement)
+                {
+                    writer.WriteLine();
+                }
             }
             writer.WriteTypeModifiers(_provider.DeclarationModifiers); // class, struct, enum and interface is written as modifiers in this part
             writer.Append($"{_provider.Type:D}")
@@ -89,22 +105,34 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteFields(writer);
 
                 if (sectionWritten && _provider.Constructors.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteConstructors(writer);
                 sectionWritten |= _provider.Constructors.Any();
 
                 if (sectionWritten && _provider.Properties.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteProperties(writer);
                 sectionWritten |= _provider.Properties.Any();
 
                 if (sectionWritten && _provider.Methods.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteMethods(writer);
                 sectionWritten |= _provider.Methods.Any();
 
                 if (sectionWritten = _provider.NestedTypes.Any())
+                {
                     writer.WriteLine();
+                }
+
                 WriteNestedTypes(writer);
             }
         }
@@ -116,6 +144,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
                     writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
+                    foreach (var attr in _provider.Fields[i].Attributes)
+                    {
+                        attr.Write(writer);
+                        writer.WriteLine();
+                    }
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)
                     {

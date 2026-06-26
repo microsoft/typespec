@@ -192,7 +192,7 @@ Specify how to encode the target type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string). |
+| encodingOrEncodeAs | `Scalar` \| `valueof string \| EnumMember` | Known name of an encoding or a scalar type to encode as(Only for numeric and boolean types to encode as string). |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -218,6 +218,17 @@ scalar myDateTime extends unixTimestamp;
 ```tsp
 model Pet {
   @encode(string) id: int64;
+}
+```
+
+##### encode boolean type to string
+
+
+`@encode(string)` on boolean uses case-insensitive `true` / `false` values.
+
+```tsp
+model FeatureFlags {
+  @encode(string) enabled: boolean;
 }
 ```
 
@@ -1318,6 +1329,9 @@ Visibility may be set explicitly using any of the following decorators:
 
 
 ### `@withLifecycleUpdate` {#@withLifecycleUpdate}
+:::caution
+**Deprecated**: withLifecycleUpdate is deprecated and will be removed in a future release. Use the `Update` template instead.
+:::
 
 Transforms the `target` model to include only properties that are visible during the
 "Update" lifecycle phase.
@@ -1504,6 +1518,9 @@ model DogRead {
 
 
 ### `@withVisibilityFilter` {#@withVisibilityFilter}
+:::caution
+**Deprecated**: withVisibilityFilter is deprecated and will be removed in a future release. Use the `FilterVisibility` template or Lifecycle specific templates (e.g. `Read`, `Create`, `Update`, etc.) instead.
+:::
 
 Applies the given visibility filter to the properties of the target model.
 

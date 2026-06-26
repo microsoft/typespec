@@ -11,15 +11,32 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "{{ options.get('package-name')|lower }}"
 {% if options.get('package-mode') %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.authors') %}
+authors = [
+  {% for author in KEEP_FIELDS.get('project.authors') %}
+  { {% for key, val in author.items() %}{{ key }} = {{ val|tojson }}{% if not loop.last %}, {% endif %}{% endfor %} },
+  {% endfor %}
+]
+{% else %}
 authors = [
   { name = "{{ code_model.company_name }}"{% if code_model.is_azure_flavor %}, email = "azpysdkhelp@microsoft.com"{% endif %} },
 ]
-{% if options.get("azure-arm") %}
+{% endif %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.description') %}
+description = {{ KEEP_FIELDS.get('project.description')|tojson }}
+{% elif options.get("azure-arm") %}
 description = "Microsoft Azure {{ options.get('package-pprint-name') }} Client Library for Python"
 {% else %}
 description = "{{ code_model.company_name }} {% if code_model.is_azure_flavor and not options.get('package-pprint-name').startswith('Azure ') %}Azure {% endif %}{{ options.get('package-pprint-name') }} Client Library for Python"
 {% endif %}
 license = "MIT"
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.classifiers') %}
+classifiers = [
+    {% for classifier in KEEP_FIELDS.get('project.classifiers') %}
+    {{ classifier|tojson }},
+    {% endfor %}
+]
+{% else %}
 classifiers = [
     "Development Status :: {{ dev_status }}",
     "Programming Language :: Python",
@@ -29,16 +46,21 @@ classifiers = [
     "Programming Language :: Python :: 3.{{ version }}",
     {% endfor %}
 ]
+{% endif %}
 requires-python = ">={{ MIN_PYTHON_VERSION }}"
 {% else %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.description') %}
+description = {{ KEEP_FIELDS.get('project.description')|tojson }}
+{% else %}
 description = "{{ options.get('package-name') }}"
+{% endif %}
 {% endif %}
 {% if code_model.is_azure_flavor %}
 keywords = ["azure", "azure sdk"]
 {% endif %}
 
 dependencies = [
-    {% if code_model.is_legacy %}
+    {% if code_model.is_legacy and not code_model.need_utils_serialization %}
     "msrest>={{ VERSION_MAP['msrest'] }}",
     {% else %}
     "isodate>={{ VERSION_MAP['isodate'] }}",
@@ -56,6 +78,9 @@ dependencies = [
     "{{ dep }}",
     {% endfor %}
     {% endif %}
+    {% for dep in ADDITIONAL_DEPENDENCIES %}
+    {{ dep }},
+    {% endfor %}
 ]
 dynamic = [
     {% if options.get('package-mode') %}"version", {% endif %}"readme"
@@ -74,7 +99,13 @@ version = "{{ options.get("package-version", "unknown") }}"
 ]
 {% endfor %}
 {% endif %}
-{% if code_model.is_azure_flavor %}
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
+
+[project.urls]
+{% for key, val in KEEP_FIELDS.get('project.urls').items() %}
+{{ key }} = {{ val|tojson }}
+{% endfor %}
+{% elif code_model.is_azure_flavor %}
 
 [project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python"
@@ -106,11 +137,15 @@ exclude = [
 [tool.setuptools.package-data]
 pytyped = ["py.typed"]
 {% endif %}
-{% if KEEP_FIELDS and KEEP_FIELDS.get('tool.azure-sdk-build') %}
+{% if KEEP_FIELDS %}
+{% for field_key, field_val in KEEP_FIELDS.items() %}
+{% if field_key.startswith('tool.azure-sdk') %}
 
-[tool.azure-sdk-build]
-{% for key, val in KEEP_FIELDS.get('tool.azure-sdk-build').items() %}
+[{{ field_key }}]
+{% for key, val in field_val.items() %}
 {{ key }} = {{ val|tojson }}
+{% endfor %}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% if KEEP_FIELDS and KEEP_FIELDS.get('packaging') %}

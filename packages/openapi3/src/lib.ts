@@ -3,13 +3,15 @@ import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/c
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
+export type EnumStrategy = "default" | "annotated";
 export interface OpenAPI3EmitterOptions {
   /**
-   * If the content should be serialized as YAML or JSON.
+   * If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple file types.
+   * When an array is provided, the `{file-type}` variable can be used in `output-file` to produce distinct filenames.
    * @default yaml, it not specified infer from the `output-file` extension
    */
 
-  "file-type"?: FileType;
+  "file-type"?: FileType | FileType[];
 
   /**
    * Name of the output file.
@@ -18,7 +20,7 @@ export interface OpenAPI3EmitterOptions {
    *  - service-name-if-multiple: Name of the service if multiple
    *  - version: Version of the service if multiple
    *
-   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`
+   * @default `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if {@link OpenAPI3EmitterOptions["file-type"]} is `"json"`. When `file-type` is an array, uses `{file-type}` variable.
    *
    * @example Single service no versioning
    *  - `openapi.yaml`
@@ -45,7 +47,6 @@ export interface OpenAPI3EmitterOptions {
    * will be created inside a directory matching each specification version.
    *
    * @default ["3.0.0"]
-   * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
 
@@ -108,6 +109,20 @@ export interface OpenAPI3EmitterOptions {
         /** Separator used to join segment in the operation name. */
         separator?: string;
       };
+
+  /**
+   * How to emit TypeSpec enums.
+   *
+   *  - `default`: Emit as a single schema using the `enum` keyword.
+   *  - `annotated`: Emit as a `oneOf` of `const` subschemas, each annotated with `title` and `description`
+   *    when the corresponding enum member has `@summary` or `@doc`. This follows the OpenAPI 3.1.1
+   *    [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) pattern.
+   *    Only supported by OpenAPI 3.1.0 and above. When emitting OpenAPI 3.0.0, a warning will be reported
+   *    and the `default` style will be used instead.
+   *
+   * @default "default"
+   */
+  "enum-strategy"?: EnumStrategy;
 }
 
 export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
@@ -130,11 +145,25 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   additionalProperties: false,
   properties: {
     "file-type": {
-      type: "string",
-      enum: ["yaml", "json"],
+      type: ["string", "array"],
       nullable: true,
+      oneOf: [
+        {
+          type: "string",
+          enum: ["yaml", "json"],
+        },
+        {
+          type: "array",
+          items: {
+            type: "string",
+            enum: ["yaml", "json"],
+          },
+          uniqueItems: true,
+          minItems: 1,
+        },
+      ],
       description:
-        "If the content should be serialized as YAML or JSON. Default 'yaml', it not specified infer from the `output-file` extension",
+        "If the content should be serialized as YAML or JSON. Can be a single value or an array to emit multiple formats. Default 'yaml', if not specified infer from the `output-file` extension",
     },
     "output-file": {
       type: "string",
@@ -145,8 +174,10 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - service-name: Name of the service",
         "  - service-name-if-multiple: Name of the service if multiple",
         "  - version: Version of the service if multiple",
+        "  - file-type: The file type being emitted (json or yaml). Useful when `file-type` is an array.",
         "",
         ' Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`',
+        " When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`",
         "",
         " Example Single service no versioning",
         "  - `openapi.yaml`",
@@ -252,6 +283,19 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         },
       ],
     } as any,
+    "enum-strategy": {
+      type: "string",
+      enum: ["default", "annotated"],
+      nullable: true,
+      default: "default",
+      description: [
+        "How to emit TypeSpec enums. Options are:",
+        " - `default`: Emit as a single schema using the `enum` keyword.",
+        " - `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`",
+        "   from each member's `@summary` and `@doc`. Follows the OpenAPI 3.1.1 annotated enumerations pattern.",
+        "   Only supported by OpenAPI 3.1.0 and above; on 3.0.0 the `default` style is used and a warning is reported.",
+      ].join("\n"),
+    },
   },
   required: [],
 };
@@ -404,6 +448,19 @@ export const $lib = createTypeSpecLibrary({
       messages: {
         default:
           "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
+      },
+    },
+    "default-not-supported": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Default value is not supported in OpenAPI 3.0 ${"message"}`,
+      },
+    },
+    "enum-strategy-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "`enum-strategy: annotated` is only supported for OpenAPI 3.1.0 and above. The default enum strategy will be used for OpenAPI 3.0.0.",
       },
     },
   },

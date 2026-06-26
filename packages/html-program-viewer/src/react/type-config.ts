@@ -57,6 +57,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     unions: "nested-items",
     enums: "nested-items",
     decoratorDeclarations: "nested-items",
+    functionDeclarations: "nested-items",
   },
   Interface: {
     operations: "nested-items",
@@ -117,6 +118,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     parameters: "nested-items",
     implementation: "skip",
     target: "ref",
+    declarationKind: "value",
   },
   ScalarConstructor: {
     scalar: "parent",
@@ -146,8 +148,14 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     constraint: "value",
     default: "value",
   },
+  TemplateParameterAccess: {
+    constraint: "value",
+    base: "skip",
+    path: "skip",
+  },
 
   // Don't want to expose those for now
+  FunctionType: null,
   Intrinsic: null,
 });
 

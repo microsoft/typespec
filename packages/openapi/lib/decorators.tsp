@@ -118,14 +118,31 @@ extern dec info(target: Namespace, additionalInfo: valueof AdditionalInfo);
 
 /** Metadata to a single tag that is used by operations. */
 model TagMetadata {
-  /** A description of the API. */
+  /** A description of the tag. */
   description?: string;
 
-  /** An external Docs information of the API. */
+  /** External documentation information for the tag. */
   externalDocs?: ExternalDocs;
+
+  /** The name of a tag that this tag is nested under. Only supported in OpenAPI 3.2. For 3.0 and 3.1, this will be converted to `x-parent`. */
+  parent?: string;
+
+  /** A short summary of the tag, used for display purposes. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-summary`. */
+  summary?: string;
+
+  /** A machine-readable string to categorize what sort of tag it is. Any string value can be used. Only supported natively in OpenAPI 3.2. For 3.0 and 3.1, this will be emitted as `x-oai-kind`. */
+  kind?: string;
 
   /** Attach some custom data, The extension key must start with `x-`. */
   ...Record<unknown>;
+}
+
+/** Metadata for a tag that includes the name of the tag. Used with the array form of `@tagMetadata`. */
+model TagMetadataWithName {
+  /** The name of the tag. */
+  name: string;
+
+  ...TagMetadata;
 }
 
 /** External Docs information. */
@@ -141,15 +158,33 @@ model ExternalDocs {
 }
 
 /**
- * Specify OpenAPI additional information.
- * @param name tag name
- * @param tagMetadata Additional information
+ * Specify OpenAPI tag metadata. Can be used in two forms:
+ * - Inline form: specify a single tag by name with optional metadata.
+ * - Array form: specify an ordered list of tags with their metadata in a single decorator call.
  *
- * @example
+ * @param name Tag name (inline form) or array of tags with metadata (array form).
+ * @param tagMetadata Additional information for the tag. Only used in inline form.
+ *
+ * @example Inline form
  * ```typespec
  * @service()
  * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * @tagMetadata("Child Tag", #{description: "Child tag description", parent: "Tag Name"})
+ * namespace PetStore {}
+ * ```
+ *
+ * @example Array form (preserves explicit tag order)
+ * ```typespec
+ * @service()
+ * @tagMetadata(#[
+ *   #{ name: "First Tag", description: "First tag description" },
+ *   #{ name: "Second Tag", description: "Second tag description" },
+ * ])
  * namespace PetStore {}
  * ```
  */
-extern dec tagMetadata(target: Namespace, name: valueof string, tagMetadata: valueof TagMetadata);
+extern dec tagMetadata(
+  target: Namespace,
+  name: valueof string | TagMetadataWithName[],
+  tagMetadata?: valueof TagMetadata
+);

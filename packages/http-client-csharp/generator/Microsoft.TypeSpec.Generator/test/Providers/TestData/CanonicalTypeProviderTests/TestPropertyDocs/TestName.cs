@@ -2,6 +2,7 @@ using System.ClientModel.Primitives;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Sample;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models
 {

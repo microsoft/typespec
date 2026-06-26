@@ -14,15 +14,6 @@
     "jsx": "react-jsx",
     "lib": ["DOM"]
   },
-  "references": [{ "path": "../compiler/tsconfig.json" }],
-  "include": [
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx",
-    "src/",
-    "test/**/*.ts",
-    "e2e/**/*.ts",
-    "vite.config.ts",
-    "definitions/*.d.ts",
-    "stories/"
-  ]
+  "exclude": ["test", "vitest.config.ts"],
+  "references": [{ "path": "../compiler/tsconfig.json" }]
 }

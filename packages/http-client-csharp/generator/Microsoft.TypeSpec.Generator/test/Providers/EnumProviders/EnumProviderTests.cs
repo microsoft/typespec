@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
@@ -364,6 +366,276 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(rootTypes.Contains("Sample.Models.StringEnum"));
         }
 
+        // Validates that int enum member order is preserved from the last contract when values are reordered
+        [Test]
+        public async Task BackCompat_IntEnumOrderPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract (Default first, Recover second)
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        // Validates that int enum member order is preserved and new values are appended
+        [Test]
+        public async Task BackCompat_IntEnumNewValueAppended()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has different order AND a new value
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+                ("Third", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second, new value Third appended
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+            Assert.AreEqual("Third", fields[2].Name);
+
+            // No explicit initialization values for reordered members - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+            // New value keeps its initialization value from the input
+            var value3 = fields[2].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(value3);
+            Assert.AreEqual(2, value3?.Literal);
+        }
+
+        // Validates that removed enum values from last contract are not included
+        [Test]
+        public async Task BackCompat_IntEnumValueRemoved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in different order and removed "Third"
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract for members that still exist
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // No explicit initialization values - compiler auto-assigns based on order
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        // Validates that string enum order is also preserved from last contract
+        [Test]
+        public async Task BackCompat_StringEnumOrderPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Current input has values in DIFFERENT order than last contract
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+
+            // Simulate the back-compat processing that CSharpGen performs after visitors
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order should be preserved from last contract: Recover first, Default second
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+        }
+
+        // Verifies that back-compat does NOT re-introduce enum values that have been suppressed
+        // via [CodeGenSuppress] or that already exist in user-provided custom code. Without
+        // filtering in ProcessTypeForBackCompatibility, the back-compat code would rebuild the
+        // field set from EnumValues (which is unfiltered) and overwrite the previously-filtered
+        // fields, causing the suppressed/customized values to reappear.
+        [Test]
+        public async Task BackCompat_FixedEnumSuppressedValueNotReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("One", 1),
+                ("Two", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            // Sanity check: the custom code view must be matched.
+            Assert.IsNotNull(enumType.CustomCodeView, "CustomCodeView should be loaded from the (Custom) directory.");
+            Assert.AreEqual("MockInputEnum", enumType.CustomCodeView!.Name);
+            // Custom code: enum { Two = 2 } with [CodeGenSuppress("One")]
+            Assert.IsTrue(enumType.CustomCodeView.Fields.Any(f => f.Name == "Two"));
+            Assert.IsTrue(enumType.CustomCodeView.Attributes.Any(a => a.Type.Name == "CodeGenSuppressAttribute"));
+
+            // Simulate the production pipeline (CSharpGen.ExecuteAsync):
+            // 1) EnsureBuilt to populate caches from the spec (no filtering),
+            // 2) Update through the FilterAllCustomizedMembers pass to apply [CodeGenSuppress] and
+            //    custom-code filtering,
+            // 3) ProcessTypeForBackCompatibility to add back-compat members from the last contract.
+            enumType.EnsureBuilt();
+            enumType.Update(
+                enumType.Methods,
+                enumType.Constructors,
+                enumType.Properties,
+                enumType.Fields);
+
+            // After filtering, the generated provider should not emit any enum fields:
+            // 'One' is suppressed and 'Two' is provided by the user's custom enum.
+            Assert.AreEqual(0, enumType.Fields.Count);
+
+            enumType.ProcessTypeForBackCompatibility();
+
+            // After back-compat, suppressed/customized fields must NOT be re-introduced.
+            // The generated provider should still emit no fields, letting the user's custom enum
+            // be the source of truth.
+            Assert.AreEqual(0, enumType.Fields.Count);
+
+            // _enumValues is kept in sync so back-compat does not leak suppressed values via the
+            // EnumValues collection either.
+            Assert.AreEqual(0, enumType.EnumValues.Count);
+        }
+
+        // Validates that an IsExactName-marked value on a fixed string-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            // first value is not exact-name, regular casing applies
+            Assert.AreEqual("One", fields[0].Name);
+            // second value is exact-name, the spec name is preserved verbatim (no PascalCasing)
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on a fixed int-based enum preserves its
+        // exact-case name (skipping .ToIdentifierName()) on the generated field.
+        [TestCase]
+        public void BuildEnumType_FixedIntEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.Int32,
+                enumValues);
+            enumValues.Add(InputFactory.EnumMember.Int32("One", 1, enumType));
+            enumValues.Add(InputFactory.EnumMember.Int32("snake_case_value", 2, enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("One", fields[0].Name);
+            Assert.AreEqual("snake_case_value", fields[1].Name);
+        }
+
+        // Validates that an IsExactName-marked value on an extensible string-based enum preserves
+        // its exact-case name (skipping .ToIdentifierName()) on both the generated field (with
+        // the `Value` suffix appended) and the generated public property.
+        [TestCase]
+        public void BuildEnumType_ExtensibleStringEnum_IsExactNameValuePreserved()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(string));
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumType = InputFactory.Enum(
+                "mockInputEnum",
+                InputPrimitiveType.String,
+                enumValues,
+                isExtensible: true);
+            enumValues.Add(InputFactory.EnumMember.String("One", "1", enumType));
+            enumValues.Add(InputFactory.EnumMember.String("snake_case_value", "2", enumType, isExactName: true));
+
+            var enumProvider = EnumProvider.Create(enumType);
+            var fields = enumProvider.Fields;
+            var properties = enumProvider.Properties;
+
+            // a private `_value` field + two values
+            Assert.AreEqual(3, fields.Count);
+            Assert.AreEqual("_value", fields[0].Name);
+            Assert.AreEqual("OneValue", fields[1].Name);
+            // exact-name value: name preserved verbatim, with the `Value` suffix appended
+            Assert.AreEqual("snake_case_valueValue", fields[2].Name);
+
+            Assert.AreEqual(2, properties.Count);
+            Assert.AreEqual("One", properties[0].Name);
+            Assert.AreEqual("snake_case_value", properties[1].Name);
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");
@@ -375,6 +647,95 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(
                 "global::System.ComponentModel.EditorBrowsableState.Never",
                 getHashCodeMethod.Signature.Attributes[0].Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void ValidateGeneratedIntFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(int));
+
+            var input = InputFactory.Int32Enum("WeatherIconCode", [
+                ("Sunny", 1),
+                ("MostlySunny", 2),
+                ("PartlyCloudy", 3),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public void ValidateGeneratedLongFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(long));
+
+            var input = InputFactory.Int64Enum("WeatherTimestamp", [
+                ("Epoch", 0L),
+                ("Y2K", 946684800L),
+                ("MaxValue", long.MaxValue),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
+        public void ValidateGeneratedFloatFixedEnum()
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (inputType) => typeof(float));
+
+            var input = InputFactory.Float32Enum("TemperatureScale", [
+                ("OneDotOne", 1.1f),
+                ("TwoDotTwo", 2.2f),
+                ("FourDotFour", 4.4f),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [TestCase("byte")]
+        [TestCase("sbyte")]
+        [TestCase("short")]
+        [TestCase("ushort")]
+        [TestCase("int")]
+        [TestCase("uint")]
+        [TestCase("long")]
+        [TestCase("ulong")]
+        [TestCase("float")]
+        [TestCase("double")]
+        [TestCase("string")]
+        public void FixedEnumBaseType_OnlyEmittedForAllowedIntegralTypes(string underlyingKeyword)
+        {
+            var underlying = underlyingKeyword switch
+            {
+                "byte" => typeof(byte),
+                "sbyte" => typeof(sbyte),
+                "short" => typeof(short),
+                "ushort" => typeof(ushort),
+                "int" => typeof(int),
+                "uint" => typeof(uint),
+                "long" => typeof(long),
+                "ulong" => typeof(ulong),
+                "float" => typeof(float),
+                "double" => typeof(double),
+                "string" => typeof(string),
+                _ => throw new ArgumentOutOfRangeException(nameof(underlyingKeyword)),
+            };
+
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: (_) => underlying);
+
+            var input = InputFactory.Int32Enum("MockEnum", [("One", 1), ("Two", 2)]);
+            var enumType = EnumProvider.Create(input);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(underlyingKeyword), content);
         }
     }
 }

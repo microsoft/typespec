@@ -33,12 +33,8 @@ public final class MixedSubscriptionPlacementResourceGroupResourceOperationsImpl
         String resourceGroupResourceName, Context context) {
         Response<ResourceGroupResourceInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, resourceGroupResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ResourceGroupResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ResourceGroupResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ResourceGroupResource getByResourceGroup(String resourceGroupName, String resourceGroupResourceName) {

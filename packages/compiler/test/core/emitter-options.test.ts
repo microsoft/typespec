@@ -2,7 +2,8 @@ import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { Diagnostic, EmitContext, createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
+import { mockFile } from "../../src/testing/fs.js";
+import { Tester } from "../tester.js";
 
 const fakeEmitter = createTypeSpecLibrary({
   name: "fake-emitter",
@@ -24,25 +25,22 @@ describe("compiler: emitter options", () => {
     options: Record<string, unknown>,
   ): Promise<[EmitContext | undefined, readonly Diagnostic[]]> {
     let emitContext: EmitContext | undefined;
-    const host = await createTestHost();
-    host.addTypeSpecFile("main.tsp", "");
-    host.addTypeSpecFile(
-      "node_modules/fake-emitter/package.json",
-      JSON.stringify({
+    const diagnostics = await Tester.files({
+      "node_modules/fake-emitter/package.json": JSON.stringify({
         main: "index.js",
       }),
-    );
-    host.addJsFile("node_modules/fake-emitter/index.js", {
-      $lib: fakeEmitter,
-      $onEmit: (ctx: EmitContext) => {
-        emitContext = ctx;
-      },
-    });
-
-    const diagnostics = await host.diagnose("main.tsp", {
-      emit: ["fake-emitter"],
-      options: {
-        "fake-emitter": options,
+      "node_modules/fake-emitter/index.js": mockFile.js({
+        $lib: fakeEmitter,
+        $onEmit: (ctx: EmitContext) => {
+          emitContext = ctx;
+        },
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["fake-emitter"],
+        options: {
+          "fake-emitter": options,
+        },
       },
     });
     return [emitContext, diagnostics];
@@ -140,35 +138,29 @@ describe("compiler: emitter options defined in TypeSpec", () => {
   async function diagnoseEmitterOptions(
     options: Record<string, unknown>,
   ): Promise<readonly Diagnostic[]> {
-    const host = await createTestHost();
-    host.addTypeSpecFile("main.tsp", "");
-    host.addTypeSpecFile(
-      "node_modules/tsp-options-emitter/package.json",
-      JSON.stringify({
+    return Tester.files({
+      "node_modules/tsp-options-emitter/package.json": JSON.stringify({
         main: "index.js",
         exports: {
           ".": "./index.js",
           "./options": { typespec: "./options.tsp" },
         },
       }),
-    );
-    host.addTypeSpecFile(
-      "node_modules/tsp-options-emitter/options.tsp",
-      `model EmitterOptions {
+      "node_modules/tsp-options-emitter/options.tsp": `model EmitterOptions {
         name?: string;
         count?: int32;
         format?: "yaml" | "json";
       }`,
-    );
-    host.addJsFile("node_modules/tsp-options-emitter/index.js", {
-      $lib: tspOptionsEmitter,
-      $onEmit: () => {},
-    });
-
-    return host.diagnose("main.tsp", {
-      emit: ["tsp-options-emitter"],
-      options: {
-        "tsp-options-emitter": options,
+      "node_modules/tsp-options-emitter/index.js": mockFile.js({
+        $lib: tspOptionsEmitter,
+        $onEmit: () => {},
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["tsp-options-emitter"],
+        options: {
+          "tsp-options-emitter": options,
+        },
       },
     });
   }

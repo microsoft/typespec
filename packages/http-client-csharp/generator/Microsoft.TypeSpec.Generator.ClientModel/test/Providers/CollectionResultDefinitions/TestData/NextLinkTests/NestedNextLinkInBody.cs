@@ -27,7 +27,7 @@ namespace Sample
             global::System.Uri nextPageUri = null;
             while (true)
             {
-                global::System.ClientModel.ClientResult result = global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
+                global::System.ClientModel.ClientResult result = this.GetNextResponse(message);
                 yield return result;
 
                 nextPageUri = ((global::Sample.Models.Page)result).NestedNext?.NextCat;
@@ -44,12 +44,17 @@ namespace Sample
             global::System.Uri nextPage = ((global::Sample.Models.Page)page).NestedNext?.NextCat;
             if ((nextPage != null))
             {
-                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.AbsoluteUri));
+                return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
             }
             else
             {
                 return null;
             }
+        }
+
+        private global::System.ClientModel.ClientResult GetNextResponse(global::System.ClientModel.Primitives.PipelineMessage message)
+        {
+            return global::System.ClientModel.ClientResult.FromResponse(_client.Pipeline.ProcessMessage(message, _options));
         }
     }
 }

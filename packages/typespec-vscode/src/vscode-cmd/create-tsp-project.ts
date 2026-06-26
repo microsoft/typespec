@@ -251,7 +251,7 @@ export async function createTypeSpecProject(
           }
 
           type nextStepChoice = "Add to workspace" | "Open in New Window" | "Ignore";
-          let nextStep: nextStepChoice = "Ignore";
+          let nextStep: nextStepChoice;
           const normalizedRootFolder = normalizePath(selectedRootFolder);
           const isFolderOpenedInWorkspace =
             vscode.workspace.workspaceFolders?.find(
@@ -334,6 +334,11 @@ export async function createTypeSpecProject(
           return ResultCode.Success;
         },
       );
+    },
+    undefined,
+    (e) => {
+      logger.error(`Unexpected error when creating TypeSpec project.`, [e]);
+      return ResultCode.Fail;
     },
   );
 }

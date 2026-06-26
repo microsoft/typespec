@@ -35,7 +35,7 @@ function renderMultipartRequest(body: MockMultipartBody) {
   return formData;
 }
 
-function resolveUrl(request: ServiceRequest) {
+function resolveUrl(request: ServiceRequest, config: ResolverConfig) {
   let endpoint = request.url;
 
   if (request.pathParams) {
@@ -47,14 +47,15 @@ function resolveUrl(request: ServiceRequest) {
   endpoint = endpoint.replaceAll("\\:", ":");
 
   if (request.query) {
+    const resolved = expandDyns(request.query, config);
     const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(request.query)) {
+    for (const [key, value] of Object.entries(resolved)) {
       if (Array.isArray(value)) {
         for (const v of value) {
-          query.append(key, v);
+          query.append(key, String(v));
         }
       } else {
-        query.append(key, value as any);
+        query.append(key, String(value));
       }
     }
     endpoint = `${endpoint}?${query.toString()}`;
@@ -66,9 +67,9 @@ export async function makeServiceCall(
   request: ServiceRequest,
   config: ResolverConfig,
 ): Promise<Response> {
-  const url = resolveUrl(request);
+  const url = resolveUrl(request, config);
   let body;
-  let headers = expandDyns(request.headers, config) as Record<string, string>;
+  let headers = expandDyns(request.headers, config) as Record<string, string> | undefined;
   if (request.body) {
     if ("kind" in request.body) {
       const formData = renderMultipartRequest(request.body);

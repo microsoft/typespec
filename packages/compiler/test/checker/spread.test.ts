@@ -13,7 +13,7 @@ it("clones decorated properties", async () => {
     import "./blue.js";
     model A { @blue foo: string }
     model B { @blue bar: string }
-    @test model ${t.model("C")} { ... A, ... B }
+    model ${t.model("C")} { ... A, ... B }
   `);
 
   strictEqual(C.properties.size, 2);
@@ -113,7 +113,7 @@ describe("circular reference", () => {
   });
 
   // https://github.com/microsoft/typespec/issues/7956
-  it.skip("emit diagnostic if models spread each other", async () => {
+  it("emit diagnostic if models spread each other", async () => {
     const diagnostics = await Tester.diagnose(`
       model Foo { ...Bar }
       model Bar { ...Foo }

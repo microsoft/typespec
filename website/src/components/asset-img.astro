@@ -7,12 +7,13 @@ import type { HTMLAttributes } from "astro/types";
 
 export interface AssetImgProps extends HTMLAttributes<"img"> {
   src: string;
+  class?: string;
 }
 
-const { src, alt, ...rest } = Astro.props;
+const { src, alt, class: className, ...rest } = Astro.props;
 ---
 
-<img class="img" src={baseUrl(`/img/${src}`)} alt={alt ?? ""} {...rest} />
+<img class:list={["img", className]} src={baseUrl(`/img/${src}`)} alt={alt ?? ""} {...rest} />
 
 <style>
   .img {

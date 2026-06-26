@@ -1,0 +1,165 @@
+{
+  "name": "SampleNamespace",
+  "models": [
+    {
+      "$id": "1",
+      "kind": "model",
+      "name": "XmlBook",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.XmlBook",
+      "usage": "Input,Output,Xml",
+      "decorators": [
+        {
+          "name": "TypeSpec.Xml.@name",
+          "arguments": {
+            "name": "XmlBookElement"
+          }
+        }
+      ],
+      "serializationOptions": {
+        "xml": {
+          "name": "XmlBookElement"
+        }
+      },
+      "properties": [
+        {
+          "$id": "2",
+          "kind": "property",
+          "name": "id",
+          "serializedName": "id",
+          "type": {
+            "$id": "3",
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [
+            {
+              "name": "TypeSpec.Xml.@attribute",
+              "arguments": {}
+            }
+          ],
+          "crossLanguageDefinitionId": "SampleNamespace.XmlBook.id",
+          "serializationOptions": {
+            "xml": {
+              "name": "id",
+              "attribute": true,
+              "unwrapped": false
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "4",
+          "kind": "property",
+          "name": "title",
+          "serializedName": "BookTitle",
+          "type": {
+            "$id": "5",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [
+            {
+              "name": "TypeSpec.Xml.@name",
+              "arguments": {
+                "name": "BookTitle"
+              }
+            }
+          ],
+          "crossLanguageDefinitionId": "SampleNamespace.XmlBook.title",
+          "serializationOptions": {
+            "xml": {
+              "name": "BookTitle",
+              "attribute": false,
+              "unwrapped": false
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "6",
+          "kind": "property",
+          "name": "authors",
+          "serializedName": "authors",
+          "type": {
+            "$id": "7",
+            "kind": "array",
+            "name": "Array",
+            "valueType": {
+              "$id": "8",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string",
+              "decorators": []
+            },
+            "crossLanguageDefinitionId": "TypeSpec.Array",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [
+            {
+              "name": "TypeSpec.Xml.@unwrapped",
+              "arguments": {}
+            }
+          ],
+          "crossLanguageDefinitionId": "SampleNamespace.XmlBook.authors",
+          "serializationOptions": {
+            "xml": {
+              "name": "authors",
+              "attribute": false,
+              "unwrapped": true,
+              "itemsName": "author"
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "9",
+          "kind": "property",
+          "name": "content",
+          "serializedName": "content",
+          "type": {
+            "$id": "10",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.XmlBook.content",
+          "serializationOptions": {
+            "xml": {
+              "name": "content",
+              "attribute": false,
+              "unwrapped": false
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ],
+  "clients": [],
+  "constants": [],
+  "enums": [],
+  "auth": {}
+}

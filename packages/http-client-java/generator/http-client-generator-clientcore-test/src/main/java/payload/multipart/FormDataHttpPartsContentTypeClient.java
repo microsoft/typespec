@@ -42,14 +42,12 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> imageJpegContentTypeWithResponse(FileWithHttpPartSpecificContentTypeRequest body,
         RequestContext requestContext) {
-        // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
         return this.instrumentation.instrumentWithResponse(
             "Payload.MultiPart.FormData.HttpParts.ContentType.imageJpegContentType", requestContext,
             updatedContext -> this.serviceClient.imageJpegContentTypeWithResponse(body, updatedContext));
@@ -77,14 +75,12 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requiredContentTypeWithResponse(FileWithHttpPartRequiredContentTypeRequest body,
         RequestContext requestContext) {
-        // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
         return this.instrumentation.instrumentWithResponse(
             "Payload.MultiPart.FormData.HttpParts.ContentType.requiredContentType", requestContext,
             updatedContext -> this.serviceClient.requiredContentTypeWithResponse(body, updatedContext));
@@ -112,14 +108,12 @@ public final class FormDataHttpPartsContentTypeClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> optionalContentTypeWithResponse(FileWithHttpPartOptionalContentTypeRequest body,
         RequestContext requestContext) {
-        // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
-        // hence not generated.
         return this.instrumentation.instrumentWithResponse(
             "Payload.MultiPart.FormData.HttpParts.ContentType.optionalContentType", requestContext,
             updatedContext -> this.serviceClient.optionalContentTypeWithResponse(body, updatedContext));

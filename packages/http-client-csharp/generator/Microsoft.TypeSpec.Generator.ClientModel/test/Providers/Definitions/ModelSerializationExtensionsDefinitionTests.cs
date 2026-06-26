@@ -1,16 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore mpfd
+
 using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.Tests;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+
+#pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 {
@@ -200,6 +205,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(getRequiredStringMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
             Assert.AreEqual(1, getRequiredStringMethod.Signature.Parameters.Count);
             Assert.AreEqual(typeof(JsonElement), getRequiredStringMethod.Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateGetUtf8BytesMethodIsGenerated()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getUtf8BytesMethod = methods.SingleOrDefault(m => m.Signature.Name == "GetUtf8Bytes");
+            Assert.IsNotNull(getUtf8BytesMethod, "GetUtf8Bytes method should be generated");
+            Assert.AreEqual(typeof(BinaryData), getUtf8BytesMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(1, getUtf8BytesMethod.Signature.Parameters.Count);
+            Assert.AreEqual(typeof(JsonElement), getUtf8BytesMethod.Signature.Parameters[0].Type.FrameworkType);
         }
 
         [Test]
@@ -409,5 +433,378 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public void ValidateXmlGetDateTimeOffsetMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getDateTimeOffsetMethods = methods.Where(m => m.Signature.Name == "GetDateTimeOffset").ToList();
+            Assert.IsTrue(getDateTimeOffsetMethods.Count >= 2, "GetDateTimeOffset methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getDateTimeOffsetMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetDateTimeOffset for XElement should be generated");
+            Assert.AreEqual(typeof(DateTimeOffset), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlGetTimeSpanMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getTimeSpanMethods = methods.Where(m => m.Signature.Name == "GetTimeSpan").ToList();
+            Assert.IsTrue(getTimeSpanMethods.Count >= 2, "GetTimeSpan methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getTimeSpanMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetTimeSpan for XElement should be generated");
+            Assert.AreEqual(typeof(TimeSpan), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlGetBytesFromBase64MethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getBytesFromBase64Methods = methods.Where(m => m.Signature.Name == "GetBytesFromBase64").ToList();
+            Assert.IsTrue(getBytesFromBase64Methods.Count >= 2, "GetBytesFromBase64 methods should include both JsonElement and XElement versions");
+
+            // Check XElement version
+            var xElementMethod = getBytesFromBase64Methods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement));
+            Assert.IsNotNull(xElementMethod, "GetBytesFromBase64 for XElement should be generated");
+            Assert.AreEqual(typeof(byte[]), xElementMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(xElementMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(typeof(string), xElementMethod.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        [Test]
+        public void ValidateXmlWriteStringValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteStringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 2);
+
+            var xmlWriterDateTimeOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(DateTimeOffset));
+            Assert.IsNotNull(xmlWriterDateTimeOverload);
+
+            var xmlWriterTimeSpanOverload = writeStringValueMethods.FirstOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
+                m.Signature.Parameters[1].Type.FrameworkType == typeof(TimeSpan));
+            Assert.IsNotNull(xmlWriterTimeSpanOverload);
+        }
+
+        [Test]
+        public void ValidateXmlWriteObjectValueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteObjectValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
+        }
+
+        [Test]
+        public void ValidateXmlWriteBase64StringVAlueMethodIsGenerated()
+        {
+            // Create a model with XML usage to enable XML extension methods
+            var xmlModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var writeStringValueMethods = methods
+                .Where(m => m.Signature.Name == "WriteBase64StringValue"
+                    && m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.IsTrue(writeStringValueMethods.Count == 1);
+        }
+
+        [Test]
+        public void ValidateXmlMethodsAreNotGeneratedWhenNoXmlSupport()
+        {
+            // Load generator without any XML models
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+
+            // Verify that no XElement methods are generated
+            var xElementMethods = methods.Where(m =>
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement)).ToList();
+            Assert.AreEqual(0, xElementMethods.Count, "No XElement methods should be generated when library doesn't support XML");
+        }
+
+        // Verifies the WriteFileBinaryContent extension is emitted when a Json-usage model has a FileBinaryContent property.
+        [Test]
+        public void ValidateWriteFileBinaryContentMethodIsGeneratedWhenJsonModelHasFileBinaryContent()
+        {
+            var jsonFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("file", InputFactory.FileType(), isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [jsonFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var method = definition.Methods.SingleOrDefault(m => m.Signature.Name == "WriteFileBinaryContent");
+            Assert.IsNotNull(method, "WriteFileBinaryContent should be generated for Json-usage models containing a FileBinaryContent property.");
+            Assert.IsTrue(method!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(2, method.Signature.Parameters.Count);
+            Assert.AreEqual(typeof(Utf8JsonWriter), method.Signature.Parameters[0].Type.FrameworkType);
+            Assert.AreEqual(typeof(System.ClientModel.FileBinaryContent), method.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        // Verifies the WriteFileBinaryContent extension is NOT emitted when no Json-usage model carries a FileBinaryContent property.
+        [Test]
+        public void ValidateWriteFileBinaryContentMethodIsNotGeneratedWhenNoJsonFileBinaryContent()
+        {
+            // Multipart-only model with a file part should not trigger the JSON helper.
+            var mpfdFileModel = InputFactory.Model(
+                "MultiPartRequest",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties:
+                [
+                    InputFactory.Property(
+                        "profileImage",
+                        InputFactory.FileType(),
+                        isRequired: true,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            multipart: InputFactory.Serialization.Multipart("profileImage", isFilePart: true)))
+                ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [mpfdFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            Assert.IsNull(
+                definition.Methods.SingleOrDefault(m => m.Signature.Name == "WriteFileBinaryContent"),
+                "WriteFileBinaryContent should not be generated when only multipart models carry FileBinaryContent.");
+            Assert.IsEmpty(
+                definition.DisabledFileWarnings,
+                "No file-level suppression should be emitted when no Json-usage model carries FileBinaryContent.");
+        }
+
+        // Snapshot of the generated WriteFileBinaryContent extension method body.
+        [Test]
+        public void ValidateWriteFileBinaryContentMethod()
+        {
+            var jsonFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("file", InputFactory.FileType(), isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [jsonFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var method = definition.Methods.SingleOrDefault(m => m.Signature.Name == "WriteFileBinaryContent");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Snapshot of the WriteObjectValue<T> switch — verifies the FileBinaryContent case is emitted.
+        [Test]
+        public void ValidateWriteObjectValueIncludesFileBinaryContentCase()
+        {
+            var jsonFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("file", InputFactory.FileType(), isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [jsonFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            // The generic WriteObjectValue<T> overload contains the FBC case.
+            var method = definition.Methods
+                .Where(m => m.Signature.Name == "WriteObjectValue" && m.Signature.GenericArguments?.Count > 0)
+                .SingleOrDefault();
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Verifies the WriteFileBinaryContent XML extension is emitted when an Xml-usage model has a FileBinaryContent property.
+        [Test]
+        public void ValidateWriteFileBinaryContentXmlMethodIsGeneratedWhenXmlModelHasFileBinaryContent()
+        {
+            var xmlFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "file",
+                    InputFactory.FileType(),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("file")))]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var method = definition.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "WriteFileBinaryContent" &&
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XmlWriter));
+            Assert.IsNotNull(method, "XML WriteFileBinaryContent should be generated for Xml-usage models containing a FileBinaryContent property.");
+            Assert.IsTrue(method!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(2, method.Signature.Parameters.Count);
+            Assert.AreEqual(typeof(XmlWriter), method.Signature.Parameters[0].Type.FrameworkType);
+            Assert.AreEqual(typeof(System.ClientModel.FileBinaryContent), method.Signature.Parameters[1].Type.FrameworkType);
+        }
+
+        // Verifies the WriteFileBinaryContent XML extension is NOT emitted when no Xml-usage model carries a FileBinaryContent property.
+        [Test]
+        public void ValidateWriteFileBinaryContentXmlMethodIsNotGeneratedWhenNoXmlFileBinaryContent()
+        {
+            // Json-only model with a FileBinaryContent property should NOT trigger the XML helper.
+            var jsonFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("file", InputFactory.FileType(), isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [jsonFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            Assert.IsNull(
+                definition.Methods.SingleOrDefault(m =>
+                    m.Signature.Name == "WriteFileBinaryContent" &&
+                    m.Signature.Parameters.Count > 0 &&
+                    m.Signature.Parameters[0].Type.FrameworkType == typeof(XmlWriter)),
+                "XML WriteFileBinaryContent should not be generated when only Json-usage models carry FileBinaryContent.");
+        }
+
+        // Snapshot of the generated XML WriteFileBinaryContent extension method body.
+        [Test]
+        public void ValidateWriteFileBinaryContentXmlMethod()
+        {
+            var xmlFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "file",
+                    InputFactory.FileType(),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("file")))]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var method = definition.Methods.SingleOrDefault(m =>
+                m.Signature.Name == "WriteFileBinaryContent" &&
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XmlWriter));
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                definition,
+                name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Snapshot of the XML WriteObjectValue<T> switch — verifies the FileBinaryContent case is emitted.
+        [Test]
+        public void ValidateWriteObjectValueXmlIncludesFileBinaryContentCase()
+        {
+            var xmlFileModel = InputFactory.Model(
+                "TestFileModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml,
+                properties: [InputFactory.Property(
+                    "file",
+                    InputFactory.FileType(),
+                    isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("file")))]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlFileModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            // The XML generic WriteObjectValue<T> overload (first param is XmlWriter) contains the FBC case.
+            var method = definition.Methods
+                .Where(m => m.Signature.Name == "WriteObjectValue" &&
+                            m.Signature.GenericArguments?.Count > 0 &&
+                            m.Signature.Parameters.Count > 0 &&
+                            m.Signature.Parameters[0].Type.FrameworkType == typeof(XmlWriter))
+                .SingleOrDefault();
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                definition,
+                m => m == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }
+#pragma warning restore SCME0004

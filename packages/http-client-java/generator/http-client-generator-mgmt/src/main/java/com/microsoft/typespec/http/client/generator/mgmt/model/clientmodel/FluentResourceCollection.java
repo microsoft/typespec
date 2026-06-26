@@ -21,7 +21,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -153,15 +153,15 @@ public class FluentResourceCollection {
     public List<FluentCollectionMethod> getMethodsForTemplate() {
         List<FluentCollectionMethod> fluentMethods = new ArrayList<>(methods);
 
-        Set<FluentCollectionMethod> excludeMethods = new HashSet<>();
-        excludeMethods.addAll(this.getResourceCreates()
+        Set<FluentCollectionMethod> excludeMethods = new LinkedHashSet<>();
+        this.getResourceCreates()
             .stream()
             .flatMap(rc -> rc.getMethodReferences().stream())
-            .collect(Collectors.toSet()));
-        excludeMethods.addAll(this.getResourceUpdates()
+            .forEach(excludeMethods::add);
+        this.getResourceUpdates()
             .stream()
             .flatMap(ru -> ru.getMethodReferences().stream())
-            .collect(Collectors.toSet()));
+            .forEach(excludeMethods::add);
         fluentMethods.removeAll(excludeMethods);
 
         return fluentMethods;

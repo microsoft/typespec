@@ -35,15 +35,15 @@ final class ResponseTypeFactory {
 
         if (isProtocolMethod) {
             if (bodyType.equals(PrimitiveType.VOID)) {
-                return mono(GenericType.Response(ClassType.VOID));
+                return mono(GenericType.response(ClassType.VOID));
             }
-            return mono(GenericType.Response(bodyType));
+            return mono(GenericType.response(bodyType));
         }
 
         if (settings.isFluent()) {
             if (isLongRunningOperation(operation) && isNotNextPageOperation(operation)) {
                 // LRO in fluent uses Flux<ByteBuffer> for com.azure.core.management.polling.PollerFactory
-                return mono(GenericType.Response(GenericType.FLUX_BYTE_BUFFER));
+                return mono(GenericType.response(GenericType.FLUX_BYTE_BUFFER));
             }
         }
 
@@ -59,7 +59,7 @@ final class ResponseTypeFactory {
             if (typedHeadersDisallowed) {
                 return isByteStream(bodyType, settings)
                     ? mono(binaryResponse(settings))
-                    : mono(GenericType.Response(bodyType));
+                    : mono(GenericType.response(bodyType));
             }
 
             final ObjectSchema headersSchema = Mappers.getClientMapper().parseHeader(operation, settings);
@@ -68,7 +68,7 @@ final class ResponseTypeFactory {
             // that it is valid for async method.
             final IType bType = (bodyType == ClassType.INPUT_STREAM) ? binaryResponseBodyType(settings) : bodyType;
             // Mono<ResponseBase<H, T>>
-            return mono(GenericType.RestResponse(headersType, bType));
+            return mono(GenericType.restResponse(headersType, bType));
         }
 
         if (bodyType.equals(ClassType.INPUT_STREAM)) {
@@ -84,10 +84,10 @@ final class ResponseTypeFactory {
         }
 
         if (bodyType.equals(PrimitiveType.VOID)) {
-            return mono(GenericType.Response(ClassType.VOID));
+            return mono(GenericType.response(ClassType.VOID));
         }
 
-        return mono(GenericType.Response(bodyType));
+        return mono(GenericType.response(bodyType));
     }
 
     /**
@@ -104,7 +104,7 @@ final class ResponseTypeFactory {
         JavaSettings settings, boolean ignoreTypedHeaders) {
 
         if (isProtocolMethod) {
-            return GenericType.Response(syncReturnType);
+            return GenericType.response(syncReturnType);
         }
 
         if (SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
@@ -115,18 +115,18 @@ final class ResponseTypeFactory {
             }
             final boolean typedHeadersDisallowed = ignoreTypedHeaders || settings.isDisableTypedHeadersMethods();
             if (typedHeadersDisallowed) {
-                return GenericType.Response(syncReturnType);
+                return GenericType.response(syncReturnType);
             }
             final ObjectSchema headersSchema = Mappers.getClientMapper().parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
-            return GenericType.RestResponse(headersType, syncReturnType);
+            return GenericType.restResponse(headersType, syncReturnType);
         }
 
-        return GenericType.Response(syncReturnType);
+        return GenericType.response(syncReturnType);
     }
 
     private static IType mono(IType type) {
-        return GenericType.Mono(type);
+        return GenericType.mono(type);
     }
 
     private static boolean isLongRunningOperation(Operation operation) {
@@ -145,7 +145,7 @@ final class ResponseTypeFactory {
 
     private static IType binaryResponse(JavaSettings settings) {
         // Not touching vanilla for now. Storage is still using StreamResponse.
-        return settings.isVanilla() ? ClassType.STREAM_RESPONSE : GenericType.Response(ClassType.BINARY_DATA);
+        return settings.isVanilla() ? ClassType.STREAM_RESPONSE : GenericType.response(ClassType.BINARY_DATA);
     }
 
     private static boolean isByteStream(IType type, JavaSettings settings) {

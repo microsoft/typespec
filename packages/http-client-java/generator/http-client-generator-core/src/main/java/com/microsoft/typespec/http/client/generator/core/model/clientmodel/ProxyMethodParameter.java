@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -249,11 +249,13 @@ public class ProxyMethodParameter extends MethodParameter {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
                 ClassType.BASE_64_UTIL.addImportsTo(imports, false);
                 imports.add(Base64.class.getName());
-            } else if (getClientType() instanceof IterableType && !getExplode()) {
-                imports.add("com.azure.core.util.serializer.CollectionFormat");
-                imports.add("com.azure.core.util.serializer.JacksonAdapter");
-            } else if (getClientType() instanceof IterableType && getExplode()) {
-                imports.add("java.util.stream.Collectors");
+            } else if (getClientType() instanceof IterableType) {
+                if (getExplode()) {
+                    imports.add("java.util.stream.Collectors");
+                } else {
+                    imports.add(ClassType.COLLECTION_FORMAT.getFullName());
+                    imports.add(ClassType.JACKSON_ADAPTER.getFullName());
+                }
             }
         }
 //        if (getRequestParameterLocation() == RequestParameterLocation.FormData) {

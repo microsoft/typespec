@@ -109,6 +109,16 @@ scalar plainDate {
    * ```
    */
   init fromISO(value: string);
+
+  /**
+   * Create a plain date representing the current date.
+   * @example
+   *
+   * ```tsp
+   * const date = plainDate.now();
+   * ```
+   */
+  init now();
 }
 
 /**
@@ -124,6 +134,16 @@ scalar plainTime {
    * ```
    */
   init fromISO(value: string);
+
+  /**
+   * Create a plain time representing the current time.
+   * @example
+   *
+   * ```tsp
+   * const time = plainTime.now();
+   * ```
+   */
+  init now();
 }
 
 /**
@@ -139,6 +159,16 @@ scalar utcDateTime {
    * ```
    */
   init fromISO(value: string);
+
+  /**
+   * Create a date representing the current date and time in UTC.
+   * @example
+   *
+   * ```tsp
+   * const time = utcDateTime.now();
+   * ```
+   */
+  init now();
 }
 
 /**
@@ -154,6 +184,16 @@ scalar offsetDateTime {
    * ```
    */
   init fromISO(value: string);
+
+  /**
+   * Create a date representing the current date and time with offset.
+   * @example
+   *
+   * ```tsp
+   * const time = offsetDateTime.now();
+   * ```
+   */
+  init now();
 }
 
 /**

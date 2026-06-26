@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  ExecuteCommandParams,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -69,6 +68,12 @@ export interface ServerHost {
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
+  /**
+   * This debounce delay function is designed to reduce the running time of the test and should not be overridden during normal use.
+   * @returns debounce delay in milliseconds
+   * @internal
+   */
+  readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
 export interface CompileResult {
@@ -120,7 +125,7 @@ export interface Server {
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
   documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
-  executeCommand(params: ExecuteCommandParams): Promise<void>;
+  resolveCodeAction(codeAction: CodeAction): Promise<CodeAction>;
   reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 

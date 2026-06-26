@@ -58,7 +58,7 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
     const workspacePath = PreviewTypespecProjectFolderPath;
-    const { page, app } = await launch({
+    const { page } = await launch({
       workspacePath,
     });
     await page.getByRole("treeitem", { name: "main.tsp" }).locator("a").click();
@@ -80,6 +80,5 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
       cs,
     );
     await rm(cs.caseDir, { recursive: true });
-    app.close();
   });
 });

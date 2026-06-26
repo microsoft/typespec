@@ -3,6 +3,7 @@ import {
   CompilerHost,
   Decorator,
   Diagnostic,
+  type FunctionValue,
   Namespace,
   type PackageJson,
   Program,
@@ -20,8 +21,8 @@ import {
 } from "@typespec/compiler";
 import prettier from "prettier";
 import { createDiagnostic } from "../ref-doc/lib.js";
-import { generateSignatures } from "./components/decorators-signatures.js";
-import { DecoratorSignature } from "./types.js";
+import { generateSignatures } from "./components/entity-signatures.js";
+import { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";
 
 function createSourceLocation(path: string): SourceLocation {
   return { file: createSourceFile("", path), pos: 0, end: 0 };
@@ -108,8 +109,7 @@ export async function generateExternDecorators(
   packageName: string,
   options?: GenerateExternDecoratorOptions,
 ): Promise<Record<string, string>> {
-  const decorators = new Map<string, DecoratorSignature[]>();
-
+  const entities = new Map<string, EntitySignature[]>();
   const listener: SemanticNodeListener = {
     decorator(dec) {
       if (
@@ -119,12 +119,32 @@ export async function generateExternDecorators(
         return;
       }
       const namespaceName = getTypeName(dec.namespace);
-      let decoratorForNamespace = decorators.get(namespaceName);
-      if (!decoratorForNamespace) {
-        decoratorForNamespace = [];
-        decorators.set(namespaceName, decoratorForNamespace);
+      let entitiesForNamespace = entities.get(namespaceName);
+      if (!entitiesForNamespace) {
+        entitiesForNamespace = [];
+        entities.set(namespaceName, entitiesForNamespace);
       }
-      decoratorForNamespace.push(resolveDecoratorSignature(dec));
+      entitiesForNamespace.push(resolveDecoratorSignature(dec));
+    },
+    function(func) {
+      if (
+        (packageName !== "@typespec/compiler" &&
+          getLocationContext(program, func).type !== "project") ||
+        func.namespace === undefined
+      ) {
+        return;
+      }
+      const namespaceName = getTypeName(func.namespace);
+      let entitiesForNamespace = entities.get(namespaceName);
+      if (!entitiesForNamespace) {
+        entitiesForNamespace = [];
+        entities.set(namespaceName, entitiesForNamespace);
+      }
+      if (func.name !== undefined) {
+        entitiesForNamespace.push(
+          resolveFunctionSignature(func as FunctionValue & { name: string }),
+        );
+      }
     },
   };
   if (options?.namespaces) {
@@ -150,8 +170,8 @@ export async function generateExternDecorators(
   }
 
   const files: Record<string, string> = {};
-  for (const [ns, nsDecorators] of decorators.entries()) {
-    const output = generateSignatures(program, nsDecorators, packageName, ns);
+  for (const [ns, nsEntities] of entities.entries()) {
+    const output = generateSignatures(program, nsEntities, packageName, ns);
     const rawFiles: OutputFile[] = [];
     await traverseOutput(output, {
       visitDirectory: () => {},
@@ -169,9 +189,20 @@ export async function generateExternDecorators(
 
 function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
   return {
+    kind: "Decorator",
     decorator,
     name: decorator.name,
     jsName: "$" + decorator.name.slice(1),
     typeName: decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator",
+    isAuto: decorator.declarationKind === "auto",
+  };
+}
+
+function resolveFunctionSignature(func: FunctionValue & { name: string }): FunctionSignature {
+  return {
+    kind: "Function",
+    tspFunction: func,
+    name: func.name,
+    typeName: func.name[0].toUpperCase() + func.name.slice(1) + "FunctionImplementation",
   };
 }

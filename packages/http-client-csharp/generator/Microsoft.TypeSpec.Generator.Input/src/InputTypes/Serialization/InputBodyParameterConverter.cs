@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 defaultValue: null,
                 scope: default,
                 contentTypes: null!,
-                defaultContentType: null!);
+                defaultContentType: null!,
+                serializationOptions: null);
             resolver.AddReference(id, parameter);
 
             string? name = null;
@@ -62,6 +63,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? contentTypes = null;
             string? defaultContentType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? methodParameterSegments = null;
+            bool isExactName = false;
+            InputSerializationOptions? serializationOptions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -79,7 +83,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("methodParameterSegments", options, ref methodParameterSegments)
+                    || reader.TryReadBoolean("isExactName", ref isExactName)
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
                 {
@@ -101,6 +108,9 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Scope = InputParameter.ParseScope(type, name, scope);
             parameter.ContentTypes = contentTypes ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a contentTypes.");
             parameter.DefaultContentType = defaultContentType ?? throw new JsonException($"{nameof(InputBodyParameter)} must have a defaultContentType.");
+            parameter.MethodParameterSegments = methodParameterSegments;
+            parameter.IsExactName = isExactName;
+            parameter.SerializationOptions = serializationOptions;
 
             return parameter;
         }

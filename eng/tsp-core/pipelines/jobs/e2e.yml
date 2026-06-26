@@ -8,7 +8,7 @@ jobs:
 
     variables:
       TYPESPEC_VS_CI_BUILD: false # Enable official Visual Studio extension build
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+      TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
       DISPLAY: ":99" # Set DISPLAY for Linux GUI applications
 
     pool:
@@ -23,10 +23,11 @@ jobs:
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
       - ${{ if parameters.azLogin }}:
-          - task: AzureCLI@1
+          - task: AzureCLI@2
             displayName: E2E Tests
             inputs:
               azureSubscription: "Azure SDK Engineering System"
+              scriptType: bash
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
       - ${{ else }}:

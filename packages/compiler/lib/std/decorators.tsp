@@ -531,16 +531,42 @@ enum BytesKnownEncoding {
  * Encoding for serializing arrays
  */
 enum ArrayEncoding {
-  /** Each values of the array is separated by a | */
+  /**
+   * Each value of the array is separated by a pipe character (|).
+   * Values can only contain | if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %7C
+   */
   pipeDelimited,
 
-  /** Each values of the array is separated by a <space> */
+  /**
+   * Each value of the array is separated by a space character.
+   * Values can only contain spaces if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %20
+   */
   spaceDelimited,
+
+  /**
+   * Each value of the array is separated by a comma (,).
+   * Values can only contain commas if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %2C
+   */
+  commaDelimited,
+
+  /**
+   * Each value of the array is separated by a newline character (\n).
+   * Values can only contain newlines if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %0A
+   */
+  newlineDelimited,
 }
 
 /**
  * Specify how to encode the target type.
- * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric and boolean types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  *
  * @example offsetDateTime encoded with rfc7231
@@ -562,6 +588,16 @@ enum ArrayEncoding {
  * ```tsp
  * model Pet {
  *   @encode(string) id: int64;
+ * }
+ * ```
+ *
+ * @example encode boolean type to string
+ *
+ * `@encode(string)` on boolean uses case-insensitive `true` / `false` values.
+ *
+ * ```tsp
+ * model FeatureFlags {
+ *   @encode(string) enabled: boolean;
  * }
  * ```
  */

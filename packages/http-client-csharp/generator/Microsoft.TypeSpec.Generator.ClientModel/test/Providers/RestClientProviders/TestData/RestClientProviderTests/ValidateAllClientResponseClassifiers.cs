@@ -18,21 +18,21 @@ namespace Sample
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier205;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier206;
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200201202 => _pipelineMessageClassifier200201202 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200, 201, 202 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200201202 => _pipelineMessageClassifier200201202 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200, 201, 202 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier201 => _pipelineMessageClassifier201 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 201 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier201 => _pipelineMessageClassifier201 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 201 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier202 => _pipelineMessageClassifier202 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 202 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier202 => _pipelineMessageClassifier202 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 202 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier203 => _pipelineMessageClassifier203 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 203 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier203 => _pipelineMessageClassifier203 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 203 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier205 => _pipelineMessageClassifier205 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 205 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier205 => _pipelineMessageClassifier205 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 205 });
 
-        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier206 => _pipelineMessageClassifier206 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 206 });
+        private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier206 => _pipelineMessageClassifier206 ??= global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 206 });
 
         internal global::System.ClientModel.Primitives.PipelineMessage CreateTestOperation204Request(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {

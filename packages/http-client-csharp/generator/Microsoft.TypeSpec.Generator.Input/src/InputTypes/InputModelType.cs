@@ -94,11 +94,19 @@ namespace Microsoft.TypeSpec.Generator.Input
             internal set
             {
                 if (value is null || DiscriminatorProperty == null || DiscriminatorValue == UnknownDiscriminatorValue)
+                {
                     return;
+                }
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
+                InputModelTypeUsage usage = Usage;
+                if (!usage.HasFlag(InputModelTypeUsage.Xml))
+                {
+                    usage |= InputModelTypeUsage.Json;
+                }
                 var cleanBaseName = Name.ToIdentifierName();
+
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
                     $"Unknown{cleanBaseName}",
@@ -108,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     null,
                     $"Unknown variant of {cleanBaseName}",
-                    Usage | InputModelTypeUsage.Json,
+                    usage,
                     [],
                     this,
                     [],
@@ -126,6 +134,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsUnknownDiscriminatorModel { get; init; }
         public bool IsPropertyBag { get; init; }
         public bool IsDynamicModel { get; internal set; }
+        public bool IsFileType { get; internal set; }
         public InputSerializationOptions SerializationOptions { get; internal set; }
 
         public IEnumerable<InputModelType> GetSelfAndBaseModels() => EnumerateBase(this);
