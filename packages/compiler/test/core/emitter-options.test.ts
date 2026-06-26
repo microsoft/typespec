@@ -137,6 +137,7 @@ describe("compiler: emitter options defined in TypeSpec", () => {
 
   async function diagnoseEmitterOptions(
     options: Record<string, unknown>,
+    { optedIn = true }: { optedIn?: boolean } = {},
   ): Promise<readonly Diagnostic[]> {
     return Tester.files({
       "node_modules/tsp-options-emitter/package.json": JSON.stringify({
@@ -154,6 +155,7 @@ describe("compiler: emitter options defined in TypeSpec", () => {
       "node_modules/tsp-options-emitter/index.js": mockFile.js({
         $lib: tspOptionsEmitter,
         $onEmit: () => {},
+        ...(optedIn ? { $flags: { experimentalEmitterOptions: true } } : {}),
       }),
     }).diagnose("", {
       compilerOptions: {
@@ -196,6 +198,42 @@ describe("compiler: emitter options defined in TypeSpec", () => {
     expectDiagnostics(diagnostics, {
       code: "invalid-emitter-options",
       message: `Value "xml" is not one of the allowed values: "yaml", "json"`,
+    });
+  });
+
+  it("does not validate options when the emitter has not opted in", async () => {
+    const diagnostics = await diagnoseEmitterOptions(
+      { "not-an-option": true, count: "not a number" },
+      { optedIn: false },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("attributes errors in the emitter's own options file to the emitter author", async () => {
+    const diagnostics = await Tester.files({
+      "node_modules/tsp-options-emitter/package.json": JSON.stringify({
+        main: "index.js",
+        exports: {
+          ".": "./index.js",
+          "./options": { typespec: "./options.tsp" },
+        },
+      }),
+      "node_modules/tsp-options-emitter/options.tsp": `model EmitterOptions {
+        name?: NotARealType;
+      }`,
+      "node_modules/tsp-options-emitter/index.js": mockFile.js({
+        $lib: tspOptionsEmitter,
+        $onEmit: () => {},
+        $flags: { experimentalEmitterOptions: true },
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["tsp-options-emitter"],
+        options: { "tsp-options-emitter": {} },
+      },
+    });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options-definition",
     });
   });
 });

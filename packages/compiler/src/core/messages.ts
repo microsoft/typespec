@@ -779,6 +779,18 @@ const diagnostics = {
       default: "Emitter options should be a model type.",
     },
   },
+  "invalid-emitter-options": {
+    severity: "error",
+    messages: {
+      default: paramMessage`${"message"}`,
+    },
+  },
+  "invalid-emitter-options-definition": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter "${"emitter"}" has an invalid options definition:\n${"message"}`,
+    },
+  },
 
   /**
    * Binder

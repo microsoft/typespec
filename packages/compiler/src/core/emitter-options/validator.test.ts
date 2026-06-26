@@ -24,14 +24,16 @@ describe("scalars", () => {
     expect(errors).toEqual([]);
   });
 
-  describe("non supported scalars", () => {
+  describe("supported numeric scalars", () => {
     it.each([
       ["int64", 1],
       ["uint64", 1],
       ["integer", 1],
-      ["float", 1],
-      ["decimal", 1],
-    ])("%s", async (typeStr, value) => {
+      ["float", 1.5],
+      ["decimal", 1.5],
+      ["numeric", 1],
+      ["safeint", 1],
+    ])("%s accepts a number", async (typeStr, value) => {
       const errors = await validateOptions(
         `
         model EmitterOptions {
@@ -39,14 +41,80 @@ describe("scalars", () => {
         }`,
         { prop: value },
       );
-      expect(errors).toEqual([
-        {
-          code: "unsupported",
-          message: `${typeStr} is not supported for emitter options.`,
-          target: ["prop"],
-        },
-      ]);
+      expect(errors).toEqual([]);
     });
+
+    it.each([["int64"], ["integer"], ["float"], ["numeric"]])(
+      "%s rejects a non-number",
+      async (typeStr) => {
+        const errors = await validateOptions(
+          `
+        model EmitterOptions {
+          prop: ${typeStr};  
+        }`,
+          { prop: "not a number" },
+        );
+        expect(errors).toEqual([
+          {
+            code: "type-mismatch",
+            message: "Expected type number",
+            target: ["prop"],
+          },
+        ]);
+      },
+    );
+  });
+});
+
+describe("absolutePath", () => {
+  it("passes for an absolute path", async () => {
+    const errors = await validateOptions(
+      `
+      scalar absolutePath extends string;
+      model EmitterOptions {
+        prop: absolutePath;  
+      }`,
+      { prop: "/out/dir" },
+    );
+    expect(errors).toEqual([]);
+  });
+
+  it("errors for a relative path starting with `./`", async () => {
+    const errors = await validateOptions(
+      `
+      scalar absolutePath extends string;
+      model EmitterOptions {
+        prop: absolutePath;  
+      }`,
+      { prop: "./out" },
+    );
+    expect(errors).toEqual([
+      {
+        code: "config-path-absolute",
+        message: `Path "./out" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+        target: ["prop"],
+        value: "./out",
+      },
+    ]);
+  });
+
+  it("errors for a bare relative path", async () => {
+    const errors = await validateOptions(
+      `
+      scalar absolutePath extends string;
+      model EmitterOptions {
+        prop: absolutePath;  
+      }`,
+      { prop: "out" },
+    );
+    expect(errors).toEqual([
+      {
+        code: "config-path-absolute",
+        message: `Path "out" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+        target: ["prop"],
+        value: "out",
+      },
+    ]);
   });
 });
 

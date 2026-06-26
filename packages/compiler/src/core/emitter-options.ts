@@ -57,15 +57,26 @@ export function validateEmitterOptionsAgainstModel(
   target: EmitterOptionsConfigTarget | typeof NoTarget,
 ): readonly Diagnostic[] {
   const errors = validateEmitterOptions(program, options, model);
-  return errors.map(
-    (error): Diagnostic => ({
-      severity: "error",
+  return errors.map((error): Diagnostic => {
+    const diagnosticTarget =
+      target === NoTarget
+        ? NoTarget
+        : getLocationInYamlScript(target.script, [...target.basePath, ...error.target], "key");
+
+    // Re-emit the dedicated `config-path-absolute` diagnostic so options typed with the
+    // `absolutePath` scalar keep parity with the legacy JSON-schema `format: absolute-path`.
+    if (error.code === "config-path-absolute") {
+      return createDiagnostic({
+        code: "config-path-absolute",
+        format: { path: error.value ?? "" },
+        target: diagnosticTarget,
+      });
+    }
+
+    return createDiagnostic({
       code: "invalid-emitter-options",
-      message: error.message,
-      target:
-        target === NoTarget
-          ? NoTarget
-          : getLocationInYamlScript(target.script, [...target.basePath, ...error.target], "key"),
-    }),
-  );
+      format: { message: error.message },
+      target: diagnosticTarget,
+    });
+  });
 }

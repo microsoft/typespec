@@ -1,4 +1,5 @@
 import { getPattern } from "../../lib/decorators.js";
+import { isPathAbsolute } from "../path-utils.js";
 import { Program } from "../program.js";
 import { isArrayModelType } from "../type-utils.js";
 import type { ArrayModelType, Enum, Model, Scalar, StdTypeName, Type, Union } from "../types.js";
@@ -7,18 +8,29 @@ export interface ValidationError {
   code: string;
   message: string;
   target: string[];
+  /** Raw offending value, carried for codes that re-emit a specific diagnostic (e.g. `config-path-absolute`). */
+  value?: string;
 }
 
 const knownScalarNames = new Set<StdTypeName>([
   "string",
+  "url",
   "boolean",
   "bytes",
+  "numeric",
+  "integer",
+  "float",
+  "decimal",
+  "decimal128",
   "int8",
   "int16",
   "int32",
+  "int64",
   "uint8",
   "uint16",
   "uint32",
+  "uint64",
+  "safeint",
   "float32",
   "float64",
 ]);
@@ -227,6 +239,25 @@ function collectLiteralValues(
 }
 
 function validateScalar(value: unknown, type: Scalar): readonly ValidationError[] {
+  // Special-case the built-in `absolutePath` scalar (from `@typespec/compiler/emitter`):
+  // it extends `string` but additionally requires the value to be an absolute path. This
+  // mirrors the legacy JSON-schema `format: absolute-path` validation.
+  for (let scalar: Scalar | undefined = type; scalar; scalar = scalar.baseScalar) {
+    if (scalar.name === "absolutePath") {
+      if (typeof value === "string" && (value.startsWith(".") || !isPathAbsolute(value))) {
+        return [
+          {
+            code: "config-path-absolute",
+            message: `Path "${value}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+            target: [],
+            value,
+          },
+        ];
+      }
+      break;
+    }
+  }
+
   // Resolve custom scalars (e.g. `scalar absolutePath extends string`) to their
   // known built-in base so they validate against the underlying representation.
   let current: Scalar | undefined = type;
@@ -252,15 +283,24 @@ function validateBuiltinScalar(
 ): readonly ValidationError[] {
   switch (name) {
     case "string":
+    case "url":
       return assertType(value, "string", target);
     case "boolean":
       return assertType(value, "boolean", target);
+    case "numeric":
+    case "integer":
+    case "float":
+    case "decimal":
+    case "decimal128":
     case "int8":
     case "int16":
     case "int32":
+    case "int64":
     case "uint8":
     case "uint16":
     case "uint32":
+    case "uint64":
+    case "safeint":
     case "float32":
     case "float64":
       return assertType(value, "number", target);

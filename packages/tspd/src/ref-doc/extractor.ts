@@ -835,7 +835,7 @@ export function extractEmitterOptionsRefDocFromModel(
   program: Program,
   model: Model,
 ): EmitterOptionRefDoc[] {
-  return [...model.properties.values()].map((prop) =>
+  return getDocumentedEmitterOptionProperties(model).map((prop) =>
     extractEmitterOptionFromModelProperty(program, prop),
   );
 }
@@ -850,25 +850,70 @@ interface OptionTypeDescription {
 function extractEmitterOptionFromModelProperty(
   program: Program,
   prop: ModelProperty,
+  inheritedDefault?: string,
 ): EmitterOptionRefDoc {
-  const desc = describeEmitterOptionType(program, prop.type);
+  const defaultValue = getOptionDefaultDoc(prop) ?? inheritedDefault;
+  const desc = describeEmitterOptionType(program, prop.type, { defaultValue });
   const option: Mutable<EmitterOptionRefDoc> = {
     name: prop.name,
     type: desc.type,
-    doc: getDoc(program, prop) ?? "",
+    doc: getEmitterOptionDoc(program, prop),
   };
 
   if (desc.allowedValues) option.allowedValues = desc.allowedValues;
   if (desc.nestedOptions) option.nestedOptions = desc.nestedOptions;
   if (desc.variants) option.variants = desc.variants;
 
-  const defaultValue = getOptionDefaultDoc(prop);
   if (defaultValue !== undefined) option.default = defaultValue;
 
   const deprecated = getDeprecated(program, prop);
   if (deprecated !== undefined) option.deprecated = deprecated;
 
   return option;
+}
+
+function getEmitterOptionDoc(program: Program, prop: ModelProperty): string {
+  const doc = getDoc(program, prop) ?? "";
+  const examples = extractExamples(prop);
+  if (examples.length === 0) {
+    return doc;
+  }
+
+  return [doc, ...examples.map(renderEmitterOptionExample)]
+    .filter((section) => section.length > 0)
+    .join("\n\n");
+}
+
+function renderEmitterOptionExample(example: ExampleRefDoc): string {
+  const title = example.title ? `Example ${example.title}` : "Example";
+  return [title, example.content.trimEnd()].filter((section) => section.length > 0).join("\n\n");
+}
+
+function getDocumentedEmitterOptionProperties(model: Model): ModelProperty[] {
+  return [...model.properties.values()].filter((prop) => !isEmitterOptionInternal(prop));
+}
+
+function isEmitterOptionInternal(prop: ModelProperty): boolean {
+  return hasDocTag(prop, "internal");
+}
+
+function hasDocTag(type: Type, tagName: string): boolean {
+  return (
+    type.node?.docs?.some((doc) =>
+      doc.tags.some((tag) => tag.kind === SyntaxKind.DocUnknownTag && tag.tagName.sv === tagName),
+    ) ?? false
+  );
+}
+
+function getInheritedNestedDefault(
+  prop: ModelProperty,
+  parentDefault?: string,
+): string | undefined {
+  if (parentDefault === undefined || prop.name !== "kind") {
+    return undefined;
+  }
+
+  return literalOptionValues(prop.type)?.includes(parentDefault) ? parentDefault : undefined;
 }
 
 /** Read the `@default` doc tag value (verbatim) from a type's doc comment, if present. */
@@ -884,7 +929,15 @@ function getOptionDefaultDoc(type: Type): string | undefined {
   return undefined;
 }
 
-function describeEmitterOptionType(program: Program, type: Type): OptionTypeDescription {
+interface OptionTypeDescriptionContext {
+  defaultValue?: string;
+}
+
+function describeEmitterOptionType(
+  program: Program,
+  type: Type,
+  context: OptionTypeDescriptionContext = {},
+): OptionTypeDescription {
   switch (type.kind) {
     case "Scalar":
       return { type: scalarToOptionType(type) };
@@ -902,12 +955,17 @@ function describeEmitterOptionType(program: Program, type: Type): OptionTypeDesc
         if (elementValues) {
           return { type: `(${elementValues.join(" | ")})[]`, allowedValues: elementValues };
         }
-        return { type: `${optionTypeToString(element)}[]` };
+        return { type: `${optionTypeToString(program, element)}[]` };
       }
+      const properties = getDocumentedEmitterOptionProperties(type);
       return {
-        type: `object { ${[...type.properties.keys()].join(", ")} }`,
-        nestedOptions: [...type.properties.values()].map((p) =>
-          extractEmitterOptionFromModelProperty(program, p),
+        type: `object { ${properties.map((p) => p.name).join(", ")} }`,
+        nestedOptions: properties.map((p) =>
+          extractEmitterOptionFromModelProperty(
+            program,
+            p,
+            getInheritedNestedDefault(p, context.defaultValue),
+          ),
         ),
       };
     }
@@ -929,13 +987,13 @@ function describeEmitterOptionType(program: Program, type: Type): OptionTypeDesc
         typeParts.push(literalValues.join(" | "));
       }
       for (const variantType of complex) {
-        const desc = describeEmitterOptionType(program, variantType);
+        const desc = describeEmitterOptionType(program, variantType, context);
         // Complex variants (arrays/objects/scalars) display their full type string;
         // do not copy `allowedValues` (which would hide e.g. the array brackets).
         const variant: Mutable<EmitterOptionVariantRefDoc> = { type: desc.type };
         if (desc.nestedOptions) variant.nestedOptions = desc.nestedOptions;
         variants.push(variant);
-        typeParts.push(optionTypeToString(variantType));
+        typeParts.push(desc.type);
       }
       return { type: typeParts.join(" | "), variants };
     }
@@ -1006,7 +1064,7 @@ function literalOptionValues(type: Type): string[] | undefined {
   }
 }
 
-function optionTypeToString(type: Type): string {
+function optionTypeToString(program: Program, type: Type): string {
   switch (type.kind) {
     case "String":
       return `"${type.value}"`;
@@ -1019,13 +1077,17 @@ function optionTypeToString(type: Type): string {
     case "Enum":
       return literalOptionValues(type)!.join(" | ");
     case "Union":
-      return [...type.variants.values()].map((v) => optionTypeToString(v.type)).join(" | ");
+      return [...type.variants.values()]
+        .map((v) => optionTypeToString(program, v.type))
+        .join(" | ");
     case "Model":
       if (isArrayModelType(type)) {
-        const element = optionTypeToString(type.indexer!.value);
+        const element = optionTypeToString(program, type.indexer!.value);
         return element.includes("|") ? `(${element})[]` : `${element}[]`;
       }
-      return `object { ${[...type.properties.keys()].join(", ")} }`;
+      return `object { ${getDocumentedEmitterOptionProperties(type)
+        .map((p) => p.name)
+        .join(", ")} }`;
     default:
       return getTypeName(type);
   }

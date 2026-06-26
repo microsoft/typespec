@@ -2,6 +2,7 @@
 import { NodeHost, logDiagnostics, resolvePath } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
+import { generateEmitterOptionsTypes } from "./gen-emitter-options-types/gen-emitter-options-types.js";
 import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
 import { generateLibraryDocs } from "./ref-doc/experimental.js";
 
@@ -125,6 +126,41 @@ async function main() {
         const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
         const host = NodeHost;
         const diagnostics = await generateExternSignatures(host, resolvedRoot);
+        if (diagnostics.length > 0) {
+          logDiagnostics(diagnostics, host.logSink);
+        }
+      },
+    )
+    .command(
+      "gen-emitter-options-types <entrypoint>",
+      "Generate TypeScript emitter option types from a TypeSpec EmitterOptions model.",
+      (cmd) => {
+        return cmd
+          .positional("entrypoint", {
+            description: "Path to the emitter options entrypoint.",
+            type: "string",
+            demandOption: true,
+          })
+          .option("output-dir", {
+            alias: "output",
+            description: "Directory where generated files should be written.",
+            type: "string",
+            default: "generated-defs",
+          })
+          .option("interface-name", {
+            description: "Name of the exported TypeScript interface.",
+            type: "string",
+            default: "EmitterOptions",
+          });
+      },
+      async (args) => {
+        const resolvedMain = resolvePath(process.cwd(), args.entrypoint);
+        const outputDir = resolvePath(process.cwd(), args["output-dir"]);
+        const host = NodeHost;
+        const diagnostics = await generateEmitterOptionsTypes(host, resolvedMain, {
+          outputDir,
+          interfaceName: args["interface-name"],
+        });
         if (diagnostics.length > 0) {
           logDiagnostics(diagnostics, host.logSink);
         }

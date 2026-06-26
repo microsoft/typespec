@@ -64,15 +64,26 @@ Output file will interpolate the following values:
 Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`.
 When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`.
 
-### `openapi-versions`
+Example Single service no versioning
 
-**Type:** `"3.0.0" | "3.1.0" | "3.2.0"`
+- `openapi.yaml`
 
-**Default:** `["3.0.0"]`
+Example Multiple services no versioning
 
-The Open API specification versions to emit.
-If more than one version is specified, then the output file
-will be created inside a directory matching each specification version.
+- `openapi.Org1.Service1.yaml`
+- `openapi.Org1.Service2.yaml`
+
+Example Single service with versioning
+
+- `openapi.v1.yaml`
+- `openapi.v2.yaml`
+
+Example Multiple service with versioning
+
+- `openapi.Org1.Service1.v1.yaml`
+- `openapi.Org1.Service1.v2.yaml`
+- `openapi.Org1.Service2.v1.0.yaml`
+- `openapi.Org1.Service2.v1.1.yaml`
 
 ### `new-line`
 
@@ -144,10 +155,10 @@ Available options are
 - `"parent-container" | "fqn" | "explicit-only"`
 - `object { kind, separator }`
 
-| Name        | Type                                             | Default | Description                                           |
-| ----------- | ------------------------------------------------ | ------- | ----------------------------------------------------- |
-| `kind`      | `"parent-container" \| "fqn" \| "explicit-only"` |         | Strategy used to generate the operation ID.           |
-| `separator` | `string`                                         |         | Separator used to join segment in the operation name. |
+| Name        | Type                                             | Default              | Description                                           |
+| ----------- | ------------------------------------------------ | -------------------- | ----------------------------------------------------- |
+| `kind`      | `"parent-container" \| "fqn" \| "explicit-only"` | `"parent-container"` | Strategy used to generate the operation ID.           |
+| `separator` | `string`                                         |                      | Separator used to join segment in the operation name. |
 
 ### `enum-strategy`
 

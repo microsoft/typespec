@@ -63,6 +63,7 @@ import {
   Namespace,
   NoTarget,
   Node,
+  PackageFlags,
   PerfReporter,
   SourceFile,
   Sym,
@@ -419,6 +420,12 @@ async function createTypeGraph(
     }
   }
 
+  // NOTE: These resolve* closures use this graph's own `checker` (via `typeGraph.checker`)
+  // and `resolver` so that resolution stays scoped to the graph that produced them, even
+  // if `program.checker` is later repointed at a different graph (e.g. an emitter-options
+  // graph compiled during `loadEmitter`). Other `program` state (sourceFiles, resolver,
+  // stateMaps, ...) is still shared and mutated across graphs; full per-graph isolation is
+  // intentionally deferred.
   function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
     const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
     if (parseDiagnostics.length > 0) {
@@ -428,7 +435,7 @@ async function createTypeGraph(
     binder.bindNode(node);
     mutate(node).parent = resolver.symbols.global.declarations[0];
     resolver.resolveTypeReference(node);
-    return program.checker.resolveTypeReference(node);
+    return typeGraph.checker.resolveTypeReference(node);
   }
 
   function resolveTypeOrValueReference(
@@ -442,7 +449,7 @@ async function createTypeGraph(
     binder.bindNode(node);
     mutate(node).parent = resolver.symbols.global.declarations[0];
     resolver.resolveTypeReference(node);
-    return program.checker.resolveTypeOrValueReference(node);
+    return typeGraph.checker.resolveTypeOrValueReference(node);
   }
 }
 
@@ -708,19 +715,51 @@ async function createProgram(
           program.reportDiagnostics(diagnostics);
           return;
         }
-      } else if (optionsEntrypoint) {
+      } else if (
+        optionsEntrypoint &&
+        (entrypoint.esmExports.$flags as PackageFlags | undefined)?.experimentalEmitterOptions
+      ) {
         // Emitter declares its options as a TypeSpec file (and has no legacy
         // validator): compile it into its own type graph and validate the user
         // options against the exported `EmitterOptions` model.
+        //
+        // Gated behind the per-emitter, experimental `experimentalEmitterOptions`
+        // package flag (`definePackageFlags`). When an emitter does not opt in this
+        // path is skipped entirely and such emitters get no options validation (the
+        // pre-existing behavior).
         const fullPath = resolvePath(library.module.path, optionsEntrypoint);
+        const diagnosticStart = program.diagnostics.length;
         const { typeGraph } = await createTypeGraph(
           program,
           fullPath,
           options,
           program.sourceFiles,
         );
-        const [model, diagnostics] = resolveEmitterOptions(typeGraph);
-        program.reportDiagnostics(diagnostics);
+        const [model, optionDiagnostics] = resolveEmitterOptions(typeGraph);
+
+        // Diagnostics produced while compiling the emitter's OWN options file are
+        // emitter-author problems, not user problems. If compiling it produced errors,
+        // collapse them into a single clearly-attributed diagnostic instead of leaking
+        // confusing library-internal diagnostics onto the user's program.
+        const optionsFileErrors = program.diagnostics
+          .slice(diagnosticStart)
+          .filter((d) => d.severity === "error");
+        if (optionsFileErrors.length > 0) {
+          (program.diagnostics as Diagnostic[]).length = diagnosticStart;
+          program.reportDiagnostics([
+            createDiagnostic({
+              code: "invalid-emitter-options-definition",
+              format: {
+                emitter: metadata.name ?? emitterNameOrPath,
+                message: optionsFileErrors.map((d) => d.message).join("\n"),
+              },
+              target: NoTarget,
+            }),
+          ]);
+          return;
+        }
+
+        program.reportDiagnostics(optionDiagnostics);
         if (model) {
           const validationDiagnostics = validateEmitterOptionsAgainstModel(
             program,
