@@ -85,6 +85,13 @@ export interface TypeSpecConfig {
    */
   options?: Record<string, EmitterOptions>;
 
+  /**
+   * Permissions granted to emitters/libraries when running in the sandbox.
+   * Keyed by the emitter/library name (matching its package name). By default
+   * an emitter/library is granted nothing and cannot access any system API.
+   */
+  permissions?: Record<string, ConfigPermissionGrant>;
+
   linter?: LinterConfig;
 }
 
@@ -122,7 +129,30 @@ export interface TypeSpecRawConfig {
   emit?: string[];
   options?: Record<string, EmitterOptions>;
 
+  permissions?: Record<string, ConfigPermissionGrant>;
+
   linter?: LinterConfig;
+}
+
+/**
+ * Permissions a user grants to a specific emitter/library in `tspconfig.yaml`.
+ * Anything not listed here is denied. Path scopes should be absolute or relative
+ * to the config file; they are resolved during configuration loading.
+ */
+export interface ConfigPermissionGrant {
+  /** Directory/file scopes the emitter/library may read. */
+  "fs-read"?: string[];
+  /**
+   * Directory/file scopes the emitter/library may write, in addition to its own
+   * emitter output directory which is always granted.
+   */
+  "fs-write"?: string[];
+  /** Network host patterns the emitter/library may contact (supports `*` and `*.host`). */
+  network?: string[];
+  /** Environment variable names the emitter/library may read. */
+  env?: string[];
+  /** Allow spawning child processes: `true` for any command or a list of allowed commands. */
+  exec?: boolean | string[];
 }
 
 export interface ConfigEnvironmentVariable {

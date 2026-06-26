@@ -68,6 +68,14 @@ export interface CompilerOptions {
   /** Ruleset to enable for linting. */
   linterRuleSet?: LinterRuleSet;
 
+  /**
+   * Run emitters inside an OS-isolated sandbox process whose file-system,
+   * network, environment and child-process access is constrained to the
+   * permissions the emitter declared and the user approved in `tspconfig.yaml`.
+   * Defaults to `false` (in-process execution) while the feature is opt-in.
+   */
+  sandbox?: boolean;
+
   /** @internal */
   readonly configFile?: TypeSpecConfig;
 }

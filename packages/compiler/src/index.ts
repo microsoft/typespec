@@ -111,6 +111,29 @@ export { isNumeric, Numeric } from "./core/numeric.js";
 export type { CompilerOptions } from "./core/options.js";
 export { getPositionBeforeTrivia } from "./core/parser-utils.js";
 export {
+  createPermissionSet,
+  EMPTY_PERMISSION_SET,
+  findMissingPermissions,
+  formatPermission,
+  intersectPermissionSets,
+  isEmptyPermissionSet,
+  isHostWithinScopes,
+  isPathWithinScopes,
+  mergePermissionSets,
+  PERMISSION_KINDS,
+} from "./core/permissions/index.js";
+export type {
+  EnvPermission,
+  ExecPermission,
+  FsReadPermission,
+  FsWritePermission,
+  NetworkPermission,
+  Permission,
+  PermissionKind,
+  PermissionRequest,
+  PermissionSet,
+} from "./core/permissions/index.js";
+export {
   $defaultVisibility,
   $discriminator,
   $doc,
