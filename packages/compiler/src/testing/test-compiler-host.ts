@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { RmOptions } from "fs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { CompilerPackageRoot, NodeHost } from "../core/node-host.js";

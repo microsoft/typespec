@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
 import { getTypeName } from "../core/helpers/type-name-utils.js";

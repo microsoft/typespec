@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { ok, strictEqual } from "assert";
 import { applyCodeFix, applyCodeFixes } from "../core/code-fixes.js";
 import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";

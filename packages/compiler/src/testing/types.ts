@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";

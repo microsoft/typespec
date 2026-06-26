@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { ok, strictEqual } from "assert";
 import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";

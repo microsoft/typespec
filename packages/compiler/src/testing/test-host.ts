@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import assert from "assert";
 import { glob } from "fs/promises";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";

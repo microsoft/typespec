@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 export {
   /** @deprecated Using this should be a noop. Prefer new test framework*/
   StandardTestLibrary,

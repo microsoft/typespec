@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { readdir, readFile, stat } from "fs/promises";
 import { join } from "path";
 import { pathToFileURL } from "url";
