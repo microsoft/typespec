@@ -32,6 +32,15 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createPerfReporter, perf } from "./perf.js";
+import { formatPermission } from "./permissions/permission-set.js";
+import { createPermissionedHost } from "./permissions/permissioned-host.js";
+import { formatGrantSuggestion, resolvePermissions } from "./permissions/resolve.js";
+import {
+  deserializeDiagnostic,
+  serializeDiagnostic,
+  type SandboxEmitResult,
+} from "./permissions/sandbox/emit-protocol.js";
+import type { PermissionSet } from "./permissions/types.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -196,10 +205,20 @@ export async function compile(
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
       continue;
     }
-    const emitterStats = await emit(emitter, program);
-    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
-    if (options.listFiles) {
-      logEmittedFilesPath(program);
+    if (options.sandbox) {
+      const emitterStats = await emitSandboxed(emitter, program, host, mainFile, options);
+      if (emitterStats) {
+        emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
+      }
+      if (options.listFiles) {
+        logEmittedFilesPath(program);
+      }
+    } else {
+      const emitterStats = await emit(emitter, program);
+      emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
+      if (options.listFiles) {
+        logEmittedFilesPath(program);
+      }
     }
   }
   emitStats.total = timer.end();
@@ -618,13 +637,17 @@ async function createProgram(
       return {
         type: "file",
         name: libDefinition?.name,
+        permissions: libDefinition?.permissions,
       };
     }
 
-    return computeModuleMetadata(module);
+    return computeModuleMetadata(module, libDefinition);
   }
 
-  function computeModuleMetadata(module: ResolvedModule): ModuleLibraryMetadata {
+  function computeModuleMetadata(
+    module: ResolvedModule,
+    libDefinition: TypeSpecLibrary<any> | undefined,
+  ): ModuleLibraryMetadata {
     const metadata: ModuleLibraryMetadata = {
       type: "module",
       name: module.manifest.name,
@@ -638,6 +661,9 @@ async function createProgram(
     }
     if (module.manifest.version) {
       metadata.version = module.manifest.version;
+    }
+    if (libDefinition?.permissions) {
+      metadata.permissions = libDefinition.permissions;
     }
 
     return metadata;
@@ -959,6 +985,127 @@ async function emit(
 }
 
 /**
+ * Run an emitter inside an OS-isolated sandbox process (see `runEmitterSandboxed`).
+ *
+ * Resolves the emitter's declared permissions against the user's `tspconfig.yaml`
+ * grant; if anything was requested but not granted it reports a
+ * `permission-not-granted` diagnostic and skips the emitter. Otherwise it spawns
+ * a child constrained to the effective permissions, which recompiles and runs
+ * only this emitter, and merges the child's emit-phase diagnostics and emitted
+ * files back into `program`.
+ */
+async function emitSandboxed(
+  emitter: EmitterRef,
+  program: Program,
+  host: CompilerHost,
+  mainFile: string,
+  options: CompilerOptions,
+): Promise<{ total: number; steps: Record<string, number> } | undefined> {
+  const emitterName = emitter.metadata.name ?? emitter.main;
+  // The identifier the child uses to *resolve* the emitter. The resolved entry
+  // path is always loadable regardless of how it was originally referenced.
+  const emitId = emitter.main;
+  const baseDir = options.configFile?.projectRoot ?? getDirectoryPath(mainFile);
+
+  const grant = options.configFile?.permissions?.[emitterName];
+  const resolution = resolvePermissions(emitter.metadata.permissions, grant, {
+    baseDir,
+    outputDir: emitter.emitterOutputDir,
+  });
+
+  if (resolution.missing.length > 0) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "permission-not-granted",
+        format: {
+          emitterName,
+          permissions: resolution.missing.map(formatPermission).join(", "),
+          suggestion: formatGrantSuggestion(emitterName, resolution.missing),
+        },
+        target: NoTarget,
+      }),
+    );
+    return undefined;
+  }
+
+  // The sandbox runtime depends on Node built-ins (`child_process`, `fs`), so it
+  // is imported dynamically: this keeps it out of the browser bundle's static
+  // graph, since sandboxed execution only ever runs on the Node CLI.
+  const { runEmitterSandboxed } = await import("./permissions/sandbox/emit-runner.js");
+  const { resolveRealpath } = await import("./permissions/sandbox/runtime.js");
+
+  // All paths handed to the child must be realpath-resolved by the parent: the
+  // permission model compares real paths and the child cannot traverse symlinks
+  // (e.g. /var→/private/var) outside its granted scopes.
+  const mainFileReal = resolveRealpath(mainFile);
+  const emitIdReal = resolveRealpath(emitId);
+  const outputDirReal = resolveRealpath(emitter.emitterOutputDir);
+  const baseDirReal = resolveRealpath(baseDir);
+
+  // Restrict the child to just this emitter and pin its output directory so it
+  // emits to the same place the parent expects. Options are keyed by the
+  // emitter name (matching how the child's loader looks them up).
+  const childOptions: CompilerOptions = {
+    ...options,
+    emit: [emitIdReal],
+    outputDir: options.outputDir ? resolveRealpath(options.outputDir) : undefined,
+    options: {
+      ...options.options,
+      [emitterName]: {
+        ...emitter.options,
+        "emitter-output-dir": outputDirReal,
+      },
+    },
+    configFile: options.configFile
+      ? { ...options.configFile, projectRoot: baseDirReal }
+      : undefined,
+    sandbox: false,
+  };
+
+  const relativePathForEmittedFiles =
+    transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
+  const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+  const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+  const logger = createLogger({ sink: program.host.logSink });
+
+  return await logger.trackAction(`Running ${emitterName}...`, "", async (task) => {
+    const start = perf.startTimer();
+    let result: SandboxEmitResult;
+    try {
+      result = await runEmitterSandboxed({
+        mainFile: mainFileReal,
+        options: childOptions,
+        emitterNameOrPath: emitIdReal,
+        permissions: resolution.effective,
+        host,
+        projectRoot: baseDirReal,
+      });
+    } catch (error: unknown) {
+      throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+    }
+    const duration = start.end();
+
+    program.reportDiagnostics(result.diagnostics.map((d) => deserializeDiagnostic(d, program)));
+    const emitted = getEmittedFilesForProgram(program);
+    for (const file of result.emittedFiles) {
+      emitted.push(file);
+    }
+
+    const message = `${emitterName} ${pc.green(`${Math.round(duration)}ms`)} ${pc.dim(relativePathForEmittedFiles)}`;
+    const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+    const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+    if (newErrorCount > errorCount) {
+      task.fail(message);
+    } else if (newWarnCount > warnCount) {
+      task.warn(message);
+    } else {
+      task.succeed(message);
+    }
+    return { total: duration, steps: {} };
+  });
+}
+
+/**
  * @param emitter Emitter ref to run
  */
 async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfReporter> {
@@ -975,6 +1122,70 @@ async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfRe
   } catch (error: unknown) {
     throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
   }
+}
+
+/**
+ * Rebuild the program from `mainFile`/`options` and run a single emitter against
+ * it, returning only the diagnostics produced by that emitter plus the files it
+ * emitted, in a structured-clone-safe form.
+ *
+ * This is the entry point executed **inside** a sandboxed child process (see
+ * `permissions/sandbox/emit-job.ts`): the child re-runs compilation locally to
+ * obtain the live in-memory `Program` (which cannot cheaply cross the process
+ * boundary) and then invokes only the requested `$onEmit`. Compilation
+ * diagnostics are excluded — the parent already reported them — so only the
+ * emit-phase delta is returned.
+ *
+ * Once compilation is done the program's host is narrowed to
+ * `emitterPermissions` so the emitter — which only reaches the system through
+ * `program.host` — cannot escape its granted scopes even though the recompile
+ * needed broader access.
+ *
+ * @internal
+ */
+export async function runEmitterRecompiled(
+  host: CompilerHost,
+  mainFile: string,
+  options: CompilerOptions,
+  emitterNameOrPath: string,
+  emitterPermissions: PermissionSet,
+): Promise<SandboxEmitResult> {
+  // Build the program for just this emitter; never recurse into the sandbox.
+  const { program } = await createProgram(host, mainFile, {
+    ...options,
+    emit: [emitterNameOrPath],
+    sandbox: false,
+  });
+
+  // The parent already validated and loaded this emitter, so a load failure here
+  // means the sandbox could not see something it needs (e.g. a missing read
+  // scope). Surface it rather than silently emitting nothing.
+  if (program.emitters.length === 0) {
+    const errors = program.diagnostics.filter((d) => d.severity === "error");
+    const detail = errors.map((d) => d.message).join("; ") || "no emitter was loaded";
+    throw new Error(`Failed to load emitter '${emitterNameOrPath}' inside the sandbox: ${detail}`);
+  }
+
+  // The recompile above needs broad file-system access (module/spec/compiler
+  // resolution); the emitter itself does not. From here on the emitter only ever
+  // touches the system through `program.host`, so we narrow that host to the
+  // emitter's effective permissions. This makes the host the single enforced
+  // choke point: even if the OS-level grants are broader (to let the recompile
+  // succeed), an emitter cannot read/write/fetch outside what it was granted.
+  program.host = createPermissionedHost(program.host, emitterPermissions);
+
+  const beforeCount = program.diagnostics.length;
+  for (const emitter of program.emitters) {
+    if (options.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
+      continue;
+    }
+    await runEmitter(emitter, program);
+  }
+
+  return {
+    diagnostics: program.diagnostics.slice(beforeCount).map(serializeDiagnostic),
+    emittedFiles: [...getEmittedFilesForProgram(program)],
+  };
 }
 
 function logEmittedFilesPath(program: Program) {

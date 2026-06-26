@@ -2,6 +2,7 @@ import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
+import type { PermissionRequest } from "./permissions/types.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
 
@@ -2116,6 +2117,12 @@ interface LibraryMetadataBase {
     /** Url where to file bugs for this library. */
     url?: string;
   };
+
+  /**
+   * Permissions the library/emitter requested in its manifest (`$lib.permissions`).
+   * Used to compute the effective sandbox grant against the user's config.
+   */
+  permissions?: readonly PermissionRequest[];
 }
 
 export interface FileLibraryMetadata extends LibraryMetadataBase {
@@ -2483,6 +2490,15 @@ export interface TypeSpecLibraryDef<
 
   /** Optional registration of capabilities the library/emitter provides */
   readonly capabilities?: TypeSpecLibraryCapabilities;
+
+  /**
+   * Permissions this library/emitter requests in order to run inside the
+   * sandbox. Each entry pairs a granular permission with a human-readable
+   * reason that is shown to the user when they review/approve it in their
+   * `tspconfig.yaml`. When omitted the library/emitter runs with no access to
+   * any system API (the secure default).
+   */
+  readonly permissions?: readonly PermissionRequest[];
 
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.

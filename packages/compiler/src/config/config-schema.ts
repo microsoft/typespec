@@ -92,6 +92,25 @@ export const TypeSpecConfigJsonSchema: JSONSchemaType<TypeSpecRawConfig> = {
       required: [],
       additionalProperties: emitterOptionsSchema,
     },
+    permissions: {
+      type: "object",
+      nullable: true,
+      required: [],
+      additionalProperties: {
+        type: "object",
+        additionalProperties: false,
+        required: [],
+        properties: {
+          "fs-read": { type: "array", nullable: true, items: { type: "string" } },
+          "fs-write": { type: "array", nullable: true, items: { type: "string" } },
+          network: { type: "array", nullable: true, items: { type: "string" } },
+          env: { type: "array", nullable: true, items: { type: "string" } },
+          exec: {
+            oneOf: [{ type: "boolean" }, { type: "array", items: { type: "string" } }],
+          },
+        },
+      },
+    } as any, // ajv optional property typing https://github.com/ajv-validator/ajv/issues/1664
     linter: {
       type: "object",
       nullable: true,
