@@ -128,8 +128,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<ParameterProvider> customParameters,
             bool removeDefaults)
         {
-            if (generatorParameters is null) throw new ArgumentNullException(nameof(generatorParameters));
-            if (customParameters is null) throw new ArgumentNullException(nameof(customParameters));
+            if (generatorParameters is null)
+            {
+                throw new ArgumentNullException(nameof(generatorParameters));
+            }
+
+            if (customParameters is null)
+            {
+                throw new ArgumentNullException(nameof(customParameters));
+            }
+
             if (generatorParameters.Count != customParameters.Count)
             {
                 throw new ArgumentException(
@@ -158,18 +166,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="customSignature">The customer's partial declaration signature.</param>
         /// <param name="implementationParameters">The parameters to use for the implementation.
         /// Must all be required (no default values) per the C# partial method rules.</param>
+        /// <param name="returnType">The return type the implementation should use. Pass the
+        /// generator's own return type rather than relying on the customer's parsed declaration:
+        /// the customer's declaration may reference types generated into the same assembly, which
+        /// are unresolved when the declaration is read (Roslyn surfaces them as error types with no
+        /// namespace), producing malformed <c>global::.TypeName</c> output. C# requires a partial
+        /// method's declaration and implementation to share the same return type, so the generator's
+        /// resolved return type is necessarily the correct one. When <c>null</c>, the customer's
+        /// parsed return type is used as a fallback.</param>
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
-            IReadOnlyList<ParameterProvider> implementationParameters)
+            IReadOnlyList<ParameterProvider> implementationParameters,
+            CSharpType? returnType = null)
         {
-            if (customSignature is null) throw new ArgumentNullException(nameof(customSignature));
-            if (implementationParameters is null) throw new ArgumentNullException(nameof(implementationParameters));
+            if (customSignature is null)
+            {
+                throw new ArgumentNullException(nameof(customSignature));
+            }
+
+            if (implementationParameters is null)
+            {
+                throw new ArgumentNullException(nameof(implementationParameters));
+            }
 
             return new MethodSignature(
                 customSignature.Name,
                 customSignature.Description,
                 customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                customSignature.ReturnType,
+                returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
                 customSignature.Attributes,

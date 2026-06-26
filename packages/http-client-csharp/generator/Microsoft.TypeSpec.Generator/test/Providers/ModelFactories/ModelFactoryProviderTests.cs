@@ -33,6 +33,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public void SkipExternalModels()
+        {
+            var external = new InputExternalTypeMetadata("OpenAI.Responses.ResponseTool", "OpenAI", "2.11.0");
+            var externalModel = InputFactory.Model("ExternalTool", external: external);
+            var localModel = InputFactory.Model("LocalThing");
+            var instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalModel, localModel]).Object;
+
+            var modelFactory = instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ExternalTool"),
+                "Externally-linked models must not get a model factory method.");
+            Assert.IsNotNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "LocalThing"),
+                "Local models must still get a model factory method.");
+        }
+
+        [Test]
         public void ListParamShape()
         {
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
@@ -40,7 +60,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -63,7 +85,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -86,7 +110,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -108,7 +134,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -377,6 +405,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
+        {
+            // The previous contract contains a "PublicModel1OldName" factory method that no longer
+            // exists in the current contract. Normally a back-compat shim would be regenerated, but
+            // here the removal has been accepted in the ApiCompat baseline, so it must be skipped.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NoCurrentOverloadFound"),
+                apiCompatBaseline: baseline)).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+
+            // The suppressed back-compat method should NOT have been regenerated.
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1OldName");
+            Assert.IsNull(backwardCompatibilityMethod);
+
+            // No extra back-compat method beyond the current factory methods.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
         }
 
         [Test]
@@ -649,6 +707,88 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             StringAssert.Contains(
                 "return new global::Sample.Models.ChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, default)",
                 childMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        // A factory method is still generated when the discriminator extensible enum is internal on the wire.
+        [Test]
+        public void InternalDiscriminatorEnumByWireStillGeneratesFactoryMethod()
+        {
+            var discriminatorProperty = InputFactory.Property(
+                "Type",
+                InputFactory.StringEnum("toolType", [("function", "function")], access: "internal", isExtensible: true),
+                isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ];
+
+            var derivedModel = InputFactory.Model(
+                "FunctionTool",
+                properties: properties,
+                discriminatedKind: "function");
+            var baseModel = InputFactory.Model(
+                "Tool",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [derivedModel]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [derivedModel, baseModel]);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNotNull(modelFactory);
+            var derivedMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "FunctionTool");
+            Assert.IsNotNull(derivedMethod);
+            Assert.IsFalse(derivedMethod!.Signature.Parameters.Any(p => p.Name == "type"));
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        // A factory method is still generated when the discriminator extensible enum is made internal via custom code.
+        [Test]
+        public async Task InternalDiscriminatorEnumByCustomCodeStillGeneratesFactoryMethod()
+        {
+            var discriminatorProperty = InputFactory.Property(
+                "Type",
+                InputFactory.StringEnum("toolType", [("function", "function")], isExtensible: true),
+                isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("Name", InputPrimitiveType.String),
+            ];
+
+            var derivedModel = InputFactory.Model(
+                "FunctionTool",
+                properties: properties,
+                discriminatedKind: "function");
+            var baseModel = InputFactory.Model(
+                "Tool",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [derivedModel]);
+
+            // The discriminator enum is public on the wire but made internal via custom code
+            // (TestData/.../ToolType.cs declares `internal readonly partial struct ToolType`).
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [derivedModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+
+            var derivedMethod = modelFactory!.Methods.FirstOrDefault(m => m.Signature.Name == "FunctionTool");
+            Assert.IsNotNull(derivedMethod);
+
+            Assert.IsFalse(derivedMethod!.Signature.Parameters.Any(p => p.Name == "type"));
+
+            // Validate the generated factory against the expected TestData snapshot.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // This test validates that when a model has a property whose name is a C# keyword (e.g. "Object"),

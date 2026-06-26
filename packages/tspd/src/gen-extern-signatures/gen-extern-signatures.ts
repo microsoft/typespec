@@ -194,6 +194,7 @@ function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
     name: decorator.name,
     jsName: "$" + decorator.name.slice(1),
     typeName: decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator",
+    isAuto: decorator.declarationKind === "auto",
   };
 }
 

@@ -210,6 +210,21 @@ model Foo
 `,
         });
       });
+
+      it("keeps extends inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName> {}
+`,
+          expected: `
+model Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+> {}
+`,
+        });
+      });
     });
 
     describe("model `is`", () => {
@@ -255,6 +270,21 @@ model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillB
           expected: `
 model Foo
   is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
+`,
+        });
+      });
+
+      it("keeps is inline and breaks the template arguments when too long", async () => {
+        await assertFormat({
+          code: `
+model Foo is Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+          expected: `
+model Foo is Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
         });
       });
@@ -805,6 +835,21 @@ scalar
 `,
         expected: `
 scalar Foo extends string;
+`,
+      });
+    });
+
+    it("keeps extends inline and breaks the template arguments when too long", async () => {
+      await assertFormat({
+        code: `
+scalar Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
+`,
+        expected: `
+scalar Foo extends Base<
+  FirstArgumentTypeName,
+  SecondArgumentTypeName,
+  ThirdArgumentTypeName
+>;
 `,
       });
     });
@@ -1930,6 +1975,91 @@ union Foo {
 `,
       });
     });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("does not add a blank line or extra indent for a union used as a template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked is PickProperties<
+  Sample,
+  | "alpha"
+  | "bravo"
+  | "charlie"
+  | "delta"
+  | "echo"
+  | "foxtrot"
+  | "golf"
+  | "hotel"
+>;
+`,
+      });
+    });
+
+    it("keeps leading | and indent for a union used as the only template argument", async () => {
+      await assertFormat({
+        code: `
+model Picked is PickProperties<"alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
+`,
+        expected: `
+model Picked
+  is PickProperties<
+    | "alpha"
+    | "bravo"
+    | "charlie"
+    | "delta"
+    | "echo"
+    | "foxtrot"
+    | "golf"
+    | "hotel">;
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11092
+    it("keeps leading | and indent for a union used as a named template argument", async () => {
+      await assertFormat({
+        code: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<A = "Some long value", TakesALongUnion = string | int32 | int64 | "Some very long string that split line">;
+`,
+        expected: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<
+  A = "Some long value",
+  TakesALongUnion =
+    | string
+    | int32
+    | int64
+    | "Some very long string that split line"
+>;
+`,
+      });
+    });
+
+    // Regression test for https://github.com/microsoft/typespec/issues/11009
+    it("keeps the variant alignment so a nested template argument stays indented", async () => {
+      await assertFormat({
+        code: `
+model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
+`,
+        expected: `
+model Created is Operation<
+  Request,
+  | Response
+  | CreatedResponse<
+      ResponseBodyModel,
+      LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>
+    >,
+  Error
+>;
+`,
+      });
+    });
   });
 
   describe("namespaces", () => {
@@ -3026,6 +3156,28 @@ internal   extern    dec   foo(target: Type,    arg1: StringLiteral);
 `,
         expected: `
 internal extern dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format auto dec", async () => {
+      await assertFormat({
+        code: `
+auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+auto dec foo(target: Type, arg1: StringLiteral);
+`,
+      });
+    });
+
+    it("format internal auto dec", async () => {
+      await assertFormat({
+        code: `
+internal   auto    dec   foo(target: Type,    arg1: StringLiteral);
+`,
+        expected: `
+internal auto dec foo(target: Type, arg1: StringLiteral);
 `,
       });
     });

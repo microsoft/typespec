@@ -469,7 +469,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var inputParameter in operation.Parameters)
             {
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
+                {
                     continue;
+                }
 
                 var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
@@ -993,7 +995,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var response in operation.Responses)
             {
                 if (response.IsErrorResponse)
+                {
                     continue;
+                }
 
                 foreach (var statusCode in response.StatusCodes)
                 {
@@ -1175,9 +1179,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            if (operation.IsMultipartFormData)
+            if (operation.IsMultipartFormData
+                && !(methodType is ScmMethodKind.Convenience && HasLiteralContentTypeHeader(operation)))
             {
-                sortedParams.Add(contentType++, ScmKnownParameters.ContentType);
+                bool bodyIsRequired = methodType == ScmMethodKind.Protocol
+                    && operation.Parameters.OfType<InputBodyParameter>().Any(p => p.IsRequired);
+                sortedParams.Add(contentType++, bodyIsRequired ? ScmKnownParameters.ContentType : ScmKnownParameters.OptionalContentType);
             }
 
             if (methodType == ScmMethodKind.CreateRequest)
@@ -1190,6 +1197,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
+        }
+
+        private static bool HasLiteralContentTypeHeader(InputOperation operation)
+        {
+            foreach (var p in operation.Parameters)
+            {
+                if (p is InputHeaderParameter { IsContentType: true } header
+                    && header.Type is InputLiteralType)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>

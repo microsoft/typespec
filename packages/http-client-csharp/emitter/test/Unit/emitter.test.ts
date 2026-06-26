@@ -43,16 +43,21 @@ describe("$onEmit tests", () => {
         }),
       };
     });
-    vi.mock("@azure-tools/typespec-client-generator-core", () => ({
-      createSdkContext: vi.fn().mockImplementation(async (...args) => {
-        return {
-          sdkPackage: {},
-          emitContext: args[0],
-          program: args[0].program,
-          diagnostics: [],
-        };
-      }),
-    }));
+    vi.mock("@azure-tools/typespec-client-generator-core", async (importOriginal) => {
+      const actual =
+        await importOriginal<typeof import("@azure-tools/typespec-client-generator-core")>();
+      return {
+        ...actual,
+        createSdkContext: vi.fn().mockImplementation(async (...args) => {
+          return {
+            sdkPackage: {},
+            emitContext: args[0],
+            program: args[0].program,
+            diagnostics: [],
+          };
+        }),
+      };
+    });
 
     vi.mock("../../src/lib/exec-utils.js", () => ({
       execCSharpGenerator: vi.fn(),

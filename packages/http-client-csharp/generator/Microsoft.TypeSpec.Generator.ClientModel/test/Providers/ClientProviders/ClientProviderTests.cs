@@ -849,6 +849,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(mockingConstructor);
         }
 
+        // Regression test: when the root client takes the endpoint as a hostname string and expands
+        // a server URL template into a Uri, the sub-client must receive that already-resolved Uri from
+        // its parent. The sub-client's internal (parent-initialized) constructor must therefore declare
+        // the endpoint parameter as Uri to match the Uri _endpoint field and the Uri argument the parent
+        // passes, otherwise the generated code fails to compile (CS0029/CS1503).
+        [Test]
+        public void TestBuildConstructors_ForSubClient_StringHostnameEndpoint_UsesUriEndpointParameter()
+        {
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                serverUrlTemplate: "https://{endpoint}",
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParameter],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            Assert.IsNotNull(clientProvider);
+
+            // The endpoint field is always Uri.
+            var endpointField = clientProvider.Fields.FirstOrDefault(f => f.Name == "_endpoint");
+            Assert.IsNotNull(endpointField, "Sub-client should have an _endpoint field");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField!.Type, "_endpoint field should be Uri");
+
+            // The internal constructor used by the parent takes the pipeline as its first parameter.
+            var internalConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal
+                    && c.Signature.Parameters.Any(p => p.Name == "pipeline"));
+            Assert.IsNotNull(internalConstructor, "Sub-client should have an internal parent-initialization constructor");
+
+            var endpointCtorParam = internalConstructor!.Signature.Parameters
+                .FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
+            Assert.IsNotNull(endpointCtorParam, "Sub-client internal constructor should have an endpoint parameter");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointCtorParam!.Type,
+                "Sub-client internal constructor endpoint parameter should be Uri, not string");
+        }
+
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
         {
@@ -4590,6 +4636,125 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("GetAll", inputServiceMethod.Name);
             Assert.AreEqual("GetAll", inputServiceMethod.Operation.Name);
         }
+        private static ClientProvider BuildMultipartClient(InputModelType bodyModel, bool bodyIsRequired = true)
+        {
+            var body = InputFactory.MethodParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                location: InputRequestLocation.Body);
+
+            var bodyOperationParameter = InputFactory.BodyParameter(
+                "body",
+                bodyModel,
+                isRequired: bodyIsRequired,
+                contentTypes: ["multipart/form-data"],
+                defaultContentType: "multipart/form-data");
+
+            var operation = InputFactory.Operation(
+                "Upload",
+                requestMediaTypes: ["multipart/form-data"],
+                parameters: [InputFactory.ContentTypeParameter("multipart/form-data"), bodyOperationParameter]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation, parameters: [body]);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [inputClient],
+                inputModels: () => [bodyModel]);
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_RequiredFileBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_MultiFileOnlyBody()
+        {
+            var inputModel = MultipartModel(
+                "BinaryArrayPartsRequest",
+                [MultiFilePartProperty("pictures")]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalFileBody()
+        {
+            var inputModel = MultipartModel(
+                "OptionalFileRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("optionalFile", isRequired: false),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestMultipartClient_UploadMethods_OptionalBody()
+        {
+            var inputModel = MultipartModel(
+                "MultiPartRequest",
+                [
+                    NonFilePartProperty("id", InputPrimitiveType.String),
+                    FilePartProperty("profileImage"),
+                ]);
+
+            var clientProvider = BuildMultipartClient(inputModel, bodyIsRequired: false);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name == "Upload" || name == "UploadAsync"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
+            => InputFactory.Property(
+                name,
+                InputFactory.FileType(),
+                isRequired: isRequired,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true)));
+
+        private static InputModelProperty MultiFilePartProperty(string name)
+            => InputFactory.Property(
+                name,
+                InputFactory.Array(InputFactory.FileType()),
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: true, isMulti: true)));
+
+        private static InputModelProperty NonFilePartProperty(string name, InputType type)
+            => InputFactory.Property(
+                name,
+                type,
+                isRequired: true,
+                serializationOptions: InputFactory.Serialization.Options(
+                    multipart: InputFactory.Serialization.Multipart(name, isFilePart: false, defaultContentTypes: ["text/plain"])));
+
+        private static InputModelType MultipartModel(string name, IEnumerable<InputModelProperty> properties)
+            => InputFactory.Model(name, usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData, properties: properties);
+
     }
 }
 

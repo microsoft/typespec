@@ -238,6 +238,7 @@ words:
   - reinjected
   - repr
   - respecify
+  - responseasbool
   - rjust
   - rollup
   - rpaas
@@ -250,6 +251,8 @@ words:
   - sdkcore
   - segmentof
   - serde
+  - servicea
+  - serviceb
   - setuppy
   - sfixed
   - shiki
@@ -307,6 +310,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - vnet
   - VNEXT
   - vsix
   - vsmarketplace

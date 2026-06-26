@@ -42,10 +42,13 @@ import {
 import { createStateAccessors } from "./state-accessors.js";
 import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
+  SuppressionTracker,
+  createSuppressionTracker,
+  findDirectiveSuppressingOnNode,
+} from "./suppression-tracking.js";
+import {
   CompilerHost,
   Diagnostic,
-  Directive,
-  DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -64,7 +67,6 @@ import {
   Sym,
   SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateInstanceTarget,
   Tracer,
   Type,
@@ -118,6 +120,8 @@ export interface Program {
 
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  /** @internal */
+  readonly suppressionTracker: SuppressionTracker | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -218,9 +222,11 @@ async function createProgram(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const complexityStats: ComplexityStats = {} as any;
-  let sourceResolution: SourceResolution;
+  let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let suppressionTracker: SuppressionTracker | undefined;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -250,6 +256,9 @@ async function createProgram(
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
+    get suppressionTracker() {
+      return suppressionTracker;
+    },
     hasError() {
       return error;
     },
@@ -294,6 +303,8 @@ async function createProgram(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
+
+  suppressionTracker = createSuppressionTracker(sourceResolution);
 
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
@@ -821,6 +832,7 @@ async function createProgram(
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
+        suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -830,57 +842,11 @@ async function createProgram(
 
         return false;
       } else {
+        suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
-  }
-
-  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
-    let current: Node | undefined = node;
-    do {
-      if (current.directives) {
-        const directive = findDirectiveSuppressingCode(code, current.directives);
-        if (directive) {
-          return directive;
-        }
-      }
-    } while ((current = current.parent));
-    return undefined;
-  }
-
-  /**
-   * Returns the directive node that is suppressing this code.
-   * @param code Code to check for suppression.
-   * @param directives List of directives.
-   * @returns Directive suppressing this code if found, `undefined` otherwise
-   */
-  function findDirectiveSuppressingCode(
-    code: string,
-    directives: readonly DirectiveExpressionNode[],
-  ): Directive | undefined {
-    for (const directive of directives.map((x) => parseDirective(x))) {
-      if (directive.name === "suppress") {
-        if (directive.code === code) {
-          return directive;
-        }
-      }
-    }
-    return undefined;
-  }
-
-  function parseDirective(node: DirectiveExpressionNode): Directive {
-    const args = node.arguments.map((x) => {
-      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-    });
-    switch (node.target.sv) {
-      case "suppress":
-        return { name: "suppress", code: args[0], message: args[1], node };
-      case "deprecated":
-        return { name: "deprecated", message: args[0], node };
-      default:
-        throw new Error("Unexpected directive name.");
-    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {

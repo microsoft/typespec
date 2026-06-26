@@ -22,9 +22,9 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        ONE = 1
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          TWO = 2
+          THREE = 3
 
 
     `);
@@ -49,16 +49,16 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        """
-        This is a test enum
-        """
+          """
+          This is a test enum
+          """
 
-        ONE = 1
-        """
-        This is one
-        """
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          """
+          This is one
+          """
+          TWO = 2
+          THREE = 3
 
 
     `);
@@ -85,16 +85,16 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        """
-        This is an explicit doc
-        """
+          """
+          This is an explicit doc
+          """
 
-        ONE = 1
-        """
-        This is one
-        """
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          """
+          This is one
+          """
+          TWO = 2
+          THREE = 3
 
 
     `);
@@ -115,9 +115,9 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        ONE = 1
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          TWO = 2
+          THREE = 3
 
 
     `);
@@ -145,9 +145,9 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        ONE = 1
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          TWO = 2
+          THREE = 3
 
 
       Foo
@@ -177,9 +177,9 @@ describe("Python Enum Declaration", () => {
 
 
       class Foo(IntEnum):
-        ONE = 1
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          TWO = 2
+          THREE = 3
 
 
       Foo
@@ -203,9 +203,9 @@ describe("Python Enum Declaration", () => {
 
 
         class StatusCode(IntEnum):
-          SUCCESS = 200
-          NOT_FOUND = 404
-          SERVER_ERROR = 500
+            SUCCESS = 200
+            NOT_FOUND = 404
+            SERVER_ERROR = 500
 
 
       `);
@@ -226,9 +226,9 @@ describe("Python Enum Declaration", () => {
 
 
         class Color(StrEnum):
-          RED = "red"
-          GREEN = "green"
-          BLUE = "blue"
+            RED = "red"
+            GREEN = "green"
+            BLUE = "blue"
 
 
       `);
@@ -256,9 +256,9 @@ describe("Python Enum Declaration", () => {
 
 
         class Color(StrEnum):
-          RED = "This is red"
-          GREEN = "This is green"
-          BLUE = "This is blue"
+            RED = "This is red"
+            GREEN = "This is green"
+            BLUE = "This is blue"
 
 
         Color.RED
@@ -284,9 +284,9 @@ describe("Python Enum Declaration", () => {
 
 
         class Mixed(Enum):
-          STRING_VALUE = "hello"
-          NUMERIC_VALUE = 42
-          AUTO_VALUE = auto()
+            STRING_VALUE = "hello"
+            NUMERIC_VALUE = 42
+            AUTO_VALUE = auto()
         
         
       `);
@@ -308,9 +308,9 @@ describe("Python Enum Declaration", () => {
 
 
         class EnumWithoutValues(Enum):
-          SOME_VALUE = auto()
-          ANOTHER_VALUE = auto()
-          YET_ANOTHER_VALUE = auto()
+            SOME_VALUE = auto()
+            ANOTHER_VALUE = auto()
+            YET_ANOTHER_VALUE = auto()
         
         
       `);

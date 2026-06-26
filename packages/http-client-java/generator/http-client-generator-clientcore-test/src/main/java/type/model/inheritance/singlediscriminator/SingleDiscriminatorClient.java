@@ -247,4 +247,66 @@ public final class SingleDiscriminatorClient {
     public Dinosaur getLegacyModel() {
         return getLegacyModelWithResponse(RequestContext.none()).getValue();
     }
+
+    /**
+     * The getNoSubtypesModel operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Fish> getNoSubtypesModelWithResponse(RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.getNoSubtypesModel", requestContext,
+            updatedContext -> this.serviceClient.getNoSubtypesModelWithResponse(updatedContext));
+    }
+
+    /**
+     * The getNoSubtypesModel operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a discriminated model with no defined subtypes.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Fish getNoSubtypesModel() {
+        return getNoSubtypesModelWithResponse(RequestContext.none()).getValue();
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> putNoSubtypesModelWithResponse(Fish input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse(
+            "Type.Model.Inheritance.SingleDiscriminator.putNoSubtypesModel", requestContext,
+            updatedContext -> this.serviceClient.putNoSubtypesModelWithResponse(input, updatedContext));
+    }
+
+    /**
+     * The putNoSubtypesModel operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void putNoSubtypesModel(Fish input) {
+        putNoSubtypesModelWithResponse(input, RequestContext.none());
+    }
 }
