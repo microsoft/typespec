@@ -1947,6 +1947,73 @@ alias U = @doc("d") union {
         expected: `alias S = @doc("d") scalar Celsius extends int32;`,
       });
     });
+
+    it("keeps multiple decorators inline on an enum expression", async () => {
+      await assertFormat({
+        code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
+        expected: `
+alias E = @doc("hi") @example(1) @friendlyName("E") enum {
+  a,
+  b,
+};
+`,
+      });
+    });
+
+    it("keeps multiple decorators inline on a model expression property", async () => {
+      await assertFormat({
+        code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
+        expected: `
+model Foo {
+  status: @a @b @c enum {
+    active,
+    inactive,
+  };
+}
+`,
+      });
+    });
+
+    it("keeps a doc comment inline on an enum expression like a decorator", async () => {
+      await assertFormat({
+        code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
+        expected: `
+model Foo {
+  status: /** the status */ enum {
+    active,
+    inactive,
+  };
+}
+`,
+      });
+    });
+
+    it("keeps a doc comment inline before decorators on a declaration expression", async () => {
+      await assertFormat({
+        code: `alias E = /** doc */ @a @b enum {  x, y  };`,
+        expected: `
+alias E = /** doc */ @a @b enum {
+  x,
+  y,
+};
+`,
+      });
+    });
+
+    it("formats a declaration expression used as a decorator argument", async () => {
+      await assertFormat({
+        code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
+        expected: `
+@useType(
+  enum Versions {
+    v1,
+    v2,
+  }
+)
+model Foo {}
+`,
+      });
+    });
   });
 
   describe("enum", () => {

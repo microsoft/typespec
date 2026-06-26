@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Enum, Model, Scalar, Union } from "../../src/core/types.js";
+import { Enum, Model, Scalar, Type, Union } from "../../src/core/types.js";
 import { getDoc, getTypeName } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("enum", () => {
@@ -543,5 +543,90 @@ describe("template parameters are not allowed in expression position", () => {
   it("still allows template parameters in statement position", async () => {
     const diagnostics = await Tester.diagnose(`model Foo<T> { x: T }`);
     expectDiagnosticEmpty(diagnostics);
+  });
+});
+describe("as a decorator argument", () => {
+  async function captureDecoratorArg(code: string) {
+    let received: Type | undefined;
+    const result = await Tester.files({
+      "test.js": mockFile.js({
+        $useType(_: any, _target: Type, value: Type) {
+          received = value;
+        },
+      }),
+    })
+      .import("./test.js")
+      .compile(code);
+    return { received, program: result.program };
+  }
+
+  it("passes an anonymous declaration expression to the decorator", async () => {
+    const { received } = await captureDecoratorArg(`
+      extern dec useType(target: unknown, value: unknown);
+      @useType(enum { red, green })
+      model Foo {}
+    `);
+    const type = received as Enum;
+    expect(type.kind).toBe("Enum");
+    expect(type.expression).toBe(true);
+    expect(type.members.has("red")).toBe(true);
+  });
+
+  it("passes a named declaration expression to the decorator", async () => {
+    const { received } = await captureDecoratorArg(`
+      extern dec useType(target: unknown, value: unknown);
+      @useType(model Inner { x: string })
+      model Foo {}
+    `);
+    const type = received as Model;
+    expect(type.kind).toBe("Model");
+    expect(type.name).toBe("Inner");
+    expect(type.expression).toBe(true);
+    expect(type.properties.has("x")).toBe(true);
+  });
+
+  it("applies a decorator to a declaration expression used as a decorator argument", async () => {
+    const { received, program } = await captureDecoratorArg(`
+      extern dec useType(target: unknown, value: unknown);
+      @useType(@doc("the versions") enum Versions { v1, v2 })
+      model Foo {}
+    `);
+    const type = received as Enum;
+    expect(type.kind).toBe("Enum");
+    expect(getDoc(program, type)).toBe("the versions");
+  });
+});
+
+describe("doc comments", () => {
+  it("applies an inline doc comment to a declaration expression like @doc", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        status: /** the status */ enum { active, inactive };
+      }
+    `);
+    const type = Foo.properties.get("status")!.type as Enum;
+    expect(getDoc(program, type)).toBe("the status");
+  });
+
+  it("lets an explicit @doc override the doc comment on a declaration expression", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        status: /** comment */ @doc("explicit") enum { active, inactive };
+      }
+    `);
+    const type = Foo.properties.get("status")!.type as Enum;
+    expect(getDoc(program, type)).toBe("explicit");
+  });
+
+  it("does not apply a leading property doc comment to the declaration expression type", async () => {
+    const { program, Foo } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        /** the status property */
+        status: enum { active, inactive };
+      }
+    `);
+    const prop = Foo.properties.get("status")!;
+    expect(getDoc(program, prop)).toBe("the status property");
+    expect(getDoc(program, prop.type)).toBeUndefined();
   });
 });

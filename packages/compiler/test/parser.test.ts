@@ -298,6 +298,25 @@ describe("compiler: parser", () => {
       "model A { value: union { string, int32 } }",
       // nested declaration expressions
       "alias N = model { inner: enum { a, b } };",
+      // in decorator arguments
+      "@useType(enum Versions { v1, v2 }) namespace N {}",
+      `@example(model { x: 1 }) model A { x: int32; }`,
+      "@foo(enum { a, b }, model { x: string }) namespace N {}",
+      "@foo(scalar extends string) namespace N {}",
+      "@foo(union { string, int32 }) namespace N {}",
+      // decorators applied to a declaration expression argument
+      `@useType(@doc("the versions") enum Versions { v1, v2 }) namespace N {}`,
+      // doc comment applied to a declaration expression argument
+      `@useType(/** the versions */ enum Versions { v1, v2 }) namespace N {}`,
+      // in other expression-list positions
+      "alias T = [enum { a, b }, model { x: string }];",
+      "model A { x: Template<enum { a, b }> }",
+      // inline decorators on a declaration expression
+      `model A { status: @doc("the status") enum { active, inactive } }`,
+      `model A { status: @a @b @c enum { active, inactive } }`,
+      // doc comments on a declaration expression (applied like decorators)
+      `model A { status: /** the status */ enum { active, inactive } }`,
+      `alias E = /** doc */ @a enum { a, b };`,
     ]);
 
     // interface and operation are intentionally NOT allowed in expression position

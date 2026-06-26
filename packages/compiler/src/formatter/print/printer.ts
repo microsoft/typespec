@@ -500,14 +500,14 @@ export function printDecorators(
   path: AstPath<DecorableNode>,
   options: object,
   print: PrettierChildPrint,
-  { tryInline }: { tryInline: boolean },
+  { tryInline, forceInline }: { tryInline: boolean; forceInline?: boolean },
 ): { decorators: Doc; multiline: boolean } {
   const node = path.node;
   if (node.decorators.length === 0) {
     return { decorators: "", multiline: false };
   }
 
-  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
+  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline, forceInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
@@ -520,9 +520,16 @@ export function printDecorators(
 function shouldDecoratorBreakLine(
   path: AstPath<DecorableNode>,
   options: object,
-  { tryInline }: { tryInline: boolean },
+  { tryInline, forceInline }: { tryInline: boolean; forceInline?: boolean },
 ) {
   const node = path.node;
+
+  // In expression position the declaration is embedded inline within a larger expression,
+  // so its decorators are always kept on the same line (breaking them would leave them
+  // misaligned with the surrounding expression). The width-driven group break still applies.
+  if (forceInline) {
+    return false;
+  }
 
   return (
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options)
@@ -590,8 +597,27 @@ export function printDocComments(path: AstPath<Node>, options: object, print: Pr
     return "";
   }
 
+  if (isDeclarationExpressionNode(node)) {
+    // A declaration expression is embedded inline within a larger expression, so its doc
+    // comment is kept on the same line (like an inline decorator) instead of being forced
+    // onto its own line.
+    return path.map((x) => [print(x as any), " "], "docs");
+  }
+
   const docs = path.map((x) => [print(x as any), line], "docs");
   return group([...docs, breakParent]);
+}
+
+function isDeclarationExpressionNode(node: Node): boolean {
+  switch (node.kind) {
+    case SyntaxKind.ModelDeclarationExpression:
+    case SyntaxKind.EnumDeclarationExpression:
+    case SyntaxKind.UnionDeclarationExpression:
+    case SyntaxKind.ScalarDeclarationExpression:
+      return true;
+    default:
+      return false;
+  }
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
@@ -696,6 +722,7 @@ export function printEnumStatement(
 ) {
   const { decorators } = printDecorators(path, options, print, {
     tryInline: isInExpressionPosition(path),
+    forceInline: isInExpressionPosition(path),
   });
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   return [
@@ -752,6 +779,7 @@ export function printUnionStatement(
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   const { decorators } = printDecorators(path, options, print, {
     tryInline: isInExpressionPosition(path),
+    forceInline: isInExpressionPosition(path),
   });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
@@ -1094,8 +1122,12 @@ export function printModelStatement(
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
   const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
+  const inExpressionPosition = isInExpressionPosition(path);
   return [
-    printDecorators(path, options, print, { tryInline: isInExpressionPosition(path) }).decorators,
+    printDecorators(path, options, print, {
+      tryInline: inExpressionPosition,
+      forceInline: inExpressionPosition,
+    }).decorators,
     printModifiers(path, options, print),
     "model",
     id,
@@ -1304,7 +1336,10 @@ function printScalarStatement(
       ? ""
       : ";";
   return [
-    printDecorators(path, options, print, { tryInline: inExpressionPosition }).decorators,
+    printDecorators(path, options, print, {
+      tryInline: inExpressionPosition,
+      forceInline: inExpressionPosition,
+    }).decorators,
     printModifiers(path, options, print),
     "scalar",
     id,

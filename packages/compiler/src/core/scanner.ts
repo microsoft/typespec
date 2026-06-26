@@ -576,6 +576,19 @@ export function isStatementKeyword(token: Token) {
   return token >= Token.__StartStatementKeyword && token < Token.__EndStatementKeyword;
 }
 
+/**
+ * Keywords that introduce a declaration which can also be used in expression position
+ * (e.g. `model { ... }`, `enum { ... }`, `union { ... }`, `scalar extends ...`).
+ */
+export function isDeclarationExpressionStatementKeyword(token: Token) {
+  return (
+    token === Token.ModelKeyword ||
+    token === Token.EnumKeyword ||
+    token === Token.UnionKeyword ||
+    token === Token.ScalarKeyword
+  );
+}
+
 export function createScanner(
   source: string | SourceFile,
   diagnosticHandler: DiagnosticHandler,
