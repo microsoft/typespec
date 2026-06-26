@@ -210,11 +210,15 @@ async function createEsBuildContext(
   });
 
   const extraEntry = Object.fromEntries(
-    Object.entries(definition.exports).map(([key, value]) => {
-      return [
-        key.replace("./", ""),
-        normalizePath(resolve(libraryPath, getExportEntryPoint(value))),
-      ];
+    Object.entries(definition.exports).flatMap(([key, value]) => {
+      const entryPoint = getExportEntryPoint(value);
+      // Skip exports that only expose a TypeSpec entrypoint (e.g. `./emitter`,
+      // `./options`). Those have no JS module to bundle and their source files are
+      // already included via the sub-export compilation loop above.
+      if (entryPoint === undefined) {
+        return [];
+      }
+      return [[key.replace("./", ""), normalizePath(resolve(libraryPath, entryPoint))]];
     }),
   );
 
@@ -316,16 +320,13 @@ async function resolveTypeSpecBundle(
   };
 }
 
-function getExportEntryPoint(value: string | ExportData) {
-  const resolved = typeof value === "string" ? value : (value.import ?? value.default);
-
-  if (!resolved) {
-    throw new Error(
-      `Exports ${JSON.stringify(value, null, 2)} is missing import or default entrypoint`,
-    );
-  }
-
-  return resolved;
+/**
+ * Resolve the JS entrypoint for an export entry, or `undefined` if the export only
+ * exposes a TypeSpec entrypoint (e.g. `{ "typespec": "./options/main.tsp" }`) and has
+ * no JS module to bundle.
+ */
+function getExportEntryPoint(value: string | ExportData): string | undefined {
+  return typeof value === "string" ? value : (value.import ?? value.default);
 }
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
