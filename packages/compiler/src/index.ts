@@ -121,7 +121,7 @@ export {
   isPathWithinScopes,
   mergePermissionSets,
   PERMISSION_KINDS,
-} from "./core/permissions/index.js";
+} from "./core/permissions/permission-set.js";
 export type {
   EnvPermission,
   ExecPermission,
@@ -132,7 +132,7 @@ export type {
   PermissionKind,
   PermissionRequest,
   PermissionSet,
-} from "./core/permissions/index.js";
+} from "./core/permissions/types.js";
 export {
   $defaultVisibility,
   $discriminator,

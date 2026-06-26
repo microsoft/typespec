@@ -20,6 +20,7 @@ const rootOptions = [
   "emit",
   "options",
   "linter",
+  "permissions",
 ];
 
 describe("Test completion items for root options", () => {
@@ -484,6 +485,7 @@ describe("Test completion items for extends", () => {
         "options",
         "output-dir",
         "parameters",
+        "permissions",
         "trace",
         "warn-as-error",
       ],

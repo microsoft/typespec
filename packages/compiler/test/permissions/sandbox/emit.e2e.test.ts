@@ -60,6 +60,24 @@ describe.skipIf(!isBuilt)("sandboxed emitter execution (e2e)", () => {
     return dir;
   }
 
+  function writeEmitterWithBody(name: string, body: string): string {
+    const dir = join(workDir, name);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ name, version: "0.0.0", main: "index.js", type: "module" }),
+    );
+    writeFileSync(
+      join(dir, "index.js"),
+      `export const $lib = { name: ${JSON.stringify(name)} };
+       export async function $onEmit(context) {
+         ${body}
+       }
+      `,
+    );
+    return dir;
+  }
+
   function configFile(permissions?: Record<string, unknown>) {
     return { projectRoot: workDir, permissions, file: undefined } as any;
   }
@@ -108,5 +126,48 @@ describe.skipIf(!isBuilt)("sandboxed emitter execution (e2e)", () => {
 
     expect(program.diagnostics.find((d) => d.code === "permission-not-granted")).toBeUndefined();
     expect(readFileSync(join(outputDir, "out.txt"), "utf8")).toBe("emitted-by-sandbox");
+  });
+
+  it("lets an emitter read its own package directory through the host", async () => {
+    const dir = writeEmitterWithBody(
+      "self-read-emitter",
+      `const { fileURLToPath } = await import("url");
+       const pkgPath = fileURLToPath(new URL("./package.json", import.meta.url));
+       const pkg = await context.program.host.readFile(pkgPath);
+       const out = context.emitterOutputDir;
+       await context.program.host.mkdirp(out);
+       await context.program.host.writeFile(out + "/pkg-name.txt", JSON.parse(pkg.text).name);`,
+    );
+    const outputDir = join(workDir, "out-self-read");
+    const program = await compile(NodeHost, mainFile, {
+      sandbox: true,
+      emit: [dir],
+      outputDir,
+      options: { "self-read-emitter": { "emitter-output-dir": outputDir } },
+      configFile: configFile(),
+    });
+
+    expect(program.diagnostics).toEqual([]);
+    expect(readFileSync(join(outputDir, "pkg-name.txt"), "utf8")).toBe("self-read-emitter");
+  });
+
+  it("blocks an emitter from reading outside its grant through the host", async () => {
+    const dir = writeEmitterWithBody(
+      "escape-emitter",
+      `await context.program.host.readFile(${JSON.stringify(mainFile)});`,
+    );
+    const outputDir = join(workDir, "out-escape");
+
+    // Reading the spec (outside the emitter's grant) makes $onEmit throw, which
+    // the compiler surfaces as an emitter crash rather than a silent success.
+    await expect(
+      compile(NodeHost, mainFile, {
+        sandbox: true,
+        emit: [dir],
+        outputDir,
+        options: { "escape-emitter": { "emitter-output-dir": outputDir } },
+        configFile: configFile(),
+      }),
+    ).rejects.toThrow(/ERR_ACCESS_DENIED|Permission denied|escape-emitter/);
   });
 });

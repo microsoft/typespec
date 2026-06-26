@@ -1,6 +1,7 @@
 import { realpath } from "fs";
 import type { CompilerOptions } from "../../options.js";
 import type { CompilerHost } from "../../types.js";
+import type { PermissionSet } from "../types.js";
 import type { SandboxEmitResult } from "./emit-protocol.js";
 
 /**
@@ -10,6 +11,13 @@ export interface SandboxEmitPayload {
   readonly mainFile: string;
   readonly options: CompilerOptions;
   readonly emitterNameOrPath: string;
+  /**
+   * Effective permissions the emitter's own host is constrained to while
+   * `$onEmit` runs. Tighter than the child's OS-level grants (which must also
+   * allow the broader access the local recompile needs): the emitter may only
+   * touch the file system / network through the host within these scopes.
+   */
+  readonly emitterPermissions: PermissionSet;
 }
 
 interface SandboxContext {
@@ -37,6 +45,7 @@ export default async function runSandboxedEmit(
     payload.mainFile,
     payload.options,
     payload.emitterNameOrPath,
+    payload.emitterPermissions,
   );
 }
 

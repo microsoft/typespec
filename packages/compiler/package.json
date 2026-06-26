@@ -66,7 +66,9 @@
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
-    "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
+    "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js",
+    "./dist/src/core/permissions/sandbox/runtime.js": "./dist/src/core/permissions/sandbox/runtime.browser.js",
+    "./dist/src/core/permissions/sandbox/emit-runner.js": "./dist/src/core/permissions/sandbox/emit-runner.browser.js"
   },
   "engines": {
     "node": ">=22.0.0"

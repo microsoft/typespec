@@ -3,10 +3,10 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import type { CompilerOptions } from "../../options.js";
 import type { SystemHost } from "../../types.js";
+import type { PermissionSet } from "../types.js";
 import type { SandboxEmitPayload } from "./emit-job.js";
 import type { SandboxEmitResult } from "./emit-protocol.js";
-import { runInSandbox } from "./runtime.js";
-import type { PermissionSet } from "../types.js";
+import { resolveRealpath, runInSandbox } from "./runtime.js";
 
 const emitJobPath = resolve(dirname(fileURLToPath(import.meta.url)), "emit-job.js");
 
@@ -36,13 +36,36 @@ export interface RunEmitterSandboxedOptions {
 export async function runEmitterSandboxed(
   opts: RunEmitterSandboxedOptions,
 ): Promise<SandboxEmitResult> {
+  // The emitter may always read its own package directory (its static assets /
+  // templates), the way the output dir is always writable. This is granted both
+  // at the OS layer (read scope below) and at the host layer (the emitter
+  // permission set the child wraps its host with).
+  //
+  // Scopes are realpath-resolved so the host wrapper compares the same canonical
+  // paths the child actually touches: the permission model resolves symlinks
+  // (e.g. macOS `/var`→`/private/var`) and the emitter's output dir is reached
+  // by its real path.
+  const emitterPackageDir = findPackageDir(opts.emitterNameOrPath);
+  const emitterPermissions: PermissionSet = {
+    ...opts.permissions,
+    fsRead: resolveScopes([
+      ...opts.permissions.fsRead,
+      ...(emitterPackageDir ? [emitterPackageDir] : []),
+    ]),
+    fsWrite: resolveScopes(opts.permissions.fsWrite),
+  };
+
   const payload: SandboxEmitPayload = {
     mainFile: opts.mainFile,
     options: stripNonClonable(opts.options),
     emitterNameOrPath: opts.emitterNameOrPath,
+    emitterPermissions,
   };
 
   const essentialReadScopes = [opts.projectRoot, ...nodeModulesAncestors(opts.projectRoot)];
+  if (emitterPackageDir) {
+    essentialReadScopes.push(emitterPackageDir);
+  }
 
   const result = await runInSandbox({
     modulePath: emitJobPath,
@@ -53,6 +76,28 @@ export async function runEmitterSandboxed(
   });
 
   return result as SandboxEmitResult;
+}
+
+/** Realpath-resolve each scope, tolerating not-yet-existing paths, de-duped. */
+function resolveScopes(scopes: readonly string[]): string[] {
+  return [...new Set(scopes.map(resolveRealpath))];
+}
+
+/**
+ * Nearest ancestor directory of `entryPath` containing a `package.json` — i.e.
+ * the package the emitter entry point lives in. Returns `undefined` if none is
+ * found (e.g. a bare script outside any package).
+ */
+function findPackageDir(entryPath: string): string | undefined {
+  let current = dirname(resolve(entryPath));
+  for (;;) {
+    if (existsSync(resolve(current, "package.json"))) {
+      return current;
+    }
+    const parent = dirname(current);
+    if (parent === current) return undefined;
+    current = parent;
+  }
 }
 
 /** `node_modules` directories from `start` up to the filesystem root. */

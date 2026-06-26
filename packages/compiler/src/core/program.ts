@@ -33,14 +33,14 @@ import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createPerfReporter, perf } from "./perf.js";
 import { formatPermission } from "./permissions/permission-set.js";
+import { createPermissionedHost } from "./permissions/permissioned-host.js";
 import { formatGrantSuggestion, resolvePermissions } from "./permissions/resolve.js";
 import {
   deserializeDiagnostic,
   serializeDiagnostic,
   type SandboxEmitResult,
 } from "./permissions/sandbox/emit-protocol.js";
-import { runEmitterSandboxed } from "./permissions/sandbox/emit-runner.js";
-import { resolveRealpath } from "./permissions/sandbox/runtime.js";
+import type { PermissionSet } from "./permissions/types.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -1028,6 +1028,12 @@ async function emitSandboxed(
     return undefined;
   }
 
+  // The sandbox runtime depends on Node built-ins (`child_process`, `fs`), so it
+  // is imported dynamically: this keeps it out of the browser bundle's static
+  // graph, since sandboxed execution only ever runs on the Node CLI.
+  const { runEmitterSandboxed } = await import("./permissions/sandbox/emit-runner.js");
+  const { resolveRealpath } = await import("./permissions/sandbox/runtime.js");
+
   // All paths handed to the child must be realpath-resolved by the parent: the
   // permission model compares real paths and the child cannot traverse symlinks
   // (e.g. /var→/private/var) outside its granted scopes.
@@ -1130,6 +1136,11 @@ async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfRe
  * diagnostics are excluded — the parent already reported them — so only the
  * emit-phase delta is returned.
  *
+ * Once compilation is done the program's host is narrowed to
+ * `emitterPermissions` so the emitter — which only reaches the system through
+ * `program.host` — cannot escape its granted scopes even though the recompile
+ * needed broader access.
+ *
  * @internal
  */
 export async function runEmitterRecompiled(
@@ -1137,6 +1148,7 @@ export async function runEmitterRecompiled(
   mainFile: string,
   options: CompilerOptions,
   emitterNameOrPath: string,
+  emitterPermissions: PermissionSet,
 ): Promise<SandboxEmitResult> {
   // Build the program for just this emitter; never recurse into the sandbox.
   const { program } = await createProgram(host, mainFile, {
@@ -1153,6 +1165,14 @@ export async function runEmitterRecompiled(
     const detail = errors.map((d) => d.message).join("; ") || "no emitter was loaded";
     throw new Error(`Failed to load emitter '${emitterNameOrPath}' inside the sandbox: ${detail}`);
   }
+
+  // The recompile above needs broad file-system access (module/spec/compiler
+  // resolution); the emitter itself does not. From here on the emitter only ever
+  // touches the system through `program.host`, so we narrow that host to the
+  // emitter's effective permissions. This makes the host the single enforced
+  // choke point: even if the OS-level grants are broader (to let the recompile
+  // succeed), an emitter cannot read/write/fetch outside what it was granted.
+  program.host = createPermissionedHost(program.host, emitterPermissions);
 
   const beforeCount = program.diagnostics.length;
   for (const emitter of program.emitters) {
