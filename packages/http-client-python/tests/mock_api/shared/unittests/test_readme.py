@@ -16,7 +16,6 @@ FLAVORS = ("azure", "unbranded")
 SKIP_PACKAGES = {
     ("azure", "service-multiple-services"),
     ("azure", "azure-client-generator-core-client-initialization"),
-    ("azure", "azure-client-generator-core-response-as-bool"),
     # TypedDict test packages exist in the azure-sdk-for-python baseline but
     # are not yet in regenerate.ts on main, so their READMEs are deleted during
     # baseline reset and never recreated.
