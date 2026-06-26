@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
@@ -185,6 +186,8 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
     }
 
     protected boolean isRemoveModelFromParameter(Parameter parameter, IType clientType) {
-        return JavaSettings.getInstance().isDataPlaneClient();
+        boolean isEnumType = clientType instanceof EnumType;
+        boolean isClientParameter = Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation());
+        return JavaSettings.getInstance().isDataPlaneClient() && !(isEnumType && isClientParameter);
     }
 }

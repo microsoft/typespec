@@ -9,6 +9,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.Message
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
@@ -20,12 +22,10 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
-import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
-import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.util.ModelUtil;
+import com.microsoft.typespec.http.client.generator.mapper.AzureDataPlaneMapperFactory;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
-import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
@@ -306,11 +306,11 @@ public class TypeSpecPlugin extends Javagen {
         LOGGER.info("Namespace: {}", JavaSettings.getInstance().getPackage());
 
         if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azure")) {
-            Mappers.setFactory(new TypeSpecMapperFactory());
+            Mappers.setFactory(new AzureDataPlaneMapperFactory());
         } else if (options.getFlavor() != null && options.getFlavor().equalsIgnoreCase("azurev2")) {
-            Mappers.setFactory(new TypeSpecAzureVNextMapperFactory());
+            Mappers.setFactory(new AzureVNextMapperFactory());
         } else {
-            Mappers.setFactory(new TypeSpecClientCoreMapperFactory());
+            Mappers.setFactory(new ClientCoreMapperFactory());
         }
     }
 

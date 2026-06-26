@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator.fluent;
+package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.mapper.ModelPropertyMapper;
 
-public class TypeSpecFluentModelPropertyMapper extends ModelPropertyMapper {
-    private static final TypeSpecFluentModelPropertyMapper INSTANCE = new TypeSpecFluentModelPropertyMapper();
+public class FluentModelPropertyMapper extends ModelPropertyMapper {
+    private static final FluentModelPropertyMapper INSTANCE = new FluentModelPropertyMapper();
 
-    public static TypeSpecFluentModelPropertyMapper getInstance() {
+    public static FluentModelPropertyMapper getInstance() {
         return INSTANCE;
     }
 

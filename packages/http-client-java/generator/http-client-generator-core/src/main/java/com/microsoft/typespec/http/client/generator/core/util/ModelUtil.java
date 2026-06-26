@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.microsoft.typespec.http.client.generator.util;
+package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 
 public final class ModelUtil {
 
