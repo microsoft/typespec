@@ -65,3 +65,13 @@ it("creates an anonymous enum as an expression (expression: true)", () => {
   expect(en.name).toBe("");
   expect(en.expression).toBe(true);
 });
+
+it("creates a named enum declaration expression when expression is set explicitly", () => {
+  const en = $(program).enum.create({
+    name: "Color",
+    expression: true,
+    members: { red: 1, green: 2 },
+  });
+  expect(en.name).toBe("Color");
+  expect(en.expression).toBe(true);
+});

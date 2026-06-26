@@ -235,3 +235,40 @@ Some model property meta types can be referenced using `::`.
 | Name | Example          | Description                              |
 | ---- | ---------------- | ---------------------------------------- |
 | type | `Pet.name::type` | Reference the type of the model property |
+
+## In expression position
+
+The `model` keyword can also be used anywhere a type expression is expected — for example as an alias value, a property type, a decorator or template argument, or a tuple element. This is different from an inline model expression (`{ ... }`) in that it uses the `model` keyword and can therefore carry a name and an `extends`/`is` heritage clause.
+
+```typespec
+model Widget {
+  // anonymous model in expression position
+  config: model {
+    width: int32;
+    height: int32;
+  };
+
+  // named model in expression position
+  metadata: model Metadata {
+    author: string;
+  };
+
+  // with a heritage clause
+  point: model extends Position {
+    z: float64;
+  };
+}
+```
+
+A model used in expression position is marked as an expression and is **not** registered in the enclosing namespace, even when it is given a name. The name is kept on the resulting type for display purposes only — it cannot be referenced elsewhere (and a named model expression cannot reference itself recursively).
+
+You can apply [decorators](./decorators.md) and doc comments to the declaration inline, and augment it through a navigation reference such as `::type`:
+
+```typespec
+model Widget {
+  /** The current status */
+  status: @doc("The current status") model Status { code: int32 };
+}
+
+@@doc(Widget.status::type, "The current status");
+```

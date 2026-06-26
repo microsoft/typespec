@@ -35,3 +35,30 @@ union Breed {
 ```
 
 The above example is equivalent to the `Breed` alias mentioned earlier, with the difference that emitters can recognize `Breed` as a named entity and also identify the `beagle`, `shepherd`, and `retriever` names for the options. This format also allows the application of [decorators](./decorators.md) to each of the options.
+
+## Keyword unions in expression position
+
+The `union` keyword can also be used anywhere a type expression is expected — for example as an alias value, a property type, a decorator or template argument, or a tuple element. Unlike a union expression built with the `|` operator, the keyword form can carry a name and named variants.
+
+```typespec
+model Pet {
+  // anonymous keyword union in expression position
+  breed: union {
+    Beagle,
+    GermanShepherd,
+  };
+
+  // named keyword union in expression position
+  size: union Size {
+    small: "S",
+    medium: "M",
+    large: "L",
+  };
+}
+```
+
+A keyword union used in expression position is marked as an expression and is **not** registered in the enclosing namespace, even when it is given a name. The name is kept on the resulting type for display purposes only — it cannot be referenced elsewhere.
+
+Unlike the `|` operator, a keyword union used as an operand is **not** flattened into the surrounding union. For example, `union { "a", "b" } | "c"` produces a union of the nested `union { "a", "b" }` and `"c"`, preserving the named variants.
+
+You can apply [decorators](./decorators.md) and doc comments to the declaration inline, and augment it through a navigation reference such as `::type`.

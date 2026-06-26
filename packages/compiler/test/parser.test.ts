@@ -6,6 +6,7 @@ import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
+  ModelStatementNode,
   Node,
   ParseOptions,
   SourceFile,
@@ -325,6 +326,20 @@ describe("compiler: parser", () => {
       ["alias O = op (): void;", [/Keyword cannot be used as identifier/]],
       ["model A { x: interface {} }", [/Keyword cannot be used as identifier/]],
     ]);
+
+    it("recovers an unclosed expression list at a following declaration keyword", () => {
+      // The unclosed `@foo(` must not swallow the following `model After` statement: a
+      // declaration keyword after an element (with no delimiter) ends the list under the
+      // assumption that the close token is missing.
+      const tree = parse(`@foo(model Inner { x: string }\nmodel After {}`);
+      const modelNames = tree.statements
+        .filter((s): s is ModelStatementNode => s.kind === SyntaxKind.ModelStatement)
+        .map((s) => s.id.sv);
+      ok(
+        modelNames.includes("After"),
+        `expected 'After' to be recovered as a statement, got [${modelNames.join(", ")}]`,
+      );
+    });
   });
 
   describe("const statements", () => {

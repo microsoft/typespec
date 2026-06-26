@@ -721,8 +721,8 @@ export function printEnumStatement(
   print: PrettierChildPrint,
 ) {
   const { decorators } = printDecorators(path, options, print, {
-    tryInline: isInExpressionPosition(path),
-    forceInline: isInExpressionPosition(path),
+    tryInline: isDeclarationExpressionNode(path.node),
+    forceInline: isDeclarationExpressionNode(path.node),
   });
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   return [
@@ -778,8 +778,8 @@ export function printUnionStatement(
 ) {
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   const { decorators } = printDecorators(path, options, print, {
-    tryInline: isInExpressionPosition(path),
-    forceInline: isInExpressionPosition(path),
+    tryInline: isDeclarationExpressionNode(path.node),
+    forceInline: isDeclarationExpressionNode(path.node),
   });
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
@@ -1122,7 +1122,7 @@ export function printModelStatement(
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
   const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
-  const inExpressionPosition = isInExpressionPosition(path);
+  const inExpressionPosition = isDeclarationExpressionNode(node);
   return [
     printDecorators(path, options, print, {
       tryInline: inExpressionPosition,
@@ -1301,21 +1301,6 @@ function isModelExpressionInBlock(path: AstPath<ModelExpressionNode>) {
   }
 }
 
-function isInExpressionPosition(path: AstPath<Node>): boolean {
-  const parent = path.getParentNode();
-  if (parent === null || parent === undefined) {
-    return false;
-  }
-  switch (parent.kind) {
-    case SyntaxKind.NamespaceStatement:
-    case SyntaxKind.TypeSpecScript:
-    case SyntaxKind.JsSourceFile:
-      return false;
-    default:
-      return true;
-  }
-}
-
 function printScalarStatement(
   path: AstPath<ScalarStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -1329,7 +1314,7 @@ function printScalarStatement(
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
 
-  const inExpressionPosition = isInExpressionPosition(path);
+  const inExpressionPosition = isDeclarationExpressionNode(node);
   const members = shouldPrintBody
     ? [" ", printScalarBody(path, options, print)]
     : inExpressionPosition

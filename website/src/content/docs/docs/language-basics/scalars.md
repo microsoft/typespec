@@ -72,3 +72,21 @@ model Event {
   time: plainTime = plainTime.now();
 }
 ```
+
+## In expression position
+
+The `scalar` keyword can also be used anywhere a type expression is expected — for example as an alias value, a property type, a decorator or template argument, or a tuple element.
+
+```typespec
+model Measurement {
+  // anonymous scalar in expression position
+  temperature: scalar extends float64;
+
+  // named scalar in expression position
+  distance: scalar Meters extends float64;
+}
+```
+
+A scalar used in expression position is marked as an expression and is **not** registered in the enclosing namespace, even when it is given a name. The name is kept on the resulting type for display purposes only — it cannot be referenced elsewhere.
+
+You can apply [decorators](./decorators.md) and doc comments to the declaration inline, and augment it through a navigation reference such as `::type`.

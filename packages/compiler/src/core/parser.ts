@@ -2862,7 +2862,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         }
       }
 
-      if (directives.length === 0 && decorators.length === 0 && atEndOfListWithError(kind)) {
+      if (
+        directives.length === 0 &&
+        decorators.length === 0 &&
+        atEndOfListWithError(kind, { atElementStart: true })
+      ) {
         // Error recovery: end surrounded list at statement keyword or end
         // of file. Note, however, that we must parse a missing element if
         // there were directives or decorators as we cannot drop those from
@@ -2909,7 +2913,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         // If a list *is* surrounded by punctuation, then the list ends when we
         // reach the close token.
         break;
-      } else if (atEndOfListWithError(kind)) {
+      } else if (atEndOfListWithError(kind, { atElementStart: false })) {
         // Error recovery: If a list *is* surrounded by punctuation, then
         // the list ends at statement keyword or end-of-file under the
         // assumption that the closing delimiter is missing. This check is
@@ -2976,12 +2980,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return false;
   }
 
-  function atEndOfListWithError(kind: ListKind) {
+  /**
+   * Whether the parser is at a position where the current list (when surrounded by
+   * punctuation) should be ended under the assumption that its closing token is missing —
+   * i.e. the current token is a statement keyword or end-of-file.
+   *
+   * @param atElementStart Whether we are about to parse a new element (`true`) or have just
+   * parsed one and found neither a delimiter nor the close token (`false`). A
+   * declaration-expression keyword (`model`/`enum`/`union`/`scalar`) is a valid element
+   * start in lists that {@link ListKind.allowDeclarationExpression allow declaration
+   * expressions}, so it must not end the list at the start of an element. After an element,
+   * a declaration-expression keyword cannot start a new element (a delimiter is required
+   * first), so it is treated like any other statement keyword and ends the list — restoring
+   * error recovery for an unclosed delimiter (e.g. `@foo(model X {}` followed by a
+   * statement).
+   */
+  function atEndOfListWithError(kind: ListKind, { atElementStart }: { atElementStart: boolean }) {
     return (
       kind.close !== Token.None &&
       (isStatementKeyword(token()) || token() === Token.EndOfFile) &&
       token() !== kind.allowedStatementKeyword &&
-      !(kind.allowDeclarationExpression && isDeclarationExpressionStatementKeyword(token()))
+      !(
+        atElementStart &&
+        kind.allowDeclarationExpression &&
+        isDeclarationExpressionStatementKeyword(token())
+      )
     );
   }
 

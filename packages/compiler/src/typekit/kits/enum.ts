@@ -12,9 +12,19 @@ import { type UnionKit } from "./union.js";
 interface EnumDescriptor {
   /**
    * The name of the enum. If a non-empty name is provided, it is an enum
-   * declaration. An empty string (`""`) produces an enum expression.
+   * declaration. An empty string (`""`) produces an enum expression unless
+   * {@link EnumDescriptor.expression} is set explicitly.
    */
   name: string;
+
+  /**
+   * Whether the enum is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous enum (empty `name`) and
+   * `false` for a named one. Set this explicitly to create a *named* enum
+   * declaration expression (a name that is kept on the type but not registered
+   * in a namespace).
+   */
+  expression?: boolean;
 
   /**
    * Decorators to apply to the enum.
@@ -79,7 +89,7 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
-        expression: desc.name === "",
+        expression: desc.expression ?? desc.name === "",
       });
 
       if (Array.isArray(desc.members)) {
