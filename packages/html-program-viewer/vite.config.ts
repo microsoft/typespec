@@ -10,7 +10,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const packageJson = JSON.parse(readFileSync(resolve(__dirname, "package.json")).toString());
 const dependencies = Object.keys(packageJson.dependencies);
-const externals = ["url", ...dependencies];
+const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
+const externals = ["url", ...dependencies, ...peerDependencies];
 
 export default defineConfig({
   build: {

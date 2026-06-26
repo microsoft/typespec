@@ -340,6 +340,45 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(enumProvider!.IsExtensible);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreateEnum_ExternalEnum_ReturnsNull(bool isExtensible)
+        {
+            // An enum mapped to an existing external type (via @alternateType, surfaced as
+            // InputType.External) must not be generated -- it mirrors CreateExternalModel for models.
+            // Previously a provider was produced and threw "Not an enum type" while building its
+            // serialization (ScmTypeFactory.CreateExtensibleEnumSerializations -> UnderlyingEnumType).
+            var input = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: isExtensible,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input);
+
+            Assert.IsNull(enumProvider);
+        }
+
+        [Test]
+        public void CreateCSharpType_ExternalEnum_ResolvesToExternalFrameworkType()
+        {
+            // Although no provider is generated for an external enum, references to it must still
+            // resolve to the external framework type so consumers (properties, parameters) compile.
+            var input = InputFactory.StringEnum(
+                "ExternalToolType",
+                [("value1", "value1"), ("value2", "value2")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+
+            var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(input);
+
+            Assert.IsNotNull(type);
+            Assert.IsTrue(type!.IsFrameworkType);
+            Assert.AreEqual(typeof(Uri), type.FrameworkType);
+        }
+
         [Test]
         public void CreateCSharpType_SelfReferencingModel_DoesNotThrow()
         {
@@ -372,7 +411,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected internal override EnumProvider? PreVisitEnum(InputEnumType enumType, EnumProvider? type)
             {
                 if (type == null)
+                {
                     return type;
+                }
 
                 // Create a new enum provider with modified namespace
                 // replace ".Models" with ".SomeOtherNamespace"

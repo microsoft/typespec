@@ -259,6 +259,8 @@ export function printNode(
       return "extern";
     case SyntaxKind.InternalKeyword:
       return "internal";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -1043,6 +1045,31 @@ export function printArrayLiteral(
   ]);
 }
 
+// When the base is a multi-argument template, its argument list breaks on its
+// own, so keep `is`/`extends` inline instead of breaking the keyword too (#11009).
+function printHeritageClause<T extends Node>(
+  path: AstPath<T>,
+  print: PrettierChildPrint,
+  keyword: string,
+  propertyName: keyof T,
+): Doc {
+  const ref = path.node[propertyName] as Node | undefined;
+  if (!ref) {
+    return "";
+  }
+  const printed = [`${keyword} `, path.call(print, propertyName as any)];
+  if (isMultiArgTemplateReference(ref)) {
+    return [" ", printed];
+  }
+  return group(indent([ifBreak(line, " "), printed]));
+}
+
+function isMultiArgTemplateReference(node: Node): boolean {
+  return (
+    node.kind === SyntaxKind.TypeReference && (node as TypeReferenceNode).arguments.length >= 2
+  );
+}
+
 export function printModelStatement(
   path: AstPath<ModelStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -1050,10 +1077,8 @@ export function printModelStatement(
 ) {
   const node = path.node;
   const id = path.call(print, "id");
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
-  const isBase = node.is ? [ifBreak(line, " "), "is ", path.call(print, "is")] : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
+  const isBase = printHeritageClause(path, print, "is", "is");
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
@@ -1064,7 +1089,8 @@ export function printModelStatement(
     "model ",
     id,
     generic,
-    group(indent(["", heritage, isBase])),
+    heritage,
+    isBase,
     body,
   ];
 }
@@ -1240,9 +1266,7 @@ function printScalarStatement(
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
 
-  const heritage = node.extends
-    ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
-    : "";
+  const heritage = printHeritageClause(path, print, "extends", "extends");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.members.length === 0);
 
@@ -1253,7 +1277,7 @@ function printScalarStatement(
     "scalar ",
     id,
     template,
-    group(indent(["", heritage])),
+    heritage,
     members,
   ];
 }
@@ -1403,14 +1427,38 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const types = path.map((typePath) => {
-    const printedType: Doc = align(2, print(typePath));
-    return printedType;
-  }, "options");
+  // A union that is one of several template arguments must not add its own
+  // leading line + indent: the argument list already provides them, so stacking
+  // both yields a blank line and an extra indent level for the variants.
+  // The per-variant align(2) is always kept though (matching prettier's union
+  // printer): it accounts for the "| " prefix so a variant that breaks (e.g. a
+  // nested template) stays aligned under its content.
+  // https://github.com/microsoft/typespec/issues/11009
+  const inMultiTemplateArgumentList = isInMultiTemplateArgumentList(path);
+  const types = path.map((typePath) => align(2, print(typePath)), "options");
 
-  const shouldAddStartLine = true;
+  const shouldAddStartLine = !inMultiTemplateArgumentList;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
-  return group(indent(code));
+  return inMultiTemplateArgumentList ? group(code) : group(indent(code));
+}
+
+/** Whether the node is a direct argument of a template reference with more than one argument. */
+function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
+  // A `TemplateArgument` only ever lives in `TypeReference.arguments`, so the
+  // owning `TypeReference` is always the next node ancestor.
+  const argument = path.getParentNode();
+  if (argument?.kind !== SyntaxKind.TemplateArgument) {
+    return false;
+  }
+  // Named arguments (`Name = <union>`) print the union after `Name = `, so the
+  // argument list's line break + indent does not apply to the union variants.
+  // The union must therefore provide its own line break + indent like a
+  // standalone union. https://github.com/microsoft/typespec/issues/11092
+  if (argument.name !== undefined) {
+    return false;
+  }
+  const reference = path.getParentNode(1);
+  return reference?.kind === SyntaxKind.TypeReference && reference.arguments.length > 1;
 }
 
 export function printTypeReference(

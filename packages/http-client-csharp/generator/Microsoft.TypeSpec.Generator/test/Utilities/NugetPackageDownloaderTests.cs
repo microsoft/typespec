@@ -3,22 +3,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using Microsoft.TypeSpec.Generator.Utilities;
 using Moq;
+using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
+using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
+using NuGet.Repositories;
+using NuGet.RuntimeModel;
 using NuGet.Versioning;
 using NUnit.Framework;
-using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
-using NuGet.Common;
-using System.IO;
-using NuGet.Repositories;
-using NuGet.Packaging;
-using NuGet.RuntimeModel;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 {

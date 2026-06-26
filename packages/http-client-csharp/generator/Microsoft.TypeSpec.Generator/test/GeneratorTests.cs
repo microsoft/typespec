@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -98,6 +102,51 @@ namespace Microsoft.TypeSpec.Generator.Tests
             mockGenerator.RemoveVisitor(nameof(TestLibraryVisitor));
             Assert.AreEqual(1, mockGenerator.Visitors.Count);
             Assert.IsInstanceOf<DerivedTestLibraryVisitor>(mockGenerator.Visitors[0]);
+        }
+
+        [Test]
+        public void HasDefaultCustomCodeAttributeProviders()
+        {
+            var mockGenerator = new TestGenerator();
+            Assert.AreEqual(4, mockGenerator.CustomCodeAttributeProviders.Count);
+        }
+
+        [Test]
+        public void CanAddCustomCodeAttributeProvider()
+        {
+            var mockGenerator = new TestGenerator();
+            var initialCount = mockGenerator.CustomCodeAttributeProviders.Count;
+
+            var provider = new TestCustomCodeAttributeDefinition();
+            mockGenerator.AddCustomCodeAttributeProviderForTest(provider);
+
+            Assert.AreEqual(initialCount + 1, mockGenerator.CustomCodeAttributeProviders.Count);
+            Assert.AreSame(provider, mockGenerator.CustomCodeAttributeProviders[^1]);
+        }
+
+        // Reproduces the real CSharpGen.ExecuteAsync ordering where contributed custom-code attribute providers are
+        // written before SourceInputModel is initialized. A CustomCodeAttributeDefinition disables the source-input
+        // views, so accessing its Name/Type (and the views directly) must not throw.
+        [Test]
+        public void CustomCodeAttributeDefinitionDoesNotEvaluateSourceInputViews()
+        {
+            var mockGenerator = MockHelpers.LoadMockGenerator();
+            // Simulate SourceInputModel not being initialized yet, as is the case when the contributed attribute
+            // provider is written into the custom-code workspace.
+            mockGenerator
+                .Setup(p => p.SourceInputModel)
+                .Throws(new InvalidOperationException("SourceInputModel has not been initialized yet"));
+
+            var attributeDefinition = new TestCustomCodeAttributeDefinition();
+
+            Assert.IsNull(attributeDefinition.CustomCodeView);
+            Assert.IsNull(attributeDefinition.LastContractView);
+            Assert.DoesNotThrow(() => _ = attributeDefinition.Name);
+            Assert.DoesNotThrow(() => _ = attributeDefinition.Type);
+
+            // A regular TypeProvider would still attempt to resolve the source-input views and therefore throw.
+            var regularProvider = new TestTypeProvider();
+            Assert.Throws<InvalidOperationException>(() => _ = regularProvider.CustomCodeView);
         }
 
         private class DerivedTestLibraryVisitor : TestLibraryVisitor { }

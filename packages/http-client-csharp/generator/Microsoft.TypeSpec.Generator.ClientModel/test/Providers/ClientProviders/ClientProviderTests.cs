@@ -849,6 +849,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(mockingConstructor);
         }
 
+        // Regression test: when the root client takes the endpoint as a hostname string and expands
+        // a server URL template into a Uri, the sub-client must receive that already-resolved Uri from
+        // its parent. The sub-client's internal (parent-initialized) constructor must therefore declare
+        // the endpoint parameter as Uri to match the Uri _endpoint field and the Uri argument the parent
+        // passes, otherwise the generated code fails to compile (CS0029/CS1503).
+        [Test]
+        public void TestBuildConstructors_ForSubClient_StringHostnameEndpoint_UsesUriEndpointParameter()
+        {
+            var endpointParameter = InputFactory.EndpointParameter(
+                KnownParameters.Endpoint.Name,
+                InputPrimitiveType.String,
+                serverUrlTemplate: "https://{endpoint}",
+                scope: InputParameterScope.Client,
+                isEndpoint: true);
+            var parentClient = InputFactory.Client("ParentClient", parameters: [endpointParameter]);
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                parameters: [endpointParameter],
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+            Assert.IsNotNull(clientProvider);
+
+            // The endpoint field is always Uri.
+            var endpointField = clientProvider.Fields.FirstOrDefault(f => f.Name == "_endpoint");
+            Assert.IsNotNull(endpointField, "Sub-client should have an _endpoint field");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField!.Type, "_endpoint field should be Uri");
+
+            // The internal constructor used by the parent takes the pipeline as its first parameter.
+            var internalConstructor = clientProvider.Constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal
+                    && c.Signature.Parameters.Any(p => p.Name == "pipeline"));
+            Assert.IsNotNull(internalConstructor, "Sub-client should have an internal parent-initialization constructor");
+
+            var endpointCtorParam = internalConstructor!.Signature.Parameters
+                .FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
+            Assert.IsNotNull(endpointCtorParam, "Sub-client internal constructor should have an endpoint parameter");
+            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointCtorParam!.Type,
+                "Sub-client internal constructor endpoint parameter should be Uri, not string");
+        }
+
         [Test]
         public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
         {

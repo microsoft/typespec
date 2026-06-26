@@ -34,7 +34,7 @@
     <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
     <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
     <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
-    <PackageReference Include="MessagePack" Version="2.5.192" />
+    <PackageReference Include="MessagePack" Version="2.5.301" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <Content Include="Icons\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

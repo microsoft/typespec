@@ -5,7 +5,7 @@ import {
   CompletionItemKind,
   CompletionList,
   MarkupKind,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
