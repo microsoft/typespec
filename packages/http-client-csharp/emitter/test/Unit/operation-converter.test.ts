@@ -622,3 +622,79 @@ describe("Test isExactName propagation on operations and parameters", () => {
     strictEqual(method.operation.isExactName, true);
   });
 });
+
+describe("Multipart convenience method generation", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("disables convenience method for multipart/mixed and reports a diagnostic", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          id: HttpPart<string>;
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/mixed",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root, diagnostics] = createModel(sdkContext);
+
+    const operation = root.clients[0].methods[0].operation;
+    ok(operation);
+    ok(operation.requestMediaTypes?.includes("multipart/mixed"));
+    // Protocol methods are still generated, but convenience methods are turned off.
+    strictEqual(operation.generateProtocolMethod, true);
+    strictEqual(operation.generateConvenienceMethod, false);
+
+    const diagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-multipart-convenience-method",
+    );
+    ok(diagnostic);
+    strictEqual(diagnostic.severity, "warning");
+  });
+
+  it("keeps convenience method for multipart/form-data without a diagnostic", async () => {
+    const program = await typeSpecCompile(
+      `
+        model MultipartRequest {
+          profileImage: HttpPart<File>;
+        }
+
+        @post
+        @route("/upload")
+        op upload(
+          @header contentType: "multipart/form-data",
+          @multipartBody body: MultipartRequest,
+        ): NoContentResponse;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root, diagnostics] = createModel(sdkContext);
+
+    const operation = root.clients[0].methods[0].operation;
+    ok(operation);
+    ok(operation.requestMediaTypes?.includes("multipart/form-data"));
+    strictEqual(operation.generateConvenienceMethod, true);
+
+    const diagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-multipart-convenience-method",
+    );
+    strictEqual(diagnostic, undefined);
+  });
+});

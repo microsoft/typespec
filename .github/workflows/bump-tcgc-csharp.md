@@ -9,7 +9,9 @@ on:
   schedule: "13 3 * * *"
   workflow_dispatch:
 
-permissions: read-all
+permissions:
+  all: read
+  copilot-requests: write
 
 network: defaults
 

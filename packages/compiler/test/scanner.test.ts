@@ -397,6 +397,7 @@ describe("compiler: scanner", () => {
       Token.UnknownKeyword,
       Token.ExternKeyword,
       Token.InternalKeyword,
+      Token.AutoKeyword,
       Token.ValueOfKeyword,
       Token.TypeOfKeyword,
       // `fn` can be either a statement or the start of an expr depending on context.

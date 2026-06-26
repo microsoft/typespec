@@ -127,7 +127,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
+            {
                 return project;
+            }
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
@@ -169,7 +171,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var modelFactorySymbol = definitions.ModelFactorySymbol;
             if (modelFactorySymbol == null)
+            {
                 return project;
+            }
 
             var nodesToRemove = new List<SyntaxNode>();
 
@@ -203,7 +207,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // maybe this is possible, for instance, we could be adding the customization all entries previously inside the generated model factory so that the generated model factory is empty and removed.
             if (modelFactoryGeneratedDocument == null)
+            {
                 return project;
+            }
 
             var root = await modelFactoryGeneratedDocument.GetSyntaxRootAsync();
             Debug.Assert(root is not null);
@@ -234,7 +240,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
+            {
                 return project;
+            }
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
@@ -247,7 +255,9 @@ namespace Microsoft.TypeSpec.Generator
             // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
             // helpers that are required by the model factory.
             if (_modelFactorySymbol != null)
+            {
                 rootSymbols.Add(_modelFactorySymbol);
+            }
             // traverse the map to determine the declarations that we are about to remove, starting from root nodes
             var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
@@ -276,7 +286,10 @@ namespace Microsoft.TypeSpec.Generator
         {
             var baseType = symbol.BaseType;
             if (baseType == null || baseType.SpecialType == SpecialType.System_Object)
+            {
                 return symbol;
+            }
+
             return GetBase(baseType);
         }
 
@@ -313,7 +326,10 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var definition = queue.Dequeue();
                 if (visited.Contains(definition))
+                {
                     continue;
+                }
+
                 visited.Add(definition);
                 // add this definition to the result
                 yield return definition;
@@ -329,7 +345,9 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<T, IEnumerable<T>> referenceMap) where T : notnull
         {
             if (referenceMap.TryGetValue(definition, out var references))
+            {
                 return references;
+            }
 
             return Enumerable.Empty<T>();
         }
@@ -356,7 +374,9 @@ namespace Microsoft.TypeSpec.Generator
                 var document = project.GetDocument(model.SyntaxTree);
                 Debug.Assert(document != null);
                 if (!documents.ContainsKey(document))
+                {
                     documents.Add(document, new HashSet<BaseTypeDeclarationSyntax>());
+                }
 
                 documents[document].Add(model);
             }
@@ -380,7 +400,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // skip this if there is nothing to replace
             if (originalTokenInList == default)
+            {
                 return memberDeclaration;
+            }
 
             var newToken =
                 SyntaxFactory.Token(originalTokenInList.LeadingTrivia, to, originalTokenInList.TrailingTrivia);
@@ -394,7 +416,10 @@ namespace Microsoft.TypeSpec.Generator
             var tree = models.First().SyntaxTree;
             var document = project.GetDocument(tree);
             if (document == null)
+            {
                 return project;
+            }
+
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
 
@@ -439,7 +464,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var invalidUsings = cu.Usings
                 .Where(u =>
@@ -466,7 +493,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
             var firstAttribute = attributes.FirstOrDefault();
@@ -542,7 +571,10 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     var document = project.GetDocument(declarationNode.SyntaxTree);
                     if (document == null)
+                    {
                         continue;
+                    }
+
                     if (await IsRootDocument(document))
                     {
                         result.Add(symbol);
@@ -569,7 +601,9 @@ namespace Microsoft.TypeSpec.Generator
         private static bool ShouldKeepType(SyntaxNode? root, HashSet<string> typesToKeep)
         {
             if (root is null)
+            {
                 return false;
+            }
 
             // use `BaseTypeDeclarationSyntax` to also include enums because `EnumDeclarationSyntax` extends `BaseTypeDeclarationSyntax`
             // `ClassDeclarationSyntax` and `StructDeclarationSyntax` both inherit `TypeDeclarationSyntax`
@@ -619,9 +653,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 TList newList;
                 if (collectionConstructor == null)
+                {
                     newList = new TList();
+                }
                 else
+                {
                     newList = collectionConstructor();
+                }
+
                 newList.Add(value);
                 dictionary.Add(key, newList);
             }

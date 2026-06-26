@@ -4,7 +4,7 @@ import { spawn } from "cross-spawn";
 import { mkdtemp, readdir, readFile, realpath, stat } from "fs/promises";
 import { dirname } from "path";
 import vscode, { CancellationToken } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
+import { Executable } from "vscode-languageclient/node";
 import which from "which";
 import { parseDocument } from "yaml";
 import logger, { LogItem } from "./log/logger.js";

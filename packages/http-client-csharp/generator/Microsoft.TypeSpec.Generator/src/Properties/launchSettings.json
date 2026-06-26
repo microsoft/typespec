@@ -85,6 +85,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-parameters-body-root": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/body-root -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-parameters-collection-format": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/collection-format -g StubLibraryGenerator",
       "commandName": "Executable",

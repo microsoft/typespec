@@ -68,6 +68,10 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
+  // tspconfig.yaml is edited as a `yaml` model and gets LSP completion from the
+  // TypeSpec language server (see the completion provider registered below).
+  monaco.languages.register({ id: "yaml", extensions: [".yaml", ".yml"] });
+
   if ((window as any).registeredServices) {
     return;
   }
@@ -90,7 +94,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
         .filter((d) => d.tags !== undefined && d.tags.length > 0)
         .map((d) => ({
           severity: monaco.MarkerSeverity.Hint,
-          message: d.message,
+          message: LspToMonaco.markupContentToString(d.message),
           startLineNumber: d.range.start.line + 1,
           startColumn: d.range.start.character + 1,
           endLineNumber: d.range.end.line + 1,
@@ -345,7 +349,46 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
   });
 
-  // Register a code action provider that uses the playground's own compilation
+  // tspconfig.yaml completion backed by the TypeSpec language server. Scoped to
+  // `tspconfig.yaml` documents only (not every yaml file) via the language filter
+  // pattern. The server routes config-specific completions based on the document URI.
+  monaco.languages.registerCompletionItemProvider(
+    { language: "yaml", pattern: "**/tspconfig.yaml" },
+    {
+      triggerCharacters: [":", " ", "/", "-", ".", '"'],
+      async provideCompletionItems(model, position) {
+        const result = await serverLib.complete(lspArgs(model, position));
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+
+        const suggestions: monaco.languages.CompletionItem[] = [];
+        for (const item of result.items) {
+          let itemRange: monaco.IRange = range;
+          let insertText = item.insertText ?? item.label;
+          if (item.textEdit && "range" in item.textEdit) {
+            itemRange = LspToMonaco.range(item.textEdit.range);
+            insertText = item.textEdit.newText;
+          }
+          suggestions.push({
+            label: item.label,
+            kind: item.kind as any,
+            documentation: item.documentation,
+            insertText,
+            range: itemRange,
+            commitCharacters: item.commitCharacters,
+            tags: item.tags,
+          });
+        }
+
+        return { suggestions };
+      },
+    },
+  );
   // diagnostics (which include codefixes) rather than the LSP server diagnostics.
   monaco.languages.registerCodeActionProvider("typespec", {
     async provideCodeActions(model, range) {

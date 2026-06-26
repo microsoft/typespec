@@ -16,7 +16,9 @@ namespace Microsoft.TypeSpec.Generator.Expressions
             {
                 Items[i].Write(writer);
                 if (i < Items.Length - 1)
+                {
                     writer.AppendRaw(", ");
+                }
             }
             writer.AppendRaw(" }");
         }

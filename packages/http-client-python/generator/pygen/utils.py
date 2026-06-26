@@ -11,8 +11,31 @@ SWAGGER_PACKAGE_MODE = ["mgmtplane", "dataplane"]  # for backward compatibility
 TYPESPEC_PACKAGE_MODE = ["azure-mgmt", "azure-dataplane", "generic"]
 VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
 
+CODE_BLOCK_MARKER = ".. code-block::"
 
-def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
+
+def description_ends_with_code_block(description: str) -> bool:
+    """Return True when the description's trailing content is an RST ``.. code-block::``.
+
+    True when the last ``.. code-block::`` directive (starting its own line, so inline
+    mentions are ignored) is followed only by blank or indented lines, i.e. the literal
+    block runs to the end of the description.
+    """
+    lines = description.rstrip().splitlines()
+    directives = [
+        i for i, line in enumerate(lines) if line.lstrip().startswith(CODE_BLOCK_MARKER)
+    ]
+    if not directives:
+        return False
+    return all(
+        not line.strip() or line.startswith((" ", "\t"))
+        for line in lines[directives[-1] + 1 :]
+    )
+
+
+def update_enum_value(
+    name: str, value: Any, description: str, enum_type: dict[str, Any]
+) -> dict[str, Any]:
     return {
         "name": name,
         "type": "enumvalue",
@@ -39,7 +62,12 @@ def to_snake_case(name: str) -> str:
             and len(name) - next_non_upper_case_char_location > 1
             and name[next_non_upper_case_char_location].isalpha()
         ):
-            return prefix + match_str[: len(match_str) - 1] + "_" + match_str[len(match_str) - 1]
+            return (
+                prefix
+                + match_str[: len(match_str) - 1]
+                + "_"
+                + match_str[len(match_str) - 1]
+            )
 
         return prefix + match_str
 
@@ -86,7 +114,9 @@ def parse_args(
         return value
 
     unknown_args_ret = {
-        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(ua.strip("--").split("=", maxsplit=1)[1])
+        ua.strip("--").split("=", maxsplit=1)[0]: _get_value(
+            ua.strip("--").split("=", maxsplit=1)[1]
+        )
         for ua in unknown_args
     }
     return args, unknown_args_ret
@@ -128,7 +158,11 @@ def build_policies(
             "self._config.user_agent_policy",
             "self._config.proxy_policy",
             "policies.ContentDecodePolicy(**kwargs)",
-            (f"{async_prefix}ARMAutoResourceProviderRegistrationPolicy()" if is_arm else None),
+            (
+                f"{async_prefix}ARMAutoResourceProviderRegistrationPolicy()"
+                if is_arm
+                else None
+            ),
             "self._config.redirect_policy",
             "self._config.retry_policy",
             "self._config.authentication_policy",
