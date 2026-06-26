@@ -37,7 +37,7 @@ try {
         Set-StrictMode -Version 1
 
         Write-Host "Installing pnpm" -ForegroundColor Cyan
-        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
+        Invoke-LoggedCommand "npm install -g pnpm@10.30.2" -GroupOutput
 
         Write-Host "Setting up workspace" -ForegroundColor Cyan
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..
