@@ -36,7 +36,7 @@ try {
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
 
-        $packageJson = Get-Content -Raw "../../../../../package.json" | ConvertFrom-Json
+        $packageJson = Get-Content -Raw "..\..\package.json" | ConvertFrom-Json
 
         Write-Host "Installing pnpm" -ForegroundColor Cyan
         Invoke-LoggedCommand "npm install -g $($packageJson.packageManager)" -GroupOutput

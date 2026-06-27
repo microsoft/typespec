@@ -38,7 +38,7 @@ extends:
                 displayName: Install pnpm
 
               - script: pnpm install
-                displayName: Install Java`Script Dependencies
+                displayName: Install JavaScript Dependencies
 
               - script: node $(Build.SourcesDirectory)/eng/common/scripts/resolve-target-branch.js
                 displayName: Resolve target branch
