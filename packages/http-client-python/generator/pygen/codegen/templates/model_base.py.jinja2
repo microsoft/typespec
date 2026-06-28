@@ -794,30 +794,6 @@ def _xml_deser_enum_or_str(enum_cls, value):
         return text
 
 
-def _extract_xml_model_type(rf_type):
-    """Extract the concrete Model class from a resolved rf._type partial chain.
-
-    Unwraps ``Optional[Model]`` and ``_deserialize_model(Model, ...)``
-    wrappers.  Only handles Model and Optional[Model] — other composite
-    types (List, Dict, Union, etc.) return None and fall through to the
-    generic ``_deserialize`` path at runtime.
-    """
-    if rf_type is None:
-        return None
-    if isinstance(rf_type, type) and _is_model(rf_type):
-        return rf_type
-    if not isinstance(rf_type, functools.partial):
-        return None
-    func = rf_type.func
-    args = rf_type.args
-    if func is _deserialize_with_optional and args:
-        return _extract_xml_model_type(args[0])
-    if func is _deserialize_model and args:
-        cls = args[0]
-        return cls if isinstance(cls, type) and _is_model(cls) else None
-    return None
-
-
 def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstring-missing-rtype, unused-variable
     cls, attr_to_rest_field: dict
 ) -> list:
@@ -828,11 +804,16 @@ def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstrin
 
     kind: 0=wrapped, 1=attribute, 2=unwrapped, 3=text
 
-    For Model and Optional[Model] fields that lack a scalar
-    ``_deserializer``, this function precomputes the Model class as the
-    deserializer so ``_init_from_xml`` can call ``ModelClass(element)``
-    directly instead of going through the expensive
-    ``_get_deserialize_callable_from_annotation`` chain at runtime.
+    Only scalar ``rest_field(deserializer=...)`` callables are precomputed
+    as ``deser``.  Model and Optional[Model] fields are *not* precomputed:
+    a downstream customization may subclass a generated Model and
+    re-annotate a nested field with a strict subclass, which would
+    populate the shared ``_RestField._type`` from that custom annotation.
+    Precomputing the Model class as the deserializer here would then make
+    ``_init_from_xml`` invoke ``CustomModel(<ET.Element>)`` directly on
+    the parent (generated) class, which can raise if the customization
+    enforces a strict ``__init__`` signature.  Falling back to the
+    generic ``_deserialize`` path keeps that customization safe.
     """
     model_meta = getattr(cls, "_xml", {})
     model_ns = model_meta.get("ns") or model_meta.get("namespace")
@@ -848,13 +829,6 @@ def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstrin
             xml_name = "{" + xml_ns + "}" + xml_name
 
         is_optional = rf._is_optional
-
-        # For Model / Optional[Model] fields without a scalar deserializer,
-        # precompute the Model class as the deserializer.
-        if deser is None and rf._type is not None:
-            model_cls = _extract_xml_model_type(rf._type)
-            if model_cls is not None:
-                deser = model_cls
 
         if prop_meta.get("attribute", False):
             plan.append((rf._rest_name, xml_name, 1, deser, rf._type, is_optional, None))
