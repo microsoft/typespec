@@ -388,6 +388,72 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [TestCase(false, false, "content.JsonWriter.WriteStringValue(color.ToSerialString())")]
+        [TestCase(true, false, "content.JsonWriter.WriteStringValue(color.ToString())")]
+        [TestCase(false, true, "content.JsonWriter.WriteNumberValue(((int)color))")]
+        [TestCase(true, true, "content.JsonWriter.WriteNumberValue(color.ToSerialInt32())")]
+        public void EnumBodySerializedWithUtf8JsonWriter(bool isExtensible, bool useInt, string expectedWriteExpression)
+        {
+            InputType enumType = useInt
+                ? InputFactory.Int32Enum("color", [("red", 1), ("green", 2)], isExtensible: isExtensible)
+                : InputFactory.StringEnum("color", [("red", "red"), ("green", "green")], isExtensible: isExtensible);
+
+            var inputOperation = InputFactory.Operation(
+                "PutColor",
+                parameters: [InputFactory.BodyParameter("color", enumType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutColor",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("color", enumType, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutColor");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains(expectedWriteExpression, statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
+        }
+
+        // String bodies with a JSON media type must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [Test]
+        public void JsonStringBodySerializedWithUtf8JsonWriter()
+        {
+            var inputOperation = InputFactory.Operation(
+                "PutString",
+                parameters: [InputFactory.BodyParameter("value", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])],
+                requestMediaTypes: ["application/json"]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutString",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("value", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutString");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains("content.JsonWriter.WriteStringValue(value)", statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
+        }
+
         [TestCase(true, false, true)]
         [TestCase(true, true, true)]
         [TestCase(false, false, false)]
