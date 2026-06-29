@@ -2558,10 +2558,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _utf8JsonWriterSnippet.WriteNull(serializedName));
                 }
 
+                // When the property path is already present in the patch, the patched value is
+                // emitted by Patch.WriteTo(writer), so the null fallback must be gated on the patch
+                // check to avoid writing the property twice.
+                MethodBodyStatement writeNullStatement = patchCheck != null
+                    ? new IfStatement(patchCheck) { _utf8JsonWriterSnippet.WriteNull(serializedName) }
+                    : _utf8JsonWriterSnippet.WriteNull(serializedName);
+
                 return new IfElseStatement(
                     condition,
                     writePropertySerializationStatement,
-                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    writeNullStatement);
             }
 
             if (shouldCheckJsonPath)
