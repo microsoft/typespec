@@ -292,6 +292,11 @@ describe("compiler: parser", () => {
       // named keyword declarations in expression position
       "alias NE = enum Color { red, green };",
       "alias NM = model Inner { x: string };",
+      // `is` heritage clause in expression position (must not consume the enclosing `;`)
+      "alias MI = model is Base;",
+      "alias MIB = model is Base { extra: int32 };",
+      "model A { value: model is Base }",
+      "model A { value: model is Base; other: string }",
       // nested in model properties
       "model A { status: enum { active, inactive } }",
       "model A { value: model { x: string } }",

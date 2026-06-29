@@ -1121,8 +1121,12 @@ export function printModelStatement(
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const shouldPrintBody = nodeHasComments || !(node.properties.length === 0 && node.is);
-  const body = shouldPrintBody ? [" ", printModelPropertiesBlock(path, options, print)] : ";";
   const inExpressionPosition = isDeclarationExpressionNode(node);
+  const body = shouldPrintBody
+    ? [" ", printModelPropertiesBlock(path, options, print)]
+    : inExpressionPosition
+      ? ""
+      : ";";
   return [
     printDecorators(path, options, print, {
       tryInline: inExpressionPosition,

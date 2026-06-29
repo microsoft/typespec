@@ -187,6 +187,46 @@ describe("model", () => {
     expect(ns.models.size).toBe(1);
     expect(ns.models.has("Foo")).toBe(true);
   });
+
+  it("supports an `is` heritage clause with no body", async () => {
+    // Regression: an `is` clause with no `{ }` body in expression position must not consume
+    // the enclosing `;` (which belongs to the alias / property).
+    const { Foo } = await Tester.compile(t.code`
+      model Base { a: string; b: int32 }
+      model ${t.model("Foo")} {
+        value: model is Base;
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Model;
+    expect(type.kind).toBe("Model");
+    expect(type.expression).toBe(true);
+    expect(type.properties.has("a")).toBe(true);
+    expect(type.properties.has("b")).toBe(true);
+  });
+
+  it("supports an `is` heritage clause followed by more properties", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      model Base { a: string }
+      model ${t.model("Foo")} {
+        value: model is Base;
+        other: string;
+      }
+    `);
+    expect((Foo.properties.get("value")!.type as Model).properties.has("a")).toBe(true);
+    expect(Foo.properties.get("other")!.type.kind).toBe("Scalar");
+  });
+
+  it("supports an `is` heritage clause with an additional body", async () => {
+    const { Foo } = await Tester.compile(t.code`
+      model Base { a: string }
+      model ${t.model("Foo")} {
+        value: model is Base { extra: int32 };
+      }
+    `);
+    const type = Foo.properties.get("value")!.type as Model;
+    expect(type.properties.has("a")).toBe(true);
+    expect(type.properties.has("extra")).toBe(true);
+  });
 });
 
 describe("named declaration expressions", () => {
@@ -689,5 +729,25 @@ describe("experimental feature flag", () => {
       }
     `);
     expectDiagnosticEmpty(diagnostics);
+  });
+});
+
+describe("inside a template", () => {
+  it("resolves an enum expression decorator argument per instantiation", async () => {
+    // Regression: an enum declaration expression must be re-checked per template
+    // instantiation so a decorator that references the template parameter is resolved
+    // (rather than being frozen at declaration time with the raw template parameter).
+    const { A, B, program } = await Tester.compile(t.code`
+      model Box<T extends valueof string> {
+        e: @doc(T) enum { a };
+      }
+      model ${t.model("A")} is Box<"alpha"> {}
+      model ${t.model("B")} is Box<"beta"> {}
+    `);
+    const aEnum = A.properties.get("e")!.type as Enum;
+    const bEnum = B.properties.get("e")!.type as Enum;
+    expect(getDoc(program, aEnum)).toBe("alpha");
+    expect(getDoc(program, bEnum)).toBe("beta");
+    expect(aEnum).not.toBe(bEnum);
   });
 });

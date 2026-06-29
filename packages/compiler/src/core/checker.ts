@@ -7659,61 +7659,71 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: EnumStatementNode | EnumDeclarationExpressionNode,
   ): Type {
     const links = getSymbolLinks(node.symbol);
-    if (!links.type) {
-      checkModifiers(program, node);
-      reportDeclarationExpressionFeature(node);
-      const enumType: Enum = (links.type = createType({
-        kind: "Enum",
-        name: node.id?.sv ?? "",
-        node,
-        members: createRekeyableMap<string, EnumMember>(),
-        decorators: [],
-        expression: node.kind === SyntaxKind.EnumDeclarationExpression,
-      }));
 
-      const memberNames = new Set<string>();
-
-      for (const member of node.members) {
-        if (member.kind === SyntaxKind.EnumMember) {
-          const memberType = checkEnumMember(ctx, member, enumType);
-          if (memberNames.has(memberType.name)) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "enum-member-duplicate",
-                format: { name: memberType.name },
-                target: node,
-              }),
-            );
-            continue;
-          }
-          memberNames.add(memberType.name);
-          enumType.members.set(memberType.name, memberType);
-        } else {
-          const members = checkEnumSpreadMember(
-            ctx,
-            node.symbol,
-            enumType,
-            member.target,
-            memberNames,
-          );
-          for (const memberType of members) {
-            linkIndirectMember(ctx, node, memberType);
-            enumType.members.set(memberType.name, memberType);
-          }
-        }
-      }
-
-      const namespace = getParentNamespaceType(node);
-      enumType.namespace = namespace;
-      if (!enumType.expression) {
-        enumType.namespace?.enums.set(enumType.name!, enumType);
-      }
-      enumType.decorators = checkDecorators(ctx, enumType, node);
-      linkMapper(enumType, ctx.mapper);
-      finishType(enumType);
+    if (links.declaredType && ctx.mapper === undefined) {
+      // we're not instantiating this enum and we've already checked it
+      return links.declaredType as Enum;
     }
 
-    return links.type;
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
+      reportDeclarationExpressionFeature(node);
+    }
+
+    const enumType: Enum = createType({
+      kind: "Enum",
+      name: node.id?.sv ?? "",
+      node,
+      members: createRekeyableMap<string, EnumMember>(),
+      decorators: [],
+      expression: node.kind === SyntaxKind.EnumDeclarationExpression,
+    });
+    // Link the type before resolving the parent namespace: resolving the namespace may run
+    // its decorators which can reference this enum, and we must not create a second instance.
+    linkType(ctx, links, enumType);
+
+    const memberNames = new Set<string>();
+
+    for (const member of node.members) {
+      if (member.kind === SyntaxKind.EnumMember) {
+        const memberType = checkEnumMember(ctx, member, enumType);
+        if (memberNames.has(memberType.name)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "enum-member-duplicate",
+              format: { name: memberType.name },
+              target: node,
+            }),
+          );
+          continue;
+        }
+        memberNames.add(memberType.name);
+        enumType.members.set(memberType.name, memberType);
+      } else {
+        const members = checkEnumSpreadMember(
+          ctx,
+          node.symbol,
+          enumType,
+          member.target,
+          memberNames,
+        );
+        for (const memberType of members) {
+          linkIndirectMember(ctx, node, memberType);
+          enumType.members.set(memberType.name, memberType);
+        }
+      }
+    }
+
+    enumType.namespace = getParentNamespaceType(node);
+    if (ctx.mapper === undefined && !enumType.expression) {
+      enumType.namespace?.enums.set(enumType.name!, enumType);
+    }
+    enumType.decorators = checkDecorators(ctx, enumType, node);
+    linkMapper(enumType, ctx.mapper);
+
+    return finishType(enumType, {
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
+    });
   }
 
   function checkInterface(ctx: CheckContext, node: InterfaceStatementNode): Interface {

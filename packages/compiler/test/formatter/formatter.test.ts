@@ -1834,6 +1834,24 @@ alias M = model {
       });
     });
 
+    it("formats a model `is` expression without double semicolon", async () => {
+      await assertFormat({
+        code: `alias M   =   model   is   Base;`,
+        expected: `alias M = model is Base;`,
+      });
+    });
+
+    it("formats a model `is` expression with a body", async () => {
+      await assertFormat({
+        code: `alias M = model is Base {  x:  string  };`,
+        expected: `
+alias M = model is Base {
+  x: string;
+};
+`,
+      });
+    });
+
     it("formats named declaration expression", async () => {
       await assertFormat({
         code: `model Foo { nested:   model Inner {  x:  string  }; }`,

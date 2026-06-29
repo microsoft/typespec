@@ -970,7 +970,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
-    const { extends: optionalExtends, is: optionalIs, properties, bodyRange } = parseModelBody();
+    const {
+      extends: optionalExtends,
+      is: optionalIs,
+      properties,
+      bodyRange,
+    } = parseModelBody(true);
 
     return {
       kind: SyntaxKind.ModelDeclarationExpression,
@@ -988,7 +993,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
-  function parseModelBody(): {
+  function parseModelBody(inExpressionPosition = false): {
     extends?: Expression;
     is?: Expression;
     properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
@@ -1003,11 +1008,20 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ModelPropertyNode | ModelSpreadPropertyNode
     >();
     if (optionalIs) {
-      const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
-      if (tok === Token.Semicolon) {
-        nextToken();
+      if (inExpressionPosition) {
+        // In expression position there is no `;` terminator (it belongs to the enclosing
+        // construct): only parse a `{ ... }` body when present, otherwise the model has no
+        // own properties.
+        if (token() === Token.OpenBrace) {
+          propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        }
       } else {
-        propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
+        if (tok === Token.Semicolon) {
+          nextToken();
+        } else {
+          propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        }
       }
     } else {
       propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
