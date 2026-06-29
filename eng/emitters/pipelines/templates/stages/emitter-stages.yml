@@ -449,12 +449,24 @@ stages:
                           --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
                           "$CONTEXT"
 
-                        # Update App Service container image
-                        az webapp config container set \
+                        # Update App Service container image.
+                        # Retry to tolerate transient control-plane errors (e.g. GatewayTimeout
+                        # from Microsoft.Web). The command is idempotent, so re-issuing is safe.
+                        MAX_ATTEMPTS=5
+                        attempt=1
+                        until az webapp config container set \
                           --name "$APP_NAME" \
                           --resource-group "$RESOURCE_GROUP" \
                           --container-image-name "$IMAGE" \
-                          --container-registry-url "https://$REGISTRY.azurecr.io"
+                          --container-registry-url "https://$REGISTRY.azurecr.io"; do
+                          if [ "$attempt" -ge "$MAX_ATTEMPTS" ]; then
+                            echo "Failed to update container image after $attempt attempts"
+                            exit 1
+                          fi
+                          echo "Attempt $attempt failed; retrying in $((attempt * 15))s..."
+                          sleep $((attempt * 15))
+                          attempt=$((attempt + 1))
+                        done
 
                         echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)
