@@ -209,6 +209,13 @@ const sidebar: SidebarItem[] = [
             [],
             "preview",
           ),
+          createLibraryReferenceStructure(
+            "emitters/clients/http-client-rust",
+            "Rust",
+            false,
+            [],
+            "preview",
+          ),
         ],
       },
       {

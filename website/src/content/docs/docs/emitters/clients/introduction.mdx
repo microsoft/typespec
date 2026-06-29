@@ -8,7 +8,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 ### Introduction
 
-This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
+This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#, Rust) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
 
 By following this guide, you will learn:
 
@@ -26,6 +26,7 @@ The client emitters are defined in the `package.json` file within your project.
 | @typespec/http-client-python | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python) |
 | @typespec/http-client-java   | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)   |
 | @typespec/http-client-csharp | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
+| @azure-tools/typespec-rust   | Rust         | ![](https://img.shields.io/npm/v/@azure-tools/typespec-rust)   |
 
 Below is an example of the `package.json` snippet where client emitters are defined:
 
@@ -35,6 +36,7 @@ Below is an example of the `package.json` snippet where client emitters are defi
     "@typespec/http-client-java": "^0.1.9",
     "@typespec/http-client-python": "^0.6.6",
     "@typespec/http-client-js": "^0.38.1",
+    "@azure-tools/typespec-rust": "^0.41.0",
   }
 ```
 
@@ -85,6 +87,31 @@ Before using the Java client emitter, ensure the following dependencies are inst
 
 Before using the C# client emitter, ensure that the [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) is installed.
 Full configuration options can be found in the [C# Client Emitter README](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md#configuration)
+
+### Rust Client Emitter Settings
+
+Before using the Rust client emitter, ensure that the [Rust toolchain](https://www.rust-lang.org/tools/install) is installed.
+
+The following options can be set under `options["@azure-tools/typespec-rust"]` in your `tspconfig.yaml`:
+
+| Option                 | Type    | Default | Description                                                      |
+| ---------------------- | ------- | ------- | ---------------------------------------------------------------- |
+| `crate-name`           | string  | —       | Name of the generated Rust crate.                                |
+| `crate-version`        | string  | —       | Version of the generated Rust crate.                             |
+| `omit-constructors`    | boolean | `false` | When `true`, constructors are not generated for model types.     |
+| `overwrite-cargo-toml` | boolean | `false` | When `true`, an existing `Cargo.toml` will be overwritten.       |
+| `overwrite-lib-rs`     | boolean | `false` | When `true`, an existing `lib.rs` will be overwritten.           |
+| `emit-error-traits`    | boolean | `false` | When `true`, error trait implementations are emitted for errors. |
+
+Example configuration:
+
+```yaml
+options:
+  "@azure-tools/typespec-rust":
+    emitter-output-dir: "{project-root}/clients/rust"
+    crate-name: "my-service-client"
+    crate-version: "0.1.0"
+```
 
 ## JavaScript Client Emitter Example
 
@@ -241,6 +268,46 @@ Run the following command to generate the C# client:
 tsp compile {path to main.tsp}/main.tsp
 ```
 
+## Rust Client Emitter Example
+
+### Step 1: Install Dependencies
+
+Add the following dependencies to your `package.json` file:
+
+```json
+"dependencies": {
+  "@azure-tools/typespec-rust": "^0.41.0"
+}
+```
+
+Run the following command to install the dependencies:
+
+```bash
+tsp install
+```
+
+### Step 2: Update Configuration
+
+Update your `tspconfig.yaml` file with the following configuration:
+
+```yaml
+emit:
+  - "@azure-tools/typespec-rust"
+options:
+  "@azure-tools/typespec-rust":
+    emitter-output-dir: "{project-root}/clients/rust"
+    crate-name: "my-service-client"
+    crate-version: "0.1.0"
+```
+
+### Step 3: Generate Client
+
+Run the following command to generate the Rust client:
+
+```bash
+tsp compile {path to main.tsp}/main.tsp
+```
+
 ## Running Language-Specific Emitters in CLI
 
 <Steps>
@@ -255,6 +322,7 @@ tsp compile {path to main.tsp}/main.tsp
      - "@typespec/http-client-java"
      - "@typespec/http-client-python"
      - "@typespec/http-client-js"
+     - "@azure-tools/typespec-rust"
    options:
      "@typespec/http-client-csharp":
        emitter-output-dir: "{project-root}/clients/dotnet"
@@ -264,6 +332,10 @@ tsp compile {path to main.tsp}/main.tsp
        emitter-output-dir: "{project-root}/clients/python"
      "@typespec/http-client-js":
        emitter-output-dir: "{project-root}/clients/javascript"
+     "@azure-tools/typespec-rust":
+       emitter-output-dir: "{project-root}/clients/rust"
+       crate-name: "my-service-client"
+       crate-version: "0.1.0"
    ```
 
 3. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies by running the following command in the project root:
@@ -290,5 +362,6 @@ tsp compile {path to main.tsp}/main.tsp
 - [TypeSpec Python emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/README.md)
 - [TypeSpec Java emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/README.md)
 - [TypeSpec JS emitter library](https://github.com/Azure/autorest.typescript/blob/main/packages/typespec-ts/README.md)
+- [TypeSpec Rust emitter library](https://github.com/Azure/typespec-rust/blob/main/packages/typespec-rust/README.md)
 
 </Aside>
