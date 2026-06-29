@@ -272,8 +272,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
         {
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
-            declarations = new Dictionary<string, ValueExpression>();
+            var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+
+            // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
+            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
+            {
+                statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                    serializationType,
+                    value,
+                    content.JsonWriter(),
+                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    SerializationFormat.Default));
+                localDeclarations["content"] = content;
+            }
 
             foreach (var parameter in convenienceMethodParameters)
             {
@@ -309,11 +322,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
-                        var bdExpression = ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true
-                            ? BinaryDataSnippets.FromObjectAsJson(parameter)
-                            : BinaryDataSnippets.FromString(parameter);
-                        statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
-                        declarations["content"] = content;
+                        if (ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true)
+                        {
+                            AddUtf8JsonContent(parameter.Type, parameter);
+                        }
+                        else
+                        {
+                            statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter)), out var content));
+                            declarations["content"] = content;
+                        }
+                    }
+                    else if (parameter.Type.IsEnum)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter);
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
@@ -322,14 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
-                        statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
-                            parameter.Type.FrameworkType,
-                            parameter,
-                            content.JsonWriter(),
-                            ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                            SerializationFormat.Default));
-                        declarations["content"] = content;
+                        AddUtf8JsonContent(parameter.Type.FrameworkType, parameter);
                     }
                     else
                     {
@@ -947,8 +961,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else if (convenienceParam.Type.IsEnum)
                         {
-                            AddArgument(protocolParam, RequestContentApiSnippets.Create(
-                                BinaryDataSnippets.FromObjectAsJson(convenienceParam.Type.ToSerial(convenienceParam))));
+                            AddArgument(protocolParam, declarations["content"]);
                         }
                         else if (convenienceParam.Type.Equals(typeof(BinaryData)))
                         {
