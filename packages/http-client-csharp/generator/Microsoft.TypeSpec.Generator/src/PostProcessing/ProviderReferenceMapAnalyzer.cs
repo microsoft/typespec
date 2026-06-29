@@ -22,12 +22,15 @@ namespace Microsoft.TypeSpec.Generator
     {
         private static ProviderReferenceMapResult? _latestResult;
         private static readonly ConditionalWeakTable<HashSet<string>, Dictionary<string, string[]>> _simpleNameLookupCache = new();
+        private static TypeProvider? _preWriteModelFactory;
+        private static MethodProvider[]? _preWriteModelFactoryMethods;
 
         public static ProviderReferenceMapResult? LatestResult => _latestResult;
         public static bool PreWriteAccessibilityApplied { get; private set; }
 
         public static void ResetPreWriteAccessibility()
         {
+            RestorePreWriteModelFactoryMethods();
             PreWriteAccessibilityApplied = false;
         }
 
@@ -56,6 +59,18 @@ namespace Microsoft.TypeSpec.Generator
 
             RemoveMethodsFromModelFactory(internalizeCandidates.Select(GetSimpleName).ToHashSet(StringComparer.Ordinal));
             PreWriteAccessibilityApplied = true;
+        }
+
+        public static void RestorePreWriteModelFactoryMethods()
+        {
+            if (_preWriteModelFactory == null || _preWriteModelFactoryMethods == null)
+            {
+                return;
+            }
+
+            _preWriteModelFactory.Update(methods: _preWriteModelFactoryMethods);
+            _preWriteModelFactory = null;
+            _preWriteModelFactoryMethods = null;
         }
 
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
@@ -1461,6 +1476,8 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            _preWriteModelFactory = modelFactory;
+            _preWriteModelFactoryMethods ??= [.. modelFactory.Methods];
             var methodsToKeep = modelFactory.Methods
                 .Where(method => !namesToRemove.Contains(method.Signature.Name))
                 .ToArray();

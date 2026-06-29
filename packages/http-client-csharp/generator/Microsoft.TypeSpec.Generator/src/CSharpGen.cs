@@ -121,6 +121,7 @@ namespace Microsoft.TypeSpec.Generator
             await Task.WhenAll(generateFilesTasks);
 
             generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders);
+            ProviderReferenceMapAnalyzer.RestorePreWriteModelFactoryMethods();
 
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
