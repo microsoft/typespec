@@ -611,6 +611,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        // Regression test for https://github.com/Azure/azure-sdk-for-net/issues/60160.
+        // When an optional parameter appears before a required body parameter in the operation
+        // (e.g. an optional path version followed by the required body), the protocol method
+        // reorders its parameters required-first, which differs from the CreateRequest method's
+        // declaration order. The call site must still pass the arguments in the CreateRequest
+        // method's parameter order, not the protocol method's order.
+        [Test]
+        public void ProtocolMethodCallsCreateRequestWithArgumentsInBuilderOrder()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+                InputFactory.PathParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false),
+                InputFactory.BodyParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+            ];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Body),
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            var protocolMethod = methodCollection.Single(m =>
+                m.Signature.Parameters.Any(p => p.Name == "options")
+                && m.Signature.Name == "TestOperation");
+
+            // The protocol method orders parameters required-first: (name, content, version, options).
+            var protocolParameterOrder = string.Join(", ", protocolMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, content, version, options", protocolParameterOrder);
+
+            // The CreateRequest builder keeps declaration order: (name, version, content, options).
+            var createRequestMethod = client!.RestClient.GetCreateRequestMethod(inputOperation);
+            var expectedArguments = string.Join(", ", createRequestMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, version, content, options", expectedArguments);
+
+            // The call site must use the CreateRequest builder's order, not the protocol method's order.
+            var body = protocolMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains($"{createRequestMethod.Signature.Name}({expectedArguments})", body);
+            StringAssert.DoesNotContain($"{createRequestMethod.Signature.Name}(name, content, version, options)", body);
+        }
+
         [Test]
         public void OperationWithOptionalEnum()
         {

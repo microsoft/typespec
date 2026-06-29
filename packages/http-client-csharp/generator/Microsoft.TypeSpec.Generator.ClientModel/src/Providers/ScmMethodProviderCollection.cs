@@ -1117,7 +1117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
-                            [.. bodyParameters.Select(p => (ValueExpression)p)]), out var message),
+                            BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
                         .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
@@ -1141,6 +1141,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
+        }
+
+        // The protocol method orders its parameters required-first (optional parameters and the
+        // request options/context parameter are moved to the end so they can have default values).
+        // This order can differ from the CreateRequest method's parameter order, which follows the
+        // operation/declaration order. Passing the protocol parameters positionally would therefore
+        // bind them to the wrong CreateRequest parameters (for example, swapping an optional path
+        // parameter with the request body). Reorder the arguments to match the CreateRequest
+        // signature by mapping each CreateRequest parameter to the protocol parameter with the same
+        // name. If the names cannot be reconciled, fall back to the original positional behavior.
+        private static ValueExpression[] BuildCreateRequestArguments(
+            MethodSignature createRequestSignature,
+            IReadOnlyList<ParameterProvider> bodyParameters)
+        {
+            var createRequestParameters = createRequestSignature.Parameters;
+            if (createRequestParameters.Count == bodyParameters.Count)
+            {
+                var arguments = new ValueExpression[createRequestParameters.Count];
+                bool allMatched = true;
+                for (int i = 0; i < createRequestParameters.Count; i++)
+                {
+                    var match = bodyParameters.FirstOrDefault(p => p.Name == createRequestParameters[i].Name);
+                    if (match is null)
+                    {
+                        allMatched = false;
+                        break;
+                    }
+
+                    arguments[i] = match;
+                }
+
+                if (allMatched)
+                {
+                    return arguments;
+                }
+            }
+
+            return [.. bodyParameters.Select(p => (ValueExpression)p)];
         }
 
         private ParameterProvider ProcessOptionalParameters(
