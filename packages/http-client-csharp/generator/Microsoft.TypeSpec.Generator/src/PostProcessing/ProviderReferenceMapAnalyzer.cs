@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.TypeSpec.Generator
@@ -23,6 +24,39 @@ namespace Microsoft.TypeSpec.Generator
         private static readonly ConditionalWeakTable<HashSet<string>, Dictionary<string, string[]>> _simpleNameLookupCache = new();
 
         public static ProviderReferenceMapResult? LatestResult => _latestResult;
+        public static bool PreWriteAccessibilityApplied { get; private set; }
+
+        public static void ResetPreWriteAccessibility()
+        {
+            PreWriteAccessibilityApplied = false;
+        }
+
+        public static void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers, Project customCodeProject)
+        {
+            PreWriteAccessibilityApplied = false;
+            if (Configuration.UnreferencedTypesHandling == Configuration.UnreferencedTypesHandlingOption.KeepAll)
+            {
+                return;
+            }
+
+            var (internalizeCandidates, publicizeCandidates) = GetPreWriteAccessibilityCandidates(providers, customCodeProject);
+            foreach (var provider in GetGeneratedProviders(providers))
+            {
+                var providerName = GetProviderTypeName(provider.Type);
+                if (internalizeCandidates.Contains(providerName))
+                {
+                    provider.PreserveXmlDocs();
+                    provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
+                }
+                else if (publicizeCandidates.Contains(providerName))
+                {
+                    provider.Update(modifiers: MakePublic(provider.DeclarationModifiers));
+                }
+            }
+
+            RemoveMethodsFromModelFactory(internalizeCandidates.Select(GetSimpleName).ToHashSet(StringComparer.Ordinal));
+            PreWriteAccessibilityApplied = true;
+        }
 
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
@@ -126,6 +160,68 @@ namespace Microsoft.TypeSpec.Generator
                 internalizeCandidates.ToHashSet(StringComparer.Ordinal),
                 publicizeCandidates.ToHashSet(StringComparer.Ordinal),
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
+        }
+
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicizeCandidates) GetPreWriteAccessibilityCandidates(IReadOnlyList<TypeProvider> providers, Project customCodeProject)
+        {
+            var generatedProviders = GetGeneratedProviders(providers);
+            var graph = BuildGraph(generatedProviders);
+            var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
+            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
+            customPublicRoots.UnionWith(GetCustomCodePublicGeneratedTypeRootsFromSyntax(customCodeProject, graph.Nodes));
+            var apiBaselineGeneratedTypeRoots = GetApiBaselineGeneratedTypeRoots(graph.Nodes);
+            customPublicRoots.UnionWith(apiBaselineGeneratedTypeRoots);
+            var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarations(generatedProviders, graph.Nodes);
+            customPublicRoots.UnionWith(generatedPublicDeclarations);
+            var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
+            var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
+            var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
+
+            var internalizeReferences = CloneReferences(publicGraph.References);
+            var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
+            if (ShouldUseUnionVariantFallbackRoots())
+            {
+                AddUnionVariantRoots(internalizeRoots, providers, graph.Nodes);
+            }
+
+            var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
+            internalizeRoots.UnionWith(customPublicRoots);
+            var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, internalizeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
+            internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
+            var publicizeRoots = internalizeRoots.ToHashSet(StringComparer.Ordinal);
+            var internalizeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, internalizeReachableWithoutHelpers);
+            internalizeRoots.UnionWith(internalizeHelperRoots);
+            var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
+            var customInternalBoundaryNodes = graph.Nodes
+                .Where(name => publicGraph.References.TryGetValue(name, out var references) && references.Overlaps(customInternalDeclarations))
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: false)
+                .Except(internalizeDeclaredNodes, StringComparer.Ordinal);
+            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedInternalDeclarations).ToHashSet(StringComparer.Ordinal);
+            var publicApiTraversalNodes = internalizeDeclaredNodes
+                .Except(generatedInternalDeclarations, StringComparer.Ordinal)
+                .Concat(publicizeDeclaredNodes)
+                .Except(generatedImplementationInternalDeclarations, StringComparer.Ordinal)
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
+            var internalizeCandidates = internalizeDeclaredNodes
+                .Except(publicizeReachable, StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes.Intersect(customInternalBoundaryNodes, StringComparer.Ordinal), StringComparer.Ordinal)
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeCandidates = publicizeDeclaredNodes
+                .Except(customInternalDeclarations, StringComparer.Ordinal)
+                .Except(customInternalBoundaryNodes, StringComparer.Ordinal)
+                .Except(internalizeHelperRoots, StringComparer.Ordinal)
+                .Except(GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true), StringComparer.Ordinal)
+                .Intersect(publicizeReachable, StringComparer.Ordinal)
+                .Where(name => !generatedInternalDeclarations.Contains(name) || publicizeRoots.Contains(name))
+                .Where(name => publicizeRoots.Contains(name) ||
+                    HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
+                .ToHashSet(StringComparer.Ordinal);
+
+            return (internalizeCandidates, publicizeCandidates);
         }
 
         private static HashSet<string> GetCustomCodeGeneratedTypeRoots(Project project, HashSet<string> generatedTypeNames)
@@ -247,6 +343,226 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
+        private static HashSet<string> GetCustomCodePublicGeneratedTypeRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var customCodeView in GetCustomCodeViews(providers))
+            {
+                if (!customCodeView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: true);
+            }
+
+            return roots;
+        }
+
+        private static HashSet<string> GetCustomCodePublicGeneratedTypeRootsFromSyntax(Project project, HashSet<string> generatedTypeNames)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var document in project.Documents)
+            {
+                if (GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
+                if (root == null)
+                {
+                    continue;
+                }
+
+                foreach (var typeDeclaration in root.DescendantNodes().OfType<TypeDeclarationSyntax>())
+                {
+                    if (!IsPublic(typeDeclaration.Modifiers))
+                    {
+                        continue;
+                    }
+
+                    if (typeDeclaration.BaseList != null)
+                    {
+                        AddSyntaxTypeReferences(roots, typeDeclaration.BaseList, generatedTypeNames);
+                    }
+
+                    foreach (var member in typeDeclaration.Members)
+                    {
+                        if (IsPublicApiMember(member))
+                        {
+                            AddMemberSignatureTypeReferences(roots, member, generatedTypeNames);
+                        }
+                    }
+                }
+            }
+
+            return roots;
+        }
+
+        private static bool IsPublicApiMember(MemberDeclarationSyntax member)
+            => member switch
+            {
+                EventDeclarationSyntax @event => IsPublic(@event.Modifiers),
+                EventFieldDeclarationSyntax @event => IsPublic(@event.Modifiers),
+                BaseFieldDeclarationSyntax field => IsPublic(field.Modifiers),
+                BaseMethodDeclarationSyntax method => IsPublic(method.Modifiers),
+                BasePropertyDeclarationSyntax property => IsPublic(property.Modifiers),
+                DelegateDeclarationSyntax @delegate => IsPublic(@delegate.Modifiers),
+                BaseTypeDeclarationSyntax type => IsPublic(type.Modifiers),
+                _ => false
+            };
+
+        private static bool IsPublic(SyntaxTokenList modifiers)
+            => modifiers.Any(static modifier =>
+                modifier.IsKind(SyntaxKind.PublicKeyword) ||
+                modifier.IsKind(SyntaxKind.ProtectedKeyword));
+
+        private static void AddMemberSignatureTypeReferences(HashSet<string> roots, MemberDeclarationSyntax member, HashSet<string> generatedTypeNames)
+        {
+            switch (member)
+            {
+                case MethodDeclarationSyntax method:
+                    AddSyntaxTypeReferences(roots, method.ReturnType, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, method.ParameterList, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, method.ConstraintClauses, generatedTypeNames);
+                    break;
+                case ConstructorDeclarationSyntax constructor:
+                    AddSyntaxTypeReferences(roots, constructor.ParameterList, generatedTypeNames);
+                    break;
+                case ConversionOperatorDeclarationSyntax conversion:
+                    AddSyntaxTypeReferences(roots, conversion.Type, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, conversion.ParameterList, generatedTypeNames);
+                    break;
+                case OperatorDeclarationSyntax @operator:
+                    AddSyntaxTypeReferences(roots, @operator.ReturnType, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, @operator.ParameterList, generatedTypeNames);
+                    break;
+                case PropertyDeclarationSyntax property:
+                    AddSyntaxTypeReferences(roots, property.Type, generatedTypeNames);
+                    break;
+                case IndexerDeclarationSyntax indexer:
+                    AddSyntaxTypeReferences(roots, indexer.Type, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, indexer.ParameterList, generatedTypeNames);
+                    break;
+                case FieldDeclarationSyntax field:
+                    AddSyntaxTypeReferences(roots, field.Declaration.Type, generatedTypeNames);
+                    break;
+                case EventFieldDeclarationSyntax eventField:
+                    AddSyntaxTypeReferences(roots, eventField.Declaration.Type, generatedTypeNames);
+                    break;
+                case EventDeclarationSyntax @event:
+                    AddSyntaxTypeReferences(roots, @event.Type, generatedTypeNames);
+                    break;
+                case DelegateDeclarationSyntax @delegate:
+                    AddSyntaxTypeReferences(roots, @delegate.ReturnType, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, @delegate.ParameterList, generatedTypeNames);
+                    AddSyntaxTypeReferences(roots, @delegate.ConstraintClauses, generatedTypeNames);
+                    break;
+                case BaseTypeDeclarationSyntax type:
+                    if (type.BaseList != null)
+                    {
+                        AddSyntaxTypeReferences(roots, type.BaseList, generatedTypeNames);
+                    }
+                    break;
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(HashSet<string> roots, SyntaxNode node, HashSet<string> generatedTypeNames)
+        {
+            foreach (var name in node.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+            {
+                AddMatchingName(roots, name.Identifier.ValueText, generatedTypeNames);
+            }
+
+            foreach (var name in node.DescendantNodesAndSelf().OfType<GenericNameSyntax>())
+            {
+                AddMatchingName(roots, name.Identifier.ValueText, generatedTypeNames);
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(HashSet<string> roots, IEnumerable<SyntaxNode> nodes, HashSet<string> generatedTypeNames)
+        {
+            foreach (var node in nodes)
+            {
+                AddSyntaxTypeReferences(roots, node, generatedTypeNames);
+            }
+        }
+
+        private static IEnumerable<TypeProvider> GetCustomCodeViews(IReadOnlyList<TypeProvider> providers)
+        {
+            var visited = new HashSet<TypeProvider>();
+            foreach (var provider in providers)
+            {
+                var customCodeView = provider.CustomCodeView;
+                if (customCodeView == null || !visited.Add(customCodeView))
+                {
+                    continue;
+                }
+
+                yield return customCodeView;
+            }
+        }
+
+        private static void AddCustomCodeViewRoots(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames, bool publicOnly)
+        {
+            AddTypeReference(roots, customCodeView.Type, generatedTypeNames);
+            AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames);
+            foreach (var implementedType in customCodeView.Implements)
+            {
+                AddTypeReference(roots, implementedType, generatedTypeNames);
+            }
+
+            foreach (var constructor in customCodeView.Constructors)
+            {
+                if (publicOnly && !IsPublic(constructor.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                AddSignatureReferences(roots, constructor.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+            }
+
+            foreach (var method in customCodeView.Methods)
+            {
+                if (publicOnly && !IsPublic(method.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                AddSignatureReferences(roots, method.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+            }
+
+            foreach (var property in customCodeView.Properties)
+            {
+                if (publicOnly && !IsPublic(property.Modifiers))
+                {
+                    continue;
+                }
+
+                AddTypeReference(roots, property.Type, generatedTypeNames);
+                AddTypeReference(roots, property.ExplicitInterface, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddAttributes(roots, property.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
+                }
+            }
+
+            foreach (var field in customCodeView.Fields)
+            {
+                if (publicOnly && !IsPublic(field.Modifiers))
+                {
+                    continue;
+                }
+
+                AddTypeReference(roots, field.Type, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddAttributes(roots, field.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
+                }
+            }
+        }
+
         private static HashSet<string> GetApiBaselineGeneratedTypeRoots(HashSet<string> generatedTypeNames)
         {
             var roots = new HashSet<string>(StringComparer.Ordinal);
@@ -364,6 +680,22 @@ namespace Microsoft.TypeSpec.Generator
 
                     AddMatchingName(declarations, symbol.GetFullyQualifiedName(), generatedTypeNames);
                 }
+            }
+
+            return declarations;
+        }
+
+        private static HashSet<string> GetCustomCodeInternalGeneratedTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
+        {
+            var declarations = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var customCodeView in GetCustomCodeViews(providers))
+            {
+                if (!customCodeView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
+                {
+                    continue;
+                }
+
+                AddTypeReference(declarations, customCodeView.Type, generatedTypeNames);
             }
 
             return declarations;
@@ -606,6 +938,13 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsPublic(MethodSignatureModifiers modifiers) => modifiers.HasFlag(MethodSignatureModifiers.Public);
+        private static bool IsPublic(FieldModifiers modifiers) => modifiers.HasFlag(FieldModifiers.Public);
+
+        private static TypeSignatureModifiers MakeInternal(TypeSignatureModifiers modifiers)
+            => (modifiers & ~(TypeSignatureModifiers.Public | TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected)) | TypeSignatureModifiers.Internal;
+
+        private static TypeSignatureModifiers MakePublic(TypeSignatureModifiers modifiers)
+            => (modifiers & ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected)) | TypeSignatureModifiers.Public;
 
         private static Dictionary<string, HashSet<string>> CloneReferences(IReadOnlyDictionary<string, HashSet<string>> references)
         {
@@ -1114,6 +1453,20 @@ namespace Microsoft.TypeSpec.Generator
                 returnTypeName.EndsWith("Request", StringComparison.Ordinal);
         }
 
+        private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove)
+        {
+            if (namesToRemove.Count == 0)
+            {
+                return;
+            }
+
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            var methodsToKeep = modelFactory.Methods
+                .Where(method => !namesToRemove.Contains(method.Signature.Name))
+                .ToArray();
+            modelFactory.Update(methods: methodsToKeep);
+        }
+
         private static HashSet<string> GetPostProcessorDeclaredNodes(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, bool publicOnly)
         {
             var generator = CodeModelGenerator.Instance;
@@ -1526,6 +1879,12 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (type == null)
             {
+                return;
+            }
+
+            if (type.IsArray)
+            {
+                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType);
                 return;
             }
 

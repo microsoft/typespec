@@ -89,6 +89,11 @@ namespace Microsoft.TypeSpec.Generator
             ProviderReferenceMapAnalyzer.Analyze(providers, _project);
         }
 
+        internal void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
+        {
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers, _project);
+        }
+
         private async Task UpdateProject(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
@@ -284,10 +289,16 @@ namespace Microsoft.TypeSpec.Generator
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
+                    if (!ProviderReferenceMapAnalyzer.PreWriteAccessibilityApplied)
+                    {
+                        _project = await postProcessor.InternalizeAsync(_project);
+                    }
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
+                    if (!ProviderReferenceMapAnalyzer.PreWriteAccessibilityApplied)
+                    {
+                        _project = await postProcessor.InternalizeAsync(_project);
+                    }
                     _project = await postProcessor.RemoveAsync(_project);
                     break;
             }

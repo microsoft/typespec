@@ -143,6 +143,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _xmlDocs = value;
         }
 
+        internal bool PreserveTypeXmlDocs { get; private set; }
+
+        internal void PreserveXmlDocs()
+        {
+            PreserveTypeXmlDocs = true;
+        }
+
         public string? Deprecated
         {
             get => _deprecated;
@@ -546,6 +553,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
+            PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());
