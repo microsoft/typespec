@@ -449,12 +449,44 @@ stages:
                           --file "$CONTEXT/${{ parameters.PlaygroundServerDockerfile }}" \
                           "$CONTEXT"
 
-                        # Update App Service container image
-                        az webapp config container set \
-                          --name "$APP_NAME" \
-                          --resource-group "$RESOURCE_GROUP" \
-                          --container-image-name "$IMAGE" \
-                          --container-registry-url "https://$REGISTRY.azurecr.io"
+                        # Update App Service container image.
+                        # 'az webapp config container set' frequently returns a GatewayTimeout
+                        # from Microsoft.Web even though the underlying ARM update is applied
+                        # server-side. Issue the command (tolerating the timeout) and then poll
+                        # the live config to confirm the new image tag was actually applied.
+                        IMAGE_TAG="$APP_NAME:$(Build.BuildId)"
+                        deploy_verified=false
+                        for attempt in 1 2 3; do
+                          echo "Deploy attempt $attempt: setting container image to $IMAGE"
+                          az webapp config container set \
+                            --name "$APP_NAME" \
+                            --resource-group "$RESOURCE_GROUP" \
+                            --container-image-name "$IMAGE" \
+                            --container-registry-url "https://$REGISTRY.azurecr.io" \
+                            || echo "container set returned non-zero (often a transient GatewayTimeout); verifying actual state..."
+
+                          for poll in 1 2 3 4 5 6; do
+                            if az webapp config container show \
+                                 --name "$APP_NAME" \
+                                 --resource-group "$RESOURCE_GROUP" \
+                                 -o tsv 2>/dev/null | grep -q "$IMAGE_TAG"; then
+                              deploy_verified=true
+                              break
+                            fi
+                            echo "Image not applied yet; checking again in 10s..."
+                            sleep 10
+                          done
+
+                          if [ "$deploy_verified" = "true" ]; then
+                            echo "Confirmed container image $IMAGE is configured."
+                            break
+                          fi
+                        done
+
+                        if [ "$deploy_verified" != "true" ]; then
+                          echo "Failed to confirm container image update for $IMAGE"
+                          exit 1
+                        fi
 
                         echo "Deployed to https://$APP_NAME.azurewebsites.net"
                       workingDirectory: $(Build.SourcesDirectory)

@@ -819,6 +819,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // An optional trailing path parameter must not emit a dangling separator when null.
+        // e.g. "/certificates/{certificateName}/{certificateVersion}" with a null version
+        // should produce "/certificates/{name}", not "/certificates/{name}/".
+        [Test]
+        public void TestBuildCreateRequestMethodWithOptionalPathParameter()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("certificateName", InputPrimitiveType.String, isRequired: true),
+                InputFactory.PathParameter("certificateVersion", InputPrimitiveType.String, isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "getCertificate",
+                parameters: parameters,
+                uri: "/certificates/{certificateName}/{certificateVersion}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public void TestBuildCreateRequestMethodWithQueryInPath()
         {
