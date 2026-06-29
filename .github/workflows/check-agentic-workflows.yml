@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Install gh-aw
-        run: curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | bash -s -- v0.79.8
+        run: curl -sL https://raw.githubusercontent.com/github/gh-aw/main/install-gh-aw.sh | bash -s -- v0.80.9
 
       - name: Compile and check for drift
         run: |
