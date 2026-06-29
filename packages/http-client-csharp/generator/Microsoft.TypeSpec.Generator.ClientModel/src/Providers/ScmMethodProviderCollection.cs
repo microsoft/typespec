@@ -307,10 +307,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
-                        var bdExpression = ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true
-                            ? BinaryDataSnippets.FromObjectAsJson(parameter)
-                            : BinaryDataSnippets.FromString(parameter);
-                        statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
+                        if (ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true)
+                        {
+                            // Serialize via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
+                            statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                            statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                                parameter.Type,
+                                parameter,
+                                content.JsonWriter(),
+                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                SerializationFormat.Default));
+                            declarations["content"] = content;
+                        }
+                        else
+                        {
+                            statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter)), out var content));
+                            declarations["content"] = content;
+                        }
+                    }
+                    else if (parameter.Type.IsEnum)
+                    {
+                        // Serialize via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
+                        statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                        statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                            parameter.Type,
+                            parameter,
+                            content.JsonWriter(),
+                            ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                            SerializationFormat.Default));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
@@ -945,8 +969,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else if (convenienceParam.Type.IsEnum)
                         {
-                            AddArgument(protocolParam, RequestContentApiSnippets.Create(
-                                BinaryDataSnippets.FromObjectAsJson(convenienceParam.Type.ToSerial(convenienceParam))));
+                            AddArgument(protocolParam, declarations["content"]);
                         }
                         else if (convenienceParam.Type.Equals(typeof(BinaryData)))
                         {

@@ -378,11 +378,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 if (isExtensible)
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
                 }
                 else
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToSerialString())",
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToSerialString())",
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
