@@ -95,7 +95,7 @@
     ]
   },
   "dependencies": {
-    "js-yaml": "~4.1.0",
+    "js-yaml": "^4.2.0",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",

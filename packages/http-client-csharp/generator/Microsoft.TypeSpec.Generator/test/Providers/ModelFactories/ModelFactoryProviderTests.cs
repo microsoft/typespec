@@ -33,6 +33,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public void SkipExternalModels()
+        {
+            var external = new InputExternalTypeMetadata("OpenAI.Responses.ResponseTool", "OpenAI", "2.11.0");
+            var externalModel = InputFactory.Model("ExternalTool", external: external);
+            var localModel = InputFactory.Model("LocalThing");
+            var instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalModel, localModel]).Object;
+
+            var modelFactory = instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ExternalTool"),
+                "Externally-linked models must not get a model factory method.");
+            Assert.IsNotNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "LocalThing"),
+                "Local models must still get a model factory method.");
+        }
+
+        [Test]
         public void ListParamShape()
         {
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;

@@ -46,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal InputClient InputClient => _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
+        private readonly ParameterProvider _subClientEndpointParameter;
         /// <summary>
         /// This field is not one of the fields in this client, but the field in my parent client to get myself.
         /// </summary>
@@ -104,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputClient = inputClient;
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
+            _subClientEndpointParameter = BuildSubClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
@@ -311,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Auth credentials are NOT included here — the parent passes its authenticated
             // pipeline, so the sub-client doesn't need separate credential parameters.
-            subClientParameters.Add(_endpointParameter);
+            subClientParameters.Add(_subClientEndpointParameter);
             subClientParameters.AddRange(ClientParameters);
 
             return subClientParameters;
@@ -640,7 +642,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (_canBeInitializedByParent)
                 {
-                    List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
+                    List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_subClientEndpointParameter).Terminate() };
                     foreach (var p in _subClientInternalConstructorParams.Value)
                     {
                         var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
@@ -1503,6 +1505,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 KnownParameters.Endpoint.Description,
                 KnownParameters.Endpoint.Type,
                 initializationValue: initializationValue)
+            {
+                Validation = ParameterValidationType.AssertNotNull
+            };
+        }
+
+        /// <summary>
+        /// Builds the endpoint parameter used by the internal constructor that a parent client uses
+        /// to initialize this sub-client. The sub-client receives the already-resolved endpoint
+        /// <see cref="Uri"/> from its parent (the parent's <c>_endpoint</c> field) and assigns it
+        /// directly to its own <see cref="Uri"/>-typed <c>_endpoint</c> field. The server URL template
+        /// is only expanded on the root client, so when the public/root endpoint parameter is a string
+        /// hostname the sub-client must instead accept a <see cref="Uri"/> parameter to avoid a type
+        /// mismatch between the parameter and both the field and the argument passed by the parent.
+        /// </summary>
+        private ParameterProvider BuildSubClientEndpointParameter()
+        {
+            if (!_endpointParameter.Type.Equals(typeof(string)))
+            {
+                return _endpointParameter;
+            }
+
+            return new(
+                KnownParameters.Endpoint.Name,
+                KnownParameters.Endpoint.Description,
+                KnownParameters.Endpoint.Type)
             {
                 Validation = ParameterValidationType.AssertNotNull
             };
