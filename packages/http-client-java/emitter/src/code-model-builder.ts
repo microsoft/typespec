@@ -172,6 +172,7 @@ import {
   getFilteredApiVersions,
   getServiceApiVersions,
   isStableApiVersionString,
+  resolveApiVersionOption,
 } from "./versioning-utils.js";
 const { isEqual } = pkg;
 
@@ -698,14 +699,15 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (Array.isArray(versions) && versions.length > 0) {
       // consistent api-versions
-      if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
+      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+      if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
+        this.apiVersion = versions.find((it) => it.value === apiVersionOption)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
-            format: { apiVersion: this.sdkContext.apiVersion },
+            format: { apiVersion: apiVersionOption },
             target: NoTarget,
           });
         }
