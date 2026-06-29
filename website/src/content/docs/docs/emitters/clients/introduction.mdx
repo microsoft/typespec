@@ -20,13 +20,13 @@ By following this guide, you will learn:
 
 The client emitters are defined in the `package.json` file within your project.
 
-| **Emitter Name**              | **Language** | **Version**                                                     |
-| ----------------------------- | ------------ | --------------------------------------------------------------- |
-| @typespec/http-client-js      | JavaScript   | ![](https://img.shields.io/npm/v/@typespec/http-client-js)      |
-| @typespec/http-client-python  | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python)  |
-| @typespec/http-client-java    | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)    |
-| @typespec/http-client-csharp  | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp)  |
-| @azure-tools/typespec-rust    | Rust         | ![](https://img.shields.io/npm/v/@azure-tools/typespec-rust)    |
+| **Emitter Name**             | **Language** | **Version**                                                    |
+| ---------------------------- | ------------ | -------------------------------------------------------------- |
+| @typespec/http-client-js     | JavaScript   | ![](https://img.shields.io/npm/v/@typespec/http-client-js)     |
+| @typespec/http-client-python | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python) |
+| @typespec/http-client-java   | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)   |
+| @typespec/http-client-csharp | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
+| @azure-tools/typespec-rust   | Rust         | ![](https://img.shields.io/npm/v/@azure-tools/typespec-rust)   |
 
 Below is an example of the `package.json` snippet where client emitters are defined:
 
@@ -94,14 +94,14 @@ Before using the Rust client emitter, ensure that the [Rust toolchain](https://w
 
 The following options can be set under `options["@azure-tools/typespec-rust"]` in your `tspconfig.yaml`:
 
-| Option                  | Type    | Default | Description                                                        |
-| ----------------------- | ------- | ------- | ------------------------------------------------------------------ |
-| `crate-name`            | string  | —       | Name of the generated Rust crate.                                  |
-| `crate-version`         | string  | —       | Version of the generated Rust crate.                               |
-| `omit-constructors`     | boolean | `false` | When `true`, constructors are not generated for model types.       |
-| `overwrite-cargo-toml`  | boolean | `false` | When `true`, an existing `Cargo.toml` will be overwritten.         |
-| `overwrite-lib-rs`      | boolean | `false` | When `true`, an existing `lib.rs` will be overwritten.             |
-| `emit-error-traits`     | boolean | `false` | When `true`, error trait implementations are emitted for errors.   |
+| Option                 | Type    | Default | Description                                                      |
+| ---------------------- | ------- | ------- | ---------------------------------------------------------------- |
+| `crate-name`           | string  | —       | Name of the generated Rust crate.                                |
+| `crate-version`        | string  | —       | Version of the generated Rust crate.                             |
+| `omit-constructors`    | boolean | `false` | When `true`, constructors are not generated for model types.     |
+| `overwrite-cargo-toml` | boolean | `false` | When `true`, an existing `Cargo.toml` will be overwritten.       |
+| `overwrite-lib-rs`     | boolean | `false` | When `true`, an existing `lib.rs` will be overwritten.           |
+| `emit-error-traits`    | boolean | `false` | When `true`, error trait implementations are emitted for errors. |
 
 Example configuration:
 
