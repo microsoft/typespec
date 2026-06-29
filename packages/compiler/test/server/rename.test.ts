@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Range } from "vscode-languageserver/node.js";
+import { Range } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost, getTestIdentifiers } from "../../src/testing/test-server-host.js";
 
