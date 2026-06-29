@@ -11,6 +11,7 @@ using System.Linq;
 
 namespace SampleTypeSpec
 {
+    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
     internal partial class ListWithContinuationTokenHeaderResponseResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>

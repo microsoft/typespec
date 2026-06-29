@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -295,7 +296,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         [Test]
         public void InternalizeUsesProviderPublicApiReferences()
         {
-            MockHelpers.LoadMockGenerator();
+            MockHelpers.LoadMockGenerator(configuration: """{ "package-name": "Sample", "disable-xml-docs": false }""");
 
             var request = new TestTypeProvider("RequestBody");
             var dependency = new TestTypeProvider("Dependency");
@@ -325,6 +326,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             Assert.IsTrue(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsTrue(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            var requestFile = new TypeProviderWriter(request).Write();
+            StringAssert.Contains("/// <summary> The RequestBody. </summary>", requestFile.Content);
+            StringAssert.Contains("internal partial class RequestBody", requestFile.Content);
         }
 
         private class TestPostProcessor : PostProcessor
@@ -358,6 +363,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             protected override string BuildName() => _name;
 
             protected override string BuildNamespace() => "Sample";
+
+            protected override FormattableString BuildDescription() => $"The {Name}.";
 
             protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 

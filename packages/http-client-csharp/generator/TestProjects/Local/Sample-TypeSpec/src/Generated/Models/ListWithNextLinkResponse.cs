@@ -11,6 +11,7 @@ using System.Linq;
 
 namespace SampleTypeSpec
 {
+    /// <summary> The ListWithNextLinkResponse. </summary>
     internal partial class ListWithNextLinkResponse
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>

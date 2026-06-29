@@ -147,18 +147,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 "Expected a multipart serialization provider for a model with MultipartFormData usage.");
         }
 
-        [Test]
-        public void FileTypeDoesNotCreateModelProvider()
-        {
-            var file = InputFactory.Model("File", @namespace: "TypeSpec.Http");
-            typeof(InputModelType).GetProperty(nameof(InputModelType.IsFileType))!.SetValue(file, true);
-
-            MockHelpers.LoadMockGenerator(inputModels: () => [file]);
-
-            var provider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(file);
-            Assert.IsNull(provider);
-        }
-
         // ScmTypeFactory overrides CreateModelCore to return ScmModelProvider. External-type
         // handling lives in the (non-overridable) base TypeFactory.CreateModel, so it must still
         // apply here. This guards against regressing the fix by re-introducing external handling

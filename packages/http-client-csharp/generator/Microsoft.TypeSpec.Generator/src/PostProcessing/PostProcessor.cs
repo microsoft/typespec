@@ -131,6 +131,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var provider in providersToInternalize)
             {
+                provider.PreserveXmlDocs();
                 provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
             }
 
