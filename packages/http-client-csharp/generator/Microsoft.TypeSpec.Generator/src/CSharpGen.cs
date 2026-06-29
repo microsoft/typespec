@@ -107,6 +107,11 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var outputType in output.TypeProviders)
             {
+                if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
+                {
+                    continue;
+                }
+
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
