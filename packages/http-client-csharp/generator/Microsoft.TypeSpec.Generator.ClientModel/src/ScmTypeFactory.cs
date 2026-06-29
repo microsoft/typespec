@@ -269,6 +269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             SerializationFormat format)
                 => MrwSerializationTypeDefinition.SerializeXmlValueCore(valueType, value, xmlWriter, mrwOptionsParameter, format);
 
+        // File models are represented by FileBinaryContent in CreateCSharpTypeCore, so there is no model to emit.
         protected override ModelProvider? CreateModelCore(InputModelType model)
             => model.IsFileType ? null : new ScmModelProvider(model);
 
