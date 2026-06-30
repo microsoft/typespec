@@ -138,8 +138,9 @@ code vscode-diff
 ## CI integration
 
 `.github/workflows/ci-emitter-diff-python.yml` runs on PRs that touch the python emitter or this
-tool. It builds the python emitter (and a venv) for both the PR's checkout and a worktree of the
-PR's base commit, diffs the two, and then:
+tool. The **approved baseline** is a commit SHA stored in
+`eng/emitter-diff/baselines/python.sha`. CI builds the python emitter (and a venv) for both the
+PR's checkout and a worktree of that approved commit, diffs the two, and then:
 
 - uploads the rendered **`emitter-diff-html`** artifact (full side-by-side diff; downloadable from
   the workflow run — GitHub artifacts are zip downloads, so they can't be rendered inline in a
@@ -147,6 +148,12 @@ PR's base commit, diffs the two, and then:
 - writes a job-summary with the diff totals, and
 - posts a **sticky PR comment** (updated in place on each push) listing the changed files and
   `+`/`-` counts with a link to download the artifact.
+
+**Approval gate:** if the generated output differs from the approved baseline, the
+`--fail-on-diff` run exits with code `2` and the job **fails**. To approve an intended change,
+update `eng/emitter-diff/baselines/python.sha` to a commit on your branch that contains your
+emitter changes, then push. Once the baseline SHA points at a commit whose emitter matches the
+PR's emitter, the diff is empty and the check passes.
 
 The comment step needs `pull-requests: write`. PRs **from forks** get a read-only token, so the
 comment is best-effort there (`continue-on-error`) — the artifact and job-summary still work.

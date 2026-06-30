@@ -45,7 +45,8 @@ ${color.bold("Options:")}
   --vscode                Open the diff in VS Code instead of writing HTML.
   --terminal              Print the full colored patch to the terminal instead.
   --patch <file>          Write the raw unified diff to a file.
-  --fail-on-diff          Exit non-zero when output differs (CI gating).
+  --fail-on-diff          Exit non-zero when output differs (CI gating). Exit
+                          code 2 means "diff present"; 1 means a hard error.
   --run-tests             Run the adapter's test suites on the output.
   --test-env <csv>        Suites to run (adapter-defined), e.g. test,lint,mypy.
   --test-target <which>   head | baseline | both (default: head).
@@ -234,7 +235,9 @@ async function main(): Promise<number> {
 
   if (values["fail-on-diff"] && diff.hasChanges) {
     log.error("Differences detected and --fail-on-diff is set.");
-    return 1;
+    // Exit code 2 is reserved for "diff present" so CI can distinguish an
+    // expected-but-unapproved diff from a hard failure (exit 1).
+    return 2;
   }
   return 0;
 }
