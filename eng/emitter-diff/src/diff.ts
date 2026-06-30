@@ -125,16 +125,22 @@ export function writePatch(diff: DiffResult, outFile: string, log: Logger): void
  * optional dependency loaded lazily so the core runs without it installed.
  */
 export async function writeHtml(diff: DiffResult, outFile: string, log: Logger): Promise<void> {
-  let html: (typeof import("diff2html"))["html"];
+  // diff2html is an optional dependency, loaded lazily. Use a non-literal
+  // specifier and a local type so an aggregate typecheck that doesn't install
+  // this package's deps (e.g. the parent repo's `check:eng`, which includes
+  // `core/eng`) doesn't fail to resolve it — we validate availability at runtime.
+  type Diff2Html = { html(patch: string, options: Record<string, unknown>): string };
+  const specifier: string = "diff2html";
+  let mod: Diff2Html;
   try {
-    ({ html } = await import("diff2html"));
+    mod = (await import(specifier)) as unknown as Diff2Html;
   } catch {
     throw new Error(
       "Rendering --html requires the 'diff2html' package. Install it in eng/emitter-diff " +
         "(it is declared as a dependency) or run with `pnpm` so it is available.",
     );
   }
-  const body = html(diff.patch, {
+  const body = mod.html(diff.patch, {
     drawFileList: true,
     matching: "lines",
     outputFormat: "side-by-side",
