@@ -57,7 +57,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
         private static object?[] EscapeArguments(object?[] objects)
         {
             if (objects is null)
+            {
                 return Array.Empty<object?>();
+            }
 
             object?[] args = new object?[objects.Length];
             for (int i = 0; i < objects.Length; i++)
@@ -158,7 +160,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public static string EscapeLine(string s)
         {
             if (string.IsNullOrEmpty(s))
+            {
                 return s;
+            }
 
             var span = s.AsSpan();
             Dictionary<int, string> replacements = new Dictionary<int, string>();
@@ -253,12 +257,17 @@ namespace Microsoft.TypeSpec.Generator.Statements
         {
             escapeLength = 0;
             if (span.Length < i + escapedChar.Length)
+            {
                 return false;
+            }
 
             var slice = span.Slice(i, escapedChar.Length);
             var isMatch = slice.Equals(escapedChar.AsSpan(), StringComparison.Ordinal);
             if (isMatch)
+            {
                 escapeLength = slice.Length;
+            }
+
             return isMatch;
         }
     }

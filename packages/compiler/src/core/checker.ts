@@ -3,6 +3,7 @@ import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -115,6 +116,7 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -2168,8 +2170,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    const implementation = symbol.value;
-    if (implementation === undefined) {
+    const isAuto = (node.modifierFlags & ModifierFlags.Auto) !== 0;
+    if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "auto-decorator-disabled",
+          target: node,
+        }),
+      );
+    }
+    let implementation = symbol.value;
+    if (isAuto) {
+      implementation = createAutoDecoratorImplementation(symbol, node);
+    } else if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
     const decoratorType: Decorator = createType({
@@ -2180,6 +2193,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       target: checkFunctionParameter(ctx, node.target, true),
       parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
+      declarationKind: isAuto ? "auto" : "extern",
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -7007,9 +7021,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    const impl = sym.value ?? symbolLinks.declaredType?.implementation;
     return {
       definition: symbolLinks.declaredType,
-      decorator: sym.value ?? ((...args: any[]) => {}),
+      decorator: impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };

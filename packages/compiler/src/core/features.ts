@@ -15,6 +15,10 @@ export const compilerFeatures = {
     description:
       "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
   },
+  "auto-decorators": {
+    description:
+      "Allows use of auto decorator declarations without experimental warnings in project code.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;

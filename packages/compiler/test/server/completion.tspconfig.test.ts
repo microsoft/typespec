@@ -1,6 +1,6 @@
 import { join } from "path";
 import { describe, expect, it } from "vitest";
-import { CompletionList } from "vscode-languageserver/node.js";
+import { CompletionList } from "vscode-languageserver";
 import { joinPaths } from "../../src/index.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
@@ -134,19 +134,19 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"declaration-expressions"', '"function-declarations"'],
+      expected: ['"auto-decorators"', '"declaration-expressions"', '"function-declarations"'],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["declaration-expressions", "function-declarations"],
+      expected: ["auto-decorators", "declaration-expressions", "function-declarations"],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["declaration-expressions", "function-declarations"],
+      expected: ["auto-decorators", "declaration-expressions", "function-declarations"],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: ['"declaration-expressions"'],
+      expected: ['"auto-decorators"', '"declaration-expressions"'],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -157,6 +157,7 @@ describe("Test completion items for features", () => {
       `features:\n  - ┆`,
       true,
       [
+        "Allows use of auto decorator declarations without experimental warnings in project code.",
         "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
         "Allows use of function declarations without experimental warnings in project code.",
       ],

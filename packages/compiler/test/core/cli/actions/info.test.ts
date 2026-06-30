@@ -23,6 +23,7 @@ describe("formatCompilerFeatures", () => {
       "",
       "  enabled   function-declarations    Allows use of function declarations without experimental warnings in project code.",
       "  disabled  declaration-expressions  Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) without experimental warnings in project code.",
+      "  disabled  auto-decorators          Allows use of auto decorator declarations without experimental warnings in project code.",
     ]);
   });
 });

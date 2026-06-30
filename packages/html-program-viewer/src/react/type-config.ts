@@ -121,6 +121,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     parameters: "nested-items",
     implementation: "skip",
     target: "ref",
+    declarationKind: "value",
   },
   ScalarConstructor: {
     scalar: "parent",

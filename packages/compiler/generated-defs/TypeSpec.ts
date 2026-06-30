@@ -77,7 +77,7 @@ export type MediaTypeHintDecorator = (
 /**
  * Specify how to encode the target type.
  *
- * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric types to encode as string).
+ * @param encodingOrEncodeAs Known name of an encoding or a scalar type to encode as(Only for numeric and boolean types to encode as string).
  * @param encodedAs What target type is this being encoded as. Default to string.
  * @example offsetDateTime encoded with rfc7231
  *
@@ -96,6 +96,15 @@ export type MediaTypeHintDecorator = (
  * ```tsp
  * model Pet {
  *   @encode(string) id: int64;
+ * }
+ * ```
+ * @example encode boolean type to string
+ *
+ * `@encode(string)` on boolean uses case-insensitive `true` / `false` values.
+ *
+ * ```tsp
+ * model FeatureFlags {
+ *   @encode(string) enabled: boolean;
  * }
  * ```
  */
