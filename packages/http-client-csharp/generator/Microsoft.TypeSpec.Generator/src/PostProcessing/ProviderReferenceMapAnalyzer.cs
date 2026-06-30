@@ -42,6 +42,8 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            // Accessibility is applied to providers before TypeProviderWriter runs so generated source
+            // starts with the final public/internal shape instead of being rewritten by Roslyn later.
             var (internalizeCandidates, publicizeCandidates) = GetPreWriteAccessibilityCandidates(providers, customCodeProject);
             foreach (var provider in GetGeneratedProviders(providers))
             {
@@ -76,6 +78,9 @@ namespace Microsoft.TypeSpec.Generator
         public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
         {
             var generatedProviders = GetGeneratedProviders(providers);
+            // The provider graph replaces the old Roslyn-generated-source reference map for generated
+            // code. We still keep custom-source syntax/symbol checks because users can reference
+            // generated types from arbitrary C# that is not represented by TypeProviders.
             var graph = BuildGraph(generatedProviders);
             var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
 
@@ -143,8 +148,9 @@ namespace Microsoft.TypeSpec.Generator
                 .OrderBy(static name => name, StringComparer.Ordinal)
                 .ToArray();
 
-            // Body-only generated dependencies are needed to avoid deleting helper files, but they do
-            // not contribute to public API reachability for internalization.
+            // Body-only generated dependencies are intentionally added after public reachability is
+            // computed: they keep helper files from being removed but must not force public API types
+            // to remain public.
             AddGeneratedXmlDocCrefReferences(project, graph, publicOnly: false);
             AddGeneratedBodyReferences(project, providers, graph);
 
@@ -824,6 +830,10 @@ namespace Microsoft.TypeSpec.Generator
 
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> generatedProviders, bool publicOnly = false)
         {
+            // Each generated provider becomes a node, and provider metadata supplies the edges:
+            // inheritance, signatures, properties, fields, nested/serialization providers, attributes,
+            // and selected implementation dependencies. This avoids parsing generated C# just to
+            // rediscover generated-to-generated references.
             var serializationProviderNamesByType = generatedProviders
                 .Where(static provider => provider.SerializationProviders.Count > 0)
                 .GroupBy(static provider => GetProviderTypeName(provider.Type), StringComparer.Ordinal)
