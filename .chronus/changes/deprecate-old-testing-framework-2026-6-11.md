@@ -12,6 +12,12 @@ packages:
   - "@typespec/streams"
   - "@typespec/html-program-viewer"
   - "@typespec/library-linter"
+  - "@typespec/emitter-framework"
+  - "@typespec/http-client-js"
+  - "@typespec/http-client"
+  - "@typespec/http-server-js"
+  - "@typespec/openapi"
+  - "@typespec/openapi3"
 ---
 
 Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
