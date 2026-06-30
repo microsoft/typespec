@@ -1,7 +1,8 @@
 import { Fail, KeyedMockResponse, MockResponse, PassByKeyScenario,  ScenarioMockApi } from "@typespec/spec-api";
 import { logger } from "../logger.js";
 import { CoverageReport, ScenariosMetadata, ScenarioStatus } from "@typespec/spec-coverage-sdk";
-import { writeFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
+import { dirname } from "path";
 import { ScenariosAndScenariosMetadata } from "../app/app.js";
 
 export class CoverageTracker {
@@ -71,6 +72,7 @@ export class CoverageTracker {
     const coverage = this.computeCoverage();
 
     try {
+      mkdirSync(dirname(this.coverageFile), { recursive: true });
       writeFileSync(this.coverageFile, JSON.stringify(coverage, null, 2));
     } catch (e) {
       logger.warn("Error while saving coverage", e);
