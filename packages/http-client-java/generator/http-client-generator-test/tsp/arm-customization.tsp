@@ -23,10 +23,8 @@ enum Versions {
   v2023_12_01_preview: "2023-12-01-preview",
 }
 
-model Vault is Azure.ResourceManager.Legacy.TrackedResourceWithOptionalLocation<
-  VaultProperties,
-  false
-> {
+model Vault
+  is Azure.ResourceManager.Legacy.TrackedResourceWithOptionalLocation<VaultProperties, false> {
   ...ResourceNameParameter<
     Resource = Vault,
     KeyName = "vaultName",
