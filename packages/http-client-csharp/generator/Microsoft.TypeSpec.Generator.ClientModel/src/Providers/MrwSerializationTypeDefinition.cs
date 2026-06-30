@@ -1165,8 +1165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawBinaryData = _rawDataField;
             if (rawBinaryData == null)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     var field = baseModelProvider.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
                     if (field != null)
@@ -1174,7 +1173,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         rawBinaryData = field;
                         break;
                     }
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -1788,8 +1786,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isDynamicModelWithNonDynamicBase)
             {
-                var baseModelProvider = _model.BaseModelProvider;
-                while (baseModelProvider != null)
+                foreach (var baseModelProvider in EnumerateBaseModelProviders())
                 {
                     foreach (var property in baseModelProvider.CanonicalView.Properties)
                     {
@@ -1810,8 +1807,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                         propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
                     }
-
-                    baseModelProvider = baseModelProvider.BaseModelProvider;
                 }
             }
 
@@ -1932,7 +1927,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (IsNonNullableValueType(propertyType) || (propertyIsRequired && !propertyIsNullable)))
             {
                 if (patchCheck == null)
+                {
                     return writePropertySerializationStatement;
+                }
 
                 return (propertyType.IsList || propertyType.IsArray)
                     ? CreateConditionalPatchSerializationStatement(jsonSerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
@@ -2259,18 +2256,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (valueType.IsStruct) // extensible enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke(nameof(ToString)));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
                 else // fixed enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(int)))
+                    {
                         // when the fixed enum is implemented as int, we cast to the value
                         return utf8JsonWriter.WriteNumberValue(value.CastTo(valueType.UnderlyingEnumType));
+                    }
 
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
@@ -2278,7 +2281,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Handle non-enum types
             if (!valueType.IsFrameworkType)
+            {
                 return utf8JsonWriter.WriteObjectValue(value.As(valueType), options: mrwOptionsParameter);
+            }
 
             // Handle framework types
             var frameworkType = valueType.FrameworkType;
@@ -2626,21 +2631,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = _model.Properties.FirstOrDefault(
                 p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             // search in the base model if the property is not found in the current model
-            return property ?? _model.BaseModelProvider?.Properties.FirstOrDefault(
-                p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
+            return property ?? EnumerateBaseModelProviders()
+                .SelectMany(m => m.Properties)
+                .FirstOrDefault(p => p.BackingField?.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
         }
 
         private MethodProvider? FindCustomHookMethod(string hookName)
         {
-            var model = _model;
-            while (model != null)
+            foreach (var model in EnumerateModelAndBaseModelProviders())
             {
                 var method = model.CanonicalView.Methods.FirstOrDefault(m => m.Signature.Name == hookName);
                 if (method != null)
                 {
                     return method;
                 }
-                model = model.BaseModelProvider;
             }
             return null;
         }
@@ -2687,9 +2691,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
                 .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
-            var baseModelProvider = _model.BaseModelProvider;
 
-            while (baseModelProvider != null)
+            foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
                 var customCodeView = baseModelProvider.CustomCodeView;
                 if (customCodeView != null)
@@ -2698,10 +2701,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         .AddRange(customCodeView.Attributes
                         .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
                 }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
             }
 
             return serializationAttributes;
+        }
+
+        private IEnumerable<ModelProvider> EnumerateModelAndBaseModelProviders()
+        {
+            // Custom code can create base-model cycles; stop at the first repeated provider.
+            var visited = new HashSet<ModelProvider>();
+            var model = _model;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
+        }
+
+        private IEnumerable<ModelProvider> EnumerateBaseModelProviders()
+        {
+            // Custom code can create base-model cycles; include the current model in the visited set so
+            // a cycle back to it is not yielded as one of its own bases.
+            var visited = new HashSet<ModelProvider> { _model };
+            var model = _model.BaseModelProvider;
+            while (model != null && visited.Add(model))
+            {
+                yield return model;
+                model = model.BaseModelProvider;
+            }
         }
 
         private static bool TypeRequiresNullCheckInSerialization(CSharpType type)

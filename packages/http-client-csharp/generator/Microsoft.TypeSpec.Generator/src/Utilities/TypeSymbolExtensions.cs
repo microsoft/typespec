@@ -20,7 +20,10 @@ namespace Microsoft.TypeSpec.Generator
             if (type.IsValueType && type.IsNullable)
             {
                 if (symbol.ConstructedFrom.SpecialType != SpecialType.System_Nullable_T)
+                {
                     return false;
+                }
+
                 return IsSameType((INamedTypeSymbol)symbol.TypeArguments.Single(), type.WithNullable(false));
             }
 

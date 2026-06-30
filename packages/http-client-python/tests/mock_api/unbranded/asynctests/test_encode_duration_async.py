@@ -111,6 +111,12 @@ async def test_property(client: DurationClient):
 
 
 @pytest.mark.asyncio
+async def test_lossy(client: DurationClient):
+    await client.lossy.int_seconds(input=datetime.timedelta(seconds=36.25))
+    await client.lossy.int_milliseconds(input=datetime.timedelta(milliseconds=36250.25))
+
+
+@pytest.mark.asyncio
 async def test_header(client: DurationClient):
     await client.header.default(duration=datetime.timedelta(days=40))
     await client.header.iso8601(duration=datetime.timedelta(days=40))

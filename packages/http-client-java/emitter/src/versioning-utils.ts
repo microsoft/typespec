@@ -187,6 +187,30 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
   return false;
 }
 
+/**
+ * Resolves the emitter "api-version" option to a single string.
+ *
+ * TCGC supports a per-service api-version map (`Record<string, string>`), but the Java
+ * emitter currently only supports a single api-version, "latest", or "all". A map value
+ * is therefore rejected.
+ *
+ * TODO(xiaofei): support the per-service api-version map in a future PR.
+ *
+ * @param apiVersion the api-version option from TCGC, a string, a per-service map, or undefined
+ * @returns the api-version string, or undefined when not set
+ * @throws if the api-version option is a per-service map
+ */
+export function resolveApiVersionOption(
+  apiVersion: string | Record<string, string> | undefined,
+): string | undefined {
+  if (apiVersion !== undefined && typeof apiVersion !== "string") {
+    throw new Error(
+      "A per-service api-version map is not supported. The 'api-version' option must be a single api-version, 'latest', or 'all'.",
+    );
+  }
+  return apiVersion;
+}
+
 function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {
   // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
   return client.clientInitialization.parameters.some((p) => p.name === "apiVersion");

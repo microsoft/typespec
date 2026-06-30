@@ -259,6 +259,8 @@ export function printNode(
       return "extern";
     case SyntaxKind.InternalKeyword:
       return "internal";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:
@@ -1425,14 +1427,38 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const types = path.map((typePath) => {
-    const printedType: Doc = align(2, print(typePath));
-    return printedType;
-  }, "options");
+  // A union that is one of several template arguments must not add its own
+  // leading line + indent: the argument list already provides them, so stacking
+  // both yields a blank line and an extra indent level for the variants.
+  // The per-variant align(2) is always kept though (matching prettier's union
+  // printer): it accounts for the "| " prefix so a variant that breaks (e.g. a
+  // nested template) stays aligned under its content.
+  // https://github.com/microsoft/typespec/issues/11009
+  const inMultiTemplateArgumentList = isInMultiTemplateArgumentList(path);
+  const types = path.map((typePath) => align(2, print(typePath)), "options");
 
-  const shouldAddStartLine = true;
+  const shouldAddStartLine = !inMultiTemplateArgumentList;
   const code = [ifBreak([shouldAddStartLine ? line : "", "| "], ""), join([line, "| "], types)];
-  return group(indent(code));
+  return inMultiTemplateArgumentList ? group(code) : group(indent(code));
+}
+
+/** Whether the node is a direct argument of a template reference with more than one argument. */
+function isInMultiTemplateArgumentList(path: AstPath<Node>): boolean {
+  // A `TemplateArgument` only ever lives in `TypeReference.arguments`, so the
+  // owning `TypeReference` is always the next node ancestor.
+  const argument = path.getParentNode();
+  if (argument?.kind !== SyntaxKind.TemplateArgument) {
+    return false;
+  }
+  // Named arguments (`Name = <union>`) print the union after `Name = `, so the
+  // argument list's line break + indent does not apply to the union variants.
+  // The union must therefore provide its own line break + indent like a
+  // standalone union. https://github.com/microsoft/typespec/issues/11092
+  if (argument.name !== undefined) {
+    return false;
+  }
+  const reference = path.getParentNode(1);
+  return reference?.kind === SyntaxKind.TypeReference && reference.arguments.length > 1;
 }
 
 export function printTypeReference(
