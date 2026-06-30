@@ -101,7 +101,9 @@ namespace Microsoft.TypeSpec.Generator
             var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
             var internalizeCandidates = internalizeDeclaredNodes
                 .Except(publicizeReachable, StringComparer.Ordinal)
-                .Union(internalizeDeclaredNodes.Intersect(customInternalBoundaryNodes, StringComparer.Ordinal), StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes
+                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
+                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
                 .OrderBy(static name => name, StringComparer.Ordinal)
                 .ToArray();
             var publicizeCandidates = publicizeDeclaredNodes
@@ -240,6 +242,8 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         continue;
                     }
+
+                    AddMatchingName(roots, declaration.Identifier.ValueText, generatedTypeNames);
 
                     AddSymbolRoot(roots, symbol, generatedTypeNames);
                     AddSymbolRoot(roots, symbol.BaseType, generatedTypeNames);
