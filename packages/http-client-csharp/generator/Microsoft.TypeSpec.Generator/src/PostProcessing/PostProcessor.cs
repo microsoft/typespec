@@ -345,6 +345,14 @@ namespace Microsoft.TypeSpec.Generator
                 nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
             }
 
+            var modelNamesToRemove = nodesToRemove
+                .Select(static item => item.Identifier.Text)
+                .ToHashSet(StringComparer.Ordinal);
+            if (modelNamesToRemove.Count > 0)
+            {
+                project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove);
+            }
+
             // remove them one by one
             var referencedTypeNames = referencedSet
                 .Select(static symbol => symbol.GetFullyQualifiedName())
