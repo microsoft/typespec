@@ -1,0 +1,168 @@
+name: "python / emitter diff"
+
+# Generates code with the current checkout's emitter and with the PR's base
+# commit, then diffs the two. The rendered HTML diff is uploaded as a per-PR
+# artifact, and a sticky PR comment summarizes the changed files (+/-) with a
+# link to download it, so reviewers can see exactly how an emitter change
+# affects generated SDKs. Powered by the language-agnostic eng/emitter-diff tool.
+#
+# Python's generator uses a native two-phase pipeline (TypeSpec emits YAML, then
+# a batched Python subprocess writes the .py files) with a venv co-located with
+# each emitter version. So this workflow builds + sets up a venv for both the
+# head checkout and a worktree of the baseline commit before diffing.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/*
+    paths:
+      - "packages/http-client-python/**"
+      - "eng/emitter-diff/**"
+      - ".github/workflows/ci-emitter-diff-python.yml"
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: "Baseline emitter ref (npm version, local path, or github ref). Defaults to the PR base commit."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emitter-diff:
+    name: "Generate & Diff"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install repo dependencies (emitter-diff tool)
+        run: pnpm install
+
+      - name: Build + venv for head emitter
+        working-directory: packages/http-client-python
+        run: |
+          npm ci
+          npm run build
+          npm run install
+
+      - name: Determine baseline
+        id: baseline
+        run: |
+          input="${{ github.event.inputs.baseline }}"
+          if [ -z "$input" ]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            git worktree add "${{ runner.temp }}/baseline" "$base_sha"
+            (cd "${{ runner.temp }}/baseline/packages/http-client-python" && npm ci && npm run build && npm run install)
+            input="local:${{ runner.temp }}/baseline/packages/http-client-python"
+          fi
+          echo "ref=$input" >> "$GITHUB_OUTPUT"
+          echo "Baseline: $input"
+
+      - name: Run emitter diff
+        id: diff
+        run: |
+          set +e
+          pnpm --filter @typespec/emitter-diff exec tsx src/cli.ts \
+            --emitter python \
+            --baseline "${{ steps.baseline.outputs.ref }}" \
+            --work-dir "${{ runner.temp }}/emitter-diff" \
+            --html "${{ runner.temp }}/emitter-diff.html" \
+            --patch "${{ runner.temp }}/emitter-diff.patch" \
+            | tee "${{ runner.temp }}/emitter-diff.log"
+          echo "status=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Write job summary
+        if: always()
+        run: |
+          {
+            echo "## Emitter diff"
+            echo ""
+            echo "Baseline: \`${{ steps.baseline.outputs.ref }}\` vs current checkout."
+            echo ""
+            echo '```'
+            grep -E "Diff summary:" "${{ runner.temp }}/emitter-diff.log" || echo "No summary captured."
+            echo '```'
+            echo ""
+            echo "Download the **emitter-diff-html** artifact for the full rendered diff."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload HTML diff
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: emitter-diff-html
+          path: ${{ runner.temp }}/emitter-diff.html
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          BASELINE: ${{ steps.baseline.outputs.ref }}
+          PATCH_FILE: ${{ runner.temp }}/emitter-diff.patch
+          HTML_FILE: ${{ runner.temp }}/emitter-diff.html
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- emitter-diff-python -->";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            // Parse the unified patch directly so the numbers match the tool exactly.
+            let patch = "";
+            try { patch = fs.readFileSync(process.env.PATCH_FILE, "utf8"); } catch {}
+            const lines = patch.split("\n");
+            const files = [];
+            let insertions = 0, deletions = 0;
+            for (const line of lines) {
+              const m = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
+              if (m) files.push(m[2]);
+              else if (line.startsWith("+") && !line.startsWith("+++")) insertions++;
+              else if (line.startsWith("-") && !line.startsWith("---")) deletions++;
+            }
+            const hasChanges = patch.trim().length > 0;
+            const htmlExists = fs.existsSync(process.env.HTML_FILE);
+
+            let body = `${marker}\n## 🐍 Python emitter diff\n\n` +
+              `Baseline \`${process.env.BASELINE}\` vs this PR's checkout.\n\n`;
+            if (!hasChanges) {
+              body += `✅ **No changes** to generated output.\n`;
+            } else {
+              body += `**${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
+              const shown = files.slice(0, 50);
+              body += `<details><summary>Changed files</summary>\n\n` +
+                shown.map((f) => `- \`${f}\``).join("\n") +
+                (files.length > shown.length ? `\n- …and ${files.length - shown.length} more` : "") +
+                `\n</details>\n\n`;
+              if (htmlExists) {
+                body += `📄 Download the **emitter-diff-html** artifact from the ` +
+                  `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n`;
+              }
+            }
+            body += `\n_Generated by \`eng/emitter-diff\`._`;
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
