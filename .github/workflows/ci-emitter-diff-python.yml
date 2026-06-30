@@ -82,9 +82,14 @@ jobs:
 
       - name: Run emitter diff
         id: diff
+        working-directory: eng/emitter-diff
         run: |
           set +e
-          pnpm --filter @typespec/emitter-diff exec tsx src/cli.ts \
+          # Run via plain (non-recursive) `pnpm exec` so the tool's real exit code
+          # propagates. `pnpm --filter <pkg> exec` collapses any non-zero child exit
+          # into pnpm's own generic exit 1 (ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL),
+          # which would mask the "diff present" code (2) as a hard error (1).
+          pnpm exec tsx src/cli.ts \
             --emitter python \
             --baseline "${{ steps.baseline.outputs.ref }}" \
             --work-dir "${{ runner.temp }}/emitter-diff" \
