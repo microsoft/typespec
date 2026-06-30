@@ -41,12 +41,9 @@ namespace Sample
                 writer.WritePropertyName("foo"u8);
                 writer.WriteStringValue(Foo);
             }
-            else
+            else if (!Patch.Contains("$.foo"u8))
             {
-                if (!Patch.Contains("$.foo"u8))
-                {
-                    writer.WriteNull("foo"u8);
-                }
+                writer.WriteNull("foo"u8);
             }
 
             Patch.WriteTo(writer);
