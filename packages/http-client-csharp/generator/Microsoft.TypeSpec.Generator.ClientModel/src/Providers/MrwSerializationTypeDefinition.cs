@@ -2558,22 +2558,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _utf8JsonWriterSnippet.WriteNull(serializedName));
                 }
 
-                // When the property path is already present in the patch, the patched value is
-                // emitted by Patch.WriteTo(writer), so the null fallback must be gated on the patch
-                // check to avoid writing the property twice. Emit it as an "else if" so the fallback
-                // is skipped entirely when the path is patched.
-                if (patchCheck != null)
-                {
-                    return new IfElseStatement(
-                        new IfStatement(condition) { writePropertySerializationStatement },
-                        [new IfStatement(patchCheck) { _utf8JsonWriterSnippet.WriteNull(serializedName) }],
-                        null);
-                }
-
                 return new IfElseStatement(
-                    condition,
-                    writePropertySerializationStatement,
-                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    new IfStatement(condition) { writePropertySerializationStatement },
+                    patchCheck != null ? [new IfStatement(patchCheck) { _utf8JsonWriterSnippet.WriteNull(serializedName) }] : null,
+                    patchCheck != null ? null : _utf8JsonWriterSnippet.WriteNull(serializedName));
             }
 
             if (shouldCheckJsonPath)
