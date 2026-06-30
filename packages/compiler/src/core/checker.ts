@@ -147,6 +147,7 @@ import {
   StringTemplateMiddleNode,
   StringTemplateSpan,
   StringTemplateSpanLiteral,
+  StringTemplateSpanNode,
   StringTemplateSpanValue,
   StringTemplateTailNode,
   StringValue,
@@ -4691,31 +4692,42 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): IndeterminateEntity | StringValue | null {
     let hasType = false;
     let hasValue = false;
-    const spanTypeOrValues = node.spans.map(
-      (span) => [span, checkNode(ctx, span.expression)] as const,
-    );
+    const spanTypeOrValues: (readonly [
+      StringTemplateSpanNode,
+      Type | Value | IndeterminateEntity,
+    ])[] = [];
+    for (const span of node.spans) {
+      const typeOrValue = checkNode(ctx, span.expression);
+      // A null span is the value-world equivalent of `errorType`: the expression couldn't
+      // produce a usable value (e.g. an already-reported error, or a function call that can't
+      // be evaluated yet in a template declaration). Like `checkArrayValue`/`checkObjectValue`,
+      // propagate the null up so the whole template resolves to null instead of fabricating a
+      // partial string. It is re-evaluated against the real value when the template is instantiated.
+      if (typeOrValue === null) {
+        return null;
+      }
+      spanTypeOrValues.push([span, typeOrValue]);
+    }
+
     for (const [_, typeOrValue] of spanTypeOrValues) {
-      if (typeOrValue !== null) {
-        if (isValue(typeOrValue)) {
-          hasValue = true;
-        } else if (
-          "kind" in typeOrValue &&
-          (typeOrValue.kind === "TemplateParameter" ||
-            typeOrValue.kind === "TemplateParameterAccess")
-        ) {
-          if (typeOrValue.constraint) {
-            if (typeOrValue.constraint.valueType) {
-              hasValue = true;
-            }
-            if (typeOrValue.constraint.type) {
-              hasType = true;
-            }
-          } else {
+      if (isValue(typeOrValue)) {
+        hasValue = true;
+      } else if (
+        "kind" in typeOrValue &&
+        (typeOrValue.kind === "TemplateParameter" || typeOrValue.kind === "TemplateParameterAccess")
+      ) {
+        if (typeOrValue.constraint) {
+          if (typeOrValue.constraint.valueType) {
+            hasValue = true;
+          }
+          if (typeOrValue.constraint.type) {
             hasType = true;
           }
         } else {
           hasType = true;
         }
+      } else {
+        hasType = true;
       }
     }
 
@@ -4733,12 +4745,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let str = node.head.value;
       for (const [span, typeOrValue] of spanTypeOrValues) {
         if (
-          typeOrValue !== null &&
-          (!("kind" in typeOrValue) ||
-            (typeOrValue.kind !== "TemplateParameter" &&
-              typeOrValue.kind !== "TemplateParameterAccess"))
+          !("kind" in typeOrValue) ||
+          (typeOrValue.kind !== "TemplateParameter" &&
+            typeOrValue.kind !== "TemplateParameterAccess")
         ) {
-          compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
+          compilerAssert(isValue(typeOrValue), "Expected value.");
           str += stringifyValueForTemplate(typeOrValue);
         }
         str += span.literal.value;
@@ -4751,7 +4762,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
 
       for (const [span, typeOrValue] of spanTypeOrValues) {
-        compilerAssert(typeOrValue !== null && !isValue(typeOrValue), "Expected type.");
+        compilerAssert(!isValue(typeOrValue), "Expected type.");
 
         const type = typeOrValue.entityKind === "Indeterminate" ? typeOrValue.type : typeOrValue;
         const spanValue = createTemplateSpanValue(span.expression, type);
