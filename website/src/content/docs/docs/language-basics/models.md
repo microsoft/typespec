@@ -278,7 +278,9 @@ You can apply [decorators](./decorators.md) and doc comments to the declaration 
 ```typespec
 model Widget {
   /** The current status */
-  status: @doc("The current status") model Status { code: int32 };
+  status: @doc("The current status") model Status {
+    code: int32;
+  };
 }
 
 @@doc(Widget.status::type, "The current status");
