@@ -1597,7 +1597,7 @@ describe("compiler: visibility core", () => {
   });
 
   it("applies visibility filter to base model (extends)", async () => {
-    const { UserCreate, program } = await Tester.compile(t.code`
+    const { UserCreate } = await Tester.compile(t.code`
       model Base {
         @visibility(Lifecycle.Read) id: string;
       }
@@ -1638,7 +1638,7 @@ describe("compiler: visibility core", () => {
   });
 
   it("does not transform base model when all properties are visible", async () => {
-    const { ChildFiltered, program } = await Tester.compile(t.code`
+    const { ChildFiltered } = await Tester.compile(t.code`
       model Parent {
         name: string;
       }
@@ -1665,7 +1665,7 @@ describe("compiler: visibility core", () => {
   });
 
   it("applies visibility filter across multiple layers where base is unchanged", async () => {
-    const { Result, program } = await Tester.compile(t.code`
+    const { Result } = await Tester.compile(t.code`
       model GrandParent {
         gp_all: string;
       }
@@ -1702,7 +1702,7 @@ describe("compiler: visibility core", () => {
   });
 
   it("applies visibility filter across multiple inheritance layers", async () => {
-    const { Result, program } = await Tester.compile(t.code`
+    const { Result } = await Tester.compile(t.code`
       model GrandParent {
         @visibility(Lifecycle.Read) gp_read: string;
         gp_all: string;
