@@ -101,7 +101,14 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm run lint
+      # Force the `unix` reporter (instead of oxlint's default GitHub Actions
+      # reporter) so the full `file:line:col` location stays visible in the job
+      # logs, and register a problem matcher so violations still surface as
+      # inline annotations on the PR.
+      - run: echo "::add-matcher::.github/matchers/oxlint.json"
+        name: Add oxlint problem matcher
+
+      - run: pnpm run lint:ci
         name: Lint
 
       # cspell:ignore rhysd
