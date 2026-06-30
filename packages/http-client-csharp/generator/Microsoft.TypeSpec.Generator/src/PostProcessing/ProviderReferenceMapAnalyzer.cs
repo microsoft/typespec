@@ -132,7 +132,9 @@ namespace Microsoft.TypeSpec.Generator
             var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
             var internalizeCandidates = internalizeDeclaredNodes
                 .Except(publicizeReachable, StringComparer.Ordinal)
-                .Union(internalizeDeclaredNodes.Intersect(customInternalBoundaryNodes, StringComparer.Ordinal), StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes
+                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
+                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
                 .OrderBy(static name => name, StringComparer.Ordinal)
                 .ToArray();
             var publicizeCandidates = publicizeDeclaredNodes
@@ -229,7 +231,9 @@ namespace Microsoft.TypeSpec.Generator
             var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
             var internalizeCandidates = internalizeDeclaredNodes
                 .Except(publicizeReachable, StringComparer.Ordinal)
-                .Union(internalizeDeclaredNodes.Intersect(customInternalBoundaryNodes, StringComparer.Ordinal), StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes
+                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
+                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
                 .ToHashSet(StringComparer.Ordinal);
             var publicizeCandidates = publicizeDeclaredNodes
                 .Except(customInternalDeclarations, StringComparer.Ordinal)
@@ -402,6 +406,8 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         continue;
                     }
+
+                    AddMatchingName(roots, typeDeclaration.Identifier.ValueText, generatedTypeNames);
 
                     if (typeDeclaration.BaseList != null)
                     {
