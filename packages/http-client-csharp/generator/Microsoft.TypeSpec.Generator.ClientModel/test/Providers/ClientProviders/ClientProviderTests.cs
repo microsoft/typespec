@@ -3589,8 +3589,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/{apiVersion}";
-            var apiVersionParam = InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, serverUrlTemplate: serverTemplate);
-            var userIdParam = InputFactory.PathParameter("userId", InputPrimitiveType.String);
+            var apiVersionParam = InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, isRequired: true, serverUrlTemplate: serverTemplate);
+            var userIdParam = InputFactory.PathParameter("userId", InputPrimitiveType.String, isRequired: true);
 
             var operation = InputFactory.Operation(
                 name: "GetUser",
@@ -3633,7 +3633,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             MockHelpers.LoadMockGenerator();
 
             var serverTemplate = "{endpoint}/v1/services";
-            var operationIdParam = InputFactory.PathParameter("operationId", InputPrimitiveType.String);
+            var operationIdParam = InputFactory.PathParameter("operationId", InputPrimitiveType.String, isRequired: true);
 
             var operation = InputFactory.Operation(
                 name: "GetOperation",
