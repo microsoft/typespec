@@ -133,9 +133,7 @@ namespace Microsoft.TypeSpec.Generator
                 return project;
             }
 
-            var referenceMapResult = ProviderReferenceMapAnalyzer.LatestResult is { } latestResult && latestResult.ProjectId == project.Id
-                ? latestResult
-                : null;
+            var referenceMapResult = ProviderReferenceMapAnalyzer.LatestResult;
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, publicOnly: referenceMapResult == null);
@@ -144,7 +142,6 @@ namespace Microsoft.TypeSpec.Generator
             if (referenceMapResult != null)
             {
                 // ProviderReferenceMapAnalyzer replaces Roslyn reference-map construction for generated code.
-                // It still uses Roslyn-discovered roots for custom/shared code before this point.
                 symbolsToInternalize = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.InternalizeCandidates).ToArray();
                 symbolsToPublicize = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.PublicizeCandidates).ToArray();
             }
@@ -310,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
             IEnumerable<INamedTypeSymbol> symbolsToRemove;
             HashSet<INamedTypeSymbol> referencedSet;
-            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult && referenceMapResult.ProjectId == project.Id)
+            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult)
             {
                 // The remove pass uses the same precomputed hybrid map to avoid scanning all generated
                 // documents with Roslyn while preserving custom-code references as roots.

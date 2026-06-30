@@ -86,12 +86,12 @@ namespace Microsoft.TypeSpec.Generator
 
         internal void AnalyzeProviderReferenceMap(IReadOnlyList<TypeProvider> providers)
         {
-            ProviderReferenceMapAnalyzer.Analyze(providers, _project);
+            ProviderReferenceMapAnalyzer.Analyze(providers);
         }
 
         internal void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
         {
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers, _project);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
         }
 
         private async Task UpdateProject(Document document)
