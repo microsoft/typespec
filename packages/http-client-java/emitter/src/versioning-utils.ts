@@ -192,21 +192,20 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
  *
  * TCGC supports a per-service api-version map (`Record<string, string>`), but the Java
  * emitter currently only supports a single api-version, "latest", or "all". A map value
- * is therefore rejected.
+ * is therefore treated as undefined.
  *
  * TODO(xiaofei): support the per-service api-version map in a future PR.
  *
  * @param apiVersion the api-version option from TCGC, a string, a per-service map, or undefined
- * @returns the api-version string, or undefined when not set
- * @throws if the api-version option is a per-service map
+ * @returns the api-version string, or undefined when not set or a per-service map
  */
 export function resolveApiVersionOption(
   apiVersion: string | Record<string, string> | undefined,
 ): string | undefined {
   if (apiVersion !== undefined && typeof apiVersion !== "string") {
-    throw new Error(
-      "A per-service api-version map is not supported. The 'api-version' option must be a single api-version, 'latest', or 'all'.",
-    );
+    // There is a possibility that the overall package contains multiple api-versions, but this
+    // specific client only includes a single api-version. For this case we will need refinement.
+    return undefined;
   }
   return apiVersion;
 }
