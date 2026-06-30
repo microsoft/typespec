@@ -71,6 +71,12 @@ export interface GenerateRequest {
   options: Record<string, string>;
   /** Everything after a `--` on the command line, forwarded verbatim. */
   passthrough: string[];
+  /**
+   * Optional prefix to tag each line of this generation's output with. Set when
+   * baseline and head generate concurrently so their interleaved logs stay
+   * attributable; when unset, output streams straight to the terminal.
+   */
+  logPrefix?: string;
 }
 
 export interface RunTestsRequest {

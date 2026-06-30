@@ -39,10 +39,15 @@ async function runScript(
   ctx: AdapterContext,
   scriptRelPath: string,
   args: string[],
-  inherit = true,
+  opts: { inherit?: boolean; prefix?: string } = {},
 ): Promise<void> {
   const cwd = pkgDir(ctx);
-  await runChecked("npx", ["tsx", join(cwd, scriptRelPath), ...args], { cwd, inherit });
+  const inherit = opts.inherit ?? opts.prefix === undefined;
+  await runChecked("npx", ["tsx", join(cwd, scriptRelPath), ...args], {
+    cwd,
+    inherit,
+    prefix: opts.prefix,
+  });
 }
 
 async function isBuilt(dir: string): Promise<boolean> {
@@ -144,7 +149,7 @@ export const pythonAdapter: EmitterAdapter = {
     args.push(...request.passthrough);
 
     ctx.log.step(`Generating with ${request.emitter.label} → ${request.outputDir}`);
-    await runScript(ctx, "eng/scripts/ci/regenerate.ts", args);
+    await runScript(ctx, "eng/scripts/ci/regenerate.ts", args, { prefix: request.logPrefix });
   },
 
   async runTests(request: RunTestsRequest, ctx: AdapterContext): Promise<void> {

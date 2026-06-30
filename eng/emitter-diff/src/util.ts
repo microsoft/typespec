@@ -50,12 +50,15 @@ export interface RunResult {
 /**
  * Spawn a command and resolve with its captured output. Never rejects on a
  * non-zero exit; inspect {@link RunResult.code}. Set `inherit` to stream
- * output straight to the terminal (used for long generation/test runs).
+ * output straight to the terminal (used for long generation/test runs). Set
+ * `prefix` to stream each output line tagged with that prefix instead — useful
+ * when several children run concurrently and their logs would otherwise
+ * interleave unintelligibly. `prefix` is ignored when `inherit` is set.
  */
 export function run(
   cmd: string,
   args: string[],
-  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean } = {},
+  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean; prefix?: string } = {},
 ): Promise<RunResult> {
   return new Promise((resolve, reject) => {
     // Only route through a shell for Windows .cmd shims (npm/pnpm/npx/code/yarn).
@@ -76,11 +79,71 @@ export function run(
       : spawn(cmd, args, spawnOpts);
     let stdout = "";
     let stderr = "";
-    child.stdout?.on("data", (d) => (stdout += d.toString()));
-    child.stderr?.on("data", (d) => (stderr += d.toString()));
+
+    // When a prefix is requested, tee complete lines to our own stdout/stderr
+    // tagged with the prefix while still capturing the raw output for the
+    // returned RunResult. A small line buffer holds partial trailing lines
+    // until the next chunk (or close) completes them.
+    const tee = !opts.inherit && opts.prefix !== undefined ? makeLineTee(opts.prefix) : undefined;
+
+    child.stdout?.on("data", (d) => {
+      const s = d.toString();
+      stdout += s;
+      tee?.stdout(s);
+    });
+    child.stderr?.on("data", (d) => {
+      const s = d.toString();
+      stderr += s;
+      tee?.stderr(s);
+    });
     child.on("error", reject);
-    child.on("close", (code) => resolve({ code: code ?? 0, stdout, stderr }));
+    child.on("close", (code) => {
+      tee?.flush();
+      resolve({ code: code ?? 0, stdout, stderr });
+    });
   });
+}
+
+/**
+ * Build a pair of line-buffering writers that emit `${prefix}${line}` to the
+ * parent process's stdout/stderr as complete lines arrive, plus a `flush` to
+ * drain any partial trailing line when the child closes.
+ */
+function makeLineTee(prefix: string): {
+  stdout: (s: string) => void;
+  stderr: (s: string) => void;
+  flush: () => void;
+} {
+  function writer(out: NodeJS.WriteStream): { write: (s: string) => void; rest: () => string } {
+    let buf = "";
+    return {
+      write(s: string) {
+        buf += s;
+        let nl: number;
+        while ((nl = buf.indexOf("\n")) >= 0) {
+          out.write(`${prefix}${buf.slice(0, nl)}\n`);
+          buf = buf.slice(nl + 1);
+        }
+      },
+      rest() {
+        const r = buf;
+        buf = "";
+        return r;
+      },
+    };
+  }
+  const o = writer(process.stdout);
+  const e = writer(process.stderr);
+  return {
+    stdout: o.write,
+    stderr: e.write,
+    flush() {
+      const ro = o.rest();
+      if (ro) process.stdout.write(`${prefix}${ro}\n`);
+      const re = e.rest();
+      if (re) process.stderr.write(`${prefix}${re}\n`);
+    },
+  };
 }
 
 /** Quote an argument for cmd.exe when running through a shell. */
@@ -93,7 +156,7 @@ function quoteForShell(s: string): string {
 export async function runChecked(
   cmd: string,
   args: string[],
-  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean } = {},
+  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean; prefix?: string } = {},
 ): Promise<RunResult> {
   const result = await run(cmd, args, opts);
   if (result.code !== 0) {

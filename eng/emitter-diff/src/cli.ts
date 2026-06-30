@@ -51,6 +51,8 @@ ${color.bold("Options:")}
   --test-env <csv>        Suites to run (adapter-defined), e.g. test,lint,mypy.
   --test-target <which>   head | baseline | both (default: head).
   --opt key=value         Repeatable adapter-specific option (e.g. --opt flavor=azure).
+  --sequential            Generate baseline then head one at a time (default:
+                          generate both in parallel with prefixed logs).
   -- <args>               Everything after -- is forwarded to the adapter.
   -h, --help              Show this help.
 `;
@@ -82,6 +84,7 @@ async function main(): Promise<number> {
       "test-env": { type: "string" },
       "test-target": { type: "string", default: "head" },
       opt: { type: "string", multiple: true },
+      sequential: { type: "boolean" },
       help: { type: "boolean", short: "h" },
     },
     allowPositionals: false,
@@ -155,32 +158,41 @@ async function main(): Promise<number> {
     specsDir = await resolveSrc(specsRef, workDir, log);
   }
 
-  // Generate both sides.
+  // Generate both sides. By default baseline and head generate concurrently
+  // (their outputs, virtual envs, and temp YAML are isolated), roughly halving wall
+  // time at the cost of doubled peak CPU/memory and interleaved logs — so each
+  // side's output is tagged with a prefix. Use --sequential to generate one at
+  // a time (quieter logs, lower peak resource use).
   const baselineOut = ensureDir(join(workDir, "baseline"));
   const headOut = ensureDir(join(workDir, "head"));
 
-  await adapter.generate(
-    {
-      emitter: baselineEmitter,
-      specsDir,
-      outputDir: baselineOut,
-      nameFilter: values.name,
-      options,
-      passthrough,
-    },
-    ctx,
-  );
-  await adapter.generate(
-    {
-      emitter: headEmitter,
-      specsDir,
-      outputDir: headOut,
-      nameFilter: values.name,
-      options,
-      passthrough,
-    },
-    ctx,
-  );
+  const parallel = !values.sequential;
+  const baselineReq = {
+    emitter: baselineEmitter,
+    specsDir,
+    outputDir: baselineOut,
+    nameFilter: values.name,
+    options,
+    passthrough,
+    logPrefix: parallel ? color.dim("[baseline] ") : undefined,
+  };
+  const headReq = {
+    emitter: headEmitter,
+    specsDir,
+    outputDir: headOut,
+    nameFilter: values.name,
+    options,
+    passthrough,
+    logPrefix: parallel ? color.cyan("[head] ") : undefined,
+  };
+
+  if (parallel) {
+    log.step("Generating baseline + head in parallel");
+    await Promise.all([adapter.generate(baselineReq, ctx), adapter.generate(headReq, ctx)]);
+  } else {
+    await adapter.generate(baselineReq, ctx);
+    await adapter.generate(headReq, ctx);
+  }
 
   // Diff.
   const diff = await diffDirs(baselineOut, headOut, log);
