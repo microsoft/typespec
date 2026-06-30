@@ -134,6 +134,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           BASELINE: ${{ steps.baseline.outputs.sha }}
+          STATUS: ${{ steps.diff.outputs.status }}
           PATCH_FILE: ${{ runner.temp }}/emitter-diff.patch
           HTML_FILE: ${{ runner.temp }}/emitter-diff.html
         with:
@@ -141,6 +142,7 @@ jobs:
             const fs = require("fs");
             const marker = "<!-- emitter-diff-python -->";
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const status = process.env.STATUS;
 
             // Parse the unified patch directly so the numbers match the tool exactly.
             let patch = "";
@@ -154,12 +156,17 @@ jobs:
               else if (line.startsWith("+") && !line.startsWith("+++")) insertions++;
               else if (line.startsWith("-") && !line.startsWith("---")) deletions++;
             }
-            const hasChanges = patch.trim().length > 0;
             const htmlExists = fs.existsSync(process.env.HTML_FILE);
 
             let body = `${marker}\n## 🐍 Python emitter diff\n\n` +
               `Approved baseline \`${process.env.BASELINE}\` vs this PR's checkout.\n\n`;
-            if (!hasChanges) {
+            if (status !== "0" && status !== "2") {
+              // Hard error (build/venv/generate threw) — not a diff. Don't claim "no changes".
+              body += `⚠️ **emitter-diff failed to run** (exit \`${status}\`). This is a tool/build ` +
+                `error, not a generated-output diff. See the ` +
+                `[workflow run](${runUrl}) logs` +
+                (htmlExists ? ` and the **emitter-diff-html** artifact` : "") + `.\n`;
+            } else if (status === "0") {
               body += `✅ **No changes** — generated output matches the approved baseline.\n`;
             } else {
               body += `❌ **${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
