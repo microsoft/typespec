@@ -233,6 +233,7 @@ function emitProperty(
     // Python convert all the type of file part to FileType so clear these models' usage so that they won't be generated
     addDisableGenerationMap(context, property.type);
   }
+  const isNullable = !isMultipartFileInput && sourceType.kind === "nullable";
   return {
     clientName: getClientName(property),
     isExactName: property.isExactName,
@@ -242,6 +243,7 @@ function emitProperty(
         : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
+    nullable: isNullable,
     description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
     apiVersions: property.apiVersions,
@@ -477,6 +479,13 @@ function emitBuiltInType(
         return getSimpleTypeResult(context, {
           type: type.kind,
           encode: type.encode,
+        });
+      }
+      if (type.encode === "seconds" || type.encode === "milliseconds") {
+        return getSimpleTypeResult(context, {
+          type: type.kind,
+          encode: type.encode,
+          wireType: getType(context, type.wireType),
         });
       }
     }

@@ -20,8 +20,6 @@ namespace Microsoft.TypeSpec.Generator
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
-        private static readonly string[] _experimentalAttributeNames = ["Experimental", "ExperimentalAttribute"];
-
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
@@ -129,7 +127,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
+            {
                 return project;
+            }
 
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
@@ -158,12 +158,6 @@ namespace Microsoft.TypeSpec.Generator
                 project = MarkInternal(project, model, documentId);
             }
 
-            if (nodesToInternalize.Count > 0)
-            {
-                CodeModelGenerator.Instance.Emitter.Info(
-                    $"Internalized {nodesToInternalize.Count} unreferenced public type(s).");
-            }
-
             var modelNamesToRemove =
                 nodesToInternalize.Keys.Select(item => item.Identifier.Text);
             project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
@@ -177,7 +171,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var modelFactorySymbol = definitions.ModelFactorySymbol;
             if (modelFactorySymbol == null)
+            {
                 return project;
+            }
 
             var nodesToRemove = new List<SyntaxNode>();
 
@@ -211,7 +207,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // maybe this is possible, for instance, we could be adding the customization all entries previously inside the generated model factory so that the generated model factory is empty and removed.
             if (modelFactoryGeneratedDocument == null)
+            {
                 return project;
+            }
 
             var root = await modelFactoryGeneratedDocument.GetSyntaxRootAsync();
             Debug.Assert(root is not null);
@@ -242,7 +240,9 @@ namespace Microsoft.TypeSpec.Generator
         {
             var compilation = await project.GetCompilationAsync();
             if (compilation == null)
+            {
                 return project;
+            }
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
@@ -255,7 +255,9 @@ namespace Microsoft.TypeSpec.Generator
             // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
             // helpers that are required by the model factory.
             if (_modelFactorySymbol != null)
+            {
                 rootSymbols.Add(_modelFactorySymbol);
+            }
             // traverse the map to determine the declarations that we are about to remove, starting from root nodes
             var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
@@ -284,7 +286,10 @@ namespace Microsoft.TypeSpec.Generator
         {
             var baseType = symbol.BaseType;
             if (baseType == null || baseType.SpecialType == SpecialType.System_Object)
+            {
                 return symbol;
+            }
+
             return GetBase(baseType);
         }
 
@@ -321,7 +326,10 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var definition = queue.Dequeue();
                 if (visited.Contains(definition))
+                {
                     continue;
+                }
+
                 visited.Add(definition);
                 // add this definition to the result
                 yield return definition;
@@ -337,98 +345,22 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<T, IEnumerable<T>> referenceMap) where T : notnull
         {
             if (referenceMap.TryGetValue(definition, out var references))
+            {
                 return references;
+            }
 
             return Enumerable.Empty<T>();
         }
 
         private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
         {
-            CodeModelGenerator.Instance.Emitter.Debug(
-                $"Internalizing unreferenced public type '{declarationNode.Identifier.Text}'.");
-
             var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
-            // The [Experimental] attribute is a public-API stability signal that is meaningless on a type that is
-            // being internalized, so strip it to avoid emitting it (and its use-site diagnostics) on internal types.
-            newNode = RemoveExperimentalAttribute(newNode, declarationNode.Identifier.Text);
             var tree = declarationNode.SyntaxTree;
             var document = project.GetDocument(documentId)!;
             var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
                 .WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(newRoot);
             return document.Project;
-        }
-
-        /// <summary>
-        /// Removes any <c>[Experimental]</c> (<see cref="System.Diagnostics.CodeAnalysis.ExperimentalAttribute"/>)
-        /// attribute from <paramref name="declarationNode"/>. The declaration's leading trivia (such as documentation
-        /// comments and indentation) is re-attached to the resulting first token so that the surrounding formatting and
-        /// any documentation comment are preserved even when the attribute that carried them is removed.
-        /// </summary>
-        private static BaseTypeDeclarationSyntax RemoveExperimentalAttribute(
-            BaseTypeDeclarationSyntax declarationNode,
-            string typeName)
-        {
-            if (declarationNode.AttributeLists.Count == 0)
-            {
-                return declarationNode;
-            }
-
-            var newAttributeLists = new List<AttributeListSyntax>();
-            bool removed = false;
-
-            foreach (var attributeList in declarationNode.AttributeLists)
-            {
-                var keptAttributes = attributeList.Attributes
-                    .Where(attribute => !IsExperimentalAttribute(attribute))
-                    .ToList();
-
-                if (keptAttributes.Count == attributeList.Attributes.Count)
-                {
-                    // Nothing removed from this list.
-                    newAttributeLists.Add(attributeList);
-                }
-                else if (keptAttributes.Count > 0)
-                {
-                    // Keep the remaining (non-experimental) attributes in this list.
-                    removed = true;
-                    newAttributeLists.Add(attributeList.WithAttributes(SyntaxFactory.SeparatedList(keptAttributes)));
-                }
-                else
-                {
-                    // The entire list only contained experimental attributes and is dropped.
-                    removed = true;
-                }
-            }
-
-            if (!removed)
-            {
-                return declarationNode;
-            }
-
-            CodeModelGenerator.Instance.Emitter.Debug(
-                $"Removed [Experimental] attribute from '{typeName}' while internalizing it.");
-
-            // Preserve the original leading trivia (e.g. documentation comments and indentation) by re-attaching it to
-            // whatever token now leads the declaration. This keeps the doc comment even when it was attached to the
-            // attribute list that was removed.
-            var originalLeadingTrivia = declarationNode.GetLeadingTrivia();
-            var newNode = declarationNode.WithAttributeLists(SyntaxFactory.List(newAttributeLists));
-            var firstToken = newNode.GetFirstToken();
-
-            return newNode.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(originalLeadingTrivia));
-        }
-
-        private static bool IsExperimentalAttribute(AttributeSyntax attribute)
-        {
-            var name = attribute.Name switch
-            {
-                QualifiedNameSyntax qualified => qualified.Right.Identifier.Text,
-                IdentifierNameSyntax identifier => identifier.Identifier.Text,
-                _ => attribute.Name.ToString()
-            };
-
-            return Array.IndexOf(_experimentalAttributeNames, name) >= 0;
         }
 
         private async Task<Project> RemoveModelsAsync(Project project,
@@ -442,7 +374,9 @@ namespace Microsoft.TypeSpec.Generator
                 var document = project.GetDocument(model.SyntaxTree);
                 Debug.Assert(document != null);
                 if (!documents.ContainsKey(document))
+                {
                     documents.Add(document, new HashSet<BaseTypeDeclarationSyntax>());
+                }
 
                 documents[document].Add(model);
             }
@@ -466,7 +400,9 @@ namespace Microsoft.TypeSpec.Generator
 
             // skip this if there is nothing to replace
             if (originalTokenInList == default)
+            {
                 return memberDeclaration;
+            }
 
             var newToken =
                 SyntaxFactory.Token(originalTokenInList.LeadingTrivia, to, originalTokenInList.TrailingTrivia);
@@ -480,7 +416,10 @@ namespace Microsoft.TypeSpec.Generator
             var tree = models.First().SyntaxTree;
             var document = project.GetDocument(tree);
             if (document == null)
+            {
                 return project;
+            }
+
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
 
@@ -525,7 +464,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var invalidUsings = cu.Usings
                 .Where(u =>
@@ -552,7 +493,9 @@ namespace Microsoft.TypeSpec.Generator
             var model = await document.GetSemanticModelAsync();
 
             if (root is not CompilationUnitSyntax cu || model == null)
+            {
                 return solution;
+            }
 
             var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
             var firstAttribute = attributes.FirstOrDefault();
@@ -628,7 +571,10 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     var document = project.GetDocument(declarationNode.SyntaxTree);
                     if (document == null)
+                    {
                         continue;
+                    }
+
                     if (await IsRootDocument(document))
                     {
                         result.Add(symbol);
@@ -655,7 +601,9 @@ namespace Microsoft.TypeSpec.Generator
         private static bool ShouldKeepType(SyntaxNode? root, HashSet<string> typesToKeep)
         {
             if (root is null)
+            {
                 return false;
+            }
 
             // use `BaseTypeDeclarationSyntax` to also include enums because `EnumDeclarationSyntax` extends `BaseTypeDeclarationSyntax`
             // `ClassDeclarationSyntax` and `StructDeclarationSyntax` both inherit `TypeDeclarationSyntax`
@@ -705,9 +653,14 @@ namespace Microsoft.TypeSpec.Generator
             {
                 TList newList;
                 if (collectionConstructor == null)
+                {
                     newList = new TList();
+                }
                 else
+                {
                     newList = collectionConstructor();
+                }
+
                 newList.Add(value);
                 dictionary.Add(key, newList);
             }

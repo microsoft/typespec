@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Common
@@ -25,16 +26,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return File.ReadAllText(GetAssetFileOrDirectoryPath(true, parameters, method, filePath));
         }
 
-        public static string GetAssetFileOrDirectoryPath(
-            bool isFile,
+        /// <summary>
+        /// Loads an <see cref="ApiCompatBaseline"/> from a <c>.txt</c> baseline asset file located at
+        /// <c>TestData/&lt;CallingClass&gt;/&lt;method&gt;.txt</c> next to the calling test.
+        /// </summary>
+        public static ApiCompatBaseline GetApiCompatBaselineFromFile(
             string? parameters = null,
             [CallerMemberName] string method = "",
             [CallerFilePath] string filePath = "")
         {
+            return ApiCompatBaseline.FromFile(
+                GetAssetFileOrDirectoryPath(true, parameters, method, filePath, fileExtension: ".txt"));
+        }
+
+        public static string GetAssetFileOrDirectoryPath(
+            bool isFile,
+            string? parameters = null,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "",
+            string fileExtension = ".cs")
+        {
 
             var callingClass =  Path.GetFileName(filePath).Split('.').First();
             var paramString = parameters is null ? string.Empty : $"({parameters})";
-            var extName = isFile ? ".cs" : string.Empty;
+            var extName = isFile ? fileExtension : string.Empty;
 
             return Path.Combine(Path.GetDirectoryName(filePath)!, "TestData", callingClass, $"{method}{paramString}{extName}");
         }

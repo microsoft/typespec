@@ -1,4 +1,7 @@
-import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
+import {
+  CreateSdkContextOptions,
+  UnbrandedSdkEmitterOptions,
+} from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType } from "@typespec/compiler";
 import { _defaultGeneratorName } from "./constants.js";
 import { DYNAMIC_MODEL_DECORATOR_PATTERN } from "./lib/decorators.js";
@@ -8,14 +11,17 @@ import { LoggerLevel } from "./lib/logger-level.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
+type ApiVersionSelection = string | Record<string, string>;
+
 export interface CSharpEmitterOptions {
-  "api-version"?: string;
+  "api-version"?: ApiVersionSelection;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "new-project"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
+  "disable-roslyn-reduce"?: boolean;
   "generator-name"?: string;
   "emitter-extension-path"?: string;
   plugins?: string[];
@@ -40,13 +46,7 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
   type: "object",
   additionalProperties: false,
   properties: {
-    "api-version": {
-      type: "string",
-      nullable: true,
-      description:
-        "For TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, " +
-        "set this option to the version that should be used to generate against.",
-    },
+    ...UnbrandedSdkEmitterOptions["api-version"],
     "generate-protocol-methods": {
       type: "boolean",
       nullable: true,
@@ -101,6 +101,13 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
       nullable: true,
       description:
         "Set to `true` to disable XML documentation generation. The default value is `false`.",
+    },
+    "disable-roslyn-reduce": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Set to `true` to skip the Roslyn reduce (simplification) post-processing step. " +
+        "This speeds up generation and is useful when iterating quickly. The default value is `false`.",
     },
     "generator-name": {
       type: "string",

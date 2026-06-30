@@ -22,14 +22,14 @@ describe("Python ProtocolDeclaration", () => {
 
 
       class GetName(Protocol):
-        def __call__(self, id: str) -> str:
-          ...
+          def __call__(self, id: str) -> str:
+              ...
 
 
 
       class GetOtherName(Protocol):
-        def __call__(self, id: str) -> str:
-          ...
+          def __call__(self, id: str) -> str:
+              ...
 
 
       `);
@@ -49,8 +49,8 @@ describe("Python ProtocolDeclaration", () => {
 
 
       class GetName(Protocol):
-        def __call__(self, id: str):
-          ...
+          def __call__(self, id: str):
+              ...
 
       
       `);
@@ -69,11 +69,11 @@ describe("Python ProtocolDeclaration", () => {
 
 
       class Greeter(Protocol):
-        def get_name(self, id: str) -> str:
-          ...
+          def get_name(self, id: str) -> str:
+              ...
 
-        def get_other_name(self, id: str) -> str:
-          ...
+          def get_other_name(self, id: str) -> str:
+              ...
       
       
       `);
@@ -95,8 +95,8 @@ describe("Python ProtocolDeclaration", () => {
 
 
       class GetName(Protocol):
-        def __call__(self, id: str) -> str:
-          ...
+          def __call__(self, id: str) -> str:
+              ...
 
       
       

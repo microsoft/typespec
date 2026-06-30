@@ -22,6 +22,7 @@ from ..utils import (
     get_body_type_for_description,
     JSON_REGEXP,
     KNOWN_TYPES,
+    description_ends_with_code_block,
 )
 
 
@@ -93,6 +94,8 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
+            # Skip single-body JSON overload; the TypedDict overload replaces it
+            continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
@@ -108,7 +111,9 @@ def update_description(description: Optional[str], default_description: str = ""
     if not description:
         description = default_description
     description.rstrip(" ")
-    if description and description[-1] != ".":
+    # Don't append a trailing period when the description ends with a code block: the
+    # period would land inside the rendered literal block (e.g. "]." ) and break Sphinx.
+    if description and description[-1] != "." and not description_ends_with_code_block(description):
         description += "."
     return description
 
@@ -301,6 +306,44 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
 
+    @staticmethod
+    def _find_existing_typeddict(code_model: dict[str, Any], cross_lang_id: Optional[str]) -> Optional[dict[str, Any]]:
+        """Find an existing typeddict copy with the given crossLanguageDefinitionId."""
+        if not cross_lang_id:
+            return None
+        return next(
+            (
+                t
+                for t in code_model["types"]
+                if t.get("type") == "model"
+                and t.get("base") == "typeddict"
+                and t.get("crossLanguageDefinitionId") == cross_lang_id
+            ),
+            None,
+        )
+
+    @staticmethod
+    def _insert_typeddict_overload(
+        code_model: dict[str, Any],
+        body_parameter: dict[str, Any],
+        source: dict[str, Any],
+        origin_type: str,
+        existing_td: Optional[dict[str, Any]],
+    ) -> None:
+        """Insert a typeddict type into the body parameter's combined types."""
+        if origin_type == "model":
+            td_type = existing_td or {**source, "base": "typeddict"}
+            body_parameter["type"]["types"].insert(1, td_type)
+            if not existing_td:
+                code_model["types"].append(td_type)
+        else:
+            td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+            td_elem = existing_td or {**source, "base": "typeddict"}
+            td_list_or_dict["elementType"] = td_elem
+            body_parameter["type"]["types"].insert(1, td_list_or_dict)
+            if not existing_td:
+                code_model["types"].append(td_elem)
+
     def add_body_param_type(
         self,
         code_model: dict[str, Any],
@@ -319,24 +362,64 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
             )
             is_dpg_model = model_type.get("base") == "dpg"
+            is_json_model = model_type.get("base") == "json"
+            is_typeddict_only = self.options["models-mode"] == "typeddict"
+
             body_parameter["type"] = {
                 "type": "combined",
                 "types": [body_parameter["type"]],
             }
-            # don't add binary overload for multipart content type
-            if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
+            # don't add binary overload for multipart content type or typeddict-only mode
+            if not (self.is_tsp and has_multi_part_content_type(body_parameter)) and not is_typeddict_only:
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
+            # Add typeddict overload for non-spread dpg models
             if self.options["models-mode"] == "dpg" and is_dpg_model:
-                if origin_type == "model":
-                    body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+                cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
+
+            # For spread bodies (json base), add a typeddict overload that references
+            # the original model. This replaces the JSON single-body overload.
+            if is_json_model:
+                cross_lang_id = model_type.get("crossLanguageDefinitionId")
+                original = None
+                if cross_lang_id:
+                    original = next(
+                        (
+                            t
+                            for t in code_model["types"]
+                            if t.get("type") == "model"
+                            and t.get("crossLanguageDefinitionId") == cross_lang_id
+                            and t is not model_type
+                        ),
+                        None,
+                    )
+
+                if is_typeddict_only and original:
+                    # In typeddict-only mode, the original dpg model already renders
+                    # as a TypedDict — reference it directly, no copy needed.
+                    if origin_type == "model":
+                        body_parameter["type"]["types"].insert(1, original)
+                    else:
+                        td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+                        td_list_or_dict["elementType"] = original
+                        body_parameter["type"]["types"].insert(1, td_list_or_dict)
                 else:
-                    # dict or list
-                    # copy the original dict / list type
-                    any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
-                    any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
-                    body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
+                    source = original or model_type
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                    self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
+
+            if len(body_parameter["type"]["types"]) == 1:
+                # Only one body variant remains (e.g. typeddict-only mode where the
+                # binary and JSON overloads are omitted). Collapse the combined
+                # wrapper back to the single type so we don't emit a lone
+                # ``@overload`` (mypy rejects a single overload definition).
+                body_parameter["type"] = body_parameter["type"]["types"][0]
+                return
+
             code_model["types"].append(body_parameter["type"])
+
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
@@ -485,7 +568,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if yaml_data.get("isLroInitialOperation") is True:
                 yaml_data["name"] = (
                     "_"
-                    + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data)
+                    + self.pad_reserved_words(
+                        extract_original_name(yaml_data["name"]),
+                        PadType.METHOD,
+                        yaml_data,
+                    )
                     + "_initial"
                 )
             else:
@@ -576,7 +663,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         item_type = item_type or yaml_data["itemType"]["elementType"]
         if yaml_data.get("nextOperation"):
             yaml_data["nextOperation"]["groupName"] = self.pad_reserved_words(
-                yaml_data["nextOperation"]["groupName"], PadType.OPERATION_GROUP, yaml_data["nextOperation"]
+                yaml_data["nextOperation"]["groupName"],
+                PadType.OPERATION_GROUP,
+                yaml_data["nextOperation"],
             )
             yaml_data["nextOperation"]["groupName"] = to_snake_case(yaml_data["nextOperation"]["groupName"])
             for response in yaml_data["nextOperation"].get("responses", []):
@@ -598,7 +687,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
             )
             operation_group["identifyName"] = to_snake_case(operation_group["identifyName"])
             operation_group["propertyName"] = self.pad_reserved_words(
-                operation_group["propertyName"], PadType.OPERATION_GROUP, operation_group
+                operation_group["propertyName"],
+                PadType.OPERATION_GROUP,
+                operation_group,
             )
             operation_group["propertyName"] = to_snake_case(operation_group["propertyName"])
             operation_group["className"] = update_operation_group_class_name(

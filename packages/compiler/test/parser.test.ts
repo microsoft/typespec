@@ -866,6 +866,10 @@ describe("compiler: parser", () => {
     parseEach([
       "dec myDec(target: Type);",
       "extern dec myDec(target: Type);",
+      "auto dec myDec(target: Type);",
+      "auto dec myDec(target: Type, arg1: StringLiteral);",
+      "internal auto dec myDec(target: Type);",
+      "namespace Lib { auto dec myDec(target: Type);}",
       "namespace Lib { extern dec myDec(target: Type);}",
       "extern dec myDec(target: Type, arg1: StringLiteral);",
       "extern dec myDec(target: Type, optional?: StringLiteral);",

@@ -171,7 +171,7 @@ From the root of the TypeSpec repository, run:
 pnpm chronus version --only @typespec/http-client-python --ignore-policies
 ```
 
-This consumes all pending change files under `.chronus/changes/` for this package and bumps the version in `package.json` accordingly.
+This consumes all pending change files under `.chronus/changes/` for this package and bumps the version in `package.json` accordingly. Run `npm install` to update the `package-lock.json`.
 
 ### 2. Create a Release PR
 

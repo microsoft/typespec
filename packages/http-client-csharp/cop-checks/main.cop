@@ -18,9 +18,9 @@ import csharp
 let cb : Codebase = provider('csharp')
 
 # Rule: braces.cop
-command CHECK-BRACES = foreach cb.Lines:missingBraces => '{error:@red} {item.File.Path}:{item.Number}: missing braces -> {item.Text}'
+command CHECK-BRACES = foreach cb.Statements:missingBraces => '{error:@red} {item.File.Path}:{item.Line}: missing braces on {item.Kind} statement'
 
-test no-missing-braces = assert(cb.Lines:missingBraces.Count == 0, 'control-flow statements must use braces')
+test no-missing-braces = assert(cb.Statements:missingBraces.Count == 0, 'control-flow statements must use braces')
 
 # Rule: snippet-factory.cop
 command CHECK-SNIPPETS = foreach cb.Lines:usesCtorOverSnippet => '{error:@red} {item.File.Path}:{item.Number}: use the Snippet factory instead of constructing the expression directly -> {item.Text}'

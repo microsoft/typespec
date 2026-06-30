@@ -369,6 +369,90 @@ Expected response body:
 }
 ```
 
+### Encode_Boolean_Property_falseLower
+
+- Endpoint: `post /encode/boolean/property/false-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+### Encode_Boolean_Property_falseMixed
+
+- Endpoint: `post /encode/boolean/property/false-mixed`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+### Encode_Boolean_Property_trueLower
+
+- Endpoint: `post /encode/boolean/property/true-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+### Encode_Boolean_Property_trueUpper
+
+- Endpoint: `post /encode/boolean/property/true-upper`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
@@ -909,6 +993,24 @@ Expected header `duration: P40D`
 
 Test iso8601 encode for a duration array header.
 Expected header `duration: [P40D,P50D]`
+
+### Encode_Duration_Lossy_intMilliseconds
+
+- Endpoint: `get /encode/duration/lossy/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration query parameter whose value has a sub-millisecond fractional component.
+The duration is 36250.25 milliseconds, e.g. TimeSpan.FromMilliseconds(36250.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36250.25`), discarding the sub-millisecond precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36250` or `input=36251`.
+
+### Encode_Duration_Lossy_intSeconds
+
+- Endpoint: `get /encode/duration/lossy/int32-seconds`
+
+Test int32 seconds encode for a duration query parameter whose value has a fractional (sub-second) component.
+The duration is 36.25 seconds, e.g. TimeSpan.FromSeconds(36.25) in C#.
+The client must serialize the value as an integer (not a floating point number such as `36.25`), discarding the sub-second precision.
+Because emitters may floor, round, or ceil when discarding that precision, the expected query parameter is `input=36` or `input=37`.
 
 ### Encode_Duration_Property_default
 
@@ -1552,7 +1654,7 @@ Expect to handle a constant value for query and mock api returns nothing
 
 ### Parameters_Query_SpecialChar_dollarSign
 
-- Endpoint: `get /parameters/query/special-char/dollarSign`
+- Endpoint: `get /parameters/query/special-char/dollar-sign`
 
 Send a request with a dollar-sign prefixed`$filter` query parameter.
 

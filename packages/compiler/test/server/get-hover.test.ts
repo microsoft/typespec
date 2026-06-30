@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { Hover, MarkupKind } from "vscode-languageserver/node.js";
+import { Hover, MarkupKind } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
