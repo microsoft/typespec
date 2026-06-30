@@ -44,6 +44,7 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   SuppressionTracker,
   createSuppressionTracker,
+  findDuplicateSuppressions,
   findDirectiveSuppressingOnNode,
 } from "./suppression-tracking.js";
 import {
@@ -305,6 +306,15 @@ async function createProgram(
   oldProgram = undefined;
 
   suppressionTracker = createSuppressionTracker(sourceResolution);
+  reportDiagnostics(
+    findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
+      createDiagnostic({
+        code: "duplicate-suppression",
+        format: { code: directive.code },
+        target: directive.node,
+      }),
+    ),
+  );
 
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
