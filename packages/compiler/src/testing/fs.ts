@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { readdir, readFile, stat } from "fs/promises";
 import { join } from "path";
 import { pathToFileURL } from "url";
@@ -124,6 +123,7 @@ function createTestFileSystemInternal(
     jsImports.set(key, exports);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
     assertNotFrozen();
 

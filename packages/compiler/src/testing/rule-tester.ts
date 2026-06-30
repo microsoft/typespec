@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { ok, strictEqual } from "assert";
 import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
@@ -70,6 +69,7 @@ export interface ApplyCodeFixExpect {
 }
 
 export function createLinterRuleTester(
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   runner: BasicTestRunner | TesterInstance,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
   libraryName: string,
@@ -222,6 +222,7 @@ export function createLinterRuleTester(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 function isLegacyTestRunner(tester: BasicTestRunner | TesterInstance): tester is BasicTestRunner {
   return "autoCodeOffset" in tester;
 }

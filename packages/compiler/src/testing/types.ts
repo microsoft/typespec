@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
@@ -39,6 +38,7 @@ export interface TestFileSystem {
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
   addRealFolder(path: string, realPath: string): Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
 
   /** @internal */
@@ -221,6 +221,7 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 // #endregion
 
 // #region Legacy Test host
+/* eslint-disable @typescript-eslint/no-deprecated -- defining deprecated APIs for backward compatibility */
 /** @deprecated Use {@link Tester} */
 export interface TestHost extends Pick<
   TestFileSystem,
@@ -317,4 +318,5 @@ export interface BasicTestRunner {
     options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 // #endregion

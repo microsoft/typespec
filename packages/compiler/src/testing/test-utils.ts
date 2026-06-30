@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
@@ -34,6 +33,7 @@ export function findTestPackageRoot(fileUrl: string): Promise<string> {
  * @returns TypeSpec Test library.
  * @deprecated Use {@link createTester} instead
  */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLibrary {
   const { name } = init;
   const typespecFileFolder = init.typespecFileFolder ?? "lib";
@@ -74,6 +74,7 @@ export interface TestWrapperOptions {
   compilerOptions?: CompilerOptions;
 }
 /** @deprecated Use {@link createTester} instead */
+/* eslint-disable @typescript-eslint/no-deprecated -- implementing deprecated API for backward compatibility */
 export function createTestWrapper(
   host: TestHost,
   testWrapperOptions: TestWrapperOptions = {},
@@ -117,6 +118,7 @@ export function createTestWrapper(
     },
   };
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 export function trimBlankLines(code: string) {
   let start = 0;

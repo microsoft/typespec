@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import assert from "assert";
 import { glob } from "fs/promises";
 import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
@@ -12,6 +11,7 @@ import { addTestLib, StandardTestLibrary } from "./test-compiler-host.js";
 import { createTestWrapper, resolveVirtualPath } from "./test-utils.js";
 import { BasicTestRunner, TestHost, TestHostConfig, TypeSpecTestLibrary } from "./types.js";
 
+/* eslint-disable @typescript-eslint/no-deprecated -- implementing deprecated APIs for backward compatibility */
 /** @deprecated Use {@link createTester} */
 export async function createTestHost(config: TestHostConfig = {}): Promise<TestHost> {
   const testHost = await createTestHostInternal();
@@ -81,6 +81,7 @@ async function createTestHostInternal(): Promise<TestHost> {
     return [testTypes, p.diagnostics];
   }
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 export async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
   const results: string[] = [];
