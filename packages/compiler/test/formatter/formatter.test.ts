@@ -2032,6 +2032,72 @@ model Foo {}
 `,
       });
     });
+
+    it("breaks and indents decorators on a model property when too wide", async () => {
+      await assertFormat({
+        code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
+        expected: `
+model Foo {
+  status:
+    @summary("a fairly long summary text here")
+    @example("some-default-example-value")
+    enum {
+      active,
+      inactive,
+    };
+}
+`,
+      });
+    });
+
+    it("breaks and indents decorators on an alias value when too wide", async () => {
+      await assertFormat({
+        code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
+        expected: `
+alias E =
+  @summary("a fairly long summary text goes here now")
+  @example("some-default-value")
+  enum {
+    a,
+    b,
+  };
+`,
+      });
+    });
+
+    it("breaks and indents a doc comment together with decorators when too wide", async () => {
+      await assertFormat({
+        code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
+        expected: `
+model Foo {
+  status:
+    /** the current lifecycle status of the entity */
+    @example("active")
+    enum {
+      active,
+      inactive,
+    };
+}
+`,
+      });
+    });
+
+    it("stacks decorators inside a decorator argument when too wide", async () => {
+      await assertFormat({
+        code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
+        expected: `
+@useType(
+  @summary("a long summary for the versions enum value here")
+  @example("v1")
+  enum Versions {
+    v1,
+    v2,
+  }
+)
+model Foo {}
+`,
+      });
+    });
   });
 
   describe("enum", () => {

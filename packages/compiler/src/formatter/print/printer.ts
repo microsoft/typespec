@@ -74,6 +74,7 @@ import { util } from "./util.js";
 const {
   align,
   breakParent,
+  conditionalGroup,
   group,
   hardline,
   ifBreak,
@@ -111,6 +112,11 @@ export function printTypeSpec(
   print: PrettierChildPrint,
 ): Doc {
   const node = path.node;
+  if (isDeclarationExpressionNode(node)) {
+    // Declaration expressions own the layout of their doc comments and decorators so
+    // they can break (and indent) together with the declaration when too wide.
+    return printDeclarationExpression(path, options, print);
+  }
   const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
   const printedNode = printNode(path, options, print);
@@ -123,6 +129,61 @@ export function printTypeSpec(
     parts.push(hardline);
   }
   return parts;
+}
+
+/**
+ * Print a declaration expression (`model`/`enum`/`union`/`scalar` used in expression
+ * position) together with its doc comments and decorators.
+ *
+ * When everything fits on the line the doc comments and decorators are kept inline
+ * (e.g. `@a @b enum { ... }`). When it does not fit, each doc comment and decorator is
+ * placed on its own line and the whole block is indented one level relative to the
+ * surrounding expression.
+ *
+ * The declaration body always breaks (it contains hardlines), so a plain `group` would
+ * always break. A `conditionalGroup` is used instead so the break decision is based on
+ * the width of the first line only.
+ */
+function printDeclarationExpression(
+  path: AstPath<Node>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint,
+): Doc {
+  const node = path.node;
+  const bare = printNode(path, options, print);
+
+  const docs = node.docs?.length ? path.map((x) => print(x as any), "docs") : [];
+  const decorators = (node as DecorableNode).decorators?.length
+    ? path.map((x) => print(x as any), "decorators")
+    : [];
+  const prefix = [...docs, ...decorators];
+
+  // No doc comments or decorators: nothing to lay out, print the bare declaration.
+  if (prefix.length === 0) {
+    return bare;
+  }
+
+  const inline = join(" ", [...prefix, bare]);
+
+  // In argument position (e.g. a decorator argument) the enclosing parentheses already
+  // provide the line break and indentation, so the block must not add its own.
+  const broken = isInArgumentPosition(path)
+    ? join(hardline, [...prefix, bare])
+    : indent([hardline, join(hardline, [...prefix, bare])]);
+
+  return conditionalGroup([inline, broken]);
+}
+
+function isInArgumentPosition(path: AstPath<Node>): boolean {
+  const parent = path.getParentNode() as Node | null;
+  switch (parent?.kind) {
+    case SyntaxKind.DecoratorExpression:
+    case SyntaxKind.AugmentDecoratorStatement:
+    case SyntaxKind.CallExpression:
+      return true;
+    default:
+      return false;
+  }
 }
 
 function shouldPrintDirective(node: Node) {
@@ -500,14 +561,14 @@ export function printDecorators(
   path: AstPath<DecorableNode>,
   options: object,
   print: PrettierChildPrint,
-  { tryInline, forceInline }: { tryInline: boolean; forceInline?: boolean },
+  { tryInline }: { tryInline: boolean },
 ): { decorators: Doc; multiline: boolean } {
   const node = path.node;
   if (node.decorators.length === 0) {
     return { decorators: "", multiline: false };
   }
 
-  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline, forceInline });
+  const shouldBreak = shouldDecoratorBreakLine(path, options, { tryInline });
   const decorators = path.map((x) => [print(x as any), ifBreak(line, " ")], "decorators");
 
   return {
@@ -520,16 +581,9 @@ export function printDecorators(
 function shouldDecoratorBreakLine(
   path: AstPath<DecorableNode>,
   options: object,
-  { tryInline, forceInline }: { tryInline: boolean; forceInline?: boolean },
+  { tryInline }: { tryInline: boolean },
 ) {
   const node = path.node;
-
-  // In expression position the declaration is embedded inline within a larger expression,
-  // so its decorators are always kept on the same line (breaking them would leave them
-  // misaligned with the surrounding expression). The width-driven group break still applies.
-  if (forceInline) {
-    return false;
-  }
 
   return (
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options)
@@ -595,13 +649,6 @@ export function printDocComments(path: AstPath<Node>, options: object, print: Pr
   const node = path.node;
   if (node.docs === undefined || node.docs.length === 0) {
     return "";
-  }
-
-  if (isDeclarationExpressionNode(node)) {
-    // A declaration expression is embedded inline within a larger expression, so its doc
-    // comment is kept on the same line (like an inline decorator) instead of being forced
-    // onto its own line.
-    return path.map((x) => [print(x as any), " "], "docs");
   }
 
   const docs = path.map((x) => [print(x as any), line], "docs");
@@ -720,10 +767,10 @@ export function printEnumStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
-  const { decorators } = printDecorators(path, options, print, {
-    tryInline: isDeclarationExpressionNode(path.node),
-    forceInline: isDeclarationExpressionNode(path.node),
-  });
+  const inExpressionPosition = isDeclarationExpressionNode(path.node);
+  const decorators = inExpressionPosition
+    ? ""
+    : printDecorators(path, options, print, { tryInline: false }).decorators;
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
   return [
     decorators,
@@ -776,11 +823,11 @@ export function printUnionStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
 ) {
+  const inExpressionPosition = isDeclarationExpressionNode(path.node);
   const id = path.node.id ? [" ", path.call(print, "id")] : "";
-  const { decorators } = printDecorators(path, options, print, {
-    tryInline: isDeclarationExpressionNode(path.node),
-    forceInline: isDeclarationExpressionNode(path.node),
-  });
+  const decorators = inExpressionPosition
+    ? ""
+    : printDecorators(path, options, print, { tryInline: false }).decorators;
   const generic = printTemplateParameters(path, options, print, "templateParameters");
   return [
     decorators,
@@ -1127,11 +1174,11 @@ export function printModelStatement(
     : inExpressionPosition
       ? ""
       : ";";
+  const decorators = inExpressionPosition
+    ? ""
+    : printDecorators(path, options, print, { tryInline: false }).decorators;
   return [
-    printDecorators(path, options, print, {
-      tryInline: inExpressionPosition,
-      forceInline: inExpressionPosition,
-    }).decorators,
+    decorators,
     printModifiers(path, options, print),
     "model",
     id,
@@ -1324,11 +1371,11 @@ function printScalarStatement(
     : inExpressionPosition
       ? ""
       : ";";
+  const decorators = inExpressionPosition
+    ? ""
+    : printDecorators(path, options, print, { tryInline: false }).decorators;
   return [
-    printDecorators(path, options, print, {
-      tryInline: inExpressionPosition,
-      forceInline: inExpressionPosition,
-    }).decorators,
+    decorators,
     printModifiers(path, options, print),
     "scalar",
     id,
