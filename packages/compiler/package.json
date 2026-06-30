@@ -62,6 +62,9 @@
     },
     "./casing": {
       "import": "./dist/src/casing/index.js"
+    },
+    "./emitter": {
+      "typespec": "./lib/emitter/main.tsp"
     }
   },
   "browser": {

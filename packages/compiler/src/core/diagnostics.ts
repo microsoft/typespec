@@ -342,6 +342,10 @@ export function createDiagnosticCollector(): DiagnosticCollector {
   }
 }
 
+export function err(diagnostic: Diagnostic): DiagnosticResult<undefined> {
+  return [undefined, [diagnostic]];
+}
+
 /**
  * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
  * @param result Accessor pattern tuple result including the actual result and the list of diagnostics.

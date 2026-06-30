@@ -12,6 +12,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
+import { resolveEmitterOptions, validateEmitterOptionsAgainstModel } from "./emitter-options.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
@@ -62,6 +63,7 @@ import {
   Namespace,
   NoTarget,
   Node,
+  PackageFlags,
   PerfReporter,
   SourceFile,
   Sym,
@@ -137,6 +139,9 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal Main type graph. */
+  readonly typeGraph: TypeGraph;
 }
 
 interface EmitterRef {
@@ -207,146 +212,114 @@ export async function compile(
   return program;
 }
 
-async function createProgram(
-  host: CompilerHost,
-  mainFile: string,
-  options: CompilerOptions = {},
+export interface TypeGraph {
+  readonly globalNamespace: Namespace;
+  /** Complexity statistics  */
+  readonly complexityStats: ComplexityStats;
+  /** Runtime statistics  */
+  readonly runtimeStats: RuntimeStats;
+
+  /**
+   * Checker used
+   * @internal
+   */
+  readonly checker: Checker;
+
+  /**
+   * Entry point of that type graph
+   */
+  readonly entrypoint: string;
+
+  /**
+   * TypeSpec source files that make up this type graph.
+   * @internal
+   */
+  readonly sourceFiles: Map<string, TypeSpecScriptNode>;
+
+  /**
+   * JS source files that make up this type graph.
+   * @internal
+   */
+  readonly jsSourceFiles: Map<string, JsSourceFileNode>;
+
+  /** @internal */
+  sourceResolution: SourceResolution;
+
+  /** @internal */
+  resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+  /** @internal */
+  resolveTypeOrValueReference(reference: string): [Entity | undefined, readonly Diagnostic[]];
+}
+
+async function createTypeGraph(
+  program: Program,
+  resolvedMain: string,
+  options: CompilerOptions,
+  sourceFileCache: Map<string, TypeSpecScriptNode> | undefined,
   oldProgram?: Program,
-): Promise<{ program: Program; shouldAbort: boolean }> {
-  const runtimeStats: Partial<RuntimeStats> = {};
-  const validateCbs: Validator[] = [];
-  const stateMaps = new Map<symbol, Map<Type, unknown>>();
-  const stateSets = new Map<symbol, Set<Type>>();
-  const diagnostics: Diagnostic[] = [];
-  const duplicateSymbols = new Set<Sym>();
-  const emitters: EmitterRef[] = [];
-  const requireImports = new Map<string, string>();
-  const complexityStats: ComplexityStats = {} as any;
-  let sourceResolution: SourceResolution = undefined!;
-  let error = false;
-  let continueToNextStage = true;
-  // eslint-disable-next-line prefer-const -- reassigned after source resolution
-  let suppressionTracker: SuppressionTracker | undefined;
-
-  const logger = createLogger({ sink: host.logSink });
-  const tracer = createTracer(logger, { filter: options.trace });
-  const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
-  const program: Program = {
-    checker: undefined!,
-    resolver: undefined!,
-    compilerOptions: resolveOptions(options),
-    sourceFiles: new Map(),
-    jsSourceFiles: new Map(),
-    literalTypes: new Map(),
-    host,
-    diagnostics,
-    emitters,
-    loadTypeSpecScript,
-    getOption,
-    stateMaps,
-    stateSets,
-    stats: {
-      complexity: complexityStats,
-      runtime: runtimeStats as any,
-    },
-
-    tracer,
-    trace,
-    ...createStateAccessors(stateMaps, stateSets),
-    reportDiagnostic,
-    reportDiagnostics,
-    reportDuplicateSymbols,
-    get suppressionTracker() {
-      return suppressionTracker;
-    },
-    hasError() {
-      return error;
-    },
-    onValidate(cb, metadata) {
-      validateCbs.push({ callback: cb, metadata });
-    },
-    getGlobalNamespaceType,
-    resolveTypeReference,
-    /** @internal */
-    resolveTypeOrValueReference,
-    getSourceFileLocationContext,
-    projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
-  };
-
-  trace("compiler.options", JSON.stringify(options, null, 2));
-
-  function trace(area: string, message: string) {
-    tracer.trace(area, message);
-  }
+): Promise<{ typeGraph: TypeGraph; reusedProgram?: Program }> {
+  const host = program.host;
   const binder = createBinder(program);
+  const runtimeStats: Partial<RuntimeStats> = {};
+  const complexityStats: ComplexityStats = {} as any;
 
-  if (resolvedMain === undefined) {
-    return { program, shouldAbort: true };
-  }
-  const basedir = getDirectoryPath(resolvedMain) || "/";
-  await checkForCompilerVersionMismatch(basedir);
+  const sourceLoader = await createSourceLoader(host, {
+    parseOptions: options.parseOptions,
+    tracer: program.tracer,
+    getCachedScript: (file) => sourceFileCache?.get(file.path) ?? host.parseCache?.get(file),
+  });
 
-  runtimeStats.loader = await perf.timeAsync(() => loadSources(resolvedMain));
+  const typeGraph: TypeGraph = {
+    entrypoint: resolvedMain,
+    globalNamespace: undefined!,
+    checker: undefined!,
+    sourceFiles: undefined!,
+    jsSourceFiles: undefined!,
+    complexityStats,
+    runtimeStats: runtimeStats as any,
+    sourceResolution: sourceLoader.resolution,
+    resolveTypeReference,
+    resolveTypeOrValueReference,
+  };
+  mutate(program).typeGraph = typeGraph;
 
-  const emit = options.noEmit ? [] : (options.emit ?? []);
-  const emitterOptions = options.options;
+  runtimeStats.loader = await perf.timeAsync(() => loadSources(sourceLoader, resolvedMain));
 
-  await loadEmitters(basedir, emit, emitterOptions ?? {});
-
+  // Incremental reuse: if the source files and compiler options are unchanged from
+  // a previous compilation, skip resolving/checking entirely and reuse the old
+  // program. This is the fast-path the language server / watch mode rely on.
   if (
     oldProgram &&
     mapEquals(oldProgram.sourceFiles, program.sourceFiles) &&
     deepEquals(oldProgram.compilerOptions, program.compilerOptions)
   ) {
-    return { program: oldProgram, shouldAbort: true };
+    return { typeGraph, reusedProgram: oldProgram };
   }
 
-  // let GC reclaim old program, we do not reuse it beyond this point.
-  oldProgram = undefined;
+  // Set up suppression tracking for this graph now that sources are resolved, so
+  // diagnostics reported during checking can be marked as suppressed.
+  mutate(program).suppressionTracker = createSuppressionTracker(sourceLoader.resolution);
 
-  suppressionTracker = createSuppressionTracker(sourceResolution);
+  const resolver = createResolver(program);
 
-  const resolver = (program.resolver = createResolver(program));
+  program.resolver = resolver; // Update the current resolver for back compat
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
+  const checker = createChecker(program, resolver);
+  mutate(typeGraph).checker = checker;
+  mutate(typeGraph).globalNamespace = checker.getGlobalNamespaceType();
+  program.checker = checker; // Update current checker for back compat
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
-  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
-  if (options.linterRuleSet) {
-    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
-  }
+  runtimeStats.checker = perf.time(() => checker.checkProgram());
 
-  program.checker = createChecker(program, resolver);
-  runtimeStats.checker = perf.time(() => program.checker.checkProgram());
+  complexityStats.createdTypes = checker.stats.createdTypes;
+  complexityStats.finishedTypes = checker.stats.finishedTypes;
+  await validateLoadedLibraries(sourceLoader);
 
-  complexityStats.createdTypes = program.checker.stats.createdTypes;
-  complexityStats.finishedTypes = program.checker.stats.finishedTypes;
-
-  if (!continueToNextStage) {
-    return { program, shouldAbort: true };
-  }
-
-  // onValidate stage
-  await runValidators();
-
-  validateRequiredImports();
-
-  await validateLoadedLibraries();
-
-  if (!continueToNextStage) {
-    return { program, shouldAbort: true };
-  }
-
-  // Linter stage
-  const lintResult = await linter.lint();
-  runtimeStats.linter = lintResult.stats.runtime;
-  program.reportDiagnostics(lintResult.diagnostics);
-
-  return { program, shouldAbort: false };
-
+  return { typeGraph };
   /**
    * Validate the libraries loaded during the compilation process are compatible.
    */
-  async function validateLoadedLibraries() {
+  async function validateLoadedLibraries(sourceLoader: SourceLoader) {
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
     for (const fileUrl of getLibraryUrlsLoaded()) {
@@ -358,7 +331,7 @@ async function createProgram(
       }
     }
 
-    const libraries = new Map([...sourceResolution.loadedLibraries.entries()]);
+    const libraries = new Map([...sourceLoader.resolution.loadedLibraries.entries()]);
     const incompatibleLibraries = new Map<string, TypeSpecLibraryReference[]>();
     for (const root of loadedRoots) {
       const packageJsonPath = joinPaths(root, "package.json");
@@ -380,7 +353,7 @@ async function createProgram(
     }
 
     for (const [name, incompatibleLibs] of incompatibleLibraries) {
-      reportDiagnostic(
+      program.reportDiagnostic(
         createDiagnostic({
           code: "incompatible-library",
           format: {
@@ -395,14 +368,7 @@ async function createProgram(
     }
   }
 
-  async function loadSources(entrypoint: string) {
-    const sourceLoader = await createSourceLoader(host, {
-      parseOptions: options.parseOptions,
-      tracer,
-      getCachedScript: (file) =>
-        oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
-    });
-
+  async function loadSources(sourceLoader: SourceLoader, entrypoint: string) {
     // intrinsic.tsp
     await loadIntrinsicTypes(sourceLoader);
 
@@ -421,8 +387,10 @@ async function createProgram(
       });
     }
 
-    sourceResolution = sourceLoader.resolution;
+    const sourceResolution = sourceLoader.resolution;
 
+    mutate(typeGraph).sourceFiles = sourceResolution.sourceFiles;
+    mutate(typeGraph).jsSourceFiles = sourceResolution.jsSourceFiles;
     program.sourceFiles = sourceResolution.sourceFiles;
     program.jsSourceFiles = sourceResolution.jsSourceFiles;
 
@@ -452,6 +420,161 @@ async function createProgram(
     }
   }
 
+  // NOTE: These resolve* closures use this graph's own `checker` (via `typeGraph.checker`)
+  // and `resolver` so that resolution stays scoped to the graph that produced them, even
+  // if `program.checker` is later repointed at a different graph (e.g. an emitter-options
+  // graph compiled during `loadEmitter`). Other `program` state (sourceFiles, resolver,
+  // stateMaps, ...) is still shared and mutated across graphs; full per-graph isolation is
+  // intentionally deferred.
+  function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return typeGraph.checker.resolveTypeReference(node);
+  }
+
+  function resolveTypeOrValueReference(
+    reference: string,
+  ): [Entity | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return typeGraph.checker.resolveTypeOrValueReference(node);
+  }
+}
+
+async function createProgram(
+  host: CompilerHost,
+  mainFile: string,
+  options: CompilerOptions = {},
+  oldProgram?: Program,
+): Promise<{ program: Program; shouldAbort: boolean }> {
+  const runtimeStats: Partial<RuntimeStats> = {};
+  const validateCbs: Validator[] = [];
+  const stateMaps = new Map<symbol, Map<Type, unknown>>();
+  const stateSets = new Map<symbol, Set<Type>>();
+  const diagnostics: Diagnostic[] = [];
+  const duplicateSymbols = new Set<Sym>();
+  const emitters: EmitterRef[] = [];
+  const requireImports = new Map<string, string>();
+  const complexityStats: ComplexityStats = {} as any;
+  let error = false;
+  let continueToNextStage = true;
+
+  const logger = createLogger({ sink: host.logSink });
+  const tracer = createTracer(logger, { filter: options.trace });
+  const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
+  const program: Program = {
+    checker: undefined!,
+    resolver: undefined!,
+    typeGraph: undefined!,
+    compilerOptions: resolveOptions(options),
+    sourceFiles: new Map(),
+    jsSourceFiles: new Map(),
+    literalTypes: new Map(),
+    host,
+    diagnostics,
+    emitters,
+    loadTypeSpecScript,
+    getOption,
+    stateMaps,
+    stateSets,
+    stats: {
+      complexity: complexityStats,
+      runtime: runtimeStats as any,
+    },
+
+    tracer,
+    trace,
+    ...createStateAccessors(stateMaps, stateSets),
+    reportDiagnostic,
+    reportDiagnostics,
+    reportDuplicateSymbols,
+    suppressionTracker: undefined,
+    hasError() {
+      return error;
+    },
+    onValidate(cb, metadata) {
+      validateCbs.push({ callback: cb, metadata });
+    },
+    getGlobalNamespaceType,
+    resolveTypeReference,
+    /** @internal */
+    resolveTypeOrValueReference,
+    getSourceFileLocationContext,
+    projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+  };
+
+  trace("compiler.options", JSON.stringify(options, null, 2));
+
+  function trace(area: string, message: string) {
+    tracer.trace(area, message);
+  }
+
+  if (resolvedMain === undefined) {
+    return { program, shouldAbort: true };
+  }
+  const basedir = getDirectoryPath(resolvedMain) || "/";
+  await checkForCompilerVersionMismatch(basedir);
+
+  const binder = createBinder(program);
+
+  const emit = options.noEmit ? [] : (options.emit ?? []);
+  const emitterOptions = options.options;
+
+  await loadEmitters(basedir, emit, emitterOptions ?? {});
+
+  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
+  if (options.linterRuleSet) {
+    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
+  }
+
+  // let GC reclaim old program, we do not reuse it beyond this point.
+  const { typeGraph, reusedProgram } = await createTypeGraph(
+    program,
+    resolvedMain,
+    options,
+    oldProgram?.sourceFiles,
+    oldProgram,
+  );
+  if (reusedProgram) {
+    return { program: reusedProgram, shouldAbort: true };
+  }
+  oldProgram = undefined;
+  program.checker = typeGraph.checker;
+  Object.assign(complexityStats, typeGraph.complexityStats);
+
+  if (!continueToNextStage) {
+    return { program, shouldAbort: true };
+  }
+
+  // onValidate stage
+  await runValidators();
+
+  validateRequiredImports();
+
+  if (!continueToNextStage) {
+    return { program, shouldAbort: true };
+  }
+
+  // Linter stage
+  const lintResult = await linter.lint();
+  runtimeStats.linter = lintResult.stats.runtime;
+  program.reportDiagnostics(lintResult.diagnostics);
+
+  return { program, shouldAbort: false };
+
   async function loadTypeSpecScript(file: SourceFile): Promise<TypeSpecScriptNode> {
     // This is not a diagnostic because the compiler should never reuse the same path.
     // It's the caller's responsibility to use unique paths.
@@ -477,7 +600,7 @@ async function createProgram(
   }
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
-    const locationContext = sourceResolution.locationContexts.get(sourcefile);
+    const locationContext = program.typeGraph.sourceResolution.locationContexts.get(sourcefile);
     compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
     return locationContext;
   }
@@ -568,7 +691,16 @@ async function createProgram(
       }
     }
     if (emitFunction !== undefined) {
+      // TODO-TIM reuse the module resolution logic for m more robust resolution.
+      const optionsEntrypoint =
+        library.module.type === "module" &&
+        (library.module.manifest.exports as any)?.["./options"]?.["typespec"];
       if (libDefinition?.emitter?.options) {
+        // Legacy JSON-schema based validation. While an emitter still ships a
+        // legacy validator it remains authoritative; the TypeSpec-options graph is
+        // only enforced once an emitter has fully migrated (see `else if` below).
+        // This is transitional: the experimental option models are not yet a
+        // complete source of truth for already-shipped emitters.
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
           options.configFile?.file
@@ -582,6 +714,65 @@ async function createProgram(
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
           return;
+        }
+      } else if (
+        optionsEntrypoint &&
+        (entrypoint.esmExports.$flags as PackageFlags | undefined)?.experimentalEmitterOptions
+      ) {
+        // Emitter declares its options as a TypeSpec file (and has no legacy
+        // validator): compile it into its own type graph and validate the user
+        // options against the exported `EmitterOptions` model.
+        //
+        // Gated behind the per-emitter, experimental `experimentalEmitterOptions`
+        // package flag (`definePackageFlags`). When an emitter does not opt in this
+        // path is skipped entirely and such emitters get no options validation (the
+        // pre-existing behavior).
+        const fullPath = resolvePath(library.module.path, optionsEntrypoint);
+        const diagnosticStart = program.diagnostics.length;
+        const { typeGraph } = await createTypeGraph(
+          program,
+          fullPath,
+          options,
+          program.sourceFiles,
+        );
+        const [model, optionDiagnostics] = resolveEmitterOptions(typeGraph);
+
+        // Diagnostics produced while compiling the emitter's OWN options file are
+        // emitter-author problems, not user problems. If compiling it produced errors,
+        // collapse them into a single clearly-attributed diagnostic instead of leaking
+        // confusing library-internal diagnostics onto the user's program.
+        const optionsFileErrors = program.diagnostics
+          .slice(diagnosticStart)
+          .filter((d) => d.severity === "error");
+        if (optionsFileErrors.length > 0) {
+          (program.diagnostics as Diagnostic[]).length = diagnosticStart;
+          program.reportDiagnostics([
+            createDiagnostic({
+              code: "invalid-emitter-options-definition",
+              format: {
+                emitter: metadata.name ?? emitterNameOrPath,
+                message: optionsFileErrors.map((d) => d.message).join("\n"),
+              },
+              target: NoTarget,
+            }),
+          ]);
+          return;
+        }
+
+        program.reportDiagnostics(optionDiagnostics);
+        if (model) {
+          const validationDiagnostics = validateEmitterOptionsAgainstModel(
+            program,
+            emitterOptions,
+            model,
+            options.configFile?.file
+              ? { script: options.configFile.file, basePath: ["options", emitterNameOrPath] }
+              : NoTarget,
+          );
+          if (validationDiagnostics.length > 0) {
+            program.reportDiagnostics(validationDiagnostics);
+            return;
+          }
         }
       }
       return {
@@ -685,7 +876,7 @@ async function createProgram(
 
   function validateRequiredImports() {
     for (const [requiredImport, emitterName] of requireImports) {
-      if (!sourceResolution.loadedLibraries.has(requiredImport)) {
+      if (!typeGraph.sourceResolution.loadedLibraries.has(requiredImport)) {
         program.reportDiagnostic(
           createDiagnostic({
             code: "missing-import",
@@ -832,7 +1023,7 @@ async function createProgram(
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
-        suppressionTracker?.markUsed(suppressing.node);
+        program.suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -842,7 +1033,7 @@ async function createProgram(
 
         return false;
       } else {
-        suppressionTracker?.markUsed(suppressing.node);
+        program.suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
@@ -896,29 +1087,13 @@ async function createProgram(
   }
 
   function resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]] {
-    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
-    if (parseDiagnostics.length > 0) {
-      return [undefined, parseDiagnostics];
-    }
-    const binder = createBinder(program);
-    binder.bindNode(node);
-    mutate(node).parent = resolver.symbols.global.declarations[0];
-    resolver.resolveTypeReference(node);
-    return program.checker.resolveTypeReference(node);
+    return program.typeGraph.resolveTypeReference(reference);
   }
 
   function resolveTypeOrValueReference(
     reference: string,
   ): [Entity | undefined, readonly Diagnostic[]] {
-    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
-    if (parseDiagnostics.length > 0) {
-      return [undefined, parseDiagnostics];
-    }
-    const binder = createBinder(program);
-    binder.bindNode(node);
-    mutate(node).parent = resolver.symbols.global.declarations[0];
-    resolver.resolveTypeReference(node);
-    return program.checker.resolveTypeOrValueReference(node);
+    return program.typeGraph.resolveTypeOrValueReference(reference);
   }
 }
 
