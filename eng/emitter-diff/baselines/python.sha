@@ -3,4 +3,8 @@
 # code with the emitter at this commit and with the PR's emitter, and fails if
 # they differ. To approve a new generated output, update the SHA below to a
 # commit on your branch that contains your emitter changes, then push.
-37199629393b92015668f107b3ac2502ca734f53
+#
+# NOTE: temporarily set to an older commit (#10947, timedelta duration encoding)
+# to exercise the diff PR comment + approval gate. Revert to the blessed HEAD
+# SHA once the demo is done.
+c8b8194a022599d4609b4f0d6fa9128515cc087d
