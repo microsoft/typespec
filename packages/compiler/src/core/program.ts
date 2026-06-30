@@ -44,8 +44,8 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   SuppressionTracker,
   createSuppressionTracker,
-  findDuplicateSuppressions,
   findDirectiveSuppressingOnNode,
+  findDuplicateSuppressions,
 } from "./suppression-tracking.js";
 import {
   CompilerHost,
