@@ -328,3 +328,203 @@ describe("Record", () => {
     ]);
   });
 });
+
+describe("numeric ranges and integer-ness", () => {
+  it("accepts an in-range integer", async () => {
+    const errors = await validateOptions(`model EmitterOptions { prop?: int8; }`, { prop: 127 });
+    expect(errors).toEqual([]);
+  });
+
+  it("rejects an out-of-range value", async () => {
+    const errors = await validateOptions(`model EmitterOptions { prop?: int8; }`, { prop: 9999 });
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value 9999 is not assignable to int8, out of range [-128, 127].",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("rejects a non-integer for an integer scalar", async () => {
+    const errors = await validateOptions(`model EmitterOptions { prop?: int32; }`, { prop: 1.5 });
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value 1.5 is not assignable to int32, expected an integer.",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("rejects a negative value for an unsigned scalar", async () => {
+    const errors = await validateOptions(`model EmitterOptions { prop?: uint8; }`, { prop: -3 });
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value -3 is not assignable to uint8, out of range [0, 255].",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("accepts a fractional value for a float scalar", async () => {
+    const errors = await validateOptions(`model EmitterOptions { prop?: float64; }`, { prop: 1.5 });
+    expect(errors).toEqual([]);
+  });
+});
+
+describe("@minValue/@maxValue", () => {
+  it("rejects a value below @minValue", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minValue(1) @maxValue(10) prop?: int32; }`,
+      { prop: 0 },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value 0 is less than the minimum allowed value 1.",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("rejects a value above @maxValue", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minValue(1) @maxValue(10) prop?: int32; }`,
+      { prop: 20 },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value 20 is greater than the maximum allowed value 10.",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("accepts a value within range", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minValue(1) @maxValue(10) prop?: int32; }`,
+      { prop: 5 },
+    );
+    expect(errors).toEqual([]);
+  });
+});
+
+describe("@minLength/@maxLength", () => {
+  it("rejects a string that is too short", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minLength(2) @maxLength(4) prop?: string; }`,
+      { prop: "a" },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: `String "a" is too short, expected at least 2 characters.`,
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("rejects a string that is too long", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minLength(2) @maxLength(4) prop?: string; }`,
+      { prop: "abcde" },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: `String "abcde" is too long, expected at most 4 characters.`,
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("accepts a string within length bounds", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minLength(2) @maxLength(4) prop?: string; }`,
+      { prop: "abc" },
+    );
+    expect(errors).toEqual([]);
+  });
+});
+
+describe("@pattern on scalars applies in nested positions", () => {
+  it("validates array items against a scalar @pattern", async () => {
+    const errors = await validateOptions(
+      `
+      @pattern("^a") scalar prefixed extends string;
+      model EmitterOptions { prop?: prefixed[]; }`,
+      { prop: ["abc", "xyz"] },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-pattern",
+        message: "xyz does not match pattern /^a/",
+        target: ["prop", "1"],
+      },
+    ]);
+  });
+
+  it("validates Record values against a scalar @pattern", async () => {
+    const errors = await validateOptions(
+      `
+      @pattern("^a") scalar prefixed extends string;
+      model EmitterOptions { prop?: Record<prefixed>; }`,
+      { prop: { a: "abc", b: "xyz" } },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-pattern",
+        message: "xyz does not match pattern /^a/",
+        target: ["prop", "b"],
+      },
+    ]);
+  });
+});
+
+describe("scalar identity (not name)", () => {
+  it("does not treat a non-std scalar sharing a built-in name as that built-in", async () => {
+    const asString = await validateOptions(
+      `
+      namespace Foo { scalar int32 extends string; }
+      model EmitterOptions { prop?: Foo.int32; }`,
+      { prop: "hello" },
+    );
+    expect(asString).toEqual([]);
+
+    const errors = await validateOptions(
+      `
+      namespace Foo { scalar int32 extends string; }
+      model EmitterOptions { prop?: Foo.int32; }`,
+      { prop: 123 },
+    );
+    expect(errors).toEqual([
+      {
+        code: "type-mismatch",
+        message: "Expected type string",
+        target: ["prop"],
+      },
+    ]);
+  });
+});
+
+describe("union nested error attribution", () => {
+  it("surfaces the nested error of the matching model variant", async () => {
+    const errors = await validateOptions(
+      `
+      model EmitterOptions {
+        prop?: "explicit-only" | { kind: "a" | "b", separator?: string };
+      }`,
+      { prop: { kind: "b", seperator: "/" } },
+    );
+    expect(errors).toEqual([
+      {
+        code: "unknown-property",
+        message: `Unknown property "seperator"`,
+        target: ["prop", "seperator"],
+      },
+    ]);
+  });
+});

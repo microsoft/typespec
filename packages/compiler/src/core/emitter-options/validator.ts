@@ -1,8 +1,27 @@
 import { getPattern } from "../../lib/decorators.js";
+import {
+  getMaxLength,
+  getMaxValueAsNumeric,
+  getMaxValueExclusiveAsNumeric,
+  getMinLength,
+  getMinValueAsNumeric,
+  getMinValueExclusiveAsNumeric,
+} from "../intrinsic-type-state.js";
+import { numericRanges } from "../numeric-ranges.js";
+import { Numeric } from "../numeric.js";
 import { isPathAbsolute } from "../path-utils.js";
 import { Program } from "../program.js";
 import { isArrayModelType } from "../type-utils.js";
-import type { ArrayModelType, Enum, Model, Scalar, StdTypeName, Type, Union } from "../types.js";
+import type {
+  ArrayModelType,
+  Enum,
+  IntrinsicScalarName,
+  Model,
+  ModelProperty,
+  Scalar,
+  Type,
+  Union,
+} from "../types.js";
 
 export interface ValidationError {
   code: string;
@@ -12,7 +31,7 @@ export interface ValidationError {
   value?: string;
 }
 
-const knownScalarNames = new Set<StdTypeName>([
+const knownScalarNames: readonly IntrinsicScalarName[] = [
   "string",
   "url",
   "boolean",
@@ -33,23 +52,64 @@ const knownScalarNames = new Set<StdTypeName>([
   "safeint",
   "float32",
   "float64",
-]);
+];
+
+/**
+ * Resolved, realm-specific references used to identify scalars by identity rather
+ * than by name, so user-defined scalars that merely share a name with a built-in
+ * (e.g. a user `scalar int32` or `scalar absolutePath`) are not mis-classified.
+ */
+interface ValidationContext {
+  readonly program: Program;
+  /** Identity map of the std scalar type to its intrinsic name. */
+  readonly stdScalars: Map<Scalar, IntrinsicScalarName>;
+  /** The `absolutePath` scalar from `@typespec/compiler/emitter`, if available in this realm. */
+  readonly absolutePath: Scalar | undefined;
+}
+
+function createValidationContext(program: Program): ValidationContext {
+  const stdScalars = new Map<Scalar, IntrinsicScalarName>();
+  for (const name of knownScalarNames) {
+    const scalar = program.checker.getStdType(name);
+    if (scalar) {
+      stdScalars.set(scalar, name);
+    }
+  }
+
+  // Resolve the real `absolutePath` scalar by identity. It is declared in
+  // `@typespec/compiler/emitter` and only present when the emitter's options file
+  // imports it; when absent, no value gets absolute-path semantics.
+  const [absolutePathType] = program.resolveTypeReference("absolutePath");
+  const absolutePath = absolutePathType?.kind === "Scalar" ? absolutePathType : undefined;
+
+  return { program, stdScalars, absolutePath };
+}
 
 export function validateEmitterOptions(
   program: Program,
   value: unknown,
   type: Type,
 ): readonly ValidationError[] {
+  return validate(createValidationContext(program), value, type, undefined);
+}
+
+function validate(
+  context: ValidationContext,
+  value: unknown,
+  type: Type,
+  /** The model property (if any) that owns this value, used to read property-level constraint decorators. */
+  property: ModelProperty | undefined,
+): readonly ValidationError[] {
   switch (type.kind) {
     case "Model":
       if (isArrayModelType(type)) {
-        return validateArray(program, value, type);
+        return validateArray(context, value, type);
       }
-      return validateModel(program, value, type);
+      return validateModel(context, value, type);
     case "Scalar":
-      return validateScalar(value, type);
+      return validateScalar(context, value, type, property);
     case "Union":
-      return validateUnion(program, value, type);
+      return validateUnion(context, value, type, property);
     case "Enum":
       return validateEnum(value, type);
     case "String":
@@ -60,7 +120,11 @@ export function validateEmitterOptions(
   return [];
 }
 
-function validateModel(program: Program, value: unknown, type: Model): readonly ValidationError[] {
+function validateModel(
+  context: ValidationContext,
+  value: unknown,
+  type: Model,
+): readonly ValidationError[] {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
     return [
       {
@@ -77,7 +141,7 @@ function validateModel(program: Program, value: unknown, type: Model): readonly 
   // `Record<T>` style models: validate every entry against the indexer value type.
   if (type.indexer && type.indexer.key.name === "string") {
     for (const [key, entryValue] of Object.entries(valObj)) {
-      const entryErrors = validateEmitterOptions(program, entryValue, type.indexer.value);
+      const entryErrors = validate(context, entryValue, type.indexer.value, undefined);
       for (const err of entryErrors) {
         errors.push({ ...err, target: [key, ...err.target] });
       }
@@ -97,22 +161,12 @@ function validateModel(program: Program, value: unknown, type: Model): readonly 
       }
       continue;
     }
-    const propErrors = validateEmitterOptions(program, propValue, propType.type);
+    const propErrors = validate(context, propValue, propType.type, propType);
     for (const err of propErrors) {
       errors.push({
         ...err,
         target: [propType.name, ...err.target],
       });
-    }
-    const pattern = getPattern(program, propType);
-    if (pattern) {
-      if (typeof propValue !== "string" || !new RegExp(pattern).test(propValue)) {
-        errors.push({
-          code: "invalid-pattern",
-          message: `${propValue} does not match pattern /${pattern}/`,
-          target: [propType.name],
-        });
-      }
     }
   }
 
@@ -130,7 +184,7 @@ function validateModel(program: Program, value: unknown, type: Model): readonly 
 }
 
 function validateArray(
-  program: Program,
+  context: ValidationContext,
   value: unknown,
   type: ArrayModelType,
 ): readonly ValidationError[] {
@@ -145,7 +199,7 @@ function validateArray(
   }
   const errors: ValidationError[] = [];
   for (let i = 0; i < value.length; i++) {
-    const itemErrors = validateEmitterOptions(program, value[i], type.indexer.value);
+    const itemErrors = validate(context, value[i], type.indexer.value, undefined);
     for (const err of itemErrors) {
       errors.push({
         ...err,
@@ -156,22 +210,63 @@ function validateArray(
   return errors;
 }
 
-function validateUnion(program: Program, value: unknown, type: Union): readonly ValidationError[] {
+function validateUnion(
+  context: ValidationContext,
+  value: unknown,
+  type: Union,
+  property: ModelProperty | undefined,
+): readonly ValidationError[] {
   const variants = [...type.variants.values()];
+
+  let best: { errors: readonly ValidationError[]; score: number } | undefined;
   for (const variant of variants) {
-    if (validateEmitterOptions(program, value, variant.type).length === 0) {
+    const errors = validate(context, value, variant.type, property);
+    if (errors.length === 0) {
       return [];
+    }
+    // Prefer the variant whose JS shape matches the value (e.g. an object value
+    // against a model variant) so we can surface its nested errors instead of a
+    // flat "no variant matched" message. Break ties by fewest errors.
+    const score = (valueMatchesKind(value, variant.type) ? 100 : 0) - errors.length;
+    if (best === undefined || score > best.score) {
+      best = { errors, score };
     }
   }
 
+  // When every variant is a literal/enum we can produce a friendly enumeration of
+  // the allowed values rather than surfacing per-variant assignability errors.
   const literals = collectLiteralValues(variants);
-  const message =
-    literals !== undefined
-      ? `Value ${JSON.stringify(value)} is not one of the allowed values: ${literals
+  if (literals !== undefined) {
+    return [
+      {
+        code: "invalid-value",
+        message: `Value ${JSON.stringify(value)} is not one of the allowed values: ${literals
           .map((l) => JSON.stringify(l))
-          .join(", ")}`
-      : `Value ${JSON.stringify(value)} does not match any of the expected types.`;
-  return [{ code: "invalid-value", message, target: [] }];
+          .join(", ")}`,
+        target: [],
+      },
+    ];
+  }
+
+  return best?.errors ?? [];
+}
+
+/** Whether the JS `value` structurally matches the family of the given type. */
+function valueMatchesKind(value: unknown, type: Type): boolean {
+  switch (type.kind) {
+    case "Model":
+      return isArrayModelType(type)
+        ? Array.isArray(value)
+        : typeof value === "object" && value !== null && !Array.isArray(value);
+    case "String":
+      return typeof value === "string";
+    case "Number":
+      return typeof value === "number";
+    case "Boolean":
+      return typeof value === "boolean";
+    default:
+      return false;
+  }
 }
 
 function validateEnum(value: unknown, type: Enum): readonly ValidationError[] {
@@ -238,33 +333,40 @@ function collectLiteralValues(
   return values;
 }
 
-function validateScalar(value: unknown, type: Scalar): readonly ValidationError[] {
-  // Special-case the built-in `absolutePath` scalar (from `@typespec/compiler/emitter`):
-  // it extends `string` but additionally requires the value to be an absolute path. This
-  // mirrors the legacy JSON-schema `format: absolute-path` validation.
-  for (let scalar: Scalar | undefined = type; scalar; scalar = scalar.baseScalar) {
-    if (scalar.name === "absolutePath") {
-      if (typeof value === "string" && (value.startsWith(".") || !isPathAbsolute(value))) {
-        return [
-          {
-            code: "config-path-absolute",
-            message: `Path "${value}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
-            target: [],
-            value,
-          },
-        ];
-      }
-      break;
+function validateScalar(
+  context: ValidationContext,
+  value: unknown,
+  type: Scalar,
+  property: ModelProperty | undefined,
+): readonly ValidationError[] {
+  // Special-case the built-in `absolutePath` scalar (from `@typespec/compiler/emitter`).
+  // Matched by identity so a user-defined `scalar absolutePath` is not affected. It extends
+  // `string` but additionally requires the value to be an absolute path, mirroring the
+  // legacy JSON-schema `format: absolute-path` validation.
+  if (context.absolutePath && scalarChainIncludes(type, context.absolutePath)) {
+    if (typeof value === "string" && (value.startsWith(".") || !isPathAbsolute(value))) {
+      return [
+        {
+          code: "config-path-absolute",
+          message: `Path "${value}" cannot be relative. Use {cwd} or {project-root} to specify what the path should be relative to.`,
+          target: [],
+          value,
+        },
+      ];
     }
   }
 
-  // Resolve custom scalars (e.g. `scalar absolutePath extends string`) to their
-  // known built-in base so they validate against the underlying representation.
-  let current: Scalar | undefined = type;
-  while (current && !knownScalarNames.has(current.name as StdTypeName)) {
-    current = current.baseScalar;
+  // Resolve custom scalars (e.g. `scalar myInt extends int32`) to their known built-in
+  // base by identity so they validate against the underlying representation.
+  let builtin: IntrinsicScalarName | undefined;
+  for (let scalar: Scalar | undefined = type; scalar; scalar = scalar.baseScalar) {
+    const name = context.stdScalars.get(scalar);
+    if (name !== undefined) {
+      builtin = name;
+      break;
+    }
   }
-  if (current === undefined) {
+  if (builtin === undefined) {
     return [
       {
         code: "unsupported",
@@ -273,20 +375,187 @@ function validateScalar(value: unknown, type: Scalar): readonly ValidationError[
       },
     ];
   }
-  return validateBuiltinScalar(value, current.name as StdTypeName, []);
+
+  const typeErrors = validateBuiltinScalar(value, builtin);
+  if (typeErrors.length > 0) {
+    return typeErrors;
+  }
+
+  if (typeof value === "string") {
+    return validateStringConstraints(context, value, type, property);
+  }
+  if (typeof value === "number") {
+    return validateNumericConstraints(context, value, builtin, type, property);
+  }
+  return [];
+}
+
+/** Whether `scalar` or any of its base scalars is identical to `target`. */
+function scalarChainIncludes(scalar: Scalar, target: Scalar): boolean {
+  for (let current: Scalar | undefined = scalar; current; current = current.baseScalar) {
+    if (current === target) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Read the most specific value of a constraint decorator: the owning property takes
+ * precedence, then the scalar chain from the leaf scalar up to its base.
+ */
+function effectiveConstraint<T>(
+  context: ValidationContext,
+  accessor: (program: Program, target: Type) => T | undefined,
+  scalar: Scalar,
+  property: ModelProperty | undefined,
+): T | undefined {
+  if (property) {
+    const value = accessor(context.program, property);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  for (let current: Scalar | undefined = scalar; current; current = current.baseScalar) {
+    const value = accessor(context.program, current);
+    if (value !== undefined) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function validateStringConstraints(
+  context: ValidationContext,
+  value: string,
+  scalar: Scalar,
+  property: ModelProperty | undefined,
+): readonly ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  const pattern = effectiveConstraint(context, getPattern, scalar, property);
+  if (pattern && !new RegExp(pattern).test(value)) {
+    errors.push({
+      code: "invalid-pattern",
+      message: `${value} does not match pattern /${pattern}/`,
+      target: [],
+    });
+  }
+
+  const minLength = effectiveConstraint(context, getMinLength, scalar, property);
+  if (minLength !== undefined && value.length < minLength) {
+    errors.push({
+      code: "invalid-value",
+      message: `String "${value}" is too short, expected at least ${minLength} characters.`,
+      target: [],
+    });
+  }
+
+  const maxLength = effectiveConstraint(context, getMaxLength, scalar, property);
+  if (maxLength !== undefined && value.length > maxLength) {
+    errors.push({
+      code: "invalid-value",
+      message: `String "${value}" is too long, expected at most ${maxLength} characters.`,
+      target: [],
+    });
+  }
+
+  return errors;
+}
+
+function validateNumericConstraints(
+  context: ValidationContext,
+  value: number,
+  builtin: IntrinsicScalarName,
+  scalar: Scalar,
+  property: ModelProperty | undefined,
+): readonly ValidationError[] {
+  const errors: ValidationError[] = [];
+  const numericValue = Numeric(String(value));
+
+  // Built-in integer-ness and range for sized scalars (int8, uint32, float32, ...).
+  if (builtin === "integer") {
+    if (!numericValue.isInteger) {
+      errors.push({
+        code: "invalid-value",
+        message: `Value ${value} is not assignable to ${builtin}, expected an integer.`,
+        target: [],
+      });
+    }
+  } else if (builtin in numericRanges) {
+    const [low, high, options] = numericRanges[builtin as keyof typeof numericRanges];
+    if (options.int && !numericValue.isInteger) {
+      errors.push({
+        code: "invalid-value",
+        message: `Value ${value} is not assignable to ${builtin}, expected an integer.`,
+        target: [],
+      });
+    } else if (numericValue.lt(low) || numericValue.gt(high)) {
+      errors.push({
+        code: "invalid-value",
+        message: `Value ${value} is not assignable to ${builtin}, out of range [${low.asNumber()}, ${high.asNumber()}].`,
+        target: [],
+      });
+    }
+  }
+
+  // Explicit `@minValue`/`@maxValue` (and exclusive variants) on the property or scalar.
+  const min = effectiveConstraint(context, getMinValueAsNumeric, scalar, property);
+  if (min !== undefined && numericValue.lt(min)) {
+    errors.push({
+      code: "invalid-value",
+      message: `Value ${value} is less than the minimum allowed value ${min.asNumber()}.`,
+      target: [],
+    });
+  }
+  const max = effectiveConstraint(context, getMaxValueAsNumeric, scalar, property);
+  if (max !== undefined && numericValue.gt(max)) {
+    errors.push({
+      code: "invalid-value",
+      message: `Value ${value} is greater than the maximum allowed value ${max.asNumber()}.`,
+      target: [],
+    });
+  }
+  const minExclusive = effectiveConstraint(
+    context,
+    getMinValueExclusiveAsNumeric,
+    scalar,
+    property,
+  );
+  if (minExclusive !== undefined && numericValue.lte(minExclusive)) {
+    errors.push({
+      code: "invalid-value",
+      message: `Value ${value} must be greater than ${minExclusive.asNumber()}.`,
+      target: [],
+    });
+  }
+  const maxExclusive = effectiveConstraint(
+    context,
+    getMaxValueExclusiveAsNumeric,
+    scalar,
+    property,
+  );
+  if (maxExclusive !== undefined && numericValue.gte(maxExclusive)) {
+    errors.push({
+      code: "invalid-value",
+      message: `Value ${value} must be less than ${maxExclusive.asNumber()}.`,
+      target: [],
+    });
+  }
+
+  return errors;
 }
 
 function validateBuiltinScalar(
   value: unknown,
-  name: StdTypeName,
-  target: string[],
+  name: IntrinsicScalarName,
 ): readonly ValidationError[] {
   switch (name) {
     case "string":
     case "url":
-      return assertType(value, "string", target);
+      return assertType(value, "string");
     case "boolean":
-      return assertType(value, "boolean", target);
+      return assertType(value, "boolean");
     case "numeric":
     case "integer":
     case "float":
@@ -303,30 +572,26 @@ function validateBuiltinScalar(
     case "safeint":
     case "float32":
     case "float64":
-      return assertType(value, "number", target);
+      return assertType(value, "number");
     case "bytes":
       if (value instanceof Uint8Array) {
         return [];
       }
-      return [{ code: "type-mismatch", message: `Expected type bytes`, target }];
+      return [{ code: "type-mismatch", message: `Expected type bytes`, target: [] }];
     default:
       return [
         {
           code: "unsupported",
           message: `${name} is not supported for emitter options.`,
-          target,
+          target: [],
         },
       ];
   }
 }
 
-function assertType(
-  value: unknown,
-  expectedType: string,
-  target: string[],
-): readonly ValidationError[] {
+function assertType(value: unknown, expectedType: string): readonly ValidationError[] {
   if (typeof value === expectedType) {
     return [];
   }
-  return [{ code: "type-mismatch", message: `Expected type ${expectedType}`, target }];
+  return [{ code: "type-mismatch", message: `Expected type ${expectedType}`, target: [] }];
 }
