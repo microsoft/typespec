@@ -221,9 +221,12 @@ namespace SampleTypeSpec
                 Patch.WriteTo(writer, "$.requiredNullableDictionary"u8);
                 writer.WriteEndObject();
             }
-            else if (!Patch.Contains("$.requiredNullableDictionary"u8))
+            else
             {
-                writer.WriteNull("requiredNullableDictionary"u8);
+                if (!Patch.Contains("$.requiredNullableDictionary"u8))
+                {
+                    writer.WriteNull("requiredNullableDictionary"u8);
+                }
             }
             if (!Patch.Contains("$.primitiveDictionary"u8))
             {

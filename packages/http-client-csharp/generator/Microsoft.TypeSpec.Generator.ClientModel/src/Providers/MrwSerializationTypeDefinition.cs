@@ -2558,11 +2558,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _utf8JsonWriterSnippet.WriteNull(serializedName));
                 }
 
-                var ifStatement = new IfStatement(condition) { writePropertySerializationStatement };
-                var writeNull = _utf8JsonWriterSnippet.WriteNull(serializedName);
-                return patchCheck != null
-                    ? new IfElseStatement(ifStatement, [new IfStatement(patchCheck) { writeNull }], null)
-                    : new IfElseStatement(ifStatement, writeNull);
+                MethodBodyStatement writeNull = _utf8JsonWriterSnippet.WriteNull(serializedName);
+                return new IfElseStatement(
+                    condition,
+                    writePropertySerializationStatement,
+                    patchCheck != null ? new IfElseStatement(patchCheck, writeNull, null) : writeNull);
             }
 
             if (shouldCheckJsonPath)
