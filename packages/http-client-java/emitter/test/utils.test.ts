@@ -66,9 +66,7 @@ describe("versioning-utils", () => {
     expect(resolveApiVersionOption("latest")).toBe("latest");
     expect(resolveApiVersionOption("all")).toBe("all");
     expect(resolveApiVersionOption("2024-06-01")).toBe("2024-06-01");
-    expect(() => resolveApiVersionOption({ service: "2024-06-01" })).toThrow(
-      /per-service api-version map is not supported/,
-    );
+    expect(resolveApiVersionOption({ ComputeDisk: "2025-01-02" })).toBe(undefined);
   });
 
   it("filterApiVersionsByStability filters preview versions for stable target", () => {

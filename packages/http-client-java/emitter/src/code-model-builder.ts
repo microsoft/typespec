@@ -249,6 +249,8 @@ export class CodeModelBuilder {
 
   // current apiVersion name to generate code
   // it would be undefined, if mixed api-versions
+  // when it has value, its usage is at "getFilteredApiVersions" (to filter the api-versions for
+  // the client), and as the constant value of the "api-version" parameter for ARM
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
