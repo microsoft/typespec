@@ -115,6 +115,10 @@ const HTTP_SPECS = argv.values.httpSpecsDir
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
+// Directory that contains `tests/generated/<flavor>/`. Defaults to PLUGIN_DIR (since the
+// default GENERATED_FOLDER is PLUGIN_DIR/generator), but tracks a custom --generatedFolder so
+// the batch Python phase reads the same output tree the TypeScript phase wrote to.
+const GENERATED_PARENT = resolve(GENERATED_FOLDER, "..");
 const EMITTER_NAME = argv.values.emitterName || "@typespec/http-client-python";
 
 const ctx: RegenerateContext = {
@@ -168,7 +172,7 @@ function runBatchPythonProcessing(flavor: string, configCount: number, jobs: num
   try {
     // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
     execSync(
-      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
+      `"${venvPath}" "${batchScript}" --generated-dir "${GENERATED_PARENT}" --flavor ${flavor} --jobs ${jobs}`,
       {
         stdio: "inherit",
         cwd: PLUGIN_DIR,
