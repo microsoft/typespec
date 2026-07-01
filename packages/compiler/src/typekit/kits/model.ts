@@ -28,6 +28,15 @@ export interface ModelDescriptor {
   name?: string;
 
   /**
+   * Whether the model is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous model (no `name`) and
+   * `false` for a named one. Set this explicitly to create a *named* model
+   * declaration expression (a name that is kept on the type but not registered
+   * in a namespace).
+   */
+  expression?: boolean;
+
+  /**
    * Decorators to apply to the Model.
    */
   decorators?: DecoratorArgs[];
@@ -154,6 +163,7 @@ defineKit<TypekitExtension>({
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
         indexer: desc.indexer,
+        expression: desc.expression ?? desc.name === undefined,
       });
 
       this.program.checker.finishType(model);
@@ -165,7 +175,7 @@ defineKit<TypekitExtension>({
     },
 
     isExpresion(type) {
-      return type.name === "";
+      return type.expression;
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);

@@ -21,6 +21,15 @@ export interface UnionDescriptor {
   name?: string;
 
   /**
+   * Whether the union is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous union (no `name`) and
+   * `false` for a named one. Set this explicitly to create a *named* union
+   * declaration expression (a name that is kept on the type but not registered
+   * in a namespace).
+   */
+  expression?: boolean;
+
+  /**
    * Decorators to apply to the union.
    */
   decorators?: DecoratorArgs[];
@@ -154,7 +163,7 @@ export const UnionKit = defineKit<TypekitExtension>({
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);
         },
-        expression: descriptor.name === undefined,
+        expression: descriptor.expression ?? descriptor.name === undefined,
       });
 
       if (Array.isArray(descriptor.variants)) {
@@ -238,7 +247,7 @@ export const UnionKit = defineKit<TypekitExtension>({
     },
 
     isExpression(type) {
-      return type.name === undefined || type.name === "";
+      return type.expression;
     },
     getDiscriminatedUnion: createDiagnosable(function (type) {
       return getDiscriminatedUnion(this.program, type);

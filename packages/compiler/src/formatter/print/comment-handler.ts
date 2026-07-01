@@ -85,14 +85,18 @@ function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
     enclosingNode &&
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||
+      enclosingNode.kind === SyntaxKind.ModelDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.EnumDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.OperationStatement ||
       enclosingNode.kind === SyntaxKind.ScalarStatement ||
+      enclosingNode.kind === SyntaxKind.ScalarDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.InterfaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionVariant ||
-      enclosingNode.kind === SyntaxKind.UnionStatement)
+      enclosingNode.kind === SyntaxKind.UnionStatement ||
+      enclosingNode.kind === SyntaxKind.UnionDeclarationExpression)
   ) {
     util.addTrailingComment(precedingNode, comment);
     return true;
@@ -114,7 +118,8 @@ function addEmptyModelComment({ comment }: CommentContext) {
 
   if (
     enclosingNode &&
-    enclosingNode.kind === SyntaxKind.ModelStatement &&
+    (enclosingNode.kind === SyntaxKind.ModelStatement ||
+      enclosingNode.kind === SyntaxKind.ModelDeclarationExpression) &&
     enclosingNode.properties.length === 0 &&
     precedingNode &&
     (precedingNode === enclosingNode.is ||
@@ -141,7 +146,8 @@ function addEmptyScalarComment({ comment }: CommentContext) {
 
   if (
     enclosingNode &&
-    enclosingNode.kind === SyntaxKind.ScalarStatement &&
+    (enclosingNode.kind === SyntaxKind.ScalarStatement ||
+      enclosingNode.kind === SyntaxKind.ScalarDeclarationExpression) &&
     enclosingNode.members.length === 0 &&
     precedingNode &&
     (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends)

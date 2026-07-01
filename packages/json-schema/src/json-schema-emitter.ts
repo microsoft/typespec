@@ -80,6 +80,16 @@ import {
 import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 import { includeDerivedModel } from "./utils.js";
 
+/**
+ * Whether the type is an anonymous declaration expression (e.g. an inline
+ * `enum { ... }` or `scalar extends string` used as a property type): it is in
+ * expression position (`expression: true`) and has no name. Such types are inlined
+ * into the referencing schema rather than hoisted into their own file/`$defs`.
+ */
+function isAnonymousExpression(type: JsonSchemaDeclaration): boolean {
+  return type.expression && type.name === "";
+}
+
 /** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
@@ -730,6 +740,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {
+    // An *anonymous* declaration expression (e.g. an inline `enum { ... }` or
+    // `scalar extends string` used as a property type) has an empty name and is not
+    // registered in a namespace. It must not be hoisted into an (empty-named) `$defs`
+    // schema or its own file; returning the schema directly inlines it. A *named*
+    // declaration expression (e.g. `model Inner { ... }`) keeps its name and is hoisted
+    // like a regular declaration.
+    if (isAnonymousExpression(type)) {
+      return schema;
+    }
     const decl = this.emitter.result.declaration(name, schema);
     const sf = (decl.scope as SourceFileScope<any>).sourceFile;
     sf.meta.shouldEmit = this.#shouldEmitRootSchema(type);
@@ -759,6 +778,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #shouldEmitRootSchema(type: JsonSchemaDeclaration) {
+    // Anonymous declaration expressions are inlined, never emitted as a root schema.
+    if (isAnonymousExpression(type)) {
+      return false;
+    }
     return (
       this.emitter.getOptions().emitAllRefs ||
       this.emitter.getOptions().emitAllModels ||
@@ -1104,6 +1127,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   enumDeclarationContext(en: Enum): Context {
+    // An anonymous `enum { ... }` expression is inlined into the referencing schema, so
+    // it must not get its own file scope (which would otherwise be left empty).
+    if (isAnonymousExpression(en)) {
+      return {};
+    }
     return this.#newFileScope(en);
   }
 
@@ -1113,6 +1141,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   scalarDeclarationContext(scalar: Scalar): Context {
     if (this.#isStdType(scalar)) {
+      return {};
+    } else if (isAnonymousExpression(scalar)) {
+      // An anonymous `scalar extends ...` expression is inlined, so no file scope.
       return {};
     } else {
       return this.#newFileScope(scalar);

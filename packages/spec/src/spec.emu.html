@@ -501,6 +501,10 @@ PrimaryExpression[InParameter] :
     ObjectLiteral
     ArrayLiteral
     ModelExpression
+    ModelDeclarationExpression
+    ScalarDeclarationExpression
+    EnumDeclarationExpression
+    UnionDeclarationExpression
     TupleExpression
 
 FunctionTypeExpression :
@@ -568,6 +572,19 @@ ArrayLiteral :
 
 ModelExpression :
     `{` ModelBody? `}`
+
+ModelDeclarationExpression :
+    DecoratorList? `model` Identifier? TemplateParameters? ExtendsModelHeritage? `{` ModelBody? `}`
+
+ScalarDeclarationExpression :
+    DecoratorList? `scalar` Identifier? TemplateParameters? ScalarExtends?
+    DecoratorList? `scalar` Identifier? TemplateParameters? ScalarExtends? `{` ScalarBody? `}`
+
+EnumDeclarationExpression :
+    DecoratorList? `enum` Identifier? `{` EnumBody? `}`
+
+UnionDeclarationExpression :
+    DecoratorList? `union` Identifier? `{` UnionBody? `}`
 
 TupleExpression :
     `[` ExpressionList? `]`

@@ -82,3 +82,20 @@ it("can get diagnostics from getDiscriminatedUnion", async () => {
     code: "missing-discriminator-property",
   });
 });
+
+it("creates a named model declaration (expression: false) by default", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "Foo", properties: {} });
+  expect(model.expression).toBe(false);
+  expect(tk.model.isExpresion(model)).toBe(false);
+});
+
+it("creates a named model declaration expression when expression is set explicitly", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "Inner", expression: true, properties: {} });
+  expect(model.name).toBe("Inner");
+  expect(model.expression).toBe(true);
+  expect(tk.model.isExpresion(model)).toBe(true);
+});
