@@ -313,6 +313,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
         protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
 
+        private IReadOnlyList<CSharpType>? _signatureDependencyTypes;
+        internal IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
+
         protected internal virtual bool IsClientProvider => false;
 
         protected internal virtual bool IncludeGeneratedBodyReferences => false;

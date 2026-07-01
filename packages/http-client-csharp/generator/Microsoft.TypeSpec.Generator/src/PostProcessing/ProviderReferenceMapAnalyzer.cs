@@ -74,9 +74,6 @@ namespace Microsoft.TypeSpec.Generator
         public static void Analyze(IReadOnlyList<TypeProvider> providers)
         {
             var generatedProviders = GetGeneratedProviders(providers);
-            // The provider graph replaces the old Roslyn-generated-source reference map for generated
-            // code. We still keep custom-source syntax/symbol checks because users can reference
-            // generated types from arbitrary C# that is not represented by TypeProviders.
             var graph = BuildGraph(generatedProviders);
             var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
 
@@ -159,6 +156,7 @@ namespace Microsoft.TypeSpec.Generator
             AddMatchingNamesWithSimpleNameSuffix(removeRoots, "ReferenceType", graph.Nodes);
             AddCustomCodeExtensionRoots(removeRoots, generatedProviders, graph.Nodes);
             AddCustomizationBackedExtensionRoots(removeRoots, graph.Nodes);
+            AddCustomRequestHeaderExtensionsRoot(removeRoots, generatedProviders, graph.Nodes);
             RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, providers);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
@@ -293,9 +291,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private static IEnumerable<TypeProvider> GetCustomCodeViews(IReadOnlyList<TypeProvider> providers)
         {
-            var visited = new HashSet<TypeProvider>();
+            var visited = new HashSet<string>(StringComparer.Ordinal);
             var modelFactoryCustomCodeView = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value.CustomCodeView;
-            if (modelFactoryCustomCodeView != null && visited.Add(modelFactoryCustomCodeView))
+            if (modelFactoryCustomCodeView != null && visited.Add(GetCustomCodeViewIdentity(modelFactoryCustomCodeView)))
             {
                 yield return modelFactoryCustomCodeView;
             }
@@ -303,22 +301,51 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var provider in providers)
             {
                 var customCodeView = provider.CustomCodeView;
-                if (customCodeView == null || !visited.Add(customCodeView))
+                if (customCodeView == null || !visited.Add(GetCustomCodeViewIdentity(customCodeView)))
                 {
                     continue;
                 }
 
                 yield return customCodeView;
             }
+
+            foreach (var customTypeProvider in CodeModelGenerator.Instance.SourceInputModel.GetCustomizationTypeProviders())
+            {
+                if (visited.Add(GetCustomCodeViewIdentity(customTypeProvider)))
+                {
+                    yield return customTypeProvider;
+                }
+            }
+        }
+
+        private static string GetCustomCodeViewIdentity(TypeProvider customCodeView) =>
+            customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider
+                ? namedTypeSymbolProvider.MetadataName
+                : GetProviderTypeName(customCodeView.Type);
+
+        private static void AddCustomRequestHeaderExtensionsRoot(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
+        {
+            if (!HasCustomRequestHeaderExtensionsReference(providers))
+            {
+                return;
+            }
+
+            AddMatchingNamesWithSimpleNameSuffix(roots, "RequestHeaderExtensions", nodes);
+            AddMatchingNamesWithSimpleNameSuffix(roots, "RequestHeadersExtensions", nodes);
         }
 
         private static void AddCustomCodeExtensionRoots(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
         {
             foreach (var customCodeView in GetCustomCodeViews(providers))
             {
-                AddMatchingName(roots, $"{customCodeView.Type.Name}Extensions", nodes);
+                AddMatchingName(roots, $"{GetCustomCodeViewSimpleName(customCodeView)}Extensions", nodes);
             }
         }
+
+        private static string GetCustomCodeViewSimpleName(TypeProvider customCodeView) =>
+            customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider
+                ? namedTypeSymbolProvider.MetadataSimpleName
+                : customCodeView.Type.Name;
 
         private static void AddCustomizationBackedExtensionRoots(HashSet<string> roots, HashSet<string> nodes)
         {
@@ -346,12 +373,27 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddCustomCodeViewRoots(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames, bool publicOnly)
         {
+            if (customCodeView is NamedTypeSymbolProvider)
+            {
+                AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddProviderBodyDependencyTypes(roots, customCodeView.HelperDependencyTypes, generatedTypeNames);
+                    AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames);
+                }
+
+                return;
+            }
+
             AddTypeReference(roots, customCodeView.Type, generatedTypeNames);
             AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames);
+            AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames);
             if (!publicOnly)
             {
                 AddAttributes(roots, customCodeView.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
-                AddMatchingName(roots, $"{customCodeView.Type.Name}Extensions", generatedTypeNames);
+                AddMatchingName(roots, $"{GetCustomCodeViewSimpleName(customCodeView)}Extensions", generatedTypeNames);
+                AddProviderBodyDependencyTypes(roots, customCodeView.HelperDependencyTypes, generatedTypeNames);
+                AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames);
             }
 
             foreach (var implementedType in customCodeView.Implements)
@@ -485,6 +527,11 @@ namespace Microsoft.TypeSpec.Generator
             var declarations = new HashSet<string>(StringComparer.Ordinal);
             foreach (var customCodeView in GetCustomCodeViews(providers))
             {
+                if (customCodeView is NamedTypeSymbolProvider)
+                {
+                    continue;
+                }
+
                 if (!customCodeView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 {
                     continue;
@@ -1137,6 +1184,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AddTypeReference(references, dependency, nodes);
+            AddMatchingName(references, dependency.Name, nodes);
             AddMatchingName(references, $"{dependency.Name}Extensions", nodes);
 
             foreach (var argument in dependency.Arguments)
@@ -1441,6 +1489,18 @@ namespace Microsoft.TypeSpec.Generator
         {
             foreach (var customCodeView in GetCustomCodeViews(providers))
             {
+                if (customCodeView is NamedTypeSymbolProvider)
+                {
+                    if (customCodeView.HelperDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                        customCodeView.BodyDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                        customCodeView.SignatureDependencyTypes.Any(IsRequestHeaderExtensionsDependency))
+                    {
+                        return true;
+                    }
+
+                    continue;
+                }
+
                 if (customCodeView.HelperDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
                     customCodeView.BodyDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
                     customCodeView.Methods.Any(static method =>
@@ -1477,6 +1537,10 @@ namespace Microsoft.TypeSpec.Generator
             return relativePath.EndsWith(".Serialization.cs", StringComparison.Ordinal) ||
                 relativePath.EndsWith(".Serialization.Multipart.cs", StringComparison.Ordinal);
         }
+
+        private static CSharpType ChangeTrackingDictionaryType => new ChangeTrackingDictionaryDefinition().Type;
+
+        private static CSharpType ChangeTrackingListType => new ChangeTrackingListDefinition().Type;
 
         private static void AddInitializationHelperRoot(HashSet<string> roots, CSharpType? type, HashSet<string> nodes)
         {

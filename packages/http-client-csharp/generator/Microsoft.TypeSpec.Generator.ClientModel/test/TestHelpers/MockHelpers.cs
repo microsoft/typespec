@@ -51,8 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, lastContractCompilationResult)) { CallBase = true };
-            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(compilationResult, lastContractCompilationResult));
 
             return mockGenerator;
         }
@@ -189,8 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
-            mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGeneratorInstance.SetupProperty(p => p.SourceInputModel, new SourceInputModel(null, null));
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
             clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);

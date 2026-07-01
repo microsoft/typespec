@@ -70,6 +70,25 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
+        internal IEnumerable<TypeProvider> GetCustomizationTypeProviders()
+        {
+            if (Customization == null)
+            {
+                yield break;
+            }
+
+            foreach (IModuleSymbol module in Customization.Assembly.Modules)
+            {
+                foreach (var type in SourceInputHelper.GetSymbols(module.GlobalNamespace))
+                {
+                    if (type is INamedTypeSymbol namedTypeSymbol)
+                    {
+                        yield return new NamedTypeSymbolProvider(namedTypeSymbol, Customization);
+                    }
+                }
+            }
+        }
+
         private TypeProvider? FindTypeInCompilation(
             Compilation? compilation,
             string ns,
