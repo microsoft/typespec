@@ -299,9 +299,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<string>? _helperDependencyNames;
-        internal IReadOnlyList<string> HelperDependencyNames => _helperDependencyNames ??= BuildHelperDependencyNames();
-        protected internal virtual IReadOnlyList<string> BuildHelperDependencyNames() => [];
+        private IReadOnlyList<CSharpType>? _helperDependencyTypes;
+        internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [];
+
+        protected CSharpType ChangeTrackingDictionaryType => new ChangeTrackingDictionaryDefinition().Type;
+
+        protected CSharpType ChangeTrackingListType => new ChangeTrackingListDefinition().Type;
+
+        protected CSharpType OptionalType => new OptionalDefinition().Type;
 
         private IReadOnlyList<CSharpType>? _bodyDependencyTypes;
         internal IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();

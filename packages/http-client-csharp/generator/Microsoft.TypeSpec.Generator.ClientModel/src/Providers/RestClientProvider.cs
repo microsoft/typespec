@@ -78,12 +78,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
-        protected override IReadOnlyList<string> BuildHelperDependencyNames()
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
-            var dependencies = new HashSet<string>(StringComparer.Ordinal)
-            {
-                "ClientUriBuilder"
-            };
+            var dependencies = new List<CSharpType> { new ClientUriBuilderDefinition().Type };
             foreach (var serviceMethod in _inputClient.Methods)
             {
                 foreach (var parameter in serviceMethod.Operation.Parameters)
@@ -96,16 +93,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(parameter.Type);
                     if (type?.IsDictionary == true)
                     {
-                        dependencies.Add("ChangeTrackingDictionary");
+                        AddDependency(dependencies, ChangeTrackingDictionaryType);
                     }
                     else if (type?.IsCollection == true)
                     {
-                        dependencies.Add("ChangeTrackingList");
+                        AddDependency(dependencies, ChangeTrackingListType);
                     }
                 }
             }
 
-            return [.. dependencies];
+            return dependencies;
+        }
+
+        private static void AddDependency(List<CSharpType> dependencies, CSharpType dependency)
+        {
+            if (!dependencies.Any(existing =>
+                existing.Name == dependency.Name &&
+                existing.Namespace == dependency.Namespace))
+            {
+                dependencies.Add(dependency);
+            }
         }
 
         protected override ScmMethodProvider[] BuildMethods()

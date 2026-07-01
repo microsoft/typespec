@@ -1209,7 +1209,7 @@ namespace Microsoft.TypeSpec.Generator
 
             return isSerializationProvider ||
                 provider.IncludeGeneratedBodyReferences ||
-                provider.HelperDependencyNames.Count > 0 ||
+                provider.HelperDependencyTypes.Count > 0 ||
                 provider.BodyDependencyTypes.Count > 0;
         }
 
@@ -1263,8 +1263,12 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsGeneratedHelperSimpleName(string name) =>
-            string.Equals(name, "ChangeTrackingDictionary", StringComparison.Ordinal) ||
-            string.Equals(name, "ChangeTrackingList", StringComparison.Ordinal);
+            string.Equals(name, ChangeTrackingDictionaryType.Name, StringComparison.Ordinal) ||
+            string.Equals(name, ChangeTrackingListType.Name, StringComparison.Ordinal);
+
+        private static CSharpType ChangeTrackingDictionaryType => new ChangeTrackingDictionaryDefinition().Type;
+
+        private static CSharpType ChangeTrackingListType => new ChangeTrackingListDefinition().Type;
 
         private static void AddGeneratedBodyTypeReferences(Project project, Compilation compilation, ProviderReferenceGraph graph, string ownerName, INamedTypeSymbol ownerSymbol)
         {
@@ -1529,7 +1533,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes, references == null ? null : references[providerName]);
+                AddHelperDependencies(roots, provider.HelperDependencyTypes, nodes, references == null ? null : references[providerName]);
 
                 foreach (var property in provider.Properties)
                 {
@@ -1583,7 +1587,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddHelperDependencies(
             HashSet<string> roots,
-            IReadOnlyList<string> dependencies,
+            IReadOnlyList<CSharpType> dependencies,
             HashSet<string> nodes,
             HashSet<string>? referencedNames)
         {
@@ -1591,12 +1595,12 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (referencedNames == null)
                 {
-                    AddMatchingName(roots, dependency, nodes);
+                    AddTypeReference(roots, dependency, nodes);
                     continue;
                 }
 
                 var matches = new HashSet<string>(StringComparer.Ordinal);
-                AddMatchingName(matches, dependency, nodes);
+                AddTypeReference(matches, dependency, nodes);
                 roots.UnionWith(matches.Intersect(referencedNames, StringComparer.Ordinal));
             }
         }
@@ -1670,12 +1674,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type is { IsList: true, IsReadOnlyMemory: false })
             {
-                AddMatchingName(roots, "ChangeTrackingList", nodes);
+                AddTypeReference(roots, ChangeTrackingListType, nodes);
             }
 
             if (type.IsDictionary)
             {
-                AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
+                AddTypeReference(roots, ChangeTrackingDictionaryType, nodes);
             }
 
             foreach (var argument in type.Arguments)
@@ -1693,12 +1697,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type is { IsList: true, IsReadOnlyMemory: false })
             {
-                AddMatchingName(roots, "ChangeTrackingList", nodes);
+                AddTypeReference(roots, ChangeTrackingListType, nodes);
             }
 
             if (type.IsDictionary)
             {
-                AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
+                AddTypeReference(roots, ChangeTrackingDictionaryType, nodes);
             }
 
             foreach (var argument in type.Arguments)
