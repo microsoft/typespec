@@ -160,6 +160,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task GeneratedRequestHeaderSetDelimitedReferenceKeepsExtensions()
+        {
+            var header = InputFactory.HeaderParameter("x-ms-custom", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var operation = InputFactory.Operation("Create", parameters: [header]);
+            var method = InputFactory.BasicServiceMethod("Create", operation);
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
+        }
+
+        [Test]
         public async Task CustomOnlyRequestHeaderSetDelimitedReferenceKeepsExtensions()
         {
             await GenerateAndAssertFiles(

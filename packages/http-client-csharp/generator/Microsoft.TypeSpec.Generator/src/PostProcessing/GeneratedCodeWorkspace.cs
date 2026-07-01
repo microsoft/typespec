@@ -157,7 +157,6 @@ namespace Microsoft.TypeSpec.Generator
                 rewriter.SemanticModel = semanticModel;
                 root = rewriter.Visit(root);
             }
-            root = root.WithAdditionalAnnotations(Simplifier.Annotation);
             document = document.WithSyntaxRoot(root);
 
             if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)

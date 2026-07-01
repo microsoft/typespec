@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -646,18 +648,13 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    if (!publicOnly && ShouldUseGeneratedSourceReferences(provider))
-                    {
-                        continue;
-                    }
-
                     if (publicOnly && !IsPublic(method.Signature.Modifiers))
                     {
                         continue;
                     }
 
                     AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly);
-                    if (!publicOnly && !ShouldUseGeneratedSourceReferences(provider))
+                    if (!publicOnly)
                     {
                         AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes, serializationReferenceNamesByType);
                     }
@@ -859,6 +856,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 AddHelperDependencies(graph.References[providerName], provider.HelperDependencyTypes, graph.Nodes, referencedNames: null);
+                AddProviderBodyDependencyTypes(graph.References[providerName], CollectStructuredBodyReferenceTypes(provider), graph.Nodes);
                 AddProviderBodyDependencyTypes(graph.References[providerName], provider.BodyDependencyTypes, graph.Nodes);
                 AddProviderInfrastructureReferences(graph.References[providerName], provider, graph.Nodes);
             }
@@ -1016,6 +1014,112 @@ namespace Microsoft.TypeSpec.Generator
             var argumentNames = string.Join("", type.Arguments.Select(BuildOperationSourceTypeName));
             return $"{type.Name}{(argumentNames.Length > 0 ? "Of" : string.Empty)}{argumentNames}";
         }
+
+        private static IReadOnlyList<CSharpType> CollectStructuredBodyReferenceTypes(TypeProvider provider)
+        {
+            var references = new HashSet<CSharpType>();
+            var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+            foreach (var field in provider.Fields)
+            {
+                CollectStructuredBodyReferenceTypes(field.InitializationValue, references, visited);
+            }
+
+            foreach (var property in provider.Properties)
+            {
+                CollectStructuredBodyReferenceTypes(property.Body, references, visited);
+            }
+
+            foreach (var constructor in provider.Constructors)
+            {
+                CollectStructuredBodyReferenceTypes(constructor.BodyExpression, references, visited);
+                CollectStructuredBodyReferenceTypes(constructor.BodyStatements, references, visited);
+            }
+
+            foreach (var method in provider.Methods)
+            {
+                CollectStructuredBodyReferenceTypes(method.BodyExpression, references, visited);
+                CollectStructuredBodyReferenceTypes(method.BodyStatements, references, visited);
+            }
+
+            return [.. references];
+        }
+
+        private static void CollectStructuredBodyReferenceTypes(object? value, HashSet<CSharpType> references, HashSet<object> visited)
+        {
+            switch (value)
+            {
+                case null:
+                case string:
+                case FormattableString:
+                    return;
+            }
+
+            if (!value.GetType().IsValueType && !visited.Add(value))
+            {
+                return;
+            }
+
+            switch (value)
+            {
+                case CSharpType type:
+                    references.Add(type);
+                    return;
+                case Type type:
+                    references.Add(type);
+                    return;
+                case ParameterProvider parameter:
+                    references.Add(parameter.Type);
+                    CollectStructuredBodyReferenceTypes(parameter.DefaultValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(parameter.InitializationValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(parameter.Attributes, references, visited);
+                    return;
+                case MethodSignatureBase signature:
+                    CollectStructuredBodyReferenceTypes(signature.ReturnType, references, visited);
+                    CollectStructuredBodyReferenceTypes(signature.Parameters, references, visited);
+                    CollectStructuredBodyReferenceTypes(signature.Attributes, references, visited);
+                    return;
+                case KeyValuePair<string, ValueExpression> positionalArgument:
+                    CollectStructuredBodyReferenceTypes(positionalArgument.Value, references, visited);
+                    return;
+                case FieldProvider field:
+                    references.Add(field.Type);
+                    CollectStructuredBodyReferenceTypes(field.InitializationValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(field.Attributes, references, visited);
+                    return;
+            }
+
+            if (IsStructuredBodyReferenceObject(value))
+            {
+                foreach (var property in value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    if (property.GetIndexParameters().Length > 0)
+                    {
+                        continue;
+                    }
+
+                    CollectStructuredBodyReferenceTypes(property.GetValue(value), references, visited);
+                }
+
+                return;
+            }
+
+            if (value is not IEnumerable values)
+            {
+                return;
+            }
+
+            foreach (var item in values)
+            {
+                CollectStructuredBodyReferenceTypes(item, references, visited);
+            }
+        }
+
+        private static bool IsStructuredBodyReferenceObject(object value) =>
+            value is ValueExpression ||
+            value is MethodBodyStatement ||
+            value is PropertyBody ||
+            value is AttributeStatement;
 
         private static void AddProviderBodyDependencyTypes(HashSet<string> references, IReadOnlyList<CSharpType> dependencies, HashSet<string> nodes)
         {
