@@ -1128,14 +1128,14 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            foreach (var provider in GetBodyReferenceProviders(providers))
+            foreach (var (provider, isSerializationProvider) in GetBodyReferenceProviders(providers))
             {
                 if (IsModelFactoryProvider(provider))
                 {
                     continue;
                 }
 
-                if (!IsGeneratedBodyReferenceCandidate(provider))
+                if (!IsGeneratedBodyReferenceCandidate(provider, isSerializationProvider))
                 {
                     continue;
                 }
@@ -1183,19 +1183,19 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static IReadOnlyList<TypeProvider> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
+        private static IReadOnlyList<(TypeProvider Provider, bool IsSerializationProvider)> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
         {
-            var bodyReferenceProviders = new List<TypeProvider>();
+            var bodyReferenceProviders = new List<(TypeProvider Provider, bool IsSerializationProvider)>();
             foreach (var provider in providers)
             {
-                bodyReferenceProviders.Add(provider);
-                bodyReferenceProviders.AddRange(provider.SerializationProviders);
+                bodyReferenceProviders.Add((provider, false));
+                bodyReferenceProviders.AddRange(provider.SerializationProviders.Select(static serializationProvider => (serializationProvider, true)));
             }
 
             return bodyReferenceProviders;
         }
 
-        private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider)
+        private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider, bool isSerializationProvider)
         {
             if (ShouldUseGeneratedSourceReferences(provider))
             {
@@ -1207,15 +1207,14 @@ namespace Microsoft.TypeSpec.Generator
                 return true;
             }
 
-            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return IsSerializationProvider(provider) ||
-                relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
+            return isSerializationProvider ||
+                provider.IncludeGeneratedBodyReferences ||
                 provider.HelperDependencyNames.Count > 0 ||
                 provider.BodyDependencyTypes.Count > 0;
         }
 
         private static bool ShouldUseGeneratedSourceReferences(TypeProvider provider) =>
-            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal) &&
+            provider.IsClientProvider &&
             provider.BodyDependencyTypes.Count == 0;
 
         private static void AddGeneratedXmlDocCrefReferences(Project project, ProviderReferenceGraph graph, bool publicOnly)
@@ -1501,7 +1500,7 @@ namespace Microsoft.TypeSpec.Generator
             roots.Contains(type.Name) || roots.Contains(GetProviderTypeName(type)) && nodes.Contains(GetProviderTypeName(type));
 
         private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
-            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal) &&
+            provider.IsClientProvider &&
             (!publicOnly || !HasApiBaselineDirectory() && provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
         private static bool HasApiBaselineDirectory()
@@ -1512,15 +1511,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsModelFactoryProvider(TypeProvider provider)
-        {
-            if (provider is ModelFactoryProvider)
-            {
-                return true;
-            }
-
-            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return relativePath.EndsWith("ModelFactory.cs", StringComparison.Ordinal);
-        }
+            => provider is ModelFactoryProvider;
 
         private static HashSet<string> GetHelperRootNames(
             IReadOnlyList<TypeProvider> providers,
@@ -1649,13 +1640,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return false;
-        }
-
-        private static bool IsSerializationProvider(TypeProvider provider)
-        {
-            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return relativePath.EndsWith(".Serialization.cs", StringComparison.Ordinal) ||
-                relativePath.EndsWith(".Serialization.Multipart.cs", StringComparison.Ordinal);
         }
 
         private static bool IsGeneratedDocument(Document document)
