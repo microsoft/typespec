@@ -200,11 +200,6 @@ namespace Microsoft.TypeSpec.Generator
 
             if (modelProvider != null)
             {
-                if (model.Access == "public")
-                {
-                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
-                }
-
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
                 TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }

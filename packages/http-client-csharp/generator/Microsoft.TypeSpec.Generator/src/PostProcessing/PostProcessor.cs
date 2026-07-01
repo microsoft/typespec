@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Text;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -19,6 +21,8 @@ namespace Microsoft.TypeSpec.Generator
         private readonly HashSet<string> _additionalNonRootTypeNames;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
+
+        private static GeneratedCodeWorkspacePostProcessingProfile? Profile => GeneratedCodeWorkspace.PostProcessingProfile;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
@@ -125,44 +129,124 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
         public async Task<Project> InternalizeAsync(Project project)
         {
-            var compilation = await project.GetCompilationAsync();
+            var compilation = await MeasureAsync<Compilation?>("PostProcessor.Internalize.GetCompilationAsync", () => project.GetCompilationAsync());
             if (compilation == null)
             {
                 return project;
             }
 
+            var referenceMapResult = ProviderReferenceMapAnalyzer.LatestResult;
+
             // first get all the declared symbols
-            var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            // build the reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
-            // get the root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // traverse all the root and recursively add all the things we met
-            var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-            var symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
-
-            var nodesToInternalize = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
-            foreach (var symbol in symbolsToInternalize)
+            var definitions = await MeasureAsync("PostProcessor.Internalize.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, publicOnly: referenceMapResult == null));
+            IEnumerable<INamedTypeSymbol> symbolsToInternalize;
+            IEnumerable<INamedTypeSymbol> symbolsToPublicize = [];
+            if (referenceMapResult != null)
             {
-                foreach (var node in definitions.DeclaredNodesCache[symbol])
+                symbolsToInternalize = Measure("PostProcessor.Internalize.UseShadowCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.InternalizeCandidates).ToArray());
+                symbolsToPublicize = Measure("PostProcessor.Internalize.UseShadowPublicizeCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.PublicizeCandidates).ToArray());
+            }
+            else
+            {
+                // build the reference map
+                var referenceMap =
+                    await MeasureAsync(
+                        "PostProcessor.Internalize.BuildPublicReferenceMapAsync",
+                        () => new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+                            definitions.DeclaredSymbols, definitions.DeclaredNodesCache));
+                // get the root symbols
+                var rootSymbols = await MeasureAsync("PostProcessor.Internalize.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
+                // traverse all the root and recursively add all the things we met
+                var publicSymbols = Measure("PostProcessor.Internalize.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray());
+
+                symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
+            }
+
+            var nodesToInternalize = Measure("PostProcessor.Internalize.CollectNodes", () =>
+            {
+                var nodes = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
+                foreach (var symbol in symbolsToInternalize)
                 {
-                    nodesToInternalize[node] = project.GetDocumentId(node.SyntaxTree)!;
+                    foreach (var node in definitions.DeclaredNodesCache[symbol])
+                    {
+                        nodes[node] = project.GetDocumentId(node.SyntaxTree)!;
+                    }
                 }
-            }
 
-            foreach (var (model, documentId) in nodesToInternalize)
+                return nodes;
+            });
+
+            var nodesToPublicize = Measure("PostProcessor.Internalize.CollectPublicizeNodes", () =>
             {
-                project = MarkInternal(project, model, documentId);
-            }
+                var nodes = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
+                foreach (var symbol in symbolsToPublicize)
+                {
+                    foreach (var node in definitions.DeclaredNodesCache[symbol])
+                    {
+                        nodes[node] = project.GetDocumentId(node.SyntaxTree)!;
+                    }
+                }
 
-            var modelNamesToRemove =
-                nodesToInternalize.Keys.Select(item => item.Identifier.Text);
-            project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+                return nodes;
+            });
+
+            project = Measure("PostProcessor.Internalize.ApplyAccessibilityChanges", () =>
+                ApplyAccessibilityChanges(project, nodesToInternalize, nodesToPublicize));
+            project = await MeasureAsync(
+                "PostProcessor.Internalize.InternalizePublicNestedTypesInInternalTypesAsync",
+                () => InternalizePublicNestedTypesInInternalTypesAsync(project));
+
+            var modelNamesToRemove = nodesToInternalize.Keys.Select(item => item.Identifier.Text);
+            if (referenceMapResult != null)
+            {
+                modelNamesToRemove = modelNamesToRemove.Concat(referenceMapResult.RemoveCandidates.Select(GetSimpleName));
+            }
+            project = await MeasureAsync(
+                "PostProcessor.Internalize.RemoveMethodsFromModelFactoryAsync",
+                () => RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet()));
 
             return project;
+        }
+
+        private static async Task<Project> InternalizePublicNestedTypesInInternalTypesAsync(Project project)
+        {
+            foreach (var document in project.Documents.ToArray())
+            {
+                if (!GeneratedCodeWorkspace.IsGeneratedDocument(document))
+                {
+                    continue;
+                }
+
+                var root = await document.GetSyntaxRootAsync();
+                if (root == null)
+                {
+                    continue;
+                }
+
+                var nestedPublicTypes = root.DescendantNodes()
+                    .OfType<BaseTypeDeclarationSyntax>()
+                    .Where(static declaration => declaration.Modifiers.Any(SyntaxKind.PublicKeyword) &&
+                        declaration.Ancestors().OfType<BaseTypeDeclarationSyntax>().Any(static parent => parent.Modifiers.Any(SyntaxKind.InternalKeyword)))
+                    .ToArray();
+                if (nestedPublicTypes.Length == 0)
+                {
+                    continue;
+                }
+
+                var newRoot = root.ReplaceNodes(nestedPublicTypes, static (originalNode, _) =>
+                    ChangeAccessibility(originalNode, SyntaxKind.InternalKeyword)).WithAdditionalAnnotations(Simplifier.Annotation);
+                project = document.WithSyntaxRoot(newRoot).Project;
+            }
+
+            return project;
+        }
+
+        private static string GetSimpleName(string fullyQualifiedName)
+        {
+            var lastDot = fullyQualifiedName.LastIndexOf('.');
+            return lastDot < 0 ? fullyQualifiedName : fullyQualifiedName.Substring(lastDot + 1);
         }
 
         private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
@@ -238,46 +322,70 @@ namespace Microsoft.TypeSpec.Generator
         /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
         public async Task<Project> RemoveAsync(Project project)
         {
-            var compilation = await project.GetCompilationAsync();
+            var compilation = await MeasureAsync<Compilation?>("PostProcessor.Remove.GetCompilationAsync", () => project.GetCompilationAsync());
             if (compilation == null)
             {
                 return project;
             }
 
             // find all the declarations, including non-public declared
-            var definitions = await GetTypeSymbolsAsync(compilation, project, false);
-            // build reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DocumentsCache);
-            // get root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
-            // helpers that are required by the model factory.
-            if (_modelFactorySymbol != null)
+            var definitions = await MeasureAsync("PostProcessor.Remove.GetTypeSymbolsAsync", () => GetTypeSymbolsAsync(compilation, project, false));
+            IEnumerable<INamedTypeSymbol> symbolsToRemove;
+            HashSet<INamedTypeSymbol> referencedSet;
+            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult)
             {
-                rootSymbols.Add(_modelFactorySymbol);
+                symbolsToRemove = Measure("PostProcessor.Remove.UseShadowCandidates", () =>
+                    GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.RemoveCandidates).ToArray());
+                referencedSet = Measure("PostProcessor.Remove.BuildShadowReferencedSet", () =>
+                    new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default));
             }
-            // traverse the map to determine the declarations that we are about to remove, starting from root nodes
-            var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-            referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
-            var referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
-
-            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
-
-            var nodesToRemove = new List<BaseTypeDeclarationSyntax>();
-            foreach (var symbol in symbolsToRemove)
+            else
             {
-                if (referencedSet.Contains(GetBase(symbol)))
+                // build reference map
+                var referenceMap =
+                    await MeasureAsync(
+                        "PostProcessor.Remove.BuildAllReferenceMapAsync",
+                        () => new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
+                            definitions.DeclaredSymbols, definitions.DocumentsCache));
+                // get root symbols
+                var rootSymbols = await MeasureAsync("PostProcessor.Remove.GetRootSymbolsAsync", () => GetRootSymbolsAsync(project, definitions));
+                // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
+                // helpers that are required by the model factory.
+                if (_modelFactorySymbol != null)
                 {
-                    continue;
+                    rootSymbols.Add(_modelFactorySymbol);
                 }
-                nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
+                // traverse the map to determine the declarations that we are about to remove, starting from root nodes
+                var referencedSymbols = Measure("PostProcessor.Remove.VisitSymbolsFromRoot", () => VisitSymbolsFromRootAsync(rootSymbols, referenceMap).ToArray().AsEnumerable());
+
+                referencedSymbols = Measure("PostProcessor.Remove.AddSampleSymbols", () => AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols));
+                referencedSet = Measure("PostProcessor.Remove.BuildReferencedSet", () => new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default));
+
+                symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
             }
+
+            var nodesToRemove = Measure("PostProcessor.Remove.CollectNodes", () =>
+            {
+                var nodes = new List<BaseTypeDeclarationSyntax>();
+                foreach (var symbol in symbolsToRemove)
+                {
+                    if (referencedSet.Contains(GetBase(symbol)))
+                    {
+                        continue;
+                    }
+                    nodes.AddRange(definitions.DeclaredNodesCache[symbol]);
+                }
+
+                return nodes;
+            });
 
             // remove them one by one
-            project = await RemoveModelsAsync(project, nodesToRemove);
+            var referencedTypeNames = referencedSet
+                .Select(static symbol => symbol.GetFullyQualifiedName())
+                .ToHashSet(StringComparer.Ordinal);
+            project = await MeasureAsync(
+                "PostProcessor.Remove.RemoveModelsAsync",
+                () => RemoveModelsAsync(project, nodesToRemove, referencedTypeNames));
 
             return project;
         }
@@ -289,7 +397,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return symbol;
             }
-
             return GetBase(baseType);
         }
 
@@ -329,7 +436,6 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     continue;
                 }
-
                 visited.Add(definition);
                 // add this definition to the result
                 yield return definition;
@@ -352,42 +458,103 @@ namespace Microsoft.TypeSpec.Generator
             return Enumerable.Empty<T>();
         }
 
-        private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
+        private static IEnumerable<INamedTypeSymbol> GetSymbolsByName(IEnumerable<INamedTypeSymbol> symbols, HashSet<string> names)
         {
-            var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
-            var tree = declarationNode.SyntaxTree;
-            var document = project.GetDocument(documentId)!;
-            var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
-                .WithAdditionalAnnotations(Simplifier.Annotation);
-            document = document.WithSyntaxRoot(newRoot);
-            return document.Project;
+            foreach (var symbol in symbols)
+            {
+                if (names.Contains(symbol.GetFullyQualifiedName()))
+                {
+                    yield return symbol;
+                }
+            }
+        }
+
+        private Project ApplyAccessibilityChanges(
+            Project project,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodesToInternalize,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodesToPublicize)
+        {
+            var changesByDocument = new Dictionary<DocumentId, Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>>();
+            AddAccessibilityChanges(changesByDocument, nodesToInternalize, SyntaxKind.InternalKeyword);
+            AddAccessibilityChanges(changesByDocument, nodesToPublicize, SyntaxKind.PublicKeyword);
+
+            foreach (var (documentId, changes) in changesByDocument)
+            {
+                var document = project.GetDocument(documentId)!;
+                var root = changes.Keys.First().SyntaxTree.GetRoot();
+                var newRoot = root.ReplaceNodes(
+                    changes.Keys,
+                    (originalNode, _) => changes.TryGetValue(originalNode, out var targetAccessibility)
+                        ? ChangeAccessibility(originalNode, targetAccessibility)
+                        : originalNode)
+                    .WithAdditionalAnnotations(Simplifier.Annotation);
+                document = document.WithSyntaxRoot(newRoot);
+                project = document.Project;
+            }
+
+            return project;
+        }
+
+        private static void AddAccessibilityChanges(
+            Dictionary<DocumentId, Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>> changesByDocument,
+            IReadOnlyDictionary<BaseTypeDeclarationSyntax, DocumentId> nodes,
+            SyntaxKind targetAccessibility)
+        {
+            foreach (var (node, documentId) in nodes)
+            {
+                if (!changesByDocument.TryGetValue(documentId, out var changes))
+                {
+                    changes = new Dictionary<BaseTypeDeclarationSyntax, SyntaxKind>();
+                    changesByDocument[documentId] = changes;
+                }
+
+                changes[node] = targetAccessibility;
+            }
+        }
+
+        private static BaseTypeDeclarationSyntax ChangeAccessibility(BaseTypeDeclarationSyntax declarationNode, SyntaxKind targetAccessibility)
+        {
+            return targetAccessibility == SyntaxKind.PublicKeyword
+                ? ChangeModifier(declarationNode, SyntaxKind.InternalKeyword, SyntaxKind.PublicKeyword)
+                : ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
         }
 
         private async Task<Project> RemoveModelsAsync(Project project,
-            IEnumerable<BaseTypeDeclarationSyntax> unusedModels)
+            IEnumerable<BaseTypeDeclarationSyntax> unusedModels,
+            HashSet<string> referencedTypeNames)
         {
             // accumulate the definitions from the same document together
-            var documents = new Dictionary<Document, HashSet<BaseTypeDeclarationSyntax>>();
-
-            foreach (var model in unusedModels)
+            var documents = Measure("PostProcessor.Remove.RemoveModelsAsync.GroupByDocument", () =>
             {
-                var document = project.GetDocument(model.SyntaxTree);
-                Debug.Assert(document != null);
-                if (!documents.ContainsKey(document))
+                var groupedDocuments = new Dictionary<Document, HashSet<BaseTypeDeclarationSyntax>>();
+                foreach (var model in unusedModels)
                 {
-                    documents.Add(document, new HashSet<BaseTypeDeclarationSyntax>());
+                    var document = project.GetDocument(model.SyntaxTree);
+                    Debug.Assert(document != null);
+                    if (!groupedDocuments.ContainsKey(document))
+                        groupedDocuments.Add(document, new HashSet<BaseTypeDeclarationSyntax>());
+
+                    groupedDocuments[document].Add(model);
                 }
 
-                documents[document].Add(model);
-            }
+                return groupedDocuments;
+            });
 
-            foreach (var models in documents.Values)
+            project = await MeasureAsync("PostProcessor.Remove.RemoveModelsAsync.RemoveModelsFromDocuments", async () =>
             {
-                project = await RemoveModelsFromDocumentAsync(project, models);
-            }
+                var updatedProject = project;
+                foreach (var models in documents.Values)
+                {
+                    updatedProject = await RemoveModelsFromDocumentAsync(updatedProject, models);
+                }
+
+                return updatedProject;
+            });
 
             // remove what are now invalid references due to the models being removed
-            project = await RemoveInvalidRefs(project);
+            project = await MeasureAsync(
+                "PostProcessor.Remove.RemoveModelsAsync.RemoveInvalidRefs",
+                () => RemoveInvalidRefs(project, referencedTypeNames));
 
             return project;
         }
@@ -419,7 +586,6 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return project;
             }
-
             var root = await tree.GetRootAsync();
             root = root.RemoveNodes(models, SyntaxRemoveOptions.KeepNoTrivia);
 
@@ -438,21 +604,45 @@ namespace Microsoft.TypeSpec.Generator
             return document.Project;
         }
 
-        private async Task<Project> RemoveInvalidRefs(Project project)
+        private async Task<Project> RemoveInvalidRefs(Project project, HashSet<string> referencedTypeNames)
         {
             var solution = project.Solution;
 
             // Process each document for invalid usings
-            foreach (var documentId in project.DocumentIds)
+            solution = await MeasureAsync("PostProcessor.Remove.RemoveInvalidRefs.RemoveInvalidUsings", async () =>
             {
-                solution = await RemoveInvalidUsings(solution, documentId);
-            }
+                var updatedSolution = solution;
+                foreach (var documentId in project.DocumentIds)
+                {
+                    updatedSolution = await RemoveInvalidUsings(updatedSolution, documentId);
+                }
+
+                return updatedSolution;
+            });
 
             // Process each document for invalid attributes (with fresh semantic models)
-            foreach (var documentId in project.DocumentIds)
+            solution = await MeasureAsync("PostProcessor.Remove.RemoveInvalidRefs.RemoveInvalidAttributes", async () =>
             {
-                solution = await RemoveInvalidAttributes(solution, documentId);
-            }
+                var updatedSolution = solution;
+                foreach (var documentId in project.DocumentIds)
+                {
+                    updatedSolution = await RemoveInvalidAttributes(updatedSolution, documentId, referencedTypeNames);
+                }
+
+                return updatedSolution;
+            });
+
+            // Process each document for invalid XML documentation references (with fresh semantic models)
+            solution = await MeasureAsync("PostProcessor.Remove.RemoveInvalidRefs.RemoveInvalidXmlDocReferences", async () =>
+            {
+                var updatedSolution = solution;
+                foreach (var documentId in project.DocumentIds)
+                {
+                    updatedSolution = await RemoveInvalidXmlDocReferences(updatedSolution, documentId);
+                }
+
+                return updatedSolution;
+            });
 
             return solution.GetProject(project.Id)!;
         }
@@ -486,7 +676,7 @@ namespace Microsoft.TypeSpec.Generator
             return solution;
         }
 
-        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId)
+        private async Task<Solution> RemoveInvalidAttributes(Solution solution, DocumentId documentId, HashSet<string> referencedTypeNames)
         {
             var document = solution.GetDocument(documentId)!;
             var root = await document.GetSyntaxRootAsync();
@@ -506,6 +696,15 @@ namespace Microsoft.TypeSpec.Generator
                         arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
                         model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
                 .ToHashSet();
+
+            foreach (var attr in attributes)
+            {
+                if (IsInternalRecordBuildableAttribute(attr) ||
+                    await ShouldRemoveUnreferencedInternalBuildableAttribute(solution, model, attr, referencedTypeNames))
+                {
+                    invalidAttributes.Add(attr);
+                }
+            }
 
             if (invalidAttributes.Count > 0)
             {
@@ -562,6 +761,200 @@ namespace Microsoft.TypeSpec.Generator
             return solution;
         }
 
+        private static bool IsInternalRecordBuildableAttribute(AttributeListSyntax attributeList)
+        {
+            if (attributeList.Attributes.Count != 1 ||
+                !IsModelReaderWriterBuildableAttribute(attributeList.Attributes[0]))
+            {
+                return false;
+            }
+
+            var typeName = attributeList.Attributes[0].ArgumentList?.Arguments
+                .Select(static argument => argument.Expression)
+                .OfType<TypeOfExpressionSyntax>()
+                .Select(static typeOfExpression => typeOfExpression.Type.ToString().Split('.').Last())
+                .FirstOrDefault();
+
+            return typeName?.StartsWith("Update", StringComparison.Ordinal) == true && typeName.EndsWith("Record", StringComparison.Ordinal) ||
+                typeName?.EndsWith("PatchUpdate", StringComparison.Ordinal) == true;
+        }
+
+        private static async Task<bool> ShouldRemoveUnreferencedInternalBuildableAttribute(
+            Solution solution,
+            SemanticModel model,
+            AttributeListSyntax attributeList,
+            HashSet<string> referencedTypeNames)
+        {
+            if (attributeList.Attributes.Count != 1)
+            {
+                return false;
+            }
+
+            var attribute = attributeList.Attributes[0];
+            if (model.GetSymbolInfo(attribute).Symbol?.ContainingType.Name != "ModelReaderWriterBuildableAttribute" &&
+                !IsModelReaderWriterBuildableAttribute(attribute))
+            {
+                return false;
+            }
+
+            var typeOfExpression = attribute.ArgumentList?.Arguments
+                .Select(static argument => argument.Expression)
+                .OfType<TypeOfExpressionSyntax>()
+                .FirstOrDefault();
+            if (typeOfExpression == null ||
+                model.GetTypeInfo(typeOfExpression.Type).Type is not INamedTypeSymbol typeSymbol ||
+                typeSymbol.DeclaredAccessibility != Accessibility.Internal)
+            {
+                return false;
+            }
+
+            if (typeSymbol.BaseType is { SpecialType: not SpecialType.System_Object })
+            {
+                return false;
+            }
+
+            if (typeSymbol.Name.EndsWith("PatchUpdate", StringComparison.Ordinal) ||
+                typeSymbol.Name.StartsWith("Update", StringComparison.Ordinal) && typeSymbol.Name.EndsWith("Record", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (referencedTypeNames.Contains(typeSymbol.GetFullyQualifiedName()))
+            {
+                return false;
+            }
+
+            foreach (var referencedSymbol in await SymbolFinder.FindReferencesAsync(typeSymbol, solution))
+            {
+                foreach (var location in referencedSymbol.Locations)
+                {
+                    if (!location.Location.IsInSource)
+                    {
+                        continue;
+                    }
+
+                    var document = location.Document;
+                    var root = await document.GetSyntaxRootAsync();
+                    if (root == null)
+                    {
+                        continue;
+                    }
+
+                    var node = root.FindNode(location.Location.SourceSpan);
+                    if (node.AncestorsAndSelf().OfType<AttributeSyntax>().Any())
+                    {
+                        continue;
+                    }
+
+                    if (IsWithinTypeDeclaration(typeSymbol, node))
+                    {
+                        continue;
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsModelReaderWriterBuildableAttribute(AttributeSyntax attribute)
+        {
+            var name = attribute.Name.ToString();
+            return name.EndsWith("ModelReaderWriterBuildable", StringComparison.Ordinal) ||
+                name.EndsWith("ModelReaderWriterBuildableAttribute", StringComparison.Ordinal) ||
+                name.Contains(".ModelReaderWriterBuildableAttribute", StringComparison.Ordinal);
+        }
+
+        private static bool IsWithinTypeDeclaration(INamedTypeSymbol typeSymbol, SyntaxNode node)
+        {
+            foreach (var syntaxReference in typeSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.SyntaxTree == node.SyntaxTree && syntaxReference.Span.Contains(node.Span))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static T Measure<T>(string stepName, Func<T> action)
+        {
+            var profile = Profile;
+            if (profile == null)
+            {
+                return action();
+            }
+
+            var allocatedBytes = GC.GetTotalAllocatedBytes(precise: false);
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                return action();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                profile.Add(stepName, stopwatch.Elapsed, GC.GetTotalAllocatedBytes(precise: false) - allocatedBytes);
+            }
+        }
+
+        private static async Task<T> MeasureAsync<T>(string stepName, Func<Task<T>> action)
+        {
+            var profile = Profile;
+            if (profile == null)
+            {
+                return await action();
+            }
+
+            var allocatedBytes = GC.GetTotalAllocatedBytes(precise: false);
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                return await action();
+            }
+            finally
+            {
+                stopwatch.Stop();
+                profile.Add(stepName, stopwatch.Elapsed, GC.GetTotalAllocatedBytes(precise: false) - allocatedBytes);
+            }
+        }
+
+        private async Task<Solution> RemoveInvalidXmlDocReferences(Solution solution, DocumentId documentId)
+        {
+            var document = solution.GetDocument(documentId)!;
+            var root = await document.GetSyntaxRootAsync();
+            var model = await document.GetSemanticModelAsync();
+
+            if (root == null || model == null)
+            {
+                return solution;
+            }
+
+            var invalidSeeElements = root.DescendantTrivia(descendIntoTrivia: true)
+                .SelectMany(static trivia => trivia.GetStructure()?.DescendantNodes().OfType<XmlEmptyElementSyntax>() ?? [])
+                .Where(element => string.Equals(element.Name.LocalName.ValueText, "see", StringComparison.Ordinal))
+                .Where(element => element.Attributes.OfType<XmlCrefAttributeSyntax>().Any(attribute => model.GetSymbolInfo(attribute.Cref).Symbol == null))
+                .ToArray();
+
+            if (invalidSeeElements.Length == 0)
+            {
+                return solution;
+            }
+
+            var text = await document.GetTextAsync();
+            var source = text.ToString();
+            foreach (var element in invalidSeeElements)
+            {
+                var cref = element.Attributes.OfType<XmlCrefAttributeSyntax>().First().Cref.ToString();
+                var colonIndex = cref.IndexOf(':');
+                var replacement = colonIndex >= 0 ? cref.Substring(colonIndex + 1) : cref;
+                source = source.Replace(element.ToFullString(), replacement, StringComparison.Ordinal);
+            }
+
+            return solution.WithDocumentText(documentId, SourceText.From(source, text.Encoding));
+        }
+
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
         {
             var result = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
@@ -574,7 +967,6 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         continue;
                     }
-
                     if (await IsRootDocument(document))
                     {
                         result.Add(symbol);
@@ -660,7 +1052,6 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     newList = collectionConstructor();
                 }
-
                 newList.Add(value);
                 dictionary.Add(key, newList);
             }

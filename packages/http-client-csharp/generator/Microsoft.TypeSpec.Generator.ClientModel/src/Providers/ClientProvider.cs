@@ -43,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string ClientSuffix = "Client";
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
+        protected override bool IsClientProvider => true;
         internal InputClient InputClient => _inputClient;
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
@@ -425,6 +426,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
+
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
+        {
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.BodyStatements != null)
+                {
+                    return [new CancellationTokenExtensionsDefinition().Type, new ClientPipelineExtensionsDefinition().Type];
+                }
+            }
+
+            return [];
+        }
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType>();
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.BodyStatements == null)
+                {
+                    continue;
+                }
+
+                if (method.CollectionDefinition != null)
+                {
+                    dependencies.Add(method.CollectionDefinition.Type);
+                }
+
+                if (method.ServiceMethod == null)
+                {
+                    continue;
+                }
+
+                AddInputTypeDependency(dependencies, method.ServiceMethod.Response.Type);
+                AddInputTypeDependency(dependencies, method.ServiceMethod.Exception?.Type);
+                foreach (var parameter in method.ServiceMethod.Parameters)
+                {
+                    AddInputTypeDependency(dependencies, parameter.Type);
+                }
+
+                foreach (var parameter in method.ServiceMethod.Operation.Parameters)
+                {
+                    AddInputTypeDependency(dependencies, parameter.Type);
+                }
+
+                foreach (var response in method.ServiceMethod.Operation.Responses)
+                {
+                    AddInputTypeDependency(dependencies, response.BodyType);
+                    foreach (var header in response.Headers)
+                    {
+                        AddInputTypeDependency(dependencies, header.Type);
+                    }
+                }
+            }
+
+            return dependencies;
+        }
+
+        private static void AddInputTypeDependency(List<CSharpType> dependencies, InputType? inputType)
+        {
+            var type = inputType == null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+            if (type != null)
+            {
+                dependencies.Add(type);
+            }
+        }
 
         protected override FieldProvider[] BuildFields()
         {

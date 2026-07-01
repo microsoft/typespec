@@ -143,6 +143,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _xmlDocs = value;
         }
 
+        internal bool PreserveTypeXmlDocs { get; private set; }
+
+        internal void PreserveXmlDocs()
+        {
+            PreserveTypeXmlDocs = true;
+        }
+
         public string? Deprecated
         {
             get => _deprecated;
@@ -291,6 +298,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
+        private IReadOnlyList<CSharpType>? _helperDependencyTypes;
+        internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [];
+
+        protected CSharpType ChangeTrackingDictionaryType => new ChangeTrackingDictionaryDefinition().Type;
+
+        protected CSharpType ChangeTrackingListType => new ChangeTrackingListDefinition().Type;
+
+        protected CSharpType OptionalType => new OptionalDefinition().Type;
+
+        private IReadOnlyList<CSharpType>? _bodyDependencyTypes;
+        internal IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _signatureDependencyTypes;
+        internal IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
+
+        protected internal virtual bool IsClientProvider => false;
+
+        protected internal virtual bool IncludeGeneratedBodyReferences => false;
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
@@ -538,6 +567,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
+            PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());

@@ -71,6 +71,7 @@ versionPolicies:
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
 additionalPackages:
+  - packages/http-client-csharp
   - packages/http-client-python
   - packages/http-client-java
 
