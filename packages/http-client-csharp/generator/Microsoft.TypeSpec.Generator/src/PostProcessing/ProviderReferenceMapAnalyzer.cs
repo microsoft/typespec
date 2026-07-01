@@ -1142,7 +1142,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool ShouldUseUnionVariantFallbackRoots() =>
-            !CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
+            !HasApiBaselineDirectory() &&
             CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
         private static bool IsImplementationOnlyModelFactoryMethod(MethodProvider method)
