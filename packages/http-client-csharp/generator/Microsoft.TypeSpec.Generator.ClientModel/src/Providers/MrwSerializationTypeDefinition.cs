@@ -57,10 +57,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // CSharpType before delayed base model resolution has updated the model's inheritance.
         private CSharpType? _jsonModelTInterfaceValue;
         private CSharpType _jsonModelTInterface => _jsonModelTInterfaceValue ??= new CSharpType(typeof(IJsonModel<>), SerializationInterfaceType.Type);
-        private CSharpType? _jsonModelObjectInterface => _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
+        private CSharpType? _jsonModelObjectInterface;
+        private CSharpType? JsonModelObjectInterface => _isStruct ? _jsonModelObjectInterface ??= (CSharpType)typeof(IJsonModel<object>) : null;
         private CSharpType? _persistableModelTInterfaceValue;
         private CSharpType _persistableModelTInterface => _persistableModelTInterfaceValue ??= new CSharpType(typeof(IPersistableModel<>), SerializationInterfaceType.Type);
-        private CSharpType? _persistableModelObjectInterface => _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
+        private CSharpType? _persistableModelObjectInterface;
+        private CSharpType? PersistableModelObjectInterface => _isStruct ? _persistableModelObjectInterface ??= (CSharpType)typeof(IPersistableModel<object>) : null;
         private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
@@ -71,8 +73,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _supportsXml;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
-        private bool ShouldOverrideMethods => _model.BaseModelProvider != null && !_isStruct;
-        private bool ShouldSkipSerializationMethodOverrides => ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
+        private bool? _shouldOverrideMethods;
+        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= _model.BaseModelProvider != null && !_isStruct;
+        private bool? _shouldSkipSerializationMethodOverrides;
+        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
         private readonly bool _shouldOverrideXmlMethods;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
@@ -434,17 +438,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_supportsJson)
             {
                 interfaces.Add(_jsonModelTInterface);
-                if (_jsonModelObjectInterface != null)
+                var jsonModelObjectInterface = JsonModelObjectInterface;
+                if (jsonModelObjectInterface != null)
                 {
-                    interfaces.Add(_jsonModelObjectInterface);
+                    interfaces.Add(jsonModelObjectInterface);
                 }
             }
             else if (_supportsXml)
             {
                 interfaces.Add(_persistableModelTInterface);
-                if (_persistableModelObjectInterface != null)
+                var persistableModelObjectInterface = PersistableModelObjectInterface;
+                if (persistableModelObjectInterface != null)
                 {
-                    interfaces.Add(_persistableModelObjectInterface);
+                    interfaces.Add(persistableModelObjectInterface);
                 }
             }
 
@@ -474,7 +480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var castToT = This.CastTo(_jsonModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IJsonModel<object>.Write), null, MethodSignatureModifiers.None, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Write), null, MethodSignatureModifiers.None, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: JsonModelObjectInterface),
               castToT.Invoke(nameof(IJsonModel<object>.Write), [_utf8JsonWriterParameter, _serializationOptionsParameter]),
               this
             );
@@ -489,7 +495,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var castToT = This.CastTo(_jsonModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeof(object), null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeof(object), null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: JsonModelObjectInterface),
               castToT.Invoke(nameof(IJsonModel<object>.Create), [_utf8JsonReaderParameter.AsArgument(), _serializationOptionsParameter]),
               this
             );
@@ -505,7 +511,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var returnType = typeof(BinaryData);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Write), null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Write), null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
               castToT.Invoke(nameof(IPersistableModel<object>.Write), [_serializationOptionsParameter]),
               this
             );
@@ -521,7 +527,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var returnType = typeof(object);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, returnType, null, [_dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, returnType, null, [_dataParameter, _serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
               castToT.Invoke(nameof(IPersistableModel<object>.Create), [_dataParameter, _serializationOptionsParameter]),
               this
             );
@@ -801,7 +807,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // string IPersistableModel<object>.GetFormatFromOptions(ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).GetFormatFromOptions(options);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
                 castToT.Invoke(nameof(IPersistableModel<object>.GetFormatFromOptions), [_serializationOptionsParameter]),
                 this
             );
