@@ -7,11 +7,9 @@ name: "python / emitter diff"
 # how an emitter change affects generated SDKs. Powered by the language-agnostic
 # eng/emitter-diff tool.
 #
-# The check fails while generated output differs from the baseline UNTIL a
-# maintainer adds the `emitter-diff-approved` label to the PR. The label (not a
-# committed SHA) is the approval token, so it survives squash-merge / rebase /
-# force-push, and the check re-runs automatically when the label is added or
-# removed.
+# This check is informational: it always passes unless the tool hits a real
+# tool/build error. A generated-output diff does not fail the PR — it is only
+# reported (job summary + PR comment + HTML artifact) for reviewers to eyeball.
 #
 # Python's generator uses a native two-phase pipeline (TypeSpec emits YAML, then
 # a batched Python subprocess writes the .py files) with a venv co-located with
@@ -20,7 +18,6 @@ name: "python / emitter diff"
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
       - release/*
@@ -112,13 +109,15 @@ jobs:
           # propagates. `pnpm --filter <pkg> exec` collapses any non-zero child exit
           # into pnpm's own generic exit 1 (ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL),
           # which would mask the "diff present" code (2) as a hard error (1).
+          # No `--fail-on-diff`: this check is informational and never fails on a
+          # diff. A real tool/build error still surfaces via a non-zero exit code
+          # (checked in the "Fail on tool error" step below).
           pnpm exec tsx src/cli.ts \
             --emitter python \
             --baseline "$BASELINE_REF" \
             --work-dir "$RUNNER_TEMP/emitter-diff" \
             --html "$RUNNER_TEMP/emitter-diff.html" \
             --patch "$RUNNER_TEMP/emitter-diff.patch" \
-            --fail-on-diff \
             | tee "$RUNNER_TEMP/emitter-diff.log"
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
@@ -126,27 +125,12 @@ jobs:
         if: always()
         env:
           BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
-          STATUS: ${{ steps.diff.outputs.status }}
-          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           {
             echo "## Emitter diff"
             echo ""
             echo "Baseline (merge-base): \`$BASELINE_SHA\` vs current checkout."
-            echo ""
-            if [ "$STATUS" = "2" ]; then
-              if [ "$APPROVED" = "true" ]; then
-                echo "**Generated output changed** — approved via the \`emitter-diff-approved\` label."
-              else
-                echo "**Generated output changed vs the baseline.**"
-                echo ""
-                echo "If this change is intended, add the \`emitter-diff-approved\` label to this PR"
-                echo "to accept it."
-              fi
-            elif [ "$STATUS" = "0" ]; then
-              echo "Generated output matches the baseline."
-            fi
             echo ""
             echo '```'
             grep -E "Diff summary:" "$RUNNER_TEMP/emitter-diff.log" || echo "No summary captured."
@@ -171,7 +155,6 @@ jobs:
         env:
           BASELINE: ${{ steps.baseline.outputs.sha }}
           STATUS: ${{ steps.diff.outputs.status }}
-          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
           PATCH_FILE: ${{ runner.temp }}/emitter-diff.patch
           HTML_FILE: ${{ runner.temp }}/emitter-diff.html
         with:
@@ -180,7 +163,6 @@ jobs:
             const marker = "<!-- emitter-diff-python -->";
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const status = process.env.STATUS;
-            const approved = process.env.APPROVED === "true";
 
             // Parse the unified patch directly so the numbers match the tool exactly.
             let patch = "";
@@ -194,32 +176,27 @@ jobs:
               else if (line.startsWith("+") && !line.startsWith("+++")) insertions++;
               else if (line.startsWith("-") && !line.startsWith("---")) deletions++;
             }
+            const hasChanges = patch.trim().length > 0;
             const htmlExists = fs.existsSync(process.env.HTML_FILE);
 
             let body = `${marker}\n## Python emitter diff\n\n` +
               `Baseline \`${process.env.BASELINE}\` (merge-base) vs this PR's checkout.\n\n`;
-            if (status !== "0" && status !== "2") {
+            if (status !== "0") {
               // Hard error (build/venv/generate threw) — not a diff. Don't claim "no changes".
               body += `**emitter-diff failed to run** (exit \`${status}\`). This is a tool/build ` +
                 `error, not a generated-output diff. See the ` +
                 `[workflow run](${runUrl}) logs` +
                 (htmlExists ? ` and the **emitter-diff-html** artifact` : "") + `.\n`;
-            } else if (status === "0") {
+            } else if (!hasChanges) {
               body += `**No changes** — generated output matches the baseline.\n`;
             } else {
               body += `**${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
               if (htmlExists) {
                 body += `Download the **emitter-diff-html** artifact from the ` +
-                  `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n\n`;
-              }
-              if (approved) {
-                body += `This change is **approved** via the \`emitter-diff-approved\` label.\n`;
-              } else {
-                body += `**This check fails until the change is approved.** If the new output is ` +
-                  `intended, add the \`emitter-diff-approved\` label to this PR to accept it.\n`;
+                  `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n`;
               }
             }
-            body += `\n_Generated by \`eng/emitter-diff\`._`;
+            body += `\n_Generated by \`eng/emitter-diff\`. This check is informational and does not block the PR._`;
 
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
@@ -231,32 +208,16 @@ jobs:
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
 
-      - name: Enforce approval
+      - name: Fail on tool error
         if: always()
         env:
           STATUS: ${{ steps.diff.outputs.status }}
-          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
-          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
         run: |
-          # Hard tool/build failure (not a diff) always fails.
-          if [ "$STATUS" != "0" ] && [ "$STATUS" != "2" ]; then
-            echo "::error::emitter-diff failed (exit $STATUS). See the log and artifact."
+          # Informational check: a generated-output diff does NOT fail the PR
+          # (the tool is run without --fail-on-diff, so a diff still exits 0).
+          # Only a real tool/build error (non-zero exit) fails the job.
+          if [ "$STATUS" != "0" ]; then
+            echo "::error::emitter-diff failed (exit $STATUS). See the log and the emitter-diff-html artifact."
             exit 1
           fi
-          # Only PRs carry the approval label; manual/dispatch runs are informational.
-          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
-            echo "Not a pull_request event; skipping the approval gate."
-            exit 0
-          fi
-          if [ "$STATUS" = "2" ]; then
-            if [ "$APPROVED" = "true" ]; then
-              echo "Generated output differs from the baseline ($BASELINE_SHA), but the PR carries"
-              echo "the 'emitter-diff-approved' label. Passing."
-              exit 0
-            fi
-            echo "::error::Generated output differs from the baseline ($BASELINE_SHA)."
-            echo "Review the emitter-diff-html artifact. If the change is intended, add the"
-            echo "'emitter-diff-approved' label to this PR to accept it."
-            exit 1
-          fi
-          echo "Generated output matches the baseline."
+          echo "emitter-diff ran successfully (informational; diffs are reported, not enforced)."

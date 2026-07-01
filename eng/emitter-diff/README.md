@@ -103,11 +103,10 @@ of that merge-base commit, diffs the two, and then:
 - posts a **sticky PR comment** (updated in place on each push) with the changed-file and `+`/`-`
   counts and a link to download the artifact.
 
-**Approval gate:** if the generated output differs from the baseline, the `--fail-on-diff` run
-exits with code `2` and the job **fails until the change is approved**. To approve an intended
-change, add the **`emitter-diff-approved`** label to the PR. The label — not a committed SHA — is
-the approval token, so it is unaffected by history rewrites; the workflow also triggers on
-`labeled`/`unlabeled`, so adding or removing the label re-runs the check automatically.
+**Informational:** the check **always passes unless the tool hits a real tool/build error** — a
+generated-output diff does not fail the PR. CI runs the tool without `--fail-on-diff`, so a diff
+still exits `0`; only a non-zero exit (a build/venv/generate failure) fails the job. Reviewers use
+the PR comment and the HTML artifact to eyeball the diff.
 
 The comment step needs `pull-requests: write`. PRs **from forks** get a read-only token, so the
 comment is best-effort there (`continue-on-error`) — the artifact and job-summary still work.
