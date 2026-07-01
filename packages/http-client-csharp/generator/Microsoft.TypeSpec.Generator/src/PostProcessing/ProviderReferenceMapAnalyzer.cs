@@ -703,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly);
-                    if (!publicOnly && !ShouldUseGeneratedSourceReferences(provider))
+                    if (!publicOnly)
                     {
                         AddTypeReference(references[current], GetCollectionDefinitionType(method), nodes, serializationReferenceNamesByType);
                     }
