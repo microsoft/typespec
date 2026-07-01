@@ -145,7 +145,7 @@ Once a new version of this emitter is released, follow these steps to update `az
 
 1. Follow skill [emitter-package-update](https://github.com/Azure/azure-sdk-for-python/tree/main/.github/skills/emitter-package-update) to **create a PR** to update `eng/emitter-package.json` and `eng/emitter-package-lock.json` and submit them to `azure-sdk-for-python`.
 
-4. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up PR with the updated generated files.
+4. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up issue with the updated generated files.
 
 5. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated`](https://github.com/Azure/azure-sdk-for-python/tree/typespec-python-generated-tests/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
    - `azure/` — Tests generated with the branded emitter (Azure HTTP specs)
