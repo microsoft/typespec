@@ -25,3 +25,15 @@ Scenarios.Parameters_Query_SpecialChar_dollarSign = passOnSuccess({
   },
   kind: "MockApiDefinition",
 });
+
+Scenarios.Parameters_Query_Explode_object = passOnSuccess({
+  uri: "/parameters/query/explode/object",
+  method: "get",
+  request: {
+    query: { field: "status", value: "active" },
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});

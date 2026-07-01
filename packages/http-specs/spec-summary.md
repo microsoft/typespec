@@ -1568,6 +1568,21 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
+### Parameters_Query_Explode_object
+
+- Endpoint: `get /parameters/query/explode/object`
+
+Send an object-valued query parameter using `@query(#{ explode: true })`. Per RFC 6570 form
+explode, each property of the object is expanded into its own query parameter using the property
+name as the key (the parameter name itself is not emitted).
+
+Expected query parameters:
+
+- `field` = "status"
+- `value` = "active"
+
+Expected response status code: 204
+
 ### Parameters_Query_SpecialChar_dollarSign
 
 - Endpoint: `get /parameters/query/special-char/dollar-sign`
