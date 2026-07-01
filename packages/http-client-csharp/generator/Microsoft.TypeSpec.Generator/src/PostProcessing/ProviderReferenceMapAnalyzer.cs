@@ -190,6 +190,29 @@ namespace Microsoft.TypeSpec.Generator
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
 
+            var (internalizeCandidates, publicizeCandidates, _) = GetAccessibilityCandidates(
+                providers,
+                generatedProviders,
+                graph,
+                publicGraph,
+                customPublicRoots,
+                customInternalDeclarations,
+                generatedInternalDeclarations,
+                generatedDiscriminatorBaseNames);
+
+            return (internalizeCandidates, publicizeCandidates);
+        }
+
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicizeCandidates, HashSet<string> InternalizeHelperRoots) GetAccessibilityCandidates(
+            IReadOnlyList<TypeProvider> providers,
+            IReadOnlyList<TypeProvider> generatedProviders,
+            ProviderReferenceGraph graph,
+            ProviderReferenceGraph publicGraph,
+            HashSet<string> customPublicRoots,
+            HashSet<string> customInternalDeclarations,
+            HashSet<string> generatedInternalDeclarations,
+            HashSet<string> generatedDiscriminatorBaseNames)
+        {
             var internalizeReferences = CloneReferences(publicGraph.References);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
             if (ShouldUseUnionVariantFallbackRoots())
@@ -236,7 +259,7 @@ namespace Microsoft.TypeSpec.Generator
                     HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
                 .ToHashSet(StringComparer.Ordinal);
 
-            return (internalizeCandidates, publicizeCandidates);
+            return (internalizeCandidates, publicizeCandidates, internalizeHelperRoots);
         }
 
         private static HashSet<string> GetCustomCodeGeneratedTypeRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
