@@ -117,8 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
 
-        protected override IReadOnlyList<string> BuildHelperDependencyNames() => _rawDataField != null || _additionalProperties.Value.Length > 0
-            ? ["ChangeTrackingDictionary"]
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => _rawDataField != null || _additionalProperties.Value.Length > 0
+            ? [ChangeTrackingDictionaryType]
             : [];
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()

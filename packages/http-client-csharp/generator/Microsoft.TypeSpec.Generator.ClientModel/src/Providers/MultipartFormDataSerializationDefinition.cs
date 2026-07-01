@@ -51,10 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.Multipart.cs");
         }
 
-        protected override IReadOnlyList<string> BuildHelperDependencyNames() => _model.Properties.Any(
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => _model.Properties.Any(
             prop => prop.WireInfo != null && !prop.WireInfo.IsRequired &&
                 (prop.Type is { IsCollection: true, IsReadOnlyMemory: false } || prop.Type.IsDictionary))
-            ? ["Optional"]
+            ? [OptionalType]
             : [];
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
