@@ -307,6 +307,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
         protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
 
+        protected internal virtual bool IsClientProvider => false;
+
+        protected internal virtual bool IncludeGeneratedBodyReferences => false;
+
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
         public IReadOnlyList<AttributeStatement> Attributes
