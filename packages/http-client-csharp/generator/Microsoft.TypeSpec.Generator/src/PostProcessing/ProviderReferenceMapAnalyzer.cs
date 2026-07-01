@@ -373,8 +373,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddCustomCodeViewRoots(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames, bool publicOnly)
         {
-            if (customCodeView is NamedTypeSymbolProvider)
+            if (customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider)
             {
+                AddMatchingName(roots, namedTypeSymbolProvider.MetadataSimpleName, generatedTypeNames);
                 AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames);
                 if (!publicOnly)
                 {
