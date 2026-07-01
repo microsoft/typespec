@@ -102,7 +102,6 @@ catalog:
   cspell: ^10.0.0
   debounce: ^3.0.0
   decimal.js: ^10.6.0
-  diff2html: ^3.4.48
   ecmarkup: ~23.0.2
   env-paths: ^4.0.0
   es-module-shims: ^2.8.0

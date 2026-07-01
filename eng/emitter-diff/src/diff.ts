@@ -2,10 +2,9 @@
  * Diff engine. One canonical unified patch (`git diff --no-index`) is the
  * source of truth; it is then rendered for whichever environment is in use:
  *  - terminal: colored patch + summary
- *  - CI `--html`: rendered via diff2html (optional dependency, lazily loaded)
+ *  - CI `--html`: a self-contained, GitHub-style HTML report (inline CSS, no deps)
  */
-import { readFileSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
+import { writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -120,63 +119,117 @@ export function writePatch(diff: DiffResult, outFile: string, log: Logger): void
   log.success(`Wrote unified diff to ${outFile}`);
 }
 
-const BASE_STYLE = `<style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>`;
+// Self-contained report styling. Kept inline so the HTML renders fully offline
+// (CI artifacts are downloaded and opened from disk) with zero dependencies.
+const REPORT_CSS = `
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; color: #1f2328; background: #fff; }
+.summary { padding: 12px 16px; background: #f6f8fa; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; }
+.file { border: 1px solid #d0d7de; border-radius: 6px; margin: 16px; overflow: hidden; }
+.file-header { padding: 8px 12px; background: #f6f8fa; border-bottom: 1px solid #d0d7de; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; }
+.file-header .stat .add { color: #1a7f37; }
+.file-header .stat .del { color: #cf222e; }
+pre.hunks { margin: 0; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; tab-size: 2; }
+pre.hunks span { display: block; padding: 0 12px; white-space: pre; }
+.add { background: #e6ffec; }
+.del { background: #ffebe9; }
+.hunk { background: #ddf4ff; color: #57606a; }
+.meta { color: #8c959f; }
+@media (prefers-color-scheme: dark) {
+  body { color: #e6edf3; background: #0d1117; }
+  .summary, .file-header { background: #161b22; border-color: #30363d; }
+  .file { border-color: #30363d; }
+  .add { background: #12261e; } .del { background: #25171c; } .hunk { background: #121d2f; color: #7d8590; }
+}`;
 
-/** Assemble a self-contained HTML report from a summary line and optional body. */
-function htmlDoc(summaryHtml: string, bodyHtml = "", headExtra = ""): string {
+/** HTML-escape text embedded in the report. */
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** A single file's slice of a unified patch. */
+interface FileDiff {
+  name: string;
+  insertions: number;
+  deletions: number;
+  lines: string[];
+}
+
+/** Split a unified patch into per-file groups, capturing the display name and per-file stats. */
+function splitFiles(patch: string): FileDiff[] {
+  const files: FileDiff[] = [];
+  let cur: FileDiff | undefined;
+  for (const line of patch.split("\n")) {
+    if (line.startsWith("diff --git") || line.startsWith("diff --no-index")) {
+      cur = { name: "", insertions: 0, deletions: 0, lines: [] };
+      files.push(cur);
+      continue;
+    }
+    if (!cur) continue;
+    // Prefer the post-image path (`+++ b/<name>`) for the display name.
+    if (line.startsWith("+++ ")) {
+      cur.name = line.slice(4).replace(/^b\//, "").replace(/^"|"$/g, "");
+      continue;
+    }
+    if (line.startsWith("--- ")) {
+      if (!cur.name) cur.name = line.slice(4).replace(/^a\//, "");
+      continue;
+    }
+    cur.lines.push(line);
+    if (line.startsWith("+") && !line.startsWith("+++")) cur.insertions++;
+    else if (line.startsWith("-") && !line.startsWith("---")) cur.deletions++;
+  }
+  return files.filter((f) => f.lines.some((l) => l.startsWith("@@")));
+}
+
+/** Render one file's diff lines as colored, escaped `<span>` rows. */
+function renderFileBody(lines: string[]): string {
+  const rows: string[] = [];
+  for (const line of lines) {
+    if (line.startsWith("@@")) rows.push(`<span class="hunk">${esc(line)}</span>`);
+    else if (line.startsWith("+")) rows.push(`<span class="add">${esc(line)}</span>`);
+    else if (line.startsWith("-")) rows.push(`<span class="del">${esc(line)}</span>`);
+    else if (line.startsWith("index ") || line.startsWith("new file") || line.startsWith("deleted"))
+      rows.push(`<span class="meta">${esc(line)}</span>`);
+    else rows.push(`<span>${esc(line)}</span>`);
+  }
+  return rows.join("");
+}
+
+/** Assemble the full self-contained HTML document. */
+function htmlDoc(summaryHtml: string, bodyHtml = ""): string {
   return `<!doctype html>
 <html lang="en">
-<head><meta charset="utf-8" /><title>Emitter diff</title>${headExtra}${BASE_STYLE}</head>
+<head><meta charset="utf-8" /><title>Emitter diff</title><style>${REPORT_CSS}</style></head>
 <body><div class="summary"><strong>Emitter diff</strong> &mdash; ${summaryHtml}</div>${bodyHtml}</body>
 </html>`;
 }
 
 /**
- * Render the patch to a self-contained HTML file via diff2html. diff2html is an
- * optional dependency loaded lazily so the core runs without it installed.
+ * Render the unified patch to a self-contained HTML file. The patch produced by
+ * {@link diffDirs} is the source of truth; this parses it into a GitHub-style
+ * colored diff with inline CSS, so the report has zero runtime dependencies and
+ * opens offline.
  */
-export async function writeHtml(diff: DiffResult, outFile: string, log: Logger): Promise<void> {
-  // No differences: write a small standalone report so `--html <file>` always
-  // produces a file (callers and CI artifact upload can rely on its presence).
+export function writeHtml(diff: DiffResult, outFile: string, log: Logger): void {
+  // No differences: still write a report so `--html <file>` always produces a
+  // file (callers and CI artifact upload can rely on its presence).
   if (!diff.hasChanges) {
     writeFileSync(outFile, htmlDoc("No differences between baseline and head output."), "utf8");
     log.success(`No differences; wrote empty HTML report to ${resolve(outFile)}`);
     return;
   }
 
-  // diff2html is an optional dependency, loaded lazily. Use a non-literal
-  // specifier and a local type so an aggregate typecheck that doesn't install
-  // this package's deps (e.g. the parent repo's `check:eng`, which includes
-  // `core/eng`) doesn't fail to resolve it — we validate availability at runtime.
-  type Diff2Html = { html(patch: string, options: Record<string, unknown>): string };
-  const specifier: string = "diff2html";
-  let mod: Diff2Html;
-  try {
-    mod = (await import(specifier)) as unknown as Diff2Html;
-  } catch {
-    throw new Error(
-      "Rendering --html requires the 'diff2html' package. Install it in eng/emitter-diff " +
-        "(it is declared as a dependency) or run with `pnpm` so it is available.",
-    );
-  }
-  const body = mod.html(diff.patch, {
-    drawFileList: true,
-    matching: "lines",
-    outputFormat: "side-by-side",
-  });
-  // Inline the diff2html stylesheet so the report renders fully offline (CI
-  // artifacts are downloaded and opened from disk). Never fall back to a remote
-  // CDN — the report must not fetch anything when opened locally.
-  let styleTag = "";
-  try {
-    const require = createRequire(import.meta.url);
-    const cssPath = require.resolve("diff2html/bundles/css/diff2html.min.css");
-    styleTag = `<style>${readFileSync(cssPath, "utf8")}</style>`;
-  } catch {
-    log.warn("diff2html CSS not found; the HTML report will be unstyled.");
-  }
+  const body = splitFiles(diff.patch)
+    .map((f) => {
+      const stat = `<span class="add">+${f.insertions}</span> <span class="del">-${f.deletions}</span>`;
+      return `<section class="file"><div class="file-header"><span>${esc(f.name)}</span><span class="stat">${stat}</span></div><pre class="hunks">${renderFileBody(f.lines)}</pre></section>`;
+    })
+    .join("\n");
+
   const summary = `${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}`;
-  writeFileSync(outFile, htmlDoc(summary, body, styleTag), "utf8");
+  writeFileSync(outFile, htmlDoc(summary, body), "utf8");
   const abs = resolve(outFile);
   log.success(`Wrote HTML diff to ${abs}`);
   log.info(`${color.bold("Open it:")} ${pathToFileURL(abs).href}`);

@@ -16,9 +16,6 @@
     "build": "tsc -p .",
     "typecheck": "tsc -p ."
   },
-  "dependencies": {
-    "diff2html": "catalog:"
-  },
   "devDependencies": {
     "@types/node": "catalog:",
     "tsx": "catalog:",

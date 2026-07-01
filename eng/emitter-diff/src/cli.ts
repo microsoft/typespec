@@ -46,9 +46,6 @@ ${color.bold("Options:")}
   --patch <file>          Write the raw unified diff to a file.
   --fail-on-diff          Exit non-zero when output differs (CI gating). Exit
                           code 2 means "diff present"; 1 means a hard error.
-  --run-tests             Run the adapter's test suites on the output.
-  --test-env <csv>        Suites to run (adapter-defined), e.g. test,lint,mypy.
-  --test-target <which>   head | baseline | both (default: head).
   --opt key=value         Repeatable adapter-specific option (e.g. --opt flavor=azure).
   --sequential            Generate baseline then head one at a time (default:
                           generate both in parallel with prefixed logs).
@@ -77,9 +74,6 @@ async function main(): Promise<number> {
       patch: { type: "string" },
       html: { type: "string" },
       "fail-on-diff": { type: "boolean" },
-      "run-tests": { type: "boolean" },
-      "test-env": { type: "string" },
-      "test-target": { type: "string", default: "head" },
       opt: { type: "string", multiple: true },
       sequential: { type: "boolean" },
       help: { type: "boolean", short: "h" },
@@ -136,14 +130,6 @@ async function main(): Promise<number> {
       return 2;
     }
     options[entry.slice(0, eq)] = entry.slice(eq + 1);
-  }
-
-  // Validate --test-target early so a typo fails loudly rather than silently
-  // running no suites.
-  const testTarget = values["test-target"] ?? "head";
-  if (!["head", "baseline", "both"].includes(testTarget)) {
-    log.error(`Invalid --test-target '${testTarget}'. Expected head | baseline | both.`);
-    return 2;
   }
 
   // Classify the specs ref up front (if any) so an invalid --specs fails fast,
@@ -229,32 +215,7 @@ async function main(): Promise<number> {
   }
 
   if (wantsPatch) writePatch(diff, values.patch as string, log);
-  if (htmlTarget) await writeHtml(diff, htmlTarget, log);
-
-  // Optionally run test suites.
-  if (values["run-tests"]) {
-    if (!adapter.runTests) {
-      log.warn(`Adapter '${adapter.name}' does not support --run-tests yet.`);
-    } else {
-      const envs = values["test-env"]
-        ?.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const target = testTarget;
-      const targets: Array<{ label: string; dir: string }> = [];
-      if (target === "head" || target === "both") targets.push({ label: "head", dir: headOut });
-      if (target === "baseline" || target === "both")
-        targets.push({ label: "baseline", dir: baselineOut });
-
-      for (const t of targets) {
-        log.step(`Running test suites on ${t.label} output`);
-        await adapter.runTests(
-          { outputDir: t.dir, envs, nameFilter: values.name, options, passthrough },
-          ctx,
-        );
-      }
-    }
-  }
+  if (htmlTarget) writeHtml(diff, htmlTarget, log);
 
   if (values["fail-on-diff"] && diff.hasChanges) {
     log.error("Differences detected and --fail-on-diff is set.");

@@ -288,9 +288,6 @@ catalogs:
     decimal.js:
       specifier: ^10.6.0
       version: 10.6.0
-    diff2html:
-      specifier: ^3.4.48
-      version: 3.4.56
     ecmarkup:
       specifier: ~23.0.2
       version: 23.0.2
@@ -630,10 +627,6 @@ importers:
   e2e: {}
 
   eng/emitter-diff:
-    dependencies:
-      diff2html:
-        specifier: 'catalog:'
-        version: 3.4.56
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -6375,10 +6368,6 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
-  '@profoundlogic/hogan@3.0.4':
-    resolution: {integrity: sha512-pmNVGuooS30Mm7YbZd5T7E5zYVO6D5Ct91sn4T39mUvMUc3sCGridcnhAufL1/Bz2QzAtzEn0agNrdk3+5yWzw==}
-    hasBin: true
-
   '@reflink/reflink-darwin-arm64@0.1.19':
     resolution: {integrity: sha512-ruy44Lpepdk1FqDz38vExBY/PVUsjxZA+chd9wozjUH9JjuDT/HEaQYA6wYN9mf041l0yLVar6BCZuWABJvHSA==}
     engines: {node: '>= 10'}
@@ -9118,10 +9107,6 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  diff2html@3.4.56:
-    resolution: {integrity: sha512-u9gfn+BlbHcyO7vItCIC4z49LJDUt31tODzOfAuJ5R1E7IdlRL6KjugcB9zOpejD+XiR+dDZbsnHSQ3g6A/u8A==}
-    engines: {node: '>=12'}
-
   diff@5.2.2:
     resolution: {integrity: sha512-vtcDfH3TOjP8UekytvnHH1o1P4FcUdt4eQ1Y+Abap1tk/OB2MWQvcwS2ClCd1zuIhc3JKOx6p3kod8Vfys3E+A==}
     engines: {node: '>=0.3.1'}
@@ -9931,10 +9916,6 @@ packages:
 
   highlight.js@11.0.1:
     resolution: {integrity: sha512-EqYpWyTF2s8nMfttfBA2yLKPNoZCO33pLS4MnbXQ4hECf1TKujCt1Kq7QAdrio7roL4+CqsfjqwYj4tYgq0pJQ==}
-    engines: {node: '>=12.0.0'}
-
-  highlight.js@11.11.1:
-    resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
   hosted-git-info@4.1.0:
@@ -18569,10 +18550,6 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
-  '@profoundlogic/hogan@3.0.4':
-    dependencies:
-      nopt: 1.0.10
-
   '@reflink/reflink-darwin-arm64@0.1.19':
     optional: true
 
@@ -21792,13 +21769,6 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  diff2html@3.4.56:
-    dependencies:
-      '@profoundlogic/hogan': 3.0.4
-      diff: 8.0.4
-    optionalDependencies:
-      highlight.js: 11.11.1
-
   diff@5.2.2: {}
 
   diff@8.0.4: {}
@@ -22910,9 +22880,6 @@ snapshots:
       hermes-estree: 0.25.1
 
   highlight.js@11.0.1: {}
-
-  highlight.js@11.11.1:
-    optional: true
 
   hosted-git-info@4.1.0:
     dependencies:

@@ -79,19 +79,9 @@ export interface GenerateRequest {
   logPrefix?: string;
 }
 
-export interface RunTestsRequest {
-  /** The generated output tree to run suites against. */
-  outputDir: string;
-  /** Adapter-defined suite/environment names (e.g. `test`, `lint`, `mypy`). */
-  envs?: string[];
-  nameFilter?: string;
-  options: Record<string, string>;
-  passthrough: string[];
-}
-
 /**
- * Per-language plugin. A thin wrapper over an emitter's own generate and test
- * commands. The core never reaches around this contract.
+ * Per-language plugin. A thin wrapper over an emitter's own generate command.
+ * The core never reaches around this contract.
  */
 export interface EmitterAdapter {
   /** Stable id used by `--emitter` (e.g. `python`). */
@@ -108,9 +98,6 @@ export interface EmitterAdapter {
 
   /** Generate code into `request.outputDir` using `request.emitter`. */
   generate(request: GenerateRequest, ctx: AdapterContext): Promise<void>;
-
-  /** Optional: run the emitter's test suites against an output tree. */
-  runTests?(request: RunTestsRequest, ctx: AdapterContext): Promise<void>;
 }
 
 export interface Logger {

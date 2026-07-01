@@ -2,18 +2,17 @@
  * typespec-python adapter.
  *
  * This is the only python-aware code in the tool. It satisfies the generic
- * {@link EmitterAdapter} contract by wrapping the python package's own scripts:
- *  - generation → `eng/scripts/ci/regenerate.ts` (driven with `--pluginDir`
- *    (emitter build) + `--generatedFolder` (output root) overrides so any
- *    emitter build can target any output dir).
- *  - test suites → `eng/scripts/ci/run-tests.ts` (pytest/lint/mypy/pyright...).
+ * {@link EmitterAdapter} contract by wrapping the python package's own
+ * generation script `eng/scripts/ci/regenerate.ts` (driven with `--pluginDir`
+ * (emitter build) + `--generatedFolder` (output root) overrides so any emitter
+ * build can target any output dir).
  *
  * The regenerate *driver* always comes from the current checkout; only the
  * `--pluginDir` it points at changes between baseline and head. Specs are also
  * pinned to the current checkout so the diff isolates emitter behavior rather
  * than driver/spec differences.
  */
-import { cpSync, existsSync, rmSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 
 import { describeRef } from "../resolver.js";
@@ -23,7 +22,6 @@ import type {
   EmitterAdapter,
   GenerateRequest,
   ResolvedEmitter,
-  RunTestsRequest,
 } from "../types.js";
 import { run, runChecked } from "../util.js";
 
@@ -185,34 +183,6 @@ export const pythonAdapter: EmitterAdapter = {
 
     ctx.log.step(`Generating with ${request.emitter.label} → ${request.outputDir}`);
     await runScript(ctx, "eng/scripts/ci/regenerate.ts", args, { prefix: request.logPrefix });
-  },
-
-  async runTests(request: RunTestsRequest, ctx: AdapterContext): Promise<void> {
-    // The python test harness is wired to <package>/tests/generated. The diff
-    // tool's output dir holds the generated tree under `tests/generated`
-    // (see generate()), so sync that subtree there, then run the runner.
-    const generatedRoot = join(pkgDir(ctx), "tests", "generated");
-    const source = firstExisting([
-      join(request.outputDir, "tests", "generated"),
-      request.outputDir,
-    ])!;
-    ctx.log.step(`Syncing ${source} into ${generatedRoot} for test run`);
-    rmSync(generatedRoot, { recursive: true, force: true });
-    cpSync(source, generatedRoot, { recursive: true });
-
-    // `--generator` runs the suites against the generated packages (as opposed
-    // to the emitter's own unit tests).
-    const args: string[] = ["--generator"];
-    if (request.envs && request.envs.length > 0) {
-      args.push("--env", request.envs.join(","));
-    }
-    const flavor = request.options.flavor;
-    if (flavor) args.push("--flavor", flavor);
-    if (request.nameFilter) args.push("--name", request.nameFilter);
-    args.push(...request.passthrough);
-
-    ctx.log.step("Running python test suites");
-    await runScript(ctx, "eng/scripts/ci/run-tests.ts", args);
   },
 };
 
