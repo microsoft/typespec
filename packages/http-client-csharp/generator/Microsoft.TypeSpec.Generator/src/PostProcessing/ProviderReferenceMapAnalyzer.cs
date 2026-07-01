@@ -101,54 +101,15 @@ namespace Microsoft.TypeSpec.Generator
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
             var generatedDiscriminatorBaseNames = GetGeneratedPersistableModelProxyTypeNames(project, publicGraph.Nodes);
             AddGeneratedXmlDocCrefReferences(project, publicGraph, publicOnly: true);
-            var internalizeReferences = CloneReferences(publicGraph.References);
-            var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
-            if (ShouldUseUnionVariantFallbackRoots())
-            {
-                AddUnionVariantRoots(internalizeRoots, providers, graph.Nodes);
-            }
-            var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
-            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
-            internalizeRoots.UnionWith(customPublicRoots);
-            var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
-            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, internalizeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
-            internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
-            var publicizeRoots = internalizeRoots.ToHashSet(StringComparer.Ordinal);
-            var internalizeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, internalizeReachableWithoutHelpers);
-            internalizeRoots.UnionWith(internalizeHelperRoots);
-            var internalizeReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
-            var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
-            var customInternalBoundaryNodes = graph.Nodes
-                .Where(name => publicGraph.References.TryGetValue(name, out var references) && references.Overlaps(customInternalDeclarations))
-                .ToHashSet(StringComparer.Ordinal);
-            var publicizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: false)
-                .Except(internalizeDeclaredNodes, StringComparer.Ordinal);
-            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedInternalDeclarations).ToHashSet(StringComparer.Ordinal);
-            var publicApiTraversalNodes = internalizeDeclaredNodes
-                .Except(generatedInternalDeclarations, StringComparer.Ordinal)
-                .Concat(publicizeDeclaredNodes)
-                .Except(generatedImplementationInternalDeclarations, StringComparer.Ordinal)
-                .ToHashSet(StringComparer.Ordinal);
-            var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
-            var internalizeCandidates = internalizeDeclaredNodes
-                .Except(publicizeReachable, StringComparer.Ordinal)
-                .Union(internalizeDeclaredNodes
-                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
-                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
-                .OrderBy(static name => name, StringComparer.Ordinal)
-                .ToArray();
-            var publicizeCandidates = publicizeDeclaredNodes
-                .Except(customInternalDeclarations, StringComparer.Ordinal)
-                .Except(customInternalBoundaryNodes, StringComparer.Ordinal)
-                .Except(internalizeHelperRoots, StringComparer.Ordinal)
-                .Except(GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true), StringComparer.Ordinal)
-                .Intersect(publicizeReachable, StringComparer.Ordinal)
-                // Preserve generated types that the last contract already made internal unless a public API/custom root explicitly requires them.
-                .Where(name => !generatedInternalDeclarations.Contains(name) || publicizeRoots.Contains(name))
-                .Where(name => publicizeRoots.Contains(name) ||
-                    HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
-                .OrderBy(static name => name, StringComparer.Ordinal)
-                .ToArray();
+            var (internalizeCandidates, publicizeCandidates, internalizeHelperRoots) = GetAccessibilityCandidates(
+                providers,
+                generatedProviders,
+                graph,
+                publicGraph,
+                customPublicRoots,
+                customInternalDeclarations,
+                generatedInternalDeclarations,
+                generatedDiscriminatorBaseNames);
 
             // Body-only generated dependencies are intentionally added after public reachability is
             // computed: they keep helper files from being removed but must not force public API types
@@ -180,8 +141,8 @@ namespace Microsoft.TypeSpec.Generator
 
             _latestResult = new ProviderReferenceMapResult(
                 project.Id,
-                internalizeCandidates.ToHashSet(StringComparer.Ordinal),
-                publicizeCandidates.ToHashSet(StringComparer.Ordinal),
+                internalizeCandidates,
+                publicizeCandidates,
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
         }
 
@@ -200,6 +161,29 @@ namespace Microsoft.TypeSpec.Generator
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
 
+            var (internalizeCandidates, publicizeCandidates, _) = GetAccessibilityCandidates(
+                providers,
+                generatedProviders,
+                graph,
+                publicGraph,
+                customPublicRoots,
+                customInternalDeclarations,
+                generatedInternalDeclarations,
+                generatedDiscriminatorBaseNames);
+
+            return (internalizeCandidates, publicizeCandidates);
+        }
+
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicizeCandidates, HashSet<string> InternalizeHelperRoots) GetAccessibilityCandidates(
+            IReadOnlyList<TypeProvider> providers,
+            IReadOnlyList<TypeProvider> generatedProviders,
+            ProviderReferenceGraph graph,
+            ProviderReferenceGraph publicGraph,
+            HashSet<string> customPublicRoots,
+            HashSet<string> customInternalDeclarations,
+            HashSet<string> generatedInternalDeclarations,
+            HashSet<string> generatedDiscriminatorBaseNames)
+        {
             var internalizeReferences = CloneReferences(publicGraph.References);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
             if (ShouldUseUnionVariantFallbackRoots())
@@ -246,7 +230,7 @@ namespace Microsoft.TypeSpec.Generator
                     HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
                 .ToHashSet(StringComparer.Ordinal);
 
-            return (internalizeCandidates, publicizeCandidates);
+            return (internalizeCandidates, publicizeCandidates, internalizeHelperRoots);
         }
 
         private static HashSet<string> GetCustomCodeGeneratedTypeRoots(Project project, HashSet<string> generatedTypeNames)
