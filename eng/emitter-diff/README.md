@@ -47,6 +47,9 @@ npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0
 
 `--head` defaults to the **current checkout**. `--specs` defaults to **all** repo specs.
 
+> `--baseline`/`--head` accept all three ref kinds. `--specs` accepts **local** or **github**
+> refs only (npm versions aren't a valid spec source) — an `npm:` spec ref is rejected.
+
 ### Common options
 
 By default the tool writes a **clickable HTML report** (`emitter-diff.html`) into the work dir and
@@ -89,7 +92,7 @@ npx tsx eng/emitter-diff/src/cli.ts --emitter python \
 # Diff against a GitHub sha and run pytest + type checks on the head output:
 npx tsx eng/emitter-diff/src/cli.ts --emitter python \
   --baseline github:microsoft/typespec@ \
-  test,mypy,pyright --opt flavor=azure --run-tests < sha > --test-env
+  flavor=azure --run-tests --test-env test,mypy,pyright < sha > --opt
 ```
 
 ## Viewing the diff in VS Code
@@ -164,7 +167,8 @@ comment is best-effort there (`continue-on-error`) — the artifact and job-summ
    wrapping that emitter's own commands (e.g. rust's `npm run tspcompile`, ts's `gen-spector`).
 2. Register it in `src/registry.ts`.
 
-The core needs no changes.
+That's the only wiring needed — the orchestrator, ref resolver, and diff engine are
+language-agnostic and require no changes.
 
 ## Notes & limitations
 

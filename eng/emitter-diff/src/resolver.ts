@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
 import type { ClassifiedRef, Logger } from "./types.js";
-import { ensureDir, runChecked } from "./util.js";
+import { ensureDir, run, runChecked } from "./util.js";
 
 /**
  * Classify a ref string. Explicit prefixes (`npm:`, `local:`, `github:`,
@@ -96,6 +96,7 @@ export async function resolveSource(
   ref: ClassifiedRef,
   workDir: string,
   log: Logger,
+  repoRoot?: string,
 ): Promise<string> {
   if (ref.kind === "local") {
     if (!ref.path || !existsSync(ref.path)) {
@@ -104,13 +105,22 @@ export async function resolveSource(
     return ref.path;
   }
   if (ref.kind === "github") {
-    return cloneGithub(ref, workDir, log);
+    return cloneGithub(ref, workDir, log, repoRoot);
   }
   throw new Error(`resolveSource cannot handle npm refs directly (ref: ${ref.raw})`);
 }
 
-async function cloneGithub(ref: ClassifiedRef, workDir: string, log: Logger): Promise<string> {
-  const repo = ref.repo ?? DEFAULT_REPO;
+async function cloneGithub(
+  ref: ClassifiedRef,
+  workDir: string,
+  log: Logger,
+  repoRoot?: string,
+): Promise<string> {
+  // `gh:<ref>` (and any github ref without an explicit repo) means "this repo".
+  // Detect the current repo from its origin remote so forks/renames resolve
+  // correctly, falling back to the well-known repo only if detection fails.
+  const repo =
+    ref.repo ?? (repoRoot ? await detectOriginRepo(repoRoot) : undefined) ?? DEFAULT_REPO;
   const gitRef = ref.gitRef ?? "main";
   const dest = ensureDir(join(workDir, `github-${repo.replace(/[/]/g, "_")}-${sanitize(gitRef)}`));
   const cloneUrl = `https://github.com/${repo}.git`;
@@ -122,14 +132,25 @@ async function cloneGithub(ref: ClassifiedRef, workDir: string, log: Logger): Pr
   const fetched = await runChecked("git", ["fetch", "--depth", "1", "origin", gitRef], {
     cwd: dest,
   }).catch(() => undefined);
-  if (!fetched) {
-    // SHA not directly fetchable on some servers; fall back to a full fetch.
+  if (fetched) {
+    // The targeted fetch put the requested ref at FETCH_HEAD.
+    await runChecked("git", ["checkout", "-q", "FETCH_HEAD"], { cwd: dest });
+  } else {
+    // Some servers won't fetch a bare SHA directly; do a full fetch and then
+    // check the ref out by name (NOT FETCH_HEAD, which after a full fetch with
+    // no refspec may point at a branch head rather than the requested commit).
     await runChecked("git", ["fetch", "origin"], { cwd: dest });
-  }
-  await runChecked("git", ["checkout", "-q", "FETCH_HEAD"], { cwd: dest }).catch(async () => {
     await runChecked("git", ["checkout", "-q", gitRef], { cwd: dest });
-  });
+  }
   return dest;
+}
+
+/** Parse `owner/repo` from the current checkout's origin remote, if it is a GitHub remote. */
+async function detectOriginRepo(repoRoot: string): Promise<string | undefined> {
+  const res = await run("git", ["-C", repoRoot, "remote", "get-url", "origin"]);
+  if (res.code !== 0) return undefined;
+  const m = res.stdout.trim().match(/github\.com[:/]([^/]+)\/(.+?)(?:\.git)?$/i);
+  return m ? `${m[1]}/${m[2]}` : undefined;
 }
 
 /**

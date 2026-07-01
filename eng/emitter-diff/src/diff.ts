@@ -5,7 +5,8 @@
  *  - local `--open`: VS Code folder diff
  *  - CI `--html`: rendered via diff2html (optional dependency, lazily loaded)
  */
-import { cpSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { basename, dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -125,6 +126,21 @@ export function writePatch(diff: DiffResult, outFile: string, log: Logger): void
  * optional dependency loaded lazily so the core runs without it installed.
  */
 export async function writeHtml(diff: DiffResult, outFile: string, log: Logger): Promise<void> {
+  // No differences: write a small standalone report so `--html <file>` always
+  // produces a file (callers and CI artifact upload can rely on its presence).
+  if (!diff.hasChanges) {
+    const doc = `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Emitter diff</title>
+<style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>
+</head>
+<body><div class="summary"><strong>Emitter diff</strong> — ✅ No differences between baseline and head output.</div></body>
+</html>`;
+    writeFileSync(outFile, doc, "utf8");
+    log.success(`No differences; wrote empty HTML report to ${resolve(outFile)}`);
+    return;
+  }
+
   // diff2html is an optional dependency, loaded lazily. Use a non-literal
   // specifier and a local type so an aggregate typecheck that doesn't install
   // this package's deps (e.g. the parent repo's `check:eng`, which includes
@@ -145,12 +161,23 @@ export async function writeHtml(diff: DiffResult, outFile: string, log: Logger):
     matching: "lines",
     outputFormat: "side-by-side",
   });
+  // Inline the diff2html stylesheet so the report renders offline (CI artifacts
+  // are downloaded and opened from disk). Fall back to the CDN link if the
+  // bundled CSS can't be located.
+  let styleTag: string;
+  try {
+    const require = createRequire(import.meta.url);
+    const cssPath = require.resolve("diff2html/bundles/css/diff2html.min.css");
+    styleTag = `<style>${readFileSync(cssPath, "utf8")}</style>`;
+  } catch {
+    styleTag = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />`;
+  }
   const doc = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <title>Emitter diff</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+${styleTag}
 <style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>
 </head>
 <body>

@@ -146,6 +146,24 @@ export const pythonAdapter: EmitterAdapter = {
     if (httpSpecs) args.push("--httpSpecsDir", httpSpecs);
     if (azureSpecs) args.push("--azureSpecsDir", azureSpecs);
 
+    // When the user explicitly pinned specs, warn (rather than silently falling
+    // back to the current checkout's specs) if the expected layout wasn't found.
+    if (request.specsDir) {
+      if (!httpSpecs) {
+        ctx.log.warn(
+          `--specs was given (${request.specsDir}) but no http-specs dir was found under it ` +
+            `(looked for http-specs/specs, packages/http-specs/specs, specs/). Falling back to defaults.`,
+        );
+      }
+      if ((flavor === undefined || flavor === "azure") && !azureSpecs) {
+        ctx.log.warn(
+          `--specs was given (${request.specsDir}) but no azure-http-specs dir was found under it ` +
+            `(looked for azure-http-specs/specs, packages/azure-http-specs/specs, azure/specs). ` +
+            `Azure specs will use the current checkout's dependency.`,
+        );
+      }
+    }
+
     args.push(...request.passthrough);
 
     ctx.log.step(`Generating with ${request.emitter.label} → ${request.outputDir}`);
@@ -199,6 +217,7 @@ function resolveHttpSpecs(request: GenerateRequest, ctx: AdapterContext): string
   if (request.specsDir) {
     return firstExisting([
       join(request.specsDir, "http-specs", "specs"),
+      join(request.specsDir, "packages", "http-specs", "specs"),
       join(request.specsDir, "specs"),
       request.specsDir,
     ]);
@@ -210,6 +229,7 @@ function resolveAzureSpecs(request: GenerateRequest, ctx: AdapterContext): strin
   if (request.specsDir) {
     return firstExisting([
       join(request.specsDir, "azure-http-specs", "specs"),
+      join(request.specsDir, "packages", "azure-http-specs", "specs"),
       join(request.specsDir, "azure", "specs"),
     ]);
   }

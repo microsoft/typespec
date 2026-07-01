@@ -1,7 +1,8 @@
 name: "python / emitter diff"
 
-# Generates code with the current checkout's emitter and with the PR's base
-# commit, then diffs the two. The rendered HTML diff is uploaded as a per-PR
+# Generates code with the current checkout's emitter and with the approved
+# baseline emitter (the commit SHA in eng/emitter-diff/baselines/python.sha),
+# then diffs the two. The rendered HTML diff is uploaded as a per-PR
 # artifact, and a sticky PR comment summarizes the changed files (+/-) with a
 # link to download it, so reviewers can see exactly how an emitter change
 # affects generated SDKs. Powered by the language-agnostic eng/emitter-diff tool.

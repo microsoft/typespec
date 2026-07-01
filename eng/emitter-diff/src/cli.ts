@@ -121,7 +121,7 @@ async function main(): Promise<number> {
     repoRoot,
     workDir,
     log,
-    resolveSource: (ref, _packageName) => resolveSrc(ref, workDir, log),
+    resolveSource: (ref, _packageName) => resolveSrc(ref, workDir, log, repoRoot),
     installNpmPackage: (packageName, version) => installNpm(packageName, version, workDir, log),
   };
 
@@ -134,6 +134,14 @@ async function main(): Promise<number> {
       return 2;
     }
     options[entry.slice(0, eq)] = entry.slice(eq + 1);
+  }
+
+  // Validate --test-target early so a typo fails loudly rather than silently
+  // running no suites.
+  const testTarget = values["test-target"] ?? "head";
+  if (!["head", "baseline", "both"].includes(testTarget)) {
+    log.error(`Invalid --test-target '${testTarget}'. Expected head | baseline | both.`);
+    return 2;
   }
 
   // Resolve emitters.
@@ -155,7 +163,7 @@ async function main(): Promise<number> {
       log.error("--specs as an npm version is not supported; use a local folder or github ref.");
       return 2;
     }
-    specsDir = await resolveSrc(specsRef, workDir, log);
+    specsDir = await resolveSrc(specsRef, workDir, log, repoRoot);
   }
 
   // Generate both sides. By default baseline and head generate concurrently
@@ -217,7 +225,7 @@ async function main(): Promise<number> {
   }
 
   if (wantsPatch) writePatch(diff, values.patch as string, log);
-  if (htmlTarget && diff.hasChanges) await writeHtml(diff, htmlTarget, log);
+  if (htmlTarget) await writeHtml(diff, htmlTarget, log);
   if (wantsVsCode) await openInVsCode(baselineOut, headOut, workDir, log);
 
   // Optionally run test suites.
@@ -229,7 +237,7 @@ async function main(): Promise<number> {
         ?.split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      const target = values["test-target"] ?? "head";
+      const target = testTarget;
       const targets: Array<{ label: string; dir: string }> = [];
       if (target === "head" || target === "both") targets.push({ label: "head", dir: headOut });
       if (target === "baseline" || target === "both")
