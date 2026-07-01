@@ -145,9 +145,9 @@ Once a new version of this emitter is released, follow these steps to update `az
 
 1. Follow skill [emitter-package-update](https://github.com/Azure/azure-sdk-for-python/tree/main/.github/skills/emitter-package-update) to **create a PR** to update `eng/emitter-package.json` and `eng/emitter-package-lock.json` and submit them to `azure-sdk-for-python`.
 
-4. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up issue with the updated generated files.
+2. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up issue with the updated generated files.
 
-5. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated`](https://github.com/Azure/azure-sdk-for-python/tree/typespec-python-generated-tests/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
+3. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated`](https://github.com/Azure/azure-sdk-for-python/tree/typespec-python-generated-tests/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
    - `azure/` — Tests generated with the branded emitter (Azure HTTP specs)
    - `unbranded/` — Tests generated with the unbranded emitter (HTTP specs)
 
@@ -167,12 +167,14 @@ This consumes all pending change files under `.chronus/changes/` for this packag
 
 ### 2. Create a Release PR
 
-Create a branch from the version bump commit and open a PR to `main`:
+Create a branch from the version bump commit, push it, and open a PR to `main`:
 
 ```bash
 git checkout -b publish/python-release-<MM-DD>
 git push origin publish/python-release-<MM-DD>
 ```
+
+Then open a pull request targeting `main` (for example, via the GitHub UI or `gh pr create --base main`).
 
 > **Note:** The branch **must** use the `publish/` prefix. This tells CI to skip certain checks (consistency, external-integration) and enables auto-publish on merge.
 
