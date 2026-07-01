@@ -6,7 +6,7 @@
  * and diffs the output. All language specifics live behind the selected adapter;
  * this file contains zero language logic.
  */
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
 import { diffDirs, openInVsCode, printDiff, printSummary, writeHtml, writePatch } from "./diff.js";
@@ -114,7 +114,14 @@ async function main(): Promise<number> {
   // Repo root = current git working tree.
   const repoRoot = (await runChecked("git", ["rev-parse", "--show-toplevel"])).stdout.trim();
 
-  const workDir = ensureDir(values["work-dir"] ? join(values["work-dir"]) : defaultWorkDir());
+  // Absolutize the work dir. Adapters may run emitter scripts with a different
+  // cwd (python's regenerate.ts runs in packages/http-client-python), so every
+  // path handed to them — the resolved emitter dir and the baseline/head output
+  // dirs — must be absolute or outputs land in the wrong tree and the diff is
+  // silently empty (a false "no differences").
+  const workDir = ensureDir(
+    values["work-dir"] ? resolve(values["work-dir"]) : defaultWorkDir(),
+  );
   log.info(`${color.dim("work dir:")} ${workDir}`);
 
   const ctx: AdapterContext = {
@@ -144,6 +151,17 @@ async function main(): Promise<number> {
     return 2;
   }
 
+  // Classify the specs ref up front (if any) so an invalid --specs fails fast,
+  // before the expensive emitter builds. `all`/omitted => adapter default.
+  let specsRef: ClassifiedRef | undefined;
+  if (values.specs && values.specs.toLowerCase() !== "all") {
+    specsRef = classifyRef(values.specs, repoRoot);
+    if (specsRef.kind === "npm") {
+      log.error("--specs as an npm version is not supported; use a local folder or github ref.");
+      return 2;
+    }
+  }
+
   // Resolve emitters.
   const baselineRef = classifyRef(values.baseline, repoRoot);
   const headRef: ClassifiedRef | "current" = values.head
@@ -155,14 +173,9 @@ async function main(): Promise<number> {
   log.step("Preparing head emitter");
   const headEmitter = await adapter.prepareEmitter(headRef, ctx);
 
-  // Resolve specs source (local/github). `all`/omitted => adapter default (repo).
+  // Materialize the specs source now that emitters are ready.
   let specsDir: string | undefined;
-  if (values.specs && values.specs.toLowerCase() !== "all") {
-    const specsRef = classifyRef(values.specs, repoRoot);
-    if (specsRef.kind === "npm") {
-      log.error("--specs as an npm version is not supported; use a local folder or github ref.");
-      return 2;
-    }
+  if (specsRef) {
     specsDir = await resolveSrc(specsRef, workDir, log, repoRoot);
   }
 

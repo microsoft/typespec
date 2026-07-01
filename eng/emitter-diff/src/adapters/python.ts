@@ -54,12 +54,29 @@ async function isBuilt(dir: string): Promise<boolean> {
   return existsSync(join(dir, "dist", "emitter", "index.js"));
 }
 
+/**
+ * Ensure the package's npm dependencies are installed. A fresh source checkout
+ * (a github clone or a bare local path) has no `node_modules`, so `npm run
+ * build` would fail to resolve its types/deps. http-client-python is
+ * npm-managed (it ships its own package-lock.json), so `npm ci` here is safe.
+ */
+async function ensureDeps(dir: string, ctx: AdapterContext): Promise<void> {
+  if (existsSync(join(dir, "node_modules"))) return;
+  ctx.log.warn(`No node_modules at ${dir}; installing dependencies (npm ci)...`);
+  const res = await run("npm", ["ci"], { cwd: dir, inherit: true });
+  if (res.code !== 0 || !existsSync(join(dir, "node_modules"))) {
+    throw new Error(
+      `Could not install dependencies at ${dir} (npm ci). Run \`npm ci\` there manually and retry.`,
+    );
+  }
+}
+
 async function ensureBuilt(dir: string, ctx: AdapterContext): Promise<void> {
   if (await isBuilt(dir)) return;
+  // A source checkout may not have its deps installed yet; install them first
+  // so the build can resolve modules/types.
+  await ensureDeps(dir, ctx);
   ctx.log.warn(`Emitter at ${dir} is not built; attempting build...`);
-  // Best-effort build. http-client-python is npm-managed (its own
-  // package-lock.json); building an arbitrary source checkout may require a
-  // prior `npm ci`, so surface a clear error if it fails.
   const res = await run("npm", ["run", "build"], { cwd: dir, inherit: true });
   if (res.code !== 0 || !(await isBuilt(dir))) {
     throw new Error(
