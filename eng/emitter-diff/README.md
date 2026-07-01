@@ -1,4 +1,4 @@
-# @typespec/emitter-diff
+# emitter-diff
 
 A language-agnostic tool for **diffing the generated code produced by two versions of a
 TypeSpec emitter**.
@@ -28,12 +28,12 @@ contains no language-specific logic.
 ## Usage
 
 ```bash
-# From the repo root, via pnpm:
-pnpm --filter @typespec/emitter-diff exec tsx src/cli.ts --emitter python --baseline 0.34.0
-
-# Or directly with Node 22+ (native TS):
-npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0
+# Run directly with Node 24+ (native TypeScript, no build step, no dependencies):
+node eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0
 ```
+
+> This tool is a set of plain `.ts` scripts — not an installed package. Node 24 runs TypeScript
+> natively, so there is nothing to build or install. Typecheck with `npx tsc -p eng/emitter-diff`.
 
 ### Refs (`--baseline`, `--head`, `--specs`)
 
@@ -70,17 +70,17 @@ prints a `file://` link to it. Use `--terminal` for the full patch in your shell
 
 ```bash
 # Default: writes a clickable emitter-diff.html and prints a file:// link.
-npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 \
+node eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 \
   --opt flavor=azure --name authentication-api-key
 
 # Compare two source folders and write an HTML report to a specific path:
-npx tsx eng/emitter-diff/src/cli.ts --emitter python \
+node eng/emitter-diff/src/cli.ts --emitter python \
   --baseline local:/path/to/old/http-client-python \
   --head local:/path/to/new/http-client-python \
   --html diff.html
 
 # Diff against a GitHub sha:
-npx tsx eng/emitter-diff/src/cli.ts --emitter python \
+node eng/emitter-diff/src/cli.ts --emitter python \
   --baseline github:microsoft/typespec@ flavor=azure < sha > --opt
 ```
 

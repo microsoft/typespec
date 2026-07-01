@@ -626,18 +626,6 @@ importers:
 
   e2e: {}
 
-  eng/emitter-diff:
-    devDependencies:
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.0.0
-      tsx:
-        specifier: 'catalog:'
-        version: 4.22.4
-      typescript:
-        specifier: 'catalog:'
-        version: 6.0.3
-
   packages/asset-emitter:
     devDependencies:
       '@types/node':

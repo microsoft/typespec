@@ -105,14 +105,11 @@ jobs:
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           set +e
-          # Run via plain (non-recursive) `pnpm exec` so the tool's real exit code
-          # propagates. `pnpm --filter <pkg> exec` collapses any non-zero child exit
-          # into pnpm's own generic exit 1 (ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL),
-          # which would mask the "diff present" code (2) as a hard error (1).
-          # No `--fail-on-diff`: this check is informational and never fails on a
-          # diff. A real tool/build error still surfaces via a non-zero exit code
-          # (checked in the "Fail on tool error" step below).
-          pnpm exec tsx src/cli.ts \
+          # Run with plain `node` (Node 24 runs TypeScript natively) so the tool's
+          # real exit code propagates. No `--fail-on-diff`: this check is
+          # informational and never fails on a diff. A real tool/build error still
+          # surfaces via a non-zero exit code (checked in "Fail on tool error").
+          node src/cli.ts \
             --emitter python \
             --baseline "$BASELINE_REF" \
             --work-dir "$RUNNER_TEMP/emitter-diff" \

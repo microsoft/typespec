@@ -1,6 +1,5 @@
 packages:
   - packages/*
-  - eng/emitter-diff
   - e2e
   - website
   - "!packages/http-client-csharp/**"

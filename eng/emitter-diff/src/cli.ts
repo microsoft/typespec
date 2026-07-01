@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S node
 /**
  * emitter-diff — language-agnostic CLI.
  *
@@ -9,16 +9,16 @@
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { diffDirs, printDiff, printSummary, writeHtml, writePatch } from "./diff.js";
-import { getAdapter, listAdapters } from "./registry.js";
+import { diffDirs, printDiff, printSummary, writeHtml, writePatch } from "./diff.ts";
+import { getAdapter, listAdapters } from "./registry.ts";
 import {
   classifyRef,
   defaultWorkDir,
   installNpmPackage as installNpm,
   resolveSource as resolveSrc,
-} from "./resolver.js";
-import type { AdapterContext, ClassifiedRef } from "./types.js";
-import { color, createLogger, ensureDir, runChecked } from "./util.js";
+} from "./resolver.ts";
+import type { AdapterContext, ClassifiedRef } from "./types.ts";
+import { color, createLogger, ensureDir, runChecked } from "./util.ts";
 
 const HELP = `${color.bold("emitter-diff")} — diff generated code across emitter versions
 

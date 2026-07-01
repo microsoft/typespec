@@ -8,8 +8,8 @@ import { writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import type { Logger } from "./types.js";
-import { color, run } from "./util.js";
+import type { Logger } from "./types.ts";
+import { color, run } from "./util.ts";
 
 export interface DiffResult {
   /** The unified patch text (empty when there are no differences). */

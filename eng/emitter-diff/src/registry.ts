@@ -1,6 +1,6 @@
 /** Adapter registry. New languages register here; the core is otherwise agnostic. */
-import { pythonAdapter } from "./adapters/python.js";
-import type { EmitterAdapter } from "./types.js";
+import { pythonAdapter } from "./adapters/python.ts";
+import type { EmitterAdapter } from "./types.ts";
 
 const adapters: Record<string, EmitterAdapter> = {
   [pythonAdapter.name]: pythonAdapter,
