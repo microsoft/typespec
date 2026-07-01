@@ -3,8 +3,8 @@ name: "python / emitter diff"
 # Generates code with the current checkout's emitter and with the approved
 # baseline emitter (the commit SHA in eng/emitter-diff/baselines/python.sha),
 # then diffs the two. The rendered HTML diff is uploaded as a per-PR
-# artifact, and a sticky PR comment summarizes the changed files (+/-) with a
-# link to download it, so reviewers can see exactly how an emitter change
+# artifact, and a sticky PR comment summarizes the change (file count, +/-)
+# with a link to download it, so reviewers can see exactly how an emitter change
 # affects generated SDKs. Powered by the language-agnostic eng/emitter-diff tool.
 #
 # Python's generator uses a native two-phase pipeline (TypeSpec emits YAML, then
@@ -176,11 +176,6 @@ jobs:
               body += `✅ **No changes** — generated output matches the approved baseline.\n`;
             } else {
               body += `❌ **${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
-              const shown = files.slice(0, 50);
-              body += `<details><summary>Changed files</summary>\n\n` +
-                shown.map((f) => `- \`${f}\``).join("\n") +
-                (files.length > shown.length ? `\n- …and ${files.length - shown.length} more` : "") +
-                `\n</details>\n\n`;
               if (htmlExists) {
                 body += `📄 Download the **emitter-diff-html** artifact from the ` +
                   `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n\n`;
