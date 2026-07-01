@@ -15,7 +15,7 @@ Welcome! This guide will help you set up your development environment and contri
 
 Before you begin, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 18 or higher)
+- [Node.js](https://nodejs.org/) (version 22 or higher)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
 - [pnpm](https://pnpm.io/) (for workspace management)
 - [Git](https://git-scm.com/)
@@ -113,7 +113,7 @@ Before creating a pull request:
 - [ ] Ensure code is properly formatted: `npm run format`
 - [ ] Ensure code is properly linted: `npm run lint`
 - [ ] Add a changeset: `pnpm change add` (from repo root)
-- [ ] Update documentation if needed
+- [ ] Update documentation if needed (if you changed emitter options in `lib.ts`, run `npm run build && npm run regen-docs` — see [Updating Emitter Option Documentation](#updating-emitter-option-documentation))
 
 ### 2. Create the PR
 
