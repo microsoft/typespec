@@ -17,17 +17,11 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string ConfigurationFileName = "Configuration.json";
         private const string CodeModelFileName = "tspCodeModel.json";
-        private const string RawRequestUriBuilderExtensionsFileName = "RawRequestUriBuilderExtensions.cs";
-        private const string SerializationFormatFileName = "SerializationFormat.cs";
-        private const string TypeFormattersFileName = "TypeFormatters.cs";
 
         private static readonly string[] _filesToKeep =
         [
             ConfigurationFileName,
-            CodeModelFileName,
-            RawRequestUriBuilderExtensionsFileName,
-            SerializationFormatFileName,
-            TypeFormattersFileName
+            CodeModelFileName
         ];
 
         /// <summary>
@@ -42,8 +36,8 @@ namespace Microsoft.TypeSpec.Generator
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
-            // Resolve PackageReference items from the .csproj so custom code referencing
-            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
+            // Resolve PackageReference items from the .csproj so custom code referencing external
+            // NuGet types compiles correctly.
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             // Pre-walk the input library and resolve any external types that point at NuGet packages.
@@ -131,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
             // Delete any old generated files
-            DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+            DeleteDirectory(generatedSourceOutputPath, GetFilesToKeep());
 
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
@@ -203,6 +197,32 @@ namespace Microsoft.TypeSpec.Generator
                 typeProvider.Fields);
         }
 
+        private static string[] GetFilesToKeep()
+        {
+            // Preserve generator-registered keep types generically; language-specific generators can
+            // opt in through AddTypeToKeep without MTG hardcoding their helper file names.
+            return _filesToKeep
+                .Concat(
+                    CodeModelGenerator.Instance.AdditionalRootTypes
+                        .Concat(CodeModelGenerator.Instance.NonRootTypes)
+                        .Select(GetFileNameForType))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+        }
+
+        private static string GetFileNameForType(string typeName)
+        {
+            var simpleNameStart = typeName.LastIndexOf('.') + 1;
+            var simpleName = simpleNameStart > 0 ? typeName[simpleNameStart..] : typeName;
+            var genericArityStart = simpleName.IndexOf('`');
+            if (genericArityStart >= 0)
+            {
+                simpleName = simpleName[..genericArityStart];
+            }
+
+            return simpleName.EndsWith(".cs", StringComparison.Ordinal) ? simpleName : $"{simpleName}.cs";
+        }
+
         /// <summary>
         /// Clears the output directory specified by <paramref name="path"/>. If <paramref name="filesToKeep"/> is not null,
         /// the specified files in the output directory will not be deleted.
@@ -217,9 +237,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            var fileNamesToKeep = filesToKeep.ToHashSet(StringComparer.Ordinal);
             foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
             {
-                if (!filesToKeep.Contains(file.Name))
+                if (!fileNamesToKeep.Contains(file.Name))
                 {
                     file.Delete();
                 }

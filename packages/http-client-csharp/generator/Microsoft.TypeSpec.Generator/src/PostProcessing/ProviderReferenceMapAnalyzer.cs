@@ -1231,8 +1231,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool ShouldUseGeneratedSourceReferences(TypeProvider provider) =>
-            CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
-            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
+            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal) &&
+            provider.BodyDependencyTypes.Count == 0;
 
         private static void AddGeneratedXmlDocCrefReferences(Project project, ProviderReferenceGraph graph, bool publicOnly)
         {
@@ -1468,7 +1468,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool ShouldUseUnionVariantFallbackRoots() =>
-            !CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
+            !HasApiBaselineDirectory() &&
             CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
         private static bool IsImplementationOnlyModelFactoryMethod(MethodProvider method)
