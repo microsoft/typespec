@@ -196,6 +196,13 @@ async function main(): Promise<number> {
     await adapter.generate(headReq, ctx);
   }
 
+  // Point at the generated trees the diff compares, so a local run can open the
+  // head output directly. Head is the current checkout unless --head overrode it.
+  log.info(
+    `${color.dim("baseline output:")} ${baselineOut} ${color.dim(`(${baselineEmitter.label})`)}`,
+  );
+  log.info(`${color.cyan("head output:")} ${headOut} ${color.dim(`(${headEmitter.label})`)}`);
+
   // Diff.
   const diff = await diffDirs(baselineOut, headOut, log);
 
