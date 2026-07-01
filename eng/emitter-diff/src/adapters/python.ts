@@ -56,7 +56,8 @@ async function isBuilt(dir: string): Promise<boolean> {
  * Ensure the package's npm dependencies are installed. A fresh source checkout
  * (a github clone or a bare local path) has no `node_modules`, so `npm run
  * build` would fail to resolve its types/deps. http-client-python is
- * npm-managed (it ships its own package-lock.json), so `npm ci` here is safe.
+ * npm-managed and commits its own package-lock.json to the repo, so a source
+ * checkout already has the lockfile that `npm ci` needs.
  */
 async function ensureDeps(dir: string, ctx: AdapterContext): Promise<void> {
   if (existsSync(join(dir, "node_modules"))) return;
