@@ -55,11 +55,11 @@ interface Explode {
     Send an object-valued query parameter using `@query(#{ explode: true })`. Per RFC 6570 form
     explode, each property of the object is expanded into its own query parameter using the property
     name as the key (the parameter name itself is not emitted).
-
+    
     Expected query parameters:
     - `field` = "status"
     - `value` = "active"
-
+    
     Expected response status code: 204
     """)
   @route("/object")
@@ -69,4 +69,3 @@ interface Explode {
     filter: FilterOptions,
   ): void;
 }
-
