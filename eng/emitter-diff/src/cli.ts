@@ -9,7 +9,7 @@
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 
-import { diffDirs, openInVsCode, printDiff, printSummary, writeHtml, writePatch } from "./diff.js";
+import { diffDirs, printDiff, printSummary, writeHtml, writePatch } from "./diff.js";
 import { getAdapter, listAdapters } from "./registry.js";
 import {
   classifyRef,
@@ -42,7 +42,6 @@ ${color.bold("Options:")}
   --work-dir <dir>        Scratch dir (default: a temp dir).
   --html <file>           Write the rendered HTML diff to this path.
                           Default output: a clickable HTML report in the work dir.
-  --vscode                Open the diff in VS Code instead of writing HTML.
   --terminal              Print the full colored patch to the terminal instead.
   --patch <file>          Write the raw unified diff to a file.
   --fail-on-diff          Exit non-zero when output differs (CI gating). Exit
@@ -74,8 +73,6 @@ async function main(): Promise<number> {
       specs: { type: "string" },
       name: { type: "string" },
       "work-dir": { type: "string" },
-      open: { type: "boolean" },
-      vscode: { type: "boolean" },
       terminal: { type: "boolean" },
       patch: { type: "string" },
       html: { type: "string" },
@@ -119,9 +116,7 @@ async function main(): Promise<number> {
   // path handed to them — the resolved emitter dir and the baseline/head output
   // dirs — must be absolute or outputs land in the wrong tree and the diff is
   // silently empty (a false "no differences").
-  const workDir = ensureDir(
-    values["work-dir"] ? resolve(values["work-dir"]) : defaultWorkDir(),
-  );
+  const workDir = ensureDir(values["work-dir"] ? resolve(values["work-dir"]) : defaultWorkDir());
   log.info(`${color.dim("work dir:")} ${workDir}`);
 
   const ctx: AdapterContext = {
@@ -220,14 +215,10 @@ async function main(): Promise<number> {
 
   // Decide how to present the diff. Explicit flags win; otherwise the default
   // is a clickable HTML report written to the work dir.
-  const wantsVsCode = Boolean(values.vscode || values.open);
   const wantsTerminal = Boolean(values.terminal);
   const wantsPatch = Boolean(values.patch);
   const htmlTarget =
-    values.html ??
-    (!wantsVsCode && !wantsTerminal && !wantsPatch
-      ? join(workDir, "emitter-diff.html")
-      : undefined);
+    values.html ?? (!wantsTerminal && !wantsPatch ? join(workDir, "emitter-diff.html") : undefined);
 
   if (!diff.hasChanges) {
     log.success("No differences between baseline and head output.");
@@ -239,7 +230,6 @@ async function main(): Promise<number> {
 
   if (wantsPatch) writePatch(diff, values.patch as string, log);
   if (htmlTarget) await writeHtml(diff, htmlTarget, log);
-  if (wantsVsCode) await openInVsCode(baselineOut, headOut, workDir, log);
 
   // Optionally run test suites.
   if (values["run-tests"]) {

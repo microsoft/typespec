@@ -15,7 +15,7 @@ contains no language-specific logic.
 ```
             baseline emitter ─┐
                               ├─ generate (adapter) ─► <work>/baseline ─┐
-   specs ─────────────────────┤                                        ├─► git diff ─► terminal / VS Code / HTML
+   specs ─────────────────────┤                                        ├─► git diff ─► terminal / HTML
                               ├─ generate (adapter) ─► <work>/head ─────┘
             head emitter ─────┘                                        └─► (optional) run test suites
 ```
@@ -53,14 +53,13 @@ npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0
 ### Common options
 
 By default the tool writes a **clickable HTML report** (`emitter-diff.html`) into the work dir and
-prints a `file://` link to it. Use `--vscode` for a live VS Code diff, `--terminal` for the full
-patch in your shell, or `--patch`/`--html` to write to a specific file.
+prints a `file://` link to it. Use `--terminal` for the full patch in your shell, or
+`--patch`/`--html` to write to a specific file.
 
 | Option                  | Description                                                                           |
 | ----------------------- | ------------------------------------------------------------------------------------- |
 | `--name <pattern>`      | Filter which specs/packages are generated                                             |
 | `--html <file>`         | Write the rendered HTML report to this path (default: `<work-dir>/emitter-diff.html`) |
-| `--vscode`              | Open the diff in VS Code instead of writing HTML                                      |
 | `--terminal`            | Print the full colored patch to the terminal instead                                  |
 | `--patch <file>`        | Write the raw unified diff to a file                                                  |
 | `--fail-on-diff`        | Exit non-zero when output differs (CI gating)                                         |
@@ -70,18 +69,12 @@ patch in your shell, or `--patch`/`--html` to write to a specific file.
 | `--opt key=value`       | Repeatable adapter-specific option (e.g. `--opt flavor=azure`)                        |
 | `-- <args>`             | Everything after `--` is forwarded to the adapter                                     |
 
-> `--open` is kept as an alias for `--vscode`.
-
 ### Examples
 
 ```bash
 # Default: writes a clickable emitter-diff.html and prints a file:// link.
 npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 \
   --opt flavor=azure --name authentication-api-key
-
-# Open the diff live in VS Code instead:
-npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 \
-  --opt flavor=azure --name authentication-api-key --vscode
 
 # Compare two source folders and write an HTML report to a specific path:
 npx tsx eng/emitter-diff/src/cli.ts --emitter python \
@@ -93,49 +86,6 @@ npx tsx eng/emitter-diff/src/cli.ts --emitter python \
 npx tsx eng/emitter-diff/src/cli.ts --emitter python \
   --baseline github:microsoft/typespec@ \
   flavor=azure --run-tests --test-env test,mypy,pyright < sha > --opt
-```
-
-## Viewing the diff in VS Code
-
-`--vscode` gives you a native, side-by-side source diff of the two generated trees. VS Code has
-no CLI to diff two _folders_ (`code --diff` only compares two files), so the tool stages the
-comparison as a throwaway git working tree under `<work-dir>/vscode-diff`: the **baseline** tree
-is committed, the **head** tree is overlaid on top and left staged. Opening that folder shows
-every changed generated file in the **Source Control** panel with red/green diffs — click any
-file for the side-by-side view.
-
-```bash
-# Keep the scratch dir so it survives the run, and open the diff in VS Code:
-npx tsx eng/emitter-diff/src/cli.ts --emitter python \
-  --baseline npm:0.60.0 --opt flavor=azure --name encode/duration \
-  --work-dir ./emitter-diff-out --vscode
-```
-
-If you generated the trees without `--vscode` (or want to reopen later), build the same view by
-hand from the `baseline/` and `head/` folders under your `--work-dir` and open it in VS Code:
-
-```bash
-cd ./emitter-diff-out
-git init -q vscode-diff
-cp -r baseline/. vscode-diff/
-git -C vscode-diff add -A && git -C vscode-diff commit -qm baseline
-# overlay head on top, keeping .git
-find vscode-diff -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-cp -r head/. vscode-diff/
-git -C vscode-diff add -A
-code vscode-diff # browse changes in the Source Control panel
-```
-
-```powershell
-# PowerShell equivalent of the overlay step:
-cd .\emitter-diff-out
-git init -q vscode-diff
-Copy-Item -Recurse -Force .\baseline\* .\vscode-diff
-git -C vscode-diff add -A; git -C vscode-diff commit -qm baseline
-Get-ChildItem .\vscode-diff -Force | Where-Object Name -ne ".git" | Remove-Item -Recurse -Force
-Copy-Item -Recurse -Force .\head\* .\vscode-diff
-git -C vscode-diff add -A
-code vscode-diff
 ```
 
 ## CI integration
