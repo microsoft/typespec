@@ -736,6 +736,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void TestBuildCreateRequestMethodWithExplodedModelQueryParameter()
+        {
+            var filterModel = InputFactory.Model(
+                "filterOptions",
+                properties:
+                [
+                    InputFactory.Property("field", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: [InputFactory.QueryParameter("filter", filterModel, isRequired: true, explode: true)]);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateSampleOpRequest");
+            Assert.IsNotNull(method);
+            var body = method!.BodyStatements!.ToDisplayString();
+
+            // A model-typed query parameter with `explode` is expanded into one query entry per
+            // property (RFC 6570 form explode) using each property's wire name, instead of serializing
+            // the whole object via ConvertToString (which produced the type name).
+            Assert.IsTrue(body.Contains("uri.AppendQuery(\"field\", filter.Field, true);"), body);
+            Assert.IsTrue(body.Contains("uri.AppendQuery(\"value\", filter.Value, true);"), body);
+            Assert.IsFalse(body.Contains("AppendQuery(\"filter\""), body);
+            Assert.IsFalse(body.Contains("ConvertToString(filter)"), body);
+        }
+
+        [Test]
         public void TestBuildCreateRequestMethodWithQueryParameters()
         {
             List<string> stringEnum = ["bar"];
