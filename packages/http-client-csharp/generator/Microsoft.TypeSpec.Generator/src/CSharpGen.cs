@@ -142,14 +142,15 @@ namespace Microsoft.TypeSpec.Generator
                 generatedFiles.Add((file.Name, file.Text));
             }
 
-            var usesRequestHeaderExtensions = generatedFiles.Any(static file =>
-                !file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) &&
-                file.Text.Contains(".SetDelimited(", StringComparison.Ordinal));
+            var usesRequestHeaderExtensions = generatedCodeWorkspace.HasCustomRequestHeaderExtensionsReference() ||
+                generatedFiles.Any(static file =>
+                    !IsRequestHeadersExtensionsFile(file.Name) &&
+                    file.Text.Contains(".SetDelimited(", StringComparison.Ordinal));
 
             // Write the generated files to the output directory
             foreach (var file in generatedFiles)
             {
-                if (file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) && !usesRequestHeaderExtensions)
+                if (IsRequestHeadersExtensionsFile(file.Name) && !usesRequestHeaderExtensions)
                 {
                     continue;
                 }
@@ -171,6 +172,10 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
         }
+
+        private static bool IsRequestHeadersExtensionsFile(string fileName) =>
+            fileName.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) ||
+            fileName.EndsWith("RequestHeadersExtensions.cs", StringComparison.Ordinal);
 
         internal static void FilterAllCustomizedMembers(OutputLibrary output)
         {

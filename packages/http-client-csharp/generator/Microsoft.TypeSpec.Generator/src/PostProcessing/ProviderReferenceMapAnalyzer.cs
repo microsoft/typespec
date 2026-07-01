@@ -1617,7 +1617,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             var hasCustomReference = HasCustomRequestHeaderExtensionsReference(project);
             var unusedRequestHeaderExtensions = roots
-                .Where(static root => root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal))
+                .Where(IsRequestHeadersExtensionsRoot)
                 .Where(_ => !hasCustomReference)
                 .Where(root => !references.Any(reference =>
                     !string.Equals(reference.Key, root, StringComparison.Ordinal) &&
@@ -1627,7 +1627,11 @@ namespace Microsoft.TypeSpec.Generator
             roots.ExceptWith(unusedRequestHeaderExtensions);
         }
 
-        private static bool HasCustomRequestHeaderExtensionsReference(Project project)
+        private static bool IsRequestHeadersExtensionsRoot(string root) =>
+            root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal) ||
+            root.EndsWith(".RequestHeadersExtensions", StringComparison.Ordinal);
+
+        internal static bool HasCustomRequestHeaderExtensionsReference(Project project)
         {
             foreach (var document in project.Documents)
             {
