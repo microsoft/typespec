@@ -130,6 +130,7 @@ namespace Microsoft.TypeSpec.Generator
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
             await generatedCodeWorkspace.PostProcessAsync();
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
 
             var generatedFiles = new List<(string Name, string Text)>();
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())

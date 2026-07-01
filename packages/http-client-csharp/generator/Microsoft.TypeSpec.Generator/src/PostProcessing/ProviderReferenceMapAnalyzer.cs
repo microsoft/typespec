@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator
         public static void ResetPreWriteAccessibility()
         {
             RestorePreWriteModelFactoryMethods();
+            _latestResult = null;
             PreWriteAccessibilityApplied = false;
         }
 
