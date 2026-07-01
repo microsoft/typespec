@@ -176,6 +176,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task BinaryDataBodyParameterDoesNotKeepBinaryContentHelpers()
+        {
+            var parameter = InputFactory.BodyParameter(
+                "content",
+                InputPrimitiveType.Base64,
+                isRequired: true,
+                contentTypes: ["application/octet-stream"],
+                defaultContentType: "application/octet-stream");
+            var operation = InputFactory.Operation("Upload", parameters: [parameter], httpMethod: "POST");
+            var method = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [InputFactory.MethodParameter("content", InputPrimitiveType.Base64, isRequired: true)]);
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [],
+                unexpectedFiles: [
+                    Path.Combine("src", "Generated", "Internal", "BinaryContentHelper.cs"),
+                    Path.Combine("src", "Generated", "Internal", "Utf8JsonBinaryContent.cs")
+                ]);
+        }
+
+        [Test]
+        public async Task CollectionBodyParameterKeepsBinaryContentHelpers()
+        {
+            var parameter = InputFactory.BodyParameter("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var operation = InputFactory.Operation("Create", parameters: [parameter], httpMethod: "POST");
+            var method = InputFactory.BasicServiceMethod(
+                "Create",
+                operation,
+                parameters: [InputFactory.MethodParameter("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true)]);
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [
+                    Path.Combine("src", "Generated", "Internal", "BinaryContentHelper.cs"),
+                    Path.Combine("src", "Generated", "Internal", "Utf8JsonBinaryContent.cs")
+                ]);
+        }
+
+        [Test]
         public async Task CustomOnlyRequestHeaderSetDelimitedReferenceKeepsExtensions()
         {
             await GenerateAndAssertFiles(
@@ -311,12 +361,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             InputClient[] clients,
             (string Path, string Content)[] customFiles,
             string[] expectedFiles,
+            string[] unexpectedFiles = null!,
             string[] publicModelNames = null!,
             string[] internalModelNames = null!,
             string packageName = "Sample")
         {
             publicModelNames ??= [];
             internalModelNames ??= [];
+            unexpectedFiles ??= [];
 
             var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             Directory.CreateDirectory(outputPath);
@@ -374,6 +426,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                 {
                     var filePath = Path.Combine(outputPath, expectedFile);
                     Assert.IsTrue(File.Exists(filePath), $"Expected generated file '{filePath}'.");
+                }
+
+                foreach (var unexpectedFile in unexpectedFiles)
+                {
+                    var filePath = Path.Combine(outputPath, unexpectedFile);
+                    Assert.IsFalse(File.Exists(filePath), $"Did not expect generated file '{filePath}'.");
                 }
             }
             finally

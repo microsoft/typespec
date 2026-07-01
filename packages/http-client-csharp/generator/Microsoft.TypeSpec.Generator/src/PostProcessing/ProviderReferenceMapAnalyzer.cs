@@ -924,7 +924,6 @@ namespace Microsoft.TypeSpec.Generator
             if (IsSerializationProvider(provider))
             {
                 AddMatchingName(references, "Optional", nodes);
-                AddMatchingName(references, "BinaryContentHelper", nodes);
                 AddMatchingName(references, "Utf8JsonRequestContent", nodes);
                 AddMatchingName(references, "ModelSerializationExtensions", nodes);
                 AddSerializationExtensionReferences(references, provider, nodes);
@@ -1032,8 +1031,7 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            if (string.Equals(type.Name, "RequestContent", StringComparison.Ordinal) ||
-                string.Equals(type.Name, "BinaryData", StringComparison.Ordinal))
+            if (string.Equals(type.Name, "RequestContent", StringComparison.Ordinal))
             {
                 AddMatchingName(references, "BinaryContentHelper", nodes);
                 AddMatchingName(references, "Utf8JsonRequestContent", nodes);
