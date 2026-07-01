@@ -91,6 +91,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
 
                     var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(parameter.Type);
+                    if (parameter is InputHeaderParameter headerParameter &&
+                        type?.IsCollection == true &&
+                        !(type.IsDictionary && !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix)))
+                    {
+                        AddDependency(dependencies, new PipelineRequestHeadersExtensionsDefinition().Type);
+                    }
+
                     if (type?.IsDictionary == true)
                     {
                         AddDependency(dependencies, ChangeTrackingDictionaryType);

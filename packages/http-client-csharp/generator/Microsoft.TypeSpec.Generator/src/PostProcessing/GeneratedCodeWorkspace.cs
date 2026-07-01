@@ -89,9 +89,6 @@ namespace Microsoft.TypeSpec.Generator
             ProviderReferenceMapAnalyzer.Analyze(providers, _project);
         }
 
-        internal bool HasCustomRequestHeaderExtensionsReference() =>
-            ProviderReferenceMapAnalyzer.HasCustomRequestHeaderExtensionsReference(_project);
-
         internal void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
         {
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers, _project);

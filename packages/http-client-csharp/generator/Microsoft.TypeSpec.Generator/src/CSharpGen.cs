@@ -142,19 +142,9 @@ namespace Microsoft.TypeSpec.Generator
                 generatedFiles.Add((file.Name, file.Text));
             }
 
-            var usesRequestHeaderExtensions = generatedCodeWorkspace.HasCustomRequestHeaderExtensionsReference() ||
-                generatedFiles.Any(static file =>
-                    !IsRequestHeadersExtensionsFile(file.Name) &&
-                    file.Text.Contains(".SetDelimited(", StringComparison.Ordinal));
-
             // Write the generated files to the output directory
             foreach (var file in generatedFiles)
             {
-                if (IsRequestHeadersExtensionsFile(file.Name) && !usesRequestHeaderExtensions)
-                {
-                    continue;
-                }
-
                 var filename = Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
@@ -172,10 +162,6 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
         }
-
-        private static bool IsRequestHeadersExtensionsFile(string fileName) =>
-            fileName.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) ||
-            fileName.EndsWith("RequestHeadersExtensions.cs", StringComparison.Ordinal);
 
         internal static void FilterAllCustomizedMembers(OutputLibrary output)
         {
@@ -217,6 +203,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static string GetFileNameForType(string typeName)
         {
+            // TypeProvider-generated files are named after the simple type name by convention.
             var simpleNameStart = typeName.LastIndexOf('.') + 1;
             var simpleName = simpleNameStart > 0 ? typeName[simpleNameStart..] : typeName;
             var genericArityStart = simpleName.IndexOf('`');

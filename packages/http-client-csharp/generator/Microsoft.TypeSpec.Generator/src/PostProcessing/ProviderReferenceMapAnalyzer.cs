@@ -126,7 +126,6 @@ namespace Microsoft.TypeSpec.Generator
                 includeUnionVariantRoots: ShouldUseUnionVariantFallbackRoots(),
                 publicClientRootsOnly: false);
             removeRoots.UnionWith(customRemovalRoots);
-            RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, project);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
@@ -1603,47 +1602,6 @@ namespace Microsoft.TypeSpec.Generator
                 AddTypeReference(matches, dependency, nodes);
                 roots.UnionWith(matches.Intersect(referencedNames, StringComparer.Ordinal));
             }
-        }
-
-        private static void RemoveUnusedRequestHeaderExtensionsRoot(
-            HashSet<string> roots,
-            IReadOnlyDictionary<string, HashSet<string>> references,
-            Project project)
-        {
-            var hasCustomReference = HasCustomRequestHeaderExtensionsReference(project);
-            var unusedRequestHeaderExtensions = roots
-                .Where(IsRequestHeadersExtensionsRoot)
-                .Where(_ => !hasCustomReference)
-                .Where(root => !references.Any(reference =>
-                    !string.Equals(reference.Key, root, StringComparison.Ordinal) &&
-                    reference.Value.Contains(root)))
-                .ToArray();
-
-            roots.ExceptWith(unusedRequestHeaderExtensions);
-        }
-
-        private static bool IsRequestHeadersExtensionsRoot(string root) =>
-            root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal) ||
-            root.EndsWith(".RequestHeadersExtensions", StringComparison.Ordinal);
-
-        internal static bool HasCustomRequestHeaderExtensionsReference(Project project)
-        {
-            foreach (var document in project.Documents)
-            {
-                if (IsGeneratedDocument(document))
-                {
-                    continue;
-                }
-
-                var text = document.GetTextAsync().GetAwaiter().GetResult().ToString();
-                if (text.Contains("RequestHeaderExtensions", StringComparison.Ordinal) ||
-                    text.Contains("SetDelimited", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static bool IsGeneratedDocument(Document document)
