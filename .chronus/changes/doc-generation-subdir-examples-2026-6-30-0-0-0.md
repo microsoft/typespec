@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Add usage examples for the `generation-subdir` emitter option in the docs
+Add usage examples for the `generation-subdir` emitter option in the docs.
