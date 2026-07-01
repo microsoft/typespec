@@ -85,28 +85,29 @@ npx tsx eng/emitter-diff/src/cli.ts --emitter python \
 # Diff against a GitHub sha and run pytest + type checks on the head output:
 npx tsx eng/emitter-diff/src/cli.ts --emitter python \
   --baseline github:microsoft/typespec@ \
-  flavor=azure --run-tests --test-env test,mypy,pyright < sha > --opt
+  --test-env test,mypy,pyright --opt flavor=azure < sha > --run-tests
 ```
 
 ## CI integration
 
 `.github/workflows/ci-emitter-diff-python.yml` runs on PRs that touch the python emitter or this
-tool. The **approved baseline** is a commit SHA stored in
-`eng/emitter-diff/baselines/python.sha`. CI builds the python emitter (and a venv) for both the
-PR's checkout and a worktree of that approved commit, diffs the two, and then:
+tool. The **baseline** is the base-branch commit the PR is based on (the `git merge-base` with the
+target branch) — always a real commit on the target branch, so it survives squash-merge, rebase,
+and force-push. CI builds the python emitter (and a venv) for both the PR's checkout and a worktree
+of that merge-base commit, diffs the two, and then:
 
 - uploads the rendered **`emitter-diff-html`** artifact (full side-by-side diff; downloadable from
   the workflow run — GitHub artifacts are zip downloads, so they can't be rendered inline in a
   comment),
 - writes a job-summary with the diff totals, and
-- posts a **sticky PR comment** (updated in place on each push) listing the changed files and
-  `+`/`-` counts with a link to download the artifact.
+- posts a **sticky PR comment** (updated in place on each push) with the changed-file and `+`/`-`
+  counts and a link to download the artifact.
 
-**Approval gate:** if the generated output differs from the approved baseline, the
-`--fail-on-diff` run exits with code `2` and the job **fails**. To approve an intended change,
-update `eng/emitter-diff/baselines/python.sha` to a commit on your branch that contains your
-emitter changes, then push. Once the baseline SHA points at a commit whose emitter matches the
-PR's emitter, the diff is empty and the check passes.
+**Approval gate:** if the generated output differs from the baseline, the `--fail-on-diff` run
+exits with code `2` and the job **fails until the change is approved**. To approve an intended
+change, add the **`emitter-diff-approved`** label to the PR. The label — not a committed SHA — is
+the approval token, so it is unaffected by history rewrites; the workflow also triggers on
+`labeled`/`unlabeled`, so adding or removing the label re-runs the check automatically.
 
 The comment step needs `pull-requests: write`. PRs **from forks** get a read-only token, so the
 comment is best-effort there (`continue-on-error`) — the artifact and job-summary still work.

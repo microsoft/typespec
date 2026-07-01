@@ -1,11 +1,17 @@
 name: "python / emitter diff"
 
-# Generates code with the current checkout's emitter and with the approved
-# baseline emitter (the commit SHA in eng/emitter-diff/baselines/python.sha),
-# then diffs the two. The rendered HTML diff is uploaded as a per-PR
-# artifact, and a sticky PR comment summarizes the change (file count, +/-)
-# with a link to download it, so reviewers can see exactly how an emitter change
-# affects generated SDKs. Powered by the language-agnostic eng/emitter-diff tool.
+# Generates code with the current checkout's emitter and with the emitter as of
+# the base-branch commit this PR is based on (the merge-base), then diffs the two.
+# The rendered HTML diff is uploaded as a per-PR artifact and a sticky PR comment
+# summarizes the change with a link to download it, so reviewers can see exactly
+# how an emitter change affects generated SDKs. Powered by the language-agnostic
+# eng/emitter-diff tool.
+#
+# The check fails while generated output differs from the baseline UNTIL a
+# maintainer adds the `emitter-diff-approved` label to the PR. The label (not a
+# committed SHA) is the approval token, so it survives squash-merge / rebase /
+# force-push, and the check re-runs automatically when the label is added or
+# removed.
 #
 # Python's generator uses a native two-phase pipeline (TypeSpec emits YAML, then
 # a batched Python subprocess writes the .py files) with a venv co-located with
@@ -14,6 +20,7 @@ name: "python / emitter diff"
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
       - release/*
@@ -24,7 +31,7 @@ on:
   workflow_dispatch:
     inputs:
       baseline:
-        description: "Baseline emitter ref (npm version, local path, or github ref). Defaults to the approved baseline SHA file."
+        description: "Baseline emitter ref (npm version, local path, or github ref). Defaults to the PR's merge-base with its base branch."
         required: false
         default: ""
 
@@ -63,22 +70,26 @@ jobs:
 
       - name: Determine baseline
         id: baseline
-        # The dispatch input is untrusted; pass it through `env` and reference it
-        # only as a shell variable so it can never be interpolated into the script
-        # body (GitHub Actions expression injection).
+        # The dispatch input is untrusted; pass everything through `env` and
+        # reference only shell variables so nothing is interpolated into the
+        # script body (GitHub Actions expression injection).
         env:
           BASELINE_INPUT: ${{ github.event.inputs.baseline || '' }}
+          BASE_REF: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           input="$BASELINE_INPUT"
           if [ -z "$input" ]; then
-            sha_file="eng/emitter-diff/baselines/python.sha"
-            base_sha="$(grep -vE '^[[:space:]]*(#|$)' "$sha_file" | head -n1 | tr -d '[:space:]')"
+            # Baseline = the base-branch commit this PR is based on (merge-base).
+            # It is always a real commit on the target branch, so it survives
+            # squash-merge / rebase / force-push (unlike a pinned branch SHA).
+            git fetch --no-tags origin "$BASE_REF"
+            base_sha="$(git merge-base FETCH_HEAD HEAD)"
             if [ -z "$base_sha" ]; then
-              echo "::error::No approved baseline SHA found in $sha_file"
+              echo "::error::Could not determine a merge-base with $BASE_REF."
               exit 1
             fi
-            echo "Approved baseline SHA: $base_sha (from $sha_file)"
+            echo "Baseline (merge-base with $BASE_REF): $base_sha"
             git worktree add "$RUNNER_TEMP/baseline" "$base_sha"
             (cd "$RUNNER_TEMP/baseline/packages/http-client-python" && npm ci && npm run build && npm run install)
             input="local:$RUNNER_TEMP/baseline/packages/http-client-python"
@@ -116,21 +127,25 @@ jobs:
         env:
           BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
           STATUS: ${{ steps.diff.outputs.status }}
+          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           {
             echo "## Emitter diff"
             echo ""
-            echo "Baseline (approved): \`$BASELINE_SHA\` vs current checkout."
+            echo "Baseline (merge-base): \`$BASELINE_SHA\` vs current checkout."
             echo ""
             if [ "$STATUS" = "2" ]; then
-              echo "**Generated output changed vs the approved baseline.**"
-              echo ""
-              echo "If this change is intended, approve it by updating"
-              echo "\`eng/emitter-diff/baselines/python.sha\` to a commit on your branch that"
-              echo "contains your emitter changes, then push."
+              if [ "$APPROVED" = "true" ]; then
+                echo "**Generated output changed** — approved via the \`emitter-diff-approved\` label."
+              else
+                echo "**Generated output changed vs the baseline.**"
+                echo ""
+                echo "If this change is intended, add the \`emitter-diff-approved\` label to this PR"
+                echo "to accept it."
+              fi
             elif [ "$STATUS" = "0" ]; then
-              echo "Generated output matches the approved baseline."
+              echo "Generated output matches the baseline."
             fi
             echo ""
             echo '```'
@@ -156,6 +171,7 @@ jobs:
         env:
           BASELINE: ${{ steps.baseline.outputs.sha }}
           STATUS: ${{ steps.diff.outputs.status }}
+          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
           PATCH_FILE: ${{ runner.temp }}/emitter-diff.patch
           HTML_FILE: ${{ runner.temp }}/emitter-diff.html
         with:
@@ -164,6 +180,7 @@ jobs:
             const marker = "<!-- emitter-diff-python -->";
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const status = process.env.STATUS;
+            const approved = process.env.APPROVED === "true";
 
             // Parse the unified patch directly so the numbers match the tool exactly.
             let patch = "";
@@ -180,7 +197,7 @@ jobs:
             const htmlExists = fs.existsSync(process.env.HTML_FILE);
 
             let body = `${marker}\n## Python emitter diff\n\n` +
-              `Approved baseline \`${process.env.BASELINE}\` vs this PR's checkout.\n\n`;
+              `Baseline \`${process.env.BASELINE}\` (merge-base) vs this PR's checkout.\n\n`;
             if (status !== "0" && status !== "2") {
               // Hard error (build/venv/generate threw) — not a diff. Don't claim "no changes".
               body += `**emitter-diff failed to run** (exit \`${status}\`). This is a tool/build ` +
@@ -188,16 +205,19 @@ jobs:
                 `[workflow run](${runUrl}) logs` +
                 (htmlExists ? ` and the **emitter-diff-html** artifact` : "") + `.\n`;
             } else if (status === "0") {
-              body += `**No changes** — generated output matches the approved baseline.\n`;
+              body += `**No changes** — generated output matches the baseline.\n`;
             } else {
               body += `**${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
               if (htmlExists) {
                 body += `Download the **emitter-diff-html** artifact from the ` +
                   `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n\n`;
               }
-              body += `**This check fails until the change is approved.** If the new output is ` +
-                `intended, update \`eng/emitter-diff/baselines/python.sha\` to a commit on this ` +
-                `branch that contains your emitter changes, then push.\n`;
+              if (approved) {
+                body += `This change is **approved** via the \`emitter-diff-approved\` label.\n`;
+              } else {
+                body += `**This check fails until the change is approved.** If the new output is ` +
+                  `intended, add the \`emitter-diff-approved\` label to this PR to accept it.\n`;
+              }
             }
             body += `\n_Generated by \`eng/emitter-diff\`._`;
 
@@ -211,20 +231,32 @@ jobs:
               await github.rest.issues.createComment({ owner, repo, issue_number, body });
             }
 
-      - name: Enforce baseline approval
+      - name: Enforce approval
         if: always()
         env:
           STATUS: ${{ steps.diff.outputs.status }}
+          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'emitter-diff-approved') }}
           BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
         run: |
-          if [ "$STATUS" = "2" ]; then
-            echo "::error::Generated output differs from the approved baseline ($BASELINE_SHA)."
-            echo "Review the emitter-diff-html artifact. If the change is intended, approve it by"
-            echo "updating eng/emitter-diff/baselines/python.sha to a commit on your branch that"
-            echo "contains your emitter changes, then push."
-            exit 1
-          elif [ "$STATUS" != "0" ]; then
+          # Hard tool/build failure (not a diff) always fails.
+          if [ "$STATUS" != "0" ] && [ "$STATUS" != "2" ]; then
             echo "::error::emitter-diff failed (exit $STATUS). See the log and artifact."
             exit 1
           fi
-          echo "Generated output matches the approved baseline."
+          # Only PRs carry the approval label; manual/dispatch runs are informational.
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then
+            echo "Not a pull_request event; skipping the approval gate."
+            exit 0
+          fi
+          if [ "$STATUS" = "2" ]; then
+            if [ "$APPROVED" = "true" ]; then
+              echo "Generated output differs from the baseline ($BASELINE_SHA), but the PR carries"
+              echo "the 'emitter-diff-approved' label. Passing."
+              exit 0
+            fi
+            echo "::error::Generated output differs from the baseline ($BASELINE_SHA)."
+            echo "Review the emitter-diff-html artifact. If the change is intended, add the"
+            echo "'emitter-diff-approved' label to this PR to accept it."
+            exit 1
+          fi
+          echo "Generated output matches the baseline."
