@@ -31,7 +31,7 @@ export function createLogger(): Logger {
     warn: (m) => console.warn(`${color.yellow("warn")}  ${m}`),
     error: (m) => console.error(`${color.red("error")} ${m}`),
     step: (m) => console.log(`${color.cyan("›")} ${color.bold(m)}`),
-    success: (m) => console.log(`${color.green("✓")} ${m}`),
+    success: (m) => console.log(`${color.green("ok")} ${m}`),
   };
   /* eslint-enable no-console */
 }

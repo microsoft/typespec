@@ -89,6 +89,24 @@ export function describeRef(ref: ClassifiedRef, packageName: string): string {
 const DEFAULT_REPO = "microsoft/typespec";
 
 /**
+ * Reject refs/repos that could be misread by git as options or that carry shell
+ * metacharacters. Args are already passed as arrays (no shell), so this guards
+ * against argument injection (a leading `-` becoming a git flag) and malformed
+ * input rather than shell injection.
+ */
+function assertSafeGitRef(gitRef: string): void {
+  if (!gitRef || gitRef.startsWith("-") || /[\0\r\n]/.test(gitRef)) {
+    throw new Error(`Invalid git ref: ${JSON.stringify(gitRef)}`);
+  }
+}
+
+function assertSafeRepo(repo: string): void {
+  if (!/^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(repo)) {
+    throw new Error(`Invalid repo (expected owner/repo): ${JSON.stringify(repo)}`);
+  }
+}
+
+/**
  * Materialize a local-or-github ref into a source directory. npm refs are
  * handled by {@link installNpmPackage} (the package name is adapter-specific).
  */
@@ -122,6 +140,8 @@ async function cloneGithub(
   const repo =
     ref.repo ?? (repoRoot ? await detectOriginRepo(repoRoot) : undefined) ?? DEFAULT_REPO;
   const gitRef = ref.gitRef ?? "main";
+  assertSafeRepo(repo);
+  assertSafeGitRef(gitRef);
   const dest = ensureDir(join(workDir, `github-${repo.replace(/[/]/g, "_")}-${sanitize(gitRef)}`));
   const cloneUrl = `https://github.com/${repo}.git`;
 
@@ -139,8 +159,9 @@ async function cloneGithub(
     // Some servers won't fetch a bare SHA directly; do a full fetch and then
     // check the ref out by name (NOT FETCH_HEAD, which after a full fetch with
     // no refspec may point at a branch head rather than the requested commit).
+    // `--end-of-options` stops git from treating the ref as a flag.
     await runChecked("git", ["fetch", "origin"], { cwd: dest });
-    await runChecked("git", ["checkout", "-q", gitRef], { cwd: dest });
+    await runChecked("git", ["checkout", "-q", "--end-of-options", gitRef], { cwd: dest });
   }
   return dest;
 }
@@ -168,10 +189,20 @@ export async function installNpmPackage(
   );
   log.step(`Installing ${packageName}@${version}`);
   // Create a throwaway package root and install just the one package there.
+  // `--ignore-scripts` blocks lifecycle scripts from the downloaded package: the
+  // emitter ships a prebuilt `dist`, and per-version setup (venv/build) is done
+  // explicitly by the adapter, so no install hooks are needed here.
   await runChecked("npm", ["init", "-y"], { cwd: dir });
   await runChecked(
     "npm",
-    ["install", `${packageName}@${version}`, "--no-audit", "--no-fund", "--no-save"],
+    [
+      "install",
+      `${packageName}@${version}`,
+      "--no-audit",
+      "--no-fund",
+      "--no-save",
+      "--ignore-scripts",
+    ],
     { cwd: dir },
   );
   const pkgDir = join(dir, "node_modules", packageName);

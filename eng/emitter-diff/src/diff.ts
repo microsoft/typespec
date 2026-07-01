@@ -120,6 +120,17 @@ export function writePatch(diff: DiffResult, outFile: string, log: Logger): void
   log.success(`Wrote unified diff to ${outFile}`);
 }
 
+const BASE_STYLE = `<style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>`;
+
+/** Assemble a self-contained HTML report from a summary line and optional body. */
+function htmlDoc(summaryHtml: string, bodyHtml = "", headExtra = ""): string {
+  return `<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><title>Emitter diff</title>${headExtra}${BASE_STYLE}</head>
+<body><div class="summary"><strong>Emitter diff</strong> &mdash; ${summaryHtml}</div>${bodyHtml}</body>
+</html>`;
+}
+
 /**
  * Render the patch to a self-contained HTML file via diff2html. diff2html is an
  * optional dependency loaded lazily so the core runs without it installed.
@@ -128,14 +139,7 @@ export async function writeHtml(diff: DiffResult, outFile: string, log: Logger):
   // No differences: write a small standalone report so `--html <file>` always
   // produces a file (callers and CI artifact upload can rely on its presence).
   if (!diff.hasChanges) {
-    const doc = `<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8" /><title>Emitter diff</title>
-<style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>
-</head>
-<body><div class="summary"><strong>Emitter diff</strong> — ✅ No differences between baseline and head output.</div></body>
-</html>`;
-    writeFileSync(outFile, doc, "utf8");
+    writeFileSync(outFile, htmlDoc("No differences between baseline and head output."), "utf8");
     log.success(`No differences; wrote empty HTML report to ${resolve(outFile)}`);
     return;
   }
@@ -160,31 +164,19 @@ export async function writeHtml(diff: DiffResult, outFile: string, log: Logger):
     matching: "lines",
     outputFormat: "side-by-side",
   });
-  // Inline the diff2html stylesheet so the report renders offline (CI artifacts
-  // are downloaded and opened from disk). Fall back to the CDN link if the
-  // bundled CSS can't be located.
-  let styleTag: string;
+  // Inline the diff2html stylesheet so the report renders fully offline (CI
+  // artifacts are downloaded and opened from disk). Never fall back to a remote
+  // CDN — the report must not fetch anything when opened locally.
+  let styleTag = "";
   try {
     const require = createRequire(import.meta.url);
     const cssPath = require.resolve("diff2html/bundles/css/diff2html.min.css");
     styleTag = `<style>${readFileSync(cssPath, "utf8")}</style>`;
   } catch {
-    styleTag = `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />`;
+    log.warn("diff2html CSS not found; the HTML report will be unstyled.");
   }
-  const doc = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<title>Emitter diff</title>
-${styleTag}
-<style>body{margin:0;font-family:system-ui,sans-serif}.summary{padding:12px 16px;background:#f6f8fa;border-bottom:1px solid #d0d7de}</style>
-</head>
-<body>
-<div class="summary"><strong>Emitter diff</strong> — ${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}</div>
-${body}
-</body>
-</html>`;
-  writeFileSync(outFile, doc, "utf8");
+  const summary = `${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}`;
+  writeFileSync(outFile, htmlDoc(summary, body, styleTag), "utf8");
   const abs = resolve(outFile);
   log.success(`Wrote HTML diff to ${abs}`);
   log.info(`${color.bold("Open it:")} ${pathToFileURL(abs).href}`);

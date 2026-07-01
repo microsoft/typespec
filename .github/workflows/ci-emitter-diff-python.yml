@@ -63,8 +63,14 @@ jobs:
 
       - name: Determine baseline
         id: baseline
+        # The dispatch input is untrusted; pass it through `env` and reference it
+        # only as a shell variable so it can never be interpolated into the script
+        # body (GitHub Actions expression injection).
+        env:
+          BASELINE_INPUT: ${{ github.event.inputs.baseline || '' }}
+          RUNNER_TEMP: ${{ runner.temp }}
         run: |
-          input="${{ github.event.inputs.baseline }}"
+          input="$BASELINE_INPUT"
           if [ -z "$input" ]; then
             sha_file="eng/emitter-diff/baselines/python.sha"
             base_sha="$(grep -vE '^[[:space:]]*(#|$)' "$sha_file" | head -n1 | tr -d '[:space:]')"
@@ -73,9 +79,9 @@ jobs:
               exit 1
             fi
             echo "Approved baseline SHA: $base_sha (from $sha_file)"
-            git worktree add "${{ runner.temp }}/baseline" "$base_sha"
-            (cd "${{ runner.temp }}/baseline/packages/http-client-python" && npm ci && npm run build && npm run install)
-            input="local:${{ runner.temp }}/baseline/packages/http-client-python"
+            git worktree add "$RUNNER_TEMP/baseline" "$base_sha"
+            (cd "$RUNNER_TEMP/baseline/packages/http-client-python" && npm ci && npm run build && npm run install)
+            input="local:$RUNNER_TEMP/baseline/packages/http-client-python"
             echo "sha=$base_sha" >> "$GITHUB_OUTPUT"
           fi
           echo "ref=$input" >> "$GITHUB_OUTPUT"
@@ -84,6 +90,11 @@ jobs:
       - name: Run emitter diff
         id: diff
         working-directory: eng/emitter-diff
+        # `BASELINE_REF` derives from the untrusted dispatch input, so keep it in
+        # `env` and reference it as "$BASELINE_REF" rather than interpolating it.
+        env:
+          BASELINE_REF: ${{ steps.baseline.outputs.ref }}
+          RUNNER_TEMP: ${{ runner.temp }}
         run: |
           set +e
           # Run via plain (non-recursive) `pnpm exec` so the tool's real exit code
@@ -92,34 +103,38 @@ jobs:
           # which would mask the "diff present" code (2) as a hard error (1).
           pnpm exec tsx src/cli.ts \
             --emitter python \
-            --baseline "${{ steps.baseline.outputs.ref }}" \
-            --work-dir "${{ runner.temp }}/emitter-diff" \
-            --html "${{ runner.temp }}/emitter-diff.html" \
-            --patch "${{ runner.temp }}/emitter-diff.patch" \
+            --baseline "$BASELINE_REF" \
+            --work-dir "$RUNNER_TEMP/emitter-diff" \
+            --html "$RUNNER_TEMP/emitter-diff.html" \
+            --patch "$RUNNER_TEMP/emitter-diff.patch" \
             --fail-on-diff \
-            | tee "${{ runner.temp }}/emitter-diff.log"
+            | tee "$RUNNER_TEMP/emitter-diff.log"
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
       - name: Write job summary
         if: always()
+        env:
+          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
+          STATUS: ${{ steps.diff.outputs.status }}
+          RUNNER_TEMP: ${{ runner.temp }}
         run: |
           {
             echo "## Emitter diff"
             echo ""
-            echo "Baseline (approved): \`${{ steps.baseline.outputs.sha }}\` vs current checkout."
+            echo "Baseline (approved): \`$BASELINE_SHA\` vs current checkout."
             echo ""
-            if [ "${{ steps.diff.outputs.status }}" = "2" ]; then
-              echo "❌ **Generated output changed vs the approved baseline.**"
+            if [ "$STATUS" = "2" ]; then
+              echo "**Generated output changed vs the approved baseline.**"
               echo ""
               echo "If this change is intended, approve it by updating"
               echo "\`eng/emitter-diff/baselines/python.sha\` to a commit on your branch that"
               echo "contains your emitter changes, then push."
-            elif [ "${{ steps.diff.outputs.status }}" = "0" ]; then
-              echo "✅ Generated output matches the approved baseline."
+            elif [ "$STATUS" = "0" ]; then
+              echo "Generated output matches the approved baseline."
             fi
             echo ""
             echo '```'
-            grep -E "Diff summary:" "${{ runner.temp }}/emitter-diff.log" || echo "No summary captured."
+            grep -E "Diff summary:" "$RUNNER_TEMP/emitter-diff.log" || echo "No summary captured."
             echo '```'
             echo ""
             echo "Download the **emitter-diff-html** artifact for the full rendered diff."
@@ -164,20 +179,20 @@ jobs:
             }
             const htmlExists = fs.existsSync(process.env.HTML_FILE);
 
-            let body = `${marker}\n## 🐍 Python emitter diff\n\n` +
+            let body = `${marker}\n## Python emitter diff\n\n` +
               `Approved baseline \`${process.env.BASELINE}\` vs this PR's checkout.\n\n`;
             if (status !== "0" && status !== "2") {
               // Hard error (build/venv/generate threw) — not a diff. Don't claim "no changes".
-              body += `⚠️ **emitter-diff failed to run** (exit \`${status}\`). This is a tool/build ` +
+              body += `**emitter-diff failed to run** (exit \`${status}\`). This is a tool/build ` +
                 `error, not a generated-output diff. See the ` +
                 `[workflow run](${runUrl}) logs` +
                 (htmlExists ? ` and the **emitter-diff-html** artifact` : "") + `.\n`;
             } else if (status === "0") {
-              body += `✅ **No changes** — generated output matches the approved baseline.\n`;
+              body += `**No changes** — generated output matches the approved baseline.\n`;
             } else {
-              body += `❌ **${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
+              body += `**${files.length} file(s) changed** · +${insertions} / -${deletions}\n\n`;
               if (htmlExists) {
-                body += `📄 Download the **emitter-diff-html** artifact from the ` +
+                body += `Download the **emitter-diff-html** artifact from the ` +
                   `[workflow run](${runUrl}) for the full side-by-side rendered diff.\n\n`;
               }
               body += `**This check fails until the change is approved.** If the new output is ` +
@@ -198,16 +213,18 @@ jobs:
 
       - name: Enforce baseline approval
         if: always()
+        env:
+          STATUS: ${{ steps.diff.outputs.status }}
+          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
         run: |
-          status="${{ steps.diff.outputs.status }}"
-          if [ "$status" = "2" ]; then
-            echo "::error::Generated output differs from the approved baseline (${{ steps.baseline.outputs.sha }})."
+          if [ "$STATUS" = "2" ]; then
+            echo "::error::Generated output differs from the approved baseline ($BASELINE_SHA)."
             echo "Review the emitter-diff-html artifact. If the change is intended, approve it by"
             echo "updating eng/emitter-diff/baselines/python.sha to a commit on your branch that"
             echo "contains your emitter changes, then push."
             exit 1
-          elif [ "$status" != "0" ]; then
-            echo "::error::emitter-diff failed (exit $status). See the log and artifact."
+          elif [ "$STATUS" != "0" ]; then
+            echo "::error::emitter-diff failed (exit $STATUS). See the log and artifact."
             exit 1
           fi
           echo "Generated output matches the approved baseline."
