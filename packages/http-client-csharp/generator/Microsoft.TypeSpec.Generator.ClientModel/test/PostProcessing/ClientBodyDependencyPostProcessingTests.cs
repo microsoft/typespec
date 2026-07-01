@@ -160,6 +160,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task CustomOnlyRequestHeaderSetDelimitedReferenceKeepsExtensions()
+        {
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [],
+                customFiles: [
+                    (Path.Combine("src", "CustomHeaders.cs"), """
+                        using System.ClientModel.Primitives;
+
+                        namespace Sample;
+
+                        public static class CustomHeaders
+                        {
+                            public static void Add(PipelineRequestHeaders headers, string[] values)
+                                => headers.SetDelimited("x-ms-custom", values, ",");
+                        }
+                        """)
+                ],
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
+        }
+
+        [Test]
         public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
         {
             var statusEnum = InputFactory.StringEnum(
