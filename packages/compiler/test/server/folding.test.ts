@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { FoldingRange } from "vscode-languageserver/node.js";
+import { FoldingRange } from "vscode-languageserver";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: foldingRange", () => {

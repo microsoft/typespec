@@ -2,18 +2,17 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -21,32 +20,78 @@ namespace Microsoft.TypeSpec.Generator
     {
         private static ProviderReferenceMapResult? _latestResult;
         private static readonly ConditionalWeakTable<HashSet<string>, Dictionary<string, string[]>> _simpleNameLookupCache = new();
+        private static TypeProvider? _preWriteModelFactory;
+        private static MethodProvider[]? _preWriteModelFactoryMethods;
 
         public static ProviderReferenceMapResult? LatestResult => _latestResult;
+        public static bool PreWriteAccessibilityApplied { get; private set; }
 
-        public static void Analyze(IReadOnlyList<TypeProvider> providers, Project project)
+        public static void ResetPreWriteAccessibility()
+        {
+            RestorePreWriteModelFactoryMethods();
+            _latestResult = null;
+            PreWriteAccessibilityApplied = false;
+        }
+
+        public static void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
+        {
+            PreWriteAccessibilityApplied = false;
+            if (Configuration.UnreferencedTypesHandling == Configuration.UnreferencedTypesHandlingOption.KeepAll)
+            {
+                return;
+            }
+
+            var (internalizeCandidates, publicizeCandidates) = GetPreWriteAccessibilityCandidates(providers);
+            foreach (var provider in GetGeneratedProviders(providers))
+            {
+                var providerName = GetProviderTypeName(provider.Type);
+                if (internalizeCandidates.Contains(providerName))
+                {
+                    provider.PreserveXmlDocs();
+                    provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
+                }
+                else if (publicizeCandidates.Contains(providerName))
+                {
+                    provider.Update(modifiers: MakePublic(provider.DeclarationModifiers));
+                }
+            }
+
+            RemoveMethodsFromModelFactory(internalizeCandidates.Select(GetSimpleName).ToHashSet(StringComparer.Ordinal));
+            PreWriteAccessibilityApplied = true;
+        }
+
+        public static void RestorePreWriteModelFactoryMethods()
+        {
+            if (_preWriteModelFactory == null || _preWriteModelFactoryMethods == null)
+            {
+                return;
+            }
+
+            _preWriteModelFactory.Update(methods: _preWriteModelFactoryMethods);
+            _preWriteModelFactory = null;
+            _preWriteModelFactoryMethods = null;
+        }
+
+        public static void Analyze(IReadOnlyList<TypeProvider> providers)
         {
             var generatedProviders = GetGeneratedProviders(providers);
             var graph = BuildGraph(generatedProviders);
             var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
 
-            // Generated-code dependencies come from providers. Custom code still needs Roslyn
-            // because arbitrary user C# can reference generated types in ways providers cannot see.
-            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(project, graph.Nodes);
+            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
             var apiBaselineGeneratedTypeRoots = GetApiBaselineGeneratedTypeRoots(graph.Nodes);
             customPublicRoots.UnionWith(apiBaselineGeneratedTypeRoots);
             var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarations(generatedProviders, graph.Nodes);
             customPublicRoots.UnionWith(generatedPublicDeclarations);
-            var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(project, graph.Nodes);
+            var customRemovalRoots = GetCustomCodeGeneratedTypeRoots(generatedProviders, graph.Nodes);
             customRemovalRoots.UnionWith(apiBaselineGeneratedTypeRoots);
             customRemovalRoots.UnionWith(generatedPublicDeclarations);
-            var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(project, graph.Nodes);
+            var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
 
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
-            var generatedDiscriminatorBaseNames = GetGeneratedPersistableModelProxyTypeNames(project, publicGraph.Nodes);
-            AddGeneratedXmlDocCrefReferences(project, publicGraph, publicOnly: true);
+            var generatedDiscriminatorBaseNames = GetGeneratedPersistableModelProxyTypeNames(generatedProviders, publicGraph.Nodes);
             var internalizeReferences = CloneReferences(publicGraph.References);
             var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
             if (ShouldUseUnionVariantFallbackRoots())
@@ -78,7 +123,9 @@ namespace Microsoft.TypeSpec.Generator
             var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
             var internalizeCandidates = internalizeDeclaredNodes
                 .Except(publicizeReachable, StringComparer.Ordinal)
-                .Union(internalizeDeclaredNodes.Intersect(customInternalBoundaryNodes, StringComparer.Ordinal), StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes
+                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
+                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
                 .OrderBy(static name => name, StringComparer.Ordinal)
                 .ToArray();
             var publicizeCandidates = publicizeDeclaredNodes
@@ -96,8 +143,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // Body-only generated dependencies are needed to avoid deleting helper files, but they do
             // not contribute to public API reachability for internalization.
-            AddGeneratedXmlDocCrefReferences(project, graph, publicOnly: false);
-            AddGeneratedBodyReferences(project, providers, graph);
+            AddGeneratedBodyReferences(providers, graph);
 
             var removeRoots = GetRootNames(
                 providers,
@@ -108,7 +154,11 @@ namespace Microsoft.TypeSpec.Generator
                 includeUnionVariantRoots: ShouldUseUnionVariantFallbackRoots(),
                 publicClientRootsOnly: false);
             removeRoots.UnionWith(customRemovalRoots);
-            RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, project);
+            AddMatchingNamesWithSimpleNameSuffix(removeRoots, "ReferenceType", graph.Nodes);
+            AddCustomCodeExtensionRoots(removeRoots, generatedProviders, graph.Nodes);
+            AddCustomizationBackedExtensionRoots(removeRoots, graph.Nodes);
+            AddCustomRequestHeaderExtensionsRoot(removeRoots, generatedProviders, graph.Nodes);
+            RemoveUnusedRequestHeaderExtensionsRoot(removeRoots, graph.References, providers);
             var removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
             AddDerivedModelReferences(providers, graph.Nodes, graph.References, removeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             removeReachableWithoutHelpers = GetReachableTypes(removeRoots, graph.References);
@@ -122,129 +172,285 @@ namespace Microsoft.TypeSpec.Generator
             var helperRoots = internalizeHelperRoots.Concat(removeHelperRoots).ToHashSet(StringComparer.Ordinal);
 
             _latestResult = new ProviderReferenceMapResult(
-                project.Id,
                 internalizeCandidates.ToHashSet(StringComparer.Ordinal),
                 publicizeCandidates.ToHashSet(StringComparer.Ordinal),
                 removeCandidates.ToHashSet(StringComparer.Ordinal));
         }
 
-        private static HashSet<string> GetCustomCodeGeneratedTypeRoots(Project project, HashSet<string> generatedTypeNames)
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicizeCandidates) GetPreWriteAccessibilityCandidates(IReadOnlyList<TypeProvider> providers)
         {
-            var roots = new HashSet<string>(StringComparer.Ordinal);
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            var generatedProviders = GetGeneratedProviders(providers);
+            var graph = BuildGraph(generatedProviders);
+            var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
+            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
+            var apiBaselineGeneratedTypeRoots = GetApiBaselineGeneratedTypeRoots(graph.Nodes);
+            customPublicRoots.UnionWith(apiBaselineGeneratedTypeRoots);
+            var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarations(generatedProviders, graph.Nodes);
+            customPublicRoots.UnionWith(generatedPublicDeclarations);
+            var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
+            var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
+            var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
+
+            var (internalizeCandidates, publicizeCandidates, _) = GetAccessibilityCandidates(
+                providers,
+                generatedProviders,
+                graph,
+                publicGraph,
+                customPublicRoots,
+                customInternalDeclarations,
+                generatedInternalDeclarations,
+                generatedDiscriminatorBaseNames);
+
+            return (internalizeCandidates, publicizeCandidates);
+        }
+
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicizeCandidates, HashSet<string> InternalizeHelperRoots) GetAccessibilityCandidates(
+            IReadOnlyList<TypeProvider> providers,
+            IReadOnlyList<TypeProvider> generatedProviders,
+            ProviderReferenceGraph graph,
+            ProviderReferenceGraph publicGraph,
+            HashSet<string> customPublicRoots,
+            HashSet<string> customInternalDeclarations,
+            HashSet<string> generatedInternalDeclarations,
+            HashSet<string> generatedDiscriminatorBaseNames)
+        {
+            var internalizeReferences = CloneReferences(publicGraph.References);
+            var internalizeRoots = GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: false, includeAdditionalRoots: true, includeUnionVariantRoots: false, publicClientRootsOnly: true);
+            if (ShouldUseUnionVariantFallbackRoots())
             {
-                return roots;
+                AddUnionVariantRoots(internalizeRoots, providers, graph.Nodes);
             }
 
-            foreach (var document in project.Documents)
+            var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
+            internalizeRoots.UnionWith(customPublicRoots);
+            var internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
+            AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, internalizeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
+            internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
+            var publicizeRoots = internalizeRoots.ToHashSet(StringComparer.Ordinal);
+            var internalizeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, internalizeReachableWithoutHelpers);
+            internalizeRoots.UnionWith(internalizeHelperRoots);
+            var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
+            var customInternalBoundaryNodes = graph.Nodes
+                .Where(name => publicGraph.References.TryGetValue(name, out var references) && references.Overlaps(customInternalDeclarations))
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: false)
+                .Except(internalizeDeclaredNodes, StringComparer.Ordinal);
+            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedInternalDeclarations).ToHashSet(StringComparer.Ordinal);
+            var publicApiTraversalNodes = internalizeDeclaredNodes
+                .Except(generatedInternalDeclarations, StringComparer.Ordinal)
+                .Concat(publicizeDeclaredNodes)
+                .Except(generatedImplementationInternalDeclarations, StringComparer.Ordinal)
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeReachable = GetReachableTypes(publicizeRoots, internalizeReferences, publicApiTraversalNodes);
+            var internalizeCandidates = internalizeDeclaredNodes
+                .Except(publicizeReachable, StringComparer.Ordinal)
+                .Union(internalizeDeclaredNodes
+                    .Intersect(customInternalBoundaryNodes, StringComparer.Ordinal)
+                    .Except(publicizeRoots, StringComparer.Ordinal), StringComparer.Ordinal)
+                .ToHashSet(StringComparer.Ordinal);
+            var publicizeCandidates = publicizeDeclaredNodes
+                .Except(customInternalDeclarations, StringComparer.Ordinal)
+                .Except(customInternalBoundaryNodes, StringComparer.Ordinal)
+                .Except(internalizeHelperRoots, StringComparer.Ordinal)
+                .Except(GetRootNames(providers, graph.Nodes, helperRoots: [], includeModelFactory: true, includeAdditionalRoots: true, includeUnionVariantRoots: true, publicClientRootsOnly: true), StringComparer.Ordinal)
+                .Intersect(publicizeReachable, StringComparer.Ordinal)
+                .Where(name => !generatedInternalDeclarations.Contains(name) || publicizeRoots.Contains(name))
+                .Where(name => publicizeRoots.Contains(name) ||
+                    HasPublicApiPredecessor(name, internalizeReferences, publicizeReachable, generatedImplementationInternalDeclarations))
+                .ToHashSet(StringComparer.Ordinal);
+
+            return (internalizeCandidates, publicizeCandidates, internalizeHelperRoots);
+        }
+
+        private static HashSet<string> GetCustomCodeGeneratedTypeRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var customCodeView in GetCustomCodeViews(providers))
             {
-                if (IsGeneratedDocument(document))
-                {
-                    continue;
-                }
-
-                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                if (root == null)
-                {
-                    continue;
-                }
-
-                var model = compilation.GetSemanticModel(root.SyntaxTree);
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    AddSymbolRoot(roots, model.GetDeclaredSymbol(declaration) as ITypeSymbol, generatedTypeNames);
-                }
-
-                foreach (var typeSyntax in root.DescendantNodes().OfType<TypeSyntax>())
-                {
-                    AddSymbolRoot(roots, model.GetTypeInfo(typeSyntax).Type, generatedTypeNames);
-                }
-
-                foreach (var objectCreation in root.DescendantNodes().OfType<ObjectCreationExpressionSyntax>())
-                {
-                    AddSymbolRoot(roots, model.GetSymbolInfo(objectCreation).Symbol?.ContainingType, generatedTypeNames);
-                }
-
-                foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
-                {
-                    AddSymbolRoot(roots, model.GetSymbolInfo(invocation).Symbol?.ContainingType, generatedTypeNames);
-                }
+                AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: false);
             }
 
             return roots;
         }
 
-        private static HashSet<string> GetCustomCodePublicGeneratedTypeRoots(Project project, HashSet<string> generatedTypeNames)
+        private static HashSet<string> GetCustomCodePublicGeneratedTypeRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
         {
             var roots = new HashSet<string>(StringComparer.Ordinal);
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            foreach (var customCodeView in GetCustomCodeViews(providers))
             {
-                return roots;
-            }
-
-            foreach (var document in project.Documents)
-            {
-                if (IsGeneratedDocument(document))
+                if (!customCodeView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 {
                     continue;
                 }
 
-                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                if (root == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    if (semanticModel.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol ||
-                        symbol.DeclaredAccessibility != Accessibility.Public)
-                    {
-                        continue;
-                    }
-
-                    AddSymbolRoot(roots, symbol, generatedTypeNames);
-                    AddSymbolRoot(roots, symbol.BaseType, generatedTypeNames);
-                    foreach (var interfaceType in symbol.Interfaces)
-                    {
-                        AddSymbolRoot(roots, interfaceType, generatedTypeNames);
-                    }
-
-                    foreach (var member in symbol.GetMembers())
-                    {
-                        if (member.DeclaredAccessibility != Accessibility.Public ||
-                            !IsDeclaredInSyntaxTree(member, declaration.SyntaxTree, declaration.Span))
-                        {
-                            continue;
-                        }
-
-                        switch (member)
-                        {
-                            case IMethodSymbol method:
-                                AddSymbolRoot(roots, method.ReturnType, generatedTypeNames);
-                                foreach (var parameter in method.Parameters)
-                                {
-                                    AddSymbolRoot(roots, parameter.Type, generatedTypeNames);
-                                }
-                                break;
-                            case IPropertySymbol property:
-                                AddSymbolRoot(roots, property.Type, generatedTypeNames);
-                                break;
-                            case IFieldSymbol field:
-                                AddSymbolRoot(roots, field.Type, generatedTypeNames);
-                                break;
-                            case IEventSymbol eventSymbol:
-                                AddSymbolRoot(roots, eventSymbol.Type, generatedTypeNames);
-                                break;
-                        }
-                    }
-                }
+                AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: true);
             }
 
             return roots;
+        }
+
+        private static IEnumerable<TypeProvider> GetCustomCodeViews(IReadOnlyList<TypeProvider> providers)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            var modelFactoryCustomCodeView = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value.CustomCodeView;
+            if (modelFactoryCustomCodeView != null && visited.Add(GetCustomCodeViewIdentity(modelFactoryCustomCodeView)))
+            {
+                yield return modelFactoryCustomCodeView;
+            }
+
+            foreach (var provider in providers)
+            {
+                var customCodeView = provider.CustomCodeView;
+                if (customCodeView == null || !visited.Add(GetCustomCodeViewIdentity(customCodeView)))
+                {
+                    continue;
+                }
+
+                yield return customCodeView;
+            }
+
+            foreach (var customTypeProvider in CodeModelGenerator.Instance.SourceInputModel.GetCustomizationTypeProviders())
+            {
+                if (visited.Add(GetCustomCodeViewIdentity(customTypeProvider)))
+                {
+                    yield return customTypeProvider;
+                }
+            }
+        }
+
+        private static string GetCustomCodeViewIdentity(TypeProvider customCodeView) =>
+            customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider
+                ? namedTypeSymbolProvider.MetadataName
+                : GetProviderTypeName(customCodeView.Type);
+
+        private static void AddCustomRequestHeaderExtensionsRoot(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
+        {
+            if (!HasCustomRequestHeaderExtensionsReference(providers))
+            {
+                return;
+            }
+
+            AddMatchingNamesWithSimpleNameSuffix(roots, "RequestHeaderExtensions", nodes);
+            AddMatchingNamesWithSimpleNameSuffix(roots, "RequestHeadersExtensions", nodes);
+        }
+
+        private static void AddCustomCodeExtensionRoots(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
+        {
+            foreach (var customCodeView in GetCustomCodeViews(providers))
+            {
+                AddMatchingName(roots, $"{GetCustomCodeViewSimpleName(customCodeView)}Extensions", nodes);
+            }
+        }
+
+        private static string GetCustomCodeViewSimpleName(TypeProvider customCodeView) =>
+            customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider
+                ? namedTypeSymbolProvider.MetadataSimpleName
+                : customCodeView.Type.Name;
+
+        private static void AddCustomizationBackedExtensionRoots(HashSet<string> roots, HashSet<string> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                var simpleName = GetSimpleName(node);
+                if (!simpleName.EndsWith("Extensions", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var namespaceName = GetNamespaceName(node);
+                if (namespaceName == null)
+                {
+                    continue;
+                }
+
+                var customTypeName = simpleName.Substring(0, simpleName.Length - "Extensions".Length);
+                if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(namespaceName, customTypeName) != null)
+                {
+                    roots.Add(node);
+                }
+            }
+        }
+
+        private static void AddCustomCodeViewRoots(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames, bool publicOnly)
+        {
+            if (customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider)
+            {
+                AddMatchingName(roots, namedTypeSymbolProvider.MetadataSimpleName, generatedTypeNames);
+                AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddProviderBodyDependencyTypes(roots, customCodeView.HelperDependencyTypes, generatedTypeNames);
+                    AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames);
+                }
+
+                return;
+            }
+
+            AddTypeReference(roots, customCodeView.Type, generatedTypeNames);
+            AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames);
+            AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames);
+            if (!publicOnly)
+            {
+                AddAttributes(roots, customCodeView.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
+                AddMatchingName(roots, $"{GetCustomCodeViewSimpleName(customCodeView)}Extensions", generatedTypeNames);
+                AddProviderBodyDependencyTypes(roots, customCodeView.HelperDependencyTypes, generatedTypeNames);
+                AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames);
+            }
+
+            foreach (var implementedType in customCodeView.Implements)
+            {
+                AddTypeReference(roots, implementedType, generatedTypeNames);
+            }
+
+            foreach (var constructor in customCodeView.Constructors)
+            {
+                if (publicOnly && !IsPublic(constructor.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                AddSignatureReferences(roots, constructor.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+            }
+
+            foreach (var method in customCodeView.Methods)
+            {
+                if (publicOnly && !IsPublic(method.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                AddSignatureReferences(roots, method.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+            }
+
+            foreach (var property in customCodeView.Properties)
+            {
+                if (publicOnly && !IsPublic(property.Modifiers))
+                {
+                    continue;
+                }
+
+                AddTypeReference(roots, property.Type, generatedTypeNames);
+                AddTypeReference(roots, property.ExplicitInterface, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddAttributes(roots, property.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
+                }
+            }
+
+            foreach (var field in customCodeView.Fields)
+            {
+                if (publicOnly && !IsPublic(field.Modifiers))
+                {
+                    continue;
+                }
+
+                AddTypeReference(roots, field.Type, generatedTypeNames);
+                if (!publicOnly)
+                {
+                    AddAttributes(roots, field.Attributes, generatedTypeNames, serializationProviderNamesByType: null);
+                }
+            }
         }
 
         private static HashSet<string> GetApiBaselineGeneratedTypeRoots(HashSet<string> generatedTypeNames)
@@ -263,11 +469,12 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var apiText = string.Join("\n", Directory.GetFiles(apiDirectory, "*.cs", SearchOption.AllDirectories).Select(File.ReadAllText));
+            var apiDeclaredTypeNames = GetApiDeclaredTypeNames(apiText);
             foreach (var fullName in generatedTypeNames)
             {
                 var simpleName = StripGenericArity(GetSimpleName(fullName));
                 var normalizedFullName = StripGenericArity(fullName);
-                if (!ContainsApiTypeReference(apiText, normalizedFullName, simpleName))
+                if (!ContainsApiTypeReference(apiText, apiDeclaredTypeNames, normalizedFullName, simpleName))
                 {
                     continue;
                 }
@@ -278,7 +485,35 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
-        private static bool ContainsApiTypeReference(string apiText, string fullName, string simpleName)
+        private static HashSet<string> GetApiDeclaredTypeNames(string apiText)
+        {
+            var declaredTypeNames = new HashSet<string>(StringComparer.Ordinal);
+            string? currentNamespace = null;
+            foreach (var line in apiText.Split('\n'))
+            {
+                var namespaceMatch = Regex.Match(line, @"^namespace\s+([\w.]+)\s*\{?\s*$");
+                if (namespaceMatch.Success)
+                {
+                    currentNamespace = namespaceMatch.Groups[1].Value;
+                    continue;
+                }
+
+                if (currentNamespace == null)
+                {
+                    continue;
+                }
+
+                var declarationMatch = Regex.Match(line, @"^    \S.*?\b(class|struct|interface|enum)\s+([A-Za-z_][A-Za-z0-9_]*)(?!\s*<)(?!\w)");
+                if (declarationMatch.Success)
+                {
+                    declaredTypeNames.Add($"{currentNamespace}.{declarationMatch.Groups[2].Value}");
+                }
+            }
+
+            return declaredTypeNames;
+        }
+
+        private static bool ContainsApiTypeReference(string apiText, HashSet<string> apiDeclaredTypeNames, string fullName, string simpleName)
         {
             var fullNamePattern = $@"(?<![\w.]){Regex.Escape(fullName)}(?!\s*<)(?![\w.])";
             if (Regex.IsMatch(apiText, fullNamePattern))
@@ -286,97 +521,38 @@ namespace Microsoft.TypeSpec.Generator
                 return true;
             }
 
-            var declarationPattern = $@"(?m)^    \S.*?\b(class|struct|interface|enum)\s+{Regex.Escape(simpleName)}(?!\s*<)(?!\w)";
-            return Regex.IsMatch(apiText, declarationPattern);
+            return apiDeclaredTypeNames.Contains(fullName);
         }
 
-        private static bool IsDeclaredInSyntaxTree(ISymbol symbol, SyntaxTree syntaxTree, Microsoft.CodeAnalysis.Text.TextSpan span)
-        {
-            foreach (var syntaxReference in symbol.DeclaringSyntaxReferences)
-            {
-                if (syntaxReference.SyntaxTree == syntaxTree && span.Contains(syntaxReference.Span))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static HashSet<string> GetCustomCodeInternalGeneratedTypeDeclarations(Project project, HashSet<string> generatedTypeNames)
+        private static HashSet<string> GetCustomCodeInternalGeneratedTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            foreach (var customCodeView in GetCustomCodeViews(providers))
             {
-                return declarations;
-            }
-
-            foreach (var document in project.Documents)
-            {
-                if (IsGeneratedDocument(document))
+                if (customCodeView is NamedTypeSymbolProvider)
                 {
                     continue;
                 }
 
-                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                if (root == null)
+                if (!customCodeView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 {
                     continue;
                 }
 
-                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    if (semanticModel.GetDeclaredSymbol(declaration) is not INamedTypeSymbol symbol ||
-                        symbol.DeclaredAccessibility != Accessibility.Internal)
-                    {
-                        continue;
-                    }
-
-                    AddMatchingName(declarations, symbol.GetFullyQualifiedName(), generatedTypeNames);
-                }
+                AddTypeReference(declarations, customCodeView.Type, generatedTypeNames);
             }
 
             return declarations;
         }
 
-        private static HashSet<string> GetGeneratedPersistableModelProxyTypeNames(Project project, HashSet<string> generatedTypeNames)
+        private static HashSet<string> GetGeneratedPersistableModelProxyTypeNames(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
         {
             var proxyTypes = new HashSet<string>(StringComparer.Ordinal);
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            foreach (var provider in GetGeneratedProviders(providers))
             {
-                return proxyTypes;
-            }
-
-            foreach (var document in project.Documents)
-            {
-                if (!IsGeneratedDocument(document))
+                if (provider.Attributes.Any(static attribute => IsAttributeNamed(attribute, "PersistableModelProxy")))
                 {
-                    continue;
-                }
-
-                var root = document.GetSyntaxRootAsync().GetAwaiter().GetResult();
-                if (root == null)
-                {
-                    continue;
-                }
-
-                var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
-                foreach (var declaration in root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>())
-                {
-                    if (!declaration.AttributeLists
-                        .SelectMany(static list => list.Attributes)
-                        .Any(static attribute => attribute.Name.ToString().Contains("PersistableModelProxy", StringComparison.Ordinal)))
-                    {
-                        continue;
-                    }
-
-                    if (semanticModel.GetDeclaredSymbol(declaration) is INamedTypeSymbol symbol)
-                    {
-                        AddMatchingName(proxyTypes, symbol.GetFullyQualifiedName(), generatedTypeNames);
-                    }
+                    AddTypeReference(proxyTypes, provider.Type, generatedTypeNames);
                 }
             }
 
@@ -384,27 +560,25 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static HashSet<string> GetGeneratedInternalTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
-            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, Accessibility.Internal);
+            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, TypeSignatureModifiers.Internal);
 
         private static HashSet<string> GetGeneratedPublicTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
-            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, Accessibility.Public);
+            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, TypeSignatureModifiers.Public);
 
         private static HashSet<string> GetGeneratedTypeDeclarationsByLastContractAccessibility(
             IReadOnlyList<TypeProvider> providers,
             HashSet<string> generatedTypeNames,
-            Accessibility accessibility)
+            TypeSignatureModifiers accessibility)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
-            var lastContract = CodeModelGenerator.Instance.SourceInputModel.LastContract;
             foreach (var provider in GetGeneratedProviders(providers))
             {
-                var providerTypeName = GetProviderTypeName(provider.Type);
-                if (lastContract?.GetTypeByMetadataName(providerTypeName)?.DeclaredAccessibility != accessibility)
+                if (provider.LastContractView?.DeclarationModifiers.HasFlag(accessibility) != true)
                 {
                     continue;
                 }
 
-                AddMatchingName(declarations, providerTypeName, generatedTypeNames);
+                AddTypeReference(declarations, provider.Type, generatedTypeNames);
             }
 
             return declarations;
@@ -413,42 +587,21 @@ namespace Microsoft.TypeSpec.Generator
         private static IEnumerable<string> GetGeneratedImplementationInternalTypeDeclarations(HashSet<string> generatedInternalDeclarations) =>
             generatedInternalDeclarations.Where(static name => GetSimpleName(name).StartsWith("Internal", StringComparison.Ordinal));
 
-        private static void AddSymbolRoot(HashSet<string> roots, ITypeSymbol? symbol, HashSet<string> generatedTypeNames)
-        {
-            if (symbol is not INamedTypeSymbol namedType)
-            {
-                return;
-            }
-
-            AddMatchingSymbolName(roots, namedType, generatedTypeNames);
-            foreach (var typeArgument in namedType.TypeArguments)
-            {
-                AddSymbolRoot(roots, typeArgument, generatedTypeNames);
-            }
-        }
-
-        private static void AddMatchingSymbolName(HashSet<string> target, INamedTypeSymbol symbol, HashSet<string> generatedTypeNames)
-        {
-            try
-            {
-                AddMatchingName(target, symbol.GetFullyQualifiedName(), generatedTypeNames);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // Some custom-code symbols cannot be represented by the legacy fully-qualified-name
-                // helper. A simple-name match is enough to discover generated roots.
-                AddMatchingName(target, symbol.Name, generatedTypeNames);
-            }
-        }
-
         private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> generatedProviders, bool publicOnly = false)
         {
+            // Each generated provider becomes a node, and provider metadata supplies the edges:
+            // inheritance, signatures, properties, fields, nested/serialization providers, attributes,
+            // and selected implementation dependencies. This avoids parsing generated C# just to
+            // rediscover generated-to-generated references.
             var serializationProviderNamesByType = generatedProviders
                 .Where(static provider => provider.SerializationProviders.Count > 0)
+                .GroupBy(static provider => GetProviderTypeName(provider.Type), StringComparer.Ordinal)
                 .ToDictionary(
-                    static provider => GetProviderTypeName(provider.Type),
-                    static provider => provider.SerializationProviders
+                    static group => group.Key,
+                    static group => group
+                        .SelectMany(static provider => provider.SerializationProviders)
                         .Select(static serializationProvider => GetProviderTypeName(serializationProvider.Type))
+                        .Distinct(StringComparer.Ordinal)
                         .ToArray(),
                     StringComparer.Ordinal);
             IReadOnlyDictionary<string, string[]>? serializationReferenceNamesByType = publicOnly ? null : serializationProviderNamesByType;
@@ -569,6 +722,13 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsPublic(MethodSignatureModifiers modifiers) => modifiers.HasFlag(MethodSignatureModifiers.Public);
+        private static bool IsPublic(FieldModifiers modifiers) => modifiers.HasFlag(FieldModifiers.Public);
+
+        private static TypeSignatureModifiers MakeInternal(TypeSignatureModifiers modifiers)
+            => (modifiers & ~(TypeSignatureModifiers.Public | TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected)) | TypeSignatureModifiers.Internal;
+
+        private static TypeSignatureModifiers MakePublic(TypeSignatureModifiers modifiers)
+            => (modifiers & ~(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected)) | TypeSignatureModifiers.Public;
 
         private static Dictionary<string, HashSet<string>> CloneReferences(IReadOnlyDictionary<string, HashSet<string>> references)
         {
@@ -729,22 +889,12 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static void AddGeneratedBodyReferences(Project project, IReadOnlyList<TypeProvider> providers, ProviderReferenceGraph graph)
+        private static void AddGeneratedBodyReferences(IReadOnlyList<TypeProvider> providers, ProviderReferenceGraph graph)
         {
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
+            foreach (var (provider, isSerializationProvider) in GetBodyReferenceProviders(providers))
             {
-                return;
-            }
-
-            foreach (var provider in GetBodyReferenceProviders(providers))
-            {
-                if (IsModelFactoryProvider(provider))
-                {
-                    continue;
-                }
-
-                if (!IsGeneratedBodyReferenceCandidate(provider))
+                if (IsModelFactoryProvider(provider) ||
+                    !IsGeneratedBodyReferenceCandidate(provider, isSerializationProvider))
                 {
                     continue;
                 }
@@ -754,19 +904,271 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     continue;
                 }
-
-                var bodyDependencyTypes = ShouldUseGeneratedSourceReferences(provider) ? [] : provider.BodyDependencyTypes;
-                AddProviderBodyDependencyTypes(graph.References[providerName], bodyDependencyTypes, graph.Nodes);
-
-                var symbol = compilation.GetTypeByMetadataName(providerName);
-                if (symbol == null)
-                {
-                    continue;
-                }
-
-                AddGeneratedBodyTypeReferences(project, compilation, graph, providerName, symbol);
+                AddHelperDependencies(graph.References[providerName], provider.HelperDependencyTypes, graph.Nodes, referencedNames: null);
+                AddProviderBodyDependencyTypes(graph.References[providerName], CollectStructuredBodyReferenceTypes(provider), graph.Nodes);
+                AddProviderBodyDependencyTypes(graph.References[providerName], provider.BodyDependencyTypes, graph.Nodes);
+                AddProviderInfrastructureReferences(graph.References[providerName], provider, graph.Nodes);
             }
         }
+
+        private static void AddProviderInfrastructureReferences(HashSet<string> references, TypeProvider provider, HashSet<string> nodes)
+        {
+            AddMatchingName(references, "ProviderConstants", nodes);
+            AddMatchingName(references, "TypeFormatters", nodes);
+
+            if (provider.SerializationProviders.Count > 0)
+            {
+                AddSerializationExtensionReferences(references, provider, nodes);
+            }
+
+            if (IsSerializationProvider(provider))
+            {
+                AddMatchingName(references, "Optional", nodes);
+                AddMatchingName(references, "BinaryContentHelper", nodes);
+                AddMatchingName(references, "Utf8JsonRequestContent", nodes);
+                AddMatchingName(references, "ModelSerializationExtensions", nodes);
+                AddSerializationExtensionReferences(references, provider, nodes);
+            }
+
+            foreach (var method in provider.Methods)
+            {
+                AddMethodInfrastructureReferences(references, method, nodes);
+            }
+        }
+
+        private static void AddSerializationExtensionReferences(HashSet<string> references, TypeProvider provider, HashSet<string> nodes)
+        {
+            AddSerializationExtensionReferences(references, provider.Type, nodes);
+            AddSerializationExtensionReferences(references, provider.BaseType, nodes);
+            foreach (var implementedType in provider.Implements)
+            {
+                AddSerializationExtensionReferences(references, implementedType, nodes);
+            }
+
+            foreach (var property in provider.Properties)
+            {
+                AddSerializationExtensionReferences(references, property.Type, nodes);
+            }
+
+            foreach (var field in provider.Fields)
+            {
+                AddSerializationExtensionReferences(references, field.Type, nodes);
+            }
+
+            foreach (var constructor in provider.Constructors)
+            {
+                AddSerializationExtensionReferences(references, constructor.Signature.ReturnType, nodes);
+                foreach (var parameter in constructor.Signature.Parameters)
+                {
+                    AddSerializationExtensionReferences(references, parameter.Type, nodes);
+                }
+            }
+
+            foreach (var method in provider.Methods)
+            {
+                AddSerializationExtensionReferences(references, method.Signature.ReturnType, nodes);
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    AddSerializationExtensionReferences(references, parameter.Type, nodes);
+                }
+            }
+        }
+
+        private static void AddSerializationExtensionReferences(HashSet<string> references, CSharpType? type, HashSet<string> nodes)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            AddMatchingName(references, $"{type.Name}Extensions", nodes);
+            foreach (var argument in type.Arguments)
+            {
+                AddSerializationExtensionReferences(references, argument, nodes);
+            }
+        }
+
+        private static void AddMethodInfrastructureReferences(HashSet<string> references, MethodProvider method, HashSet<string> nodes)
+        {
+            AddReturnTypeInfrastructureReferences(references, method.Signature.ReturnType, nodes);
+            foreach (var parameter in method.Signature.Parameters)
+            {
+                AddRequestContentInfrastructureReferences(references, parameter.Type, nodes);
+            }
+        }
+
+        private static void AddReturnTypeInfrastructureReferences(HashSet<string> references, CSharpType? returnType, HashSet<string> nodes)
+        {
+            var type = UnwrapTask(returnType);
+            if (type == null)
+            {
+                return;
+            }
+
+            var typeName = StripGenericArity(type.Name);
+            if (string.Equals(typeName, "Pageable", StringComparison.Ordinal))
+            {
+                AddMatchingName(references, "PageableWrapper", nodes);
+            }
+            else if (string.Equals(typeName, "AsyncPageable", StringComparison.Ordinal))
+            {
+                AddMatchingName(references, "AsyncPageableWrapper", nodes);
+            }
+            else if (string.Equals(typeName, "ArmOperation", StringComparison.Ordinal))
+            {
+                AddMatchingNamesWithSimpleNameSuffix(references, "ArmOperation", nodes);
+                AddMatchingNamesWithSimpleNameSuffix(references, "OperationSource", nodes);
+                if (type.Arguments.Count > 0)
+                {
+                    AddMatchingName(references, $"{BuildOperationSourceTypeName(type.Arguments[0])}OperationSource", nodes);
+                }
+            }
+        }
+
+        private static void AddRequestContentInfrastructureReferences(HashSet<string> references, CSharpType? type, HashSet<string> nodes)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            if (string.Equals(type.Name, "RequestContent", StringComparison.Ordinal) ||
+                string.Equals(type.Name, "BinaryData", StringComparison.Ordinal))
+            {
+                AddMatchingName(references, "BinaryContentHelper", nodes);
+                AddMatchingName(references, "Utf8JsonRequestContent", nodes);
+            }
+
+            foreach (var argument in type.Arguments)
+            {
+                AddRequestContentInfrastructureReferences(references, argument, nodes);
+            }
+        }
+
+        private static CSharpType? UnwrapTask(CSharpType? type)
+        {
+            var typeName = type == null ? null : StripGenericArity(type.Name);
+            if ((string.Equals(typeName, "Task", StringComparison.Ordinal) ||
+                string.Equals(typeName, "ValueTask", StringComparison.Ordinal)) &&
+                type?.Arguments.Count > 0)
+            {
+                return type.Arguments[0];
+            }
+
+            return type;
+        }
+
+        private static string BuildOperationSourceTypeName(CSharpType type)
+        {
+            var argumentNames = string.Join("", type.Arguments.Select(BuildOperationSourceTypeName));
+            return $"{type.Name}{(argumentNames.Length > 0 ? "Of" : string.Empty)}{argumentNames}";
+        }
+
+        private static IReadOnlyList<CSharpType> CollectStructuredBodyReferenceTypes(TypeProvider provider)
+        {
+            var references = new HashSet<CSharpType>();
+            var visited = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+            foreach (var field in provider.Fields)
+            {
+                CollectStructuredBodyReferenceTypes(field.InitializationValue, references, visited);
+            }
+
+            foreach (var property in provider.Properties)
+            {
+                CollectStructuredBodyReferenceTypes(property.Body, references, visited);
+            }
+
+            foreach (var constructor in provider.Constructors)
+            {
+                CollectStructuredBodyReferenceTypes(constructor.BodyExpression, references, visited);
+                CollectStructuredBodyReferenceTypes(constructor.BodyStatements, references, visited);
+            }
+
+            foreach (var method in provider.Methods)
+            {
+                CollectStructuredBodyReferenceTypes(method.BodyExpression, references, visited);
+                CollectStructuredBodyReferenceTypes(method.BodyStatements, references, visited);
+            }
+
+            return [.. references];
+        }
+
+        private static void CollectStructuredBodyReferenceTypes(object? value, HashSet<CSharpType> references, HashSet<object> visited)
+        {
+            switch (value)
+            {
+                case null:
+                case string:
+                case FormattableString:
+                    return;
+            }
+
+            if (!value.GetType().IsValueType && !visited.Add(value))
+            {
+                return;
+            }
+
+            switch (value)
+            {
+                case CSharpType type:
+                    references.Add(type);
+                    return;
+                case Type type:
+                    references.Add(type);
+                    return;
+                case ParameterProvider parameter:
+                    references.Add(parameter.Type);
+                    CollectStructuredBodyReferenceTypes(parameter.DefaultValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(parameter.InitializationValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(parameter.Attributes, references, visited);
+                    return;
+                case MethodSignatureBase signature:
+                    CollectStructuredBodyReferenceTypes(signature.ReturnType, references, visited);
+                    CollectStructuredBodyReferenceTypes(signature.Parameters, references, visited);
+                    CollectStructuredBodyReferenceTypes(signature.Attributes, references, visited);
+                    return;
+                case KeyValuePair<string, ValueExpression> positionalArgument:
+                    CollectStructuredBodyReferenceTypes(positionalArgument.Value, references, visited);
+                    return;
+                case FieldProvider field:
+                    references.Add(field.Type);
+                    CollectStructuredBodyReferenceTypes(field.InitializationValue, references, visited);
+                    CollectStructuredBodyReferenceTypes(field.Attributes, references, visited);
+                    return;
+            }
+
+            if (IsStructuredBodyReferenceObject(value))
+            {
+                foreach (var property in value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    if (property.GetIndexParameters().Length > 0)
+                    {
+                        continue;
+                    }
+
+                    CollectStructuredBodyReferenceTypes(property.GetValue(value), references, visited);
+                }
+
+                return;
+            }
+
+            if (value is not IEnumerable values)
+            {
+                return;
+            }
+
+            foreach (var item in values)
+            {
+                CollectStructuredBodyReferenceTypes(item, references, visited);
+            }
+        }
+
+        private static bool IsStructuredBodyReferenceObject(object value) =>
+            value is ValueExpression ||
+            value is MethodBodyStatement ||
+            value is PropertyBody ||
+            value is AttributeStatement;
 
         private static void AddProviderBodyDependencyTypes(HashSet<string> references, IReadOnlyList<CSharpType> dependencies, HashSet<string> nodes)
         {
@@ -784,6 +1186,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AddTypeReference(references, dependency, nodes);
+            AddMatchingName(references, dependency.Name, nodes);
             AddMatchingName(references, $"{dependency.Name}Extensions", nodes);
 
             foreach (var argument in dependency.Arguments)
@@ -792,194 +1195,30 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static IReadOnlyList<TypeProvider> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
+        private static IReadOnlyList<(TypeProvider Provider, bool IsSerializationProvider)> GetBodyReferenceProviders(IReadOnlyList<TypeProvider> providers)
         {
-            var bodyReferenceProviders = new List<TypeProvider>();
+            var bodyReferenceProviders = new List<(TypeProvider Provider, bool IsSerializationProvider)>();
             foreach (var provider in providers)
             {
-                bodyReferenceProviders.Add(provider);
-                bodyReferenceProviders.AddRange(provider.SerializationProviders);
+                bodyReferenceProviders.Add((provider, false));
+                bodyReferenceProviders.AddRange(provider.SerializationProviders.Select(static serializationProvider => (serializationProvider, true)));
             }
 
             return bodyReferenceProviders;
         }
 
-        private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider)
+        private static bool IsGeneratedBodyReferenceCandidate(TypeProvider provider, bool isSerializationProvider)
         {
-            if (ShouldUseGeneratedSourceReferences(provider))
-            {
-                return true;
-            }
-
             if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
             {
                 return true;
             }
 
-            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return IsSerializationProvider(provider) ||
-                relativePath.EndsWith("/Internal/ClientUriBuilder.cs", StringComparison.Ordinal) ||
-                provider.HelperDependencyNames.Count > 0 ||
+            return provider.IsClientProvider ||
+                isSerializationProvider ||
+                provider.IncludeGeneratedBodyReferences ||
+                provider.HelperDependencyTypes.Count > 0 ||
                 provider.BodyDependencyTypes.Count > 0;
-        }
-
-        private static bool ShouldUseGeneratedSourceReferences(TypeProvider provider) =>
-            CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
-            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal);
-
-        private static void AddGeneratedXmlDocCrefReferences(Project project, ProviderReferenceGraph graph, bool publicOnly)
-        {
-            var compilation = project.GetCompilationAsync().GetAwaiter().GetResult();
-            if (compilation == null)
-            {
-                return;
-            }
-
-            foreach (var providerName in graph.Nodes)
-            {
-                var symbol = compilation.GetTypeByMetadataName(providerName);
-                if (symbol == null || publicOnly && symbol.DeclaredAccessibility != Accessibility.Public)
-                {
-                    continue;
-                }
-
-                foreach (var property in symbol.GetMembers().OfType<IPropertySymbol>())
-                {
-                    if (publicOnly && property.DeclaredAccessibility != Accessibility.Public)
-                    {
-                        continue;
-                    }
-
-                    var xml = property.GetDocumentationCommentXml();
-                    if (string.IsNullOrEmpty(xml) ||
-                        !xml.Contains("cref=\"T:", StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    var cRefs = XDocument.Parse(xml)
-                        .Descendants()
-                        .Attributes("cref")
-                        .Select(static attribute => attribute.Value)
-                        .Where(static cref => cref.Length > 2 && cref[0] == 'T' && cref[1] == ':')
-                        .Select(static cref => cref.Substring(2));
-
-                    foreach (var cref in cRefs)
-                    {
-                        AddMatchingName(graph.References[providerName], cref, graph.Nodes);
-                    }
-                }
-            }
-        }
-
-        private static bool IsGeneratedHelperSimpleName(string name) =>
-            string.Equals(name, "ChangeTrackingDictionary", StringComparison.Ordinal) ||
-            string.Equals(name, "ChangeTrackingList", StringComparison.Ordinal);
-
-        private static void AddGeneratedBodyTypeReferences(Project project, Compilation compilation, ProviderReferenceGraph graph, string ownerName, INamedTypeSymbol ownerSymbol)
-        {
-            foreach (var syntaxReference in ownerSymbol.DeclaringSyntaxReferences)
-            {
-                var document = project.GetDocument(syntaxReference.SyntaxTree);
-                if (document == null || !IsGeneratedDocument(document))
-                {
-                    continue;
-                }
-
-                var root = syntaxReference.SyntaxTree.GetRoot();
-                var semanticModel = compilation.GetSemanticModel(syntaxReference.SyntaxTree);
-                foreach (var node in root.DescendantNodes())
-                {
-                    if (node is TypeSyntax typeSyntax)
-                    {
-                        if (IsNamespaceOrUsingName(typeSyntax))
-                        {
-                            continue;
-                        }
-
-                        // Declaration names are the owner itself. The old Roslyn map captures references,
-                        // not a declaration making itself reachable.
-                        if (typeSyntax.Parent is BaseTypeDeclarationSyntax baseTypeDeclaration && baseTypeDeclaration.Identifier.Span == typeSyntax.Span)
-                        {
-                            continue;
-                        }
-
-                        var typeInfo = semanticModel.GetTypeInfo(typeSyntax).Type;
-                        AddBodyTypeReference(graph.References[ownerName], typeInfo, graph.Nodes);
-                        AddUnresolvedBodyTypeSyntaxReference(graph.References[ownerName], typeSyntax, typeInfo, graph.Nodes);
-                    }
-
-                    if (node is InvocationExpressionSyntax invocation)
-                    {
-                        if (semanticModel.GetSymbolInfo(invocation).Symbol is not IMethodSymbol method)
-                        {
-                            continue;
-                        }
-
-                        AddBodyTypeReference(graph.References[ownerName], method.ContainingType, graph.Nodes);
-                        AddBodyTypeReference(graph.References[ownerName], method.ReducedFrom?.ContainingType, graph.Nodes);
-                    }
-                }
-            }
-        }
-
-        private static bool IsNamespaceOrUsingName(TypeSyntax typeSyntax)
-        {
-            for (SyntaxNode? node = typeSyntax; node != null; node = node.Parent)
-            {
-                if (node.Parent is BaseNamespaceDeclarationSyntax namespaceDeclaration && namespaceDeclaration.Name == node ||
-                    node.Parent is UsingDirectiveSyntax usingDirective && usingDirective.Name == node)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static void AddUnresolvedBodyTypeSyntaxReference(HashSet<string> references, TypeSyntax typeSyntax, ITypeSymbol? symbol, HashSet<string> nodes)
-        {
-            if (symbol is INamedTypeSymbol { TypeKind: not TypeKind.Error })
-            {
-                return;
-            }
-
-            var simpleName = typeSyntax switch
-            {
-                QualifiedNameSyntax qualifiedName => qualifiedName.Right.Identifier.ValueText,
-                AliasQualifiedNameSyntax aliasQualifiedName => aliasQualifiedName.Name.Identifier.ValueText,
-                GenericNameSyntax genericName => genericName.Identifier.ValueText,
-                IdentifierNameSyntax identifierName => identifierName.Identifier.ValueText,
-                _ => null
-            };
-
-            if (simpleName != null)
-            {
-                AddMatchingName(references, simpleName, nodes);
-            }
-        }
-
-        private static void AddBodyTypeReference(HashSet<string> references, ITypeSymbol? symbol, HashSet<string> nodes)
-        {
-            if (symbol is not INamedTypeSymbol namedType || namedType.TypeKind == TypeKind.Error)
-            {
-                return;
-            }
-
-            if (IsGeneratedHelperSimpleName(namedType.Name))
-            {
-                AddMatchingName(references, namedType.Name, nodes);
-            }
-            AddMatchingName(references, namedType.GetFullyQualifiedName(), nodes);
-            if (namedType.TypeKind == TypeKind.Enum)
-            {
-                AddMatchingName(references, $"{namedType.Name}Extensions", nodes);
-            }
-
-            foreach (var typeArgument in namedType.TypeArguments)
-            {
-                AddBodyTypeReference(references, typeArgument, nodes);
-            }
         }
 
         private static HashSet<string> GetRootNames(
@@ -1061,7 +1300,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool ShouldUseUnionVariantFallbackRoots() =>
-            !CodeModelGenerator.Instance.Configuration.PackageName.StartsWith("Azure.", StringComparison.Ordinal) &&
+            !HasApiBaselineDirectory() &&
             CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
         private static bool IsImplementationOnlyModelFactoryMethod(MethodProvider method)
@@ -1077,6 +1316,22 @@ namespace Microsoft.TypeSpec.Generator
                 returnTypeName.EndsWith("Request", StringComparison.Ordinal);
         }
 
+        private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove)
+        {
+            if (namesToRemove.Count == 0)
+            {
+                return;
+            }
+
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            _preWriteModelFactory = modelFactory;
+            _preWriteModelFactoryMethods ??= [.. modelFactory.Methods];
+            var methodsToKeep = modelFactory.Methods
+                .Where(method => !namesToRemove.Contains(method.Signature.Name))
+                .ToArray();
+            modelFactory.Update(methods: methodsToKeep);
+        }
+
         private static HashSet<string> GetPostProcessorDeclaredNodes(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, bool publicOnly)
         {
             var generator = CodeModelGenerator.Instance;
@@ -1090,11 +1345,27 @@ namespace Microsoft.TypeSpec.Generator
                 .ToHashSet(StringComparer.Ordinal);
         }
 
-        private static bool IsKept(CSharpType type, HashSet<string> roots, HashSet<string> nodes) =>
-            roots.Contains(type.Name) || roots.Contains(GetProviderTypeName(type)) && nodes.Contains(GetProviderTypeName(type));
+        private static bool IsKept(CSharpType type, HashSet<string> roots, HashSet<string> nodes)
+        {
+            var providerName = GetProviderTypeName(type);
+            if (roots.Contains(providerName) && nodes.Contains(providerName))
+            {
+                return true;
+            }
+
+            if (!roots.Contains(type.Name))
+            {
+                return false;
+            }
+
+            var simpleNameLookup = _simpleNameLookupCache.GetValue(nodes, BuildSimpleNameLookup);
+            return simpleNameLookup.TryGetValue(type.Name, out var matches) &&
+                matches.Length == 1 &&
+                string.Equals(matches[0], providerName, StringComparison.Ordinal);
+        }
 
         private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
-            provider.RelativeFilePath.EndsWith("Client.cs", StringComparison.Ordinal) &&
+            provider.IsClientProvider &&
             (!publicOnly || !HasApiBaselineDirectory() && provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
         private static bool HasApiBaselineDirectory()
@@ -1105,15 +1376,7 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsModelFactoryProvider(TypeProvider provider)
-        {
-            if (provider is ModelFactoryProvider)
-            {
-                return true;
-            }
-
-            var relativePath = provider.RelativeFilePath.Replace('\\', '/');
-            return relativePath.EndsWith("ModelFactory.cs", StringComparison.Ordinal);
-        }
+            => provider is ModelFactoryProvider;
 
         private static HashSet<string> GetHelperRootNames(
             IReadOnlyList<TypeProvider> providers,
@@ -1131,7 +1394,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddHelperDependencies(roots, provider.HelperDependencyNames, nodes, references == null ? null : references[providerName]);
+                AddHelperDependencies(roots, provider.HelperDependencyTypes, nodes, references == null ? null : references[providerName]);
 
                 foreach (var property in provider.Properties)
                 {
@@ -1185,7 +1448,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddHelperDependencies(
             HashSet<string> roots,
-            IReadOnlyList<string> dependencies,
+            IReadOnlyList<CSharpType> dependencies,
             HashSet<string> nodes,
             HashSet<string>? referencedNames)
         {
@@ -1193,12 +1456,12 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (referencedNames == null)
                 {
-                    AddMatchingName(roots, dependency, nodes);
+                    AddTypeReference(roots, dependency, nodes);
                     continue;
                 }
 
                 var matches = new HashSet<string>(StringComparer.Ordinal);
-                AddMatchingName(matches, dependency, nodes);
+                AddTypeReference(matches, dependency, nodes);
                 roots.UnionWith(matches.Intersect(referencedNames, StringComparer.Ordinal));
             }
         }
@@ -1206,11 +1469,11 @@ namespace Microsoft.TypeSpec.Generator
         private static void RemoveUnusedRequestHeaderExtensionsRoot(
             HashSet<string> roots,
             IReadOnlyDictionary<string, HashSet<string>> references,
-            Project project)
+            IReadOnlyList<TypeProvider> providers)
         {
-            var hasCustomReference = HasCustomRequestHeaderExtensionsReference(project);
+            var hasCustomReference = HasCustomRequestHeaderExtensionsReference(providers);
             var unusedRequestHeaderExtensions = roots
-                .Where(static root => root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal))
+                .Where(IsRequestHeadersExtensionsRoot)
                 .Where(_ => !hasCustomReference)
                 .Where(root => !references.Any(reference =>
                     !string.Equals(reference.Key, root, StringComparison.Ordinal) &&
@@ -1220,24 +1483,54 @@ namespace Microsoft.TypeSpec.Generator
             roots.ExceptWith(unusedRequestHeaderExtensions);
         }
 
-        private static bool HasCustomRequestHeaderExtensionsReference(Project project)
+        private static bool IsRequestHeadersExtensionsRoot(string root) =>
+            root.EndsWith(".RequestHeaderExtensions", StringComparison.Ordinal) ||
+            root.EndsWith(".RequestHeadersExtensions", StringComparison.Ordinal);
+
+        private static bool HasCustomRequestHeaderExtensionsReference(IReadOnlyList<TypeProvider> providers)
         {
-            foreach (var document in project.Documents)
+            foreach (var customCodeView in GetCustomCodeViews(providers))
             {
-                if (IsGeneratedDocument(document))
+                if (customCodeView is NamedTypeSymbolProvider)
                 {
+                    if (customCodeView.HelperDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                        customCodeView.BodyDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                        customCodeView.SignatureDependencyTypes.Any(IsRequestHeaderExtensionsDependency))
+                    {
+                        return true;
+                    }
+
                     continue;
                 }
 
-                var text = document.GetTextAsync().GetAwaiter().GetResult().ToString();
-                if (text.Contains("RequestHeaderExtensions", StringComparison.Ordinal) ||
-                    text.Contains("SetDelimited", StringComparison.Ordinal))
+                if (customCodeView.HelperDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                    customCodeView.BodyDependencyTypes.Any(IsRequestHeaderExtensionsDependency) ||
+                    customCodeView.Methods.Any(static method =>
+                        IsRequestHeaderExtensionsDependency(method.Signature.ReturnType) ||
+                        method.Signature.Parameters.Any(static parameter => IsRequestHeaderExtensionsDependency(parameter.Type))) ||
+                    customCodeView.Properties.Any(static property => IsRequestHeaderExtensionsDependency(property.Type)) ||
+                    customCodeView.Fields.Any(static field => IsRequestHeaderExtensionsDependency(field.Type)))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private static bool IsRequestHeaderExtensionsDependency(string name)
+            => string.Equals(name, "RequestHeaderExtensions", StringComparison.Ordinal) ||
+                string.Equals(name, "SetDelimited", StringComparison.Ordinal);
+
+        private static bool IsRequestHeaderExtensionsDependency(CSharpType? type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            return IsRequestHeaderExtensionsDependency(type.Name) ||
+                type.Arguments.Any(IsRequestHeaderExtensionsDependency);
         }
 
         private static bool IsSerializationProvider(TypeProvider provider)
@@ -1247,18 +1540,9 @@ namespace Microsoft.TypeSpec.Generator
                 relativePath.EndsWith(".Serialization.Multipart.cs", StringComparison.Ordinal);
         }
 
-        private static bool IsGeneratedDocument(Document document)
-        {
-            if (GeneratedCodeWorkspace.IsGeneratedDocument(document) || GeneratedCodeWorkspace.IsGeneratedTestDocument(document))
-            {
-                return true;
-            }
+        private static CSharpType ChangeTrackingDictionaryType => new ChangeTrackingDictionaryDefinition().Type;
 
-            var filePath = document.FilePath?.Replace('\\', '/');
-            return filePath != null &&
-                (filePath.Contains("/Generated/", StringComparison.Ordinal) ||
-                    filePath.Contains("/GeneratedTests/", StringComparison.Ordinal));
-        }
+        private static CSharpType ChangeTrackingListType => new ChangeTrackingListDefinition().Type;
 
         private static void AddInitializationHelperRoot(HashSet<string> roots, CSharpType? type, HashSet<string> nodes)
         {
@@ -1275,12 +1559,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type is { IsList: true, IsReadOnlyMemory: false })
             {
-                AddMatchingName(roots, "ChangeTrackingList", nodes);
+                AddTypeReference(roots, ChangeTrackingListType, nodes);
             }
 
             if (type.IsDictionary)
             {
-                AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
+                AddTypeReference(roots, ChangeTrackingDictionaryType, nodes);
             }
 
             foreach (var argument in type.Arguments)
@@ -1298,12 +1582,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type is { IsList: true, IsReadOnlyMemory: false })
             {
-                AddMatchingName(roots, "ChangeTrackingList", nodes);
+                AddTypeReference(roots, ChangeTrackingListType, nodes);
             }
 
             if (type.IsDictionary)
             {
-                AddMatchingName(roots, "ChangeTrackingDictionary", nodes);
+                AddTypeReference(roots, ChangeTrackingDictionaryType, nodes);
             }
 
             foreach (var argument in type.Arguments)
@@ -1329,6 +1613,17 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var match in matches)
             {
                 target.Add(match);
+            }
+        }
+
+        private static void AddMatchingNamesWithSimpleNameSuffix(HashSet<string> target, string suffix, HashSet<string> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                if (GetSimpleName(node).EndsWith(suffix, StringComparison.Ordinal))
+                {
+                    target.Add(node);
+                }
             }
         }
 
@@ -1469,6 +1764,10 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        private static bool IsAttributeNamed(AttributeStatement attribute, string name)
+            => string.Equals(attribute.Type.Name, name, StringComparison.Ordinal) ||
+                string.Equals(attribute.Type.Name, $"{name}Attribute", StringComparison.Ordinal);
+
         private static void AddAttributeArgumentReference(
             HashSet<string> references,
             ValueExpression argument,
@@ -1489,6 +1788,12 @@ namespace Microsoft.TypeSpec.Generator
         {
             if (type == null)
             {
+                return;
+            }
+
+            if (type.IsArray)
+            {
+                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType);
                 return;
             }
 
@@ -1517,6 +1822,12 @@ namespace Microsoft.TypeSpec.Generator
         {
             var lastDot = fullyQualifiedName.LastIndexOf('.');
             return lastDot < 0 ? fullyQualifiedName : fullyQualifiedName.Substring(lastDot + 1);
+        }
+
+        private static string? GetNamespaceName(string fullyQualifiedName)
+        {
+            var lastDot = fullyQualifiedName.LastIndexOf('.');
+            return lastDot < 0 ? null : fullyQualifiedName.Substring(0, lastDot);
         }
 
         private static string GetProviderTypeName(CSharpType type)

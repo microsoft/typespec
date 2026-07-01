@@ -89,7 +89,12 @@ namespace Microsoft.TypeSpec.Generator
 
         internal void AnalyzeProviderReferenceMap(IReadOnlyList<TypeProvider> providers)
         {
-            ProviderReferenceMapShadowAnalyzer.Analyze(providers, _project);
+            ProviderReferenceMapAnalyzer.Analyze(providers);
+        }
+
+        internal void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
+        {
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
         }
 
         private async Task UpdateProject(Document document)
@@ -354,10 +359,16 @@ namespace Microsoft.TypeSpec.Generator
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
+                    if (!ProviderReferenceMapAnalyzer.PreWriteAccessibilityApplied)
+                    {
+                        _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
+                    }
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
+                    if (!ProviderReferenceMapAnalyzer.PreWriteAccessibilityApplied)
+                    {
+                        _project = await MeasurePostProcessingStepAsync("PostProcess.InternalizeAsync", () => postProcessor.InternalizeAsync(_project));
+                    }
                     _project = await MeasurePostProcessingStepAsync("PostProcess.RemoveAsync", () => postProcessor.RemoveAsync(_project));
                     break;
             }

@@ -40,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
             CodeModelGenerator.Instance.Stopwatch.Start();
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
 
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
@@ -111,12 +112,28 @@ namespace Microsoft.TypeSpec.Generator
 
             LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
-            MeasureGenerationStep("Generation.WriteTypeProviders", () =>
+            MeasureGenerationStep("Generation.ProcessTypeBackCompatibility", () =>
             {
                 foreach (var outputType in output.TypeProviders)
                 {
                     // Ensure back-compatibility processing is done after all visitors have run
                     outputType.ProcessTypeForBackCompatibility();
+                }
+            });
+
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap)
+            {
+                MeasureGenerationStep("Generation.ApplyPreWriteAccessibility", () => generatedCodeWorkspace.ApplyPreWriteAccessibility(output.TypeProviders));
+            }
+
+            MeasureGenerationStep("Generation.WriteTypeProviders", () =>
+            {
+                foreach (var outputType in output.TypeProviders)
+                {
+                    if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
+                    {
+                        continue;
+                    }
 
                     var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                     generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
@@ -132,16 +149,21 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await MeasureGenerationStepAsync("Generation.AddGeneratedFilesToWorkspace", () => Task.WhenAll(generateFilesTasks));
 
-            MeasureGenerationStep("Generation.ProviderReferenceMapShadowAnalysis", () => generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders));
+            if (ProviderReferenceMapShadowAnalyzer.UseShadowMap)
+            {
+                MeasureGenerationStep("Generation.ProviderReferenceMapAnalysis", () => generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders));
+                ProviderReferenceMapAnalyzer.RestorePreWriteModelFactoryMethods();
+            }
 
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
             // Delete any old generated files
-            MeasureGenerationStep("Generation.DeleteOldGeneratedFiles", () => DeleteDirectory(generatedSourceOutputPath, _filesToKeep));
+            MeasureGenerationStep("Generation.DeleteOldGeneratedFiles", () => DeleteDirectory(generatedSourceOutputPath, GetFilesToKeep()));
 
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
             await MeasureGenerationStepAsync("Generation.PostProcessAsync", generatedCodeWorkspace.PostProcessAsync);
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
 
             // Write the generated files to the output directory
             await MeasureGenerationStepAsync("Generation.WriteGeneratedFilesToDisk", async () =>
@@ -157,17 +179,8 @@ namespace Microsoft.TypeSpec.Generator
                     generatedFiles.Add((file.Name, file.Text));
                 }
 
-                var usesRequestHeaderExtensions = generatedFiles.Any(static file =>
-                    !file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) &&
-                    file.Text.Contains(".SetDelimited(", StringComparison.Ordinal));
-
                 foreach (var file in generatedFiles)
                 {
-                    if (file.Name.EndsWith("RequestHeaderExtensions.cs", StringComparison.Ordinal) && !usesRequestHeaderExtensions)
-                    {
-                        continue;
-                    }
-
                     var filename = Path.Combine(outputPath, file.Name);
                     CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                     Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
@@ -273,6 +286,30 @@ namespace Microsoft.TypeSpec.Generator
                 typeProvider.Constructors,
                 typeProvider.Properties,
                 typeProvider.Fields);
+        }
+
+        private static string[] GetFilesToKeep()
+        {
+            return _filesToKeep
+                .Concat(
+                    CodeModelGenerator.Instance.AdditionalRootTypes
+                        .Concat(CodeModelGenerator.Instance.NonRootTypes)
+                        .Select(GetFileNameForType))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+        }
+
+        private static string GetFileNameForType(string typeName)
+        {
+            var simpleNameStart = typeName.LastIndexOf('.') + 1;
+            var simpleName = simpleNameStart > 0 ? typeName[simpleNameStart..] : typeName;
+            var genericArityStart = simpleName.IndexOf('`');
+            if (genericArityStart >= 0)
+            {
+                simpleName = simpleName[..genericArityStart];
+            }
+
+            return simpleName.EndsWith(".cs", StringComparison.Ordinal) ? simpleName : $"{simpleName}.cs";
         }
 
         /// <summary>

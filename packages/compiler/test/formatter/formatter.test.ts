@@ -2018,6 +2018,29 @@ model Picked
       });
     });
 
+    // Regression test for https://github.com/microsoft/typespec/issues/11092
+    it("keeps leading | and indent for a union used as a named template argument", async () => {
+      await assertFormat({
+        code: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<A = "Some long value", TakesALongUnion = string | int32 | int64 | "Some very long string that split line">;
+`,
+        expected: `
+model Test<A, TakesALongUnion> {}
+
+alias Alias = Test<
+  A = "Some long value",
+  TakesALongUnion =
+    | string
+    | int32
+    | int64
+    | "Some very long string that split line"
+>;
+`,
+      });
+    });
+
     // Regression test for https://github.com/microsoft/typespec/issues/11009
     it("keeps the variant alignment so a nested template argument stays indented", async () => {
       await assertFormat({

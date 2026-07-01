@@ -87,6 +87,118 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task AzureClientPublicMethodSignatureReferencesStayPublic()
+        {
+            var signatureModel = InputFactory.Model("SignatureModel", @namespace: "Azure.Sample.Models");
+            var methodParameter = InputFactory.MethodParameter("signature", signatureModel, isRequired: true);
+            var operation = InputFactory.Operation(
+                "Create",
+                parameters: [InputFactory.BodyParameter("signature", signatureModel, isRequired: true)],
+                httpMethod: "POST");
+            var method = InputFactory.BasicServiceMethod("Create", operation, parameters: [methodParameter]);
+            var client = InputFactory.Client("SampleClient", clientNamespace: "Azure.Sample", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [signatureModel],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [],
+                publicModelNames: ["SignatureModel"],
+                packageName: "Azure.Sample");
+        }
+
+        [Test]
+        public async Task BasePreservedDerivedModelTraversesTransitiveDependencies()
+        {
+            var transitiveDependency = InputFactory.Model("TransitiveDependency");
+            var dependency = InputFactory.Model(
+                "DerivedDependency",
+                properties: [InputFactory.Property("Transitive", transitiveDependency)]);
+            var baseModel = InputFactory.Model("BaseResult");
+            var derivedModel = InputFactory.Model(
+                "DerivedResult",
+                properties: [InputFactory.Property("Dependency", dependency)],
+                baseModel: baseModel);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: baseModel)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation, response: InputFactory.ServiceMethodResponse(baseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [baseModel, derivedModel, dependency, transitiveDependency],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [],
+                publicModelNames: ["BaseResult"],
+                internalModelNames: ["DerivedResult", "DerivedDependency", "TransitiveDependency"]);
+        }
+
+        [Test]
+        public async Task PublicCustomCodeArraySignatureReferencesStayPublic()
+        {
+            var generatedModel = InputFactory.Model("GeneratedModel");
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [generatedModel],
+                clients: [],
+                customFiles: [
+                    (Path.Combine("src", "PublicCustomApi.cs"), """
+                        using Sample.Models;
+
+                        namespace Sample;
+
+                        public partial class PublicCustomApi
+                        {
+                            public GeneratedModel[] Items { get; } = System.Array.Empty<GeneratedModel>();
+                        }
+                        """)
+                ],
+                expectedFiles: [],
+                publicModelNames: ["GeneratedModel"]);
+        }
+
+        [Test]
+        public async Task GeneratedRequestHeaderSetDelimitedReferenceKeepsExtensions()
+        {
+            var header = InputFactory.HeaderParameter("x-ms-custom", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+            var operation = InputFactory.Operation("Create", parameters: [header]);
+            var method = InputFactory.BasicServiceMethod("Create", operation);
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
+        }
+
+        [Test]
+        public async Task CustomOnlyRequestHeaderSetDelimitedReferenceKeepsExtensions()
+        {
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [],
+                clients: [],
+                customFiles: [
+                    (Path.Combine("src", "CustomHeaders.cs"), """
+                        using System.ClientModel.Primitives;
+
+                        namespace Sample;
+
+                        public static class CustomHeaders
+                        {
+                            public static void Add(PipelineRequestHeaders headers, string[] values)
+                                => headers.SetDelimited("x-ms-custom", values, ",");
+                        }
+                        """)
+                ],
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
+        }
+
+        [Test]
         public async Task CustomizedEnumSerializationProviderIsKeptWhenModelSerializationUsesEnum()
         {
             var statusEnum = InputFactory.StringEnum(
@@ -200,7 +312,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             (string Path, string Content)[] customFiles,
             string[] expectedFiles,
             string[] publicModelNames = null!,
-            string[] internalModelNames = null!)
+            string[] internalModelNames = null!,
+            string packageName = "Sample")
         {
             publicModelNames ??= [];
             internalModelNames ??= [];
@@ -220,7 +333,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
                     inputEnums: () => enums,
                     inputModels: () => models,
                     clients: () => clients,
-                    configuration: "{\"package-name\": \"Sample\", \"disable-xml-docs\": true}",
+                    configuration: $$"""{ "package-name": "{{packageName}}", "disable-xml-docs": true }""",
                     outputPath: outputPath);
 
                 await new CSharpGen().ExecuteAsync();
