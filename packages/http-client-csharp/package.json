@@ -81,6 +81,7 @@
     "@typespec/library-linter": "0.83.0",
     "@typespec/openapi": "1.13.0",
     "@typespec/rest": "0.83.0",
+    "@typespec/spec-api": "0.1.0-alpha.14",
     "@typespec/spector": "0.1.0-alpha.25",
     "@typespec/sse": "0.83.0",
     "@typespec/streams": "0.83.0",

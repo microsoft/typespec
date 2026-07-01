@@ -168,10 +168,10 @@ class OptionsDict(MutableMapping):
         if key == "models-mode" and value == "none":
             value = False  # switch to falsy value for easier code writing
 
-        if key == "models-mode" and value not in ["msrest", "dpg", False]:
+        if key == "models-mode" and value not in ["msrest", "dpg", "typeddict", False]:
             raise ValueError(
-                "--models-mode can only be 'msrest', 'dpg' or 'none'. "
-                "Pass in 'msrest' if you want msrest models, or "
+                "--models-mode can only be 'msrest', 'dpg', 'typeddict', or 'none'. "
+                "Pass in 'msrest' if you want msrest models, 'typeddict' for TypedDict models, or "
                 "'none' if you don't want any."
             )
         if key == "package-mode":

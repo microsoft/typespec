@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.34.0
+
+### Features
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) [python] Always generate `TypedDict` typing hints for input models in the `types.py` file, and named union aliases in the `_unions.py` file
+
+### Bug Fixes
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) Fix invalid lone `@overload` generated for body parameters in `models-mode: typeddict`. When the binary and JSON overloads are omitted, the single remaining body variant is now emitted as a plain parameter instead of a single `@overload`, which mypy rejects with "Single overload definition, multiple required".
+
+
 ## 0.33.0
 
 ### Features

@@ -754,10 +754,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var path = pathSpan.Slice(0, paramIndex);
-                AppendLiteralSegment(uri, path.ToString(), statements);
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
+
+                /* An optional path parameter that is null must not leave a dangling
+                 * path separator behind. For example "/foo/{bar}/{baz}" with an absent
+                 * optional "baz" should produce "/foo/{bar}", not "/foo/{bar}/". When the
+                 * upcoming parameter is optional, defer the trailing '/' of the preceding
+                 * literal so it is only written together with the parameter value inside
+                 * the null check below.
+                 */
+                var pathLiteral = path.ToString();
+                bool separatorDeferred = false;
+                if (pathLiteral.EndsWith('/')
+                    && inputParamMap.TryGetValue(paramName, out var optionalCheckParam)
+                    && optionalCheckParam is InputPathParameter { IsRequired: false })
+                {
+                    pathLiteral = pathLiteral.Substring(0, pathLiteral.Length - 1);
+                    separatorDeferred = true;
+                }
+                AppendLiteralSegment(uri, pathLiteral, statements);
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
@@ -803,7 +820,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement statement;
                     if (inputParam?.IsRequired == false)
                     {
-                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                        bool shouldPrependWithPathSeparator = separatorDeferred || (path.Length > 0 && path[^1] != '/');
                         List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
                             ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
                             : [uri.AppendPath(valueExpression, escape).Terminate()];
