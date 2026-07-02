@@ -1116,25 +1116,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                                     "        )",
                                 ]
                             )
-                        # add build-in error type
-                        # TODO: we should decide whether need to this wrapper for customized error type
-                        status_code_error_map = {
-                            401: "ClientAuthenticationError",
-                            404: "ResourceNotFoundError",
-                            409: "ResourceExistsError",
-                            304: "ResourceNotModifiedError",
-                        }
-                        if status_code in status_code_error_map:
-                            retval.append(
-                                "        raise {}(response=response{}{})".format(
-                                    status_code_error_map[cast(int, status_code)],
-                                    error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
-                                )
-                            )
-                            condition = "if"
-                        else:
-                            condition = "elif"
+                        # The dedicated azure-core error type for a standard status
+                        # code is raised by ``map_error`` via the error map, so here
+                        # we only deserialize the customized error body (used by the
+                        # generic ``HttpResponseError`` fallback for non-standard
+                        # status codes within the response).
+                        condition = "elif"
                 # ranged status code only exist in typespec and will not have multiple status codes
                 else:
                     retval.append(
@@ -1266,36 +1253,17 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("return 200 <= response.status_code <= 299")
         return retval
 
-    def _need_specific_error_map(self, code: int, builder: OperationType) -> bool:
-        for non_default_error in builder.non_default_errors:
-            # single status code
-            if code in non_default_error.status_codes:
-                return False
-            # ranged status code
-            if (
-                isinstance(non_default_error.status_codes[0], list)
-                and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]
-            ):
-                return False
-        return True
-
     def error_map(self, builder: OperationType) -> list[str]:
         retval = ["error_map: MutableMapping = {"]
-        if builder.non_default_errors and self.code_model.options["models-mode"]:
-            # TODO: we should decide whether to add the build-in error map when there is a customized default error type
-            if self._need_specific_error_map(401, builder):
-                retval.append("    401: ClientAuthenticationError,")
-            if self._need_specific_error_map(404, builder):
-                retval.append("    404: ResourceNotFoundError,")
-            if self._need_specific_error_map(409, builder):
-                retval.append("    409: ResourceExistsError,")
-            if self._need_specific_error_map(304, builder):
-                retval.append("    304: ResourceNotModifiedError,")
-        else:
-            retval.append(
-                "    401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError, "
-                "304: ResourceNotModifiedError"
-            )
+        # Always map the standard status codes to their dedicated azure-core error
+        # type so ``map_error`` raises the correct semantic error, even when a
+        # customized error model (single, ranged, or default) covers them. The
+        # customized error body is still deserialized in ``handle_error_response``
+        # for the generic ``HttpResponseError`` fallback.
+        retval.append(
+            "    401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError, "
+            "304: ResourceNotModifiedError"
+        )
         retval.append("}")
         if builder.has_etag:
             retval.extend(
