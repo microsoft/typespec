@@ -84,6 +84,16 @@ namespace Microsoft.TypeSpec.Generator
             await UpdateProject(document);
         }
 
+        internal void AnalyzeProviderReferenceMap(IReadOnlyList<TypeProvider> providers)
+        {
+            ProviderReferenceMapAnalyzer.Analyze(providers);
+        }
+
+        internal void ApplyPreWriteAccessibility(IReadOnlyList<TypeProvider> providers)
+        {
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
+        }
+
         private async Task UpdateProject(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
@@ -278,10 +288,8 @@ namespace Microsoft.TypeSpec.Generator
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
                     break;
                 case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
                     _project = await postProcessor.RemoveAsync(_project);
                     break;
             }

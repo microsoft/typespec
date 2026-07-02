@@ -22,6 +22,5 @@ namespace Microsoft.TypeSpec.Generator.Input
         LroInitial = 2048,
         LroPolling = 4096,
         LroFinalEnvelope = 8192,
-        External = 16384,
     }
 }

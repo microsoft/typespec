@@ -143,6 +143,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private set => _xmlDocs = value;
         }
 
+        internal bool PreserveTypeXmlDocs { get; private set; }
+
+        internal void PreserveXmlDocs()
+        {
+            PreserveTypeXmlDocs = true;
+        }
+
         public string? Deprecated
         {
             get => _deprecated;
@@ -291,6 +298,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+
+        private IReadOnlyList<CSharpType>? _helperDependencyTypes;
+        internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _bodyDependencyTypes;
+        internal IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _signatureDependencyTypes;
+        internal IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
+
+        protected internal virtual bool IsClientProvider => false;
+
+        protected internal virtual bool IncludeGeneratedBodyReferences => false;
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
@@ -538,6 +561,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
+            PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());
@@ -741,73 +765,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     _enumValues = updatedEnumValues;
                 }
-
-                // Back-compatibility processing intentionally runs after the library visitor pass so
-                // that the contract comparison uses the final, post-visitor member signatures (otherwise
-                // we could incorrectly decide whether a back-compat member is needed). As a result, any
-                // members synthesized above (e.g. back-compat overloads) have not been visited yet. Run
-                // only those newly-added members through the visitors now so visitor transforms apply to
-                // them as well, without re-visiting members that were already visited during the main pass.
-                if (newMethods != null)
-                {
-                    newMethods = VisitNewMembers(newMethods, Methods, static (member, visitor) => member.Accept(visitor));
-                }
-                if (newConstructors != null)
-                {
-                    newConstructors = VisitNewMembers(newConstructors, Constructors, static (member, visitor) => visitor.VisitConstructor(member));
-                }
-                if (newFields != null)
-                {
-                    newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
-                }
-
                 Update(fields: newFields, methods: newMethods, constructors: newConstructors);
             }
-        }
-
-        // Runs newly-added back-compatibility members through every registered visitor while leaving
-        // members that were already visited during the main visitor pass untouched. Membership in the
-        // already-visited set is determined by reference identity against the pre-Update collection.
-        private static IReadOnlyList<T> VisitNewMembers<T>(
-            IEnumerable<T> allMembers,
-            IReadOnlyList<T> alreadyVisited,
-            Func<T, LibraryVisitor, T?> visit)
-            where T : class
-        {
-            var visitors = CodeModelGenerator.Instance.Visitors;
-            var materialized = allMembers as IReadOnlyList<T> ?? [.. allMembers];
-            if (visitors.Count == 0)
-            {
-                return materialized;
-            }
-
-            var alreadyVisitedSet = new HashSet<T>(alreadyVisited, ReferenceEqualityComparer.Instance);
-            var result = new List<T>(materialized.Count);
-            foreach (var member in materialized)
-            {
-                if (alreadyVisitedSet.Contains(member))
-                {
-                    result.Add(member);
-                    continue;
-                }
-
-                T? visited = member;
-                foreach (var visitor in visitors)
-                {
-                    visited = visit(visited, visitor);
-                    if (visited == null)
-                    {
-                        break;
-                    }
-                }
-
-                if (visited != null)
-                {
-                    result.Add(visited);
-                }
-            }
-
-            return result;
         }
 
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)

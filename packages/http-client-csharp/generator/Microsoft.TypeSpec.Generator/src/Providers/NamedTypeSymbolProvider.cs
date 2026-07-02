@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
+        private string? _metadataName;
         private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
@@ -29,6 +30,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
         }
+
+        internal string MetadataName
+        {
+            get
+            {
+                if (_metadataName != null)
+                {
+                    return _metadataName;
+                }
+
+                var ns = _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+                _metadataName = string.IsNullOrEmpty(ns) ? _namedTypeSymbol.Name : $"{ns}.{_namedTypeSymbol.Name}";
+                return _metadataName;
+            }
+        }
+
+        internal string MetadataSimpleName => _namedTypeSymbol.Name;
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
@@ -320,6 +338,165 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             return [.. methods];
         }
+
+        protected internal override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new HashSet<CSharpType>();
+            foreach (var syntaxReference in _namedTypeSymbol.DeclaringSyntaxReferences)
+            {
+                AddBodyDependencyTypes(syntaxReference.GetSyntax(), dependencies);
+            }
+
+            return [.. dependencies];
+        }
+
+        protected internal override IReadOnlyList<CSharpType> BuildSignatureDependencyTypes()
+        {
+            var dependencies = new HashSet<CSharpType>();
+            foreach (var syntaxReference in _namedTypeSymbol.DeclaringSyntaxReferences)
+            {
+                if (syntaxReference.GetSyntax() is not TypeDeclarationSyntax typeDeclaration ||
+                    !IsPublic(typeDeclaration.Modifiers))
+                {
+                    continue;
+                }
+
+                AddSyntaxTypeReferences(typeDeclaration.BaseList, dependencies);
+                foreach (var member in typeDeclaration.Members)
+                {
+                    if (IsPublicApiMember(member))
+                    {
+                        AddPublicSignatureDependencyTypes(member, dependencies);
+                    }
+                }
+            }
+
+            return [.. dependencies];
+        }
+
+        private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
+        {
+            AddSyntaxTypeReferences(syntax, dependencies);
+
+            foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (GetInvocationName(invocation) == "SetDelimited")
+                {
+                    dependencies.Add(CreateUnresolvedDependencyType("SetDelimited"));
+                }
+            }
+        }
+
+        private static void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
+        {
+            switch (member)
+            {
+                case MethodDeclarationSyntax method:
+                    AddSyntaxTypeReferences(method.ReturnType, dependencies);
+                    AddSyntaxTypeReferences(method.ParameterList, dependencies);
+                    AddSyntaxTypeReferences(method.ConstraintClauses, dependencies);
+                    break;
+                case ConstructorDeclarationSyntax constructor:
+                    AddSyntaxTypeReferences(constructor.ParameterList, dependencies);
+                    break;
+                case ConversionOperatorDeclarationSyntax conversion:
+                    AddSyntaxTypeReferences(conversion.Type, dependencies);
+                    AddSyntaxTypeReferences(conversion.ParameterList, dependencies);
+                    break;
+                case OperatorDeclarationSyntax @operator:
+                    AddSyntaxTypeReferences(@operator.ReturnType, dependencies);
+                    AddSyntaxTypeReferences(@operator.ParameterList, dependencies);
+                    break;
+                case PropertyDeclarationSyntax property:
+                    AddSyntaxTypeReferences(property.Type, dependencies);
+                    break;
+                case IndexerDeclarationSyntax indexer:
+                    AddSyntaxTypeReferences(indexer.Type, dependencies);
+                    AddSyntaxTypeReferences(indexer.ParameterList, dependencies);
+                    break;
+                case FieldDeclarationSyntax field:
+                    AddSyntaxTypeReferences(field.Declaration.Type, dependencies);
+                    break;
+                case EventFieldDeclarationSyntax eventField:
+                    AddSyntaxTypeReferences(eventField.Declaration.Type, dependencies);
+                    break;
+                case EventDeclarationSyntax @event:
+                    AddSyntaxTypeReferences(@event.Type, dependencies);
+                    break;
+                case DelegateDeclarationSyntax @delegate:
+                    AddSyntaxTypeReferences(@delegate.ReturnType, dependencies);
+                    AddSyntaxTypeReferences(@delegate.ParameterList, dependencies);
+                    AddSyntaxTypeReferences(@delegate.ConstraintClauses, dependencies);
+                    break;
+                case BaseTypeDeclarationSyntax type:
+                    AddSyntaxTypeReferences(type.BaseList, dependencies);
+                    break;
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(SyntaxNode? node, HashSet<CSharpType> dependencies)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            foreach (var name in node.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>())
+            {
+                dependencies.Add(CreateUnresolvedDependencyType(name.Identifier.ValueText));
+            }
+
+            foreach (var name in node.DescendantNodesAndSelf().OfType<GenericNameSyntax>())
+            {
+                dependencies.Add(CreateUnresolvedDependencyType(name.Identifier.ValueText));
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(IEnumerable<SyntaxNode> nodes, HashSet<CSharpType> dependencies)
+        {
+            foreach (var node in nodes)
+            {
+                AddSyntaxTypeReferences(node, dependencies);
+            }
+        }
+
+        private static bool IsPublicApiMember(MemberDeclarationSyntax member)
+            => member switch
+            {
+                EventDeclarationSyntax @event => IsPublic(@event.Modifiers),
+                EventFieldDeclarationSyntax @event => IsPublic(@event.Modifiers),
+                BaseFieldDeclarationSyntax field => IsPublic(field.Modifiers),
+                BaseMethodDeclarationSyntax method => IsPublic(method.Modifiers),
+                BasePropertyDeclarationSyntax property => IsPublic(property.Modifiers),
+                DelegateDeclarationSyntax @delegate => IsPublic(@delegate.Modifiers),
+                BaseTypeDeclarationSyntax type => IsPublic(type.Modifiers),
+                _ => false
+            };
+
+        private static bool IsPublic(SyntaxTokenList modifiers)
+            => modifiers.Any(static modifier =>
+                modifier.IsKind(SyntaxKind.PublicKeyword) ||
+                modifier.IsKind(SyntaxKind.ProtectedKeyword));
+
+        private static CSharpType CreateUnresolvedDependencyType(string name)
+            => new(
+                name,
+                string.Empty,
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: false,
+                isStruct: false);
+
+        private static string? GetInvocationName(InvocationExpressionSyntax invocation)
+            => invocation.Expression switch
+            {
+                IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                GenericNameSyntax genericName => genericName.Identifier.ValueText,
+                _ => null
+            };
 
         private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
         {

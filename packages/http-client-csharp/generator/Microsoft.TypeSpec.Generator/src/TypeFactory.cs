@@ -21,6 +21,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
+        private OptionalDefinition? _optionalProvider;
+        private OptionalDefinition OptionalProvider => _optionalProvider ??= new();
+
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
@@ -200,11 +203,6 @@ namespace Microsoft.TypeSpec.Generator
 
             if (modelProvider != null)
             {
-                if (model.Access == "public")
-                {
-                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
-                }
-
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
                 TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
@@ -499,6 +497,11 @@ namespace Microsoft.TypeSpec.Generator
         /// The initialization type of dictionary properties. This type should implement both <see cref="IDictionary{TKey, TValue}"/> and <see cref="IReadOnlyDictionary{TKey, TValue}"/>.
         /// </summary>
         public virtual CSharpType DictionaryInitializationType => ChangeTrackingDictionaryProvider.Type;
+
+        /// <summary>
+        /// The type used to represent optional values in generated helper code.
+        /// </summary>
+        public virtual CSharpType OptionalType => OptionalProvider.Type;
 
         /// <summary>
         /// Returns the serialization type providers for the given model type provider.
