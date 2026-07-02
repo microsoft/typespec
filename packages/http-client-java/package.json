@@ -76,6 +76,7 @@
     "@azure-tools/typespec-client-generator-core": "0.69.2",
     "@microsoft/api-extractor": "^7.58.9",
     "@microsoft/api-extractor-model": "^7.33.8",
+    "@types/js-yaml": "^4.0.9",
     "@types/lodash": "~4.17.24",
     "@types/node": "~26.1.0",
     "@typespec/compiler": "1.13.0",
