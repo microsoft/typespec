@@ -6,9 +6,9 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import { promises } from "fs";
-import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { stringify } from "yaml";
 import { CodeModelBuilder, EmitterOptionsDev } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
 import { LibName, reportDiagnostic } from "./lib.js";
@@ -76,7 +76,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         }
       });
 
-      await program.host.writeFile(codeModelFileName, dump(codeModel));
+      await program.host.writeFile(codeModelFileName, stringify(codeModel));
 
       trace(program, `Code model file written to ${codeModelFileName}`);
 
