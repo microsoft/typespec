@@ -350,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator
                 helperRoots: [],
                 includeModelFactory: true,
                 includeAdditionalRoots: true,
-                includeUnionVariantRoots: false,
+                includeUnionVariantRoots: true,
                 publicClientRootsOnly: false);
 
             removeRoots.UnionWith(customRemovalRoots);
@@ -1504,7 +1504,8 @@ namespace Microsoft.TypeSpec.Generator
             var unionVariantTypesToKeep = CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep;
             foreach (var provider in GetGeneratedProviders(providers))
             {
-                if (!unionVariantTypesToKeep.Contains(provider.Type.Name) ||
+                if (provider is not ModelProvider ||
+                    !unionVariantTypesToKeep.Contains(provider.Type.Name) ||
                     string.Equals(provider.Type.Namespace, "TypeSpec.Http", StringComparison.Ordinal))
                 {
                     continue;
