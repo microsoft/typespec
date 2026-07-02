@@ -19,7 +19,7 @@ catalog:
   "@astrojs/react": ^6.0.0
   "@astrojs/starlight": ^0.40.0
   "@azure/identity": ^4.13.1
-  "@azure/storage-blob": ^12.31.0
+  "@azure/storage-blob": ^12.33.0
   "@babel/code-frame": ^7.29.0
   "@babel/core": ^7.29.0
   "@chronus/chronus": ^1.3.1
