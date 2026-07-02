@@ -117,6 +117,49 @@ def test_models_mode_dpg_typeddict_models_included():
     assert len(ts.typeddict_models) == 1
 
 
+def _make_model_with_clid(code_model, name, clid, model_cls):
+    """Create a model carrying an explicit crossLanguageDefinitionId."""
+    return model_cls(
+        yaml_data={
+            "name": name,
+            "type": "model",
+            "snakeCaseName": name.lower(),
+            "usage": 2,
+            "crossLanguageDefinitionId": clid,
+        },
+        code_model=code_model,
+        properties=[],
+    )
+
+
+def test_typeddict_models_shared_cross_language_id_not_collapsed():
+    """Distinct models that share a template crossLanguageDefinitionId must all render.
+
+    Template-instantiated models such as ``ResourceUpdateModel<Cache, CacheProperties>`` and
+    ``ResourceUpdateModel<Volume, VolumeProperties>`` are named ``CacheUpdate`` / ``VolumeUpdate``
+    but share the template's cross-language id. The dpg/copy dedup must key on the model name so
+    these distinct models are not collapsed into one (which previously dropped ``CacheUpdate`` from
+    types.py, leaving a dangling ``_types.CacheUpdate`` reference in operations).
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    clid = "Azure.ResourceManager.Foundations.ResourceUpdateModel"
+    cache_dpg = _make_model_with_clid(code_model, "CacheUpdate", clid, DPGModelType)
+    cache_td = _make_model_with_clid(code_model, "CacheUpdate", clid, TypedDictModelType)
+    volume_dpg = _make_model_with_clid(code_model, "VolumeUpdate", clid, DPGModelType)
+    volume_td = _make_model_with_clid(code_model, "VolumeUpdate", clid, TypedDictModelType)
+
+    env = _make_env()
+    ts = TypesSerializer(
+        code_model=code_model,
+        env=env,
+        models=[cache_dpg, cache_td, volume_dpg, volume_td],
+    )
+    rendered = ts.typeddict_models
+    # Both distinct models render exactly once, and the dpg copy is preferred over the typeddict copy.
+    assert sorted(m.name for m in rendered) == ["CacheUpdate", "VolumeUpdate"]
+    assert all(m.base == "dpg" for m in rendered)
+
+
 # ---------- models-mode=typeddict ----------
 
 

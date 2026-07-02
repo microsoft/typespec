@@ -75,24 +75,29 @@ class TypesSerializer(BaseSerializer):
     def typeddict_models(self) -> list[ModelType]:
         """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions).
 
-        When both a dpg model and its typeddict copy exist (same crossLanguageDefinitionId),
+        When both a dpg model and its typeddict copy exist for the same model,
         prefer the dpg model (it already renders as a TypedDict in types.py) and skip the copy.
+
+        The pairing is keyed on the model ``name`` (the copy is a shallow copy of the source, so it
+        shares the source's name). ``crossLanguageDefinitionId`` cannot be used here: template
+        instantiated models such as ``ResourceUpdateModel<Foo, FooProperties>`` all share the
+        template's cross-language id, so keying on it would wrongly collapse distinct models
+        (e.g. ``CacheUpdate`` and ``VolumeUpdate``) into one and drop the rest from types.py.
         """
         candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
-        seen_ids: dict[str, "ModelType"] = {}
+        seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:
-            clid = m.yaml_data.get("crossLanguageDefinitionId")
-            if clid and clid in seen_ids:
+            name = m.name
+            if name in seen_names:
                 # Prefer the dpg model over the typeddict copy
-                if m.base == "dpg" and seen_ids[clid].base == "typeddict":
+                if m.base == "dpg" and seen_names[name].base == "typeddict":
                     # Replace the typeddict copy with the dpg model
-                    result = [r if r is not seen_ids[clid] else m for r in result]
-                    seen_ids[clid] = m
+                    result = [r if r is not seen_names[name] else m for r in result]
+                    seen_names[name] = m
                 # Otherwise skip this duplicate
                 continue
-            if clid:
-                seen_ids[clid] = m
+            seen_names[name] = m
             result.append(m)
         return result
 
