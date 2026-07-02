@@ -33,6 +33,17 @@ union DaysOfWeekExtensibleEnum {
   Sunday: "Sunday",
 }
 
+@doc("Service API versions")
+union ApiVersionExtensibleEnum {
+  string,
+
+  @doc("Version 2020-01-01.")
+  `2020-01-01`: "2020-01-01",
+
+  @doc("Version 2021-01-01.")
+  `2021-01-01`: "2021-01-01",
+}
+
 @route("/string")
 interface String {
   @scenario
@@ -77,5 +88,52 @@ interface String {
     contentType: "application/json",
 
     @body body: DaysOfWeekExtensibleEnum,
+  ): void;
+}
+
+@route("/api-version")
+interface ApiVersion {
+  @scenario
+  @scenarioDoc("Expect to handle a known value. Mock api will return '2020-01-01'")
+  @get
+  @route("/known-value")
+  getKnownValue(): {
+    @header
+    contentType: "application/json";
+
+    @body body: ApiVersionExtensibleEnum;
+  };
+
+  @scenario
+  @scenarioDoc("Expect to handle an unknown value. Mock api will return '2022-01-01'")
+  @get
+  @route("/unknown-value")
+  getUnknownValue(): {
+    @header
+    contentType: "application/json";
+
+    @body body: ApiVersionExtensibleEnum;
+  };
+
+  @scenario
+  @scenarioDoc("Expect to send a known value. Mock api expect to receive '2020-01-01'")
+  @put
+  @route("/known-value")
+  putKnownValue(
+    @header
+    contentType: "application/json",
+
+    @body body: ApiVersionExtensibleEnum,
+  ): void;
+
+  @scenario
+  @scenarioDoc("Expect to handle an unknown value. Mock api expect to receive '2022-01-01'")
+  @put
+  @route("/unknown-value")
+  putUnknownValue(
+    @header
+    contentType: "application/json",
+
+    @body body: ApiVersionExtensibleEnum,
   ): void;
 }
