@@ -188,6 +188,8 @@ export interface OAuth2Scope {
 export interface OpenIDConnectAuth extends HttpAuthBase {
   type: "openIdConnect";
   openIdConnectUrl: string;
+  /** Scope names required for operations that use this scheme. */
+  scopes: string[];
 }
 
 /**
@@ -203,6 +205,12 @@ export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
 export interface AnyHttpAuthRef {
   readonly kind: "any";
   readonly auth: HttpAuth;
+  /**
+   * Scope names required for this scheme in the containing auth option. Empty
+   * for schemes that do not carry scopes. Populated for `openIdConnect`; kept
+   * scheme-agnostic so other scheme types can carry scopes without a new ref kind.
+   */
+  readonly scopes: string[];
 }
 
 export interface NoHttpAuthRef {
