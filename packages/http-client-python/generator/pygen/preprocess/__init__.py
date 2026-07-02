@@ -6,6 +6,7 @@
 """The preprocessing autorest plugin."""
 
 import copy
+import re
 from typing import Callable, Any, Optional
 
 from ..utils import to_snake_case, extract_original_name
@@ -117,6 +118,13 @@ def update_description(description: Any, default_description: str = "") -> str:
     if description and description[-1] != "." and not description_ends_with_code_block(description):
         description += "."
     return description
+
+
+def update_enum_value_name(enum_value: dict[str, Any]) -> str:
+    name = enum_value["name"]
+    if not isinstance(name, str) and isinstance(enum_value.get("value"), str):
+        name = re.sub(r"\W+", "_", enum_value["value"]).strip("_") or name
+    return str(name)
 
 
 def update_operation_group_class_name(prefix: str, class_name: str) -> str:
@@ -452,7 +460,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
-                type["name"] = str(type["name"])
+                type["name"] = update_enum_value_name(type) if type["type"] == "enumvalue" else str(type["name"])
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 if type["type"] != "enumvalue":
                     name = self.pad_reserved_words(type["name"], pad_type, type)
@@ -464,7 +472,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 for value in type["values"]:
                     if value.get("isExactName", False):
                         continue
-                    value["name"] = str(value["name"])
+                    value["name"] = update_enum_value_name(value)
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name
