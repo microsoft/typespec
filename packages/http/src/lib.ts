@@ -96,6 +96,12 @@ export const $lib = createTypeSpecLibrary({
         default: "`Content-Type` header ignored because there is no body.",
       },
     },
+    "head-operation-no-body": {
+      severity: "warning",
+      messages: {
+        default: "head request must not return a message-body in the response",
+      },
+    },
     "metadata-ignored": {
       severity: "warning",
       messages: {

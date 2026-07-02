@@ -948,7 +948,6 @@ model Foo {
               responses: {
                 [statusCode]: {
                   description: "Test Response",
-                  content: { "application/json": { schema: { $ref: "#/components/schemas/Foo" } } },
                 } as OpenAPI3Response,
               },
             },
@@ -978,7 +977,6 @@ model Foo {
 
         @route("/") @head op headFoo(): {
           @statusCode statusCode: 100;
-          @body body: Foo;
         };
         "
       `);
@@ -1262,15 +1260,6 @@ model Foo {
               },
             },
           },
-          head: {
-            operationId: "headFoo",
-            parameters: [],
-            responses: {
-              default: {
-                $ref: "#/components/responses/TestResponse",
-              },
-            },
-          },
         },
       },
     });
@@ -1294,11 +1283,6 @@ model Foo {
 
       @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
         Description = "Overwritten description",
-        Body = Foo
-      >;
-
-      @route("/") @head op headFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Base description",
         Body = Foo
       >;
 
