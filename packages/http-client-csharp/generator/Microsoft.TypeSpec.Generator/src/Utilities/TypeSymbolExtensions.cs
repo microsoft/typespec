@@ -43,6 +43,9 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         public static CSharpType GetCSharpType(this ITypeSymbol typeSymbol)
+            => GetCSharpType(typeSymbol, new HashSet<ITypeSymbol>(SymbolEqualityComparer.Default));
+
+        private static CSharpType GetCSharpType(this ITypeSymbol typeSymbol, HashSet<ITypeSymbol> visited)
         {
             var fullyQualifiedName = GetFullyQualifiedName(typeSymbol);
             var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
@@ -55,20 +58,20 @@ namespace Microsoft.TypeSpec.Generator
                 if (namedTypeSymbol?.ConstructedFrom.SpecialType == SpecialType.System_Nullable_T &&
                     namedTypeSymbol.TypeArguments.Length == 1)
                 {
-                    var underlying = GetCSharpType(namedTypeSymbol.TypeArguments[0]);
+                    var underlying = GetCSharpType(namedTypeSymbol.TypeArguments[0], visited);
                     if (underlying.IsFrameworkType)
                     {
                         return underlying.WithNullable(true);
                     }
                 }
 
-                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol);
+                return ConstructCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName, namedTypeSymbol, visited);
             }
 
             CSharpType result = new CSharpType(type);
             if (namedTypeSymbol is not null && namedTypeSymbol.IsGenericType && !result.IsNullable)
             {
-                return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(GetCSharpType)]);
+                return result.MakeGenericType([.. namedTypeSymbol.TypeArguments.Select(t => GetCSharpType(t, visited))]);
             }
 
             return result;
@@ -175,8 +178,14 @@ namespace Microsoft.TypeSpec.Generator
         private static CSharpType ConstructCSharpTypeFromSymbol(
             ITypeSymbol typeSymbol,
             string fullyQualifiedName,
-            INamedTypeSymbol? namedTypeSymbol)
+            INamedTypeSymbol? namedTypeSymbol,
+            HashSet<ITypeSymbol> visited)
         {
+            if (!visited.Add(typeSymbol))
+            {
+                return ConstructShallowCSharpTypeFromSymbol(typeSymbol, fullyQualifiedName);
+            }
+
             var typeArg = namedTypeSymbol?.TypeArguments.FirstOrDefault();
             bool isValueType = typeSymbol.IsValueType;
             bool isNullable = fullyQualifiedName.StartsWith(NullableTypeName);
@@ -193,7 +202,7 @@ namespace Microsoft.TypeSpec.Generator
             if (namedTypeSymbol?.IsGenericType == true &&
                 (!isNullable || (namedTypeArg?.IsGenericType == true)))
             {
-                arguments.AddRange(namedTypeSymbol.TypeArguments.Select(GetCSharpType));
+                arguments.AddRange(namedTypeSymbol.TypeArguments.Select(t => GetCSharpType(t, visited)));
             }
 
             // handle nullables
@@ -209,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator
 
             if (typeSymbol.ContainingType != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
             {
-                containingType = GetCSharpType(typeSymbol.ContainingType);
+                containingType = GetCSharpType(typeSymbol.ContainingType, visited);
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
             }
 
@@ -219,10 +228,10 @@ namespace Microsoft.TypeSpec.Generator
                 !isNullableUnknownType &&
                 !ContainsTypeAsArgument(typeSymbol.BaseType, typeSymbol))
             {
-                baseType = GetCSharpType(typeSymbol.BaseType);
+                baseType = GetCSharpType(typeSymbol.BaseType, visited);
             }
 
-            return new CSharpType(
+            var result = new CSharpType(
                 name,
                 ns,
                 isValueType,
@@ -233,8 +242,24 @@ namespace Microsoft.TypeSpec.Generator
                 isValueType && !isEnum,
                 baseType: baseType,
                 underlyingEnumType: enumUnderlyingType != null
-                    ? GetCSharpType(enumUnderlyingType).FrameworkType
+                    ? GetCSharpType(enumUnderlyingType, visited).FrameworkType
                     : null);
+            visited.Remove(typeSymbol);
+            return result;
+        }
+
+        private static CSharpType ConstructShallowCSharpTypeFromSymbol(ITypeSymbol typeSymbol, string fullyQualifiedName)
+        {
+            string[] pieces = fullyQualifiedName.Split('`')[0].Split('.');
+            return new CSharpType(
+                typeSymbol.Name,
+                string.Join('.', pieces.Take(pieces.Length - 1)),
+                typeSymbol.IsValueType,
+                fullyQualifiedName.StartsWith(NullableTypeName),
+                null,
+                [],
+                typeSymbol.DeclaredAccessibility == Accessibility.Public,
+                typeSymbol.IsValueType && typeSymbol.TypeKind != TypeKind.Enum);
         }
 
         internal static bool ContainsTypeAsArgument(ITypeSymbol potentialGenericType, ITypeSymbol targetType)

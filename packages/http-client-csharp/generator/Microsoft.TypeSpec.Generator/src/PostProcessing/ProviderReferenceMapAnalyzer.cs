@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator
                     provider.PreserveXmlDocs();
                     provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
                 }
-                else if (publicizeCandidates.Contains(providerName))
+                else if (publicizeCandidates.Contains(providerName) && !IsGeneratedInternalImplementation(provider))
                 {
                     provider.Update(modifiers: MakePublic(provider.DeclarationModifiers));
                 }
@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator
             var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
             var customInternalBoundaryNodes = GetCustomInternalBoundaryNodes(publicGraph, customInternalDeclarations);
             var publicizeDeclaredNodes = GetPublicizeDeclaredNodes(generatedProviders, graph.Nodes, internalizeDeclaredNodes);
-            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedInternalDeclarations);
+            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedProviders, generatedInternalDeclarations);
             var publicApiTraversalNodes = GetPublicApiTraversalNodes(
                 internalizeDeclaredNodes,
                 publicizeDeclaredNodes,
@@ -510,6 +510,7 @@ namespace Microsoft.TypeSpec.Generator
             AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames, includeSimpleNameReferences: true);
             if (!publicOnly)
             {
+                AddProviderBodyDependencyTypes(roots, customCodeView.BodyDependencyTypes, generatedTypeNames, includeSimpleNameReferences: true);
                 AddAttributes(roots, customCodeView.Attributes, generatedTypeNames, serializationProviderNamesByType: null, includeArguments: true);
                 AddMatchingName(roots, $"{GetCustomCodeViewSimpleName(customCodeView)}Extensions", generatedTypeNames);
             }
@@ -702,9 +703,21 @@ namespace Microsoft.TypeSpec.Generator
             return declarations;
         }
 
-        private static HashSet<string> GetGeneratedImplementationInternalTypeDeclarations(HashSet<string> generatedInternalDeclarations)
+        private static HashSet<string> GetGeneratedImplementationInternalTypeDeclarations(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> generatedInternalDeclarations)
         {
             var implementationDeclarations = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var provider in GetGeneratedProviders(providers))
+            {
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static))
+                {
+                    continue;
+                }
+
+                AddTypeReference(implementationDeclarations, provider.Type, generatedInternalDeclarations);
+            }
+
             foreach (var name in generatedInternalDeclarations)
             {
                 if (GetSimpleName(name).StartsWith("Internal", StringComparison.Ordinal))
@@ -715,6 +728,11 @@ namespace Microsoft.TypeSpec.Generator
 
             return implementationDeclarations;
         }
+
+        private static bool IsGeneratedInternalImplementation(TypeProvider provider)
+            => provider.RelativeFilePath.Contains(
+                $"{Path.DirectorySeparatorChar}Generated{Path.DirectorySeparatorChar}Internal{Path.DirectorySeparatorChar}",
+                StringComparison.Ordinal);
 
         private static HashSet<string> GetSimpleNames(HashSet<string> names)
         {
