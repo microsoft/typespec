@@ -27,12 +27,13 @@ namespace Microsoft.TypeSpec.Generator
         {
             CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
             CodeModelGenerator.Instance.Stopwatch.Start();
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
 
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
-            // Resolve PackageReference items from the .csproj so custom code referencing
-            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
+            // Resolve PackageReference items from the .csproj so custom code referencing external
+            // NuGet types compiles correctly.
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             // Pre-walk the input library and resolve any external types that point at NuGet packages.
@@ -90,12 +91,33 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // Ensure back-compatibility processing is done after all visitors have run
                 outputType.ProcessTypeForBackCompatibility();
+            }
+
+            generatedCodeWorkspace.ApplyPreWriteAccessibility(output.TypeProviders);
+            generatedCodeWorkspace.AnalyzeProviderReferenceMap(output.TypeProviders);
+
+            foreach (var outputType in output.TypeProviders)
+            {
+                if (!ProviderReferenceMapAnalyzer.ShouldWriteProvider(outputType))
+                {
+                    continue;
+                }
+
+                if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
+                {
+                    continue;
+                }
 
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 
                 foreach (var serialization in outputType.SerializationProviders)
                 {
+                    if (!ProviderReferenceMapAnalyzer.ShouldWriteProvider(serialization))
+                    {
+                        continue;
+                    }
+
                     writer = CodeModelGenerator.Instance.GetWriter(serialization);
                     generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
                 }
@@ -103,6 +125,8 @@ namespace Microsoft.TypeSpec.Generator
 
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
+
+            ProviderReferenceMapAnalyzer.RestorePreWriteModelFactoryMethods();
 
             LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
 
@@ -112,14 +136,22 @@ namespace Microsoft.TypeSpec.Generator
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
             await generatedCodeWorkspace.PostProcessAsync();
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
 
-            // Write the generated files to the output directory
+            var generatedFiles = new List<(string Name, string Text)>();
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
             {
                 if (string.IsNullOrEmpty(file.Text))
                 {
                     continue;
                 }
+
+                generatedFiles.Add((file.Name, file.Text));
+            }
+
+            // Write the generated files to the output directory
+            foreach (var file in generatedFiles)
+            {
                 var filename = Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
@@ -177,9 +209,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            var fileNamesToKeep = filesToKeep.ToHashSet(StringComparer.Ordinal);
             foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
             {
-                if (!filesToKeep.Contains(file.Name))
+                if (!fileNamesToKeep.Contains(file.Name))
                 {
                     file.Delete();
                 }

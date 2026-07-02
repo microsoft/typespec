@@ -331,7 +331,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicEnumsAreNotIncludedInAdditionalRootTypes()
         {
             var inputEnum = InputFactory.StringEnum(
                 "StringEnum",
@@ -345,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNotNull(enumProvider);
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
-            Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.StringEnum"));
         }
 
         [Test]

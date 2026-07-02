@@ -1524,7 +1524,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicModelsAreNotIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
                 "MockInputModel",
@@ -1537,7 +1537,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
-            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
         [Test]

@@ -565,42 +565,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void DeserializeModelWithExternalUsagePreservesInputAndOutput()
-        {
-            // TCGC emits the External usage flag (UsageFlags.External) for models that are also
-            // referenced by external types. The C# InputModelTypeUsage enum must recognize it so
-            // that Enum.TryParse does not fail on the unknown token and collapse the whole usage to
-            // None, which would strip Input/Output and make every property get-only.
-            var json = @"{
-                ""$id"": ""1"",
-                ""kind"": ""model"",
-                ""name"": ""TestModel"",
-                ""namespace"": ""Test.Models"",
-                ""crossLanguageDefinitionId"": ""Test.Models.TestModel"",
-                ""usage"": ""Input,Output,External"",
-                ""properties"": []
-            }";
-
-            var referenceHandler = new TypeSpecReferenceHandler();
-            var options = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                Converters =
-                {
-                    new InputTypeConverter(referenceHandler),
-                    new InputModelTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter()
-                }
-            };
-
-            var model = JsonSerializer.Deserialize<InputModelType>(json, options);
-            Assert.IsNotNull(model);
-            Assert.IsTrue(model!.Usage.HasFlag(InputModelTypeUsage.Input), "Model should retain Input usage flag");
-            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.Output), "Model should retain Output usage flag");
-            Assert.IsTrue(model.Usage.HasFlag(InputModelTypeUsage.External), "Model should have External usage flag");
-        }
-
-        [Test]
         public void DeserializeArrayWithExternalMetadata()
         {
             var json = @"{

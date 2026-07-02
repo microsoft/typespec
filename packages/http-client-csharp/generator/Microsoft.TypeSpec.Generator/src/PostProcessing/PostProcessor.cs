@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Simplification;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -113,58 +112,6 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual bool ShouldIncludeDocument(Document document) =>
             !GeneratedCodeWorkspace.IsGeneratedTestDocument(document);
 
-        /// <summary>
-        /// This method marks the "not publicly" referenced types as internal if they are previously defined as public. It will do this job in the following steps:
-        /// 1. This method will read all the public types defined in the given <paramref name="project"/>, and build a cache for those symbols
-        /// 2. Build a public reference map for those symbols
-        /// 3. Finds all the root symbols, please override the <see cref="IsRootDocument(Document)"/> to control which document you would like to include
-        /// 4. Visit all the symbols starting from the root symbols following the reference map to get all unvisited symbols
-        /// 5. Change the accessibility of the unvisited symbols in step 4 to internal
-        /// </summary>
-        /// <param name="project">The project to process</param>
-        /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
-        public async Task<Project> InternalizeAsync(Project project)
-        {
-            var compilation = await project.GetCompilationAsync();
-            if (compilation == null)
-            {
-                return project;
-            }
-
-            // first get all the declared symbols
-            var definitions = await GetTypeSymbolsAsync(compilation, project, true);
-            // build the reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
-            // get the root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // traverse all the root and recursively add all the things we met
-            var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
-
-            var symbolsToInternalize = definitions.DeclaredSymbols.Except(publicSymbols);
-
-            var nodesToInternalize = new Dictionary<BaseTypeDeclarationSyntax, DocumentId>();
-            foreach (var symbol in symbolsToInternalize)
-            {
-                foreach (var node in definitions.DeclaredNodesCache[symbol])
-                {
-                    nodesToInternalize[node] = project.GetDocumentId(node.SyntaxTree)!;
-                }
-            }
-
-            foreach (var (model, documentId) in nodesToInternalize)
-            {
-                project = MarkInternal(project, model, documentId);
-            }
-
-            var modelNamesToRemove =
-                nodesToInternalize.Keys.Select(item => item.Identifier.Text);
-            project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
-
-            return project;
-        }
-
         private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
             TypeSymbols definitions,
             HashSet<string> namesToRemove)
@@ -246,25 +193,32 @@ namespace Microsoft.TypeSpec.Generator
 
             // find all the declarations, including non-public declared
             var definitions = await GetTypeSymbolsAsync(compilation, project, false);
-            // build reference map
-            var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
-                    definitions.DeclaredSymbols, definitions.DocumentsCache);
-            // get root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
-            // include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
-            // helpers that are required by the model factory.
-            if (_modelFactorySymbol != null)
+            IEnumerable<INamedTypeSymbol> symbolsToRemove;
+            HashSet<INamedTypeSymbol> referencedSet;
+            if (ProviderReferenceMapAnalyzer.LatestResult is { } referenceMapResult)
             {
-                rootSymbols.Add(_modelFactorySymbol);
+                // The remove pass uses the same precomputed hybrid map to avoid scanning all generated
+                // documents with Roslyn while preserving custom-code references as roots.
+                symbolsToRemove = GetSymbolsByName(definitions.DeclaredSymbols, referenceMapResult.RemoveCandidates).ToArray();
+                referencedSet = new HashSet<INamedTypeSymbol>(definitions.DeclaredSymbols.Except(symbolsToRemove), SymbolEqualityComparer.Default);
             }
-            // traverse the map to determine the declarations that we are about to remove, starting from root nodes
-            var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
+            else
+            {
+                var referenceMap = await new ReferenceMapBuilder(compilation, project).BuildAllReferenceMapAsync(
+                    definitions.DeclaredSymbols, definitions.DocumentsCache);
+                // Include model factory as a root symbol when doing the remove pass so that we are sure to include any internal
+                // helpers that are required by the model factory.
+                var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+                if (_modelFactorySymbol != null)
+                {
+                    rootSymbols.Add(_modelFactorySymbol);
+                }
 
-            referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
-            var referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
-
-            var symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+                var referencedSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
+                referencedSymbols = AddSampleSymbols(referencedSymbols, definitions.DeclaredSymbols);
+                referencedSet = new HashSet<INamedTypeSymbol>(referencedSymbols, SymbolEqualityComparer.Default);
+                symbolsToRemove = definitions.DeclaredSymbols.Except(referencedSet);
+            }
 
             var nodesToRemove = new List<BaseTypeDeclarationSyntax>();
             foreach (var symbol in symbolsToRemove)
@@ -274,6 +228,14 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
+            }
+
+            var modelNamesToRemove = nodesToRemove
+                .Select(static item => item.Identifier.Text)
+                .ToHashSet(StringComparer.Ordinal);
+            if (modelNamesToRemove.Count > 0)
+            {
+                project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove);
             }
 
             // remove them one by one
@@ -352,18 +314,19 @@ namespace Microsoft.TypeSpec.Generator
             return Enumerable.Empty<T>();
         }
 
-        private Project MarkInternal(Project project, BaseTypeDeclarationSyntax declarationNode, DocumentId documentId)
+        private static IEnumerable<INamedTypeSymbol> GetSymbolsByName(IEnumerable<INamedTypeSymbol> symbols, HashSet<string> names)
         {
-            var newNode = ChangeModifier(declarationNode, SyntaxKind.PublicKeyword, SyntaxKind.InternalKeyword);
-            var tree = declarationNode.SyntaxTree;
-            var document = project.GetDocument(documentId)!;
-            var newRoot = tree.GetRoot().ReplaceNode(declarationNode, newNode)
-                .WithAdditionalAnnotations(Simplifier.Annotation);
-            document = document.WithSyntaxRoot(newRoot);
-            return document.Project;
+            foreach (var symbol in symbols)
+            {
+                if (names.Contains(symbol.GetFullyQualifiedName()))
+                {
+                    yield return symbol;
+                }
+            }
         }
 
-        private async Task<Project> RemoveModelsAsync(Project project,
+        private async Task<Project> RemoveModelsAsync(
+            Project project,
             IEnumerable<BaseTypeDeclarationSyntax> unusedModels)
         {
             // accumulate the definitions from the same document together
@@ -390,24 +353,6 @@ namespace Microsoft.TypeSpec.Generator
             project = await RemoveInvalidRefs(project);
 
             return project;
-        }
-
-        private static BaseTypeDeclarationSyntax ChangeModifier(BaseTypeDeclarationSyntax memberDeclaration,
-            SyntaxKind from,
-            SyntaxKind to)
-        {
-            var originalTokenInList = memberDeclaration.Modifiers.FirstOrDefault(token => token.IsKind(from));
-
-            // skip this if there is nothing to replace
-            if (originalTokenInList == default)
-            {
-                return memberDeclaration;
-            }
-
-            var newToken =
-                SyntaxFactory.Token(originalTokenInList.LeadingTrivia, to, originalTokenInList.TrailingTrivia);
-            var newModifiers = memberDeclaration.Modifiers.Replace(originalTokenInList, newToken);
-            return memberDeclaration.WithModifiers(newModifiers);
         }
 
         private async Task<Project> RemoveModelsFromDocumentAsync(Project project,
@@ -479,7 +424,14 @@ namespace Microsoft.TypeSpec.Generator
 
             if (invalidUsings.Count > 0)
             {
+                var leadingTrivia = invalidUsings[0].GetLeadingTrivia();
                 cu = cu.RemoveNodes(invalidUsings, SyntaxRemoveOptions.KeepNoTrivia)!;
+                if (leadingTrivia.Count > 0)
+                {
+                    var firstToken = cu.GetFirstToken(includeZeroWidth: true);
+                    cu = cu.ReplaceToken(firstToken, firstToken.WithLeadingTrivia(leadingTrivia.AddRange(firstToken.LeadingTrivia)));
+                }
+
                 solution = solution.WithDocumentSyntaxRoot(documentId, cu);
             }
 
@@ -497,30 +449,37 @@ namespace Microsoft.TypeSpec.Generator
                 return solution;
             }
 
-            var attributes = cu.DescendantNodes().OfType<AttributeListSyntax>();
-            var firstAttribute = attributes.FirstOrDefault();
+            var attributeLists = cu.DescendantNodes().OfType<AttributeListSyntax>().ToArray();
+            var firstAttributeList = attributeLists.FirstOrDefault();
 
-            var invalidAttributes = attributes
-                .Where(attr => attr.Attributes.Any(attribute =>
+            var invalidAttributes = attributeLists
+                .SelectMany(static attr => attr.Attributes)
+                .Where(attribute =>
                     attribute.ArgumentList?.Arguments.Any(arg =>
                         arg.Expression is TypeOfExpressionSyntax typeOfExpr &&
-                        model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true))
+                        model.GetTypeInfo(typeOfExpr.Type).Type?.TypeKind == TypeKind.Error) == true)
                 .ToHashSet();
 
             if (invalidAttributes.Count > 0)
             {
+                var firstAttributeListRemoved = firstAttributeList != null &&
+                    firstAttributeList.Attributes.All(invalidAttributes.Contains);
+                var leadingTrivia = firstAttributeList?.GetLeadingTrivia();
                 cu = cu.RemoveNodes(invalidAttributes, SyntaxRemoveOptions.KeepNoTrivia)!;
+                var emptyAttributeLists = cu.DescendantNodes().OfType<AttributeListSyntax>()
+                    .Where(static list => list.Attributes.Count == 0)
+                    .ToArray();
+                cu = cu.RemoveNodes(emptyAttributeLists, SyntaxRemoveOptions.KeepNoTrivia)!;
 
-                if (invalidAttributes.Contains(firstAttribute!))
+                if (firstAttributeListRemoved && leadingTrivia != null)
                 {
-                    var leadingTrivia = firstAttribute!.GetLeadingTrivia();
                     // Find where XML docs end and indentation begins
                     var xmlDocTrivia = new List<SyntaxTrivia>();
                     var lastXmlIndex = -1;
 
-                    for (int i = 0; i < leadingTrivia.Count; i++)
+                    for (int i = 0; i < leadingTrivia.Value.Count; i++)
                     {
-                        var trivia = leadingTrivia[i];
+                        var trivia = leadingTrivia.Value[i];
                         if (trivia.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia))
                         {
                             lastXmlIndex = i;
@@ -532,14 +491,14 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         for (int i = 0; i <= lastXmlIndex; i++)
                         {
-                            xmlDocTrivia.Add(leadingTrivia[i]);
+                            xmlDocTrivia.Add(leadingTrivia.Value[i]);
                         }
 
                         // Include the newline after the last XML doc if present
-                        if (lastXmlIndex + 1 < leadingTrivia.Count &&
-                            leadingTrivia[lastXmlIndex + 1].IsKind(SyntaxKind.EndOfLineTrivia))
+                        if (lastXmlIndex + 1 < leadingTrivia.Value.Count &&
+                            leadingTrivia.Value[lastXmlIndex + 1].IsKind(SyntaxKind.EndOfLineTrivia))
                         {
-                            xmlDocTrivia.Add(leadingTrivia[lastXmlIndex + 1]);
+                            xmlDocTrivia.Add(leadingTrivia.Value[lastXmlIndex + 1]);
                         }
                     }
 
