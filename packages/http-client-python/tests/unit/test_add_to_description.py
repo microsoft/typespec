@@ -126,6 +126,10 @@ def test_update_description_still_adds_period_for_plain_text() -> None:
     assert update_description("The tools.") == "The tools."
 
 
+def test_update_description_accepts_non_string_description() -> None:
+    assert update_description(1) == "1."
+
+
 def test_inline_code_block_mention_is_not_treated_as_trailing_block() -> None:
     # ".. code-block::" mentioned inline in a sentence is not a real directive, so the
     # description does not "end" with a code block: the trailing period is still added and

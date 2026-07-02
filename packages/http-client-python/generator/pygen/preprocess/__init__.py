@@ -107,10 +107,10 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     content_type_param["optional"] = True
 
 
-def update_description(description: Optional[str], default_description: str = "") -> str:
+def update_description(description: Any, default_description: str = "") -> str:
     if not description:
         description = default_description
-    description.rstrip(" ")
+    description = str(description).rstrip(" ")
     # Don't append a trailing period when the description ends with a code block: the
     # period would land inside the rendered literal block (e.g. "]." ) and break Sphinx.
     if description and description[-1] != "." and not description_ends_with_code_block(description):
@@ -420,7 +420,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
             code_model["types"].append(body_parameter["type"])
 
-
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
         if not name:
@@ -452,6 +451,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
+                type["name"] = str(type["name"])
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 if type["type"] != "enumvalue":
                     name = self.pad_reserved_words(type["name"], pad_type, type)
@@ -463,6 +463,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 for value in type["values"]:
                     if value.get("isExactName", False):
                         continue
+                    value["name"] = str(value["name"])
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name

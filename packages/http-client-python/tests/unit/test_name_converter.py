@@ -33,3 +33,15 @@ def test_escaped_reserved_words():
     }
     for name in expected_conversion_parameter:
         assert pad_reserved_words(name, pad_type=PadType.PARAMETER) == expected_conversion_parameter[name]
+
+
+def test_update_types_accepts_numeric_enum_value_names():
+    standalone_enum_value = {"name": 20200101, "isExactName": False, "type": "enumvalue"}
+    nested_enum_value = {"name": 20210101, "isExactName": False, "type": "enumvalue"}
+    enum_type = {"name": "ApiVersion", "type": "enum", "values": [nested_enum_value]}
+
+    PreProcessPlugin(output_folder="").update_types([standalone_enum_value, enum_type])
+
+    assert standalone_enum_value["description"] == "20200101."
+    assert standalone_enum_value["snakeCaseName"] == "20200101"
+    assert nested_enum_value["name"] == "ENUM_20210101"
