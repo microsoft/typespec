@@ -44,10 +44,7 @@ jobs:
 
       - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
-      - script: |
-          $packageJson = Get-Content -Raw "$(Build.SourcesDirectory)/package.json" | ConvertFrom-Json
-          npm install -g $packageJson.packageManager
-        displayName: Install pnpm
+      - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
 
       - script: pnpm install --filter "@typespec/standalone-cli"
         displayName: Install JavaScript Dependencies
