@@ -219,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
         {
-            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType, new ClientPipelineExtensionsDefinition().Type };
             if (ItemModelType != null)
             {
                 dependencies.Add(ItemModelType);
@@ -232,8 +232,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return dependencies;
         }
-
-        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [new ClientPipelineExtensionsDefinition().Type];
 
         protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
