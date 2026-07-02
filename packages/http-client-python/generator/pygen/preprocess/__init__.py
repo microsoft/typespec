@@ -108,6 +108,7 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
 
 
 def update_description(description: Any, default_description: str = "") -> str:
+    """Normalize YAML descriptions, which may be emitted as non-string scalar values."""
     if not description:
         description = default_description
     description = str(description).rstrip(" ")
