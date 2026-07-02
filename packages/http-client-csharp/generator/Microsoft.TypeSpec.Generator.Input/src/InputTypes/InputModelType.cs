@@ -159,6 +159,124 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
         }
 
+        /// <summary>
+        /// Updates the properties of the input model type.
+        /// </summary>
+        /// <param name="name">The new name for the model.</param>
+        /// <param name="namespace">The new namespace for the model.</param>
+        /// <param name="crossLanguageDefinitionId">The new cross-language definition ID for the model.</param>
+        /// <param name="access">The new access modifier for the model.</param>
+        /// <param name="deprecation">The new deprecation message for the model.</param>
+        /// <param name="summary">The new summary for the model.</param>
+        /// <param name="doc">The new documentation for the model.</param>
+        /// <param name="usage">The new usage for the model.</param>
+        /// <param name="properties">The new properties for the model.</param>
+        /// <param name="baseModel">The new base model for the model.</param>
+        /// <param name="discriminatorValue">The new discriminator value for the model.</param>
+        /// <param name="discriminatorProperty">The new discriminator property for the model.</param>
+        /// <param name="additionalProperties">The new additional properties type for the model.</param>
+        /// <param name="modelAsStruct">The new value indicating whether the model should be generated as a struct.</param>
+        /// <param name="serializationOptions">The new serialization options for the model.</param>
+        /// <param name="isDynamicModel">The new value indicating whether the model is dynamic.</param>
+        public void Update(
+            string? name = null,
+            string? @namespace = null,
+            string? crossLanguageDefinitionId = null,
+            string? access = null,
+            string? deprecation = null,
+            string? summary = null,
+            string? doc = null,
+            InputModelTypeUsage? usage = null,
+            IEnumerable<InputModelProperty>? properties = null,
+            InputModelType? baseModel = null,
+            string? discriminatorValue = null,
+            InputModelProperty? discriminatorProperty = null,
+            InputType? additionalProperties = null,
+            bool? modelAsStruct = null,
+            InputSerializationOptions? serializationOptions = null,
+            bool? isDynamicModel = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+
+            if (@namespace != null)
+            {
+                Namespace = @namespace;
+            }
+
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+
+            if (access != null)
+            {
+                Access = access;
+            }
+
+            if (deprecation != null)
+            {
+                Deprecation = deprecation;
+            }
+
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+
+            if (doc != null)
+            {
+                Doc = doc;
+            }
+
+            if (usage.HasValue)
+            {
+                Usage = usage.Value;
+            }
+
+            if (properties != null)
+            {
+                Properties = [.. properties];
+            }
+
+            if (baseModel != null)
+            {
+                BaseModel = baseModel;
+            }
+
+            if (discriminatorValue != null)
+            {
+                DiscriminatorValue = discriminatorValue;
+            }
+
+            if (discriminatorProperty != null)
+            {
+                DiscriminatorProperty = discriminatorProperty;
+            }
+
+            if (additionalProperties != null)
+            {
+                AdditionalProperties = additionalProperties;
+            }
+
+            if (modelAsStruct.HasValue)
+            {
+                ModelAsStruct = modelAsStruct.Value;
+            }
+
+            if (serializationOptions != null)
+            {
+                SerializationOptions = serializationOptions;
+            }
+
+            if (isDynamicModel.HasValue)
+            {
+                IsDynamicModel = isDynamicModel.Value;
+            }
+        }
+
         private string GetDebuggerDisplay()
         {
             return $"Model (Name: {Name})";
