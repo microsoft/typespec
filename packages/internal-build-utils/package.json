@@ -31,8 +31,8 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "lib/*.tsp",
