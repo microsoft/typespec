@@ -8,9 +8,10 @@
  * build can target any output dir).
  *
  * The regenerate *driver* always comes from the current checkout; only the
- * `--pluginDir` it points at changes between baseline and head. Specs are also
- * pinned to the current checkout so the diff isolates emitter behavior rather
- * than driver/spec differences.
+ * `--pluginDir` it points at changes between baseline and head. Each emitter
+ * build resolves its own specs from its `node_modules`; spec versions rarely
+ * change, so any spec drift between baseline/head is treated as acceptable
+ * noise rather than pinned.
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
