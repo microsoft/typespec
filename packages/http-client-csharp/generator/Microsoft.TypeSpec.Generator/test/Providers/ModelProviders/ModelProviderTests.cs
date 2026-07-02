@@ -1458,6 +1458,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_ConcreteDiscriminatorBaseDoesNotExposeDiscriminatorConstructorParameter()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "BaseModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsFalse(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var publicConstructors = modelProvider.Constructors
+                .Where(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .ToArray();
+            Assert.AreEqual(1, publicConstructors.Length);
+            Assert.AreEqual(1, publicConstructors[0].Signature.Parameters.Count);
+            Assert.AreEqual("baseProp", publicConstructors[0].Signature.Parameters[0].Name);
+            Assert.IsFalse(publicConstructors[0].Signature.Parameters.Any(p => p.Property?.IsDiscriminator == true));
+        }
+
+        [Test]
         public async Task BackCompat_NonAbstractTypeIsRespected_NamespaceChangedInVisitor()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
