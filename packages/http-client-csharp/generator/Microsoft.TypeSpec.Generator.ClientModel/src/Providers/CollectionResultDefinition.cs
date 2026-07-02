@@ -219,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
         {
-            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType, new ClientPipelineExtensionsDefinition().Type };
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
             if (ItemModelType != null)
             {
                 dependencies.Add(ItemModelType);

@@ -431,7 +431,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             foreach (var method in Methods.OfType<ScmMethodProvider>())
             {
-                if (!method.IsMethodSuppressed() && method.BodyStatements != null)
+                if (method.BodyStatements != null)
                 {
                     return [new CancellationTokenExtensionsDefinition().Type, new ClientPipelineExtensionsDefinition().Type];
                 }

@@ -1216,7 +1216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (IsContentTypeParameter(inputParam)
+                        if (IsGeneratedContentTypeMethodParameter(inputParam)
                             && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
@@ -1288,10 +1288,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsGeneratedContentTypeMethodParameter(InputParameter parameter) =>
             parameter is InputMethodParameter { Location: InputRequestLocation.Header } &&
                 string.Equals(parameter.SerializedName, "Content-Type", StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsContentTypeParameter(InputParameter parameter) =>
-            parameter is InputHeaderParameter { IsContentType: true } ||
-                IsGeneratedContentTypeMethodParameter(parameter);
 
         /// <summary>
         /// Checks if the last contract view contains a method matching the given name where
