@@ -215,6 +215,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                    severity: EmitterDiagnosticSeverity.Warning);
             }
 
+            // Back-compat: a type that the last contract published as non-abstract must not become
+            // abstract, which would be a source-breaking change for existing derived types and
+            // callers. Preserve the previously-published non-abstract shape.
+            if (modifiers.HasFlag(TypeSignatureModifiers.Abstract) &&
+                LastContractView is { } lastContractView &&
+                !lastContractView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                modifiers &= ~TypeSignatureModifiers.Abstract;
+            }
+
             // we always add partial when possible
             if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
@@ -813,8 +823,65 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
 
+        /// <summary>
+        /// Returns this type's methods with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation restores the previous
+        /// parameter order on a current method when it matches a last-contract method by name and
+        /// return type with the same parameter set but in a different order. Reordering is done in
+        /// place, so a method's body (which references its parameters by object) remains valid.
+        /// Override and call <c>base</c> to extend this behavior; override without calling
+        /// <c>base</c> to replace it.
+        /// </summary>
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
-            => [.. originalMethods];
+        {
+            var methods = new List<MethodProvider>(originalMethods);
+
+            if (LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return methods;
+            }
+
+            var currentMethodSignatures = BuildCurrentMethodSignatureMap(methods);
+
+            foreach (var previousMethod in previousMethods)
+            {
+                if (!BackCompatHelper.ShouldApplyMethodBackCompatibility(previousMethod.Signature, currentMethodSignatures)
+                    || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                var methodToReorder = BackCompatHelper.FindMethodWithSameParametersDifferentOrder(previousMethod.Signature, currentMethodSignatures);
+                if (methodToReorder != null && BackCompatHelper.TryRestorePreviousParameterOrder(methodToReorder, previousMethod.Signature))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Reordered parameters of '{Name}.{methodToReorder.Signature.Name}' to match last contract.",
+                        BackCompatibilityChangeCategory.MethodParameterReordering);
+                }
+            }
+
+            BackCompatHelper.RestorePreviousParameterNames(this, methods);
+
+            return methods;
+        }
+
+        /// <summary>
+        /// Builds a lookup of the type's current method signatures (including custom code methods)
+        /// used to match against last-contract methods.
+        /// </summary>
+        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatureMap(IEnumerable<MethodProvider> methods)
+        {
+            var allMethods = CustomCodeView?.Methods != null
+                ? methods.Concat(CustomCodeView.Methods)
+                : methods;
+
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
+        }
 
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];
