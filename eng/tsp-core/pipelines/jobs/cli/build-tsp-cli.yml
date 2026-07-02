@@ -42,6 +42,8 @@ jobs:
       # - script: npm install -g bun
       #   displayName: Install bun
 
+      - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
       - script: npm install -g pnpm
         displayName: Install pnpm
 

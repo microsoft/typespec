@@ -6,7 +6,6 @@
     { "path": "packages/http/tsconfig.build.json" },
     { "path": "packages/rest/tsconfig.build.json" },
     { "path": "packages/library-linter/tsconfig.build.json" },
-    { "path": "packages/eslint-plugin-typespec/tsconfig.build.json" },
     { "path": "packages/openapi/tsconfig.build.json" },
     { "path": "packages/sse/tsconfig.build.json" },
     { "path": "packages/events/tsconfig.build.json" },

@@ -6,5 +6,6 @@
     "rootDir": "src",
     "verbatimModuleSyntax": true,
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
-  }
+  },
+  "include": ["src"]
 }

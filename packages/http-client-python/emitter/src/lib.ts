@@ -103,7 +103,7 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "string",
       nullable: true,
       description:
-        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+        'The subdirectory (relative to the package namespace folder) to generate the code in. Use this to keep emitter-generated code separate from hand-written/customized code, so regeneration only overwrites the subdirectory and leaves your customizations untouched. If not specified, the code is generated directly in the package namespace folder. Note: if you\'re using this flag, you will need to add and maintain the versioning file (`_version.py`) yourself.\n\nExample: for `namespace: azure.storage.blob` with `generation-subdir: _generated`, generated code lands in `azure/storage/blob/_generated/` while your customized code lives in `azure/storage/blob/`. A typical `tspconfig.yaml` looks like:\n\n```yaml\noptions:\n  "@azure-tools/typespec-python":\n    emitter-output-dir: "{output-dir}/{service-dir}/azure-storage-blob"\n    namespace: "azure.storage.blob"\n    generation-subdir: "_generated"\n```',
     },
     "keep-setup-py": {
       type: "boolean",

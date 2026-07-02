@@ -168,7 +168,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="constructor">The original <see cref="ConstructorProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ConstructorProvider"/>.</returns>
-        protected virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+        protected internal virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             return constructor;
         }
@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="field">The original <see cref="FieldProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="FieldProvider"/>.</returns>
-        protected virtual FieldProvider? VisitField(FieldProvider field)
+        protected internal virtual FieldProvider? VisitField(FieldProvider field)
         {
             return field;
         }
