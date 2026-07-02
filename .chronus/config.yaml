@@ -43,6 +43,7 @@ versionPolicies:
       - "@typespec/json-schema"
       - "typespec-vscode"
       - "@typespec/prettier-plugin-typespec"
+      - "@typespec/standalone-cli"
 
   - name: typespec-preview
     type: lockstep
@@ -59,7 +60,6 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
-      - "@typespec/standalone-cli"
 
   - name: standalone
     type: independent
