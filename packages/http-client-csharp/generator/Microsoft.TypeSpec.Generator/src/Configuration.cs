@@ -15,9 +15,8 @@ namespace Microsoft.TypeSpec.Generator
     {
         public enum UnreferencedTypesHandlingOption
         {
-            RemoveOrInternalize = 0,
-            Internalize = 1,
-            KeepAll = 2
+            Internalize = 0,
+            KeepAll = 1
         }
 
         private const string GeneratedFolderName = "Generated";
@@ -83,7 +82,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public LicenseInfo? LicenseInfo { get; }
 
-        internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
+        internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.Internalize;
 
         private string? _projectDirectory;
         internal string ProjectDirectory => _projectDirectory ??= Path.Combine(OutputDirectory, "src");
@@ -253,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public static Enum? GetDefaultEnumOptionValue(string option) => option switch
         {
-            Options.UnreferencedTypesHandling => UnreferencedTypesHandlingOption.RemoveOrInternalize,
+            Options.UnreferencedTypesHandling => UnreferencedTypesHandlingOption.Internalize,
             _ => null
         };
 
