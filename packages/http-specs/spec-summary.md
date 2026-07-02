@@ -1568,21 +1568,6 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
-### Parameters_Query_Explode_object
-
-- Endpoint: `get /parameters/query/explode/object`
-
-Send an object-valued query parameter using `@query(#{ explode: true })`. Per RFC 6570 form
-explode, each property of the object is expanded into its own query parameter using the property
-name as the key (the parameter name itself is not emitted).
-
-Expected query parameters:
-
-- `field` = "status"
-- `value` = "active"
-
-Expected response status code: 204
-
 ### Parameters_Query_SpecialChar_dollarSign
 
 - Endpoint: `get /parameters/query/special-char/dollar-sign`
@@ -4255,6 +4240,17 @@ Expected path: /routes/query/query-continuation/standard/record?fixed=true&param
 Test query expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/explode/array?param=a&param=b
+
+### Routes_QueryParameters_QueryExpansion_Explode_model
+
+- Endpoint: `get /routes/query/query-expansion/explode/model{?param*}`
+
+Test query expansion with explode: true when passed a named model value.
+Per RFC 6570 form explode, each property of the model is expanded into its own
+query parameter using the property name as the key (the parameter name itself
+is not emitted).
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/explode/model?field=status&value=active
 
 ### Routes_QueryParameters_QueryExpansion_Explode_primitive
 

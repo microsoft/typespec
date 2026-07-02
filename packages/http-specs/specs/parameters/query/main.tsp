@@ -40,32 +40,3 @@ interface SpecialChar {
     filter: string,
   ): void;
 }
-
-@doc("Explode query parameter with an object value")
-model FilterOptions {
-  field: string;
-  value: string;
-}
-
-@doc("Object query parameter with explode verification")
-@route("/explode")
-interface Explode {
-  @scenario
-  @scenarioDoc("""
-    Send an object-valued query parameter using `@query(#{ explode: true })`. Per RFC 6570 form
-    explode, each property of the object is expanded into its own query parameter using the property
-    name as the key (the parameter name itself is not emitted).
-    
-    Expected query parameters:
-    - `field` = "status"
-    - `value` = "active"
-    
-    Expected response status code: 204
-    """)
-  @route("/object")
-  @get
-  object(
-    @query(#{ explode: true })
-    filter: FilterOptions,
-  ): void;
-}
