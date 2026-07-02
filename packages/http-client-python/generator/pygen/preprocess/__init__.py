@@ -123,7 +123,8 @@ def update_description(description: Any, default_description: str = "") -> str:
 def update_enum_value_name(enum_value: dict[str, Any]) -> str:
     name = enum_value["name"]
     if not isinstance(name, str) and isinstance(enum_value.get("value"), str):
-        name = re.sub(r"\W+", "_", enum_value["value"]).strip("_") or name
+        normalized_name = re.sub(r"\W+", "_", enum_value["value"]).strip("_")
+        name = normalized_name if normalized_name else str(name)
     return str(name)
 
 
