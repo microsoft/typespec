@@ -38,10 +38,17 @@ def test_escaped_reserved_words():
 def test_update_types_accepts_numeric_enum_value_names():
     standalone_enum_value = {"name": 20200101, "isExactName": False, "type": "enumvalue"}
     nested_enum_value = {"name": 20210101, "isExactName": False, "type": "enumvalue", "value": "2021-01-01"}
-    enum_type = {"name": "ApiVersion", "type": "enum", "values": [nested_enum_value]}
+    nested_digits_enum_value = {
+        "name": 20220101,
+        "isExactName": False,
+        "type": "enumvalue",
+        "value": "20220101",
+    }
+    enum_type = {"name": "ApiVersion", "type": "enum", "values": [nested_enum_value, nested_digits_enum_value]}
 
     PreProcessPlugin(output_folder="").update_types([standalone_enum_value, enum_type])
 
     assert standalone_enum_value["description"] == "20200101."
     assert standalone_enum_value["snakeCaseName"] == "20200101"
     assert nested_enum_value["name"] == "ENUM_2021_01_01"
+    assert nested_digits_enum_value["name"] == "ENUM_20220101"
