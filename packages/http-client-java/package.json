@@ -51,8 +51,8 @@
   "peerDependencies": {
     "@azure-tools/typespec-autorest": ">=0.69.1 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.69.0 <1.0.0",
-    "@azure-tools/typespec-azure-resource-manager": ">=0.69.1 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.69.0 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.69.2 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.69.2 <1.0.0",
     "@typespec/compiler": "^1.13.0",
     "@typespec/events": ">=0.83.0 <1.0.0",
     "@typespec/http": "^1.13.0",
@@ -76,7 +76,6 @@
     "@azure-tools/typespec-client-generator-core": "0.69.2",
     "@microsoft/api-extractor": "^7.58.9",
     "@microsoft/api-extractor-model": "^7.33.8",
-    "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.24",
     "@types/node": "~26.1.0",
     "@typespec/compiler": "1.13.0",
