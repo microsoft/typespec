@@ -174,6 +174,7 @@ namespace Microsoft.TypeSpec.Generator
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, internalizeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
             var publicizeRoots = new HashSet<string>(internalizeRoots, StringComparer.Ordinal);
+            var publicApiReferences = CloneReferences(publicGraph.References);
             var internalizeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, internalizeReachableWithoutHelpers);
             internalizeRoots.UnionWith(internalizeHelperRoots);
             var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
@@ -209,6 +210,7 @@ namespace Microsoft.TypeSpec.Generator
                 publicizeRootExclusions,
                 generatedInternalDeclarations,
                 publicizeRoots,
+                publicApiReferences,
                 internalizeReferences,
                 generatedImplementationInternalDeclarations);
 
@@ -305,6 +307,7 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> publicizeRootExclusions,
             HashSet<string> generatedInternalDeclarations,
             HashSet<string> publicizeRoots,
+            Dictionary<string, HashSet<string>> publicApiReferences,
             Dictionary<string, HashSet<string>> internalizeReferences,
             HashSet<string> generatedImplementationInternalDeclarations)
         {
@@ -320,7 +323,9 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (generatedInternalDeclarations.Contains(node) && !publicizeRoots.Contains(node))
+                if (generatedInternalDeclarations.Contains(node) &&
+                    !publicizeRoots.Contains(node) &&
+                    !HasPublicApiPredecessor(node, publicApiReferences, publicizeReachable, generatedImplementationInternalDeclarations))
                 {
                     continue;
                 }

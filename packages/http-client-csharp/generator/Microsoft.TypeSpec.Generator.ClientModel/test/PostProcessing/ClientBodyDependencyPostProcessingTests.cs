@@ -40,6 +40,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task InternalModelReferencedByPublicModelPropertyIsPublicized()
+        {
+            var dependencyModel = InputFactory.Model("DependencyModel", access: "internal");
+            var responseModel = InputFactory.Model(
+                "ResponseBody",
+                properties: [InputFactory.Property("Dependency", dependencyModel)]);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: responseModel)]);
+            var method = InputFactory.BasicServiceMethod(
+                "Get",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertPublicModels([responseModel, dependencyModel], [client], ["ResponseBody", "DependencyModel"]);
+        }
+
+        [Test]
         public async Task OperationResponseBodyModelIsRemovedWhenNotOtherwiseReferenced()
         {
             var metadataOnlyModel = InputFactory.Model("MetadataOnlyResponse");
