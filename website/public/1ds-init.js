@@ -3,6 +3,7 @@ const propStorage = {};
 
 let siteConsent = null;
 
+// cspell:ignore MSCC
 // The MSCC `WcpConsent.init` renders the banner into an existing DOM element and
 // no-ops entirely if that element is missing. The scripts run in `<head>` (before
 // `<body>` exists) and on Starlight docs pages we can't inject body markup, so we
