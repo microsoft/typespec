@@ -131,8 +131,11 @@ export const pythonAdapter: EmitterAdapter = {
   },
 
   async generate(request: GenerateRequest, ctx: AdapterContext): Promise<void> {
-    // Regenerate writes under <generatedFolder>/../tests/generated/...
-    const generatedFolder = join(request.outputDir, request.generatedCodePath ?? "generator");
+    // Regenerate writes under <generatedFolder>/../tests/generated/... .
+    // Anchor generatedFolder at <output>/<subpath>/generator so final output lands under
+    // <output>/<subpath>/tests/generated when a subpath override is provided.
+    const generatedSubpath = request.generatedCodePath ?? "";
+    const generatedFolder = join(request.outputDir, generatedSubpath, "generator");
     const args = ["--pluginDir", request.emitter.dir, "--generatedFolder", generatedFolder];
 
     const flavor = request.options.flavor;

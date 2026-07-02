@@ -58,6 +58,7 @@ prints a `file://` link to it. Use `--html` to write to a specific file.
 - `--name <pattern>`: Filter which specs/packages are generated.
 - `--html <file>`: Write the rendered HTML report to this path (default: `<work-dir>/emitter-diff.html`).
 - `--generated-code-path <path>`: Override the adapter generated-code subpath under each side output root.
+  For Python, generated files land under `<side>/<path>/tests/generated/...`.
 - `--fail-on-diff`: Exit non-zero when output differs (CI gating).
 
 ### Examples
@@ -71,8 +72,8 @@ node eng/emitter-diff/src/cli.ts --emitter python --baseline local:/path/to/old/
   --head local:/path/to/new/http-client-python \
   --html diff.html
 
-# Override the adapter generated-code subpath under each side output root:
-node eng/emitter-diff/src/cli.ts --emitter python --generated-code-path tests/generated
+# Place generated output under `libba` for each side (`<side>/libba/tests/generated/...`):
+node eng/emitter-diff/src/cli.ts --emitter python --generated-code-path libba
 
 # Diff against a GitHub sha:
 node eng/emitter-diff/src/cli.ts --emitter python \
