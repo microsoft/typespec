@@ -44,7 +44,9 @@ jobs:
 
       - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
-      - script: npm install -g pnpm
+      - script: |
+          $packageJson = Get-Content -Raw "$(Build.SourcesDirectory)/package.json" | ConvertFrom-Json
+          npm install -g $packageJson.packageManager
         displayName: Install pnpm
 
       - script: pnpm install --filter "@typespec/standalone-cli"
