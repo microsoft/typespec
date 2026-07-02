@@ -409,8 +409,7 @@ stages:
                   - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm install -g pnpm
-                    displayName: Install pnpm for playground bundle upload
+                  - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)
