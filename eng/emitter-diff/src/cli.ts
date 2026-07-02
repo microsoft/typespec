@@ -6,10 +6,20 @@
  * and diffs the output. All language specifics live behind the selected adapter;
  * this file contains zero language logic.
  */
-import { join, resolve } from "node:path";
+import { cpSync, existsSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
 
-import { diffDirs, printDiff, printSummary, writeHtml, writePatch } from "./diff.ts";
+import {
+  baselineCachePaths,
+  computeBaselineProfileKey,
+  detectBaselineIdentity,
+  isSafeBaselineCachePath,
+  readBaselineCacheIndex,
+  writeBaselineCacheIndex,
+  type BaselineCacheIndex,
+} from "./baseline-cache.ts";
+import { diffDirs, printSummary, writeHtml } from "./diff.ts";
 import { getAdapter, listAdapters } from "./registry.ts";
 import {
   classifyRef,
@@ -18,40 +28,82 @@ import {
   resolveSource as resolveSrc,
 } from "./resolver.ts";
 import type { AdapterContext, ClassifiedRef } from "./types.ts";
-import { color, createLogger, ensureDir, runChecked } from "./util.ts";
+import { color, createLogger, ensureDir, run, runChecked } from "./util.ts";
+
+function shouldUseBaselineCache(ciMode: boolean): { enabled: boolean; reason?: string } {
+  if (ciMode) {
+    return { enabled: false, reason: "--ci" };
+  }
+
+  // Restrict caching to clearly local, interactive usage by default.
+  if (!process.stdout.isTTY || !process.stderr.isTTY) {
+    return { enabled: false, reason: "non-interactive terminal" };
+  }
+
+  return { enabled: true };
+}
 
 const HELP = `${color.bold("emitter-diff")} — diff generated code across emitter versions
 
 ${color.bold("Usage:")}
-  emitter-diff --emitter <name> --baseline <ref> [options]
+  emitter-diff --emitter <name> [options]
 
 ${color.bold("Required:")}
   --emitter <name>        Adapter to use. Available: ${listAdapters().join(", ")}
-  --baseline <ref>        Old emitter to compare against.
 
-${color.bold("Refs")} (for --baseline / --head / --specs):
+${color.bold("Refs")} (for --baseline / --head):
   npm:1.2.3 | 1.2.3                 a published package version
   local:/path | ./path             a local folder
   github:owner/repo@<sha|branch>   a GitHub source at a ref
-  gh:<sha|branch>                  the current repo at a ref
+  gh:<sha|branch>                  microsoft/typespec at a ref
 
 ${color.bold("Options:")}
+  --baseline <ref>        Old emitter. Default: gh:upstream/main if present,
+                          otherwise gh:origin/main.
   --head <ref>            New emitter. Default: current checkout.
-  --specs <ref>           Spec inputs: all (default) | local | github.
+  --generated-code-path <path>
+                          Override adapter generated-code subpath under each
+                          side output root.
   --name <pattern>        Filter which specs/packages are generated.
-  --work-dir <dir>        Scratch dir (default: a temp dir).
+                          Baseline output is cached across local runs.
+  --ci                    CI mode: disable local baseline cache.
   --html <file>           Write the rendered HTML diff to this path.
                           Default output: a clickable HTML report in the work dir.
-  --terminal              Print the full colored patch to the terminal instead.
-  --patch <file>          Write the raw unified diff to a file.
   --fail-on-diff          Exit non-zero when output differs (CI gating). Exit
                           code 2 means "diff present"; 1 means a hard error.
   --opt key=value         Repeatable adapter-specific option (e.g. --opt flavor=azure).
-  --sequential            Generate baseline then head one at a time (default:
-                          generate both in parallel with prefixed logs).
   -- <args>               Everything after -- is forwarded to the adapter.
   -h, --help              Show this help.
 `;
+
+async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
+  // Prefer upstream/main for fork workflows.
+  const upstreamMain = await run(
+    "git",
+    ["show-ref", "--verify", "--quiet", "refs/remotes/upstream/main"],
+    { cwd: repoRoot },
+  );
+  if (upstreamMain.code === 0) return "gh:upstream/main";
+
+  const originMain = await run(
+    "git",
+    ["show-ref", "--verify", "--quiet", "refs/remotes/origin/main"],
+    { cwd: repoRoot },
+  );
+  if (originMain.code === 0) return "gh:origin/main";
+
+  // Fall back to origin/HEAD (for example, origin/master).
+  const originHead = await run("git", ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], {
+    cwd: repoRoot,
+  });
+  if (originHead.code === 0) {
+    const ref = originHead.stdout.trim().replace(/^refs\/remotes\//, "");
+    if (ref) return `gh:${ref}`;
+  }
+
+  // Final fallback for unusual clones.
+  return "gh:origin/main";
+}
 
 async function main(): Promise<number> {
   const rawArgs = process.argv.slice(2);
@@ -67,15 +119,12 @@ async function main(): Promise<number> {
       emitter: { type: "string" },
       baseline: { type: "string" },
       head: { type: "string" },
-      specs: { type: "string" },
+      "generated-code-path": { type: "string" },
       name: { type: "string" },
-      "work-dir": { type: "string" },
-      terminal: { type: "boolean" },
-      patch: { type: "string" },
+      ci: { type: "boolean" },
       html: { type: "string" },
       "fail-on-diff": { type: "boolean" },
       opt: { type: "string", multiple: true },
-      sequential: { type: "boolean" },
       help: { type: "boolean", short: "h" },
     },
     allowPositionals: false,
@@ -91,11 +140,6 @@ async function main(): Promise<number> {
     log.error("--emitter is required (no default). " + `Available: ${listAdapters().join(", ")}`);
     return 2;
   }
-  if (!values.baseline) {
-    log.error("--baseline is required.");
-    return 2;
-  }
-
   if (!listAdapters().includes(values.emitter)) {
     log.error(`Unknown emitter '${values.emitter}'. Available: ${listAdapters().join(", ")}`);
     return 2;
@@ -105,12 +149,8 @@ async function main(): Promise<number> {
   // Repo root = current git working tree.
   const repoRoot = (await runChecked("git", ["rev-parse", "--show-toplevel"])).stdout.trim();
 
-  // Absolutize the work dir. Adapters may run emitter scripts with a different
-  // cwd (python's regenerate.ts runs in packages/http-client-python), so every
-  // path handed to them — the resolved emitter dir and the baseline/head output
-  // dirs — must be absolute or outputs land in the wrong tree and the diff is
-  // silently empty (a false "no differences").
-  const workDir = ensureDir(values["work-dir"] ? resolve(values["work-dir"]) : defaultWorkDir());
+  // Use an absolute work dir because adapters may run from a different cwd.
+  const workDir = ensureDir(defaultWorkDir());
   log.info(`${color.dim("work dir:")} ${workDir}`);
 
   const ctx: AdapterContext = {
@@ -132,19 +172,12 @@ async function main(): Promise<number> {
     options[entry.slice(0, eq)] = entry.slice(eq + 1);
   }
 
-  // Classify the specs ref up front (if any) so an invalid --specs fails fast,
-  // before the expensive emitter builds. `all`/omitted => adapter default.
-  let specsRef: ClassifiedRef | undefined;
-  if (values.specs && values.specs.toLowerCase() !== "all") {
-    specsRef = classifyRef(values.specs, repoRoot);
-    if (specsRef.kind === "npm") {
-      log.error("--specs as an npm version is not supported; use a local folder or github ref.");
-      return 2;
-    }
-  }
-
   // Resolve emitters.
-  const baselineRef = classifyRef(values.baseline, repoRoot);
+  const baselineRefValue = values.baseline ?? (await resolveDefaultBaselineRef(repoRoot));
+  if (!values.baseline) {
+    log.info(`${color.dim("baseline default:")} ${baselineRefValue}`);
+  }
+  const baselineRef = classifyRef(baselineRefValue, repoRoot);
   const headRef: ClassifiedRef | "current" = values.head
     ? classifyRef(values.head, repoRoot)
     : "current";
@@ -154,25 +187,72 @@ async function main(): Promise<number> {
   log.step("Preparing head emitter");
   const headEmitter = await adapter.prepareEmitter(headRef, ctx);
 
-  // Materialize the specs source now that emitters are ready.
-  let specsDir: string | undefined;
-  if (specsRef) {
-    specsDir = await resolveSrc(specsRef, workDir, log, repoRoot);
-  }
-
-  // Generate both sides. By default baseline and head generate concurrently
-  // (their outputs, virtual envs, and temp YAML are isolated), roughly halving wall
-  // time at the cost of doubled peak CPU/memory and interleaved logs — so each
-  // side's output is tagged with a prefix. Use --sequential to generate one at
-  // a time (quieter logs, lower peak resource use).
+  // Baseline/head generate in parallel by default.
   const baselineOut = ensureDir(join(workDir, "baseline"));
   const headOut = ensureDir(join(workDir, "head"));
 
-  const parallel = !values.sequential;
+  const parallel = true;
+  const cacheDecision = shouldUseBaselineCache(Boolean(values.ci));
+  const useBaselineCache = cacheDecision.enabled;
+  if (!useBaselineCache) {
+    log.info(
+      color.dim(
+        `baseline cache disabled${cacheDecision.reason ? ` (${cacheDecision.reason})` : ""}`,
+      ),
+    );
+  }
+  const baselineIdentity = await detectBaselineIdentity(baselineEmitter.dir);
+  const baselineProfileKey = computeBaselineProfileKey({
+    emitter: values.emitter,
+    baselineRef: baselineRefValue,
+    generatedCodePath: values["generated-code-path"],
+    nameFilter: values.name,
+    options,
+    passthrough,
+  });
+  const baselineCache = baselineCachePaths(baselineProfileKey);
+
+  const persistBaselineIndex = (index: BaselineCacheIndex): void => {
+    try {
+      writeBaselineCacheIndex(index);
+    } catch {
+      // Best effort cache cleanup.
+    }
+  };
+
+  let baselineReused = false;
+  if (useBaselineCache) {
+    try {
+      const index = readBaselineCacheIndex();
+      const entry = index[baselineProfileKey];
+      if (entry && entry.baselineIdentity === baselineIdentity) {
+        if (
+          !isSafeBaselineCachePath(baselineCache.dir) ||
+          !isSafeBaselineCachePath(baselineCache.marker)
+        ) {
+          log.warn("Ignoring unsafe baseline cache path; regenerating baseline.");
+          delete index[baselineProfileKey];
+          persistBaselineIndex(index);
+        } else if (existsSync(baselineCache.marker) && existsSync(baselineCache.dir)) {
+          log.step("Reusing cached baseline output");
+          rmSync(baselineOut, { recursive: true, force: true });
+          cpSync(baselineCache.dir, baselineOut, { recursive: true, force: true });
+          baselineReused = true;
+        } else {
+          log.info(color.dim("Baseline cache not found; regenerating baseline."));
+          delete index[baselineProfileKey];
+          persistBaselineIndex(index);
+        }
+      }
+    } catch (err) {
+      log.warn(`Could not read baseline cache index; regenerating baseline. ${String(err)}`);
+    }
+  }
+
   const baselineReq = {
     emitter: baselineEmitter,
-    specsDir,
     outputDir: baselineOut,
+    generatedCodePath: values["generated-code-path"],
     nameFilter: values.name,
     options,
     passthrough,
@@ -180,24 +260,50 @@ async function main(): Promise<number> {
   };
   const headReq = {
     emitter: headEmitter,
-    specsDir,
     outputDir: headOut,
+    generatedCodePath: values["generated-code-path"],
     nameFilter: values.name,
     options,
     passthrough,
     logPrefix: parallel ? color.cyan("[head] ") : undefined,
   };
 
-  if (parallel) {
+  if (baselineReused) {
+    log.step("Generating head (baseline reused)");
+    await adapter.generate(headReq, ctx);
+  } else {
     log.step("Generating baseline + head in parallel");
     await Promise.all([adapter.generate(baselineReq, ctx), adapter.generate(headReq, ctx)]);
-  } else {
-    await adapter.generate(baselineReq, ctx);
-    await adapter.generate(headReq, ctx);
   }
 
-  // Point at the generated trees the diff compares, so a local run can open the
-  // head output directly. Head is the current checkout unless --head overrode it.
+  if (useBaselineCache && !baselineReused) {
+    try {
+      if (
+        !isSafeBaselineCachePath(baselineCache.dir) ||
+        !isSafeBaselineCachePath(baselineCache.marker)
+      ) {
+        throw new Error("unsafe cache path");
+      }
+
+      rmSync(baselineCache.dir, { recursive: true, force: true });
+      cpSync(baselineOut, baselineCache.dir, { recursive: true, force: true });
+      writeFileSync(
+        baselineCache.marker,
+        `${new Date().toISOString()} ${baselineIdentity}\n`,
+        "utf8",
+      );
+      const index = readBaselineCacheIndex();
+      index[baselineProfileKey] = {
+        baselineIdentity,
+        updatedAt: new Date().toISOString(),
+      };
+      writeBaselineCacheIndex(index);
+    } catch (err) {
+      log.warn(`Could not update baseline cache. ${String(err)}`);
+    }
+  }
+
+  // Log output roots used by the diff.
   log.info(
     `${color.dim("baseline output:")} ${baselineOut} ${color.dim(`(${baselineEmitter.label})`)}`,
   );
@@ -206,22 +312,15 @@ async function main(): Promise<number> {
   // Diff.
   const diff = await diffDirs(baselineOut, headOut, log);
 
-  // Decide how to present the diff. Explicit flags win; otherwise the default
-  // is a clickable HTML report written to the work dir.
-  const wantsTerminal = Boolean(values.terminal);
-  const wantsPatch = Boolean(values.patch);
-  const htmlTarget =
-    values.html ?? (!wantsTerminal && !wantsPatch ? join(workDir, "emitter-diff.html") : undefined);
+  // Default to a clickable HTML report in the work dir unless --html is set.
+  const htmlTarget = values.html ?? join(workDir, "emitter-diff.html");
 
   if (!diff.hasChanges) {
     log.success("No differences between baseline and head output.");
-  } else if (wantsTerminal) {
-    printDiff(diff, log);
   } else {
     printSummary(diff, log);
   }
 
-  if (wantsPatch) writePatch(diff, values.patch as string, log);
   if (htmlTarget) writeHtml(diff, htmlTarget, log);
 
   if (values["fail-on-diff"] && diff.hasChanges) {

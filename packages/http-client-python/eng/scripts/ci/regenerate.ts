@@ -40,9 +40,6 @@ const argv = parseArgs({
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
-    httpSpecsDir: { type: "string" },
-    azureSpecsDir: { type: "string" },
-    "no-baseline": { type: "boolean" },
     jobs: { type: "string", short: "j" },
     help: { type: "boolean", short: "h" },
   },
@@ -73,15 +70,6 @@ ${pc.bold("Options:")}
   ${pc.cyan("-j, --jobs <n>")}
       Number of parallel compilation tasks (default: 30 on Linux/Mac, 10 on Windows).
 
-  ${pc.cyan("--httpSpecsDir <dir>")}
-      Override the @typespec/http-specs specs directory (used by emitter-diff).
-
-  ${pc.cyan("--azureSpecsDir <dir>")}
-      Override the @azure-tools/azure-http-specs specs directory (used by emitter-diff).
-
-  ${pc.cyan("--no-baseline")}
-      Skip cloning the published-package baseline tree (used by emitter-diff).
-
   ${pc.cyan("-h, --help")}
       Show this help message.
 
@@ -106,19 +94,39 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
   : resolve(SCRIPT_DIR, "../../../");
-const AZURE_HTTP_SPECS = argv.values.azureSpecsDir
-  ? resolve(argv.values.azureSpecsDir)
-  : resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
-const HTTP_SPECS = argv.values.httpSpecsDir
-  ? resolve(argv.values.httpSpecsDir)
-  : resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
+
+function resolveSpecsDir(packageName: string, envOverride?: string): string {
+  const fromEnv = envOverride?.trim();
+  if (fromEnv) {
+    const candidate = resolve(fromEnv);
+    if (existsSync(candidate)) return candidate;
+  }
+
+  // Prefer specs from the selected plugin dir (baseline/head emitter), then
+  // fall back to the current checkout package and repo-root installs.
+  const candidates = [
+    resolve(PLUGIN_DIR, `node_modules/${packageName}/specs`),
+    resolve(SCRIPT_DIR, `../../../node_modules/${packageName}/specs`),
+    resolve(SCRIPT_DIR, `../../../../node_modules/${packageName}/specs`),
+    resolve(SCRIPT_DIR, `../../../../../node_modules/${packageName}/specs`),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+
+  // Keep the preferred plugin-dir location for diagnostics.
+  return candidates[0];
+}
+
+const AZURE_HTTP_SPECS = resolveSpecsDir(
+  "@azure-tools/azure-http-specs",
+  process.env.AZURE_HTTP_SPECS_DIR,
+);
+const HTTP_SPECS = resolveSpecsDir("@typespec/http-specs", process.env.HTTP_SPECS_DIR);
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
-// Directory that contains `tests/generated/<flavor>/`. Defaults to PLUGIN_DIR (since the
-// default GENERATED_FOLDER is PLUGIN_DIR/generator), but tracks a custom --generatedFolder so
-// the batch Python phase reads the same output tree the TypeScript phase wrote to.
-const GENERATED_PARENT = resolve(GENERATED_FOLDER, "..");
 const EMITTER_NAME = argv.values.emitterName || "@typespec/http-client-python";
 
 const ctx: RegenerateContext = {
@@ -151,7 +159,12 @@ async function collectConfigFiles(generatedDir: string, flavor: string): Promise
   return configFiles;
 }
 
-function runBatchPythonProcessing(flavor: string, configCount: number, jobs: number): boolean {
+function runBatchPythonProcessing(
+  flavor: string,
+  generatedFolder: string,
+  configCount: number,
+  jobs: number,
+): boolean {
   if (configCount === 0) return true;
 
   console.log(pc.cyan(`\nRunning batch Python processing on ${configCount} specs...`));
@@ -170,9 +183,10 @@ function runBatchPythonProcessing(flavor: string, configCount: number, jobs: num
   const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
 
   try {
+    const generatedRoot = resolve(generatedFolder, "..");
     // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
     execSync(
-      `"${venvPath}" "${batchScript}" --generated-dir "${GENERATED_PARENT}" --flavor ${flavor} --jobs ${jobs}`,
+      `"${venvPath}" "${batchScript}" --generated-dir "${generatedRoot}" --flavor ${flavor} --jobs ${jobs}`,
       {
         stdio: "inherit",
         cwd: PLUGIN_DIR,
@@ -200,8 +214,18 @@ async function regenerateFlavor(
   await preprocess(flavor, GENERATED_FOLDER);
 
   // Collect specs
-  const azureSpecs = flavor === "azure" ? await getSubdirectories(AZURE_HTTP_SPECS, flags) : [];
-  const standardSpecs = await getSubdirectories(HTTP_SPECS, flags);
+  const azureSpecs =
+    flavor === "azure" && existsSync(AZURE_HTTP_SPECS)
+      ? await getSubdirectories(AZURE_HTTP_SPECS, flags)
+      : [];
+  if (flavor === "azure" && !existsSync(AZURE_HTTP_SPECS)) {
+    console.warn(pc.yellow(`Azure specs not found at: ${AZURE_HTTP_SPECS}`));
+  }
+
+  const standardSpecs = existsSync(HTTP_SPECS) ? await getSubdirectories(HTTP_SPECS, flags) : [];
+  if (!existsSync(HTTP_SPECS)) {
+    console.warn(pc.yellow(`HTTP specs not found at: ${HTTP_SPECS}`));
+  }
   const allSpecs = [...azureSpecs, ...standardSpecs];
 
   // Build task groups (tasks for same spec run sequentially to avoid state pollution).
@@ -237,7 +261,7 @@ async function regenerateFlavor(
   const configCount = (await collectConfigFiles(GENERATED_FOLDER, flavor)).length;
   // Use fewer Python jobs since Python processing is heavier
   const pyJobs = Math.max(4, jobs);
-  const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
+  const pySuccess = runBatchPythonProcessing(flavor, GENERATED_FOLDER, configCount, pyJobs);
   const pyTime = (performance.now() - pyStartTime) / 1000;
 
   const totalTime = (performance.now() - startTime) / 1000;
@@ -276,11 +300,7 @@ async function main() {
   const startTime = performance.now();
   let success: boolean;
 
-  // `--no-baseline` skips cloning the published-package baseline tree; the
-  // emitter-diff tool generates each side fresh, so the baseline clone is noise.
-  if (!argv.values["no-baseline"]) {
-    await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
-  }
+  await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);

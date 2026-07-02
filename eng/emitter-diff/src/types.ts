@@ -1,10 +1,6 @@
 /**
- * Core, language-agnostic types for the emitter-diff tool.
- *
- * The orchestrator, ref resolver and diff engine depend only on the generic
- * {@link EmitterAdapter} contract defined here. Nothing in this file (or in the
- * core) knows anything about a specific language's tooling — all language
- * details live behind an adapter.
+ * Core language-agnostic types for emitter-diff.
+ * Language-specific behavior stays behind {@link EmitterAdapter}.
  */
 
 /** The three kinds of source a ref can point at. */
@@ -16,7 +12,7 @@ export type RefKind = "npm" | "local" | "github";
  * Accepted user syntaxes (see {@link classifyRef}):
  *  - npm:     `npm:1.2.3`, `1.2.3`, `@scope/pkg@1.2.3`
  *  - local:   `local:/abs/or/rel/path`, or any existing filesystem path
- *  - github:  `github:owner/repo@<ref>`, `gh:<ref>` (this repo), or an `https://github.com/...` url
+ *  - github:  `github:owner/repo@<ref>`, `gh:<ref>` (microsoft/typespec), or an `https://github.com/...` url
  */
 export interface ClassifiedRef {
   kind: RefKind;
@@ -26,13 +22,13 @@ export interface ClassifiedRef {
   version?: string;
   /** local: the absolute path on disk. */
   path?: string;
-  /** github: `owner/repo` (defaults to the current repo when omitted). */
+  /** github: `owner/repo` (defaults to `microsoft/typespec` when omitted). */
   repo?: string;
   /** github: branch, tag or sha. */
   gitRef?: string;
 }
 
-/** A built/usable emitter, ready to be pointed at by the adapter's generate step. */
+/** A usable emitter prepared by an adapter. */
 export interface ResolvedEmitter {
   /** Directory containing the usable emitter build. */
   dir: string;
@@ -61,20 +57,18 @@ export interface AdapterContext {
 export interface GenerateRequest {
   /** Resolved emitter build to generate with. */
   emitter: ResolvedEmitter;
-  /** Resolved specs directory, or undefined to use the adapter's repo default. */
-  specsDir?: string;
   /** Directory the generated code must be written to. */
   outputDir: string;
+  /** Optional adapter generated-code subpath under `outputDir`. */
+  generatedCodePath?: string;
   /** Optional name/pattern filter limiting which specs/packages are generated. */
   nameFilter?: string;
   /** Adapter-specific options collected from repeatable `--opt key=value`. */
   options: Record<string, string>;
-  /** Everything after a `--` on the command line, forwarded verbatim. */
+  /** Arguments after `--`, forwarded verbatim. */
   passthrough: string[];
   /**
-   * Optional prefix to tag each line of this generation's output with. Set when
-   * baseline and head generate concurrently so their interleaved logs stay
-   * attributable; when unset, output streams straight to the terminal.
+   * Optional log prefix used when baseline/head generate concurrently.
    */
   logPrefix?: string;
 }

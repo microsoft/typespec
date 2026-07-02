@@ -54,7 +54,8 @@
     "ci:generated": "tsx ./eng/scripts/ci/run-tests.ts --generator --env=ci",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
     "change:add": "pnpm chronus add",
-    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-python/reference --skip-js"
+    "regen-docs": "node ../../packages/tspd/cmd/tspd.js doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-python/reference --skip-js",
+    "diff-spector-tests": "node ../../eng/emitter-diff/src/cli.ts --emitter python"
   },
   "files": [
     "dist/**",

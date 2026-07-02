@@ -40,9 +40,6 @@ jobs:
           python-version: "3.12"
       - name: Install repo dependencies (emitter-diff tool)
         run: pnpm install
-      - name: Build + venv for head emitter
-        working-directory: packages/http-client-python
-        run: npm ci && npm run build && npm run install
 
       - name: Determine baseline
         id: baseline
@@ -58,9 +55,7 @@ jobs:
             git fetch --no-tags origin "$BASE_REF"
             base_sha="$(git merge-base FETCH_HEAD HEAD)"
             [ -n "$base_sha" ] || { echo "::error::No merge-base with $BASE_REF."; exit 1; }
-            git worktree add "$RUNNER_TEMP/baseline" "$base_sha"
-            ( cd "$RUNNER_TEMP/baseline/packages/http-client-python" && npm ci && npm run build && npm run install )
-            input="local:$RUNNER_TEMP/baseline/packages/http-client-python"
+            input="gh:$base_sha"
             echo "sha=$base_sha" >> "$GITHUB_OUTPUT"
           fi
           echo "ref=$input" >> "$GITHUB_OUTPUT"
@@ -68,17 +63,17 @@ jobs:
 
       - name: Run emitter diff
         id: diff
-        working-directory: eng/emitter-diff
+        working-directory: packages/http-client-python
         env:
           BASELINE_REF: ${{ steps.baseline.outputs.ref }}
           RUNNER_TEMP: ${{ runner.temp }}
         run: |
           set +e
-          # Node 24 runs TypeScript natively; no --fail-on-diff (informational).
-          # A tool/build error still exits non-zero (checked in "Fail on tool error").
-          node src/cli.ts \
-            --emitter python --baseline "$BASELINE_REF" \
-            --work-dir "$RUNNER_TEMP/emitter-diff" \
+          # Script wraps emitter-diff entrypoint. No --fail-on-diff (informational);
+          # tool/build errors still exit non-zero (checked in "Fail on tool error").
+          npm run diff-spector-tests -- \
+            --ci \
+            --baseline "$BASELINE_REF" \
             --html "$RUNNER_TEMP/emitter-diff.html" \
             | tee "$RUNNER_TEMP/emitter-diff.log"
           echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"

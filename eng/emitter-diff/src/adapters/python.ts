@@ -72,8 +72,7 @@ async function ensureDeps(dir: string, ctx: AdapterContext): Promise<void> {
 
 async function ensureBuilt(dir: string, ctx: AdapterContext): Promise<void> {
   if (await isBuilt(dir)) return;
-  // A source checkout may not have its deps installed yet; install them first
-  // so the build can resolve modules/types.
+  // Source checkouts may not have dependencies installed yet.
   await ensureDeps(dir, ctx);
   ctx.log.warn(`Emitter at ${dir} is not built; attempting build...`);
   const res = await run("npm", ["run", "build"], { cwd: dir, inherit: true });
@@ -84,12 +83,7 @@ async function ensureBuilt(dir: string, ctx: AdapterContext): Promise<void> {
   }
 }
 
-/**
- * Core's regenerate pipeline is two-phase: the TypeSpec compile emits YAML, then
- * a batched Python subprocess (`run_batch.py`) writes the `.py` files using a
- * venv co-located with the emitter at `<dir>/venv`. Each emitter version needs
- * its own venv (built from that version's generator), so ensure one exists.
- */
+/** Ensure the emitter has a local Python venv for generation. */
 async function ensureVenv(dir: string, ctx: AdapterContext): Promise<void> {
   if (existsSync(join(dir, "venv"))) return;
   ctx.log.warn(`No Python venv at ${dir}; creating one (npm run install)...`);
@@ -118,17 +112,15 @@ export const pythonAdapter: EmitterAdapter = {
     }
 
     if (ref.kind === "npm") {
-      // npm versions ship a prebuilt dist + python generator. The native
-      // pipeline still needs a venv built from that generator, so create one.
+      // npm emitters are prebuilt but still need a venv.
       const dir = await ctx.installNpmPackage(PACKAGE_NAME, ref.version ?? "latest");
       await ensureVenv(dir, ctx);
       return { dir, label: describeRef(ref, PACKAGE_NAME) };
     }
 
-    // local / github: resolve to a source dir, then ensure it is built + has a venv.
+    // local/github refs may require a build and venv.
     const sourceRoot = await ctx.resolveSource(ref, PACKAGE_NAME);
-    // For a full-repo source (github clone or repo root), the emitter lives in
-    // packages/http-client-python; otherwise the resolved dir is the package itself.
+    // Full-repo sources contain the package under packages/http-client-python.
     const candidate = existsSync(join(sourceRoot, PKG_REL))
       ? join(sourceRoot, PKG_REL)
       : sourceRoot;
@@ -138,47 +130,13 @@ export const pythonAdapter: EmitterAdapter = {
   },
 
   async generate(request: GenerateRequest, ctx: AdapterContext): Promise<void> {
-    // The new in-process regenerate driver anchors generated output at
-    // `<generatedFolder>/../tests/generated/...`. Point generatedFolder at a
-    // `generator` subdir of the requested output dir so files land directly
-    // under request.outputDir/tests/generated, which the diff engine compares.
-    const args = [
-      "--pluginDir",
-      request.emitter.dir,
-      "--generatedFolder",
-      join(request.outputDir, "generator"),
-      // Emit only fresh codegen — skip the azure-sdk-for-python baseline clone.
-      "--no-baseline",
-    ];
+    // Regenerate writes under <generatedFolder>/../tests/generated/...
+    const generatedFolder = join(request.outputDir, request.generatedCodePath ?? "generator");
+    const args = ["--pluginDir", request.emitter.dir, "--generatedFolder", generatedFolder];
 
     const flavor = request.options.flavor;
     if (flavor) args.push("--flavor", flavor);
     if (request.nameFilter) args.push("--name", request.nameFilter);
-
-    // Specs are pinned to the current checkout so only the emitter differs
-    // between baseline and head. External specs (--specs) override that.
-    const httpSpecs = resolveHttpSpecs(request, ctx);
-    const azureSpecs = resolveAzureSpecs(request, ctx);
-    if (httpSpecs) args.push("--httpSpecsDir", httpSpecs);
-    if (azureSpecs) args.push("--azureSpecsDir", azureSpecs);
-
-    // When the user explicitly pinned specs, warn (rather than silently falling
-    // back to the current checkout's specs) if the expected layout wasn't found.
-    if (request.specsDir) {
-      if (!httpSpecs) {
-        ctx.log.warn(
-          `--specs was given (${request.specsDir}) but no http-specs dir was found under it ` +
-            `(looked for http-specs/specs, packages/http-specs/specs, specs/). Falling back to defaults.`,
-        );
-      }
-      if ((flavor === undefined || flavor === "azure") && !azureSpecs) {
-        ctx.log.warn(
-          `--specs was given (${request.specsDir}) but no azure-http-specs dir was found under it ` +
-            `(looked for azure-http-specs/specs, packages/azure-http-specs/specs, azure/specs). ` +
-            `Azure specs will use the current checkout's dependency.`,
-        );
-      }
-    }
 
     args.push(...request.passthrough);
 
@@ -186,40 +144,3 @@ export const pythonAdapter: EmitterAdapter = {
     await runScript(ctx, "eng/scripts/ci/regenerate.ts", args, { prefix: request.logPrefix });
   },
 };
-
-function firstExisting(paths: string[]): string | undefined {
-  return paths.find((p) => existsSync(p));
-}
-
-/** Default http-specs dir inside the current checkout's python package. */
-function defaultHttpSpecs(ctx: AdapterContext): string {
-  return join(pkgDir(ctx), "node_modules", "@typespec", "http-specs", "specs");
-}
-
-/** Default azure-http-specs dir inside the current checkout's python package. */
-function defaultAzureSpecs(ctx: AdapterContext): string {
-  return join(pkgDir(ctx), "node_modules", "@azure-tools", "azure-http-specs", "specs");
-}
-
-function resolveHttpSpecs(request: GenerateRequest, ctx: AdapterContext): string | undefined {
-  if (request.specsDir) {
-    return firstExisting([
-      join(request.specsDir, "http-specs", "specs"),
-      join(request.specsDir, "packages", "http-specs", "specs"),
-      join(request.specsDir, "specs"),
-      request.specsDir,
-    ]);
-  }
-  return firstExisting([defaultHttpSpecs(ctx)]);
-}
-
-function resolveAzureSpecs(request: GenerateRequest, ctx: AdapterContext): string | undefined {
-  if (request.specsDir) {
-    return firstExisting([
-      join(request.specsDir, "azure-http-specs", "specs"),
-      join(request.specsDir, "packages", "azure-http-specs", "specs"),
-      join(request.specsDir, "azure", "specs"),
-    ]);
-  }
-  return firstExisting([defaultAzureSpecs(ctx)]);
-}
