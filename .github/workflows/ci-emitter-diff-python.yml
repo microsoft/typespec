@@ -1,0 +1,127 @@
+name: "python / emitter diff"
+
+# Diffs generated code between this PR's emitter and the merge-base baseline.
+# Informational only: reports a sticky PR comment + HTML artifact, and fails the
+# job only on a tool/build error (never on a diff). See eng/emitter-diff.
+
+on:
+  pull_request:
+    branches: [main, release/*]
+    paths:
+      - "packages/http-client-python/**"
+      - "eng/emitter-diff/**"
+      - ".github/workflows/ci-emitter-diff-python.yml"
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: "Baseline emitter ref (npm version, local path, or github ref). Defaults to the PR merge-base."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emitter-diff:
+    name: "Generate & Diff"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install repo dependencies (emitter-diff tool)
+        run: pnpm install
+      - name: Build + venv for head emitter
+        working-directory: packages/http-client-python
+        run: npm ci && npm run build && npm run install
+
+      - name: Determine baseline
+        id: baseline
+        # Dispatch input is untrusted: pass via env, reference only as "$VAR".
+        env:
+          BASELINE_INPUT: ${{ github.event.inputs.baseline || '' }}
+          BASE_REF: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          input="$BASELINE_INPUT"
+          if [ -z "$input" ]; then
+            # merge-base = a real commit on the base branch; survives squash/rebase.
+            git fetch --no-tags origin "$BASE_REF"
+            base_sha="$(git merge-base FETCH_HEAD HEAD)"
+            [ -n "$base_sha" ] || { echo "::error::No merge-base with $BASE_REF."; exit 1; }
+            git worktree add "$RUNNER_TEMP/baseline" "$base_sha"
+            ( cd "$RUNNER_TEMP/baseline/packages/http-client-python" && npm ci && npm run build && npm run install )
+            input="local:$RUNNER_TEMP/baseline/packages/http-client-python"
+            echo "sha=$base_sha" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ref=$input" >> "$GITHUB_OUTPUT"
+          echo "Baseline: $input"
+
+      - name: Run emitter diff
+        id: diff
+        working-directory: eng/emitter-diff
+        env:
+          BASELINE_REF: ${{ steps.baseline.outputs.ref }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          set +e
+          # Node 24 runs TypeScript natively; no --fail-on-diff (informational).
+          # A tool/build error still exits non-zero (checked in "Fail on tool error").
+          node src/cli.ts \
+            --emitter python --baseline "$BASELINE_REF" \
+            --work-dir "$RUNNER_TEMP/emitter-diff" \
+            --html "$RUNNER_TEMP/emitter-diff.html" \
+            | tee "$RUNNER_TEMP/emitter-diff.log"
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          # Reuse the tool's own summary line (strip ANSI) instead of re-parsing.
+          summary="$(sed -r 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/emitter-diff.log" \
+            | grep -oE 'Diff summary: [0-9]+ file\(s\), \+[0-9]+ / -[0-9]+' | head -1)"
+          echo "summary=${summary:-No changes to generated output.}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload HTML diff
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: emitter-diff-html
+          path: ${{ runner.temp }}/emitter-diff.html
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          BASELINE: ${{ steps.baseline.outputs.sha || steps.baseline.outputs.ref }}
+          STATUS: ${{ steps.diff.outputs.status }}
+          SUMMARY: ${{ steps.diff.outputs.summary }}
+        with:
+          script: |
+            const marker = "<!-- emitter-diff-python -->";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { STATUS, SUMMARY, BASELINE } = process.env;
+            let body = `${marker}\n### Python emitter diff\nBaseline \`${BASELINE}\` vs this PR.\n\n`;
+            body += STATUS !== "0"
+              ? `⚠️ **emitter-diff failed** (exit \`${STATUS}\`) — tool/build error, not a diff. See the [run](${runUrl}).\n`
+              : `${SUMMARY}\n\nFull rendered diff: **emitter-diff-html** artifact on the [run](${runUrl}).\n`;
+            body += `\n_Informational check (eng/emitter-diff); does not block the PR._`;
+            const { owner, repo } = context.repo, issue_number = context.issue.number;
+            const { data } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const hit = data.find((c) => c.body && c.body.includes(marker));
+            if (hit) await github.rest.issues.updateComment({ owner, repo, comment_id: hit.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
+      - name: Fail on tool error
+        if: always()
+        env:
+          STATUS: ${{ steps.diff.outputs.status }}
+        run: '[ "$STATUS" = "0" ] || { echo "::error::emitter-diff failed (exit $STATUS)."; exit 1; }'

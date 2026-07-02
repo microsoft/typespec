@@ -40,6 +40,9 @@ const argv = parseArgs({
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
+    httpSpecsDir: { type: "string" },
+    azureSpecsDir: { type: "string" },
+    "no-baseline": { type: "boolean" },
     jobs: { type: "string", short: "j" },
     help: { type: "boolean", short: "h" },
   },
@@ -70,6 +73,15 @@ ${pc.bold("Options:")}
   ${pc.cyan("-j, --jobs <n>")}
       Number of parallel compilation tasks (default: 30 on Linux/Mac, 10 on Windows).
 
+  ${pc.cyan("--httpSpecsDir <dir>")}
+      Override the @typespec/http-specs specs directory (used by emitter-diff).
+
+  ${pc.cyan("--azureSpecsDir <dir>")}
+      Override the @azure-tools/azure-http-specs specs directory (used by emitter-diff).
+
+  ${pc.cyan("--no-baseline")}
+      Skip cloning the published-package baseline tree (used by emitter-diff).
+
   ${pc.cyan("-h, --help")}
       Show this help message.
 
@@ -94,11 +106,19 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
   : resolve(SCRIPT_DIR, "../../../");
-const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
-const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
+const AZURE_HTTP_SPECS = argv.values.azureSpecsDir
+  ? resolve(argv.values.azureSpecsDir)
+  : resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
+const HTTP_SPECS = argv.values.httpSpecsDir
+  ? resolve(argv.values.httpSpecsDir)
+  : resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
+// Directory that contains `tests/generated/<flavor>/`. Defaults to PLUGIN_DIR (since the
+// default GENERATED_FOLDER is PLUGIN_DIR/generator), but tracks a custom --generatedFolder so
+// the batch Python phase reads the same output tree the TypeScript phase wrote to.
+const GENERATED_PARENT = resolve(GENERATED_FOLDER, "..");
 const EMITTER_NAME = argv.values.emitterName || "@typespec/http-client-python";
 
 const ctx: RegenerateContext = {
@@ -152,7 +172,7 @@ function runBatchPythonProcessing(flavor: string, configCount: number, jobs: num
   try {
     // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
     execSync(
-      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
+      `"${venvPath}" "${batchScript}" --generated-dir "${GENERATED_PARENT}" --flavor ${flavor} --jobs ${jobs}`,
       {
         stdio: "inherit",
         cwd: PLUGIN_DIR,
@@ -256,7 +276,11 @@ async function main() {
   const startTime = performance.now();
   let success: boolean;
 
-  await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
+  // `--no-baseline` skips cloning the published-package baseline tree; the
+  // emitter-diff tool generates each side fresh, so the baseline clone is noise.
+  if (!argv.values["no-baseline"]) {
+    await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
+  }
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);
