@@ -1007,3 +1007,188 @@ describe("openapi3: discriminated union defaultMapping (3.2.0)", () => {
     });
   });
 });
+
+worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
+  describe("enum-strategy: annotated (unions of literals)", () => {
+    it("emits annotated `const` subschemas for a documented literal union", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        /** Set of known error types. */
+        union ErrorType {
+          /** Common error for a bad request. */
+          @summary("CommonBadRequest")
+          commonBadRequest: "https://example.com/errors/bad-request",
+
+          /** Body could not be parsed. */
+          @summary("InvalidBody")
+          invalidBody: "https://example.com/errors/invalid-body",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        description: "Set of known error types.",
+        anyOf: [
+          {
+            const: "https://example.com/errors/bad-request",
+            title: "CommonBadRequest",
+            description: "Common error for a bad request.",
+          },
+          {
+            const: "https://example.com/errors/invalid-body",
+            title: "InvalidBody",
+            description: "Body could not be parsed.",
+          },
+        ],
+      });
+    });
+
+    it("uses `oneOf` when the union carries `@oneOf`", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        @oneOf
+        union ErrorType {
+          /** A. */
+          a: "a",
+          /** B. */
+          b: "b",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        oneOf: [
+          { const: "a", description: "A." },
+          { const: "b", description: "B." },
+        ],
+      });
+    });
+
+    it("omits title/description for variants without docs", async () => {
+      const res = await oapiForModel(
+        "Color",
+        `
+        union Color {
+          red: "red",
+          green: "green",
+          /** Blue is the warmest color. */
+          blue: "blue",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Color, {
+        anyOf: [
+          { const: "red" },
+          { const: "green" },
+          { const: "blue", description: "Blue is the warmest color." },
+        ],
+      });
+    });
+
+    it("emits annotated `const` subschemas for number-valued literal unions", async () => {
+      const res = await oapiForModel(
+        "Priority",
+        `
+        union Priority {
+          /** Low priority. */
+          low: 1,
+          /** High priority. */
+          high: 10,
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Priority, {
+        anyOf: [
+          { const: 1, description: "Low priority." },
+          { const: 10, description: "High priority." },
+        ],
+      });
+    });
+
+    it("keeps model/scalar variants alongside annotated literal `const` members", async () => {
+      const res = await oapiForModel(
+        "Mixed",
+        `
+        model Detailed { code: string; }
+        union Mixed {
+          /** Simple literal. */
+          @summary("Simple")
+          simple: "simple",
+          detailed: Detailed,
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Mixed, {
+        anyOf: [
+          { const: "simple", title: "Simple", description: "Simple literal." },
+          { $ref: "#/components/schemas/Detailed" },
+        ],
+      });
+    });
+
+    it("does not change literal unions under the default strategy", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        union ErrorType {
+          /** Common error for a bad request. */
+          @summary("CommonBadRequest")
+          commonBadRequest: "https://example.com/errors/bad-request",
+
+          /** Body could not be parsed. */
+          @summary("InvalidBody")
+          invalidBody: "https://example.com/errors/invalid-body",
+        }
+        `,
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        type: "string",
+        enum: [
+          "https://example.com/errors/bad-request",
+          "https://example.com/errors/invalid-body",
+        ],
+      });
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ emitOpenApiWithDiagnostics }) => {
+  it("falls back to the default enum form for literal unions on OpenAPI 3.0.0", async () => {
+    const [doc, diagnostics] = await emitOpenApiWithDiagnostics(
+      `
+      @service
+      namespace Test;
+
+      union ErrorType {
+        /** A. */
+        a: "a",
+        /** B. */
+        b: "b",
+      }
+      op read(): ErrorType;
+      `,
+      { "enum-strategy": "annotated" },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/enum-strategy-not-supported",
+      severity: "warning",
+    });
+
+    deepStrictEqual(doc.components!.schemas!.ErrorType, {
+      type: "string",
+      enum: ["a", "b"],
+    });
+  });
+});
