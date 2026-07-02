@@ -116,7 +116,7 @@ interface ApiVersion {
   };
 
   @scenario
-  @scenarioDoc("Expect to send a known value. Mock api expect to receive '2020-01-01'")
+  @scenarioDoc("Expect to send a known value. Mock api expects to receive '2020-01-01'")
   @put
   @route("/known-value")
   putKnownValue(
@@ -127,7 +127,7 @@ interface ApiVersion {
   ): void;
 
   @scenario
-  @scenarioDoc("Expect to handle an unknown value. Mock api expect to receive '2022-01-01'")
+  @scenarioDoc("Expect to handle an unknown value. Mock api expects to receive '2022-01-01'")
   @put
   @route("/unknown-value")
   putUnknownValue(

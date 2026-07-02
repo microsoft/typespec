@@ -47,20 +47,20 @@ Scenarios.Type_Enum_Extensible_String_getUnknownValue =
 Scenarios.Type_Enum_Extensible_String_putUnknownValue =
   Type_Enum_Extensible_String_UnKnown_Value.put;
 
-const Type_Enum_Extensible_ApiVersion_Known_Value = createMockServerTests(
+const Type_Enum_Extensible_ApiVersion_KnownValue = createMockServerTests(
   `/type/enum/extensible/api-version/known-value`,
   "2020-01-01",
 );
 Scenarios.Type_Enum_Extensible_ApiVersion_getKnownValue =
-  Type_Enum_Extensible_ApiVersion_Known_Value.get;
+  Type_Enum_Extensible_ApiVersion_KnownValue.get;
 Scenarios.Type_Enum_Extensible_ApiVersion_putKnownValue =
-  Type_Enum_Extensible_ApiVersion_Known_Value.put;
+  Type_Enum_Extensible_ApiVersion_KnownValue.put;
 
-const Type_Enum_Extensible_ApiVersion_UnKnown_Value = createMockServerTests(
+const Type_Enum_Extensible_ApiVersion_UnknownValue = createMockServerTests(
   `/type/enum/extensible/api-version/unknown-value`,
   "2022-01-01",
 );
 Scenarios.Type_Enum_Extensible_ApiVersion_getUnknownValue =
-  Type_Enum_Extensible_ApiVersion_UnKnown_Value.get;
+  Type_Enum_Extensible_ApiVersion_UnknownValue.get;
 Scenarios.Type_Enum_Extensible_ApiVersion_putUnknownValue =
-  Type_Enum_Extensible_ApiVersion_UnKnown_Value.put;
+  Type_Enum_Extensible_ApiVersion_UnknownValue.put;
