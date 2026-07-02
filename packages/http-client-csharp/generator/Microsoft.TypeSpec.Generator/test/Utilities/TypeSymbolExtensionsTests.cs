@@ -83,6 +83,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsFalse(csharpType.IsNullable);
         }
 
+        [Test]
+        public async Task TypeParameterDoesNotResolveContainingGenericType()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var typeSymbol = compilation.GetTypeByMetadataName("Sample.GenericContainer`1");
+            Assert.IsNotNull(typeSymbol, "Failed to resolve generic type symbol from compiled source.");
+
+            var csharpType = typeSymbol!.TypeParameters[0].GetCSharpType();
+
+            Assert.AreEqual("T", csharpType.Name);
+            Assert.IsNull(csharpType.DeclaringType);
+        }
+
         private static IPropertySymbol GetPropertySymbol(Compilation compilation, string containerName, string propertyName)
         {
             var typeSymbol = compilation.GetTypeByMetadataName($"Sample.{containerName}");

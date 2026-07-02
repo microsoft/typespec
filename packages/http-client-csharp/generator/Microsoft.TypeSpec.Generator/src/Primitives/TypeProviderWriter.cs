@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
-            if (IsPublicContext(_provider))
+            if (_provider.PreserveTypeXmlDocs || IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }

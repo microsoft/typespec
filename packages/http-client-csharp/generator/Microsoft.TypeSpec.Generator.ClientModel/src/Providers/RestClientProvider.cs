@@ -78,6 +78,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
+        {
+            var dependencies = new List<CSharpType> { new ClientUriBuilderDefinition().Type };
+            foreach (var serviceMethod in _inputClient.Methods)
+            {
+                foreach (var parameter in serviceMethod.Operation.Parameters)
+                {
+                    if (IsGeneratedContentTypeMethodParameter(parameter) ||
+                        parameter is not InputHeaderParameter and not InputQueryParameter)
+                    {
+                        continue;
+                    }
+
+                    var type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(parameter.Type);
+                    if (type?.IsDictionary == true)
+                    {
+                        AddDependency(dependencies, ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType);
+                    }
+                    else if (type?.IsCollection == true)
+                    {
+                        AddDependency(dependencies, ScmCodeModelGenerator.Instance.TypeFactory.ListInitializationType);
+                    }
+                }
+            }
+
+            return dependencies;
+        }
+
+        private static void AddDependency(List<CSharpType> dependencies, CSharpType dependency)
+        {
+            if (!dependencies.Any(existing =>
+                existing.Name == dependency.Name &&
+                existing.Namespace == dependency.Namespace))
+            {
+                dependencies.Add(dependency);
+            }
+        }
+
         protected override ScmMethodProvider[] BuildMethods()
         {
             List<ScmMethodProvider> methods = new List<ScmMethodProvider>();
@@ -549,18 +587,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (paramType?.IsCollection != true)
             {
-                // A model-typed query parameter marked with `explode` must be expanded into one query
-                // entry per property (RFC 6570 form explode, e.g. `?field=status&value=active`) rather
-                // than serialized via the object's ToString (which previously produced the type name).
-                if (inputQueryParameter.Explode && inputQueryParameter.Type is InputModelType inputModel)
-                {
-                    var explodeStatement = BuildExplodeModelQueryStatement(uri, inputModel, valueExpression);
-                    if (explodeStatement != null)
-                    {
-                        return explodeStatement;
-                    }
-                }
-
                 var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
@@ -615,70 +641,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
                 return forEachStatement;
             }
-        }
-
-        /// <summary>
-        /// Builds the statements for a model-typed query parameter that uses form-style `explode`.
-        /// Each (simple) property of the model is emitted as its own query entry using the property's
-        /// wire name (RFC 6570 form explode, e.g. <c>?field=status&amp;value=active</c>).
-        /// Returns <c>null</c> when the model contains a property that is not a simple scalar/enum
-        /// (e.g. a nested object or a collection), in which case the caller falls back to the default
-        /// handling. Nested/complex expansion is tracked separately (see issue #11123).
-        /// </summary>
-        private static MethodBodyStatement? BuildExplodeModelQueryStatement(
-            ScopedApi uri,
-            InputModelType inputModel,
-            ValueExpression valueExpression)
-        {
-            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-            if (modelProvider is null)
-            {
-                return null;
-            }
-
-            var properties = modelProvider.CanonicalView.Properties;
-            if (properties.Count == 0)
-            {
-                return null;
-            }
-
-            // Only expand when every property is a simple scalar or enum. Nested objects and
-            // collections are not defined by RFC 6570 form explode and require a separate design
-            // decision, so we fall back to the default handling for those.
-            foreach (var property in properties)
-            {
-                if (property.WireInfo is null ||
-                    property.Type.IsCollection ||
-                    (!property.Type.IsFrameworkType && !property.Type.IsEnum))
-                {
-                    return null;
-                }
-            }
-
-            var statements = new List<MethodBodyStatement>();
-            foreach (var property in properties)
-            {
-                var propertyAccess = valueExpression.Property(property.Name);
-                var propertyType = property.Type;
-
-                ValueExpression convertedValue = propertyType.IsEnum
-                    ? propertyType.ToSerial(propertyAccess).ConvertToString()
-                    : GetQueryParameterStringExpression(propertyType, propertyAccess, property.SerializationFormat);
-
-                MethodBodyStatement appendStatement =
-                    uri.AppendQuery(Literal(property.WireInfo!.SerializedName), convertedValue, true).Terminate();
-
-                if (!property.WireInfo.IsRequired ||
-                    propertyType.IsNullable ||
-                    (propertyType is { IsValueType: false, IsFrameworkType: true } && propertyType.FrameworkType != typeof(string)))
-                {
-                    appendStatement = BuildQueryOrHeaderOrPathParameterNullCheck(propertyType, propertyAccess, appendStatement);
-                }
-
-                statements.Add(appendStatement);
-            }
-
-            return statements;
         }
 
         private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
@@ -919,7 +881,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
-            type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            type = IsGeneratedContentTypeMethodParameter(inputParam)
+                ? null
+                : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
 
             if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
@@ -1208,7 +1172,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // when one was already published.
                 UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
-                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
+                ParameterProvider? parameter = IsGeneratedContentTypeMethodParameter(inputParam) &&
+                    methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest
+                    ? CreateContentTypeParameter(inputParam)
+                    : ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
                 {
                     continue;
@@ -1249,7 +1216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (inputParam is InputHeaderParameter { IsContentType: true }
+                        if (IsContentTypeParameter(inputParam)
                             && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
@@ -1292,18 +1259,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. sortedParams.Values];
         }
 
+        private static ParameterProvider CreateContentTypeParameter(InputParameter inputParam)
+        {
+            var type = new CSharpType(typeof(string), isNullable: !inputParam.IsRequired);
+            return new ParameterProvider(
+                inputParam.Name,
+                DocHelpers.GetFormattableDescription(inputParam.Summary, inputParam.Doc) ?? FormattableStringHelpers.Empty,
+                type,
+                defaultValue: inputParam.IsRequired ? null : Default,
+                location: ParameterLocation.Header,
+                wireInfo: new WireInformation(SerializationFormat.Default, inputParam.SerializedName),
+                validation: inputParam.IsRequired ? ParameterValidationType.AssertNotNullOrEmpty : ParameterValidationType.None,
+                inputParameter: inputParam);
+        }
+
         private static bool HasLiteralContentTypeHeader(InputOperation operation)
         {
             foreach (var p in operation.Parameters)
             {
-                if (p is InputHeaderParameter { IsContentType: true } header
-                    && header.Type is InputLiteralType)
+                if (p is InputHeaderParameter { IsContentType: true } && p.Type is InputLiteralType)
                 {
                     return true;
                 }
             }
             return false;
         }
+
+        private static bool IsGeneratedContentTypeMethodParameter(InputParameter parameter) =>
+            parameter is InputMethodParameter { Location: InputRequestLocation.Header } &&
+                string.Equals(parameter.SerializedName, "Content-Type", StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsContentTypeParameter(InputParameter parameter) =>
+            parameter is InputHeaderParameter { IsContentType: true } ||
+                IsGeneratedContentTypeMethodParameter(parameter);
 
         /// <summary>
         /// Checks if the last contract view contains a method matching the given name where

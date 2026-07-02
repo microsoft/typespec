@@ -207,7 +207,7 @@ namespace Microsoft.TypeSpec.Generator
             string ns = string.Join('.', pieces.Take(pieces.Length - 1));
             CSharpType? containingType = null;
 
-            if (typeSymbol.ContainingType != null)
+            if (typeSymbol.ContainingType != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
             {
                 containingType = GetCSharpType(typeSymbol.ContainingType);
                 ns = string.Join('.', pieces.Take(pieces.Length - 2));
