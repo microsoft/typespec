@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -54,6 +55,110 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
             var client = InputFactory.Client("TestClient", methods: [method]);
 
             await GenerateAndAssertPublicModels([responseModel, dependencyModel], [client], ["ResponseBody", "DependencyModel"]);
+        }
+
+        [Test]
+        public async Task InternalModelReferencedByPublicNonRootCollectionPropertyIsPublicized()
+        {
+            var dependencyModel = InputFactory.Model("DependencyModel", access: "internal");
+            var responseModel = InputFactory.Model(
+                "ResponseBody",
+                properties: [InputFactory.Property("Dependencies", InputFactory.Array(dependencyModel))]);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: responseModel)]);
+            var method = InputFactory.BasicServiceMethod(
+                "Get",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [responseModel, dependencyModel],
+                clients: [client],
+                customFiles: [
+                    (Path.Combine("src", "Generated", "SampleModelFactory.cs"), """
+                        using System.Collections.Generic;
+                        using Sample.Models;
+
+                        namespace Sample;
+
+                        public static partial class SampleModelFactory
+                        {
+                            public static ResponseBody ResponseBody(IEnumerable<DependencyModel> dependencies = default) => null;
+                        }
+                        """)
+                ],
+                expectedFiles: [],
+                publicModelNames: ["ResponseBody", "DependencyModel"],
+                configureGenerator: () =>
+                {
+                    var responseProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "ResponseBody");
+                    var dependencyProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "DependencyModel");
+                    CodeModelGenerator.Instance.AddTypeToKeep(responseProvider, isRoot: false);
+                    CodeModelGenerator.Instance.AddTypeToKeep(dependencyProvider, isRoot: false);
+                });
+        }
+
+        [Test]
+        public async Task CustomInternalBoundaryInternalizesPublicNonRootModel()
+        {
+            var customInternalModel = InputFactory.Model("CustomInternalModel");
+            var publicWrapper = InputFactory.Model(
+                "PublicWrapper",
+                properties: [InputFactory.Property("CustomInternal", customInternalModel)]);
+
+            var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(outputPath);
+            try
+            {
+                var customPath = Path.Combine(outputPath, "src", "Custom", "CustomInternalModel.cs");
+                Directory.CreateDirectory(Path.GetDirectoryName(customPath)!);
+                File.WriteAllText(customPath, """
+                    using Microsoft.TypeSpec.Generator.Customizations;
+
+                    namespace Sample.Models;
+
+                    [CodeGenType("CustomInternalModel")]
+                    internal partial class CustomInternalModel
+                    {
+                    }
+                    """);
+                var modelFactoryPath = Path.Combine(outputPath, "src", "Generated", "SampleModelFactory.cs");
+                Directory.CreateDirectory(Path.GetDirectoryName(modelFactoryPath)!);
+                File.WriteAllText(modelFactoryPath, """
+                    using Sample.Models;
+
+                    namespace Sample;
+
+                    public static partial class SampleModelFactory
+                    {
+                        public static PublicWrapper PublicWrapper(CustomInternalModel customInternal = default) => null;
+                    }
+                    """);
+
+                await MockHelpers.LoadMockGeneratorAsync(
+                    inputModels: () => [publicWrapper, customInternalModel],
+                    configuration: """{ "package-name": "Sample", "disable-xml-docs": true }""",
+                    outputPath: outputPath);
+
+                var publicWrapperProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "PublicWrapper");
+                var customInternalProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "CustomInternalModel");
+                CodeModelGenerator.Instance.AddTypeToKeep(publicWrapperProvider, isRoot: false);
+                CodeModelGenerator.Instance.AddTypeToKeep(customInternalProvider, isRoot: false);
+
+                ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(CodeModelGenerator.Instance.OutputLibrary.TypeProviders);
+
+                Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), "PublicWrapper should be internalized when its public surface exposes a custom/internal type.");
+                Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), "CustomInternalModel should remain internal.");
+            }
+            finally
+            {
+                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
+                if (Directory.Exists(outputPath))
+                {
+                    Directory.Delete(outputPath, recursive: true);
+                }
+            }
         }
 
         [Test]

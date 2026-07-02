@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
                 else
                 {
-                    description = new XmlDocStatement("description", [$"{item:C}"]);
+                    description = new XmlDocStatement("description", [$"<c>{item}</c>"]);
                 }
 
                 values.Add(description);
