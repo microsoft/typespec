@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator
                     provider.PreserveXmlDocs();
                     provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
                 }
-                else if (publicizeCandidates.Contains(providerName))
+                else if (publicizeCandidates.Contains(providerName) && !IsGeneratedInternalImplementation(provider))
                 {
                     provider.Update(modifiers: MakePublic(provider.DeclarationModifiers));
                 }
@@ -188,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator
             var internalizeDeclaredNodes = GetPostProcessorDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
             var customInternalBoundaryNodes = GetCustomInternalBoundaryNodes(publicGraph, customInternalDeclarations);
             var publicizeDeclaredNodes = GetPublicizeDeclaredNodes(generatedProviders, graph.Nodes, internalizeDeclaredNodes);
-            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedInternalDeclarations);
+            var generatedImplementationInternalDeclarations = GetGeneratedImplementationInternalTypeDeclarations(generatedProviders, generatedInternalDeclarations);
             var publicApiTraversalNodes = GetPublicApiTraversalNodes(
                 internalizeDeclaredNodes,
                 publicizeDeclaredNodes,
