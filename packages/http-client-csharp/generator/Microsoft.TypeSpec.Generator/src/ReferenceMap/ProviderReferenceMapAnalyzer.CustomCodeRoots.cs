@@ -78,7 +78,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddCustomRequestHeaderExtensionsRoot(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
         {
-            // TODO: Resolve body-level SetDelimited extension calls to PipelineRequestHeadersExtensions so this can be a normal type edge.
             if (!HasCustomRequestHeaderExtensionsReference(providers))
             {
                 return;

@@ -311,7 +311,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
         protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
 
-        protected internal virtual bool IsReferenceMapRoot => false;
+        protected internal virtual bool IsClientProvider => false;
 
         protected internal virtual bool IncludeGeneratedBodyReferences => false;
 

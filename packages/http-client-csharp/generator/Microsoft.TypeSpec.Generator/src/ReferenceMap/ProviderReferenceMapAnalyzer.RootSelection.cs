@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var provider in providers)
             {
                 var name = GetProviderTypeName(provider.Type);
-                if (IsReferenceMapRootProvider(provider, publicClientRootsOnly) ||
+                if (IsClientProviderRoot(provider, publicClientRootsOnly) ||
                     includeAdditionalRoots && IsAdditionalRootProvider(provider, generator.AdditionalRootTypes, nodes) ||
                     includeModelFactory && string.Equals(name, modelFactoryName, StringComparison.Ordinal) ||
                     includeModelFactory && helperRoots.Contains(name))

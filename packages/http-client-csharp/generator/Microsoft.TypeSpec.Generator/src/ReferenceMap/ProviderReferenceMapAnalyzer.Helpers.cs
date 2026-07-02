@@ -30,8 +30,8 @@ namespace Microsoft.TypeSpec.Generator
                 string.Equals(matches[0], providerName, StringComparison.Ordinal);
         }
 
-        private static bool IsReferenceMapRootProvider(TypeProvider provider, bool publicOnly) =>
-            provider.IsReferenceMapRoot &&
+        private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
+            provider.IsClientProvider &&
             (!publicOnly || !HasApiBaselineDirectory() && provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
         private static bool IsAdditionalRootProvider(TypeProvider provider, HashSet<string> roots, HashSet<string> nodes)
