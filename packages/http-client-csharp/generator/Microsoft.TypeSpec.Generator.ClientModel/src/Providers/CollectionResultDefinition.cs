@@ -233,6 +233,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return dependencies;
         }
 
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [new ClientPipelineExtensionsDefinition().Type];
+
         protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>

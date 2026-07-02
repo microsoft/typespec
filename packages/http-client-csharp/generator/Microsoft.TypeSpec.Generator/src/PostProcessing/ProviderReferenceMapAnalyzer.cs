@@ -381,6 +381,7 @@ namespace Microsoft.TypeSpec.Generator
             var roots = new HashSet<string>(StringComparer.Ordinal);
             foreach (var customCodeView in GetCustomCodeViews(providers))
             {
+                AddCustomCodeViewGeneratedTypeRoot(roots, customCodeView, generatedTypeNames);
                 AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: false);
             }
 
@@ -397,11 +398,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                if (customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider)
-                {
-                    AddMatchingName(roots, namedTypeSymbolProvider.MetadataSimpleName, generatedTypeNames);
-                }
-
+                AddCustomCodeViewGeneratedTypeRoot(roots, customCodeView, generatedTypeNames);
                 AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: true);
             }
 
@@ -466,6 +463,17 @@ namespace Microsoft.TypeSpec.Generator
             customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider
                 ? namedTypeSymbolProvider.MetadataSimpleName
                 : customCodeView.Type.Name;
+
+        private static void AddCustomCodeViewGeneratedTypeRoot(HashSet<string> roots, TypeProvider customCodeView, HashSet<string> generatedTypeNames)
+        {
+            if (customCodeView is NamedTypeSymbolProvider namedTypeSymbolProvider)
+            {
+                AddMatchingName(roots, namedTypeSymbolProvider.MetadataSimpleName, generatedTypeNames);
+                return;
+            }
+
+            AddTypeReference(roots, customCodeView.Type, generatedTypeNames);
+        }
 
         private static void AddCustomizationBackedExtensionRoots(HashSet<string> roots, HashSet<string> nodes)
         {

@@ -68,6 +68,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.PostProcessing
         }
 
         [Test]
+        public async Task EmptyCustomPartialModelIsKept()
+        {
+            var customizedModel = InputFactory.Model("CustomizedModel");
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [customizedModel],
+                clients: [],
+                customFiles: [(
+                    Path.Combine("src", "CustomizedModel.cs"),
+                    """
+                    namespace Sample.Models
+                    {
+                        public partial class CustomizedModel
+                        {
+                        }
+                    }
+                    """)],
+                expectedFiles: [
+                    Path.Combine("src", "Generated", "Models", "CustomizedModel.cs"),
+                    Path.Combine("src", "Generated", "Models", "CustomizedModel.Serialization.cs")
+                ]);
+        }
+
+        [Test]
         public async Task InternalAdditionalRootModelIsRemovedWhenNotOtherwiseReferenced()
         {
             var metadataOnlyModel = InputFactory.Model("MetadataOnlyResponse", access: "internal");
