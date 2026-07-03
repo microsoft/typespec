@@ -76,7 +76,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         }
       });
 
-      await program.host.writeFile(codeModelFileName, stringify(codeModel));
+      await program.host.writeFile(codeModelFileName, stringify(codeModel, { version: "1.1" }));
 
       trace(program, `Code model file written to ${codeModelFileName}`);
 
