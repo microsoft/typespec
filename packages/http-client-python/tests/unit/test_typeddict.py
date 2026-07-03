@@ -137,7 +137,7 @@ def test_typeddict_models_shared_cross_language_id_not_collapsed():
 
     Template-instantiated models such as ``ResourceUpdateModel<Cache, CacheProperties>`` and
     ``ResourceUpdateModel<Volume, VolumeProperties>`` are named ``CacheUpdate`` / ``VolumeUpdate``
-    but share the template's cross-language id. The dpg/copy dedup must key on the model name so
+    but share the template's cross-language id. The dpg/copy deduplication must key on the model name so
     these distinct models are not collapsed into one (which previously dropped ``CacheUpdate`` from
     types.py, leaving a dangling ``_types.CacheUpdate`` reference in operations).
     """
