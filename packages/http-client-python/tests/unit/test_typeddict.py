@@ -10,6 +10,8 @@ from jinja2 import PackageLoader, Environment
 
 from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType
 from pygen.codegen.models.model_type import TypedDictModelType
+from pygen.codegen.models.property import Property
+from pygen.codegen.models.list_type import ListType
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
@@ -292,6 +294,50 @@ def test_dpg_input_base_forces_output_only_subtype_into_types():
     ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle])
     assert [m.name for m in ts.discriminated_base_models] == ["Bird"]
     assert [m.name for m in ts.typeddict_models] == ["Eagle"]
+
+
+def _make_property(code_model, name, prop_type):
+    """Create a Property named ``name`` whose type is ``prop_type``."""
+    return Property(
+        yaml_data={"wireName": name, "clientName": name, "optional": True},
+        code_model=code_model,
+        type=prop_type,
+    )
+
+
+def test_dpg_input_model_pulls_in_output_only_property_type():
+    """An output-only model referenced only as an input model's property type must still render.
+
+    Regression for ``NameError: name 'SystemData' is not defined``: ARM ``Resource`` (input) has a
+    read-only ``systemData: "SystemData"`` property. ``SystemData`` is output-only, so it would be
+    dropped from types.py, leaving the forward reference dangling. The reachability closure must
+    keep it.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    system_data = _make_model_with_usage(code_model, "SystemData", 4, DPGModelType)  # Output-only
+    resource = _make_model_with_usage(code_model, "Resource", 2, DPGModelType)  # Input
+    resource.properties = [_make_property(code_model, "systemData", system_data)]
+    # An unrelated output-only response model that nothing input references must stay excluded.
+    get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[resource, system_data, get_response])
+    rendered = sorted(m.name for m in ts.typeddict_models)
+    assert rendered == ["Resource", "SystemData"]
+    assert "GetResponse" not in rendered
+
+
+def test_dpg_input_model_pulls_in_output_only_type_inside_container():
+    """Reachability must descend into list/dict element types, not just direct property references."""
+    code_model = _make_code_model(models_mode="dpg")
+    item = _make_model_with_usage(code_model, "Item", 4, DPGModelType)  # Output-only element
+    container = _make_model_with_usage(code_model, "Container", 2, DPGModelType)  # Input
+    list_type = ListType(yaml_data={"type": "list"}, code_model=code_model, element_type=item)
+    container.properties = [_make_property(code_model, "items", list_type)]
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[container, item])
+    assert sorted(m.name for m in ts.typeddict_models) == ["Container", "Item"]
 
 
 # ---------- models-mode=typeddict ----------
