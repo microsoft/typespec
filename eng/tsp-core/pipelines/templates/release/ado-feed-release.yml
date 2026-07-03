@@ -19,6 +19,13 @@ steps:
       registryUrl: ${{ parameters.registryUrl }}
 
   - pwsh: |
+      # The ADO 'pwsh' task runs with $ErrorActionPreference = 'Stop'. Combined with
+      # $PSNativeCommandUseErrorActionPreference (default $true in pwsh 7.4+), a non-zero exit from
+      # 'npm publish' (which happens when a version already exists in the feed) would throw a
+      # terminating error before the $LASTEXITCODE check below, so the "already exists" cases could
+      # never be skipped. Relax both so we can inspect the output and decide whether to skip.
+      $ErrorActionPreference = 'Continue'
+      $PSNativeCommandUseErrorActionPreference = $false
       $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
       $hadError = $false
       foreach ($file in $packageFiles.Name) {
