@@ -1,5 +1,5 @@
-import { load } from "js-yaml";
 import { ok, strictEqual } from "assert";
+import { load } from "js-yaml";
 import { describe, it } from "vitest";
 import { dumpCodeModelToYaml } from "../src/external-process.js";
 
@@ -11,10 +11,7 @@ describe("typespec-python: external-process", () => {
   it("force-quotes string scalars that YAML 1.1 would misinterpret", () => {
     const yaml = dumpCodeModelToYaml({ name: "2020_01_01" });
     // The scalar must be quoted, otherwise PyYAML reads it back as the integer 20200101.
-    ok(
-      yaml.includes('"2020_01_01"'),
-      `expected the underscore scalar to be quoted, got: ${yaml}`,
-    );
+    ok(yaml.includes('"2020_01_01"'), `expected the underscore scalar to be quoted, got: ${yaml}`);
     ok(
       !/name:\s*2020_01_01\s*$/m.test(yaml),
       `expected no unquoted underscore scalar, got: ${yaml}`,

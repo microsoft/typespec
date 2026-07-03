@@ -2,13 +2,13 @@ import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import { dumpCodeModelToYaml } from "./external-process.js";
 import {
   BLOB_STORAGE_BASE_URL,
   PACKAGE_NAME,
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
+import { dumpCodeModelToYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
