@@ -231,6 +231,69 @@ def test_dpg_typeddict_copy_without_input_usage_still_kept():
     assert not send_copy.is_usage_input  # the copy is kept despite lacking the Input flag
 
 
+def _make_discriminated_base(code_model, name, usage, subtypes, model_cls=DPGModelType):
+    """Create a discriminated base model carrying a discriminator_value->subtype mapping."""
+    return model_cls(
+        yaml_data={
+            "name": name,
+            "type": "model",
+            "snakeCaseName": name.lower(),
+            "usage": usage,
+        },
+        code_model=code_model,
+        properties=[],
+        discriminated_subtypes={s.name.lower(): s for s in subtypes},
+    )
+
+
+def test_dpg_output_only_discriminated_base_excluded():
+    """An output-only discriminated base (e.g. ``Dinosaur = Union[TRex]``) must not render.
+
+    Regression for the ``NameError: name 'TRex' is not defined`` import crash: the output-only base
+    was emitted as a union alias in types.py while its subtype ``TRex`` was correctly excluded,
+    leaving the alias referencing an undefined name.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    trex = _make_model_with_usage(code_model, "TRex", 4, DPGModelType)  # Output-only subtype
+    dinosaur = _make_discriminated_base(code_model, "Dinosaur", 4, [trex])  # Output-only base
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[dinosaur, trex])
+    assert [m.name for m in ts.discriminated_base_models] == []
+    # The subtype is not force-included because no rendered base references it.
+    assert [m.name for m in ts.typeddict_models] == []
+
+
+def test_dpg_input_discriminated_base_included_with_subtypes():
+    """An input discriminated base renders as a union and its subtypes render as TypedDicts."""
+    code_model = _make_code_model(models_mode="dpg")
+    eagle = _make_model_with_usage(code_model, "Eagle", 2, DPGModelType)  # Input
+    goose = _make_model_with_usage(code_model, "Goose", 2, DPGModelType)  # Input
+    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle, goose])  # Input base
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle, goose])
+    assert [m.name for m in ts.discriminated_base_models] == ["Bird"]
+    assert sorted(m.name for m in ts.typeddict_models) == ["Eagle", "Goose"]
+
+
+def test_dpg_input_base_forces_output_only_subtype_into_types():
+    """A subtype referenced by a rendered input base must render even if the subtype is output-only.
+
+    ``Bird = Union[Eagle]`` requires ``Eagle`` to be defined in types.py; if ``Eagle``'s own usage
+    flags would exclude it, it must still be force-included so the union alias does not reference an
+    undefined name.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    eagle = _make_model_with_usage(code_model, "Eagle", 4, DPGModelType)  # Output-only subtype
+    bird = _make_discriminated_base(code_model, "Bird", 2, [eagle])  # Input base references it
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[bird, eagle])
+    assert [m.name for m in ts.discriminated_base_models] == ["Bird"]
+    assert [m.name for m in ts.typeddict_models] == ["Eagle"]
+
+
 # ---------- models-mode=typeddict ----------
 
 

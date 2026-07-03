@@ -71,6 +71,23 @@ class TypesSerializer(BaseSerializer):
         values = [enum.get_declaration(v.value) for v in enum.values]
         return f"{enum.name} = Literal[{', '.join(values)}]"
 
+    @staticmethod
+    def _renders_as_input_typeddict(m: "ModelType") -> bool:
+        """Whether a non-json model is consumed as an input TypedDict/union in types.py.
+
+        TypedDicts (and discriminated-base union aliases) in ``types.py`` describe request-body
+        (*input*) shapes. Output-only models already render as classes in ``models/`` and are
+        referenced via ``_models.*``, so their TypedDict/union would be dead code. A model qualifies
+        when it is:
+
+        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
+          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
+        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
+          and input-only anonymous bodies, or
+        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
+        """
+        return m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input
+
     @property
     def typeddict_models(self) -> list[ModelType]:
         """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions).
@@ -84,24 +101,30 @@ class TypesSerializer(BaseSerializer):
         template's cross-language id, so keying on it would wrongly collapse distinct models
         (e.g. ``CacheUpdate`` and ``VolumeUpdate``) into one and drop the rest from types.py.
 
-        Output-only models are excluded in ``dpg`` mode: TypedDicts in ``types.py`` describe the
-        *input* (request-body) shape, so a response-only model already renders as a class in
-        ``models/`` and is referenced via ``_models.*`` — its TypedDict would be dead code. A model
-        is kept when it is:
-
-        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
-          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
-        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
-          and input-only anonymous bodies, or
-        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
+        Output-only models are excluded (see :meth:`_renders_as_input_typeddict`). Subtypes
+        referenced by a rendered discriminated-base union are always kept regardless of their own
+        usage flags, so ``Base = Union[Sub]`` never references an undefined name.
         """
         candidates = [
             m
             for m in self._models
-            if m.base != "json"
-            and not m.discriminated_subtypes
-            and (m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input)
+            if m.base != "json" and not m.discriminated_subtypes and self._renders_as_input_typeddict(m)
         ]
+        # Force-include subtypes referenced by rendered discriminated-base unions, even if a
+        # subtype's own usage flags would otherwise exclude it.
+        needed_subtype_names = {
+            s.name for base in self.discriminated_base_models for s in base.discriminated_subtypes.values()
+        }
+        existing = {m.name for m in candidates}
+        for m in self._models:
+            if (
+                m.base != "json"
+                and not m.discriminated_subtypes
+                and m.name in needed_subtype_names
+                and m.name not in existing
+            ):
+                candidates.append(m)
+                existing.add(m.name)
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:
@@ -122,10 +145,18 @@ class TypesSerializer(BaseSerializer):
     def discriminated_base_models(self) -> list[ModelType]:
         """Discriminated base models that become Union type aliases in types.py.
 
+        Output-only bases are excluded (see :meth:`_renders_as_input_typeddict`): an output-only
+        ``Dinosaur = Union[TRex]`` alias is dead code and would reference subtype TypedDicts that
+        are themselves (correctly) omitted from types.py.
+
         Topologically sorted so that nested discriminated bases (e.g. Shark)
         are defined before their parents (e.g. Fish = Union[Salmon, Shark]).
         """
-        bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
+        bases = [
+            m
+            for m in self._models
+            if m.base != "json" and m.discriminated_subtypes and self._renders_as_input_typeddict(m)
+        ]
         base_names = {m.name for m in bases}
         sorted_bases: list[ModelType] = []
         visited: set[str] = set()
