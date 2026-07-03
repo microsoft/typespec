@@ -1,3 +1,4 @@
+# cspell:ignore EPUBLISHCONFLICT
 parameters:
   - name: tag
     type: string
@@ -12,24 +13,58 @@ steps:
   # Publishing the packages directly to the Azure DevOps `azure-sdk-for-js` feed bypasses the
   # upstream npmjs.org quarantine (which blocks newly released packages for 7 days) so CI can
   # consume freshly released packages immediately.
-  #
-  # This runs in a deployment job that does not check out sources by default, so do it explicitly to
-  # get the publish script, and pin Node so it can run the TypeScript file directly.
-  - checkout: self
-
-  - task: NodeTool@0
-    inputs:
-      versionSpec: 24.16.0
-    displayName: Install Node.js
-    retryCountOnTaskFailure: 3
-
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
     parameters:
       npmrcPath: ${{ parameters.path }}/.npmrc
       registryUrl: ${{ parameters.registryUrl }}
 
-  # publish-npm-packages.ts skips versions that already exist in the feed (ADO immutability / present
-  # in an upstream source) and fails on any other error.
-  - script: node eng/tsp-core/scripts/publish-npm-packages.ts "${{ parameters.path }}" --tag ${{ parameters.tag }}
+  - pwsh: |
+      # The ADO 'pwsh' task runs with $ErrorActionPreference = 'Stop'. Combined with
+      # $PSNativeCommandUseErrorActionPreference (default $true in pwsh 7.4+), a non-zero exit from
+      # 'npm publish' (which happens when a version already exists in the feed) would throw a
+      # terminating error before we can inspect it. Relax both so we can classify the failure.
+      $ErrorActionPreference = 'Continue'
+      $PSNativeCommandUseErrorActionPreference = $false
+
+      $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+      $hadError = $false
+      foreach ($file in $packageFiles.Name) {
+        Write-Host "npm publish $file --verbose --access public --tag ${{ parameters.tag }}"
+        # Capture combined stdout+stderr as a single string, and grab the exit code immediately
+        # before any later command overwrites $LASTEXITCODE.
+        $output = npm publish $file --verbose --access public --tag ${{ parameters.tag }} 2>&1 | Out-String
+        $publishExit = $LASTEXITCODE
+        Write-Host $output
+        if ($publishExit -ne 0) {
+          # Treat "version already exists" as a no-op, matching the npm/ESRP behavior of not
+          # republishing an existing version. Any other failure is a genuine error and must fail.
+          # NOTE: Azure DevOps feeds are immutable and reject a re-publish with an HTTP 403
+          # "already contains file '<name>.tgz' in package '<pkg>'" message (not the npm 409 /
+          # EPUBLISHCONFLICT). The feed also rejects with a 403 when the version already exists in an
+          # upstream source (npmjs): "cannot be published to the feed because it exists in at least
+          # one of the feed's upstream sources". Match these specific phrases rather than any 403 so
+          # genuine auth/permission 403s still fail the job.
+          if ($output -match 'EPUBLISHCONFLICT' -or
+              $output -match 'cannot publish over the previously published versions' -or
+              $output -match 'You cannot publish over the previously published versions' -or
+              $output -match 'previously published version' -or
+              $output -match 'already contains file' -or
+              $output -match 'already contains .+ in package' -or
+              $output -match 'exists in at least one of the feed' -or
+              $output -match '\b409\b') {
+            Write-Warning "Version for $file already exists in the feed, skipping."
+          } else {
+            Write-Error "Failed to publish $file to the DevOps feed."
+            $hadError = $true
+          }
+        }
+      }
+
+      # Explicitly control the step's exit code. Without this the pwsh process can inherit the
+      # non-zero $LASTEXITCODE left over from a skipped 'npm publish' and fail the task even though
+      # we handled it.
+      if ($hadError) { exit 1 }
+      exit 0
     displayName: Publish to DevOps feed (${{ parameters.tag }})
     condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
+    workingDirectory: ${{ parameters.path }}
