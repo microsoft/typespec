@@ -1,5 +1,9 @@
 # Changelog - @typespec/http-client-js
 
+## 0.5.0
+
+Manual release due to dependencies upgrade.
+
 ## 0.14.1
 
 ### Bump dependencies
