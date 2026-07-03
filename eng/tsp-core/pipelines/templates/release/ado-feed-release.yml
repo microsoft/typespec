@@ -13,7 +13,7 @@ steps:
   # Publishing the packages directly to the Azure DevOps `azure-sdk-for-js` feed bypasses the
   # upstream npmjs.org quarantine (which blocks newly released packages for 7 days) so CI can
   # consume freshly released packages immediately.
-  - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
     parameters:
       npmrcPath: ${{ parameters.path }}/.npmrc
       registryUrl: ${{ parameters.registryUrl }}
