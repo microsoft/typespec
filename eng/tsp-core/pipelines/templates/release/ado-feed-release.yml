@@ -1,0 +1,49 @@
+# cspell:ignore EPUBLISHCONFLICT
+parameters:
+  - name: tag
+    type: string
+    default: latest
+  - name: path
+    type: string
+  - name: registryUrl
+    type: string
+    default: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
+
+steps:
+  # Publishing the packages directly to the Azure DevOps `azure-sdk-for-js` feed bypasses the
+  # upstream npmjs.org quarantine (which blocks newly released packages for 7 days) so CI can
+  # consume freshly released packages immediately.
+  - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
+    parameters:
+      npmrcPath: ${{ parameters.path }}/.npmrc
+      registryUrl: ${{ parameters.registryUrl }}
+
+  - pwsh: |
+      $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+      $hadError = $false
+      foreach ($file in $packageFiles.Name) {
+        Write-Host "npm publish $file --verbose --access public --tag ${{ parameters.tag }}"
+        $output = npm publish $file --verbose --access public --tag ${{ parameters.tag }} 2>&1
+        $output | ForEach-Object { Write-Host $_ }
+        if ($LASTEXITCODE -ne 0) {
+          $text = $output -join "`n"
+          # Treat "version already exists" as a no-op, matching the npm/ESRP behavior of not
+          # republishing an existing version. Any other failure is a genuine error and must fail.
+          if ($text -match 'EPUBLISHCONFLICT' -or
+              $text -match 'cannot publish over the previously published versions' -or
+              $text -match 'You cannot publish over the previously published versions' -or
+              $text -match 'previously published version' -or
+              $text -match '\b409\b') {
+            Write-Warning "Version for $file already exists in the feed, skipping."
+          } else {
+            Write-Error "Failed to publish $file to the DevOps feed."
+            $hadError = $true
+          }
+        }
+      }
+      if ($hadError) {
+        exit 1
+      }
+    displayName: Publish to DevOps feed (${{ parameters.tag }})
+    condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
+    workingDirectory: ${{ parameters.path }}
