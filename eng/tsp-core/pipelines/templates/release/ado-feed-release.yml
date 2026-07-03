@@ -1,4 +1,3 @@
-# cspell:ignore EPUBLISHCONFLICT
 parameters:
   - name: tag
     type: string
@@ -13,54 +12,24 @@ steps:
   # Publishing the packages directly to the Azure DevOps `azure-sdk-for-js` feed bypasses the
   # upstream npmjs.org quarantine (which blocks newly released packages for 7 days) so CI can
   # consume freshly released packages immediately.
+  #
+  # This runs in a deployment job that does not check out sources by default, so do it explicitly to
+  # get the publish script, and pin Node so it can run the TypeScript file directly.
+  - checkout: self
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: 24.16.0
+    displayName: Install Node.js
+    retryCountOnTaskFailure: 3
+
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
     parameters:
       npmrcPath: ${{ parameters.path }}/.npmrc
       registryUrl: ${{ parameters.registryUrl }}
 
-  - pwsh: |
-      # The ADO 'pwsh' task runs with $ErrorActionPreference = 'Stop'. Combined with
-      # $PSNativeCommandUseErrorActionPreference (default $true in pwsh 7.4+), a non-zero exit from
-      # 'npm publish' (which happens when a version already exists in the feed) would throw a
-      # terminating error before the $LASTEXITCODE check below, so the "already exists" cases could
-      # never be skipped. Relax both so we can inspect the output and decide whether to skip.
-      $ErrorActionPreference = 'Continue'
-      $PSNativeCommandUseErrorActionPreference = $false
-      $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
-      $hadError = $false
-      foreach ($file in $packageFiles.Name) {
-        Write-Host "npm publish $file --verbose --access public --tag ${{ parameters.tag }}"
-        $output = npm publish $file --verbose --access public --tag ${{ parameters.tag }} 2>&1
-        $output | ForEach-Object { Write-Host $_ }
-        if ($LASTEXITCODE -ne 0) {
-          $text = $output -join "`n"
-          # Treat "version already exists" as a no-op, matching the npm/ESRP behavior of not
-          # republishing an existing version. Any other failure is a genuine error and must fail.
-          # NOTE: Azure DevOps feeds are immutable and reject a re-publish with an HTTP 403
-          # "already contains file '<name>.tgz' in package '<pkg>'" message (not the npm 409 /
-          # EPUBLISHCONFLICT), so it must be matched explicitly. The feed also rejects with a 403
-          # when the version already exists in an upstream source (npmjs) with a "cannot be
-          # published to the feed because it exists in at least one of the feed's upstream sources"
-          # message. We match these specific phrases rather than any 403 so genuine auth/permission
-          # 403s still fail the job.
-          if ($text -match 'EPUBLISHCONFLICT' -or
-              $text -match 'cannot publish over the previously published versions' -or
-              $text -match 'You cannot publish over the previously published versions' -or
-              $text -match 'previously published version' -or
-              $text -match 'already contains file' -or
-              $text -match 'already contains .+ in package' -or
-              $text -match "exists in at least one of the feed" -or
-              $text -match '\b409\b') {
-            Write-Warning "Version for $file already exists in the feed, skipping."
-          } else {
-            Write-Error "Failed to publish $file to the DevOps feed."
-            $hadError = $true
-          }
-        }
-      }
-      if ($hadError) {
-        exit 1
-      }
+  # publish-npm-packages.ts skips versions that already exist in the feed (ADO immutability / present
+  # in an upstream source) and fails on any other error.
+  - script: node eng/tsp-core/scripts/publish-npm-packages.ts "${{ parameters.path }}" --tag ${{ parameters.tag }}
     displayName: Publish to DevOps feed (${{ parameters.tag }})
     condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
-    workingDirectory: ${{ parameters.path }}
