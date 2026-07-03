@@ -107,11 +107,10 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     content_type_param["optional"] = True
 
 
-def update_description(description: Any, default_description: str = "") -> str:
-    """Normalize YAML descriptions; numeric and other scalar values are converted to strings."""
+def update_description(description: Optional[str], default_description: str = "") -> str:
     if not description:
         description = default_description
-    description = str(description).rstrip(" ")
+    description.rstrip(" ")
     # Don't append a trailing period when the description ends with a code block: the
     # period would land inside the rendered literal block (e.g. "]." ) and break Sphinx.
     if description and description[-1] != "." and not description_ends_with_code_block(description):
