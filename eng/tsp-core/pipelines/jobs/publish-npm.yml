@@ -25,7 +25,9 @@ jobs:
       inputs:
         - input: pipelineArtifact
           artifactName: ${{ parameters.artifactName }}
-          itemPattern: "**/*.tgz"
+          # Download the whole artifact (the .tgz packages plus publish-npm-packages.ts, which the
+          # checkout-less release job runs to publish them).
+          itemPattern: "**"
           targetPath: $(Pipeline.Workspace)/${{ parameters.artifactName }}/
 
     strategy:
