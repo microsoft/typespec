@@ -60,10 +60,12 @@ steps:
         }
       }
 
-      # Explicitly control the step's exit code. Without this the pwsh process can inherit the
-      # non-zero $LASTEXITCODE left over from a skipped 'npm publish' and fail the task even though
-      # we handled it.
-      if ($hadError) { exit 1 }
+      # Explicitly control the step's exit code. The ADO PowerShell task appends `exit $LASTEXITCODE`
+      # after this script (unless ignoreLASTEXITCODE is set), so the non-zero $LASTEXITCODE left over
+      # from a skipped 'npm publish' would fail the task even though we handled it. Reset the
+      # automatic variable AND exit ourselves so both the appended line and our own exit agree.
+      if ($hadError) { $global:LASTEXITCODE = 1; exit 1 }
+      $global:LASTEXITCODE = 0
       exit 0
     displayName: Publish to DevOps feed (${{ parameters.tag }})
     condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
