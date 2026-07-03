@@ -1,8 +1,8 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import jsyaml from "js-yaml";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
+import { dumpCodeModelToYaml } from "./external-process.js";
 import {
   BLOB_STORAGE_BASE_URL,
   PACKAGE_NAME,
@@ -250,7 +250,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     pyodide.FS.mkdirTree("/yaml");
     pyodide.FS.mkdirTree("/output");
     clearMemfsDirectory(pyodide, "/output");
-    pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
+    pyodide.FS.writeFile(yamlFilePath, dumpCodeModelToYaml(parsedYamlMap));
 
     await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
     await copyPyodideOutputToHost(context, pyodide, "/output");

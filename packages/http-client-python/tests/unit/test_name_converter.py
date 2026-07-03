@@ -33,3 +33,32 @@ def test_escaped_reserved_words():
     }
     for name in expected_conversion_parameter:
         assert pad_reserved_words(name, pad_type=PadType.PARAMETER) == expected_conversion_parameter[name]
+
+
+def test_update_types_preserves_string_enum_value_names():
+    # With the emitter force-quoting string scalars, snake-cased date-like names arrive as
+    # strings (e.g. "2020_01_01") and must keep their separators through the ENUM_ prefixing.
+    standalone_enum_value = {"name": "2020_01_01", "isExactName": False, "type": "enumvalue"}
+    nested_enum_value = {"name": "2021_01_01", "isExactName": False, "type": "enumvalue", "value": "2021-01-01"}
+    enum_type = {"name": "ApiVersion", "type": "enum", "values": [nested_enum_value]}
+
+    PreProcessPlugin(output_folder="").update_types([standalone_enum_value, enum_type])
+
+    assert standalone_enum_value["name"] == "2020_01_01"
+    assert standalone_enum_value["snakeCaseName"] == "2020_01_01"
+    assert nested_enum_value["name"] == "ENUM_2021_01_01"
+
+
+def test_update_types_coerces_numeric_enum_value_names():
+    # Defensive fallback: if a name still arrives as a non-string (e.g. from an older emitter
+    # that let PyYAML read "2020_01_01" as the integer 20200101), coerce it to a string so the
+    # casing/prefixing logic does not crash.
+    standalone_enum_value = {"name": 20200101, "isExactName": False, "type": "enumvalue"}
+    nested_enum_value = {"name": 20210101, "isExactName": False, "type": "enumvalue", "value": "2021-01-01"}
+    enum_type = {"name": "ApiVersion", "type": "enum", "values": [nested_enum_value]}
+
+    PreProcessPlugin(output_folder="").update_types([standalone_enum_value, enum_type])
+
+    assert standalone_enum_value["description"] == "20200101."
+    assert standalone_enum_value["snakeCaseName"] == "20200101"
+    assert nested_enum_value["name"] == "ENUM_20210101"
