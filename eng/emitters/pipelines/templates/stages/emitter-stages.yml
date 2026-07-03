@@ -326,10 +326,7 @@ stages:
                 displayName: Download build artifacts
 
               # Always publish to internal feed
-              - template: /eng/emitters/pipelines/templates/steps/create-authenticated-npmrc.yml
-                parameters:
-                  npmrcPath: $(buildArtifactsPath)/packages/.npmrc
-                  registryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
               # publish to devops feed
               - pwsh: |
@@ -389,6 +386,7 @@ stages:
                     inputs:
                       versionSpec: "22.x"
                       checkLatest: true
+                  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
                   - script: npm ci
                     displayName: Install emitter dependencies for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
@@ -411,8 +409,7 @@ stages:
                   - script: npm run ${{ parameters.PlaygroundBundleBuildScript }}
                     displayName: Build emitter for playground bundle
                     workingDirectory: $(Build.SourcesDirectory)/${{ parameters.PackagePath }}
-                  - script: npm install -g pnpm
-                    displayName: Install pnpm for playground bundle upload
+                  - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
                   - script: pnpm install --filter "@typespec/bundle-uploader..."
                     displayName: Install bundle-uploader dependencies
                     workingDirectory: $(Build.SourcesDirectory)

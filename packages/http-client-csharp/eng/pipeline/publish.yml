@@ -125,6 +125,9 @@ extends:
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
               - checkout: self
+
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - pwsh: |
                   # Determine the TypeSpec PR URL 
                   $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')

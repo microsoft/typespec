@@ -200,6 +200,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - oxlint
   - openapiv
   - Packument
   - Perfolizer
@@ -278,6 +279,7 @@ words:
   - tsconfigs
   - tsdoc
   - TSES
+  - tsgolint
   - tspd
   - tspwebsitepr
   - tsvs
