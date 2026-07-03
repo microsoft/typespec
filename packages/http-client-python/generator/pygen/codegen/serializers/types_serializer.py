@@ -83,8 +83,25 @@ class TypesSerializer(BaseSerializer):
         instantiated models such as ``ResourceUpdateModel<Foo, FooProperties>`` all share the
         template's cross-language id, so keying on it would wrongly collapse distinct models
         (e.g. ``CacheUpdate`` and ``VolumeUpdate``) into one and drop the rest from types.py.
+
+        Output-only models are excluded in ``dpg`` mode: TypedDicts in ``types.py`` describe the
+        *input* (request-body) shape, so a response-only model already renders as a class in
+        ``models/`` and is referenced via ``_models.*`` — its TypedDict would be dead code. A model
+        is kept when it is:
+
+        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
+          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
+        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
+          and input-only anonymous bodies, or
+        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
         """
-        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
+        candidates = [
+            m
+            for m in self._models
+            if m.base != "json"
+            and not m.discriminated_subtypes
+            and (m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input)
+        ]
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:

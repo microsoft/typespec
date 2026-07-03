@@ -160,6 +160,77 @@ def test_typeddict_models_shared_cross_language_id_not_collapsed():
     assert all(m.base == "dpg" for m in rendered)
 
 
+def _make_model_with_usage(code_model, name, usage, model_cls):
+    """Create a model with an explicit usage bitmask (2=Input, 4=Output, 6=both)."""
+    return model_cls(
+        yaml_data={
+            "name": name,
+            "type": "model",
+            "snakeCaseName": name.lower(),
+            "usage": usage,
+        },
+        code_model=code_model,
+        properties=[],
+    )
+
+
+def test_dpg_output_only_model_excluded_from_typeddict_models():
+    """In dpg mode, response-only models must not render as TypedDicts in types.py.
+
+    Anonymous response bodies (e.g. ``GetResponse``) render as classes in ``models/`` and are only
+    referenced via ``_models.*``; a TypedDict for them in types.py is never referenced via
+    ``_types.*`` and is dead code. Only input models belong in types.py.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    send_request = _make_model_with_usage(code_model, "SendRequest", 2, DPGModelType)  # Input
+    get_response = _make_model_with_usage(code_model, "GetResponse", 4, DPGModelType)  # Output-only
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[send_request, get_response])
+    rendered = [m.name for m in ts.typeddict_models]
+    assert rendered == ["SendRequest"]
+    assert "GetResponse" not in rendered
+
+
+def test_dpg_input_output_model_included_in_typeddict_models():
+    """A dpg model used as both input and output still renders in types.py (it is an input)."""
+    code_model = _make_code_model(models_mode="dpg")
+    cat = _make_model_with_usage(code_model, "Cat", 6, DPGModelType)  # Input | Output
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[cat])
+    assert [m.name for m in ts.typeddict_models] == ["Cat"]
+
+
+def test_typeddict_mode_output_only_model_included():
+    """In full typeddict mode, every model (incl. output-only) is consumed as a TypedDict."""
+    code_model = _make_code_model(models_mode="typeddict")
+    get_response = _make_model_with_usage(code_model, "GetResponse", 4, TypedDictModelType)  # Output-only
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[get_response])
+    # is_typed_dict_only is True for all models in typeddict mode, so it is kept despite being output-only.
+    assert [m.name for m in ts.typeddict_models] == ["GetResponse"]
+
+
+def test_dpg_typeddict_copy_without_input_usage_still_kept():
+    """A spread-body typeddict copy must be kept even when its usage lacks the Input bit.
+
+    Spread request bodies (e.g. ``SendRequest``) are marked ``Json | Spread`` by tcgc but NOT
+    ``Input``. The referenced type is the ``base == "typeddict"`` copy, so operations import
+    ``_types.SendRequest``. Filtering these out would leave a dangling reference, so typeddict
+    copies are always kept regardless of their usage flags.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    # usage 320 == Json(256) | Spread(64), no Input(2) bit — mirrors real tcgc output.
+    send_copy = _make_model_with_usage(code_model, "SendRequest", 320, TypedDictModelType)
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[send_copy])
+    assert [m.name for m in ts.typeddict_models] == ["SendRequest"]
+    assert not send_copy.is_usage_input  # the copy is kept despite lacking the Input flag
+
+
 # ---------- models-mode=typeddict ----------
 
 
