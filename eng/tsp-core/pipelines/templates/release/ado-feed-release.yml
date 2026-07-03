@@ -29,10 +29,16 @@ steps:
           $text = $output -join "`n"
           # Treat "version already exists" as a no-op, matching the npm/ESRP behavior of not
           # republishing an existing version. Any other failure is a genuine error and must fail.
+          # NOTE: Azure DevOps feeds are immutable and reject a re-publish with an HTTP 403
+          # "already contains file '<name>.tgz' in package '<pkg>'" message (not the npm 409 /
+          # EPUBLISHCONFLICT), so it must be matched explicitly. We match the specific phrase rather
+          # than any 403 so genuine auth/permission 403s still fail the job.
           if ($text -match 'EPUBLISHCONFLICT' -or
               $text -match 'cannot publish over the previously published versions' -or
               $text -match 'You cannot publish over the previously published versions' -or
               $text -match 'previously published version' -or
+              $text -match 'already contains file' -or
+              $text -match 'already contains .+ in package' -or
               $text -match '\b409\b') {
             Write-Warning "Version for $file already exists in the feed, skipping."
           } else {
