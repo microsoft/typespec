@@ -119,17 +119,6 @@ def update_description(description: Any, default_description: str = "") -> str:
     return description
 
 
-def update_enum_value_name(name: Any) -> str:
-    """Coerce an enum value name to a string.
-
-    The emitter force-quotes string scalars so names round-trip correctly, but a name may
-    still arrive as a non-string (e.g. from an older emitter that emitted `2020_01_01`,
-    which PyYAML reads as the integer 20200101). Coercing to ``str`` keeps the downstream
-    casing logic (``.upper()``, ``ENUM_`` prefixing) robust.
-    """
-    return str(name)
-
-
 def update_operation_group_class_name(prefix: str, class_name: str) -> str:
     if class_name == "":
         return prefix + "OperationsMixin"
@@ -432,6 +421,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
             code_model["types"].append(body_parameter["type"])
 
+
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
         if not name:
@@ -463,7 +453,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
-                type["name"] = update_enum_value_name(type["name"])
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 if type["type"] != "enumvalue":
                     name = self.pad_reserved_words(type["name"], pad_type, type)
@@ -475,7 +464,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 for value in type["values"]:
                     if value.get("isExactName", False):
                         continue
-                    value["name"] = update_enum_value_name(value["name"])
                     upper_name = value["name"].upper()
                     if upper_name[0] in "0123456789":
                         upper_name = "ENUM_" + upper_name
