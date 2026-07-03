@@ -1,8 +1,10 @@
 import { createDiagnostic } from "../../messages.js";
 import { Diagnostic, NoTarget } from "../../types.js";
-import { installVsix } from "../install-vsix.js";
 import { CliCompilerHost } from "../types.js";
 import { run } from "../utils.js";
+
+/** Marketplace identifier of the TypeSpec VS Code extension. */
+const VSCODE_EXTENSION_ID = "microsoft.typespec-vscode";
 
 export interface InstallVSCodeExtensionOptions {
   insiders: boolean;
@@ -10,10 +12,8 @@ export interface InstallVSCodeExtensionOptions {
 export async function installVSCodeExtension(
   host: CliCompilerHost,
   options: InstallVSCodeExtensionOptions,
-) {
-  return await installVsix(host, "typespec-vscode", (vsixPaths) =>
-    runCode(host, ["--install-extension", vsixPaths[0]], options.insiders),
-  );
+): Promise<readonly Diagnostic[]> {
+  return runCode(host, ["--install-extension", VSCODE_EXTENSION_ID], options.insiders);
 }
 
 export interface UninstallVSCodeExtensionOptions {
@@ -24,7 +24,7 @@ export async function uninstallVSCodeExtension(
   host: CliCompilerHost,
   options: UninstallVSCodeExtensionOptions,
 ) {
-  return runCode(host, ["--uninstall-extension", "microsoft.typespec-vscode"], options.insiders);
+  return runCode(host, ["--uninstall-extension", VSCODE_EXTENSION_ID], options.insiders);
 }
 
 function runCode(

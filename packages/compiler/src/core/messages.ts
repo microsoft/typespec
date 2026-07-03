@@ -1136,6 +1136,12 @@ const diagnostics = {
       default: "Visual Studio extension is not supported on non-Windows.",
     },
   },
+  "vsix-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download extension "${"id"}" from the marketplace: ${"message"}.`,
+    },
+  },
   "vscode-in-path": {
     severity: "error",
     messages: {
