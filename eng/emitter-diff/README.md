@@ -72,8 +72,8 @@ node eng/emitter-diff/src/cli.ts --emitter python --baseline local:/path/to/old/
   --head local:/path/to/new/http-client-python \
   --html diff.html
 
-# Place generated output under `libba` for each side (`<side>/libba/tests/generated/...`):
-node eng/emitter-diff/src/cli.ts --emitter python --generated-code-path libba
+# Place generated output under a custom subpath for each side (`<side>/generator/tests/generated/...`):
+node eng/emitter-diff/src/cli.ts --emitter python --generated-code-path generator
 
 # Diff against a GitHub sha:
 node eng/emitter-diff/src/cli.ts --emitter python \

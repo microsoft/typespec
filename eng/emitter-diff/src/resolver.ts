@@ -282,7 +282,9 @@ function assertInstalledPackageMetadata(
   try {
     parsed = JSON.parse(readFileSync(manifest, "utf8")) as { name?: string; version?: string };
   } catch (err) {
-    throw new Error(`Could not parse installed package manifest at ${manifest}: ${String(err)}`);
+    throw new Error(`Could not parse installed package manifest at ${manifest}: ${String(err)}`, {
+      cause: err,
+    });
   }
 
   if (parsed.name !== expectedName || parsed.version !== expectedVersion) {
