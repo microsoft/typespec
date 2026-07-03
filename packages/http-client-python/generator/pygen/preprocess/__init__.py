@@ -334,6 +334,45 @@ class PreProcessPlugin(YamlUpdatePlugin):
         )
 
     @staticmethod
+    def _find_spread_original(code_model: dict[str, Any], json_model: dict[str, Any]) -> Optional[dict[str, Any]]:
+        """Recover the dpg model that a spread (json) body was cloned from.
+
+        When a spread body type is also used elsewhere, the emitter clones it, renames the clone to
+        ``<Method>Request`` and sets ``base = "json"`` while keeping the original
+        ``crossLanguageDefinitionId``. To reference the real model's TypedDict we look the clone up
+        by that id.
+
+        Distinct template-instantiated models share a single ``crossLanguageDefinitionId``, so an id
+        match alone is ambiguous. We only reuse an original when the choice is unambiguous:
+
+        * a dpg candidate whose ``name`` equals the json model's name (the body was not renamed), or
+        * exactly one dpg candidate carries the id.
+
+        Otherwise we return ``None`` so the caller falls back to the json model itself, avoiding a
+        reference to the wrong model's TypedDict.
+        """
+        cross_lang_id = json_model.get("crossLanguageDefinitionId")
+        if not cross_lang_id:
+            return None
+        candidates = [
+            t
+            for t in code_model["types"]
+            if t.get("type") == "model"
+            and t.get("base") == "dpg"
+            and t.get("crossLanguageDefinitionId") == cross_lang_id
+            and t is not json_model
+        ]
+        if not candidates:
+            return None
+        name = json_model.get("name")
+        for candidate in candidates:
+            if candidate.get("name") == name:
+                return candidate
+        if len(candidates) == 1:
+            return candidates[0]
+        return None
+
+    @staticmethod
     def _insert_typeddict_overload(
         code_model: dict[str, Any],
         body_parameter: dict[str, Any],
@@ -394,18 +433,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             # the original model. This replaces the JSON single-body overload.
             if is_json_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
-                original = None
-                if cross_lang_id:
-                    original = next(
-                        (
-                            t
-                            for t in code_model["types"]
-                            if t.get("type") == "model"
-                            and t.get("crossLanguageDefinitionId") == cross_lang_id
-                            and t is not model_type
-                        ),
-                        None,
-                    )
+                original = self._find_spread_original(code_model, model_type)
 
                 if is_typeddict_only and original:
                     # In typeddict-only mode, the original dpg model already renders
