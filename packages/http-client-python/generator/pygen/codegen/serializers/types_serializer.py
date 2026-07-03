@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import keyword
 import re
+from functools import cached_property
 from typing import Any, Optional
 from ..models import ModelType, CodeModel
 from ..models.enum_type import EnumType
@@ -87,7 +88,7 @@ class TypesSerializer(BaseSerializer):
         * used as input (``is_usage_input``) — e.g. a model shared between request and response.
 
         The full set rendered in types.py is the transitive closure of these seeds over base
-        classes, discriminated subtypes and property types (see :meth:`_types_file_model_names`), so
+        classes, discriminated subtypes and property types (see :attr:`_types_file_model_names`), so
         an output-only model that *is* referenced by an input model (e.g. ARM ``SystemData`` on
         ``Resource``) is still rendered.
         """
@@ -118,6 +119,7 @@ class TypesSerializer(BaseSerializer):
             for child in getattr(t, "types", []) or []:
                 stack.append(child)
 
+    @cached_property
     def _types_file_model_names(self) -> set[str]:
         """Names of every model that must be rendered in types.py.
 
@@ -125,6 +127,10 @@ class TypesSerializer(BaseSerializer):
         closure over base classes, discriminated subtypes and property types. Keyed on model
         ``name`` (dpg models and their typeddict copies share a name and render as one TypedDict), so
         the result is stable regardless of which copy a reference points at.
+
+        Cached: the closure is a full walk over the model graph and is read several times per file
+        (via :attr:`typeddict_models` and :attr:`discriminated_base_models`). ``self._models`` is set
+        once at construction and never mutated, so memoizing on the instance is safe.
         """
         needed: set[str] = set()
         stack = [m for m in self._models if m.base != "json" and self._renders_as_input_typeddict(m)]
@@ -152,12 +158,12 @@ class TypesSerializer(BaseSerializer):
         template's cross-language id, so keying on it would wrongly collapse distinct models
         (e.g. ``CacheUpdate`` and ``VolumeUpdate``) into one and drop the rest from types.py.
 
-        Only models in the input-surface closure (:meth:`_types_file_model_names`) are rendered, so
+        Only models in the input-surface closure (:attr:`_types_file_model_names`) are rendered, so
         response-only models (e.g. ``GetResponse``) are dropped while models reachable from an input
         model — including output-only ones such as a discriminated subtype or an ARM ``SystemData``
         property — are kept, ensuring no forward reference is left undefined.
         """
-        needed = self._types_file_model_names()
+        needed = self._types_file_model_names
         candidates = [
             m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
         ]
@@ -181,7 +187,7 @@ class TypesSerializer(BaseSerializer):
     def discriminated_base_models(self) -> list[ModelType]:
         """Discriminated base models that become Union type aliases in types.py.
 
-        Only bases in the input-surface closure (:meth:`_types_file_model_names`) are emitted: an
+        Only bases in the input-surface closure (:attr:`_types_file_model_names`) are emitted: an
         output-only ``Dinosaur = Union[TRex]`` alias is dead code and would reference subtype
         TypedDicts that are themselves (correctly) omitted from types.py, causing a ``NameError`` at
         import time.
@@ -189,7 +195,7 @@ class TypesSerializer(BaseSerializer):
         Topologically sorted so that nested discriminated bases (e.g. Shark)
         are defined before their parents (e.g. Fish = Union[Salmon, Shark]).
         """
-        needed = self._types_file_model_names()
+        needed = self._types_file_model_names
         bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes and m.name in needed]
         base_names = {m.name for m in bases}
         sorted_bases: list[ModelType] = []
