@@ -35,6 +35,13 @@ jobs:
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
 
+            # Publish to the Azure DevOps feed first (bypasses the 7-day npmjs.org quarantine),
+            # then publish to npmjs.org via ESRP.
+            - template: /eng/tsp-core/pipelines/templates/release/ado-feed-release.yml
+              parameters:
+                tag: ${{ parameters.tag }}
+                path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+
             - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
               parameters:
                 tag: ${{ parameters.tag }}

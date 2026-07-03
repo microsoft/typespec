@@ -44,8 +44,7 @@ jobs:
 
       - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
-      - script: npm install -g pnpm
-        displayName: Install pnpm
+      - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
 
       - script: pnpm install --filter "@typespec/standalone-cli"
         displayName: Install JavaScript Dependencies
