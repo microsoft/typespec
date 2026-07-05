@@ -2612,7 +2612,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (hookMethod == null)
             {
                 // Fall back: no method found, use previous behavior (first known arg, ref variable, no options)
-                return [knownArguments[0].Argument, new ArgumentExpression(refVariable, IsRef: true)];
+                return [knownArguments[0].Argument, ByRef(refVariable)];
             }
 
             var args = new List<ValueExpression>();
@@ -2620,7 +2620,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (param.IsRef)
                 {
-                    args.Add(new ArgumentExpression(refVariable, IsRef: true));
+                    args.Add(ByRef(refVariable));
                 }
                 else
                 {

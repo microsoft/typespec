@@ -20,14 +20,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
         }
 
         [Test]
-        public void VariableExpressionSupportsLegacyRefAndOutConstructor()
+        public void VariableExpressionWrappedAsRefAndOutArgument()
         {
-#pragma warning disable CS0618 // Obsolete
-            var variableExpression = new VariableExpression(typeof(int), "foo", isRef: true, isOut: true);
+            var variableExpression = new VariableExpression(typeof(int), "foo");
 
-            Assert.IsTrue(variableExpression.IsRef);
-            Assert.IsTrue(variableExpression.IsOut);
-#pragma warning restore CS0618
+            var refArgument = new ArgumentExpression(variableExpression, IsRef: true);
+            Assert.IsTrue(refArgument.IsRef);
+            Assert.IsFalse(refArgument.IsOut);
+
+            var outArgument = new ArgumentExpression(variableExpression, IsOut: true);
+            Assert.IsTrue(outArgument.IsOut);
+            Assert.IsFalse(outArgument.IsRef);
         }
     }
 }

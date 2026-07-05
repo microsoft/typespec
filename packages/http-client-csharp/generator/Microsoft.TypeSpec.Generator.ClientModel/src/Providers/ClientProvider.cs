@@ -1171,7 +1171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var cachedClientFieldVar = new ArgumentExpression(new VariableExpression(subClient.Type, subClient._clientCachingField.Declaration), IsRef: true);
+                var cachedClientFieldVar = new VariableExpression(subClient.Type, subClient._clientCachingField.Declaration).AsArgument(isRef: true);
                 List<ValueExpression> subClientConstructorArgs = new(3);
                 List<ParameterProvider> accessorMethodParams = [];
 
@@ -1706,6 +1706,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
                 case KeywordExpression keywordExpr when keywordExpr.Expression != null:
                     UpdateProtocolMethodInvocation(keywordExpr.Expression, originalSignature, updatedSignature);
+                    break;
+                case ArgumentExpression argumentExpr:
+                    UpdateProtocolMethodInvocation(argumentExpr.Expression, originalSignature, updatedSignature);
                     break;
             }
         }

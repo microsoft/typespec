@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             this ScopedApi<JsonPatch> patch,
             ValueExpression jsonPath,
             VariableExpression encodedValue)
-        => patch.Invoke(nameof(JsonPatch.TryGetEncodedValue), [jsonPath, new ArgumentExpression(encodedValue, IsOut: true)]).As<bool>();
+        => patch.Invoke(nameof(JsonPatch.TryGetEncodedValue), [jsonPath, encodedValue.AsArgument(isOut: true)]).As<bool>();
 
         public static ScopedApi<bool> Contains(
             this ScopedApi<JsonPatch> patch,
