@@ -10,11 +10,11 @@ Two modes, both AI-free:
   single:   run one check and print {"status","evidence"} (handy for debugging).
 
 Batch usage:
-  verify.py --batch --checks demo-checks.json --signatures signatures.json \
+  verify.py --batch --checks demo-checks.json --verifiers verifiers.json \
             --generated-root tests/generated --flavor azure --language python [--workers 16]
 
 Single usage:
-  verify.py --category naming --package <pkg> --expected clientName --signatures signatures.json
+  verify.py --category naming --package <pkg> --expected clientName --verifiers verifiers.json
 """
 from __future__ import annotations
 import argparse, concurrent.futures, json, re
@@ -93,7 +93,7 @@ def identifier_idiomatic_casing(pkg: Path, expected: str, kind: str | None, casi
     wrongly-cased identifier fails."""
     casing = casing_map.get(kind) if kind else None
     if casing is None:
-        return "na", f"no casing rule for kind '{kind}' in signatures.json"
+        return "na", f"no casing rule for kind '{kind}' in verifiers.json"
     wanted = apply_casing(expected, casing)
     ok = re.search(rf"\b{re.escape(wanted)}\b", blob(pkg)) is not None
     return ("pass" if ok else "fail",
@@ -185,7 +185,7 @@ def check_one(item: dict, sigs: dict, root: Path, flavor: str, language: str) ->
 
 def run_batch(args) -> None:
     items = json.loads(Path(args.checks).read_text())["items"]
-    sigs = {k: v for k, v in json.loads(Path(args.signatures).read_text()).items() if not k.startswith("_")}
+    sigs = {k: v for k, v in json.loads(Path(args.verifiers).read_text()).items() if not k.startswith("_")}
     root = Path(args.generated_root)
 
     results, needs_ai = [], []
@@ -205,7 +205,7 @@ def run_batch(args) -> None:
 
 
 def run_single(args) -> None:
-    sigs = {k: v for k, v in json.loads(Path(args.signatures).read_text()).items() if not k.startswith("_")}
+    sigs = {k: v for k, v in json.loads(Path(args.verifiers).read_text()).items() if not k.startswith("_")}
     sig = sigs.get(args.category)
     pkg = Path(args.package)
     if sig is None:
@@ -226,7 +226,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Deterministic client-surface checks.")
     ap.add_argument("--batch", action="store_true", help="run all checks from --checks in parallel")
     ap.add_argument("--checks", help="checks manifest JSON (batch mode)")
-    ap.add_argument("--signatures", required=True)
+    ap.add_argument("--verifiers", required=True)
     ap.add_argument("--generated-root", help="batch mode: <root>/<flavor>/<package>")
     ap.add_argument("--flavor", default="azure")
     ap.add_argument("--language", default="python")

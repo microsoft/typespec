@@ -1,7 +1,7 @@
 # Client surface checks — context: http-client-python
 
 ## Emitter facts
-*The shared `/check-client-surface` prompt and `verify.py` read these.*
+*The shared `/check-surface` prompt and `verify.py` read these.*
 
 - **language:** python *(selects which per-language client name applies when a check is language-scoped)*
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
@@ -11,14 +11,14 @@
 
 ### What differs by flavor (branded = azure, unbranded)
 Only the **generated-root** subfolder and the **import namespace** (`azure.core`
-vs `corehttp`). Symbol locations and every concept signature below are
+vs `corehttp`). Symbol locations and every concept description below are
 flavor-invariant.
 
-## Concept signatures
+## What each check looks like
 What each verifiable concept looks like in generated Python. Authored once,
 reused across every scenario that uses the concept. Prefer concrete, checkable
-signatures so the deterministic runner can decide **without calling AI** — see
-`signatures.json` for the machine-readable form.
+verifiers so the deterministic runner can decide **without calling AI** — see
+`verifiers.json` for the machine-readable form.
 
 ### access: internal
 - **enum** → the class is NOT re-exported from `models/__init__.py`; it may also
@@ -35,7 +35,7 @@ signatures so the deterministic runner can decide **without calling AI** — see
   `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
   `UPPER_SNAKE`. So an enum renamed to `ClientExtensibleEnum` must appear exactly
   as `ClientExtensibleEnum` (not `client_extensible_enum`). The per-kind casing
-  map lives in `signatures.json`; the manifest item carries the symbol `kind`.
+  map lives in `verifiers.json`; the manifest item carries the symbol `kind`.
 - **resolving the expected name:** if the check has a `client_names` map
   (`{"python": "...", "csharp": "..."}`), use this language's value; otherwise the
   single `expected` name. A language with no entry is `N/A`.
@@ -56,11 +56,11 @@ signatures so the deterministic runner can decide **without calling AI** — see
 ### hierarchy (`@hierarchyBuilding`) — *AI by default, promotable*
 - a client subtype is expressed as the base in `class <Sub>(<Base>, …)` in
   `models/_models.py`; inherited members are attributes present on the subclass.
-- **Not** in `signatures.json` by default, so the orchestrator verifies it with
-  AI. Add the `hierarchy` entry (see `signatures.promoted.json`) to run it
+- **Not** in `verifiers.json` by default, so the orchestrator verifies it with
+  AI. Add the `hierarchy` entry (see `verifiers.promoted.json`) to run it
   deterministically via `class_base_subtype` instead — the spec assertion is
   unchanged either way.
 
-> When an assertion has no concrete signature here (and none in signatures.json),
-> `/check-client-surface` may fall back to judgment — but add a signature when
+> When an assertion has no concrete verifier here (and none in verifiers.json),
+> `/check-surface` may fall back to judgment — but add a verifier when
 > you can, to keep AI calls rare.

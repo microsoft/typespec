@@ -1,5 +1,5 @@
 {
-  "_comment": "Routing table for the /check-client-surface orchestrator. A category listed here has a DETERMINISTIC check (the orchestrator runs verify.py with these params instead of judging). A category NOT listed is verified by AI. 'check' picks the verify.py routine.",
+  "_comment": "Routing table for the /check-surface orchestrator. A category listed here has a DETERMINISTIC check (the orchestrator runs verify.py with these params instead of judging). A category NOT listed is verified by AI. 'check' picks the verify.py routine.",
   "_promotable": "Categories with a verify.py routine but intentionally left OUT of this table are AI-verified until a language adds them here. Example: 'hierarchy' -> {\"check\": \"class_base_subtype\"} promotes the Dog-extends-Pet check from AI to deterministic without changing the spec assertion.",
   "access": {
     "check": "export_visibility",

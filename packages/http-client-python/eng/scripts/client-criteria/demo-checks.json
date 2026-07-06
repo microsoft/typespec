@@ -1,5 +1,5 @@
 {
-  "_comment": "Demo manifest for the three gist examples, checked against the real generated Python SDKs under tests/generated/azure. Items 1-2 have signatures (deterministic); item 3 (hierarchy) has none by default so it routes to AI \u2014 run with --signatures signatures.promoted.json to see it become deterministic.",
+  "_comment": "Demo manifest for the three gist examples, checked against the real generated Python SDKs under tests/generated/azure. Items 1-2 have verifiers (deterministic); item 3 (hierarchy) has none by default so it routes to AI \u2014 run with --verifiers verifiers.promoted.json to see it become deterministic.",
   "items": [
     {
       "id": "Client_Naming_UnionEnum_name",

@@ -1,5 +1,5 @@
 {
-  "_comment": "Same as signatures.json but with the 'hierarchy' category promoted to a deterministic routine. Run the demo with --signatures signatures.promoted.json to see the hierarchy check flip from AI to deterministic (PASS) without touching the spec assertion.",
+  "_comment": "Same as verifiers.json but with the 'hierarchy' category promoted to a deterministic routine. Run the demo with --verifiers verifiers.promoted.json to see the hierarchy check flip from AI to deterministic (PASS) without touching the spec assertion.",
   "access": {
     "check": "export_visibility",
     "public_init": "models/__init__.py"
