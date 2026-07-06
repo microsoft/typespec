@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -221,25 +222,41 @@ namespace Microsoft.TypeSpec.Generator
             };
 
             process.Start();
-            // Read both streams to avoid deadlocks, even though we only use stderr for error reporting.
-            process.StandardOutput.ReadToEnd();
+            // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
+            // errors to standard output rather than standard error, so we include both when
+            // reporting a failure.
+            var stdout = process.StandardOutput.ReadToEnd();
             var stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            if (process.ExitCode != 0)
+            var buildSucceeded = process.ExitCode == 0;
+            if (!buildSucceeded)
             {
-                throw new InvalidOperationException(
-                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
+                // Log an error instead of throwing so that a failed plugin build does not abort
+                // the entire generation. The build may fail when the same plugin is being built
+                // in parallel for multiple referenced projects within a single solution folder,
+                // in which case a previously built assembly may already exist and can still be
+                // reused below.
+                emitter.ReportDiagnostic(
+                    DiagnosticCodes.PluginBuildFailed,
+                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stdout}\n{stderr}",
+                    severity: EmitterDiagnosticSeverity.Error);
             }
 
             var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
             if (dllPath != null)
             {
-                emitter.Info($"Plugin built: {dllPath}");
+                emitter.Info(buildSucceeded
+                    ? $"Plugin built: {dllPath}"
+                    : $"Using existing plugin artifact (not re-built): {dllPath}");
                 return dllPath;
             }
 
-            emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            if (buildSucceeded)
+            {
+                emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            }
+
             return null;
         }
 
