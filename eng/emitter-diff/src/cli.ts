@@ -135,6 +135,27 @@ function tokenizeCommand(command: string): string[] {
   return tokens;
 }
 
+/**
+ * Build the full argv (command args + passthrough) for a regenerate command.
+ *
+ * `npm`/`pnpm`/`yarn run <script>` swallow subsequent flags as their own config
+ * unless a `--` separator forwards them to the script (e.g. `npm run regenerate
+ * -- --name foo`). When the command is such a package-manager `run` invocation
+ * and the user supplied passthrough args, insert that `--` automatically so
+ * `-- --name foo` reaches the underlying script instead of the package manager.
+ */
+function buildRegenerateArgs(commandArgv: string[], passthrough: string[]): string[] {
+  const base = commandArgv.slice(1);
+  if (passthrough.length === 0) return base;
+
+  const bin = (commandArgv[0] ?? "").toLowerCase().replace(/\.(cmd|exe|ps1)$/, "");
+  const isPmRun =
+    (bin === "npm" || bin === "pnpm" || bin === "yarn") && base.includes("run");
+  const needsSeparator = isPmRun && !base.includes("--");
+
+  return needsSeparator ? [...base, "--", ...passthrough] : [...base, ...passthrough];
+}
+
 /** Merge a `--emitter` preset (if any) with explicit flag overrides. */
 function resolveConfig(
   values: {
@@ -322,10 +343,11 @@ async function main(): Promise<number> {
         writeFileSync(sentinel, setupKey);
       }
     }
+    const regenerateArgs = buildRegenerateArgs(commandArgv, passthrough);
     log.step(
-      `${sideName} output regeneration ${color.dim(`(${label}): ${commandArgv.join(" ")}`)}`,
+      `${sideName} output regeneration ${color.dim(`(${label}): ${[commandArgv[0], ...regenerateArgs].join(" ")}`)}`,
     );
-    await runChecked(commandArgv[0], [...commandArgv.slice(1), ...passthrough], {
+    await runChecked(commandArgv[0], regenerateArgs, {
       cwd: runDir,
       inherit,
       prefix: logPrefix,
