@@ -35,5 +35,7 @@ describe("typespec-python: utils", () => {
     strictEqual(quoteShellArg("Azure Web PubSub Chat Service"), '"Azure Web PubSub Chat Service"');
     strictEqual(quoteShellArg("simple"), '"simple"');
     strictEqual(quoteShellArg('has "quotes"'), '"has \\"quotes\\""');
+    strictEqual(quoteShellArg("trailing\\"), '"trailing\\\\"');
+    strictEqual(quoteShellArg('back\\slash "q"'), '"back\\\\slash \\"q\\""');
   });
 });

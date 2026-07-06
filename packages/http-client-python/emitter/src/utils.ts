@@ -278,7 +278,7 @@ export function capitalize(name: string): string {
  * consumers such as the Pyodide runtime and end up in generated files.
  */
 export function quoteShellArg(value: string): string {
-  return `"${value.replace(/"/g, '\\"')}"`;
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
 // Library namespaces that should not be used as client namespaces
