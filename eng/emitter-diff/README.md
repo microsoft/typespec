@@ -21,7 +21,7 @@ either as flags or via a built-in `--emitter` preset.
 
 - A **source tree** is resolved for each side (`--baseline` / `--head`).
 - The **`--command`** is run verbatim (tokenized to argv — no shell) inside
-  `<tree>/<emitter-path>`. This is the emitter's *unmodified* regenerate command; the tool does
+  `<tree>/<emitter-path>`. This is the emitter's _unmodified_ regenerate command; the tool does
   not reach into it.
 - The `<emitter-path>/<generated-code-path>` subtree is snapshotted for each side and the
   two snapshots are diffed.
@@ -49,12 +49,12 @@ npx tsx eng/emitter-diff/src/cli.ts \
 
 ### Emitter config
 
-| Flag                             | Meaning                                                       |
-| -------------------------------- | ------------------------------------------------------------ |
-| `--emitter <name>`               | Built-in preset that fills in the three fields below.        |
-| `--command <cmd>`                | Regenerate command, run verbatim in `--emitter-path`.        |
-| `--emitter-path <path>`          | Package dir (relative to a tree root) to run the command in. |
-| `--generated-code-path <path>` | Generated-code dir (relative to `--emitter-path`) to diff. |
+| Flag                           | Meaning                                                      |
+| ------------------------------ | ------------------------------------------------------------ |
+| `--emitter <name>`             | Built-in preset that fills in the three fields below.        |
+| `--command <cmd>`              | Regenerate command, run verbatim in `--emitter-path`.        |
+| `--emitter-path <path>`        | Package dir (relative to a tree root) to run the command in. |
+| `--generated-code-path <path>` | Generated-code dir (relative to `--emitter-path`) to diff.   |
 
 A preset supplies all three; each flag still overrides the preset value. To onboard a new language,
 add a row to `EMITTER_DEFAULTS` in `src/registry.ts` — or just pass the three flags directly and
@@ -62,11 +62,11 @@ skip `--emitter`.
 
 ### Refs
 
-| Syntax                            | Meaning                                    |
-| --------------------------------- | ------------------------------------------ |
-| `local:/path` or `./path`         | a local source folder (run in place)       |
-| `github:owner/repo@<sha\|branch>` | a GitHub source at a ref                   |
-| `gh:<sha\|branch>`                | this repo (origin remote) at a ref         |
+| Syntax                            | Meaning                              |
+| --------------------------------- | ------------------------------------ |
+| `local:/path` or `./path`         | a local source folder (run in place) |
+| `github:owner/repo@<sha\|branch>` | a GitHub source at a ref             |
+| `gh:<sha\|branch>`                | this repo (origin remote) at a ref   |
 
 `--head` defaults to the **current working tree**. `--baseline` defaults to `gh:upstream/main` when
 present, otherwise `gh:origin/main` (`origin/HEAD` as a fallback).

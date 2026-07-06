@@ -24,7 +24,13 @@ import {
 } from "./baseline-cache.js";
 import { diffDirs, printSummary, writeHtml } from "./diff.js";
 import { getEmitterDefaults, listEmitters } from "./registry.js";
-import { classifyRef, defaultWorkDir, describeRef, materializeTree, resolveGithubIdentity } from "./resolver.js";
+import {
+  classifyRef,
+  defaultWorkDir,
+  describeRef,
+  materializeTree,
+  resolveGithubIdentity,
+} from "./resolver.js";
 import type { ClassifiedRef, EmitterConfig, Logger } from "./types.js";
 import { color, createLogger, ensureDir, run, runChecked } from "./util.js";
 
@@ -407,7 +413,14 @@ async function main(): Promise<number> {
     await runSide("Head", headTree, headSnap, headLabel, undefined, headSetup);
   } else if (values.sequential) {
     const baselineTreePath = await ensureBaselineTree();
-    await runSide("Baseline", baselineTreePath, baselineSnap, baselineLabel, undefined, baselineSetup);
+    await runSide(
+      "Baseline",
+      baselineTreePath,
+      baselineSnap,
+      baselineLabel,
+      undefined,
+      baselineSetup,
+    );
     await runSide("Head", headTree, headSnap, headLabel, undefined, headSetup);
   } else {
     const baselineTreePath = await ensureBaselineTree();
