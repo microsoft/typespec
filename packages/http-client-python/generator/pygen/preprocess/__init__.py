@@ -420,7 +420,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
             code_model["types"].append(body_parameter["type"])
 
-
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
         if not name:
