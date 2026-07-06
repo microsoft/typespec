@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     {
         private readonly Type? _type;
         private object? _literal;
-        private readonly Type? _underlyingType;
+        private Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
 
         private bool? _isReadOnlyMemory;
@@ -549,6 +549,37 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
                 : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType);
 
+            // Preserve explicit enum semantics for framework types (e.g. referenced extensible enums,
+            // which are structs and are not recognized as enums via reflection). The framework constructor
+            // recomputes the underlying type from reflection and would otherwise drop it.
+            if (!ReferenceEquals(type, this) && IsFrameworkType && _underlyingType is not null)
+            {
+                type._underlyingType = _underlyingType;
+            }
+
+            type._literal = _literal;
+            type._unionItemTypes = _unionItemTypes;
+
+            return type;
+        }
+
+        /// <summary>
+        /// Returns a framework-backed copy of this <see cref="CSharpType"/> that carries explicit enum
+        /// semantics. This is used for referenced (external) extensible enums, which are implemented as
+        /// value-type structs and therefore are not recognized as enums via reflection
+        /// (<see cref="Type.IsEnum"/> is <c>false</c>). Preserving the underlying enum type lets downstream
+        /// serialization treat the type as an enum (inline construction) instead of falling back to a model read.
+        /// </summary>
+        /// <param name="underlyingEnumType">The underlying value type of the enum (e.g. <see cref="string"/> or <see cref="int"/>).</param>
+        internal CSharpType WithUnderlyingEnumType(Type underlyingEnumType)
+        {
+            if (!IsFrameworkType)
+            {
+                throw new InvalidOperationException("WithUnderlyingEnumType is only valid for framework types.");
+            }
+
+            var type = new CSharpType(FrameworkType, Arguments, IsNullable);
+            type._underlyingType = underlyingEnumType;
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
 

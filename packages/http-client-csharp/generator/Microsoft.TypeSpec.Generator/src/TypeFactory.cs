@@ -74,7 +74,23 @@ namespace Microsoft.TypeSpec.Generator
             // Check if this type has external type information
             if (inputType.External != null)
             {
-                return CreateExternalType(inputType.External);
+                var externalType = CreateExternalType(inputType.External);
+
+                // A referenced extensible enum is implemented as a value-type struct, so the resolved
+                // framework type is not recognized as an enum via reflection and loses its enum semantics.
+                // Rebuild it preserving the underlying enum type so downstream serialization emits inline
+                // construction (e.g. new Kind(value)) instead of a broken ModelReaderWriter.Read<T> fallback.
+                if (externalType is { IsFrameworkType: true }
+                    && inputType is InputEnumType { IsExtensible: true } externalEnum)
+                {
+                    var underlyingType = CreateCSharpType(externalEnum.ValueType);
+                    if (underlyingType is { IsFrameworkType: true })
+                    {
+                        externalType = externalType.WithUnderlyingEnumType(underlyingType.FrameworkType);
+                    }
+                }
+
+                return externalType;
             }
 
             CSharpType? type;
