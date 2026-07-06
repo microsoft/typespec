@@ -85,6 +85,39 @@ AI is the orchestrator (looping, routing, merging) plus the verifier for the
 categories with no routine. One session = one invocation regardless of how many
 checks.
 
+### Runnable demo (three examples)
+
+`demo-checks.json` is a self-contained manifest with the three gist examples,
+checked against the real generated Python SDKs under `tests/generated/azure`:
+
+| id | category | how |
+| --- | --- | --- |
+| `Client_Naming_UnionEnum_name` | `naming` | deterministic (`identifier_casing_insensitive`) |
+| `Client_Location_deleteUser_on_Admin` | `client-location` | deterministic (`operation_client_membership`) |
+| `Client_Hierarchy_Dog_extends_Pet` | `hierarchy` | **AI by default** (no signature) → deterministic once promoted |
+
+Run the deterministic batch (naming + client-location pass; hierarchy lands in
+`needs_ai`):
+
+```bash
+python eng/scripts/client-criteria/verify.py --batch \
+  --checks eng/scripts/client-criteria/demo-checks.json \
+  --signatures eng/scripts/client-criteria/signatures.json \
+  --generated-root tests/generated --flavor azure --language python
+```
+
+Then show the objective/subjective boundary is set by `context.md`, not the
+scenario — rerun with `signatures.promoted.json`, which adds the one `hierarchy`
+entry, and the same hierarchy check flips from AI to a deterministic PASS with no
+change to the spec assertion:
+
+```bash
+python eng/scripts/client-criteria/verify.py --batch \
+  --checks eng/scripts/client-criteria/demo-checks.json \
+  --signatures eng/scripts/client-criteria/signatures.promoted.json \
+  --generated-root tests/generated --flavor azure --language python
+```
+
 ## Per-emitter files
 
 The one required per-emitter file is **context.md** — Emitter facts (language,
@@ -111,8 +144,9 @@ AI is the fallback, not the default. Work is pushed left through four layers:
    `(item id + hash of the relevant generated file + model version)`; scope a run
    to packages changed in the diff.
 
-In the worked example (`verify.py`), 5 of 6 items resolve deterministically;
-only the paging "returns a lazy iterator" item needs AI.
+In the runnable demo above, 2 of 3 items resolve deterministically and the
+`hierarchy` item routes to AI — until a language authors its `hierarchy`
+signature (see `signatures.promoted.json`), after which all 3 are deterministic.
 
 ## Onboarding a language
 

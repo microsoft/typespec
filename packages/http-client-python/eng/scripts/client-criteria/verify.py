@@ -63,10 +63,60 @@ def identifier_casing_insensitive(pkg: Path, expected: str):
             f"'{expected}' {'matched (modulo casing)' if ok else 'not matched'}")
 
 
+def _classes_with_methods(pkg: Path) -> dict[str, set[str]]:
+    """Map each generated operation-group class to its public method names."""
+    out: dict[str, set[str]] = {}
+    for p in pkg.rglob("operations/_operations.py"):
+        current = None
+        for line in p.read_text(errors="replace").splitlines():
+            cm = re.match(r"class (\w+)", line)
+            if cm:
+                current = cm.group(1)
+                out.setdefault(current, set())
+                continue
+            dm = re.match(r"    (?:async )?def (\w+)", line)
+            if dm and current and not dm.group(1).startswith("_"):
+                out[current].add(dm.group(1))
+    return out
+
+
+def operation_client_membership(pkg: Path, target: str, expected_client: str, absent_from: str | None):
+    """Assert an operation is surfaced on expected_client and gone from absent_from."""
+    classes = _classes_with_methods(pkg)
+    method = norm(target)
+
+    def has(client: str) -> bool:
+        return any(norm(client) in norm(cls) and any(norm(m) == method for m in methods)
+                   for cls, methods in classes.items())
+
+    on_expected = has(expected_client)
+    on_absent = has(absent_from) if absent_from else False
+    ok = on_expected and not on_absent
+    return ("pass" if ok else "fail",
+            f"'{target}' {'on' if on_expected else 'missing from'} {expected_client}"
+            + (f", {'still on' if on_absent else 'absent from'} {absent_from}" if absent_from else ""))
+
+
+def class_base_subtype(pkg: Path, target: str, expected_base: str):
+    """Assert the generated class `target` lists `expected_base` among its bases."""
+    for p in pkg.rglob("models/_models.py"):
+        m = re.search(rf"class\s+{re.escape(target)}\s*\(([^)]*)\)", p.read_text(errors="replace"))
+        if m:
+            bases = m.group(1)
+            ok = re.search(rf"\b{re.escape(expected_base)}\b", bases) is not None
+            return ("pass" if ok else "fail",
+                    f"{target}({bases.strip()}) — {'subtype of' if ok else 'not a subtype of'} {expected_base}")
+    return "fail", f"class {target} not found"
+
+
 def run_routine(check: str, pkg: Path, item: dict, sig: dict, language: str):
     if check == "export_visibility":
         internal = "internal" in (item.get("verify", "") + item.get("access", "")).lower() or item.get("internal", False)
         return export_visibility(pkg, item["target"], internal, sig.get("public_init", "models/__init__.py"))
+    if check == "operation_client_membership":
+        return operation_client_membership(pkg, item["target"], item.get("expected_client"), item.get("absent_from"))
+    if check == "class_base_subtype":
+        return class_base_subtype(pkg, item["target"], item.get("expected_base"))
     expected = (item.get("client_names", {}) or {}).get(language) or item.get("expected")
     if expected is None:
         return "na", f"no expected value for language '{language}'"

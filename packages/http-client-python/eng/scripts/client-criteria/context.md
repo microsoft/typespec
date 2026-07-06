@@ -44,6 +44,21 @@ signatures so the deterministic runner can decide **without calling AI** — see
 ### flatten (`@flattenProperty`)
 - the nested model's fields appear directly as attributes on the parent class.
 
+### client-location (`@clientLocation`)
+- an operation group is a class under `operations/_operations.py`; a method is a
+  public `def` on it; the **root client** is the main `*Client` class. An
+  operation is "on" a client/group when its snake_case name is a method of the
+  matching class. Deterministic: assert the method is present on the
+  **expected** client/group and absent from the one it moved from.
+
+### hierarchy (`@hierarchyBuilding`) — *AI by default, promotable*
+- a client subtype is expressed as the base in `class <Sub>(<Base>, …)` in
+  `models/_models.py`; inherited members are attributes present on the subclass.
+- **Not** in `signatures.json` by default, so the orchestrator verifies it with
+  AI. Add the `hierarchy` entry (see `signatures.promoted.json`) to run it
+  deterministically via `class_base_subtype` instead — the spec assertion is
+  unchanged either way.
+
 > When an assertion has no concrete signature here (and none in signatures.json),
 > `/check-client-surface` may fall back to judgment — but add a signature when
 > you can, to keep AI calls rare.

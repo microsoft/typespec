@@ -1,0 +1,19 @@
+{
+  "_comment": "Same as signatures.json but with the 'hierarchy' category promoted to a deterministic routine. Run the demo with --signatures signatures.promoted.json to see the hierarchy check flip from AI to deterministic (PASS) without touching the spec assertion.",
+  "access": {
+    "check": "export_visibility",
+    "public_init": "models/__init__.py"
+  },
+  "exactName": {
+    "check": "identifier_exact"
+  },
+  "naming": {
+    "check": "identifier_casing_insensitive"
+  },
+  "client-location": {
+    "check": "operation_client_membership"
+  },
+  "hierarchy": {
+    "check": "class_base_subtype"
+  }
+}
