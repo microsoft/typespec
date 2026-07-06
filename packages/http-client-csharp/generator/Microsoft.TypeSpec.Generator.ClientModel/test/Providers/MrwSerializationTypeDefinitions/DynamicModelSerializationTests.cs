@@ -623,12 +623,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        // Regression test for https://github.com/microsoft/typespec/issues/11173:
-        // a required, non-nullable, root-level collection whose path is set via the Patch surface
-        // must be written exactly once. The serializer should write it through the consuming
-        // Patch.WriteTo(writer, "$.<prop>") overload (which marks the entry ModelOwned) instead of
-        // WriteRawValue(Patch.GetJson(...)) (a pure read that leaves the trailing Patch.WriteTo(writer)
-        // to emit the same key a second time).
+        // Regression test for required root-level collection patch serialization:
+        // write the patched collection through Patch.WriteTo(writer, "$.<prop>") so it is emitted once.
         [Test]
         public void WriteRequiredCollectionDoesNotDuplicatePatchedKey()
         {
@@ -654,9 +650,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var content = writer.Write().Content;
 
-            // The required collection must be written through the consuming Patch.WriteTo overload,
-            // which marks the entry ModelOwned so the trailing Patch.WriteTo(writer) does not repeat it.
-            StringAssert.Contains("Patch.WriteTo(writer, \"$.tools\"u8);", content);
+            StringAssert.Contains(Helpers.GetExpectedFromFile(), content);
             StringAssert.DoesNotContain("writer.WriteRawValue(Patch.GetJson(\"$.tools\"u8));", content);
         }
 
