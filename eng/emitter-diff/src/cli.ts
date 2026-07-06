@@ -24,7 +24,7 @@ import {
 } from "./baseline-cache.js";
 import { diffDirs, printSummary, writeHtml } from "./diff.js";
 import { getEmitterDefaults, listEmitters } from "./registry.js";
-import { classifyRef, defaultWorkDir, describeRef, materializeTree } from "./resolver.js";
+import { classifyRef, defaultWorkDir, describeRef, materializeTree, resolveGithubIdentity } from "./resolver.js";
 import type { ClassifiedRef, EmitterConfig, Logger } from "./types.js";
 import { color, createLogger, ensureDir, run, runChecked } from "./util.js";
 
@@ -74,10 +74,14 @@ ${color.bold("Options:")}
                           otherwise gh:origin/main.
   --head <ref>            New source tree. Default: the current working tree.
   --work-dir <dir>        Scratch dir for snapshots. Default: a fresh temp dir.
+  --sequential            Regenerate baseline then head one after another instead
+                          of in parallel (avoids CPU oversubscription / races).
   --ci                    CI mode: disable local baseline cache.
   --html <file>           Write the rendered HTML diff (default: <work>/emitter-diff.html).
   --fail-on-diff          Exit non-zero when output differs (2 = diff, 1 = error).
-  -- <args>               Everything after -- is appended to <command> verbatim.
+  -- <args>               Everything after -- is appended to <command> verbatim
+                          on both sides (e.g. a regenerate --name/--filter flag to
+                          diff only a subset of tests).
   -h, --help              Show this help.
 `;
 
@@ -152,8 +156,7 @@ function resolveConfig(
 
   const command = values.command ?? preset.command;
   const emitterPath = values["emitter-path"] ?? preset.emitterPath;
-  const generatedCodePath =
-    values["generated-code-path"] ?? preset.generatedCodePath;
+  const generatedCodePath = values["generated-code-path"] ?? preset.generatedCodePath;
 
   const missing: string[] = [];
   if (!command) missing.push("--command");
@@ -179,7 +182,12 @@ function resolveConfig(
     setup = preset.setup ?? [];
   }
 
-  return { command: command!, emitterPath: emitterPath!, generatedCodePath: generatedCodePath!, setup };
+  return {
+    command: command!,
+    emitterPath: emitterPath!,
+    generatedCodePath: generatedCodePath!,
+    setup,
+  };
 }
 
 async function main(): Promise<number> {
@@ -202,6 +210,7 @@ async function main(): Promise<number> {
       baseline: { type: "string" },
       head: { type: "string" },
       "work-dir": { type: "string" },
+      sequential: { type: "boolean" },
       ci: { type: "boolean" },
       html: { type: "string" },
       "fail-on-diff": { type: "boolean" },
@@ -242,14 +251,24 @@ async function main(): Promise<number> {
     ? classifyRef(values.head, repoRoot)
     : "current";
 
-  log.step("Resolving baseline source tree");
-  const baselineTree = await materializeTree(baselineRef, workDir, log, repoRoot);
+  // Baseline source tree is materialized lazily: a cheap SHA resolve up front
+  // lets a baseline-output cache hit skip the expensive worktree checkout +
+  // regenerate. Only a cache miss (or a non-github ref) pays for materializing.
+  let baselineTree: string | undefined;
   const baselineLabel = describeRef(baselineRef, config.emitterPath);
+  const ensureBaselineTree = async (): Promise<string> => {
+    if (baselineTree === undefined) {
+      log.step("Resolving baseline source tree");
+      baselineTree = await materializeTree(baselineRef, workDir, log, repoRoot);
+    }
+    return baselineTree;
+  };
 
   log.step("Resolving head source tree");
   const headTree =
     headRef === "current" ? repoRoot : await materializeTree(headRef, workDir, log, repoRoot);
-  const headLabel = headRef === "current" ? "current working tree" : describeRef(headRef, config.emitterPath);
+  const headLabel =
+    headRef === "current" ? "current working tree" : describeRef(headRef, config.emitterPath);
 
   const baselineSnap = ensureDir(join(workDir, "baseline"));
   const headSnap = ensureDir(join(workDir, "head"));
@@ -321,10 +340,15 @@ async function main(): Promise<number> {
   const useBaselineCache = cacheDecision.enabled;
   if (!useBaselineCache) {
     log.info(
-      color.dim(`baseline cache disabled${cacheDecision.reason ? ` (${cacheDecision.reason})` : ""}`),
+      color.dim(
+        `baseline cache disabled${cacheDecision.reason ? ` (${cacheDecision.reason})` : ""}`,
+      ),
     );
   }
-  const baselineIdentity = await detectBaselineIdentity(baselineTree);
+  const baselineIdentity =
+    baselineRef.kind === "github"
+      ? await resolveGithubIdentity(baselineRef, repoRoot, log)
+      : await detectBaselineIdentity(await ensureBaselineTree());
   const baselineProfileKey = computeBaselineProfileKey({
     emitter: values.emitter,
     baselineRef: baselineRefValue,
@@ -381,9 +405,21 @@ async function main(): Promise<number> {
 
   if (baselineReused) {
     await runSide("Head", headTree, headSnap, headLabel, undefined, headSetup);
+  } else if (values.sequential) {
+    const baselineTreePath = await ensureBaselineTree();
+    await runSide("Baseline", baselineTreePath, baselineSnap, baselineLabel, undefined, baselineSetup);
+    await runSide("Head", headTree, headSnap, headLabel, undefined, headSetup);
   } else {
+    const baselineTreePath = await ensureBaselineTree();
     await Promise.all([
-      runSide("Baseline", baselineTree, baselineSnap, baselineLabel, color.dim("[baseline] "), baselineSetup),
+      runSide(
+        "Baseline",
+        baselineTreePath,
+        baselineSnap,
+        baselineLabel,
+        color.dim("[baseline] "),
+        baselineSetup,
+      ),
       runSide("Head", headTree, headSnap, headLabel, color.cyan("[head] "), headSetup),
     ]);
   }
@@ -398,7 +434,11 @@ async function main(): Promise<number> {
       }
       rmSync(baselineCache.dir, { recursive: true, force: true });
       cpSync(baselineSnap, baselineCache.dir, { recursive: true, force: true });
-      writeFileSync(baselineCache.marker, `${new Date().toISOString()} ${baselineIdentity}\n`, "utf8");
+      writeFileSync(
+        baselineCache.marker,
+        `${new Date().toISOString()} ${baselineIdentity}\n`,
+        "utf8",
+      );
       const index = readBaselineCacheIndex();
       index[baselineProfileKey] = { baselineIdentity, updatedAt: new Date().toISOString() };
       writeBaselineCacheIndex(index);
@@ -408,6 +448,8 @@ async function main(): Promise<number> {
   }
 
   // Diff.
+  log.info(`${color.dim("Baseline Generated Output:")} ${baselineSnap}`);
+  log.info(`${color.dim("Head Generated Output:")} ${headSnap}`);
   const diff = await diffDirs(baselineSnap, headSnap, log);
 
   const htmlTarget = values.html ?? join(workDir, "emitter-diff.html");

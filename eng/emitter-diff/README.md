@@ -98,11 +98,37 @@ prints a `file://` link to it.
 - `--baseline <ref>` / `--head <ref>`: the two source trees to compare.
 - `--setup <cmd>` (repeatable) / `--no-setup`: prep commands for freshly fetched GitHub trees.
 - `--work-dir <dir>`: scratch dir for snapshots (default: a fresh temp dir).
+- `--sequential`: regenerate baseline then head one after another instead of in parallel. Useful on
+  a single machine where running both at once oversubscribes the CPU (each regenerate already fans
+  out across cores) or trips generator races.
 - `--ci`: disable the local baseline-output cache (intended for CI).
 - `--html <file>`: write the rendered HTML report to this path.
 - `--fail-on-diff`: exit non-zero when output differs (exit `2` = diff present, `1` = hard error).
-- `-- <args>`: everything after `--` is appended to `--command` verbatim (e.g. to pass a name
-  filter through to the regenerate script).
+- `-- <args>`: everything after `--` is appended to `--command` verbatim on **both** sides, so the
+  diff stays apples-to-apples. Use it to regenerate only a subset of tests by forwarding the
+  regenerate script's own filter flags.
+
+### Regenerating a subset of tests
+
+The tool doesn't define its own test-filter flags — it forwards `-- <args>` to each emitter's
+regenerate command, which owns the filtering. For the **Python** emitter (`regenerate.ts`):
+
+- `-n, --name <pattern>`: case-insensitive substring match on package name.
+- `-f, --flavor <azure|unbranded>`: limit to one flavor.
+- `-j, --jobs <n>`: parallel job count.
+
+```sh
+# Only the authentication packages, azure flavor
+npx tsx ../../eng/emitter-diff/src/cli.ts --emitter python -- --name authentication --flavor azure
+
+# Via the package script (first `--` is npm's, second is emitter-diff's passthrough separator)
+npm run diff-spector-tests -- -- --name type/array
+```
+
+`--name` filters the spec set already bundled in the package's `node_modules`
+(`@azure-tools/azure-http-specs` + `@typespec/http-specs`); it does not point the test set at an
+arbitrary folder or ref. Other emitters expose their own filter flags — pass whatever their
+regenerate command accepts.
 
 ## CI integration
 

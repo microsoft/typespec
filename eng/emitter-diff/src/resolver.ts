@@ -264,6 +264,30 @@ async function fetchAndResolveCommit(cacheRepo: string, gitRef: string): Promise
   return sha;
 }
 
+/**
+ * Resolve a github ref to its immutable identity (`git:<sha>`) WITHOUT
+ * materializing a worktree. This is a shallow fetch only, so a caller can
+ * validate a commit-keyed output cache and skip the expensive checkout +
+ * regenerate entirely on a hit. The returned format matches the `git:<sha>`
+ * identity `detectBaselineIdentity` computes from a checked-out tree.
+ */
+export async function resolveGithubIdentity(
+  ref: ClassifiedRef,
+  repoRoot: string | undefined,
+  log: Logger,
+): Promise<string> {
+  if (ref.kind !== "github") {
+    throw new Error(`resolveGithubIdentity requires a github ref, got '${ref.kind}'.`);
+  }
+  const repo = ref.repo ?? (await detectOriginRepo(repoRoot, log));
+  const gitRef = ref.gitRef ?? "main";
+  assertSafeRepo(repo);
+  assertSafeGitRef(gitRef);
+  const cacheRepo = await ensureCacheRepo(repo, log);
+  const sha = await fetchAndResolveCommit(cacheRepo, gitRef);
+  return `git:${sha}`;
+}
+
 function sanitize(s: string): string {
   return s.replace(/[^a-z0-9._-]/gi, "-").slice(0, 40);
 }
