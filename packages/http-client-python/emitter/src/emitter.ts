@@ -1,6 +1,5 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import jsyaml from "js-yaml";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -9,6 +8,7 @@ import {
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
+import { dumpCodeModelToYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
@@ -238,7 +238,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     pyodide.FS.mkdirTree("/yaml");
     pyodide.FS.mkdirTree("/output");
     clearMemfsDirectory(pyodide, "/output");
-    pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
+    pyodide.FS.writeFile(yamlFilePath, dumpCodeModelToYaml(parsedYamlMap));
 
     await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
     await copyPyodideOutputToHost(context, pyodide, "/output");
