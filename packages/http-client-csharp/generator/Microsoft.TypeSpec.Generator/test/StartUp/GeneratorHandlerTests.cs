@@ -253,6 +253,38 @@ namespace TestPlugin
         }
 
         [Test]
+        public void BuildPlugin_ReusesExistingArtifactWhenBuildFails()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Create an invalid .csproj so the build fails. GetAssemblyName falls back to the
+                // project file name ("Bad"), so an existing "Bad.dll" simulates an artifact that was
+                // already produced by a parallel build for another project in the solution.
+                File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
+                var existingDll = Path.Combine(testDir, "Bad.dll");
+                File.Copy(typeof(GeneratorHandlerTests).Assembly.Location, existingDll);
+
+                using var emitter = new Emitter(Stream.Null);
+
+                // Even though the build fails, the existing artifact should be reused rather than
+                // aborting generation.
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Bad.csproj"),
+                    testDir,
+                    emitter);
+
+                Assert.AreEqual(existingDll, result);
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
         public void BuildPluginIfNeeded_ReturnsNullWhenNoCsproj()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
