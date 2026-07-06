@@ -5,7 +5,7 @@
 import { spawn, type SpawnOptions } from "node:child_process";
 import { mkdirSync } from "node:fs";
 
-import type { Logger } from "./types.ts";
+import type { Logger } from "./types.js";
 
 // ---- Minimal ANSI colors (no picocolors dependency) ----
 

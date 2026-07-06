@@ -3,7 +3,7 @@ import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 
-import { ensureDir, run } from "./util.ts";
+import { ensureDir, run } from "./util.js";
 
 export interface BaselineCacheProfileInput {
   emitter: string;

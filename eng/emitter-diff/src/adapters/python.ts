@@ -16,15 +16,15 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 
-import { describeRef } from "../resolver.ts";
+import { describeRef } from "../resolver.js";
 import type {
   AdapterContext,
   ClassifiedRef,
   EmitterAdapter,
   GenerateRequest,
   ResolvedEmitter,
-} from "../types.ts";
-import { run, runChecked } from "../util.ts";
+} from "../types.js";
+import { run, runChecked } from "../util.js";
 
 const PACKAGE_NAME = "@typespec/http-client-python";
 const PKG_REL = "packages/http-client-python";

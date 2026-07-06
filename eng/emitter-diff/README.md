@@ -28,12 +28,13 @@ contains no language-specific logic.
 ## Usage
 
 ```bash
-# Run directly with Node 24+ (native TypeScript, no build step, no dependencies):
-node eng/emitter-diff/src/cli.ts --emitter python
+# Run with tsx (no build step):
+npx tsx eng/emitter-diff/src/cli.ts --emitter python
 ```
 
-> This tool is a set of plain `.ts` scripts — not an installed package. Node 24 runs TypeScript
-> natively, so there is nothing to build or install. Typecheck with `npx tsc -p eng/emitter-diff`.
+> This tool is a set of plain `.ts` scripts — not an installed package. It runs through `tsx`
+> (a repo dev dependency), matching the rest of `eng/`, so there is nothing to build. Typecheck
+> with `npx tsc -p eng/emitter-diff`.
 
 ### Refs
 
@@ -65,18 +66,18 @@ prints a `file://` link to it. Use `--html` to write to a specific file.
 
 ```bash
 # Explicit baseline version:
-node eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 --name authentication-api-key
+npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline 0.34.0 --name authentication-api-key
 
 # Compare two source folders and write an HTML report to a specific path:
-node eng/emitter-diff/src/cli.ts --emitter python --baseline local:/path/to/old/http-client-python \
+npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline local:/path/to/old/http-client-python \
   --head local:/path/to/new/http-client-python \
   --html diff.html
 
 # Place generated output under a custom subpath for each side (`<side>/generator/tests/generated/...`):
-node eng/emitter-diff/src/cli.ts --emitter python --generated-code-path generator
+npx tsx eng/emitter-diff/src/cli.ts --emitter python --generated-code-path generator
 
 # Diff against a GitHub sha:
-node eng/emitter-diff/src/cli.ts --emitter python \
+npx tsx eng/emitter-diff/src/cli.ts --emitter python \
   --baseline github:microsoft/typespec@<sha>
 ```
 

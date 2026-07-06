@@ -1,4 +1,4 @@
-#!/usr/bin/env -S node
+#!/usr/bin/env -S npx tsx
 /**
  * emitter-diff — language-agnostic CLI.
  *
@@ -18,17 +18,17 @@ import {
   readBaselineCacheIndex,
   writeBaselineCacheIndex,
   type BaselineCacheIndex,
-} from "./baseline-cache.ts";
-import { diffDirs, printSummary, writeHtml } from "./diff.ts";
-import { getAdapter, listAdapters } from "./registry.ts";
+} from "./baseline-cache.js";
+import { diffDirs, printSummary, writeHtml } from "./diff.js";
+import { getAdapter, listAdapters } from "./registry.js";
 import {
   classifyRef,
   defaultWorkDir,
   installNpmPackage as installNpm,
   resolveSource as resolveSrc,
-} from "./resolver.ts";
-import type { AdapterContext, ClassifiedRef } from "./types.ts";
-import { color, createLogger, ensureDir, run, runChecked } from "./util.ts";
+} from "./resolver.js";
+import type { AdapterContext, ClassifiedRef } from "./types.js";
+import { color, createLogger, ensureDir, run, runChecked } from "./util.js";
 
 function shouldUseBaselineCache(ciMode: boolean): { enabled: boolean; reason?: string } {
   if (ciMode) {
