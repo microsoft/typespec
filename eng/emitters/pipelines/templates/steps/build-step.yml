@@ -59,6 +59,8 @@ steps:
 
   - checkout: self
 
+  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
   - task: NodeTool@0
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
