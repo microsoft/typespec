@@ -1,7 +1,6 @@
 import {
   isArrayModelType,
   navigateTypesInNamespace,
-  type Model,
   type Namespace,
   type Operation,
   type Program,

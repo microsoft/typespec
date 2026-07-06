@@ -1,4 +1,4 @@
-import { isArrayModelType, type Model, type Namespace, type Operation, type Program, type Type } from "@typespec/compiler";
+import { isArrayModelType, type Namespace, type Program, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 
 /**

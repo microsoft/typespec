@@ -139,7 +139,6 @@ export function mutateSchema(
       }
 
       if (usedAsInput) {
-        const usedByQuery = usage?.has(GraphQLTypeUsage.InputQuery) ?? false;
         const usedByMutation = usage?.has(GraphQLTypeUsage.InputMutation) ?? false;
         const filter = usedByMutation ? filters.mutation : filters.query;
         const opKind = usedByMutation ? "mutation" : "query";

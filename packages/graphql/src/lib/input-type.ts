@@ -1,4 +1,4 @@
-import type { DecoratorContext, DecoratorFunction, Model, Type } from "@typespec/compiler";
+import type { DecoratorContext, DecoratorFunction, Model } from "@typespec/compiler";
 
 export const $inputType: DecoratorFunction = (
   _context: DecoratorContext,

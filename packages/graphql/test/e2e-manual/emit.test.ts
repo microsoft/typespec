@@ -24,7 +24,9 @@ async function emitSchema(name: string, code: string) {
     );
   }
 
+  // eslint-disable-next-line no-console
   console.log(`${name}.graphql: ${sdl.split("\n").length} lines | ${errors.length} errors, ${warnings.length} warnings`);
+  // eslint-disable-next-line no-console
   if (errors.length) console.log("  ERRORS:", errors.map((d) => d.message).join("; "));
   return { sdl, diagnostics, errors, warnings };
 }
@@ -353,7 +355,7 @@ describe("schema: record types", () => {
 // =============================================================================
 describe("schema: union as input", () => {
   it("emits @oneOf input for union in mutation param", async () => {
-    const { sdl, errors } = await emitSchema("05-union-input", `
+    const { sdl } = await emitSchema("05-union-input", `
       @schema(#{ name: "union-input" })
       namespace UnionInput {
         model Cat { name: string; indoor: boolean; }
@@ -501,7 +503,9 @@ describe("schema: edge case - nested visibility-filtered empty model", () => {
     // This is a known edge case from code review Finding 2.
     // Inner as input has 0 properties after visibility filtering.
     // Expected: either omit 'inner' from OuterInput, or handle gracefully.
+    // eslint-disable-next-line no-console
     console.log("  [Finding 2] SDL:", sdl?.substring(0, 500));
+    // eslint-disable-next-line no-console
     console.log("  [Finding 2] Errors:", errors.map((d) => d.message));
     // Don't assert pass/fail — just document current behavior
     expect(sdl !== undefined || errors.length > 0).toBe(true);
