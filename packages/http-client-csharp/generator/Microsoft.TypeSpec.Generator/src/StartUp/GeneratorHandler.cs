@@ -229,36 +229,34 @@ namespace Microsoft.TypeSpec.Generator
             var stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            if (process.ExitCode != 0)
+            var buildSucceeded = process.ExitCode == 0;
+            if (!buildSucceeded)
             {
-                // The build may fail when the same plugin is being built in parallel for
-                // multiple referenced projects within a single solution folder. If a previously
-                // built assembly already exists, reuse it instead of aborting generation.
-                var existingDll = FindPluginAssembly(csprojPath, scanDirectory);
-                if (existingDll != null)
-                {
-                    emitter.Info(
-                        $"Plugin build for '{csprojPath}' failed with exit code {process.ExitCode}; using existing artifact (not re-built): {existingDll}");
-                    return existingDll;
-                }
-
                 // Log an error instead of throwing so that a failed plugin build does not abort
-                // the entire generation.
+                // the entire generation. The build may fail when the same plugin is being built
+                // in parallel for multiple referenced projects within a single solution folder,
+                // in which case a previously built assembly may already exist and can still be
+                // reused below.
                 emitter.ReportDiagnostic(
                     DiagnosticCodes.PluginBuildFailed,
                     $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stdout}\n{stderr}",
                     severity: EmitterDiagnosticSeverity.Error);
-                return null;
             }
 
             var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
             if (dllPath != null)
             {
-                emitter.Info($"Plugin built: {dllPath}");
+                emitter.Info(buildSucceeded
+                    ? $"Plugin built: {dllPath}"
+                    : $"Using existing plugin artifact (not re-built): {dllPath}");
                 return dllPath;
             }
 
-            emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            if (buildSucceeded)
+            {
+                emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            }
+
             return null;
         }
 
