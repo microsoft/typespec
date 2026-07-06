@@ -614,6 +614,11 @@ namespace Microsoft.TypeSpec.Generator
                 var updatedSolution = solution;
                 foreach (var documentId in project.DocumentIds)
                 {
+                    if (IsModelFactoryDocument(project.GetDocument(documentId)))
+                    {
+                        continue;
+                    }
+
                     updatedSolution = await RemoveInvalidUsings(updatedSolution, documentId);
                 }
 
@@ -646,6 +651,11 @@ namespace Microsoft.TypeSpec.Generator
 
             return solution.GetProject(project.Id)!;
         }
+
+        private bool IsModelFactoryDocument(Document? document)
+            => document != null &&
+                _modelFactoryFullName != null &&
+                document.Name.EndsWith("ModelFactory.cs", StringComparison.Ordinal);
 
         private async Task<Solution> RemoveInvalidUsings(Solution solution, DocumentId documentId)
         {

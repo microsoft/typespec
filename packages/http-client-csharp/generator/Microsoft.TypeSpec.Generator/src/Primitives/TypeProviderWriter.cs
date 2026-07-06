@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -30,11 +33,57 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteType(writer);
             }
 
+            PreserveExistingModelFactoryUsings(writer);
+
             foreach (var suppression in _provider.DisabledFileWarnings)
             {
                 suppression.RestoreStatement.Write(writer);
             }
             return new CodeFile(writer.ToString(), _provider.RelativeFilePath);
+        }
+
+        private void PreserveExistingModelFactoryUsings(CodeWriter writer)
+        {
+            if (_provider is not ModelFactoryProvider)
+            {
+                return;
+            }
+
+            var existingFilePath = Path.Combine(CodeModelGenerator.Instance.Configuration.OutputDirectory, _provider.RelativeFilePath);
+            if (!File.Exists(existingFilePath))
+            {
+                return;
+            }
+
+            foreach (var @namespace in ReadTopLevelUsingNamespaces(existingFilePath))
+            {
+                writer.UseNamespace(@namespace);
+            }
+        }
+
+        private static IEnumerable<string> ReadTopLevelUsingNamespaces(string filePath)
+        {
+            foreach (var line in File.ReadLines(filePath))
+            {
+                var trimmedLine = line.Trim();
+                if (trimmedLine.Length == 0 ||
+                    trimmedLine.StartsWith("//", StringComparison.Ordinal) ||
+                    trimmedLine.StartsWith("#", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (trimmedLine.StartsWith("using ", StringComparison.Ordinal) &&
+                    trimmedLine.EndsWith(";", StringComparison.Ordinal) &&
+                    !trimmedLine.StartsWith("using static ", StringComparison.Ordinal) &&
+                    !trimmedLine.Contains('='))
+                {
+                    yield return trimmedLine.Substring("using ".Length, trimmedLine.Length - "using ".Length - 1);
+                    continue;
+                }
+
+                break;
+            }
         }
 
         private bool IsPublicContext(TypeProvider provider)
@@ -45,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
-            if (_provider.PreserveTypeXmlDocs || IsPublicContext(_provider))
+            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
@@ -207,6 +256,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteMethods(CodeWriter writer)
         {
+            if (_provider is ModelFactoryProvider { PreserveLeadingMethodSeparator: true } && _provider.Methods.Count > 0)
+            {
+                writer.WriteLine();
+            }
+
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
                 writer.WriteMethod(_provider.Methods[i]);

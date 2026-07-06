@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
@@ -51,6 +52,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ProcessHeadAsBoolMessage()
             ];
         }
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+            => [ErrorResultSnippets.ErrorResultType];
 
         private MethodProvider ProcessHeadAsBoolMessage()
         {

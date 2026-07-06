@@ -455,43 +455,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     dependencies.Add(method.CollectionDefinition.Type);
                 }
 
-                if (method.ServiceMethod == null)
-                {
-                    continue;
-                }
-
-                AddInputTypeDependency(dependencies, method.ServiceMethod.Response.Type);
-                AddInputTypeDependency(dependencies, method.ServiceMethod.Exception?.Type);
-                foreach (var parameter in method.ServiceMethod.Parameters)
-                {
-                    AddInputTypeDependency(dependencies, parameter.Type);
-                }
-
-                foreach (var parameter in method.ServiceMethod.Operation.Parameters)
-                {
-                    AddInputTypeDependency(dependencies, parameter.Type);
-                }
-
-                foreach (var response in method.ServiceMethod.Operation.Responses)
-                {
-                    AddInputTypeDependency(dependencies, response.BodyType);
-                    foreach (var header in response.Headers)
-                    {
-                        AddInputTypeDependency(dependencies, header.Type);
-                    }
-                }
+                // Service method metadata can mention wire-only request/response models that are not
+                // emitted in the generated method signature or body. The graph builder and structured
+                // body scanner capture the generated types that are actually referenced.
             }
 
             return dependencies;
-        }
-
-        private static void AddInputTypeDependency(List<CSharpType> dependencies, InputType? inputType)
-        {
-            var type = inputType == null ? null : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
-            if (type != null)
-            {
-                dependencies.Add(type);
-            }
         }
 
         protected override FieldProvider[] BuildFields()

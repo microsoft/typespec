@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public ApiCompatBaseline ApiCompatBaseline { get; }
 
         private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
+        private readonly Lazy<IReadOnlyList<TypeProvider>> _customizationTypeProviders;
 
         public SourceInputModel(Compilation? customization, Compilation? lastContract)
             : this(customization, lastContract, ApiCompatBaseline.Empty)
@@ -35,6 +36,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             ApiCompatBaseline = apiCompatBaseline ?? ApiCompatBaseline.Empty;
 
             _nameMap = new(PopulateNameMap);
+            _customizationTypeProviders = new(PopulateCustomizationTypeProviders);
         }
 
         private IReadOnlyDictionary<string, INamedTypeSymbol> PopulateNameMap()
@@ -70,11 +72,17 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
-        internal IEnumerable<TypeProvider> GetCustomizationTypeProviders()
+        internal TypeProvider? FindForTypeInLastContractIncludingInternal(string ns, string name, string? declaringTypeName = null)
         {
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName);
+        }
+
+        private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()
+        {
+            var providers = new List<TypeProvider>();
             if (Customization == null)
             {
-                yield break;
+                return providers;
             }
 
             foreach (IModuleSymbol module in Customization.Assembly.Modules)
@@ -83,11 +91,15 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 {
                     if (type is INamedTypeSymbol namedTypeSymbol)
                     {
-                        yield return new NamedTypeSymbolProvider(namedTypeSymbol, Customization);
+                        providers.Add(new NamedTypeSymbolProvider(namedTypeSymbol, Customization));
                     }
                 }
             }
+
+            return providers;
         }
+
+        internal IReadOnlyList<TypeProvider> GetCustomizationTypeProviders() => _customizationTypeProviders.Value;
 
         private TypeProvider? FindTypeInCompilation(
             Compilation? compilation,

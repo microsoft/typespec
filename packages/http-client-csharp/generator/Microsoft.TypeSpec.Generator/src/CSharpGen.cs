@@ -130,6 +130,11 @@ namespace Microsoft.TypeSpec.Generator
             {
                 foreach (var outputType in output.TypeProviders)
                 {
+                    if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && !ProviderReferenceMapAnalyzer.ShouldWriteProvider(outputType))
+                    {
+                        continue;
+                    }
+
                     if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
                     {
                         continue;
@@ -140,6 +145,11 @@ namespace Microsoft.TypeSpec.Generator
 
                     foreach (var serialization in outputType.SerializationProviders)
                     {
+                        if (ProviderReferenceMapShadowAnalyzer.UseShadowMap && !ProviderReferenceMapAnalyzer.ShouldWriteProvider(serialization))
+                        {
+                            continue;
+                        }
+
                         writer = CodeModelGenerator.Instance.GetWriter(serialization);
                         generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
                     }
@@ -326,9 +336,10 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
+            var fileNamesToKeep = filesToKeep.ToHashSet(StringComparer.Ordinal);
             foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
             {
-                if (!filesToKeep.Contains(file.Name))
+                if (!ShouldKeepGeneratedFile(file, fileNamesToKeep))
                 {
                     file.Delete();
                 }
@@ -352,5 +363,10 @@ namespace Microsoft.TypeSpec.Generator
                 directoryInfo.Delete();
             }
         }
+
+        private static bool ShouldKeepGeneratedFile(FileInfo file, HashSet<string> fileNamesToKeep)
+            => fileNamesToKeep.Contains(file.Name) ||
+                file.Extension.Equals(".cs", StringComparison.Ordinal) &&
+                file.Name.EndsWith("Extensions.cs", StringComparison.Ordinal);
     }
 }
