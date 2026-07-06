@@ -1,8 +1,5 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "allowImportingTsExtensions": true
-  },
   "include": ["eng"],
   "exclude": ["eng/vitest.config.ts"]
 }
