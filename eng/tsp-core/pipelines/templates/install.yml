@@ -24,8 +24,10 @@ steps:
         inputs:
           version: 8.0.x
 
-  - script: npm install -g pnpm # Pnpm manage-package-manager-versions will respect packageManager field
-    displayName: Install pnpm
+  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
+  - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
+
   - script: pnpm config set store-dir ${{ parameters.pnpmStorePath }}
     displayName: Setup pnpm cache dir
 
