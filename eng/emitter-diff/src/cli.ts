@@ -149,8 +149,7 @@ function buildRegenerateArgs(commandArgv: string[], passthrough: string[]): stri
   if (passthrough.length === 0) return base;
 
   const bin = (commandArgv[0] ?? "").toLowerCase().replace(/\.(cmd|exe|ps1)$/, "");
-  const isPmRun =
-    (bin === "npm" || bin === "pnpm" || bin === "yarn") && base.includes("run");
+  const isPmRun = (bin === "npm" || bin === "pnpm" || bin === "yarn") && base.includes("run");
   const needsSeparator = isPmRun && !base.includes("--");
 
   return needsSeparator ? [...base, "--", ...passthrough] : [...base, ...passthrough];

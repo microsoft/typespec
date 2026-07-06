@@ -70,7 +70,14 @@ jobs:
 
       - name: Prepare head emitter (build + venv)
         working-directory: packages/http-client-python
-        run: npm run setup
+        # http-client-python is excluded from the pnpm workspace (standalone,
+        # registry-versioned deps), so the repo-level `pnpm install` above does
+        # NOT provision its node_modules. Install them first (scripts skipped),
+        # then `npm run setup` (build + venv). Mirrors the baseline tree prep the
+        # tool does via the python preset's --setup.
+        run: |
+          npm install --ignore-scripts
+          npm run setup
 
       - name: Run emitter diff
         id: diff
