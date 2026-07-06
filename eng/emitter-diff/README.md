@@ -57,6 +57,7 @@ By default the tool writes a **clickable HTML report** (`emitter-diff.html`) int
 prints a `file://` link to it. Use `--html` to write to a specific file.
 
 - `--name <pattern>`: Filter which specs/packages are generated.
+- `--ci`: Disable baseline-output cache (intended for CI workflows).
 - `--html <file>`: Write the rendered HTML report to this path (default: `<work-dir>/emitter-diff.html`).
 - `--generated-code-path <path>`: Override the adapter generated-code subpath under each side output root.
   For Python, generated files land under `<side>/<path>/tests/generated/...`.

@@ -303,7 +303,7 @@ function repoPathKey(repo: string): string {
   return repo.replace(/[^a-z0-9._-]/gi, "-").toLowerCase();
 }
 
-/** Create a fresh scratch dir under the OS temp dir when `--work-dir` is omitted. */
+/** Create a fresh scratch dir under the OS temp dir for each run. */
 export function defaultWorkDir(): string {
   return mkdtempSync(join(tmpdir(), "emitter-diff-"));
 }
