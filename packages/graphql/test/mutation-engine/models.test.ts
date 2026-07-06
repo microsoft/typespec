@@ -1,5 +1,5 @@
 import { isArrayModelType, type Model } from "@typespec/compiler";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createGraphQLMutationEngine,

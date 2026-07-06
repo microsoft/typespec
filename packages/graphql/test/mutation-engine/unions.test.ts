@@ -1,5 +1,5 @@
 import { getDoc, type Model, type Union } from "@typespec/compiler";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isNullable } from "../../src/lib/nullable.js";
 import { isOneOf } from "../../src/lib/one-of.js";

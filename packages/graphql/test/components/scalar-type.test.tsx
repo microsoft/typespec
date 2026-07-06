@@ -1,4 +1,4 @@
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ScalarType } from "../../src/components/types/index.js";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";

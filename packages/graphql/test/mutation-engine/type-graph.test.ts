@@ -1,5 +1,5 @@
 import { navigateTypesInNamespace, resolvePath } from "@typespec/compiler";
-import { createTester, t } from "@typespec/compiler/testing";
+import { createTester, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import { buildTypeGraph } from "../../src/mutation-engine/type-graph.js";

@@ -1,5 +1,5 @@
 import type { EnumMember } from "@typespec/compiler";
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
 import { Tester } from "../test-host.js";

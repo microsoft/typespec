@@ -1,4 +1,4 @@
-import { t, TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { GraphQLTypeUsage, resolveTypeUsage } from "../src/type-usage.js";
 import { Tester } from "./test-host.js";
