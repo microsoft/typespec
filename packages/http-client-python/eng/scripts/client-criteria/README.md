@@ -92,7 +92,7 @@ checked against the real generated Python SDKs under `tests/generated/azure`:
 
 | id | category | how |
 | --- | --- | --- |
-| `Client_Naming_UnionEnum_name` | `naming` | deterministic (`identifier_casing_insensitive`) |
+| `Client_Naming_UnionEnum_name` | `naming` | deterministic (`identifier_idiomatic_casing`) |
 | `Client_Location_deleteUser_on_Admin` | `client-location` | deterministic (`operation_client_membership`) |
 | `Client_Hierarchy_Dog_extends_Pet` | `hierarchy` | **AI by default** (no signature) → deterministic once promoted |
 

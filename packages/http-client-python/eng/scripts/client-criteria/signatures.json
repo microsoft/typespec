@@ -9,7 +9,16 @@
     "check": "identifier_exact"
   },
   "naming": {
-    "check": "identifier_casing_insensitive"
+    "check": "identifier_idiomatic_casing",
+    "casing": {
+      "type": "pascal",
+      "model": "pascal",
+      "enum": "pascal",
+      "property": "snake",
+      "parameter": "snake",
+      "operation": "snake",
+      "enumvalue": "upper_snake"
+    }
   },
   "client-location": {
     "check": "operation_client_membership"

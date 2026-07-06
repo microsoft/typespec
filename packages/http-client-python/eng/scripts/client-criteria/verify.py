@@ -25,6 +25,29 @@ def norm(s: str) -> str:
     return re.sub(r"[_\-]", "", s).lower()
 
 
+def _words(name: str) -> list[str]:
+    """Split an identifier (camel/Pascal/snake/kebab) into its component words."""
+    s = re.sub(r"[_\-\s]+", " ", name)
+    s = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", s)
+    s = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1 \2", s)
+    return [w for w in s.split() if w]
+
+
+def apply_casing(name: str, casing: str) -> str:
+    """Recast a language-agnostic name into a language's idiomatic form."""
+    words = _words(name)
+    if casing == "pascal":
+        return "".join(w[:1].upper() + w[1:].lower() for w in words)
+    if casing == "camel":
+        parts = [w.lower() for w in words]
+        return parts[0] + "".join(w[:1].upper() + w[1:].lower() for w in parts[1:]) if parts else name
+    if casing == "snake":
+        return "_".join(w.lower() for w in words)
+    if casing == "upper_snake":
+        return "_".join(w.upper() for w in words)
+    return name
+
+
 def blob(pkg: Path) -> str:
     return "\n".join(p.read_text(errors="replace") for p in pkg.rglob("*.py"))
 
@@ -61,6 +84,21 @@ def identifier_casing_insensitive(pkg: Path, expected: str):
     ok = norm(expected) in norm(blob(pkg))
     return ("pass" if ok else "fail",
             f"'{expected}' {'matched (modulo casing)' if ok else 'not matched'}")
+
+
+def identifier_idiomatic_casing(pkg: Path, expected: str, kind: str | None, casing_map: dict):
+    """Assert the generated identifier equals the client name recast to this
+    language's idiomatic casing for the symbol kind (e.g. Python enum → PascalCase,
+    enum value → UPPER_SNAKE, property/method → snake_case). Case-sensitive: a
+    wrongly-cased identifier fails."""
+    casing = casing_map.get(kind) if kind else None
+    if casing is None:
+        return "na", f"no casing rule for kind '{kind}' in signatures.json"
+    wanted = apply_casing(expected, casing)
+    ok = re.search(rf"\b{re.escape(wanted)}\b", blob(pkg)) is not None
+    return ("pass" if ok else "fail",
+            f"expected {kind} '{wanted}' ({casing}) {'found' if ok else 'not found'} "
+            f"(from client name '{expected}')")
 
 
 def _classes_with_methods(pkg: Path) -> dict[str, set[str]]:
@@ -122,6 +160,8 @@ def run_routine(check: str, pkg: Path, item: dict, sig: dict, language: str):
         return "na", f"no expected value for language '{language}'"
     if check == "identifier_exact":
         return identifier_exact(pkg, expected)
+    if check == "identifier_idiomatic_casing":
+        return identifier_idiomatic_casing(pkg, expected, item.get("kind"), sig.get("casing", {}))
     if check == "identifier_casing_insensitive":
         return identifier_casing_insensitive(pkg, expected)
     return "error", f"unknown check '{check}'"

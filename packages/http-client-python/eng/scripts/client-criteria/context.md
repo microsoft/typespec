@@ -30,13 +30,15 @@ signatures so the deterministic runner can decide **without calling AI** — see
 - present in the public `__init__.py` exports, no leading underscore.
 
 ### naming (`@clientName`)
-- the generated identifier equals the client name **ignoring case/separators**
-  (idiomatic Python casing: `snake_case`, `PascalCase`, `UPPER_SNAKE`).
-- **resolving the expected name:** if the check has a `- Client names:` line
-  (a per-language map, e.g. `python=…; csharp=…`), use the value whose key equals
-  this emitter's **language** (`python`, from Emitter facts). Otherwise use the
-  single backticked name in the `Expects` sentence. A language with no entry in
-  the map is `N/A`.
+- the generated identifier equals the client name **recast to Python's idiomatic
+  casing for the symbol kind** (case-sensitive): `enum`/`model`/`type` →
+  `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
+  `UPPER_SNAKE`. So an enum renamed to `ClientExtensibleEnum` must appear exactly
+  as `ClientExtensibleEnum` (not `client_extensible_enum`). The per-kind casing
+  map lives in `signatures.json`; the manifest item carries the symbol `kind`.
+- **resolving the expected name:** if the check has a `client_names` map
+  (`{"python": "...", "csharp": "..."}`), use this language's value; otherwise the
+  single `expected` name. A language with no entry is `N/A`.
 
 ### exactName (`@exactName`)
 - the identifier equals the spec name **byte-for-byte**, no casing transform.
