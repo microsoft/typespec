@@ -108,7 +108,6 @@ import {
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
-import pkg from "lodash";
 import {
   Client as CodeModelClient,
   EncodedProperty,
@@ -174,7 +173,6 @@ import {
   isStableApiVersionString,
   resolveApiVersionOption,
 } from "./versioning-utils.js";
-const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
   flavor?: string;
@@ -844,7 +842,9 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
-        apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
+        apiVersionSameForAllClients =
+          sharedApiVersions.length === apiVersions.length &&
+          sharedApiVersions.every((it, index) => it === apiVersions[index]);
       }
       if (!apiVersionSameForAllClients) {
         break;
