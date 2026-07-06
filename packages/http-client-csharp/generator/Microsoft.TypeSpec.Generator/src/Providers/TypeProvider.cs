@@ -862,6 +862,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
 
+            BackCompatHelper.AddOverloadsForNewOptionalParameters(this, methods);
+
             return methods;
         }
 

@@ -232,6 +232,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
         }
 
+        // Validates that the base TypeProvider generalizes the new-optional-parameter back-compat to any
+        // TypeProvider: a public method that gained an optional non-body parameter relative to the last
+        // contract gets a hidden overload matching the previous signature that delegates to the current one.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsOverloadForNewOptionalParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published GetData(int param1); the current generation adds an optional
+            // non-body parameter param2.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "NewOptionalParamType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // Validates the shared lookup that any provider can use to restore a previously-published
         // parameter name from its last contract.
         [Test]

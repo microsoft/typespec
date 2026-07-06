@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -324,6 +326,171 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 xmlDocs.Update(parameters: reorderedParamDocs);
             }
+        }
+
+        /// <summary>
+        /// Adds hidden back-compat overloads for public/protected methods that gained one or more new
+        /// optional non-body parameters relative to the last contract. Each added overload matches a
+        /// previously-published signature and delegates to the current method, forwarding the previous
+        /// arguments and passing <c>default</c> for every new parameter. Renaming a method's parameter
+        /// set this way is otherwise a source-breaking change for existing callers.
+        /// </summary>
+        public static void AddOverloadsForNewOptionalParameters(TypeProvider enclosingType, List<MethodProvider> methods)
+        {
+            if (enclosingType.LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return;
+            }
+
+            var currentMethods = enclosingType.CustomCodeView?.Methods is { } customMethods
+                ? methods.Concat(customMethods)
+                : methods;
+            if (!currentMethods.Any())
+            {
+                return;
+            }
+
+            var currentMethodsByName = new Dictionary<string, List<MethodProvider>>();
+            foreach (var method in currentMethods)
+            {
+                if (!currentMethodsByName.TryGetValue(method.Signature.Name, out var bucket))
+                {
+                    bucket = [];
+                    currentMethodsByName[method.Signature.Name] = bucket;
+                }
+                bucket.Add(method);
+            }
+
+            foreach (var previousMethod in previousMethods)
+            {
+                var previousSignature = previousMethod.Signature;
+                if ((!previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                     !previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)) ||
+                    !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
+                {
+                    continue;
+                }
+
+                // One pass over the same-named methods: bail if the previous signature still exists,
+                // otherwise remember the first public/protected method that merely gained optional
+                // non-body parameters.
+                MethodProvider? matchedCurrent = null;
+                bool previousStillExists = false;
+                foreach (var candidate in candidates)
+                {
+                    if (MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, previousSignature))
+                    {
+                        previousStillExists = true;
+                        break;
+                    }
+
+                    var modifiers = candidate.Signature.Modifiers;
+                    if (matchedCurrent is null &&
+                        (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected)) &&
+                        HasNewOptionalNonBodyParametersOnly(previousSignature, candidate.Signature))
+                    {
+                        matchedCurrent = candidate;
+                    }
+                }
+
+                if (previousStillExists || matchedCurrent is null)
+                {
+                    continue;
+                }
+
+                var overload = BuildNewOptionalParameterOverload(enclosingType, previousMethod, matchedCurrent);
+                candidates.Add(overload);
+                methods.Add(overload);
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Added back-compat overload for '{enclosingType.Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
+                    BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
+            }
+        }
+
+        /// <summary>
+        /// Returns true when <paramref name="currentSignature"/> contains all parameters of
+        /// <paramref name="previousSignature"/> in the same relative order (matched by variable name and
+        /// type) with the same return type, every "extra" current parameter is optional, and none of the
+        /// extras are body parameters.
+        /// </summary>
+        public static bool HasNewOptionalNonBodyParametersOnly(
+            MethodSignature previousSignature,
+            MethodSignature currentSignature)
+        {
+            if (currentSignature.Parameters.Count <= previousSignature.Parameters.Count)
+            {
+                return false;
+            }
+
+            if (previousSignature.ReturnType is null
+                ? currentSignature.ReturnType is not null
+                : !previousSignature.ReturnType.AreNamesEqual(currentSignature.ReturnType))
+            {
+                return false;
+            }
+
+            // Walk current parameters and ensure previous parameters appear in the same relative order
+            // (matched by variable name and type), with every "extra" parameter being optional and non-body.
+            int previousIndex = 0;
+            for (int currentIndex = 0; currentIndex < currentSignature.Parameters.Count; currentIndex++)
+            {
+                var currentParam = currentSignature.Parameters[currentIndex];
+
+                if (previousIndex < previousSignature.Parameters.Count)
+                {
+                    var previousParam = previousSignature.Parameters[previousIndex];
+                    if (currentParam.Name.ToVariableName() == previousParam.Name.ToVariableName() &&
+                        currentParam.Type.AreNamesEqual(previousParam.Type))
+                    {
+                        previousIndex++;
+                        continue;
+                    }
+                }
+
+                if (currentParam.DefaultValue is null)
+                {
+                    return false;
+                }
+
+                if (currentParam.Location == ParameterLocation.Body)
+                {
+                    return false;
+                }
+            }
+
+            return previousIndex == previousSignature.Parameters.Count;
+        }
+
+        private static MethodProvider BuildNewOptionalParameterOverload(
+            TypeProvider enclosingType,
+            MethodProvider previousMethod,
+            MethodProvider currentMethod)
+        {
+            var previousSignature = previousMethod.Signature;
+            var currentSignature = currentMethod.Signature;
+
+            var previousParametersByName = new Dictionary<string, ParameterProvider>();
+            foreach (var parameter in previousSignature.Parameters)
+            {
+                previousParametersByName.TryAdd(parameter.Name.ToVariableName(), parameter);
+            }
+
+            // Build the delegating call: forward each previous parameter and pass default for the new ones.
+            var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
+            foreach (var currentParam in currentSignature.Parameters)
+            {
+                var variableName = currentParam.Name.ToVariableName();
+                ValueExpression value = previousParametersByName.TryGetValue(variableName, out var previousParam)
+                    ? previousParam
+                    : currentParam.DefaultValue ?? Default;
+                arguments.Add(PositionalReference(variableName, value));
+            }
+
+            return new MethodProvider(
+                MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true),
+                Return(This.Invoke(currentSignature.Name, arguments)),
+                enclosingType,
+                previousMethod.XmlDocs);
         }
     }
 }
