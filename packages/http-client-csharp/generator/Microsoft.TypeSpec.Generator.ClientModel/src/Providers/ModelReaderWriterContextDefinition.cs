@@ -176,7 +176,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var returnType = method.Signature.ReturnType;
 
-                    // Unwrap Task/Task<T> and collection types to get to the actual model type
+                    // Unwrap framework wrappers and collection types to get to the actual model type
                     var actualType = UnwrapReturnType(returnType);
 
                     if (actualType != null && actualType.IsFrameworkType)
@@ -280,7 +280,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Unwraps a return type to get the actual model type by stripping away Task, Task&lt;T&gt;, and collection wrappers.
+        /// Unwraps a return type to get the actual model type by stripping away wrapper and collection types.
         /// </summary>
         private static CSharpType? UnwrapReturnType(CSharpType? returnType)
         {
@@ -304,6 +304,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Task without type argument doesn't have a model
                     return null;
                 }
+            }
+
+            // Unwrap generic framework wrappers such as Response<T>.
+            while (type.IsFrameworkType && type.Arguments.Count == 1 && !ImplementsModelReaderWriter(type.FrameworkType))
+            {
+                type = type.Arguments[0];
             }
 
             // Unwrap collection types to get the element type
