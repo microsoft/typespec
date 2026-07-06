@@ -6,12 +6,12 @@
  * source checkout into a usable emitter is intentionally NOT done here — that
  * is language-specific and belongs to the adapter's `prepareEmitter`.
  */
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
 import type { ClassifiedRef, Logger } from "./types.js";
-import { ensureDir, runChecked } from "./util.js";
+import { ensureDir, run, runChecked } from "./util.js";
 
 /**
  * Classify a ref string. Explicit prefixes (`npm:`, `local:`, `github:`,
@@ -34,8 +34,14 @@ export function classifyRef(raw: string, repoRoot: string): ClassifiedRef {
     return parseGithub(trimmed.slice(7), raw);
   }
   if (trimmed.startsWith("gh:")) {
-    // gh:<ref> => microsoft/typespec at <ref>
-    return { kind: "github", raw, gitRef: trimmed.slice(3) };
+    // `gh:<ref>` => this repo (origin remote) at <ref>. Also tolerate the fuller
+    // `gh:owner/repo@ref` form (route it through the github parser) so users
+    // don't accidentally fold the repo into the ref.
+    const rest = trimmed.slice(3);
+    if (rest.includes("/") && rest.includes("@")) {
+      return parseGithub(rest, raw);
+    }
+    return { kind: "github", raw, gitRef: rest };
   }
   if (/^https?:\/\/github\.com\//i.test(trimmed)) {
     return parseGithubUrl(trimmed, raw);
@@ -86,7 +92,38 @@ export function describeRef(ref: ClassifiedRef, packageName: string): string {
   }
 }
 
-const DEFAULT_REPO = "microsoft/typespec";
+const FALLBACK_REPO = "microsoft/typespec";
+
+/**
+ * Best-effort `owner/repo` for the repo the tool is running in, parsed from its
+ * `origin` remote. This is what `gh:<ref>` (and any github ref without an
+ * explicit `owner/repo`) resolves against, so `gh:main` means "this repo at
+ * main" whether the tool runs in microsoft/typespec or a consumer like
+ * Azure/typespec-azure. Falls back to `microsoft/typespec` when origin can't be
+ * determined (e.g. no remote).
+ */
+async function detectOriginRepo(repoRoot: string | undefined, log: Logger): Promise<string> {
+  if (!repoRoot) return FALLBACK_REPO;
+  try {
+    const res = await run("git", ["remote", "get-url", "origin"], { cwd: repoRoot });
+    if (res.code === 0) {
+      const parsed = parseOwnerRepoFromUrl(res.stdout.trim());
+      if (parsed) return parsed;
+    }
+  } catch {
+    // ignore — fall through to the default below.
+  }
+  log.warn(`Could not detect origin repo for gh: refs; defaulting to ${FALLBACK_REPO}.`);
+  return FALLBACK_REPO;
+}
+
+/** Parse `owner/repo` from an https, ssh, or git@ GitHub remote URL. */
+function parseOwnerRepoFromUrl(url: string): string | undefined {
+  // https://github.com/owner/repo(.git) | git@github.com:owner/repo(.git) |
+  // ssh://git@github.com/owner/repo(.git)
+  const m = /github\.com[:/]([A-Za-z0-9._-]+)\/([A-Za-z0-9._-]+?)(?:\.git)?\/?$/.exec(url);
+  return m ? `${m[1]}/${m[2]}` : undefined;
+}
 
 /**
  * Reject refs/repos that could be misread by git as options or that carry shell
@@ -107,10 +144,15 @@ function assertSafeRepo(repo: string): void {
 }
 
 /**
- * Materialize a local-or-github ref into a source directory. npm refs are
- * handled by {@link installNpmPackage} (the package name is adapter-specific).
+ * Materialize a ref into a local source tree the regenerate command can run in.
+ *
+ *  - `local`  → the folder itself (run in place).
+ *  - `github` → a detached, commit-keyed cached git worktree (or a shallow
+ *    clone fallback).
+ *  - `npm`    → rejected: a published package has no source tree to regenerate
+ *    from. Use a `local`/`github` source ref instead.
  */
-export async function resolveSource(
+export async function materializeTree(
   ref: ClassifiedRef,
   workDir: string,
   log: Logger,
@@ -125,18 +167,21 @@ export async function resolveSource(
   if (ref.kind === "github") {
     return cloneGithub(ref, workDir, log, repoRoot);
   }
-  throw new Error(`resolveSource cannot handle npm refs directly (ref: ${ref.raw})`);
+  throw new Error(
+    `Cannot run a regenerate command against an npm ref (${ref.raw}). ` +
+      `A published package has no source tree; pass a local: or github:/gh: source ref instead.`,
+  );
 }
 
 async function cloneGithub(
   ref: ClassifiedRef,
   workDir: string,
   log: Logger,
-  _repoRoot?: string,
+  repoRoot?: string,
 ): Promise<string> {
-  // `gh:<ref>` (and any github ref without an explicit repo) maps to
-  // microsoft/typespec explicitly.
-  const repo = ref.repo ?? DEFAULT_REPO;
+  // A github ref without an explicit `owner/repo` (e.g. `gh:main`) maps to the
+  // repo the tool is running in, detected from its origin remote.
+  const repo = ref.repo ?? (await detectOriginRepo(repoRoot, log));
   const gitRef = ref.gitRef ?? "main";
   assertSafeRepo(repo);
   assertSafeGitRef(gitRef);
@@ -217,82 +262,6 @@ async function fetchAndResolveCommit(cacheRepo: string, gitRef: string): Promise
     throw new Error(`Could not resolve git ref '${gitRef}' from FETCH_HEAD.`);
   }
   return sha;
-}
-
-/**
- * Install a published npm package version into an isolated dir and return the
- * path to the installed package (which ships a prebuilt `dist`).
- */
-export async function installNpmPackage(
-  packageName: string,
-  version: string,
-  workDir: string,
-  log: Logger,
-): Promise<string> {
-  const dir = ensureDir(
-    join(workDir, `npm-${packageName.replace(/[@/]/g, "_")}-${sanitize(version)}`),
-  );
-  const pkgDir = join(dir, "node_modules", packageName);
-  if (existsSync(pkgDir)) {
-    assertInstalledPackageMetadata(pkgDir, packageName, version);
-    log.info(`Reusing installed ${packageName}@${version}`);
-    return pkgDir;
-  }
-
-  log.step(`Installing ${packageName}@${version}`);
-  // Create a deterministic throwaway package root and install just one
-  // dependency there.
-  const manifest = join(dir, "package.json");
-  if (!existsSync(manifest)) {
-    writeFileSync(
-      manifest,
-      `${JSON.stringify({ name: "emitter-diff-cache", private: true, version: "0.0.0" }, null, 2)}\n`,
-      "utf8",
-    );
-  }
-
-  // Install only the requested package and skip lifecycle scripts.
-  await runChecked(
-    "npm",
-    [
-      "install",
-      `${packageName}@${version}`,
-      "--no-audit",
-      "--no-fund",
-      "--no-save",
-      "--ignore-scripts",
-    ],
-    { cwd: dir },
-  );
-  assertInstalledPackageMetadata(pkgDir, packageName, version);
-  return pkgDir;
-}
-
-function assertInstalledPackageMetadata(
-  pkgDir: string,
-  expectedName: string,
-  expectedVersion: string,
-): void {
-  const manifest = join(pkgDir, "package.json");
-  if (!existsSync(manifest)) {
-    throw new Error(`Installed package manifest not found: ${manifest}`);
-  }
-
-  let parsed: { name?: string; version?: string };
-  try {
-    parsed = JSON.parse(readFileSync(manifest, "utf8")) as { name?: string; version?: string };
-  } catch (err) {
-    throw new Error(`Could not parse installed package manifest at ${manifest}: ${String(err)}`, {
-      cause: err,
-    });
-  }
-
-  if (parsed.name !== expectedName || parsed.version !== expectedVersion) {
-    throw new Error(
-      `Installed package metadata mismatch at ${manifest}. ` +
-        `Expected ${expectedName}@${expectedVersion}, got ${parsed.name ?? "<missing>"}@${parsed.version ?? "<missing>"}.`,
-    );
-  }
 }
 
 function sanitize(s: string): string {

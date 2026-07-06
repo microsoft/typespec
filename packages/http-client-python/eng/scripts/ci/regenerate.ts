@@ -94,34 +94,8 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
   : resolve(SCRIPT_DIR, "../../../");
-
-function resolveSpecsDir(packageName: string, envOverride?: string): string {
-  const fromEnv = envOverride?.trim();
-  if (fromEnv) {
-    const candidate = resolve(fromEnv);
-    if (existsSync(candidate)) return candidate;
-  }
-
-  const candidates = [
-    resolve(PLUGIN_DIR, `node_modules/${packageName}/specs`),
-    resolve(SCRIPT_DIR, `../../../node_modules/${packageName}/specs`),
-    resolve(SCRIPT_DIR, `../../../../node_modules/${packageName}/specs`),
-    resolve(SCRIPT_DIR, `../../../../../node_modules/${packageName}/specs`),
-  ];
-
-  for (const candidate of candidates) {
-    if (existsSync(candidate)) return candidate;
-  }
-
-  // Keep the preferred plugin-dir location for diagnostics.
-  return candidates[0];
-}
-
-const AZURE_HTTP_SPECS = resolveSpecsDir(
-  "@azure-tools/azure-http-specs",
-  process.env.AZURE_HTTP_SPECS_DIR,
-);
-const HTTP_SPECS = resolveSpecsDir("@typespec/http-specs", process.env.HTTP_SPECS_DIR);
+const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
+const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
@@ -157,12 +131,7 @@ async function collectConfigFiles(generatedDir: string, flavor: string): Promise
   return configFiles;
 }
 
-function runBatchPythonProcessing(
-  flavor: string,
-  generatedFolder: string,
-  configCount: number,
-  jobs: number,
-): boolean {
+function runBatchPythonProcessing(flavor: string, configCount: number, jobs: number): boolean {
   if (configCount === 0) return true;
 
   console.log(pc.cyan(`\nRunning batch Python processing on ${configCount} specs...`));
@@ -181,10 +150,9 @@ function runBatchPythonProcessing(
   const batchScript = join(PLUGIN_DIR, "eng", "scripts", "setup", "run_batch.py");
 
   try {
-    const generatedRoot = resolve(generatedFolder, "..");
     // Pass directory and flavor instead of individual config files to avoid command line length limits on Windows
     execSync(
-      `"${venvPath}" "${batchScript}" --generated-dir "${generatedRoot}" --flavor ${flavor} --jobs ${jobs}`,
+      `"${venvPath}" "${batchScript}" --generated-dir "${PLUGIN_DIR}" --flavor ${flavor} --jobs ${jobs}`,
       {
         stdio: "inherit",
         cwd: PLUGIN_DIR,
@@ -212,18 +180,8 @@ async function regenerateFlavor(
   await preprocess(flavor, GENERATED_FOLDER);
 
   // Collect specs
-  const azureSpecs =
-    flavor === "azure" && existsSync(AZURE_HTTP_SPECS)
-      ? await getSubdirectories(AZURE_HTTP_SPECS, flags)
-      : [];
-  if (flavor === "azure" && !existsSync(AZURE_HTTP_SPECS)) {
-    console.warn(pc.yellow(`Azure specs not found at: ${AZURE_HTTP_SPECS}`));
-  }
-
-  const standardSpecs = existsSync(HTTP_SPECS) ? await getSubdirectories(HTTP_SPECS, flags) : [];
-  if (!existsSync(HTTP_SPECS)) {
-    console.warn(pc.yellow(`HTTP specs not found at: ${HTTP_SPECS}`));
-  }
+  const azureSpecs = flavor === "azure" ? await getSubdirectories(AZURE_HTTP_SPECS, flags) : [];
+  const standardSpecs = await getSubdirectories(HTTP_SPECS, flags);
   const allSpecs = [...azureSpecs, ...standardSpecs];
 
   // Build task groups (tasks for same spec run sequentially to avoid state pollution).
@@ -259,7 +217,7 @@ async function regenerateFlavor(
   const configCount = (await collectConfigFiles(GENERATED_FOLDER, flavor)).length;
   // Use fewer Python jobs since Python processing is heavier
   const pyJobs = Math.max(4, jobs);
-  const pySuccess = runBatchPythonProcessing(flavor, GENERATED_FOLDER, configCount, pyJobs);
+  const pySuccess = runBatchPythonProcessing(flavor, configCount, pyJobs);
   const pyTime = (performance.now() - pyStartTime) / 1000;
 
   const totalTime = (performance.now() - startTime) / 1000;

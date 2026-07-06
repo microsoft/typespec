@@ -1,18 +1,22 @@
 /**
  * Core language-agnostic types for emitter-diff.
- * Language-specific behavior stays behind {@link EmitterAdapter}.
+ *
+ * The tool is a generic command runner: it resolves a baseline and a head
+ * source tree, runs the emitter's own regenerate command verbatim inside each
+ * tree, then diffs the generated output. There is no per-language plugin code —
+ * an emitter integrates by describing three things (see {@link EmitterConfig}).
  */
 
 /** The three kinds of source a ref can point at. */
 export type RefKind = "npm" | "local" | "github";
 
 /**
- * A classified reference to either an emitter version or a specs source.
+ * A classified reference to an emitter source tree.
  *
  * Accepted user syntaxes (see {@link classifyRef}):
- *  - npm:     `npm:1.2.3`, `1.2.3`, `@scope/pkg@1.2.3`
+ *  - npm:     `npm:1.2.3`, `1.2.3`, `@scope/pkg@1.2.3` (rejected — no source tree)
  *  - local:   `local:/abs/or/rel/path`, or any existing filesystem path
- *  - github:  `github:owner/repo@<ref>`, `gh:<ref>` (microsoft/typespec), or an `https://github.com/...` url
+ *  - github:  `github:owner/repo@<ref>`, `gh:<ref>` (this repo's origin), or an `https://github.com/...` url
  */
 export interface ClassifiedRef {
   kind: RefKind;
@@ -22,76 +26,43 @@ export interface ClassifiedRef {
   version?: string;
   /** local: the absolute path on disk. */
   path?: string;
-  /** github: `owner/repo` (defaults to `microsoft/typespec` when omitted). */
+  /** github: `owner/repo` (defaults to this repo's origin remote when omitted). */
   repo?: string;
   /** github: branch, tag or sha. */
   gitRef?: string;
 }
 
-/** A usable emitter prepared by an adapter. */
-export interface ResolvedEmitter {
-  /** Directory containing the usable emitter build. */
-  dir: string;
-  /** Human-readable label for logs (e.g. `npm @typespec/http-client-python@0.34.0`). */
-  label: string;
-}
-
-/** Shared context handed to every adapter call. */
-export interface AdapterContext {
-  /** Repo root (the git working tree the tool was invoked from). */
-  repoRoot: string;
-  /** Scratch directory the adapter may use for builds/installs. */
-  workDir: string;
-  /** Structured logger. */
-  log: Logger;
-  /**
-   * Core helper that materializes a {@link ClassifiedRef} into a local source
-   * directory (handles `local` passthrough and `github` fetch). For `npm`, the
-   * adapter typically resolves the package itself via {@link installNpmPackage}.
-   */
-  resolveSource(ref: ClassifiedRef, packageName: string): Promise<string>;
-  /** Core helper that installs an npm package version and returns its dir. */
-  installNpmPackage(packageName: string, version: string): Promise<string>;
-}
-
-export interface GenerateRequest {
-  /** Resolved emitter build to generate with. */
-  emitter: ResolvedEmitter;
-  /** Directory the generated code must be written to. */
-  outputDir: string;
-  /** Optional adapter generated-code subpath under `outputDir`. */
-  generatedCodePath?: string;
-  /** Optional name/pattern filter limiting which specs/packages are generated. */
-  nameFilter?: string;
-  /** Adapter-specific options collected from repeatable `--opt key=value`. */
-  options: Record<string, string>;
-  /** Arguments after `--`, forwarded verbatim. */
-  passthrough: string[];
-  /**
-   * Optional log prefix used when baseline/head generate concurrently.
-   */
-  logPrefix?: string;
-}
-
 /**
- * Per-language plugin. A thin wrapper over an emitter's own generate command.
- * The core never reaches around this contract.
+ * Everything the runner needs to diff one emitter. An emitter either passes
+ * these as flags or selects a named preset (see `EMITTER_DEFAULTS`) that fills
+ * them in; every field remains individually overridable.
  */
-export interface EmitterAdapter {
-  /** Stable id used by `--emitter` (e.g. `python`). */
-  readonly name: string;
-  /** npm package name, used when a ref is an npm version. */
-  readonly packageName: string;
-
+export interface EmitterConfig {
   /**
-   * Turn a classified ref (or the special `current` checkout) into a usable,
-   * built emitter. `npm` versions ship prebuilt; `local`/`github`/`current`
-   * may need a build, which is the adapter's responsibility.
+   * The regenerate command, run verbatim (tokenized to argv, no shell) inside
+   * `<tree>/<emitterPath>` for each side. Example: `npm run regenerate`.
    */
-  prepareEmitter(ref: ClassifiedRef | "current", ctx: AdapterContext): Promise<ResolvedEmitter>;
-
-  /** Generate code into `request.outputDir` using `request.emitter`. */
-  generate(request: GenerateRequest, ctx: AdapterContext): Promise<void>;
+  command: string;
+  /**
+   * Path (relative to a source tree root) to the emitter package the command is
+   * run in. Example: `packages/http-client-python`. Use `.` for a repo-root
+   * emitter.
+   */
+  emitterPath: string;
+  /**
+   * Path (relative to `emitterPath`) to the generated code the command writes.
+   * This subtree is snapshotted and diffed. Example: `tests/generated`.
+   */
+  generatedCodePath: string;
+  /**
+   * Optional prep commands run in order in `<tree>/<emitterPath>` before the
+   * regenerate command — but ONLY for a tree the tool freshly materialized from
+   * GitHub (a `gh:`/`github:` ref). The current working tree and user-provided
+   * `local:` paths are assumed already built and are never touched. Each entry
+   * is tokenized to argv and run without a shell. Example:
+   * `["pnpm install", "npm run setup"]`.
+   */
+  setup?: string[];
 }
 
 export interface Logger {

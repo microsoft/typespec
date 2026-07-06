@@ -1,12 +1,15 @@
 #!/usr/bin/env -S npx tsx
 /**
- * emitter-diff — language-agnostic CLI.
+ * emitter-diff — language-agnostic generated-code diff runner.
  *
- * Generates code from the test specs with two emitter versions (baseline + head)
- * and diffs the output. All language specifics live behind the selected adapter;
- * this file contains zero language logic.
+ * It resolves a baseline and a head source tree, runs the emitter's own
+ * regenerate command verbatim inside `<tree>/<emitter-path>` for each side, then
+ * diffs `<emitter-path>/<generated-code-path>` between the two. The tool
+ * contains zero language logic: an emitter integrates by naming its regenerate
+ * command and two paths (directly, or via a built-in `--emitter` preset).
  */
-import { cpSync, existsSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -20,59 +23,61 @@ import {
   type BaselineCacheIndex,
 } from "./baseline-cache.js";
 import { diffDirs, printSummary, writeHtml } from "./diff.js";
-import { getAdapter, listAdapters } from "./registry.js";
-import {
-  classifyRef,
-  defaultWorkDir,
-  installNpmPackage as installNpm,
-  resolveSource as resolveSrc,
-} from "./resolver.js";
-import type { AdapterContext, ClassifiedRef } from "./types.js";
+import { getEmitterDefaults, listEmitters } from "./registry.js";
+import { classifyRef, defaultWorkDir, describeRef, materializeTree } from "./resolver.js";
+import type { ClassifiedRef, EmitterConfig, Logger } from "./types.js";
 import { color, createLogger, ensureDir, run, runChecked } from "./util.js";
 
 function shouldUseBaselineCache(ciMode: boolean): { enabled: boolean; reason?: string } {
   if (ciMode) {
     return { enabled: false, reason: "--ci" };
   }
-
   // Restrict caching to clearly local, interactive usage by default.
   if (!process.stdout.isTTY || !process.stderr.isTTY) {
     return { enabled: false, reason: "non-interactive terminal" };
   }
-
   return { enabled: true };
 }
 
 const HELP = `${color.bold("emitter-diff")} — diff generated code across emitter versions
 
 ${color.bold("Usage:")}
-  emitter-diff --emitter <name> [options]
+  emitter-diff [--emitter <name>] --command <cmd> --emitter-path <path> \\
+               --generated-code-path <path> [options]
 
-${color.bold("Required:")}
-  --emitter <name>        Adapter to use. Available: ${listAdapters().join(", ")}
+${color.bold("What it does:")}
+  Runs <command> verbatim inside <tree>/<emitter-path> for a baseline tree and a
+  head tree, then diffs <emitter-path>/<generated-code-path> between them.
+  A tree the tool fetches fresh from GitHub is first prepared with --setup (a
+  preset supplies install+build defaults); the current working tree and local:
+  paths are assumed already built and are never touched.
+
+${color.bold("Emitter config")} (a preset fills these; each is overridable):
+  --emitter <name>        Built-in preset. Available: ${listEmitters().join(", ") || "(none)"}
+  --command <cmd>         Regenerate command, e.g. "npm run regenerate".
+  --emitter-path <path>   Package dir (rel to tree root) to run the command in.
+  --generated-code-path <path>
+                          Generated-code dir (rel to --emitter-path) to diff.
+  --setup <cmd>           Prep command run in a freshly fetched GitHub tree before
+                          <command> (repeatable, runs in order; a preset supplies
+                          defaults like install+build). Overrides preset defaults.
+  --no-setup              Skip setup even when a preset defines it.
 
 ${color.bold("Refs")} (for --baseline / --head):
-  npm:1.2.3 | 1.2.3                 a published package version
-  local:/path | ./path             a local folder
+  local:/path | ./path             a local source folder
   github:owner/repo@<sha|branch>   a GitHub source at a ref
-  gh:<sha|branch>                  microsoft/typespec at a ref
+  gh:<sha|branch>                  this repo (origin remote) at a ref
+  (npm refs are rejected — a published package has no source tree to run in.)
 
 ${color.bold("Options:")}
-  --baseline <ref>        Old emitter. Default: gh:upstream/main if present,
+  --baseline <ref>        Old source tree. Default: gh:upstream/main if present,
                           otherwise gh:origin/main.
-  --head <ref>            New emitter. Default: current checkout.
-  --generated-code-path <path>
-                          Override adapter generated-code subpath under each
-                          side output root.
-  --name <pattern>        Filter which specs/packages are generated.
-                          Baseline output is cached across local runs.
+  --head <ref>            New source tree. Default: the current working tree.
+  --work-dir <dir>        Scratch dir for snapshots. Default: a fresh temp dir.
   --ci                    CI mode: disable local baseline cache.
-  --html <file>           Write the rendered HTML diff to this path.
-                          Default output: a clickable HTML report in the work dir.
-  --fail-on-diff          Exit non-zero when output differs (CI gating). Exit
-                          code 2 means "diff present"; 1 means a hard error.
-  --opt key=value         Repeatable adapter-specific option (e.g. --opt flavor=azure).
-  -- <args>               Everything after -- is forwarded to the adapter.
+  --html <file>           Write the rendered HTML diff (default: <work>/emitter-diff.html).
+  --fail-on-diff          Exit non-zero when output differs (2 = diff, 1 = error).
+  -- <args>               Everything after -- is appended to <command> verbatim.
   -h, --help              Show this help.
 `;
 
@@ -105,10 +110,82 @@ async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
   return "gh:origin/main";
 }
 
+/**
+ * Split a command string into argv, honoring single/double quotes but WITHOUT
+ * invoking a shell. Multi-step pipelines (`&&`, `|`) are intentionally NOT
+ * supported — put prep in a package.json script or separate CI steps.
+ */
+function tokenizeCommand(command: string): string[] {
+  const tokens: string[] = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(command)) !== null) {
+    tokens.push(m[1] ?? m[2] ?? m[3]);
+  }
+  return tokens;
+}
+
+/** Merge a `--emitter` preset (if any) with explicit flag overrides. */
+function resolveConfig(
+  values: {
+    emitter?: string;
+    command?: string;
+    "emitter-path"?: string;
+    "generated-code-path"?: string;
+    setup?: string[];
+    "no-setup"?: boolean;
+  },
+  log: Logger,
+): EmitterConfig | undefined {
+  let preset: Partial<EmitterConfig> = {};
+  if (values.emitter) {
+    const defaults = getEmitterDefaults(values.emitter);
+    if (!defaults) {
+      log.error(
+        `Unknown --emitter '${values.emitter}'. Available: ${listEmitters().join(", ") || "(none)"}. ` +
+          `Pass --command / --emitter-path / --generated-code-path directly instead.`,
+      );
+      return undefined;
+    }
+    preset = defaults;
+  }
+
+  const command = values.command ?? preset.command;
+  const emitterPath = values["emitter-path"] ?? preset.emitterPath;
+  const generatedCodePath =
+    values["generated-code-path"] ?? preset.generatedCodePath;
+
+  const missing: string[] = [];
+  if (!command) missing.push("--command");
+  if (!emitterPath) missing.push("--emitter-path");
+  if (!generatedCodePath) missing.push("--generated-code-path");
+  if (missing.length > 0) {
+    log.error(
+      `Missing required emitter config: ${missing.join(", ")}. ` +
+        `Provide them as flags or select a preset with --emitter (available: ${
+          listEmitters().join(", ") || "(none)"
+        }).`,
+    );
+    return undefined;
+  }
+
+  // Setup: explicit --setup wins, --no-setup forces none, else the preset's.
+  let setup: string[];
+  if (values["no-setup"]) {
+    setup = [];
+  } else if (values.setup && values.setup.length > 0) {
+    setup = values.setup;
+  } else {
+    setup = preset.setup ?? [];
+  }
+
+  return { command: command!, emitterPath: emitterPath!, generatedCodePath: generatedCodePath!, setup };
+}
+
 async function main(): Promise<number> {
   const rawArgs = process.argv.slice(2);
 
-  // Split off adapter passthrough after a standalone `--`.
+  // Split off command passthrough after a standalone `--`.
   const sepIndex = rawArgs.indexOf("--");
   const ownArgs = sepIndex === -1 ? rawArgs : rawArgs.slice(0, sepIndex);
   const passthrough = sepIndex === -1 ? [] : rawArgs.slice(sepIndex + 1);
@@ -117,14 +194,17 @@ async function main(): Promise<number> {
     args: ownArgs,
     options: {
       emitter: { type: "string" },
+      command: { type: "string" },
+      "emitter-path": { type: "string" },
+      "generated-code-path": { type: "string" },
+      setup: { type: "string", multiple: true },
+      "no-setup": { type: "boolean" },
       baseline: { type: "string" },
       head: { type: "string" },
-      "generated-code-path": { type: "string" },
-      name: { type: "string" },
+      "work-dir": { type: "string" },
       ci: { type: "boolean" },
       html: { type: "string" },
       "fail-on-diff": { type: "boolean" },
-      opt: { type: "string", multiple: true },
       help: { type: "boolean", short: "h" },
     },
     allowPositionals: false,
@@ -136,43 +216,23 @@ async function main(): Promise<number> {
     process.stdout.write(HELP);
     return 0;
   }
-  if (!values.emitter) {
-    log.error("--emitter is required (no default). " + `Available: ${listAdapters().join(", ")}`);
-    return 2;
-  }
-  if (!listAdapters().includes(values.emitter)) {
-    log.error(`Unknown emitter '${values.emitter}'. Available: ${listAdapters().join(", ")}`);
-    return 2;
-  }
-  const adapter = getAdapter(values.emitter);
+
+  const config = resolveConfig(values, log);
+  if (!config) return 2;
 
   // Repo root = current git working tree.
   const repoRoot = (await runChecked("git", ["rev-parse", "--show-toplevel"])).stdout.trim();
 
-  // Use an absolute work dir because adapters may run from a different cwd.
-  const workDir = ensureDir(defaultWorkDir());
+  const workDir = ensureDir(values["work-dir"] ?? defaultWorkDir());
   log.info(`${color.dim("work dir:")} ${workDir}`);
 
-  const ctx: AdapterContext = {
-    repoRoot,
-    workDir,
-    log,
-    resolveSource: (ref, _packageName) => resolveSrc(ref, workDir, log, repoRoot),
-    installNpmPackage: (packageName, version) => installNpm(packageName, version, workDir, log),
-  };
-
-  // Parse adapter options (--opt key=value).
-  const options: Record<string, string> = {};
-  for (const entry of values.opt ?? []) {
-    const eq = entry.indexOf("=");
-    if (eq === -1) {
-      log.error(`Invalid --opt '${entry}'. Expected key=value.`);
-      return 2;
-    }
-    options[entry.slice(0, eq)] = entry.slice(eq + 1);
+  const commandArgv = tokenizeCommand(config.command);
+  if (commandArgv.length === 0) {
+    log.error(`--command is empty.`);
+    return 2;
   }
 
-  // Resolve emitters.
+  // Resolve refs. npm refs are rejected by materializeTree.
   const baselineRefValue = values.baseline ?? (await resolveDefaultBaselineRef(repoRoot));
   if (!values.baseline) {
     log.info(`${color.dim("baseline default:")} ${baselineRefValue}`);
@@ -182,32 +242,96 @@ async function main(): Promise<number> {
     ? classifyRef(values.head, repoRoot)
     : "current";
 
-  log.step("Preparing baseline emitter");
-  const baselineEmitter = await adapter.prepareEmitter(baselineRef, ctx);
-  log.step("Preparing head emitter");
-  const headEmitter = await adapter.prepareEmitter(headRef, ctx);
+  log.step("Resolving baseline source tree");
+  const baselineTree = await materializeTree(baselineRef, workDir, log, repoRoot);
+  const baselineLabel = describeRef(baselineRef, config.emitterPath);
 
-  // Baseline/head generate in parallel by default.
-  const baselineOut = ensureDir(join(workDir, "baseline"));
-  const headOut = ensureDir(join(workDir, "head"));
+  log.step("Resolving head source tree");
+  const headTree =
+    headRef === "current" ? repoRoot : await materializeTree(headRef, workDir, log, repoRoot);
+  const headLabel = headRef === "current" ? "current working tree" : describeRef(headRef, config.emitterPath);
 
-  const parallel = true;
+  const baselineSnap = ensureDir(join(workDir, "baseline"));
+  const headSnap = ensureDir(join(workDir, "head"));
+
+  // Run <command> inside <tree>/<emitter-path>, then snapshot the generated dir.
+  const runSide = async (
+    sideName: string,
+    tree: string,
+    snapDir: string,
+    label: string,
+    logPrefix: string | undefined,
+    runSetup: boolean,
+  ): Promise<void> => {
+    const runDir = join(tree, config.emitterPath);
+    if (!existsSync(runDir)) {
+      throw new Error(
+        `Emitter path not found for ${label}: ${runDir} (--emitter-path ${config.emitterPath}).`,
+      );
+    }
+    const generatedDir = join(runDir, config.generatedCodePath);
+    const inherit = logPrefix === undefined;
+    if (runSetup && config.setup && config.setup.length > 0) {
+      // Setup runs in a tree the tool materialized from GitHub. A cached worktree
+      // is reused across runs, so a sentinel keyed on the setup commands lets us
+      // prep it exactly once — re-running full setup (e.g. an isolated wheel
+      // build) on an already-prepared tree is both wasteful and flaky. Changing
+      // the setup commands changes the key and forces a re-prep.
+      const setupKey = createHash("sha256").update(JSON.stringify(config.setup)).digest("hex");
+      const sentinel = join(tree, ".emitter-diff-setup-done");
+      const alreadyPrepared =
+        existsSync(sentinel) && readFileSync(sentinel, "utf8").trim() === setupKey;
+      if (alreadyPrepared) {
+        log.info(color.dim(`${sideName} setup skipped (already prepared): ${label}`));
+      } else {
+        for (const step of config.setup) {
+          const setupArgv = tokenizeCommand(step);
+          if (setupArgv.length === 0) continue;
+          log.step(`${sideName} setup: ${setupArgv.join(" ")} (in ${runDir})`);
+          await runChecked(setupArgv[0], setupArgv.slice(1), {
+            cwd: runDir,
+            inherit,
+            prefix: logPrefix,
+          });
+        }
+        writeFileSync(sentinel, setupKey);
+      }
+    }
+    log.step(
+      `${sideName} output regeneration ${color.dim(`(${label}): ${commandArgv.join(" ")}`)}`,
+    );
+    await runChecked(commandArgv[0], [...commandArgv.slice(1), ...passthrough], {
+      cwd: runDir,
+      inherit,
+      prefix: logPrefix,
+    });
+    if (!existsSync(generatedDir)) {
+      throw new Error(
+        `Generated code not found after regenerating ${label}: ${generatedDir} ` +
+          `(--generated-code-path ${config.generatedCodePath}). ` +
+          `Did the command write there?`,
+      );
+    }
+    rmSync(snapDir, { recursive: true, force: true });
+    cpSync(generatedDir, snapDir, { recursive: true, force: true });
+  };
+
+  // ---- Baseline output cache (local, interactive only) ----
   const cacheDecision = shouldUseBaselineCache(Boolean(values.ci));
   const useBaselineCache = cacheDecision.enabled;
   if (!useBaselineCache) {
     log.info(
-      color.dim(
-        `baseline cache disabled${cacheDecision.reason ? ` (${cacheDecision.reason})` : ""}`,
-      ),
+      color.dim(`baseline cache disabled${cacheDecision.reason ? ` (${cacheDecision.reason})` : ""}`),
     );
   }
-  const baselineIdentity = await detectBaselineIdentity(baselineEmitter.dir);
+  const baselineIdentity = await detectBaselineIdentity(baselineTree);
   const baselineProfileKey = computeBaselineProfileKey({
     emitter: values.emitter,
     baselineRef: baselineRefValue,
-    generatedCodePath: values["generated-code-path"],
-    nameFilter: values.name,
-    options,
+    command: config.command,
+    emitterPath: config.emitterPath,
+    generatedCodePath: config.generatedCodePath,
+    setup: config.setup ?? [],
     passthrough,
   });
   const baselineCache = baselineCachePaths(baselineProfileKey);
@@ -215,8 +339,10 @@ async function main(): Promise<number> {
   const persistBaselineIndex = (index: BaselineCacheIndex): void => {
     try {
       writeBaselineCacheIndex(index);
-    } catch {
-      // Best effort cache cleanup.
+    } catch (err) {
+      // Best effort: a failed index write only means the cache may be recomputed
+      // next run; it must never abort an otherwise-successful diff.
+      log.warn(`Could not persist baseline cache index (ignored). ${String(err)}`);
     }
   };
 
@@ -234,12 +360,11 @@ async function main(): Promise<number> {
           delete index[baselineProfileKey];
           persistBaselineIndex(index);
         } else if (existsSync(baselineCache.marker) && existsSync(baselineCache.dir)) {
-          log.step("Reusing cached baseline output");
-          rmSync(baselineOut, { recursive: true, force: true });
-          cpSync(baselineCache.dir, baselineOut, { recursive: true, force: true });
+          log.step("Baseline output regeneration (reusing cached output)");
+          rmSync(baselineSnap, { recursive: true, force: true });
+          cpSync(baselineCache.dir, baselineSnap, { recursive: true, force: true });
           baselineReused = true;
         } else {
-          log.info(color.dim("Baseline cache not found; regenerating baseline."));
           delete index[baselineProfileKey];
           persistBaselineIndex(index);
         }
@@ -249,31 +374,18 @@ async function main(): Promise<number> {
     }
   }
 
-  const baselineReq = {
-    emitter: baselineEmitter,
-    outputDir: baselineOut,
-    generatedCodePath: values["generated-code-path"],
-    nameFilter: values.name,
-    options,
-    passthrough,
-    logPrefix: parallel ? color.dim("[baseline] ") : undefined,
-  };
-  const headReq = {
-    emitter: headEmitter,
-    outputDir: headOut,
-    generatedCodePath: values["generated-code-path"],
-    nameFilter: values.name,
-    options,
-    passthrough,
-    logPrefix: parallel ? color.cyan("[head] ") : undefined,
-  };
+  // Setup runs only in a tree the tool freshly materialized from GitHub — never
+  // the current working tree or a user-provided local: path (assumed built).
+  const baselineSetup = baselineRef.kind === "github";
+  const headSetup = headRef !== "current" && headRef.kind === "github";
 
   if (baselineReused) {
-    log.step("Generating head (baseline reused)");
-    await adapter.generate(headReq, ctx);
+    await runSide("Head", headTree, headSnap, headLabel, undefined, headSetup);
   } else {
-    log.step("Generating baseline + head in parallel");
-    await Promise.all([adapter.generate(baselineReq, ctx), adapter.generate(headReq, ctx)]);
+    await Promise.all([
+      runSide("Baseline", baselineTree, baselineSnap, baselineLabel, color.dim("[baseline] "), baselineSetup),
+      runSide("Head", headTree, headSnap, headLabel, color.cyan("[head] "), headSetup),
+    ]);
   }
 
   if (useBaselineCache && !baselineReused) {
@@ -284,35 +396,20 @@ async function main(): Promise<number> {
       ) {
         throw new Error("unsafe cache path");
       }
-
       rmSync(baselineCache.dir, { recursive: true, force: true });
-      cpSync(baselineOut, baselineCache.dir, { recursive: true, force: true });
-      writeFileSync(
-        baselineCache.marker,
-        `${new Date().toISOString()} ${baselineIdentity}\n`,
-        "utf8",
-      );
+      cpSync(baselineSnap, baselineCache.dir, { recursive: true, force: true });
+      writeFileSync(baselineCache.marker, `${new Date().toISOString()} ${baselineIdentity}\n`, "utf8");
       const index = readBaselineCacheIndex();
-      index[baselineProfileKey] = {
-        baselineIdentity,
-        updatedAt: new Date().toISOString(),
-      };
+      index[baselineProfileKey] = { baselineIdentity, updatedAt: new Date().toISOString() };
       writeBaselineCacheIndex(index);
     } catch (err) {
       log.warn(`Could not update baseline cache. ${String(err)}`);
     }
   }
 
-  // Log output roots used by the diff.
-  log.info(
-    `${color.dim("baseline output:")} ${baselineOut} ${color.dim(`(${baselineEmitter.label})`)}`,
-  );
-  log.info(`${color.cyan("head output:")} ${headOut} ${color.dim(`(${headEmitter.label})`)}`);
-
   // Diff.
-  const diff = await diffDirs(baselineOut, headOut, log);
+  const diff = await diffDirs(baselineSnap, headSnap, log);
 
-  // Default to a clickable HTML report in the work dir unless --html is set.
   const htmlTarget = values.html ?? join(workDir, "emitter-diff.html");
 
   if (!diff.hasChanges) {
@@ -325,8 +422,7 @@ async function main(): Promise<number> {
 
   if (values["fail-on-diff"] && diff.hasChanges) {
     log.error("Differences detected and --fail-on-diff is set.");
-    // Exit code 2 is reserved for "diff present" so CI can distinguish an
-    // expected-but-unapproved diff from a hard failure (exit 1).
+    // Exit 2 = "diff present" so CI can distinguish it from a hard failure (1).
     return 2;
   }
   return 0;

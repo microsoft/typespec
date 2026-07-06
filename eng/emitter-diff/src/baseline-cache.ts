@@ -6,11 +6,12 @@ import { join, resolve, sep } from "node:path";
 import { ensureDir, run } from "./util.js";
 
 export interface BaselineCacheProfileInput {
-  emitter: string;
+  emitter?: string;
   baselineRef: string;
-  generatedCodePath?: string;
-  nameFilter?: string;
-  options: Record<string, string>;
+  command: string;
+  emitterPath: string;
+  generatedCodePath: string;
+  setup: string[];
   passthrough: string[];
 }
 

@@ -231,6 +231,6 @@ export function writeHtml(diff: DiffResult, outFile: string, log: Logger): void 
   const summary = `${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}`;
   writeFileSync(outFile, htmlDoc(summary, body), "utf8");
   const abs = resolve(outFile);
-  log.success(`Wrote HTML diff to ${abs}`);
-  log.info(`${color.bold("Open it:")} ${pathToFileURL(abs).href}`);
+  log.success(`Successfully created HTML report.`);
+  log.info(`${color.bold("Open Diff:")} ${pathToFileURL(abs).href}`);
 }
