@@ -2,9 +2,9 @@
  * Language-agnostic ref resolver.
  *
  * Classifies a user-provided ref string into npm / local / github and
- * materializes it into a local directory the adapter can consume. Building a
- * source checkout into a usable emitter is intentionally NOT done here — that
- * is language-specific and belongs to the adapter's `prepareEmitter`.
+ * materializes it into a local source tree the regenerate command can run in.
+ * Building that checkout into a usable emitter is intentionally NOT done here —
+ * that is language-specific and handled by the preset's `setup` commands.
  */
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
