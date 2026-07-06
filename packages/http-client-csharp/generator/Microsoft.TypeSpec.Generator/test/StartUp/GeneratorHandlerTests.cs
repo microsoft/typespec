@@ -225,7 +225,7 @@ namespace TestPlugin
         }
 
         [Test]
-        public void BuildPlugin_ThrowsOnInvalidProject()
+        public void BuildPlugin_ReturnsNullOnInvalidProject()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
@@ -237,11 +237,14 @@ namespace TestPlugin
 
                 using var emitter = new Emitter(Stream.Null);
 
-                Assert.Throws<InvalidOperationException>(() =>
-                    GeneratorHandler.BuildPlugin(
-                        Path.Combine(testDir, "Bad.csproj"),
-                        testDir,
-                        emitter));
+                // A failed build should log an error and return null rather than throwing, so that
+                // generation is not aborted (e.g. when the plugin is built in parallel across projects).
+                var result = GeneratorHandler.BuildPlugin(
+                    Path.Combine(testDir, "Bad.csproj"),
+                    testDir,
+                    emitter);
+
+                Assert.IsNull(result);
             }
             finally
             {

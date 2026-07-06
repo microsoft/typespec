@@ -228,8 +228,14 @@ namespace Microsoft.TypeSpec.Generator
 
             if (process.ExitCode != 0)
             {
-                throw new InvalidOperationException(
-                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
+                // Log an error instead of throwing so that a failed plugin build does not abort
+                // the entire generation. This can happen when the same plugin is built in parallel
+                // for multiple referenced projects within a single solution folder.
+                emitter.ReportDiagnostic(
+                    "plugin-build-failed",
+                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}",
+                    severity: EmitterDiagnosticSeverity.Error);
+                return null;
             }
 
             var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
