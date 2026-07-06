@@ -47,6 +47,12 @@ npx tsx eng/emitter-diff/src/cli.ts \
 > (a repo dev dependency), matching the rest of `eng/`, so there is nothing to build. Typecheck
 > with `npx tsc -p eng/emitter-diff`.
 
+> **Build your checkout first.** `--head` defaults to the current working tree, and the tool runs
+> the regenerate command against it **as-is** — it never installs or builds your checkout (see
+> [Command prep](#command-prep---setup)). Build the emitter for the head side before diffing; for
+> **python** that's `npm run setup` in `packages/http-client-python` (builds the emitter and creates
+> the venv `regenerate` requires). Only trees the tool fetches from GitHub are auto-prepared.
+
 ### Emitter config
 
 | Flag                           | Meaning                                                      |
@@ -68,8 +74,8 @@ skip `--emitter`.
 | `github:owner/repo@<sha\|branch>` | a GitHub source at a ref             |
 | `gh:<sha\|branch>`                | this repo (origin remote) at a ref   |
 
-`--head` defaults to the **current working tree**. `--baseline` defaults to `gh:upstream/main` when
-present, otherwise `gh:origin/main` (`origin/HEAD` as a fallback).
+`--head` defaults to the **current working tree**. `--baseline` defaults to the `upstream` remote's
+repo at its default branch, falling back to `origin` (e.g. `github:microsoft/typespec@main`).
 
 > **npm refs are rejected.** A published package has no source tree to run a regenerate command in,
 > so pass a `local:` or `github:`/`gh:` source ref instead.
@@ -82,8 +88,8 @@ ref). The current working tree and user-provided `local:` paths are assumed alre
 **never touched** (so setup never mutates your checkout or a prepared CI worktree).
 
 - A **preset** supplies sensible setup defaults, so `--emitter python --baseline gh:main` installs +
-  builds the fetched baseline automatically (python: `pnpm install` → `npm run setup`; typescript:
-  `pnpm install` → `npm run build`).
+  builds the fetched baseline automatically (python: `npm install --ignore-scripts` → `npm run setup`;
+  typescript: `pnpm install` → `npm run build`).
 - Override with one or more `--setup <cmd>` (each runs in order, in `<tree>/<emitter-path>`), or
   disable entirely with `--no-setup`.
 

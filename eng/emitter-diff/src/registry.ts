@@ -9,6 +9,15 @@
  */
 import type { EmitterConfig } from "./types.js";
 
+// @typespec/http-client-python (microsoft/typespec). `regenerate` writes the
+// in-tree spector output under tests/generated.
+const python: EmitterConfig = {
+  command: "npm run regenerate",
+  emitterPath: "packages/http-client-python",
+  generatedCodePath: "tests/generated",
+  setup: ["npm install --ignore-scripts", "npm run setup"],
+};
+
 // @azure-tools/typespec-ts (Azure/typespec-azure). `regen-test-baselines` runs
 // gen-spector.js, which writes the in-tree spector baselines under
 // test/azure-modular-integration/generated.
@@ -20,16 +29,7 @@ const typescript: EmitterConfig = {
 };
 
 export const EMITTER_DEFAULTS: Record<string, EmitterConfig> = {
-  python: {
-    command: "npm run regenerate",
-    emitterPath: "packages/http-client-python",
-    generatedCodePath: "tests/generated",
-    // http-client-python is excluded from the pnpm workspace
-    // (see pnpm-workspace.yaml), so it manages its own registry-versioned deps.
-    // Install them with npm (not pnpm), skipping the prepare/venv scripts, then
-    // run the package's own setup (build + venv/wheel install).
-    setup: ["npm install --ignore-scripts", "npm run setup"],
-  },
+  python,
   typescript,
   ts: typescript,
   // Future: rust, java, go ... each just names its regenerate command and paths.

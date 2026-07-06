@@ -117,6 +117,18 @@ async function detectOriginRepo(repoRoot: string | undefined, log: Logger): Prom
   return FALLBACK_REPO;
 }
 
+/**
+ * Resolve a named git remote (e.g. `upstream`, `origin`) to its `owner/repo`,
+ * or undefined if the remote is absent or not a GitHub URL. Used to build a
+ * default baseline that targets the remote's actual repo instead of assuming
+ * origin.
+ */
+export async function getRemoteRepo(repoRoot: string, remote: string): Promise<string | undefined> {
+  const res = await run("git", ["remote", "get-url", remote], { cwd: repoRoot });
+  if (res.code !== 0) return undefined;
+  return parseOwnerRepoFromUrl(res.stdout.trim());
+}
+
 /** Parse `owner/repo` from an https, ssh, or git@ GitHub remote URL. */
 function parseOwnerRepoFromUrl(url: string): string | undefined {
   // https://github.com/owner/repo(.git) | git@github.com:owner/repo(.git) |

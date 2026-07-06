@@ -28,6 +28,7 @@ import {
   classifyRef,
   defaultWorkDir,
   describeRef,
+  getRemoteRepo,
   materializeTree,
   resolveGithubIdentity,
 } from "./resolver.js";
@@ -92,32 +93,26 @@ ${color.bold("Options:")}
 `;
 
 async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
-  // Prefer upstream/main for fork workflows.
-  const upstreamMain = await run(
-    "git",
-    ["show-ref", "--verify", "--quiet", "refs/remotes/upstream/main"],
-    { cwd: repoRoot },
-  );
-  if (upstreamMain.code === 0) return "gh:upstream/main";
-
-  const originMain = await run(
-    "git",
-    ["show-ref", "--verify", "--quiet", "refs/remotes/origin/main"],
-    { cwd: repoRoot },
-  );
-  if (originMain.code === 0) return "gh:origin/main";
-
-  // Fall back to origin/HEAD (for example, origin/master).
+  // Pin the branch name from origin/HEAD (handles non-`main` defaults), falling
+  // back to `main`.
   const originHead = await run("git", ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], {
     cwd: repoRoot,
   });
-  if (originHead.code === 0) {
-    const ref = originHead.stdout.trim().replace(/^refs\/remotes\//, "");
-    if (ref) return `gh:${ref}`;
+  const branch =
+    (originHead.code === 0 && originHead.stdout.trim().replace(/^refs\/remotes\/origin\//, "")) ||
+    "main";
+
+  // Prefer the `upstream` remote (fork workflow), then `origin`, and target that
+  // remote's actual owner/repo. A bare `gh:` ref would always resolve against
+  // origin, so `gh:upstream/main` on a fork would wrongly fetch branch
+  // "upstream/main" from origin.
+  for (const remote of ["upstream", "origin"]) {
+    const repo = await getRemoteRepo(repoRoot, remote);
+    if (repo) return `github:${repo}@${branch}`;
   }
 
-  // Final fallback for unusual clones.
-  return "gh:origin/main";
+  // No usable remote: this repo (origin, per gh: default) at its default branch.
+  return `gh:${branch}`;
 }
 
 /**
@@ -149,8 +144,13 @@ function buildRegenerateArgs(commandArgv: string[], passthrough: string[]): stri
   if (passthrough.length === 0) return base;
 
   const bin = (commandArgv[0] ?? "").toLowerCase().replace(/\.(cmd|exe|ps1)$/, "");
-  const isPmRun = (bin === "npm" || bin === "pnpm" || bin === "yarn") && base.includes("run");
-  const needsSeparator = isPmRun && !base.includes("--");
+  const isPm = bin === "npm" || bin === "pnpm" || bin === "yarn";
+  // Locate the actual run subcommand (npm also spells it `run-script`).
+  const runIndex = isPm ? base.findIndex((a) => a === "run" || a === "run-script") : -1;
+  // A `--` only separates script args when it comes after that subcommand.
+  const separatorIndex = base.indexOf("--");
+  const hasScriptSeparator = separatorIndex > runIndex;
+  const needsSeparator = runIndex !== -1 && !hasScriptSeparator;
 
   return needsSeparator ? [...base, "--", ...passthrough] : [...base, ...passthrough];
 }
@@ -281,11 +281,14 @@ async function main(): Promise<number> {
   // lets a baseline-output cache hit skip the expensive worktree checkout +
   // regenerate. Only a cache miss (or a non-github ref) pays for materializing.
   let baselineTree: string | undefined;
+  // For github refs this is repinned to the exact resolved SHA below, so the
+  // checkout matches the identity we cache under even if the branch moves.
+  let baselineMaterializeRef = baselineRef;
   const baselineLabel = describeRef(baselineRef, config.emitterPath);
   const ensureBaselineTree = async (): Promise<string> => {
     if (baselineTree === undefined) {
       log.step("Resolving baseline source tree");
-      baselineTree = await materializeTree(baselineRef, workDir, log, repoRoot);
+      baselineTree = await materializeTree(baselineMaterializeRef, workDir, log, repoRoot);
     }
     return baselineTree;
   };
@@ -376,6 +379,11 @@ async function main(): Promise<number> {
     baselineRef.kind === "github"
       ? await resolveGithubIdentity(baselineRef, repoRoot, log)
       : await detectBaselineIdentity(await ensureBaselineTree());
+  // Pin a github baseline to the exact commit we just resolved, so a later
+  // checkout can't drift to a newer commit if the branch moves mid-run.
+  if (baselineRef.kind === "github" && baselineIdentity.startsWith("git:")) {
+    baselineMaterializeRef = { ...baselineRef, gitRef: baselineIdentity.slice("git:".length) };
+  }
   const baselineProfileKey = computeBaselineProfileKey({
     emitter: values.emitter,
     baselineRef: baselineRefValue,
