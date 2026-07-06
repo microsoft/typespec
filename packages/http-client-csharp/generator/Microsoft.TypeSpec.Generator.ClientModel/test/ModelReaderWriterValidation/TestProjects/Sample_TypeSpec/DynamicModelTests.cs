@@ -25,9 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
             var json = data.ToString();
 
-            Assert.That(json.Split("\"requiredNullableList\"").Length - 1, Is.EqualTo(1));
-
             using var document = JsonDocument.Parse(json);
+            Assert.That(GetRootPropertyCount(document.RootElement, "requiredNullableList"), Is.EqualTo(1));
             CollectionAssert.AreEqual(
                 new[] { 1, 2 },
                 document.RootElement.GetProperty("requiredNullableList").EnumerateArray().Select(item => item.GetInt32()).ToArray());
@@ -47,12 +46,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
             var json = data.ToString();
 
-            Assert.That(json.Split("\"listFoo\"").Length - 1, Is.EqualTo(1));
-
             using var document = JsonDocument.Parse(json);
+            Assert.That(GetRootPropertyCount(document.RootElement, "listFoo"), Is.EqualTo(1));
             var listFoo = document.RootElement.GetProperty("listFoo");
             Assert.That(listFoo.GetArrayLength(), Is.EqualTo(1));
             Assert.That(listFoo[0].GetProperty("bar").GetString(), Is.EqualTo("patched"));
         }
+
+        private static int GetRootPropertyCount(JsonElement root, string propertyName) => root.EnumerateObject().Count(property => property.NameEquals(propertyName));
     }
 }
