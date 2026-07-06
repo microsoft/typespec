@@ -18,7 +18,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
-import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";
 import {
   camelToSnakeCase,
@@ -56,11 +55,40 @@ function isEmptyModel(type: SdkType): boolean {
   );
 }
 
+// Produce a deterministic key for a simple type record by stringifying with sorted keys,
+// so that structurally-equal types map to the same cache entry regardless of key order.
+// The type graph can be cyclic (e.g. an enum's values referencing back to the enum), so
+// cycles are broken with a stable placeholder to keep this from throwing.
+function stableStringify(value: unknown): string {
+  const seen = new WeakSet<object>();
+  const serialize = (val: unknown): string => {
+    if (val === null || typeof val !== "object") {
+      return JSON.stringify(val);
+    }
+    if (seen.has(val)) {
+      return '"[Circular]"';
+    }
+    seen.add(val);
+    let result: string;
+    if (Array.isArray(val)) {
+      result = `[${val.map(serialize).join(",")}]`;
+    } else {
+      const entries = Object.entries(val as Record<string, unknown>).sort(([a], [b]) =>
+        a < b ? -1 : a > b ? 1 : 0,
+      );
+      result = `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${serialize(v)}`).join(",")}}`;
+    }
+    seen.delete(val);
+    return result;
+  };
+  return serialize(value);
+}
+
 export function getSimpleTypeResult(
   context: PythonSdkContext,
   result: Record<string, any>,
 ): Record<string, any> {
-  const key = dump(result, { sortKeys: true });
+  const key = stableStringify(result);
   const value = context.__simpleTypesMap.get(key);
   if (value) {
     result = value;

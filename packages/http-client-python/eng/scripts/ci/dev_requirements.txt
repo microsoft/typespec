@@ -9,4 +9,3 @@ pytest==9.0.3
 coverage==7.6.1
 black==24.4.0
 ptvsd==4.3.2
-types-PyYAML==6.0.12.8

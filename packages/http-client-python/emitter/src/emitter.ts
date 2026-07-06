@@ -1,6 +1,6 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import jsyaml from "js-yaml";
+import { stringify } from "flatted";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -47,9 +47,9 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     options["package-pprint-name"] !== undefined &&
     !options["package-pprint-name"].startsWith('"')
   ) {
-    // Only add quotes for shell compatibility when NOT using emit-yaml-only mode
-    // (emit-yaml-only passes options via JSON config files, not shell)
-    const needsShellQuoting = !options["use-pyodide"] && !options["emit-yaml-only"];
+    // Only add quotes for shell compatibility when NOT using emit-codemodel-only mode
+    // (emit-codemodel-only passes options via JSON config files, not shell)
+    const needsShellQuoting = !options["use-pyodide"] && !options["emit-codemodel-only"];
     options["package-pprint-name"] = needsShellQuoting
       ? `"${options["package-pprint-name"]}"`
       : `${options["package-pprint-name"]}`;
@@ -246,13 +246,13 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       return;
     }
 
-    const yamlFilePath = "/yaml/python-yaml-path.yaml";
-    pyodide.FS.mkdirTree("/yaml");
+    const codeModelFilePath = "/codemodel/python-codemodel-path.json";
+    pyodide.FS.mkdirTree("/codemodel");
     pyodide.FS.mkdirTree("/output");
     clearMemfsDirectory(pyodide, "/output");
-    pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
+    pyodide.FS.writeFile(codeModelFilePath, stringify(parsedYamlMap));
 
-    await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
+    await runPyodideGeneration(pyodide, "/output", codeModelFilePath, commandArgs);
     await copyPyodideOutputToHost(context, pyodide, "/output");
   } else {
     await runNodeEmit({

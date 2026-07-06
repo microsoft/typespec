@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 """
-Batch process multiple TypeSpec YAML files in a single Python process.
+Batch process multiple TypeSpec code model files in a single Python process.
 This avoids the overhead of spawning a new Python process for each spec.
 """
 
@@ -34,7 +34,7 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
 
-        yaml_path = config["yamlPath"]
+        code_model_path = config["codeModelPath"]
         command_args = config["commandArgs"]
         output_dir = config["outputDir"]
 
@@ -51,12 +51,12 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
                 return False
             return value
 
-        pygen_args = {k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]}
+        pygen_args = {k: _coerce(v) for k, v in command_args.items() if k not in ["emit-codemodel-only"]}
 
         # Run preprocess and codegen (black is batched at the end for performance)
-        preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
+        preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=code_model_path, **pygen_args).process()
 
-        codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
+        codegen.CodeGenerator(output_folder=output_dir, tsp_file=code_model_path, **pygen_args).process()
 
         # Clean up the config file
         config_path.unlink()
@@ -104,7 +104,7 @@ def collect_config_files(generated_dir: str, flavor: str) -> list[str]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Batch process TypeSpec YAML files")
+    parser = argparse.ArgumentParser(description="Batch process TypeSpec code model files")
     parser.add_argument(
         "--generated-dir",
         required=True,

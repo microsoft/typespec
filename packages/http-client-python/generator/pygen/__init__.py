@@ -11,7 +11,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Any, Iterator, Optional, Union
 
-import yaml
+from . import _codemodel_json as codemodel_json
 from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
 
 from ._version import VERSION
@@ -285,15 +285,15 @@ class Plugin(ReaderAndWriter, ABC):
 
 
 class YamlUpdatePlugin(Plugin):
-    """A plugin that update the YAML as input."""
+    """A plugin that update the serialized code model as input."""
 
     def get_yaml(self) -> dict[str, Any]:
         # tsp file doesn't have to be relative to output folder
         with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
-            return yaml.safe_load(fd.read())
+            return codemodel_json.loads(fd.read())
 
     def write_yaml(self, yaml_string: str) -> None:
-        with open(self.options["tsp_file"], "w", encoding="utf-8-sig") as fd:
+        with open(self.options["tsp_file"], "w", encoding="utf-8") as fd:
             fd.write(yaml_string)
 
     def process(self) -> bool:
@@ -302,16 +302,16 @@ class YamlUpdatePlugin(Plugin):
 
         self.update_yaml(yaml_data)
 
-        yaml_string = yaml.safe_dump(yaml_data)
+        yaml_string = codemodel_json.dumps(yaml_data)
 
         self.write_yaml(yaml_string)
         return True
 
     @abstractmethod
     def update_yaml(self, yaml_data: dict[str, Any]) -> None:
-        """The code-model-v4-no-tags yaml model tree.
+        """The code-model-v4-no-tags model tree.
 
-        :rtype: updated yaml
+        :rtype: updated model
         :raises Exception: Could raise any exception, stacktrace will be sent to autorest API
         """
         raise NotImplementedError()

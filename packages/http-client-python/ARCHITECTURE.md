@@ -18,8 +18,8 @@ This document provides a comprehensive overview of the `@typespec/http-client-py
 
 The `@typespec/http-client-python` package is a TypeSpec emitter that generates Python SDK code from TypeSpec definitions. The emitter follows a two-stage architecture:
 
-1. **Emitter Stage (TypeScript)**: Processes TypeSpec definitions and generates an intermediate YAML representation
-2. **Generator Stage (Python)**: Transforms the YAML into Python SDK code using templates
+1. **Emitter Stage (TypeScript)**: Processes TypeSpec definitions and generates an intermediate JSON code model representation
+2. **Generator Stage (Python)**: Transforms the code model into Python SDK code using templates
 
 This separation allows for language-specific code generation while maintaining a clean architecture.
 
@@ -45,7 +45,7 @@ This separation allows for language-specific code generation while maintaining a
 │         │                                                       │
 │         ▼                                                       │
 │  ┌──────────────────────────────────────────────────────┐       │
-│  │         Intermediate YAML Code Model                 │       │
+│  │         Intermediate JSON Code Model                 │       │
 │  │  (contains clients, operations, models, types, etc.) │       │
 │  └──────────────────────────────────────────────────────┘       │
 └────────────────────────────┬────────────────────────────────────┘
@@ -66,7 +66,7 @@ This separation allows for language-specific code generation while maintaining a
 │  │  - Maps Python types                                     │   │
 │  └────────────────────────┬─────────────────────────────────┘   │
 │                           │                                     │
-│                           │ Enhanced YAML                       │
+│                           │ Enhanced code model                 │
 │                           │                                     │
 │  Step 2: Codegen          ▼                                     │
 │  ┌──────────────────────────────────────────────────────────┐   │
@@ -114,18 +114,18 @@ The emitter bridges TypeSpec and Python code generation.
 2. Extract client information (endpoints, credentials, operations)
 3. Build type mappings from TypeSpec to Python
 4. Convert Markdown documentation to reStructuredText format
-5. Generate intermediate YAML representation
-6. Invoke Python generator with YAML input
+5. Generate intermediate JSON code model representation
+6. Invoke Python generator with the code model as input
 
 ### 2. Generator (Python)
 
 **Location**: `packages/http-client-python/generator/pygen/`
 
-The generator transforms the YAML code model into Python SDK code through two stages:
+The generator transforms the JSON code model into Python SDK code through two stages:
 
 #### Step 1: Preprocess
 
-Enhances the YAML with Python-specific information:
+Enhances the code model with Python-specific information:
 
 - Converts names to `snake_case` and pads Python reserved words
 - Adds Python type hints and handles optional/required parameters
@@ -136,9 +136,9 @@ Enhances the YAML with Python-specific information:
 
 #### Step 2: Codegen
 
-Transforms the enhanced YAML into Python files using a three-layer architecture:
+Transforms the enhanced code model into Python files using a three-layer architecture:
 
-1. **Models** (`codegen/models/`): Python classes that parse YAML into structured objects (CodeModel, Client, Operation, ModelType, EnumType, etc.)
+1. **Models** (`codegen/models/`): Python classes that parse the code model into structured objects (CodeModel, Client, Operation, ModelType, EnumType, etc.)
 
 2. **Serializers** (`codegen/serializers/`): Orchestrate code generation using Jinja2 templates (JinjaSerializer, ClientSerializer, ModelSerializer, etc.)
 
@@ -173,28 +173,28 @@ def {{ operation.name }}(self, {{ operation.parameters }}):
    - Traverses TypeSpec AST
    - Extracts clients, operations, models, enums
    - Maps types using `types.ts`
-   - Builds YAML code model structure
+   - Builds the code model structure
 
-4. **YAML Export**
-   - Converts JavaScript objects to YAML
-   - Saves to temporary file
+4. **Code Model Export**
+   - Serializes the JavaScript code model graph to JSON using the `flatted` format
+     (preserves the cyclic/shared object graph), saved to a temporary file
    - Converts Markdown descriptions to reStructuredText
 
 5. **Python Generator Invocation**
    - Emitter spawns Python process (or uses Pyodide)
-   - Passes YAML file path and options
+   - Passes the code model file path and options
    - Python generator receives control
 
 6. **Preprocessing** (`preprocess/__init__.py`)
-   - Loads YAML file
+   - Loads the code model file
    - Applies Python naming conventions
    - Pads reserved words
    - Adds type information
    - Creates operation overloads
-   - Saves enhanced YAML
+   - Saves the enhanced code model
 
 7. **Code Generation** (`codegen/__init__.py`)
-   - Loads enhanced YAML
+   - Loads the enhanced code model
    - Creates `CodeModel` object hierarchy
    - Instantiates models for all code elements
 
@@ -379,12 +379,12 @@ npm run regenerate
 
 - Use VS Code debugger with TypeScript
 - Add breakpoints in `emitter/src/`
-- Inspect YAML output in temp directory
+- Inspect code model output in temp directory
 
 **Generator debugging**:
 
 - Add Python breakpoints or print statements
-- Inspect enhanced YAML after preprocessing
+- Inspect the enhanced code model after preprocessing
 - Check generated files in output directory
 
 ## Additional Resources

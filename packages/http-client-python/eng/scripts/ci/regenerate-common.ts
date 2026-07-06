@@ -61,11 +61,11 @@ export interface RegenerateContext {
 /**
  * Optional knobs for `buildTaskGroups`.  Kept here so the call site in each
  * repo's `regenerate.ts` can opt into the upstream two-phase pipeline
- * (`emitYamlOnly: true`) or the single-phase pipeline (default).
+ * (`emitCodeModelOnly: true`) or the single-phase pipeline (default).
  */
 export interface BuildTaskGroupsOptions {
-  /** If true, ask the emitter to write YAML only and skip Python codegen. */
-  emitYamlOnly?: boolean;
+  /** If true, ask the emitter to write the code model only and skip Python codegen. */
+  emitCodeModelOnly?: boolean;
 }
 
 // ---- Public constants ----
@@ -515,9 +515,9 @@ export function buildTaskGroups(
 
       opts["examples-dir"] = toPosix(join(dirname(spec), "examples"));
 
-      if (options.emitYamlOnly) {
-        // Emit YAML only - Python processing is batched after all specs compile.
-        opts["emit-yaml-only"] = true;
+      if (options.emitCodeModelOnly) {
+        // Emit the code model only - Python processing is batched after all specs compile.
+        opts["emit-codemodel-only"] = true;
       }
 
       tasks.push({ spec, outputDir, options: opts });

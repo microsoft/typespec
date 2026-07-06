@@ -1,8 +1,8 @@
 import { joinPaths } from "@typespec/compiler";
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 import { randomUUID } from "crypto";
+import { stringify } from "flatted";
 import { mkdir, writeFile } from "fs/promises";
-import jsyaml from "js-yaml";
 import os from "os";
 
 const tspCodeGenTempDir = joinPaths(os.tmpdir(), "tsp-codegen");
@@ -12,16 +12,20 @@ export function createTempPath(extension: string, prefix: string = "") {
 }
 
 /**
- * Save the given codemodel in a yaml file.
+ * Save the given codemodel in a JSON file.
+ *
+ * The codemodel is a cyclic object graph with shared references, so it is serialized
+ * with the `flatted` format (a flat JSON array with index references) which preserves
+ * cycles and structural sharing. The Python generator reads it back with a matching
+ * decoder.
  * @param name Name of the codemodel. To give a guide to the temp file name.
  * @param codemodel Codemodel to save
  * @return the absolute path to the created codemodel.
  */
-export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
+export async function saveCodeModel(name: string, codemodel: unknown): Promise<string> {
   await mkdir(tspCodeGenTempDir, { recursive: true });
-  const filename = createTempPath(".yaml", name);
-  const yamlStr = jsyaml.dump(codemodel);
-  await writeFile(filename, yamlStr);
+  const filename = createTempPath(".json", name);
+  await writeFile(filename, stringify(codemodel));
   return filename;
 }
 
