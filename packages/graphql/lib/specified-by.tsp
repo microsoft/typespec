@@ -10,8 +10,8 @@ namespace TypeSpec.GraphQL;
  * @example
  *
  * ```typespec
- * @specifiedBy("https://scalars.graphql.org/jakobmerrild/long.html")
- * scalar Long extends int64;
+ * @specifiedBy("https://scalars.graphql.org/andimarek/date-time")
+ * scalar DateTime extends utcDateTime;
  * ```
  */
 extern dec specifiedBy(target: Scalar, url: valueof url);

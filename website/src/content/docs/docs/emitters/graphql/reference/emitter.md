@@ -60,6 +60,8 @@ Example Multiple schemas
 
 **Type:** `"crlf" | "lf"`
 
+**Default:** `"lf"`
+
 Set the newLine character for emitting files.
 
 ### `omit-unreachable-types`

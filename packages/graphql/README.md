@@ -1,8 +1,6 @@
 # @typespec/graphql
 
-TypeSpec library and emitter for GraphQL.
-
-Generates GraphQL SDL (Schema Definition Language) from TypeSpec source files.
+TypeSpec library for emitting GraphQL
 
 ## Install
 
@@ -12,13 +10,13 @@ npm install @typespec/graphql
 
 ## Emitter usage
 
-### Via the command line
+1. Via the command line
 
 ```bash
 tsp compile . --emit=@typespec/graphql
 ```
 
-### Via the config
+2. Via the config
 
 ```yaml
 emit:
@@ -32,160 +30,78 @@ emit:
   - "@typespec/graphql"
 options:
   "@typespec/graphql":
-    output-file: "schema.graphql"
+    option: value
 ```
 
 ## Emitter options
+
+### `emitter-output-dir`
+
+**Type:** `absolutePath`
+
+Defines the emitter output directory. Defaults to `{output-dir}/@typespec/graphql`
+See [Configuring output directory for more info](https://typespec.io/docs/handbook/configuration/configuration/#configuring-output-directory)
 
 ### `output-file`
 
 **Type:** `string`
 
-Name of the output file. Supports interpolation with `{schema-name}` for multi-schema scenarios.
+Name of the output file.
+Output file will interpolate the following values:
 
-**Default:** `{schema-name}.graphql`
+- schema-name: Name of the schema if multiple
+
+Default: `{schema-name}.graphql`
+
+Example Single schema
+
+- `schema.graphql`
+
+Example Multiple schemas
+
+- `Org1.Schema1.graphql`
+- `Org1.Schema2.graphql`
 
 ### `new-line`
 
-**Type:** `"lf" | "crlf"`
+**Type:** `"crlf" | "lf"`
 
-Set the newline character for emitting files.
+**Default:** `"lf"`
 
-**Default:** `lf`
+Set the newLine character for emitting files.
 
 ### `omit-unreachable-types`
 
 **Type:** `boolean`
 
-Omit unreachable types. By default all types declared under the schema namespace will be included. With this flag on, only types referenced in an operation will be emitted.
-
-**Default:** `false`
+Omit unreachable types.
+By default all types declared under the schema namespace will be included.
+With this flag on only types references in an operation will be emitted.
 
 ## Decorators
 
 ### TypeSpec.GraphQL
 
-All decorators are in the `TypeSpec.GraphQL` namespace. You can use them with the fully qualified name (e.g., `@TypeSpec.GraphQL.query`) or import the namespace:
-
-```typespec
-using TypeSpec.GraphQL;
-
-@query op getUser(id: string): User;
-```
-
-- [`@query`](#query)
-- [`@mutation`](#mutation)
-- [`@subscription`](#subscription)
-- [`@graphqlInterface`](#graphqlinterface)
-- [`@compose`](#compose)
-- [`@operationFields`](#operationfields)
-- [`@schema`](#schema)
-- [`@specifiedBy`](#specifiedby)
-
-#### `@query`
-
-Specify the GraphQL Operation kind for the target operation to be `QUERY`.
-
-```typespec
-@query
-```
-
-##### Target
-
-`Operation`
-
-##### Parameters
-
-None
-
-##### Examples
-
-```typespec
-@query op getUser(id: string): User;
-```
-
-#### `@mutation`
-
-Specify the GraphQL Operation kind for the target operation to be `MUTATION`.
-
-```typespec
-@mutation
-```
-
-##### Target
-
-`Operation`
-
-##### Parameters
-
-None
-
-##### Examples
-
-```typespec
-@mutation op createUser(name: string): User;
-```
-
-#### `@subscription`
-
-Specify the GraphQL Operation kind for the target operation to be `SUBSCRIPTION`.
-
-```typespec
-@subscription
-```
-
-##### Target
-
-`Operation`
-
-##### Parameters
-
-None
-
-##### Examples
-
-```typespec
-@subscription op onUserCreated(): User;
-```
-
-#### `@graphqlInterface`
-
-Mark a model as a GraphQL Interface. Interfaces can be implemented by other models using `@compose`.
-
-```typespec
-@graphqlInterface(options?: { interfaceOnly?: boolean })
-```
-
-##### Target
-
-`Model`
-
-##### Parameters
-
-| Name          | Type                          | Description                                                                                                      |
-| ------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| interfaceOnly | `valueof { interfaceOnly?: boolean }` | When true, the model will only be emitted as an interface (no "Interface" suffix). Defaults to false. |
-
-##### Examples
-
-```typespec
-@graphqlInterface(#{ interfaceOnly: true })
-model Node {
-  id: string;
-}
-
-@graphqlInterface
-model Reactable {
-  reactions: Reaction[];
-}
-```
+- [`@compose`](#@compose)
+- [`@graphqlInterface`](#@graphqlinterface)
+- [`@mutation`](#@mutation)
+- [`@nullable`](#@nullable)
+- [`@nullableElements`](#@nullableelements)
+- [`@oneOf`](#@oneof)
+- [`@operationFields`](#@operationfields)
+- [`@query`](#@query)
+- [`@schema`](#@schema)
+- [`@specifiedBy`](#@specifiedby)
+- [`@subscription`](#@subscription)
 
 #### `@compose`
 
-Specify the GraphQL interfaces that should be implemented by a model. The interfaces must be decorated with the `@graphqlInterface` decorator, and all of the interfaces' properties must be present and compatible.
+Specify the GraphQL interfaces that should be implemented by a model.
+The interfaces must be decorated with the `@graphqlInterface` decorator,
+and all of the interfaces' properties must be present and compatible.
 
 ```typespec
-@compose(...interfaces: Model[])
+@TypeSpec.GraphQL.compose(...interfaces: Model[])
 ```
 
 ##### Target
@@ -194,9 +110,9 @@ Specify the GraphQL interfaces that should be implemented by a model. The interf
 
 ##### Parameters
 
-| Name       | Type      | Description                                      |
-| ---------- | --------- | ------------------------------------------------ |
-| interfaces | `Model[]` | The interfaces that this model should implement. |
+| Name       | Type      | Description |
+| ---------- | --------- | ----------- |
+| interfaces | `Model[]` |             |
 
 ##### Examples
 
@@ -213,12 +129,13 @@ model User {
 }
 ```
 
-#### `@operationFields`
+#### `@graphqlInterface`
 
-Assign one or more operations or interfaces to act as fields with arguments on a model.
+Mark this model as a GraphQL Interface. Interfaces can be implemented by other models
+using the `@compose` decorator.
 
 ```typespec
-@operationFields(...operations: (Operation | Interface)[])
+@TypeSpec.GraphQL.graphqlInterface(options?: valueof { interfaceOnly: boolean })
 ```
 
 ##### Target
@@ -227,36 +144,168 @@ Assign one or more operations or interfaces to act as fields with arguments on a
 
 ##### Parameters
 
-| Name       | Type                      | Description                                  |
-| ---------- | ------------------------- | -------------------------------------------- |
-| operations | `(Operation \| Interface)[]` | Operations to add as fields on this model. |
+| Name    | Type            | Description                                                                                                                                                                                                                                                           |
+| ------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options | `valueof {...}` | .interfaceOnly When true, the model will only be emitted as an interface<br />(no "Interface" suffix is added to the name). Use this for abstract interfaces that<br />will never be used directly as output/input types (e.g., Node, Connection). Defaults to false. |
 
 ##### Examples
 
 ```typespec
-@query op followers(query: string): Person[];
+@graphqlInterface(#{ interfaceOnly: true })
+model Node {
+  id: string;
+}
+
+@compose(Node)
+model User {
+  ...Node;
+  name: string;
+}
+// Emits: interface Node { id: String! }
+//        type User implements Node { id: String!; name: String! }
+```
+
+#### `@mutation`
+
+Specify the GraphQL Operation kind for the target operation to be `MUTATION`.
+
+```typespec
+@TypeSpec.GraphQL.mutation
+```
+
+##### Target
+
+`Operation`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```typespec
+@mutation op createUser(name: string): User;
+```
+
+#### `@nullable`
+
+Mark a field, operation, or type as nullable in the emitted GraphQL schema.
+
+Applied automatically by the mutation engine when it strips `| null` from
+union types. The decorator's presence on the type's `decorators` array is
+the signal — the implementation is a no-op.
+
+```typespec
+@TypeSpec.GraphQL.nullable
+```
+
+##### Target
+
+`ModelProperty | Operation | Union | Model`
+
+##### Parameters
+
+None
+
+#### `@nullableElements`
+
+Mark a field or operation as having nullable array elements in the emitted GraphQL schema.
+
+Applied automatically by the mutation engine when it detects `Array<T | null>`
+patterns. Causes the emitter to emit `[T]` instead of `[T!]`.
+
+```typespec
+@TypeSpec.GraphQL.nullableElements
+```
+
+##### Target
+
+`ModelProperty | Operation`
+
+##### Parameters
+
+None
+
+#### `@oneOf`
+
+Mark a model as a `@oneOf` input object in the emitted GraphQL schema.
+
+This decorator is applied automatically by the mutation engine when it converts
+a union type in input context to a synthetic input object (since GraphQL unions
+are output-only). The emitter uses this to emit the `@oneOf` directive.
+
+```typespec
+@TypeSpec.GraphQL.oneOf
+```
+
+##### Target
+
+`Model`
+
+##### Parameters
+
+None
+
+#### `@operationFields`
+
+Assign one or more operations or interfaces to act as fields with arguments on a model.
+The operations become fields on the GraphQL type with their parameters as arguments.
+
+```typespec
+@TypeSpec.GraphQL.operationFields(...operations: Operation | Interface[])
+```
+
+##### Target
+
+`Model`
+
+##### Parameters
+
+| Name       | Type                       | Description |
+| ---------- | -------------------------- | ----------- |
+| operations | `Operation \| Interface[]` |             |
+
+##### Examples
+
+```typespec
+op followers(query: string): Person[];
 
 @operationFields(followers)
 model Person {
   name: string;
 }
+// Emits: type Person { name: String!; followers(query: String!): [Person!]! }
 ```
 
-This emits:
+#### `@query`
 
-```graphql
-type Person {
-  name: String!
-  followers(query: String!): [Person!]!
-}
+Specify the GraphQL Operation kind for the target operation to be `QUERY`.
+
+```typespec
+@TypeSpec.GraphQL.query
+```
+
+##### Target
+
+`Operation`
+
+##### Parameters
+
+None
+
+##### Examples
+
+```typespec
+@query op getUser(id: string): User;
 ```
 
 #### `@schema`
 
-Mark a namespace as describing a GraphQL schema and configure schema properties.
+Mark this namespace as describing a GraphQL schema and configure schema properties.
+All types and operations within the namespace will be emitted to a single GraphQL schema file.
 
 ```typespec
-@schema(options?: { name?: string })
+@TypeSpec.GraphQL.schema(options?: valueof TypeSpec.GraphQL.Schema.SchemaOptions)
 ```
 
 ##### Target
@@ -265,25 +314,31 @@ Mark a namespace as describing a GraphQL schema and configure schema properties.
 
 ##### Parameters
 
-| Name | Type                       | Description              |
-| ---- | -------------------------- | ------------------------ |
-| options | `valueof { name?: string }` | Schema configuration options. |
+| Name    | Type                                      | Description |
+| ------- | ----------------------------------------- | ----------- |
+| options | [valueof `SchemaOptions`](#schemaoptions) |             |
 
 ##### Examples
 
 ```typespec
 @schema(#{ name: "MyAPI" })
 namespace MyAPI {
-  @query op getStatus(): string;
+  model User {
+    id: string;
+    name: string;
+  }
+  @query op getUser(id: string): User;
 }
+// Emits: MyAPI.graphql
 ```
 
 #### `@specifiedBy`
 
-Provide a specification URL for a custom GraphQL scalar type. This maps to the `@specifiedBy` directive in the emitted GraphQL schema.
+Provide a specification URL for a custom GraphQL scalar type.
+This maps to the `@specifiedBy` directive in the emitted GraphQL schema.
 
 ```typespec
-@specifiedBy(url: valueof url)
+@TypeSpec.GraphQL.specifiedBy(url: valueof url)
 ```
 
 ##### Target
@@ -292,9 +347,9 @@ Provide a specification URL for a custom GraphQL scalar type. This maps to the `
 
 ##### Parameters
 
-| Name | Type          | Description                              |
-| ---- | ------------- | ---------------------------------------- |
-| url  | `valueof url` | URL to the scalar type specification.    |
+| Name | Type          | Description                          |
+| ---- | ------------- | ------------------------------------ |
+| url  | `valueof url` | URL to the scalar type specification |
 
 ##### Examples
 
@@ -303,74 +358,24 @@ Provide a specification URL for a custom GraphQL scalar type. This maps to the `
 scalar DateTime extends utcDateTime;
 ```
 
-## Type mapping
+#### `@subscription`
 
-TypeSpec types are mapped to GraphQL types as follows:
-
-| TypeSpec          | GraphQL            |
-| ----------------- | ------------------ |
-| `string`          | `String`           |
-| `boolean`         | `Boolean`          |
-| `int32`           | `Int`              |
-| `float32`         | `Float`            |
-| `GraphQL.ID`      | `ID`               |
-| `T[]`             | `[T!]!`            |
-| `T \| null`       | `T` (nullable)     |
-| `T?`              | `T` (nullable)     |
-| Model             | `type` or `input`  |
-| Enum              | `enum`             |
-| Union             | `union`            |
-
-## Input types
-
-When a model is used as an operation parameter, it is automatically emitted as a GraphQL input type with the `Input` suffix:
+Specify the GraphQL Operation kind for the target operation to be `SUBSCRIPTION`.
 
 ```typespec
-model User {
-  id: string;
-  name: string;
-}
-
-@mutation op createUser(user: User): User;
+@TypeSpec.GraphQL.subscription
 ```
 
-Emits:
+##### Target
 
-```graphql
-type User {
-  id: String!
-  name: String!
-}
+`Operation`
 
-input UserInput {
-  id: String!
-  name: String!
-}
+##### Parameters
 
-type Mutation {
-  createUser(user: UserInput!): User!
-}
-```
+None
 
-## Union handling
-
-GraphQL unions can only contain object types. When a union contains scalar types, the emitter automatically wraps them in synthetic object types:
+##### Examples
 
 ```typespec
-union SearchResult {
-  User,
-  string, // scalar - will be wrapped
-}
+@subscription op onUserCreated(): User;
 ```
-
-Emits:
-
-```graphql
-type SearchResultStringUnionVariant {
-  value: String!
-}
-
-union SearchResult = User | SearchResultStringUnionVariant
-```
-
-For unions used as input parameters, the emitter generates a `@oneOf` input type since GraphQL unions are output-only.

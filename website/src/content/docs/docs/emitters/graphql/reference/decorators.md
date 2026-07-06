@@ -10,7 +10,8 @@ toc_max_heading_level: 3
 ### `@compose` {#@TypeSpec.GraphQL.compose}
 
 Specify the GraphQL interfaces that should be implemented by a model.
-The interfaces must be decorated with the
+The interfaces must be decorated with the `@graphqlInterface` decorator,
+and all of the interfaces' properties must be present and compatible.
 
 ```typespec
 @TypeSpec.GraphQL.compose(...interfaces: Model[])
@@ -28,20 +29,27 @@ The interfaces must be decorated with the
 
 #### Examples
 
-````typespec
-@compose(Influencer, Person)
-model User {
- ... Influencer;
- ... Person;
+```typespec
+@graphqlInterface(#{ interfaceOnly: true })
+model Node {
+  id: string;
 }
 
+@compose(Node)
+model User {
+  ...Node;
+  name: string;
+}
+```
 
 ### `@graphqlInterface` {#@TypeSpec.GraphQL.graphqlInterface}
 
-Mark this model as a GraphQL Interface. Interfaces can be implemented by other models.
+Mark this model as a GraphQL Interface. Interfaces can be implemented by other models
+using the `@compose` decorator.
+
 ```typespec
 @TypeSpec.GraphQL.graphqlInterface(options?: valueof { interfaceOnly: boolean })
-````
+```
 
 #### Target
 
@@ -49,9 +57,9 @@ Mark this model as a GraphQL Interface. Interfaces can be implemented by other m
 
 #### Parameters
 
-| Name    | Type            | Description |
-| ------- | --------------- | ----------- |
-| options | `valueof {...}` |             |
+| Name    | Type            | Description                                                                                                                                                                                                                                                           |
+| ------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options | `valueof {...}` | .interfaceOnly When true, the model will only be emitted as an interface<br />(no "Interface" suffix is added to the name). Use this for abstract interfaces that<br />will never be used directly as output/input types (e.g., Node, Connection). Defaults to false. |
 
 #### Examples
 
@@ -61,10 +69,13 @@ model Node {
   id: string;
 }
 
-@graphqlInterface
-model Person {
+@compose(Node)
+model User {
+  ...Node;
   name: string;
 }
+// Emits: interface Node { id: String! }
+//        type User implements Node { id: String!; name: String! }
 ```
 
 ### `@mutation` {#@TypeSpec.GraphQL.mutation}
@@ -86,7 +97,7 @@ None
 #### Examples
 
 ```typespec
-@mutation op update(): string;
+@mutation op createUser(name: string): User;
 ```
 
 ### `@nullable` {#@TypeSpec.GraphQL.nullable}
@@ -151,6 +162,7 @@ None
 ### `@operationFields` {#@TypeSpec.GraphQL.operationFields}
 
 Assign one or more operations or interfaces to act as fields with arguments on a model.
+The operations become fields on the GraphQL type with their parameters as arguments.
 
 ```typespec
 @TypeSpec.GraphQL.operationFields(...operations: Operation | Interface[])
@@ -168,19 +180,23 @@ Assign one or more operations or interfaces to act as fields with arguments on a
 
 #### Examples
 
-````typespec
+```typespec
 op followers(query: string): Person[];
 
 @operationFields(followers)
-model Person {}
-
+model Person {
+  name: string;
+}
+// Emits: type Person { name: String!; followers(query: String!): [Person!]! }
+```
 
 ### `@query` {#@TypeSpec.GraphQL.query}
 
 Specify the GraphQL Operation kind for the target operation to be `QUERY`.
+
 ```typespec
 @TypeSpec.GraphQL.query
-````
+```
 
 #### Target
 
@@ -193,12 +209,13 @@ None
 #### Examples
 
 ```typespec
-@query op read(): string;
+@query op getUser(id: string): User;
 ```
 
 ### `@schema` {#@TypeSpec.GraphQL.schema}
 
 Mark this namespace as describing a GraphQL schema and configure schema properties.
+All types and operations within the namespace will be emitted to a single GraphQL schema file.
 
 ```typespec
 @TypeSpec.GraphQL.schema(options?: valueof TypeSpec.GraphQL.Schema.SchemaOptions)
@@ -217,10 +234,15 @@ Mark this namespace as describing a GraphQL schema and configure schema properti
 #### Examples
 
 ```typespec
-@schema(#{ name: "MySchema" })
-namespace MySchema {
-
+@schema(#{ name: "MyAPI" })
+namespace MyAPI {
+  model User {
+    id: string;
+    name: string;
+  }
+  @query op getUser(id: string): User;
 }
+// Emits: MyAPI.graphql
 ```
 
 ### `@specifiedBy` {#@TypeSpec.GraphQL.specifiedBy}
@@ -245,8 +267,8 @@ This maps to the `@specifiedBy` directive in the emitted GraphQL schema.
 #### Examples
 
 ```typespec
-@specifiedBy("https://scalars.graphql.org/jakobmerrild/long.html")
-scalar Long extends int64;
+@specifiedBy("https://scalars.graphql.org/andimarek/date-time")
+scalar DateTime extends utcDateTime;
 ```
 
 ### `@subscription` {#@TypeSpec.GraphQL.subscription}
@@ -268,5 +290,5 @@ None
 #### Examples
 
 ```typespec
-@subscription op get_periodically(): string;
+@subscription op onUserCreated(): User;
 ```

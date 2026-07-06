@@ -15,12 +15,17 @@ namespace Schema {
 
 /**
  * Mark this namespace as describing a GraphQL schema and configure schema properties.
+ * All types and operations within the namespace will be emitted to a single GraphQL schema file.
  *
  * @example
  *
  * ```typespec
- * @schema(#{name: "MySchema"})
- * namespace MySchema {};
+ * @schema(#{ name: "MyAPI" })
+ * namespace MyAPI {
+ *   model User { id: string; name: string; }
+ *   @query op getUser(id: string): User;
+ * }
+ * // Emits: MyAPI.graphql
  * ```
  */
 extern dec schema(target: Namespace, options?: valueof Schema.SchemaOptions);

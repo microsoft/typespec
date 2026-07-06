@@ -8,7 +8,7 @@ namespace TypeSpec.GraphQL;
  * @example
  *
  * ```typespec
- * @mutation op update(): string
+ * @mutation op createUser(name: string): User;
  * ```
  */
 extern dec mutation(target: Operation);
@@ -19,7 +19,7 @@ extern dec mutation(target: Operation);
  * @example
  *
  * ```typespec
- * @query op read(): string
+ * @query op getUser(id: string): User;
  * ```
  */
 extern dec query(target: Operation);
@@ -30,7 +30,7 @@ extern dec query(target: Operation);
  * @example
  *
  * ```typespec
- * @subscription op get_periodically(): string
+ * @subscription op onUserCreated(): User;
  * ```
  */
 extern dec subscription(target: Operation);
