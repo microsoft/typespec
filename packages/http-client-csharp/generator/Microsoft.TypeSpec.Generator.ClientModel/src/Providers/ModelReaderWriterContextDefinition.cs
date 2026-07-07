@@ -222,10 +222,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (ImplementsModelReaderWriter(typeProvider))
                 {
                     buildableProviders.Add(typeProvider);
+                    CollectBuildableTypeProvidersRecursive(typeProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                    return;
                 }
 
-                CollectBuildableTypeProvidersRecursive(typeProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
-                return;
+                if (!nonNullableType.IsFrameworkType)
+                {
+                    return;
+                }
             }
 
             if (nonNullableType.IsFrameworkType)

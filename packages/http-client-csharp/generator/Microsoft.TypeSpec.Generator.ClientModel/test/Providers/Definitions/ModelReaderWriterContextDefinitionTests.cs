@@ -1540,6 +1540,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var outputLibrary = new TestOutputLibrary([clientProvider]);
             var mockGenerator = MockHelpers.LoadMockGenerator(
                 createOutputLibrary: () => outputLibrary);
+            var frameworkModelType = new CSharpType(typeof(FrameworkModelWithMRW));
+            var externalInputModel = InputFactory.Model("FrameworkModelWithMRW");
+            ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[frameworkModelType] = new SystemObjectModelProvider(frameworkModelType, externalInputModel);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var attributes = contextDefinition.Attributes;
