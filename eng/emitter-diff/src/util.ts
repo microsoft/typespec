@@ -47,6 +47,14 @@ export interface RunResult {
   stderr: string;
 }
 
+/** Options shared by {@link run}, {@link runChecked}, and the git wrappers. */
+export interface RunOptions {
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+  inherit?: boolean;
+  prefix?: string;
+}
+
 /**
  * Spawn a command and resolve with its captured output. Never rejects on a
  * non-zero exit; inspect {@link RunResult.code}. Set `inherit` to stream
@@ -55,11 +63,7 @@ export interface RunResult {
  * when several children run concurrently and their logs would otherwise
  * interleave unintelligibly. `prefix` is ignored when `inherit` is set.
  */
-export function run(
-  cmd: string,
-  args: string[],
-  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean; prefix?: string } = {},
-): Promise<RunResult> {
+export function run(cmd: string, args: string[], opts: RunOptions = {}): Promise<RunResult> {
   return new Promise((resolve, reject) => {
     // Only route through a shell for Windows .cmd shims (npm/pnpm/npx/code/yarn).
     // Native binaries like git/node are spawned directly to avoid the shell
@@ -156,7 +160,7 @@ function quoteForShell(s: string): string {
 export async function runChecked(
   cmd: string,
   args: string[],
-  opts: { cwd?: string; env?: NodeJS.ProcessEnv; inherit?: boolean; prefix?: string } = {},
+  opts: RunOptions = {},
 ): Promise<RunResult> {
   const result = await run(cmd, args, opts);
   if (result.code !== 0) {
@@ -164,4 +168,14 @@ export async function runChecked(
     throw new Error(`Command failed (${result.code}): ${cmd} ${args.join(" ")}${detail}`);
   }
   return result;
+}
+
+/** Run `git` with the given args, capturing output (never throws on non-zero). */
+export function git(args: string[], opts: RunOptions = {}): Promise<RunResult> {
+  return run("git", args, opts);
+}
+
+/** Run `git` and throw if it exits non-zero. */
+export function gitChecked(args: string[], opts: RunOptions = {}): Promise<RunResult> {
+  return runChecked("git", args, opts);
 }

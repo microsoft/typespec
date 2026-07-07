@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
 import type { ClassifiedRef, Logger } from "./types.js";
-import { ensureDir, run, runChecked } from "./util.js";
+import { ensureDir, git, gitChecked } from "./util.js";
 
 /**
  * Classify a ref string. Explicit prefixes (`local:`, `github:`, `gh:`) are
@@ -95,7 +95,7 @@ const FALLBACK_REPO = "microsoft/typespec";
 async function detectOriginRepo(repoRoot: string | undefined, log: Logger): Promise<string> {
   if (!repoRoot) return FALLBACK_REPO;
   try {
-    const res = await run("git", ["remote", "get-url", "origin"], { cwd: repoRoot });
+    const res = await git(["remote", "get-url", "origin"], { cwd: repoRoot });
     if (res.code === 0) {
       const parsed = parseOwnerRepoFromUrl(res.stdout.trim());
       if (parsed) return parsed;
@@ -114,7 +114,7 @@ async function detectOriginRepo(repoRoot: string | undefined, log: Logger): Prom
  * origin.
  */
 export async function getRemoteRepo(repoRoot: string, remote: string): Promise<string | undefined> {
-  const res = await run("git", ["remote", "get-url", remote], { cwd: repoRoot });
+  const res = await git(["remote", "get-url", remote], { cwd: repoRoot });
   if (res.code !== 0) return undefined;
   return parseOwnerRepoFromUrl(res.stdout.trim());
 }
@@ -199,21 +199,20 @@ async function cloneGithub(
   const cloneUrl = `https://github.com/${repo}.git`;
 
   log.step(`Fetching ${repo}@${gitRef}`);
-  // Shallow-init and fetch the requested ref.
-  await runChecked("git", ["init", "-q"], { cwd: dest });
-  // Ignore failure when origin already exists (dest dir reused from a prior fetch).
-  await runChecked("git", ["remote", "add", "origin", cloneUrl], { cwd: dest }).catch(() => {});
-  const fetched = await runChecked("git", ["fetch", "--depth", "1", "origin", gitRef], {
-    cwd: dest,
-  }).catch(() => undefined);
-  if (fetched) {
+  // Shallow-init and configure origin once, on first creation of this dir.
+  if (!existsSync(join(dest, ".git"))) {
+    await gitChecked(["init", "-q"], { cwd: dest });
+    await gitChecked(["remote", "add", "origin", cloneUrl], { cwd: dest });
+  }
+  const fetched = await git(["fetch", "--depth", "1", "origin", gitRef], { cwd: dest });
+  if (fetched.code === 0) {
     // Targeted fetch resolves to FETCH_HEAD.
-    await runChecked("git", ["checkout", "-q", "FETCH_HEAD"], { cwd: dest });
+    await gitChecked(["checkout", "-q", "FETCH_HEAD"], { cwd: dest });
   } else {
     // Some servers reject bare SHA fetches; full-fetch and checkout by ref name.
     // `--end-of-options` prevents treating the ref as a flag.
-    await runChecked("git", ["fetch", "origin"], { cwd: dest });
-    await runChecked("git", ["checkout", "-q", "--end-of-options", gitRef], { cwd: dest });
+    await gitChecked(["fetch", "origin"], { cwd: dest });
+    await gitChecked(["checkout", "-q", "--end-of-options", gitRef], { cwd: dest });
   }
   return dest;
 }
@@ -233,7 +232,7 @@ async function checkoutCachedWorktree(repo: string, gitRef: string, log: Logger)
 
   ensureDir(cacheRoot);
   log.step(`Creating cached worktree ${repo}@${sha}`);
-  await runChecked("git", ["worktree", "add", "--detach", dest, sha], { cwd: cacheRepo });
+  await gitChecked(["worktree", "add", "--detach", dest, sha], { cwd: cacheRepo });
   return dest;
 }
 
@@ -242,21 +241,19 @@ async function ensureCacheRepo(repo: string, _log: Logger): Promise<string> {
   const gitDir = join(repoRoot, ".git");
   const cloneUrl = `https://github.com/${repo}.git`;
 
+  // Init and configure origin once, on first creation of the cache repo.
   if (!existsSync(gitDir)) {
-    await runChecked("git", ["init", "-q"], { cwd: repoRoot });
+    await gitChecked(["init", "-q"], { cwd: repoRoot });
+    await gitChecked(["remote", "add", "origin", cloneUrl], { cwd: repoRoot });
   }
-
-  // Ensure remote points at the expected repo, without failing if it already exists.
-  await runChecked("git", ["remote", "add", "origin", cloneUrl], { cwd: repoRoot }).catch(() => {});
-  await runChecked("git", ["remote", "set-url", "origin", cloneUrl], { cwd: repoRoot });
   return repoRoot;
 }
 
 async function fetchAndResolveCommit(cacheRepo: string, gitRef: string): Promise<string> {
   // Resolve an immutable commit SHA from FETCH_HEAD.
-  await runChecked("git", ["fetch", "--depth", "1", "origin", gitRef], { cwd: cacheRepo });
+  await gitChecked(["fetch", "--depth", "1", "origin", gitRef], { cwd: cacheRepo });
   const sha = (
-    await runChecked("git", ["rev-parse", "--verify", "FETCH_HEAD"], { cwd: cacheRepo })
+    await gitChecked(["rev-parse", "--verify", "FETCH_HEAD"], { cwd: cacheRepo })
   ).stdout.trim();
   if (!sha) {
     throw new Error(`Could not resolve git ref '${gitRef}' from FETCH_HEAD.`);

@@ -33,7 +33,7 @@ import {
   resolveGithubIdentity,
 } from "./resolver.js";
 import type { ClassifiedRef, EmitterConfig, Logger } from "./types.js";
-import { color, createLogger, ensureDir, run, runChecked } from "./util.js";
+import { color, createLogger, ensureDir, git, gitChecked, runChecked } from "./util.js";
 
 function shouldUseBaselineCache(ciMode: boolean): { enabled: boolean; reason?: string } {
   if (ciMode) {
@@ -94,7 +94,7 @@ ${color.bold("Options:")}
 async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
   // Pin the branch name from origin/HEAD (handles non-`main` defaults), falling
   // back to `main`.
-  const originHead = await run("git", ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], {
+  const originHead = await git(["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], {
     cwd: repoRoot,
   });
   const branch =
@@ -255,7 +255,7 @@ async function main(): Promise<number> {
   if (!config) return 2;
 
   // Repo root = current git working tree.
-  const repoRoot = (await runChecked("git", ["rev-parse", "--show-toplevel"])).stdout.trim();
+  const repoRoot = (await gitChecked(["rev-parse", "--show-toplevel"])).stdout.trim();
 
   const workDir = ensureDir(values["work-dir"] ?? defaultWorkDir());
   log.info(`${color.dim("work dir:")} ${workDir}`);
@@ -318,11 +318,6 @@ async function main(): Promise<number> {
     const generatedDir = join(runDir, config.generatedCodePath);
     const inherit = logPrefix === undefined;
     if (runSetup && config.setup && config.setup.length > 0) {
-      // Setup runs in a tree the tool materialized from GitHub. A cached worktree
-      // is reused across runs, so a sentinel keyed on the setup commands lets us
-      // prep it exactly once — re-running full setup (e.g. an isolated wheel
-      // build) on an already-prepared tree is both wasteful and flaky. Changing
-      // the setup commands changes the key and forces a re-prep.
       const setupKey = createHash("sha256").update(JSON.stringify(config.setup)).digest("hex");
       const sentinel = join(tree, ".emitter-diff-setup-done");
       const alreadyPrepared =

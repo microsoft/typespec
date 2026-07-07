@@ -9,7 +9,7 @@ import { basename, dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import type { Logger } from "./types.js";
-import { color, run } from "./util.js";
+import { color, git } from "./util.js";
 
 export interface DiffResult {
   /** The unified patch text (empty when there are no differences). */
@@ -43,7 +43,7 @@ export async function diffDirs(
     : ["diff", "--no-index", "--no-color", "--", baselineDir, headDir];
 
   // `git diff --no-index` exits 1 when there are differences — that is not an error.
-  const result = await run("git", args, { cwd: sharesParent ? parent : undefined });
+  const result = await git(args, { cwd: sharesParent ? parent : undefined });
   if (result.code > 1) {
     throw new Error(`git diff failed (${result.code}): ${result.stderr}`);
   }

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 
 import type { Logger } from "./types.js";
-import { ensureDir, run } from "./util.js";
+import { ensureDir, git } from "./util.js";
 
 export interface BaselineCacheProfileInput {
   emitter?: string;
@@ -37,7 +37,7 @@ export function computeBaselineProfileKey(input: BaselineCacheProfileInput): str
 }
 
 export async function detectBaselineIdentity(dir: string): Promise<string> {
-  const gitHead = await run("git", ["rev-parse", "--verify", "HEAD"], { cwd: dir });
+  const gitHead = await git(["rev-parse", "--verify", "HEAD"], { cwd: dir });
   const sha = gitHead.code === 0 ? gitHead.stdout.trim() : "";
   if (sha) return `git:${sha}`;
 
