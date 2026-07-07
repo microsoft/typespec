@@ -12,6 +12,23 @@ export function createTempPath(extension: string, prefix: string = "") {
 }
 
 /**
+ * Serialize the given codemodel to a YAML string.
+ *
+ * The generated YAML is consumed by the Python generator, which parses it with
+ * PyYAML (YAML 1.1). js-yaml, on the other hand, dumps using YAML 1.2 rules, so
+ * plain scalars such as `2020_01_01` (a snake-cased enum member name) are left
+ * unquoted because YAML 1.2 does not treat underscores as integer separators.
+ * PyYAML would then read `2020_01_01` back as the integer `20200101`, corrupting
+ * string values (e.g. enum member names, descriptions). Forcing every string
+ * scalar to be quoted guarantees that PyYAML round-trips them as strings.
+ * @param codemodel Codemodel to serialize
+ * @return the YAML representation of the codemodel.
+ */
+export function dumpCodeModelToYaml(codemodel: unknown): string {
+  return jsyaml.dump(codemodel, { forceQuotes: true, quotingType: '"' });
+}
+
+/**
  * Save the given codemodel in a yaml file.
  * @param name Name of the codemodel. To give a guide to the temp file name.
  * @param codemodel Codemodel to save
@@ -20,7 +37,7 @@ export function createTempPath(extension: string, prefix: string = "") {
 export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
   await mkdir(tspCodeGenTempDir, { recursive: true });
   const filename = createTempPath(".yaml", name);
-  const yamlStr = jsyaml.dump(codemodel);
+  const yamlStr = dumpCodeModelToYaml(codemodel);
   await writeFile(filename, yamlStr);
   return filename;
 }
