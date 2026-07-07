@@ -411,12 +411,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return model;
                     }
                 }
-
-                if (CodeModelGenerator.Instance.TypeFactory.TryCreateSystemObjectModelProvider(baseType, _inputModel, requireSerializationCapability: true) is { } systemBaseModelProvider)
-                {
-                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemBaseModelProvider;
-                    return systemBaseModelProvider;
-                }
             }
 
             return null;

@@ -64,6 +64,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
         }
 
+        internal override bool HasMethodInHierarchy(string methodName, HashSet<TypeProvider>? visited = null)
+        {
+            visited ??= [];
+            if (!visited.Add(this))
+            {
+                return false;
+            }
+
+            return _namedTypeSymbol.GetMembers(methodName).OfType<IMethodSymbol>().Any(method => method.AssociatedSymbol is null) ||
+                BaseTypeProvider?.HasMethodInHierarchy(methodName, visited) == true;
+        }
+
+        internal override CSharpType? GetMethodReturnTypeInHierarchy(IReadOnlySet<string> methodNames, HashSet<TypeProvider>? visited = null)
+        {
+            visited ??= [];
+            if (!visited.Add(this))
+            {
+                return null;
+            }
+
+            if (BaseTypeProvider?.GetMethodReturnTypeInHierarchy(methodNames, visited) is { } baseReturnType)
+            {
+                return baseReturnType;
+            }
+
+            foreach (var methodName in methodNames)
+            {
+                var method = _namedTypeSymbol.GetMembers(methodName)
+                    .OfType<IMethodSymbol>()
+                    .FirstOrDefault(method => method.AssociatedSymbol is null);
+                if (method is not null)
+                {
+                    return method.ReturnType.GetCSharpType();
+                }
+            }
+
+            return null;
+        }
+
         private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
             => baseType == null
                 || baseType.SpecialType == SpecialType.System_Object

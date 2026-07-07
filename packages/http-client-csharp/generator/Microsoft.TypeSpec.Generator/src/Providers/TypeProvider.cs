@@ -229,6 +229,71 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
+        internal virtual bool HasMethodInHierarchy(string methodName, HashSet<TypeProvider>? visited = null)
+        {
+            visited ??= [];
+            if (!visited.Add(this))
+            {
+                return false;
+            }
+
+            return Methods.Any(method => method.Signature.Name == methodName) ||
+                BaseTypeProvider?.HasMethodInHierarchy(methodName, visited) == true;
+        }
+
+        public bool HasBaseMethodInHierarchy(string methodName)
+            => BaseTypeProvider?.HasMethodInHierarchy(methodName) == true;
+
+        public CSharpType? GetRootBaseTypeInHierarchy()
+        {
+            var visited = new HashSet<TypeProvider>();
+            var baseTypeProvider = BaseTypeProvider;
+            CSharpType? rootBaseType = null;
+
+            while (baseTypeProvider is not null && visited.Add(baseTypeProvider))
+            {
+                if (!IsFrameworkRootType(baseTypeProvider.Type))
+                {
+                    rootBaseType = baseTypeProvider.Type;
+                }
+                baseTypeProvider = baseTypeProvider.BaseTypeProvider;
+            }
+
+            return rootBaseType;
+
+            static bool IsFrameworkRootType(CSharpType type)
+                => (type.IsFrameworkType &&
+                    (type.FrameworkType == typeof(object) || type.FrameworkType == typeof(ValueType))) ||
+                    (type.Namespace == "System" && (type.Name == "Object" || type.Name == "ValueType"));
+        }
+
+        internal virtual CSharpType? GetMethodReturnTypeInHierarchy(IReadOnlySet<string> methodNames, HashSet<TypeProvider>? visited = null)
+        {
+            visited ??= [];
+            if (!visited.Add(this))
+            {
+                return null;
+            }
+
+            if (BaseTypeProvider?.GetMethodReturnTypeInHierarchy(methodNames, visited) is { } baseReturnType)
+            {
+                return baseReturnType;
+            }
+
+            foreach (var method in Methods)
+            {
+                if (methodNames.Contains(method.Signature.Name) && method.Signature.ReturnType is { } returnType)
+                {
+                    return returnType;
+                }
+            }
+
+            return null;
+        }
+
+        public CSharpType? GetBaseMethodReturnTypeInHierarchy(IReadOnlySet<string> methodNames)
+            => BaseTypeProvider?.GetMethodReturnTypeInHierarchy(methodNames);
+
         private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
         public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
 

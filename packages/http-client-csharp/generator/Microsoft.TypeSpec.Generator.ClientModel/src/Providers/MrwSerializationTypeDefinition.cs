@@ -74,10 +74,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
         private bool? _shouldOverrideMethods;
-        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= _model.BaseModelProvider != null && !_isStruct;
+        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
+            (_model.BaseModelProvider != null || HasCustomBaseMethod(JsonModelWriteCoreMethodName));
         private bool? _shouldSkipSerializationMethodOverrides;
-        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
-        private readonly bool _shouldOverrideXmlMethods;
+        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         // Unknown discriminator models use their base model as the serialization interface type.
@@ -100,7 +100,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             _supportsXml = inputModel.Usage.HasFlag(InputModelTypeUsage.Xml);
             _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json) || !_supportsXml;
-            _shouldOverrideXmlMethods = _model.BaseModelProvider != null && !_isStruct;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
@@ -152,7 +151,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ?? Type;
+            var returnType = _model.BaseModelProvider?.Type ??
+                GetCustomBaseRootType() ??
+                GetCustomBaseMethodReturnType(new HashSet<string>
+                {
+                    JsonModelCreateCoreMethodName,
+                    PersistableModelCreateCoreMethodName
+                }) ??
+                GetCustomSerializationBaseType() ??
+                Type;
             while (returnType.BaseType != null
                    && IsModelType(returnType.BaseType))
             {
@@ -180,19 +187,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
         /// models re-introduce the methods as <c>virtual</c>.
         /// </remarks>
-        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider? baseModelProvider)
+        private CSharpType? GetCustomSerializationBaseType()
+            => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
+                ? _model.BaseType
+                : null;
+
+        private CSharpType? GetCustomBaseRootType()
+            => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
+                ? _model.GetRootBaseTypeInHierarchy()
+                : null;
+
+        private bool HasCustomBaseMethod(string methodName)
+            => _model.BaseModelProvider is null &&
+                _model.CustomCodeView?.BaseType is not null &&
+                _model.HasBaseMethodInHierarchy(methodName);
+
+        private CSharpType? GetCustomBaseMethodReturnType(IReadOnlySet<string> methodNames)
+            => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
+                ? _model.GetBaseMethodReturnTypeInHierarchy(methodNames)
+                : null;
+
+        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider model)
         {
-            if (baseModelProvider is null)
+            if (model.BaseModelProvider is null)
             {
-                return false;
+                return model.CustomCodeView?.BaseType is null ||
+                    (!model.HasBaseMethodInHierarchy(JsonModelCreateCoreMethodName) &&
+                    !model.HasBaseMethodInHierarchy(PersistableModelCreateCoreMethodName));
             }
 
-            if (baseModelProvider is SystemObjectModelProvider systemBase)
+            if (model.BaseModelProvider is SystemObjectModelProvider systemBase)
             {
                 return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
             }
 
-            return baseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
+            return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
 
         private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
