@@ -56,18 +56,17 @@ and, per check, consults `verifiers.json` — if the category is listed it runs
 `verify.py` and uses that verdict, otherwise it verifies the check itself (AI).
 It prints one merged table marking each row `deterministic` or `ai`.
 
-### Runnable demo (three examples)
+### Runnable demo (two examples)
 
-`demo-checks.json` is a self-contained manifest with the three gist examples,
+`demo-checks.json` is a self-contained manifest with the two gist examples,
 checked against the real generated Python SDKs under `tests/generated/azure`:
 
 | id | category | how |
 | --- | --- | --- |
 | `Client_Naming_UnionEnum_name` | `naming` | deterministic (`identifier_idiomatic_casing`) |
-| `Client_Location_deleteUser_on_Admin` | `client-location` | deterministic (`operation_client_membership`) |
 | `Client_Hierarchy_Dog_extends_Pet` | `hierarchy` | **AI by default** → deterministic once promoted |
 
-Run the deterministic batch (naming + client-location pass; hierarchy lands in
+Run the deterministic batch (naming passes; hierarchy lands in
 `needs_ai`):
 
 ```bash
