@@ -214,6 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
         /// </summary>
@@ -456,7 +457,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var baseModelProvider = referencedBaseType is not null
                 ? TryCreateSystemObjectBaseModelProvider(referencedBaseType, new HashSet<string>(visited), requireSerializationCapability: false)
                 : null;
-            var inputModel = CreateSystemInputModel(systemType);
+            var inputModel = CreateSystemInputModel(systemType, referencedType);
             var systemObjectModelProvider = new SystemObjectModelProvider(systemType, inputModel, baseModelProvider);
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemType] = systemObjectModelProvider;
@@ -469,7 +470,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return systemObjectModelProvider;
         }
 
-        private InputModelType CreateSystemInputModel(CSharpType systemType)
+        private InputModelType CreateSystemInputModel(CSharpType systemType, TypeProvider? referencedType)
         {
             var crossLanguageDefinitionId = string.IsNullOrEmpty(systemType.Namespace) ? systemType.Name : $"{systemType.Namespace}.{systemType.Name}";
             return new InputModelType(
@@ -481,7 +482,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _inputModel.Summary,
                 _inputModel.Doc,
                 _inputModel.Usage,
-                [],
+                referencedType?.Properties.Select(CreateSystemInputProperty).ToList() ?? [],
                 null,
                 [],
                 null,
@@ -491,6 +492,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _inputModel.ModelAsStruct,
                 new(),
                 _inputModel.IsDynamicModel);
+        }
+
+        private static InputModelProperty CreateSystemInputProperty(PropertyProvider property)
+        {
+            if (property.InputProperty is InputModelProperty inputProperty)
+            {
+                return new InputModelProperty(
+                    inputProperty.Name,
+                    inputProperty.Summary,
+                    inputProperty.Doc,
+                    inputProperty.Type,
+                    inputProperty.IsRequired,
+                    inputProperty.IsReadOnly,
+                    inputProperty.Access,
+                    inputProperty.IsDiscriminator,
+                    inputProperty.SerializedName,
+                    inputProperty.IsHttpMetadata,
+                    inputProperty.IsApiVersion,
+                    inputProperty.DefaultValue,
+                    inputProperty.SerializationOptions ?? new(),
+                    inputProperty.Encode);
+            }
+
+            var serializedName = property.WireInfo?.SerializedName ?? property.Name.ToVariableName();
+            return new InputModelProperty(
+                property.Name,
+                property.Description?.ToString(),
+                property.Description?.ToString(),
+                InputPrimitiveType.String,
+                false,
+                !property.Body.HasSetter,
+                null,
+                property.IsDiscriminator,
+                serializedName,
+                false,
+                false,
+                null,
+                new(json: new(serializedName)));
         }
 
         private static TypeProvider? TryGetReferencedType(CSharpType systemType)
@@ -1099,7 +1138,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider is not null && !HasBaseModelProviderCycle())
+            else if (BaseModelProvider is not null && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }

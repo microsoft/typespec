@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -23,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly CSharpType _systemType;
         private readonly ModelProvider? _baseModelProvider;
+        private readonly bool _skipDerivedConstructorParameters;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -52,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             : this(systemType, inputModel)
         {
             _baseModelProvider = baseModelProvider;
+            _skipDerivedConstructorParameters = true;
             Reset();
         }
 
@@ -64,23 +64,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Gets the cross-language definition ID from the input model.
         /// </summary>
         public string CrossLanguageDefinitionId { get; }
-
-        internal override IReadOnlyList<PropertyProvider> CustomizationProperties
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(SystemType.Namespace))
-                {
-                    return Properties;
-                }
-
-                return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                    SystemType.Namespace,
-                    SystemType.Name,
-                    declaringTypeName: null,
-                    includeReferencedAssemblies: true)?.Properties.ToArray() ?? Properties;
-            }
-        }
 
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
@@ -99,6 +82,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         protected override ModelProvider? BuildBaseModelProvider() => _baseModelProvider ?? base.BuildBaseModelProvider();
+
+        /// <inheritdoc/>
+        protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;

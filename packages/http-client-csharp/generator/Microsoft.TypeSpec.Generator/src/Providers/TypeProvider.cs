@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (includeBaseProviderMembers)
                 {
-                    allCustomProperties.AddRange(baseTypeProvider.CustomizationProperties);
+                    allCustomProperties.AddRange(baseTypeProvider.Properties);
                 }
 
                 if (baseTypeProvider.CustomCodeView is { } customCodeView)
@@ -252,8 +252,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<PropertyProvider>? _properties;
 
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= ApplyCustomizationFilter(BuildProperties());
-
-        internal virtual IReadOnlyList<PropertyProvider> CustomizationProperties => Properties;
 
         private IReadOnlyList<MethodProvider>? _methods;
         public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
