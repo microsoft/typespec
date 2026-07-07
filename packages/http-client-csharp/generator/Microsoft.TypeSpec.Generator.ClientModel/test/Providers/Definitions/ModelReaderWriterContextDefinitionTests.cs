@@ -1555,6 +1555,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void ValidateGeneratedReturnTypesAreDiscoveredFromGenericResponseWrappers()
+        {
+            var returnTypeModel = InputFactory.Model("WrappedReturnTypeModel", properties:
+            [
+                InputFactory.Property("Name", InputPrimitiveType.String)
+            ]);
+
+            var clientProvider = new TestClientProviderWithWrappedGeneratedReturnType(returnTypeModel);
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [returnTypeModel],
+                createModelCore: model => new ExperimentalModelProvider(model),
+                createOutputLibrary: () => outputLibrary);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+
+            Assert.IsTrue(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("WrappedReturnTypeModel")),
+                "WrappedReturnTypeModel should be discovered from generic response wrapper return type");
+            Assert.IsTrue(contextDefinition.GetAttributes().Any(a => a is SuppressionStatement suppression &&
+                suppression.AsStatement<AttributeStatement>()?.Arguments.First().ToDisplayString().Contains("WrappedReturnTypeModel") == true &&
+                suppression.Code.ToDisplayString().Contains("TEST001")),
+                "WrappedReturnTypeModel should use the generated provider path so experimental suppressions are preserved.");
+        }
+
+        [Test]
         public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
         {
             // Test that properties added via custom code are discovered
@@ -1733,6 +1765,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
                 var signature = new MethodSignature(
                     Name: "GetFrameworkModel",
+                    Description: null,
+                    Modifiers: MethodSignatureModifiers.Public,
+                    ReturnType: returnType,
+                    ReturnDescription: null,
+                    Parameters: []);
+
+                return
+                [
+                    new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
+                ];
+            }
+        }
+
+        private class TestClientProviderWithWrappedGeneratedReturnType : TypeProvider
+        {
+            private readonly InputModelType _returnTypeModel;
+
+            public TestClientProviderWithWrappedGeneratedReturnType(InputModelType returnTypeModel)
+            {
+                _returnTypeModel = returnTypeModel;
+            }
+
+            protected override string BuildName() => "TestClient";
+
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+
+            protected internal override MethodProvider[] BuildMethods()
+            {
+                var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_returnTypeModel);
+                var returnType = new CSharpType(typeof(FrameworkResponse<>), modelProvider!);
+
+                var signature = new MethodSignature(
+                    Name: "GetGeneratedModel",
                     Description: null,
                     Modifiers: MethodSignatureModifiers.Public,
                     ReturnType: returnType,

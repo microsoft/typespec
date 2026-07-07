@@ -179,9 +179,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Unwrap framework wrappers and collection types to get to the actual model type
                     var actualType = UnwrapReturnType(returnType);
 
-                    if (actualType != null && actualType.IsFrameworkType)
+                    if (actualType != null)
                     {
-                        CollectBuildableTypesRecursive(actualType.WithNullable(false), visitedTypes, buildableTypes);
+                        CollectBuildableTypeFromCSharpType(actualType, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
                     }
                 }
             }
@@ -206,6 +206,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
             }
+        }
+
+        private void CollectBuildableTypeFromCSharpType(
+            CSharpType type,
+            HashSet<CSharpType> visitedTypes,
+            HashSet<TypeProvider> visitedTypeProviders,
+            HashSet<TypeProvider> visitedBaseProviders,
+            HashSet<TypeProvider> buildableProviders,
+            HashSet<CSharpType> buildableTypes)
+        {
+            var nonNullableType = type.WithNullable(false);
+            if (TryResolveTypeProvider(nonNullableType, out var typeProvider))
+            {
+                if (ImplementsModelReaderWriter(typeProvider))
+                {
+                    buildableProviders.Add(typeProvider);
+                }
+
+                CollectBuildableTypeProvidersRecursive(typeProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                return;
+            }
+
+            if (nonNullableType.IsFrameworkType)
+            {
+                CollectBuildableTypesRecursive(nonNullableType, visitedTypes, buildableTypes);
+            }
+        }
+
+        private static bool TryResolveTypeProvider(CSharpType type, [NotNullWhen(true)] out TypeProvider? typeProvider)
+        {
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out typeProvider) && typeProvider != null)
+            {
+                return true;
+            }
+
+            typeProvider = null;
+            return false;
         }
 
         private void CollectBuildableTypesFromFrameworkType(
