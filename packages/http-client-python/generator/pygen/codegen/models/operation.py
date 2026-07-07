@@ -458,6 +458,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 r.type
                 and not isinstance(r.type, BinaryIteratorType)
                 and not xml_serializable(str(r.default_content_type))
+                and not (isinstance(r.type, ModelType) and r.type.is_typed_dict_only)
                 for r in self.responses
             ):
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)

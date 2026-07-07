@@ -469,7 +469,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var inputParameter in operation.Parameters)
             {
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
+                {
                     continue;
+                }
 
                 var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation, isNextLinkRequest);
                 if (queryStatement != null)
@@ -547,6 +549,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (paramType?.IsCollection != true)
             {
+                // A model-typed query parameter marked with `explode` must be expanded into one query
+                // entry per property (RFC 6570 form explode, e.g. `?field=status&value=active`) rather
+                // than serialized via the object's ToString (which previously produced the type name).
+                if (inputQueryParameter.Explode && inputQueryParameter.Type is InputModelType inputModel)
+                {
+                    var explodeStatement = BuildExplodeModelQueryStatement(uri, inputModel, valueExpression);
+                    if (explodeStatement != null)
+                    {
+                        return explodeStatement;
+                    }
+                }
+
                 var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
@@ -601,6 +615,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
                 return forEachStatement;
             }
+        }
+
+        /// <summary>
+        /// Builds the statements for a model-typed query parameter that uses form-style `explode`.
+        /// Each (simple) property of the model is emitted as its own query entry using the property's
+        /// wire name (RFC 6570 form explode, e.g. <c>?field=status&amp;value=active</c>).
+        /// Returns <c>null</c> when the model contains a property that is not a simple scalar/enum
+        /// (e.g. a nested object or a collection), in which case the caller falls back to the default
+        /// handling. Nested/complex expansion is tracked separately (see issue #11123).
+        /// </summary>
+        private static MethodBodyStatement? BuildExplodeModelQueryStatement(
+            ScopedApi uri,
+            InputModelType inputModel,
+            ValueExpression valueExpression)
+        {
+            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            if (modelProvider is null)
+            {
+                return null;
+            }
+
+            var properties = modelProvider.CanonicalView.Properties;
+            if (properties.Count == 0)
+            {
+                return null;
+            }
+
+            // Only expand when every property is a simple scalar or enum. Nested objects and
+            // collections are not defined by RFC 6570 form explode and require a separate design
+            // decision, so we fall back to the default handling for those.
+            foreach (var property in properties)
+            {
+                if (property.WireInfo is null ||
+                    property.Type.IsCollection ||
+                    (!property.Type.IsFrameworkType && !property.Type.IsEnum))
+                {
+                    return null;
+                }
+            }
+
+            var statements = new List<MethodBodyStatement>();
+            foreach (var property in properties)
+            {
+                var propertyAccess = valueExpression.Property(property.Name);
+                var propertyType = property.Type;
+
+                ValueExpression convertedValue = propertyType.IsEnum
+                    ? propertyType.ToSerial(propertyAccess).ConvertToString()
+                    : GetQueryParameterStringExpression(propertyType, propertyAccess, property.SerializationFormat);
+
+                MethodBodyStatement appendStatement =
+                    uri.AppendQuery(Literal(property.WireInfo!.SerializedName), convertedValue, true).Terminate();
+
+                if (!property.WireInfo.IsRequired ||
+                    propertyType.IsNullable ||
+                    (propertyType is { IsValueType: false, IsFrameworkType: true } && propertyType.FrameworkType != typeof(string)))
+                {
+                    appendStatement = BuildQueryOrHeaderOrPathParameterNullCheck(propertyType, propertyAccess, appendStatement);
+                }
+
+                statements.Add(appendStatement);
+            }
+
+            return statements;
         }
 
         private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
@@ -715,10 +793,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var path = pathSpan.Slice(0, paramIndex);
-                AppendLiteralSegment(uri, path.ToString(), statements);
                 pathSpan = pathSpan.Slice(paramIndex + 1);
                 var paramEndIndex = pathSpan.IndexOf('}');
                 var paramName = pathSpan.Slice(0, paramEndIndex).ToString();
+
+                /* An optional path parameter that is null must not leave a dangling
+                 * path separator behind. For example "/foo/{bar}/{baz}" with an absent
+                 * optional "baz" should produce "/foo/{bar}", not "/foo/{bar}/". When the
+                 * upcoming parameter is optional, defer the trailing '/' of the preceding
+                 * literal so it is only written together with the parameter value inside
+                 * the null check below.
+                 */
+                var pathLiteral = path.ToString();
+                bool separatorDeferred = false;
+                if (pathLiteral.EndsWith('/')
+                    && inputParamMap.TryGetValue(paramName, out var optionalCheckParam)
+                    && optionalCheckParam is InputPathParameter { IsRequired: false })
+                {
+                    pathLiteral = pathLiteral.Substring(0, pathLiteral.Length - 1);
+                    separatorDeferred = true;
+                }
+                AppendLiteralSegment(uri, pathLiteral, statements);
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
@@ -764,7 +859,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement statement;
                     if (inputParam?.IsRequired == false)
                     {
-                        bool shouldPrependWithPathSeparator = path.Length > 0 && path[^1] != '/';
+                        bool shouldPrependWithPathSeparator = separatorDeferred || (path.Length > 0 && path[^1] != '/');
                         List<MethodBodyStatement> appendPathStatements = shouldPrependWithPathSeparator
                             ? [uri.AppendPath(Literal("/"), false).Terminate(), uri.AppendPath(valueExpression, escape).Terminate()]
                             : [uri.AppendPath(valueExpression, escape).Terminate()];
@@ -993,7 +1088,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var response in operation.Responses)
             {
                 if (response.IsErrorResponse)
+                {
                     continue;
+                }
 
                 foreach (var statusCode in response.StatusCodes)
                 {

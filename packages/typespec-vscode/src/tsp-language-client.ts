@@ -18,7 +18,7 @@ import {
   LanguageClient,
   LanguageClientOptions,
   TextDocumentIdentifier,
-} from "vscode-languageclient/node.js";
+} from "vscode-languageclient/node";
 import { TspConfigFileName } from "./const.js";
 import { sendLmChatRequest } from "./lm/language-model.js";
 import logger from "./log/logger.js";

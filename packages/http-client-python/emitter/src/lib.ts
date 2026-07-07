@@ -24,6 +24,12 @@ export interface PythonEmitterOptions {
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
+  "keep-pyproject-fields"?: {
+    authors?: boolean;
+    description?: boolean;
+    classifiers?: boolean;
+    urls?: boolean;
+  };
   "clear-output-folder"?: boolean;
   "emit-yaml-only"?: boolean;
 }
@@ -97,13 +103,43 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       type: "string",
       nullable: true,
       description:
-        "The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.",
+        'The subdirectory (relative to the package namespace folder) to generate the code in. Use this to keep emitter-generated code separate from hand-written/customized code, so regeneration only overwrites the subdirectory and leaves your customizations untouched. If not specified, the code is generated directly in the package namespace folder. Note: if you\'re using this flag, you will need to add and maintain the versioning file (`_version.py`) yourself.\n\nExample: for `namespace: azure.storage.blob` with `generation-subdir: _generated`, generated code lands in `azure/storage/blob/_generated/` while your customized code lives in `azure/storage/blob/`. A typical `tspconfig.yaml` looks like:\n\n```yaml\noptions:\n  "@azure-tools/typespec-python":\n    emitter-output-dir: "{output-dir}/{service-dir}/azure-storage-blob"\n    namespace: "azure.storage.blob"\n    generation-subdir: "_generated"\n```',
     },
     "keep-setup-py": {
       type: "boolean",
       nullable: true,
       description:
         "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "keep-pyproject-fields": {
+      type: "object",
+      nullable: true,
+      description:
+        "Which manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Set a field to `true` to keep it. By default no fields are preserved.",
+      properties: {
+        authors: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `authors` field (e.g. a custom author name and email).",
+        },
+        description: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `description` field.",
+        },
+        classifiers: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `classifiers` field.",
+        },
+        urls: {
+          type: "boolean",
+          nullable: true,
+          description: "Preserve the `[project.urls]` table.",
+        },
+      },
+      required: [],
+      additionalProperties: false,
     },
     "clear-output-folder": {
       type: "boolean",

@@ -51,7 +51,6 @@ versionPolicies:
       - "@typespec/versioning"
       - "@typespec/rest"
       - "@typespec/protobuf"
-      - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/internal-build-utils"
       - "typespec-vs"

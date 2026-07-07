@@ -1,5 +1,13 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.18.0
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] Export new utilities from `@typespec/emitter-framework/csharp`: `getDocComments`, `getNullableUnionInnerType`, `efRefkey`, and `declarationRefkeys`
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] `EnumDeclaration` now emits the doc comments of the TypeSpec enum
+
+
 ## 0.17.0
 
 ### Features

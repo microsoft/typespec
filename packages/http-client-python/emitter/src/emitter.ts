@@ -1,6 +1,5 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
-import jsyaml from "js-yaml";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
 import {
@@ -9,6 +8,7 @@ import {
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
+import { dumpCodeModelToYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
@@ -41,18 +41,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
   } else if ((options as any).flavor !== "azure") {
     // Explicitly set unbranded flavor when not azure
     (options as any).flavor = "unbranded";
-  }
-
-  if (
-    options["package-pprint-name"] !== undefined &&
-    !options["package-pprint-name"].startsWith('"')
-  ) {
-    // Only add quotes for shell compatibility when NOT using emit-yaml-only mode
-    // (emit-yaml-only passes options via JSON config files, not shell)
-    const needsShellQuoting = !options["use-pyodide"] && !options["emit-yaml-only"];
-    options["package-pprint-name"] = needsShellQuoting
-      ? `"${options["package-pprint-name"]}"`
-      : `${options["package-pprint-name"]}`;
   }
 }
 
@@ -210,9 +198,17 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
+  if (resolvedOptions["keep-pyproject-fields"]) {
+    // Flatten the object of enabled fields into a comma-separated list for the generator.
+    const enabledFields = Object.entries(resolvedOptions["keep-pyproject-fields"])
+      .filter(([, value]) => value === true)
+      .map(([key]) => key);
+    commandArgs["keep-pyproject-fields"] = enabledFields.join(",");
+    resolvedOptions["keep-pyproject-fields"] = undefined;
+  }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
-    if (key === "license") continue; // skip license since it is passed in codeModel
+    if (key === "license" || key === "keep-pyproject-fields") continue; // skip license + keep-pyproject-fields since it is passed in codeModel
     commandArgs[key] = value;
   }
   if (resolvedOptions["generate-packaging-files"]) {
@@ -242,7 +238,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     pyodide.FS.mkdirTree("/yaml");
     pyodide.FS.mkdirTree("/output");
     clearMemfsDirectory(pyodide, "/output");
-    pyodide.FS.writeFile(yamlFilePath, jsyaml.dump(parsedYamlMap));
+    pyodide.FS.writeFile(yamlFilePath, dumpCodeModelToYaml(parsedYamlMap));
 
     await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
     await copyPyodideOutputToHost(context, pyodide, "/output");

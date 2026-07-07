@@ -1,5 +1,59 @@
 # Change Log - @typespec/http-client-python
 
+## 0.34.1
+
+### Bug Fixes
+
+- [#11177](https://github.com/microsoft/typespec/pull/11177) Fix Python SDK generation failure when `package-pprint-name` contains spaces. The shell-escaping quotes were baked into the option value and leaked into the Pyodide runtime, producing an invalid `setup.py` (e.g. `PACKAGE_PPRINT_NAME = ""Azure Web PubSub Chat Service""`) that `black` could not parse. Quoting is now applied only when building the native Python shell command.
+- [#11162](https://github.com/microsoft/typespec/pull/11162) Fix enum member names derived from date-like TypeSpec labels (e.g. `` `2020-01-01` ``) being corrupted by the js-yaml (YAML 1.2) to PyYAML (YAML 1.1) boundary. String scalars are now force-quoted when serializing the code model so names such as `2020_01_01` round-trip as strings instead of being read back as integers
+- [#11161](https://github.com/microsoft/typespec/pull/11161) Fix dangling `_types.X` references when template-instantiated models (e.g. `ResourceUpdateModel<Foo, FooProperties>`) share a `crossLanguageDefinitionId`. The TypedDict deduplication now pairs each model with its own copy by name, so distinct models such as `CacheUpdate` and `VolumeUpdate` are all rendered in `types.py`.
+  
+  Also stop emitting unused TypedDicts for response-only models in `types.py`. Output-only models already render as classes in `models/` and are referenced via `_models.X`, so their TypedDict copies (e.g. `GetResponse`) were dead code. The set of TypedDicts (and discriminated-base union aliases) rendered in `types.py` is now the transitive closure of the request-body input models over their base classes, discriminated subtypes and property types. Input body overloads (including spread bodies whose usage lacks the `Input` flag) are still emitted, and any output-only model reachable from an input model — such as a discriminated subtype or an ARM `SystemData` property — is kept so no forward reference is left undefined. This fixes a `NameError` at import time when an output-only union alias (e.g. `Dinosaur = Union[TRex]`) referenced an excluded subtype, and a pyright `reportUndefinedVariable` error when an input model referenced an excluded property type (e.g. `SystemData`).
+
+
+## 0.34.0
+
+### Features
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) [python] Always generate `TypedDict` typing hints for input models in the `types.py` file, and named union aliases in the `_unions.py` file
+
+### Bug Fixes
+
+- [#10439](https://github.com/microsoft/typespec/pull/10439) Fix invalid lone `@overload` generated for body parameters in `models-mode: typeddict`. When the binary and JSON overloads are omitted, the single remaining body variant is now emitted as a plain parameter instead of a single `@overload`, which mypy rejects with "Single overload definition, multiple required".
+
+
+## 0.33.0
+
+### Features
+
+- [#10987](https://github.com/microsoft/typespec/pull/10987) Add a `keep-pyproject-fields` emitter option that selects which `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Supported fields: `authors`, `description`, `classifiers`, `urls`.
+  
+  ```yaml
+  # tspconfig.yaml
+  options:
+    "@typespec/http-client-python":
+      keep-pyproject-fields:
+        authors: true
+        description: true
+  ```
+
+### Bug Fixes
+
+- [#11013](https://github.com/microsoft/typespec/pull/11013) Place docstring annotations such as `Required.` in front of the description when it ends with an RST code block, and stop appending a sentence period inside the block. Previously the period landed on the code block's last line (e.g. `].`) and `Required.` was appended after the block (`]. Required.`), both of which broke Sphinx rendering.
+
+
+## 0.32.0
+
+### Features
+
+- [#10947](https://github.com/microsoft/typespec/pull/10947) Support `datetime.timedelta` for `duration` types encoded as `seconds` or `milliseconds`. SDK users can now pass a `datetime.timedelta` (instead of a raw `int`/`float`) and responses are deserialized back into `datetime.timedelta`.
+
+### Bug Fixes
+
+- [#10957](https://github.com/microsoft/typespec/pull/10957) Fix `UnboundLocalError` for paging operations with a flattened JSON model body. The request body is now constructed once outside the `prepare_request` callback (and before the body is serialized into the request content) instead of inside the closure, where assigning `body` made it an unbound local on every page fetch.
+- [#10955](https://github.com/microsoft/typespec/pull/10955) Fix Sphinx docstring rendering when a `Required.` (or other) annotation followed a code block. The annotation is now inserted into the prose before the code block instead of being appended after it.
+
+
 ## 0.31.1
 
 ### Bump dependencies

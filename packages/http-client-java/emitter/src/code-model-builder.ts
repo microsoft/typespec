@@ -108,7 +108,6 @@ import {
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
-import pkg from "lodash";
 import {
   Client as CodeModelClient,
   EncodedProperty,
@@ -172,8 +171,8 @@ import {
   getFilteredApiVersions,
   getServiceApiVersions,
   isStableApiVersionString,
+  resolveApiVersionOption,
 } from "./versioning-utils.js";
-const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
   flavor?: string;
@@ -248,6 +247,8 @@ export class CodeModelBuilder {
 
   // current apiVersion name to generate code
   // it would be undefined, if mixed api-versions
+  // when it has value, its usage is at "getFilteredApiVersions" (to filter the api-versions for
+  // the client), and as the constant value of the "api-version" parameter for ARM
   private apiVersion: string | undefined;
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
@@ -698,14 +699,15 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (Array.isArray(versions) && versions.length > 0) {
       // consistent api-versions
-      if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
+      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+      if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
+        this.apiVersion = versions.find((it) => it.value === apiVersionOption)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
-            format: { apiVersion: this.sdkContext.apiVersion },
+            format: { apiVersion: apiVersionOption },
             target: NoTarget,
           });
         }
@@ -840,7 +842,9 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
-        apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
+        apiVersionSameForAllClients =
+          sharedApiVersions.length === apiVersions.length &&
+          sharedApiVersions.every((it, index) => it === apiVersions[index]);
       }
       if (!apiVersionSameForAllClients) {
         break;
