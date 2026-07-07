@@ -214,6 +214,7 @@ async function cloneGithub(
   log.step(`Fetching ${repo}@${gitRef}`);
   // Shallow-init and fetch the requested ref.
   await runChecked("git", ["init", "-q"], { cwd: dest });
+  // Ignore failure when origin already exists (dest dir reused from a prior fetch).
   await runChecked("git", ["remote", "add", "origin", cloneUrl], { cwd: dest }).catch(() => {});
   const fetched = await runChecked("git", ["fetch", "--depth", "1", "origin", gitRef], {
     cwd: dest,

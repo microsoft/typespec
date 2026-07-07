@@ -378,7 +378,7 @@ async function main(): Promise<number> {
   const baselineIdentity =
     baselineRef.kind === "github"
       ? await resolveGithubIdentity(baselineRef, repoRoot, log)
-      : await detectBaselineIdentity(await ensureBaselineTree());
+      : await detectBaselineIdentity(await ensureBaselineTree(), log);
   // Pin a github baseline to the exact commit we just resolved, so a later
   // checkout can't drift to a newer commit if the branch moves mid-run.
   if (baselineRef.kind === "github" && baselineIdentity.startsWith("git:")) {
@@ -408,7 +408,7 @@ async function main(): Promise<number> {
   let baselineReused = false;
   if (useBaselineCache) {
     try {
-      const index = readBaselineCacheIndex();
+      const index = readBaselineCacheIndex(log);
       const entry = index[baselineProfileKey];
       if (entry && entry.baselineIdentity === baselineIdentity) {
         if (
@@ -481,7 +481,7 @@ async function main(): Promise<number> {
         `${new Date().toISOString()} ${baselineIdentity}\n`,
         "utf8",
       );
-      const index = readBaselineCacheIndex();
+      const index = readBaselineCacheIndex(log);
       index[baselineProfileKey] = { baselineIdentity, updatedAt: new Date().toISOString() };
       writeBaselineCacheIndex(index);
     } catch (err) {

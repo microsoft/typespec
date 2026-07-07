@@ -3,6 +3,7 @@ import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 
+import type { Logger } from "./types.js";
 import { ensureDir, run } from "./util.js";
 
 export interface BaselineCacheProfileInput {
@@ -35,7 +36,7 @@ export function computeBaselineProfileKey(input: BaselineCacheProfileInput): str
   return createHash("sha256").update(raw).digest("hex").slice(0, 16);
 }
 
-export async function detectBaselineIdentity(dir: string): Promise<string> {
+export async function detectBaselineIdentity(dir: string, log?: Logger): Promise<string> {
   const gitHead = await run("git", ["rev-parse", "--verify", "HEAD"], { cwd: dir });
   if (gitHead.code === 0) {
     const sha = gitHead.stdout.trim();
@@ -50,8 +51,11 @@ export async function detectBaselineIdentity(dir: string): Promise<string> {
         version?: string;
       };
       if (parsed.name && parsed.version) return `pkg:${parsed.name}@${parsed.version}`;
-    } catch {
+    } catch (err) {
       // Fall through to path identity when package metadata cannot be read.
+      log?.warn(
+        `Could not read package.json for baseline identity in ${dir}; using path identity. ${String(err)}`,
+      );
     }
   }
 
@@ -87,12 +91,15 @@ export function isSafeBaselineCachePath(path: string): boolean {
   return isWithinDir(baselineCacheRoot(), path);
 }
 
-export function readBaselineCacheIndex(): BaselineCacheIndex {
+export function readBaselineCacheIndex(log?: Logger): BaselineCacheIndex {
   const path = baselineCacheIndexPath();
   if (!existsSync(path)) return {};
   try {
     return JSON.parse(readFileSync(path, "utf8")) as BaselineCacheIndex;
-  } catch {
+  } catch (err) {
+    log?.warn(
+      `Ignoring unreadable baseline cache index at ${path}; treating as empty. ${String(err)}`,
+    );
     return {};
   }
 }
