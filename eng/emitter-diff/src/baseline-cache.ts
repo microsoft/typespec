@@ -36,30 +36,12 @@ export function computeBaselineProfileKey(input: BaselineCacheProfileInput): str
   return createHash("sha256").update(raw).digest("hex").slice(0, 16);
 }
 
-export async function detectBaselineIdentity(dir: string, log?: Logger): Promise<string> {
+export async function detectBaselineIdentity(dir: string): Promise<string> {
   const gitHead = await run("git", ["rev-parse", "--verify", "HEAD"], { cwd: dir });
-  if (gitHead.code === 0) {
-    const sha = gitHead.stdout.trim();
-    if (sha) return `git:${sha}`;
-  }
+  const sha = gitHead.code === 0 ? gitHead.stdout.trim() : "";
+  if (sha) return `git:${sha}`;
 
-  const manifest = join(dir, "package.json");
-  if (existsSync(manifest)) {
-    try {
-      const parsed = JSON.parse(readFileSync(manifest, "utf8")) as {
-        name?: string;
-        version?: string;
-      };
-      if (parsed.name && parsed.version) return `pkg:${parsed.name}@${parsed.version}`;
-    } catch (err) {
-      // Fall through to path identity when package metadata cannot be read.
-      log?.warn(
-        `Could not read package.json for baseline identity in ${dir}; using path identity. ${String(err)}`,
-      );
-    }
-  }
-
-  // Last-resort identity for non-git/non-package dirs.
+  // Non-git local dir: best-effort path identity (can't detect in-place edits).
   return `path:${resolve(dir)}`;
 }
 

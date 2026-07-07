@@ -376,7 +376,7 @@ async function main(): Promise<number> {
   const baselineIdentity =
     baselineRef.kind === "github"
       ? await resolveGithubIdentity(baselineRef, repoRoot, log)
-      : await detectBaselineIdentity(await ensureBaselineTree(), log);
+      : await detectBaselineIdentity(await ensureBaselineTree());
   // Pin a github baseline to the exact commit we just resolved, so a later
   // checkout can't drift to a newer commit if the branch moves mid-run.
   if (baselineRef.kind === "github" && baselineIdentity.startsWith("git:")) {
