@@ -6,8 +6,8 @@
 - **language:** python *(selects which per-language client name applies when a check is language-scoped)*
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
-- **checks-doc:** `packages/http-client-python/eng/client-surface-checks/demo-checks.json`
-<!-- `node_modules/@typespec/spector/client-surface-checks.generated.md` *(precomputed)* -->
+- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/demo-checks.json`
+<!-- `node_modules/@typespec/spector/surface-checks.generated.md` *(precomputed)* -->
 
 ### What differs by flavor (branded = azure, unbranded)
 Only the **generated-root** subfolder and the **import namespace** (`azure.core`

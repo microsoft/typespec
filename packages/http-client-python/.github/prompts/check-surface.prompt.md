@@ -1,9 +1,9 @@
 ---
-description: 'Orchestrate client-surface checks: one parallel deterministic batch, then AI for the rest'
+description: 'Orchestrate surface checks: one parallel deterministic batch, then AI for the rest'
 mode: 'agent'
 ---
 
-You are the **orchestrator** for client-surface checks on an emitter's generated
+You are the **orchestrator** for surface checks on an emitter's generated
 SDK — properties (naming, visibility/access, shape) the wire tests can't see.
 You verify every check in **two parallel phases**, not one-by-one:
 
@@ -13,11 +13,11 @@ You verify every check in **two parallel phases**, not one-by-one:
    deterministic routine; dispatch them in parallel if there are several.
 
 Read:
-- `packages/${input:emitter}/eng/client-surface-checks/context.md` — Emitter
+- `packages/${input:emitter}/eng/scripts/client-criteria/context.md` — Emitter
   facts (language, generated-root, flavors, checks-doc path) and concept prose.
 - The **checks doc** (spec-summary style) and its machine twin `*.json` next to
   it — the batch runner reads the JSON, you read the markdown for the AI items.
-- `packages/${input:emitter}/eng/client-surface-checks/signatures.json` — the
+- `packages/${input:emitter}/eng/scripts/client-criteria/verifiers.json` — the
   routing table: a category listed here is deterministic; one not listed is AI.
 
 Inputs:
@@ -31,9 +31,9 @@ Run the batch tool **once**. It runs all deterministic checks in parallel and
 prints `{"results": [...], "needs_ai": [...]}`:
 
 ```
-python packages/${input:emitter}/eng/client-surface-checks/verify.py --batch \
-  --checks packages/${input:emitter}/eng/client-surface-checks/<checks>.json \
-  --signatures packages/${input:emitter}/eng/client-surface-checks/signatures.json \
+python packages/${input:emitter}/eng/scripts/client-criteria/verify.py --batch \
+  --checks packages/${input:emitter}/eng/scripts/client-criteria/<checks>.json \
+  --verifiers packages/${input:emitter}/eng/scripts/client-criteria/verifiers.json \
   --generated-root <generated-root from context.md> \
   --flavor ${input:flavor} --language <language from context.md> --workers 16
 ```

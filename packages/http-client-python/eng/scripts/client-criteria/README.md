@@ -91,7 +91,7 @@ python eng/scripts/client-criteria/verify.py --batch \
 ## Onboarding a language
 
 One required file: **context.md** under
-`packages/<emitter>/eng/client-surface-checks/` — Emitter facts (language,
+`packages/<emitter>/eng/scripts/client-criteria/` — Emitter facts (language,
 generated-root, flavors, checks-doc path) plus a **concept description** per
 category, written concretely enough to execute as a file check. Optionally add
 **verifiers.json** (routing table mapping categories to `verify.py` routines)
