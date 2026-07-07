@@ -1,8 +1,8 @@
-pyright==1.1.407
-pylint==4.0.4
+pyright==1.1.411
+pylint==4.0.6
 tox==4.16.0
 tox-uv
-mypy==1.19.1
+mypy==2.1.0
 colorama==0.4.6
 debugpy==1.8.2
 pytest==9.0.3
