@@ -43,14 +43,19 @@ extern dec scenarioDoc(
 model SurfaceDetails {
   /** Expected client-facing identifier (`naming`). */
   name?: string;
+
   /** Symbol kind for casing-aware `naming` checks (e.g. `model`, `enum`). */
   kind?: string;
+
   /** Expected base type on the client surface (`hierarchy`). */
   base?: string;
+
   /** Client the operation should be surfaced on (`client-location`). */
   client?: string;
+
   /** Client the operation should be absent from (`client-location`). */
   absentFrom?: string;
+
   /** Whether the target should be hidden from the public surface (`access`). */
   internal?: boolean;
 }
@@ -66,6 +71,7 @@ model SurfaceDetails {
 model SurfaceCheckInfo {
   /** Category that routes the check to a verifier (e.g. `naming`, `paging`). */
   category: string;
+
   /** Category-specific expectation the verifier asserts. */
   details?: SurfaceDetails;
 }
@@ -89,7 +95,16 @@ model SurfaceCheckInfo {
  * @param check Optional explicit check for detail the derivation can't infer.
  */
 extern dec surfaceDoc(
-  target: Namespace | Interface | Operation | Model | Enum | Union | ModelProperty | EnumMember | UnionVariant,
+  target:
+    | Namespace
+    | Interface
+    | Operation
+    | Model
+    | Enum
+    | Union
+    | ModelProperty
+    | EnumMember
+    | UnionVariant,
   doc: valueof string,
   check?: valueof SurfaceCheckInfo
 );

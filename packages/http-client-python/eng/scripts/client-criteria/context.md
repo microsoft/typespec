@@ -1,35 +1,41 @@
 # Client surface checks — context: http-client-python
 
 ## Emitter facts
-*The shared `/check-surface` prompt and `verify.py` read these.*
 
-- **language:** python *(selects which per-language client name applies when a check is language-scoped)*
+_The shared `/check-surface` prompt and `verify.py` read these._
+
+- **language:** python _(selects which per-language client name applies when a check is language-scoped)_
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
 - **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/demo-checks.json`
 <!-- `node_modules/@typespec/spector/surface-checks.generated.md` *(precomputed)* -->
 
 ### What differs by flavor (branded = azure, unbranded)
+
 Only the **generated-root** subfolder and the **import namespace** (`azure.core`
 vs `corehttp`). Symbol locations and every concept description below are
 flavor-invariant.
 
 ## What each check looks like
+
 What each verifiable concept looks like in generated Python. Authored once,
 reused across every scenario that uses the concept. Prefer concrete, checkable
 verifiers so the deterministic runner can decide **without calling AI** — see
 `verifiers.json` for the machine-readable form.
 
 ### access: internal
+
 - **enum** → the class is NOT re-exported from `models/__init__.py`; it may also
   be defined with a leading `_`.
 - **model** → absent from the package's public `__init__.py` exports.
 - **operation / method** → prefixed `_`, or not present on the public client.
 
 ### access: public
+
 - present in the public `__init__.py` exports, no leading underscore.
 
 ### naming (`@clientName`)
+
 - the generated identifier equals the client name **recast to Python's idiomatic
   casing for the symbol kind** (case-sensitive): `enum`/`model`/`type` →
   `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
@@ -42,19 +48,23 @@ verifiers so the deterministic runner can decide **without calling AI** — see
   `details.name`. A language with no entry is `N/A`.
 
 ### exactName (`@exactName`)
+
 - the identifier equals the spec name **byte-for-byte**, no casing transform.
 
 ### flatten (`@flattenProperty`)
+
 - the nested model's fields appear directly as attributes on the parent class.
 
 ### client-location (`@clientLocation`)
+
 - an operation group is a class under `operations/_operations.py`; a method is a
   public `def` on it; the **root client** is the main `*Client` class. An
   operation is "on" a client/group when its snake_case name is a method of the
   matching class. Deterministic: assert the method is present on the
   **expected** client/group and absent from the one it moved from.
 
-### hierarchy (`@hierarchyBuilding`) — *AI by default, promotable*
+### hierarchy (`@hierarchyBuilding`) — _AI by default, promotable_
+
 - a client subtype is expressed as the base in `class <Sub>(<Base>, …)` in
   `models/_models.py`; inherited members are attributes present on the subclass.
 - **Not** in `verifiers.json` by default, so the orchestrator verifies it with

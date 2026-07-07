@@ -311,10 +311,7 @@ export interface SurfaceDoc {
 }
 
 /** Return the natural-language prose authored with `@surfaceDoc` on `target`. */
-export function getSurfaceDoc(
-  program: Program,
-  target: SurfaceDocTarget,
-): string | undefined {
+export function getSurfaceDoc(program: Program, target: SurfaceDocTarget): string | undefined {
   const stored: StoredSurfaceDoc | undefined = program
     .stateMap(SpectorStateKeys.SurfaceDoc)
     .get(target);
@@ -351,10 +348,7 @@ function resolveSurfaceName(target: SurfaceDocTarget): string {
   const names: string[] = [];
   let current: SurfaceDocTarget | undefined = target;
   while (current) {
-    if (
-      current.kind === "Namespace" &&
-      (current.name === "" || current.name === "_Specs_")
-    ) {
+    if (current.kind === "Namespace" && (current.name === "" || current.name === "_Specs_")) {
       break;
     }
     const name = typeof current.name === "string" ? current.name : undefined;
@@ -366,10 +360,7 @@ function resolveSurfaceName(target: SurfaceDocTarget): string {
   return names.join("_");
 }
 
-function getEnclosingScenarioName(
-  program: Program,
-  target: SurfaceDocTarget,
-): string | undefined {
+function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): string | undefined {
   let current: SurfaceDocTarget | undefined = target;
   while (current) {
     if (
@@ -425,7 +416,9 @@ function mergeExplicitCheck(
   const existing = derived.find((c) => c.category === explicit.category);
   if (existing) {
     return derived.map((c) =>
-      c === existing ? normalizeCheck({ category: c.category, details: { ...c.details, ...override } }) : c,
+      c === existing
+        ? normalizeCheck({ category: c.category, details: { ...c.details, ...override } })
+        : c,
     );
   }
   return [...derived, normalizeCheck({ category: explicit.category, details: override })];

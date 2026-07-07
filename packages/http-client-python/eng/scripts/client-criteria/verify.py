@@ -192,10 +192,10 @@ def run_batch(args) -> None:
 
     results, needs_ai = [], []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as ex:
-        futs = [ex.submit(check_one, it, sigs, root, args.flavor, args.language) for it in items]
+        future_list = [ex.submit(check_one, it, sigs, root, args.flavor, args.language) for it in items]
         by_id = {it["id"]: it for it in items}
-        for fut in concurrent.futures.as_completed(futs):
-            r = fut.result()
+        for future in concurrent.futures.as_completed(future_list):
+            r = future.result()
             if r.get("_needs_ai"):
                 src = by_id[r["id"]]
                 needs_ai.append({"id": src["id"], "category": src["category"],

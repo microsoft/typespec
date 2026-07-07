@@ -3,6 +3,13 @@ export {
   $scenarioDoc,
   $scenarioService,
   $surfaceDoc,
+  Scenario,
+  ScenarioEndpoint,
+  SurfaceCheck,
+  SurfaceDetails,
+  SurfaceDoc,
+  SurfaceDocTarget,
+  UNSPECIFIED_CATEGORY,
   getScenarioDoc,
   getScenarioEndpoints,
   getScenarioName,
@@ -12,13 +19,6 @@ export {
   listScenarioIn,
   listScenarios,
   listSurfaceDocs,
-  Scenario,
-  ScenarioEndpoint,
-  SurfaceCheck,
-  SurfaceDetails,
-  SurfaceDoc,
-  SurfaceDocTarget,
-  UNSPECIFIED_CATEGORY,
 } from "./decorators.js";
 export { $lib, reportDiagnostic } from "./lib.js";
 export { $onValidate } from "./validate.js";

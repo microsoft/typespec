@@ -1,6 +1,6 @@
 ---
-description: 'Orchestrate surface checks: one parallel deterministic batch, then AI for the rest'
-mode: 'agent'
+description: "Orchestrate surface checks: one parallel deterministic batch, then AI for the rest"
+mode: "agent"
 ---
 
 You are the **orchestrator** for surface checks on an emitter's generated
@@ -13,6 +13,7 @@ You verify every check in **two parallel phases**, not one-by-one:
    deterministic routine; dispatch them in parallel if there are several.
 
 Read:
+
 - `packages/${input:emitter}/eng/scripts/client-criteria/context.md` — Emitter
   facts (language, generated-root, flavors, checks-doc path) and concept prose.
 - The **checks doc** (spec-summary style) and its machine twin `*.json` next to
@@ -21,6 +22,7 @@ Read:
   routing table: a category listed here is deterministic; one not listed is AI.
 
 Inputs:
+
 - Emitter: ${input:emitter:package folder, e.g. http-client-python}
 - Flavor: ${input:flavor:one of the flavors in the emitter's context.md}
 - Scenario: ${input:scenario:optional substring filter on the check id}
