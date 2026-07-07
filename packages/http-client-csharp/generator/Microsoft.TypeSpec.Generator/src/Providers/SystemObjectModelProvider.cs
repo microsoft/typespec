@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class SystemObjectModelProvider : ModelProvider
     {
         private readonly CSharpType _systemType;
-        private readonly ModelProvider? _baseModelProvider;
         private readonly bool _skipDerivedConstructorParameters;
 
         /// <summary>
@@ -38,20 +37,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Reset();
         }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
-        /// </summary>
-        /// <param name="systemType">The CSharp type from the external/system assembly.</param>
-        /// <param name="inputModel">The input model type that this system type replaces.</param>
-        /// <param name="baseModelProvider">The external/system base model provider, if any.</param>
         public SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
-            ModelProvider? baseModelProvider)
+            bool skipDerivedConstructorParameters)
             : this(systemType, inputModel)
         {
-            _baseModelProvider = baseModelProvider;
-            _skipDerivedConstructorParameters = true;
+            _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             Reset();
         }
 
@@ -78,10 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
 
         /// <inheritdoc/>
-        protected override CSharpType? BuildBaseType() => _baseModelProvider?.Type ?? base.BuildBaseType();
-
-        /// <inheritdoc/>
-        protected override ModelProvider? BuildBaseModelProvider() => _baseModelProvider ?? base.BuildBaseModelProvider();
+        protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
 
         /// <inheritdoc/>
         protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;

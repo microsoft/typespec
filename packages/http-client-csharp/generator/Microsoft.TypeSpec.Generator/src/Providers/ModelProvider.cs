@@ -454,13 +454,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var referencedBaseType = referencedType?.BaseType ??
                 systemType.BaseType ??
                 (referencedType is not null ? TryGetSerializationRootBaseType(referencedType, systemType) : null);
-            var baseModelProvider = referencedBaseType is not null
-                ? TryCreateSystemObjectBaseModelProvider(referencedBaseType, new HashSet<string>(visited), requireSerializationCapability: false)
-                : null;
+            if (referencedBaseType is not null)
+            {
+                _ = TryCreateSystemObjectBaseModelProvider(referencedBaseType, new HashSet<string>(visited), requireSerializationCapability: false);
+            }
+
             var inputModel = CreateSystemInputModel(systemType, referencedType);
-            var systemObjectModelProvider = new SystemObjectModelProvider(systemType, inputModel, baseModelProvider);
+            var providerType = systemType.BaseType is null && referencedBaseType is not null
+                ? CreateSystemTypeWithBaseType(systemType, referencedBaseType)
+                : systemType;
+            var systemObjectModelProvider = new SystemObjectModelProvider(providerType, inputModel, skipDerivedConstructorParameters: true);
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemType] = systemObjectModelProvider;
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[providerType] = systemObjectModelProvider;
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemObjectModelProvider.Type] = systemObjectModelProvider;
             if (systemType.IsFrameworkType)
             {
@@ -469,6 +475,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return systemObjectModelProvider;
         }
+
+        private static CSharpType CreateSystemTypeWithBaseType(CSharpType systemType, CSharpType baseType)
+            => new(
+                systemType.Name,
+                systemType.Namespace,
+                systemType.IsValueType,
+                systemType.IsNullable,
+                systemType.DeclaringType,
+                systemType.Arguments,
+                systemType.IsPublic,
+                systemType.IsStruct,
+                baseType,
+                systemType.IsEnum ? systemType.UnderlyingEnumType : null);
 
         private InputModelType CreateSystemInputModel(CSharpType systemType, TypeProvider? referencedType)
         {
