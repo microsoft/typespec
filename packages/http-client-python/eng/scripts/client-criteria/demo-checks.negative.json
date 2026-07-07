@@ -1,0 +1,37 @@
+{
+  "_comment": "Negative fixture: deliberately-wrong expectations that MUST fail, so the demo shows red as well as green. Run with --verifiers verifiers.promoted.json so all four run deterministically. Each item mirrors a demo-checks.json item with one wrong field (casing kind, name, client, or base).",
+  "items": [
+    {
+      "id": "NAMING_wrong_casing",
+      "scenario": "client-naming",
+      "category": "naming",
+      "target": "ServerExtensibleEnum",
+      "expected": "ClientExtensibleEnum",
+      "kind": "property"
+    },
+    {
+      "id": "NAMING_wrong_name",
+      "scenario": "client-naming",
+      "category": "naming",
+      "target": "ServerExtensibleEnum",
+      "expected": "TotallyMadeUpEnum",
+      "kind": "enum"
+    },
+    {
+      "id": "LOCATION_wrong_client",
+      "scenario": "client-location-move-to-existing-sub-client",
+      "category": "client-location",
+      "target": "deleteUser",
+      "expected_client": "UserOperations",
+      "absent_from": "AdminOperations"
+    },
+    {
+      "id": "HIERARCHY_wrong_base",
+      "scenario": "hierarchy-building",
+      "category": "hierarchy",
+      "target": "Dog",
+      "expected_base": "Animal",
+      "verify": "Dog is surfaced as a subtype of Animal directly"
+    }
+  ]
+}

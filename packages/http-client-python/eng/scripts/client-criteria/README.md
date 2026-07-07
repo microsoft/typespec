@@ -88,6 +88,31 @@ python eng/scripts/client-criteria/verify.py --batch \
   --generated-root tests/generated --flavor azure --language python
 ```
 
+### Negative fixture (seeing red)
+
+`demo-checks.negative.json` mirrors each example with **one wrong field** (wrong
+casing kind, wrong name, flipped client, wrong base) so the runner must report
+`fail`. Run it with the promoted verifiers so all four resolve deterministically:
+
+```bash
+python eng/scripts/client-criteria/verify.py --batch \
+  --checks eng/scripts/client-criteria/demo-checks.negative.json \
+  --verifiers eng/scripts/client-criteria/verifiers.promoted.json \
+  --generated-root tests/generated --flavor azure --language python
+```
+
+Every item comes back `status: fail` with evidence explaining why, e.g.:
+
+| id | why it fails |
+| --- | --- |
+| `NAMING_wrong_casing` | expects the enum as a `property` → snake_case `client_extensible_enum`, which doesn't exist (only PascalCase does) |
+| `NAMING_wrong_name` | right casing, but `TotallyMadeUpEnum` is not generated |
+| `LOCATION_wrong_client` | `deleteUser` is missing from the claimed client and still on the one it supposedly left |
+| `HIERARCHY_wrong_base` | generated base is `Dog(Pet…)`, not a subtype of `Animal` |
+
+PASS and FAIL come from the same routine reading the same files — a wrong
+expectation flips the verdict.
+
 ## Onboarding a language
 
 One required file: **context.md** under
