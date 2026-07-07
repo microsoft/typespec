@@ -74,7 +74,6 @@ ${color.bold("Refs")} (for --baseline / --head):
   local:/path | ./path             a local source folder
   github:owner/repo@<sha|branch>   a GitHub source at a ref
   gh:<sha|branch>                  this repo (origin remote) at a ref
-  (npm refs are rejected — a published package has no source tree to run in.)
 
 ${color.bold("Options:")}
   --baseline <ref>        Old source tree. Default: gh:upstream/main if present,
@@ -267,7 +266,7 @@ async function main(): Promise<number> {
     return 2;
   }
 
-  // Resolve refs. npm refs are rejected by materializeTree.
+  // Resolve refs.
   const baselineRefValue = values.baseline ?? (await resolveDefaultBaselineRef(repoRoot));
   if (!values.baseline) {
     log.info(`${color.dim("baseline default:")} ${baselineRefValue}`);
@@ -284,7 +283,7 @@ async function main(): Promise<number> {
   // For github refs this is repinned to the exact resolved SHA below, so the
   // checkout matches the identity we cache under even if the branch moves.
   let baselineMaterializeRef = baselineRef;
-  const baselineLabel = describeRef(baselineRef, config.emitterPath);
+  const baselineLabel = describeRef(baselineRef);
   const ensureBaselineTree = async (): Promise<string> => {
     if (baselineTree === undefined) {
       log.step("Resolving baseline source tree");
@@ -296,8 +295,7 @@ async function main(): Promise<number> {
   log.step("Resolving head source tree");
   const headTree =
     headRef === "current" ? repoRoot : await materializeTree(headRef, workDir, log, repoRoot);
-  const headLabel =
-    headRef === "current" ? "current working tree" : describeRef(headRef, config.emitterPath);
+  const headLabel = headRef === "current" ? "current working tree" : describeRef(headRef);
 
   const baselineSnap = ensureDir(join(workDir, "baseline"));
   const headSnap = ensureDir(join(workDir, "head"));

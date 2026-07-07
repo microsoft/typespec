@@ -77,9 +77,6 @@ skip `--emitter`.
 `--head` defaults to the **current working tree**. `--baseline` defaults to the `upstream` remote's
 repo at its default branch, falling back to `origin` (e.g. `github:microsoft/typespec@main`).
 
-> **npm refs are rejected.** A published package has no source tree to run a regenerate command in,
-> so pass a `local:` or `github:`/`gh:` source ref instead.
-
 ### Command prep (`--setup`)
 
 The `--command` is run **as-is** — it does not install deps or build. Instead, prep is handled by

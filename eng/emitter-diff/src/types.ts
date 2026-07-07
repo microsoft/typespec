@@ -7,14 +7,13 @@
  * an emitter integrates by describing three things (see {@link EmitterConfig}).
  */
 
-/** The three kinds of source a ref can point at. */
-export type RefKind = "npm" | "local" | "github";
+/** The kinds of source a ref can point at. */
+export type RefKind = "local" | "github";
 
 /**
  * A classified reference to an emitter source tree.
  *
  * Accepted user syntaxes (see {@link classifyRef}):
- *  - npm:     `npm:1.2.3`, `1.2.3`, `@scope/pkg@1.2.3` (rejected — no source tree)
  *  - local:   `local:/abs/or/rel/path`, or any existing filesystem path
  *  - github:  `github:owner/repo@<ref>`, `gh:<ref>` (this repo's origin), or an `https://github.com/...` url
  */
@@ -22,8 +21,6 @@ export interface ClassifiedRef {
   kind: RefKind;
   /** The original, unparsed ref string. */
   raw: string;
-  /** npm: the version/tag (e.g. `1.2.3`, `latest`). */
-  version?: string;
   /** local: the absolute path on disk. */
   path?: string;
   /** github: `owner/repo` (defaults to this repo's origin remote when omitted). */

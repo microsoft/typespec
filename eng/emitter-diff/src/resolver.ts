@@ -1,7 +1,7 @@
 /**
  * Language-agnostic ref resolver.
  *
- * Classifies a user-provided ref string into npm / local / github and
+ * Classifies a user-provided ref string into local / github and
  * materializes it into a local source tree the regenerate command can run in.
  * Building that checkout into a usable emitter is intentionally NOT done here —
  * that is language-specific and handled by the preset's `setup` commands.
@@ -14,17 +14,15 @@ import type { ClassifiedRef, Logger } from "./types.js";
 import { ensureDir, run, runChecked } from "./util.js";
 
 /**
- * Classify a ref string. Explicit prefixes (`npm:`, `local:`, `github:`,
- * `gh:`) are honored first, then a few heuristics:
+ * Classify a ref string. Explicit prefixes (`local:`, `github:`, `gh:`) are
+ * honored first, then a few heuristics:
  *  - an `https://github.com/...` url → github
  *  - an existing filesystem path → local
+ * Anything else is unrecognized and throws.
  */
 export function classifyRef(raw: string, repoRoot: string): ClassifiedRef {
   const trimmed = raw.trim();
 
-  if (trimmed.startsWith("npm:")) {
-    return { kind: "npm", raw, version: trimmed.slice(4) };
-  }
   if (trimmed.startsWith("local:")) {
     const p = trimmed.slice(6);
     return { kind: "local", raw, path: isAbsolute(p) ? p : resolve(repoRoot, p) };
@@ -52,15 +50,10 @@ export function classifyRef(raw: string, repoRoot: string): ClassifiedRef {
     return { kind: "local", raw, path: asPath };
   }
 
-  // Fallback: treat as an npm version/tag (or `@scope/pkg@version`).
-  return { kind: "npm", raw, version: extractNpmVersion(trimmed) };
-}
-
-function extractNpmVersion(spec: string): string {
-  // `@scope/pkg@1.2.3` -> `1.2.3`; `pkg@1.2.3` -> `1.2.3`; `1.2.3` -> `1.2.3`.
-  const at = spec.lastIndexOf("@");
-  if (at > 0) return spec.slice(at + 1);
-  return spec;
+  throw new Error(
+    `Unrecognized ref "${raw}". Use a local: path (local:/path or ./path) or a ` +
+      `github ref (github:owner/repo@<ref> or gh:<ref>).`,
+  );
 }
 
 function parseGithub(rest: string, raw: string): ClassifiedRef {
@@ -80,10 +73,8 @@ function parseGithubUrl(url: string, raw: string): ClassifiedRef {
   return { kind: "github", raw, repo, gitRef: m[3] };
 }
 
-export function describeRef(ref: ClassifiedRef, packageName: string): string {
+export function describeRef(ref: ClassifiedRef): string {
   switch (ref.kind) {
-    case "npm":
-      return `npm ${packageName}@${ref.version}`;
     case "local":
       return `local ${ref.path}`;
     case "github":
@@ -178,10 +169,7 @@ export async function materializeTree(
   if (ref.kind === "github") {
     return cloneGithub(ref, workDir, log, repoRoot);
   }
-  throw new Error(
-    `Cannot run a regenerate command against an npm ref (${ref.raw}). ` +
-      `A published package has no source tree; pass a local: or github:/gh: source ref instead.`,
-  );
+  throw new Error(`Unsupported ref kind "${ref.kind}" (${ref.raw}).`);
 }
 
 async function cloneGithub(
