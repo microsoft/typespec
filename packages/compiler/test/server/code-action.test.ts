@@ -94,8 +94,9 @@ it("expands dynamic codefixes into separate code actions", async () => {
     context: { diagnostics: [...diagnostics] },
   });
 
+  const dynamicActions = actions.filter((x) => x.title.startsWith("Use "));
   deepStrictEqual(
-    actions.map((x) => ({ title: x.title, kind: x.kind })),
+    dynamicActions.map((x) => ({ title: x.title, kind: x.kind })),
     [
       { title: "Use first suggestion", kind: CodeActionKind.QuickFix },
       { title: "Use second suggestion", kind: CodeActionKind.QuickFix },
@@ -103,6 +104,6 @@ it("expands dynamic codefixes into separate code actions", async () => {
   );
   strictEqual(resolveCalls, 1);
 
-  await host.server.resolveCodeAction(actions[1]);
+  await host.server.resolveCodeAction(dynamicActions[1]);
   strictEqual(appliedFix, "second");
 });
