@@ -214,6 +214,192 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual ModelProvider? CreateModelCore(InputModelType model)
             => new ModelProvider(model);
 
+        internal SystemObjectModelProvider? TryCreateSystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType sourceModel,
+            bool requireSerializationCapability)
+            => TryCreateSystemObjectModelProvider(systemType, sourceModel, [], requireSerializationCapability);
+
+        private SystemObjectModelProvider? TryCreateSystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType sourceModel,
+            HashSet<string> visited,
+            bool requireSerializationCapability)
+        {
+            if (systemType.IsFrameworkType && systemType.FrameworkType == typeof(object))
+            {
+                return null;
+            }
+
+            var key = $"{systemType.Namespace}.{systemType.Name}";
+            if (!visited.Add(key))
+            {
+                return null;
+            }
+
+            if (CSharpTypeMap.TryGetValue(systemType, out var existingProvider) &&
+                existingProvider is SystemObjectModelProvider existingSystemObjectModelProvider)
+            {
+                return existingSystemObjectModelProvider;
+            }
+
+            var referencedType = TryGetReferencedType(systemType);
+            if (requireSerializationCapability &&
+                (referencedType is null || !HasJsonModelWriteCoreInHierarchy(referencedType, new HashSet<string>(visited))))
+            {
+                return null;
+            }
+
+            var referencedBaseType = referencedType?.BaseType ??
+                systemType.BaseType ??
+                (referencedType is not null ? TryGetSerializationRootBaseType(referencedType, systemType) : null);
+            if (referencedBaseType is not null)
+            {
+                _ = TryCreateSystemObjectModelProvider(referencedBaseType, sourceModel, new HashSet<string>(visited), requireSerializationCapability: false);
+            }
+
+            var inputModel = CreateSystemInputModel(systemType, sourceModel, referencedType);
+            var providerType = systemType.BaseType is null && referencedBaseType is not null
+                ? CreateSystemTypeWithBaseType(systemType, referencedBaseType)
+                : systemType;
+            var systemObjectModelProvider = new SystemObjectModelProvider(providerType, inputModel, skipDerivedConstructorParameters: true);
+
+            CSharpTypeMap[systemType] = systemObjectModelProvider;
+            CSharpTypeMap[providerType] = systemObjectModelProvider;
+            CSharpTypeMap[systemObjectModelProvider.Type] = systemObjectModelProvider;
+            if (systemType.IsFrameworkType)
+            {
+                CSharpTypeMap[new CSharpType(systemType.FrameworkType)] = systemObjectModelProvider;
+            }
+
+            return systemObjectModelProvider;
+        }
+
+        private static CSharpType CreateSystemTypeWithBaseType(CSharpType systemType, CSharpType baseType)
+            => new(
+                systemType.Name,
+                systemType.Namespace,
+                systemType.IsValueType,
+                systemType.IsNullable,
+                systemType.DeclaringType,
+                systemType.Arguments,
+                systemType.IsPublic,
+                systemType.IsStruct,
+                baseType,
+                systemType.IsEnum ? systemType.UnderlyingEnumType : null);
+
+        private static InputModelType CreateSystemInputModel(CSharpType systemType, InputModelType sourceModel, TypeProvider? referencedType)
+        {
+            var crossLanguageDefinitionId = string.IsNullOrEmpty(systemType.Namespace) ? systemType.Name : $"{systemType.Namespace}.{systemType.Name}";
+            return new InputModelType(
+                systemType.Name,
+                sourceModel.Namespace,
+                crossLanguageDefinitionId,
+                sourceModel.Access,
+                sourceModel.Deprecation,
+                sourceModel.Summary,
+                sourceModel.Doc,
+                sourceModel.Usage,
+                referencedType?.Properties.Select(CreateSystemInputProperty).ToList() ?? [],
+                null,
+                [],
+                null,
+                null,
+                new Dictionary<string, InputModelType>(),
+                null,
+                sourceModel.ModelAsStruct,
+                new(),
+                sourceModel.IsDynamicModel);
+        }
+
+        private static InputModelProperty CreateSystemInputProperty(PropertyProvider property)
+        {
+            if (property.InputProperty is InputModelProperty inputProperty)
+            {
+                return new InputModelProperty(
+                    inputProperty.Name,
+                    inputProperty.Summary,
+                    inputProperty.Doc,
+                    inputProperty.Type,
+                    inputProperty.IsRequired,
+                    inputProperty.IsReadOnly,
+                    inputProperty.Access,
+                    inputProperty.IsDiscriminator,
+                    inputProperty.SerializedName,
+                    inputProperty.IsHttpMetadata,
+                    inputProperty.IsApiVersion,
+                    inputProperty.DefaultValue,
+                    inputProperty.SerializationOptions ?? new(),
+                    inputProperty.Encode);
+            }
+
+            var serializedName = property.WireInfo?.SerializedName ?? property.Name.ToVariableName();
+            return new InputModelProperty(
+                property.Name,
+                property.Description?.ToString(),
+                property.Description?.ToString(),
+                InputPrimitiveType.String,
+                false,
+                !property.Body.HasSetter,
+                null,
+                property.IsDiscriminator,
+                serializedName,
+                false,
+                false,
+                null,
+                new(json: new(serializedName)));
+        }
+
+        private static TypeProvider? TryGetReferencedType(CSharpType systemType)
+        {
+            if (string.IsNullOrEmpty(systemType.Namespace))
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                systemType.Namespace,
+                systemType.Name,
+                declaringTypeName: null,
+                includeReferencedAssemblies: true);
+        }
+
+        private static bool HasJsonModelWriteCoreInHierarchy(TypeProvider typeProvider, HashSet<string> visited)
+        {
+            if (typeProvider.Methods.Any(method => method.Signature.Name == "JsonModelWriteCore"))
+            {
+                return true;
+            }
+
+            var baseType = typeProvider.BaseType ?? typeProvider.Type.BaseType;
+            if (baseType is null)
+            {
+                return false;
+            }
+
+            var key = $"{baseType.Namespace}.{baseType.Name}";
+            return visited.Add(key) &&
+                TryGetReferencedType(baseType) is { } baseTypeProvider &&
+                HasJsonModelWriteCoreInHierarchy(baseTypeProvider, visited);
+        }
+
+        private static CSharpType? TryGetSerializationRootBaseType(TypeProvider typeProvider, CSharpType systemType)
+        {
+            foreach (var method in typeProvider.Methods)
+            {
+                if (method.Signature.Name is not ("JsonModelCreateCore" or "PersistableModelCreateCore") ||
+                    method.Signature.ReturnType is not { } returnType ||
+                    returnType.AreNamesEqual(systemType))
+                {
+                    continue;
+                }
+
+                return returnType;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Maps an external <see cref="InputModelType"/> (one marked via <c>@alternateType</c>) to a
         /// <see cref="SystemObjectModelProvider"/> that wraps the resolved framework/referenced type.
