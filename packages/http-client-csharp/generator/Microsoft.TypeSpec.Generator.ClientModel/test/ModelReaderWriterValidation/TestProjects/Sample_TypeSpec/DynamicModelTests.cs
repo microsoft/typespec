@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         }
 
         [Test]
-        public void ModelReaderWriterWrite_NestedPatchOnPopulatedSubModelMergesWithTypedProperties()
+        public void ModelReaderWriterWrite_NestedDotNotationPatchOnPopulatedSubModelMergesWithTypedProperties()
         {
             var model = SampleTypeSpecModelFactory.DynamicModel(
                 name: "dynamic-model",
