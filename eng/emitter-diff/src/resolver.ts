@@ -18,7 +18,6 @@ import { ensureDir, run, runChecked } from "./util.js";
  * `gh:`) are honored first, then a few heuristics:
  *  - an `https://github.com/...` url → github
  *  - an existing filesystem path → local
- *  - a bare `pkg@version` or semver-ish string → npm
  */
 export function classifyRef(raw: string, repoRoot: string): ClassifiedRef {
   const trimmed = raw.trim();
