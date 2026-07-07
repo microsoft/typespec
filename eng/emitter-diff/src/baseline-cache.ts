@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve, sep } from "node:path";
 
@@ -16,12 +16,12 @@ export interface BaselineCacheProfileInput {
   passthrough: string[];
 }
 
-export interface BaselineCacheIndexEntry {
+interface BaselineCacheIndexEntry {
   baselineIdentity: string;
   updatedAt: string;
 }
 
-export type BaselineCacheIndex = Record<string, BaselineCacheIndexEntry>;
+type BaselineCacheIndex = Record<string, BaselineCacheIndexEntry>;
 
 function stableJson(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
@@ -45,7 +45,7 @@ export async function detectBaselineIdentity(dir: string): Promise<string> {
   return `path:${resolve(dir)}`;
 }
 
-export function baselineCachePaths(cacheKey: string): { dir: string; marker: string } {
+function baselineCachePaths(cacheKey: string): { dir: string; marker: string } {
   const root = baselineCacheRoot();
   return {
     dir: join(root, cacheKey),
@@ -69,11 +69,11 @@ function isWithinDir(root: string, target: string): boolean {
   );
 }
 
-export function isSafeBaselineCachePath(path: string): boolean {
+function isSafeBaselineCachePath(path: string): boolean {
   return isWithinDir(baselineCacheRoot(), path);
 }
 
-export function readBaselineCacheIndex(log?: Logger): BaselineCacheIndex {
+function readBaselineCacheIndex(log?: Logger): BaselineCacheIndex {
   const path = baselineCacheIndexPath();
   if (!existsSync(path)) return {};
   try {
@@ -86,9 +86,86 @@ export function readBaselineCacheIndex(log?: Logger): BaselineCacheIndex {
   }
 }
 
-export function writeBaselineCacheIndex(index: BaselineCacheIndex): void {
+function writeBaselineCacheIndex(index: BaselineCacheIndex): void {
   const targetPath = baselineCacheIndexPath();
   const tmpPath = `${targetPath}.${process.pid}.${Date.now()}.tmp`;
   writeFileSync(tmpPath, `${JSON.stringify(index, null, 2)}\n`, "utf8");
   renameSync(tmpPath, targetPath);
+}
+
+function persistBaselineIndex(index: BaselineCacheIndex, log: Logger): void {
+  try {
+    writeBaselineCacheIndex(index);
+  } catch (err) {
+    log.warn(`Could not persist baseline cache index (ignored). ${String(err)}`);
+  }
+}
+
+/**
+ * Reuse a previously cached baseline output for `profileKey` into `destSnap`,
+ * but only when the cache entry's identity matches `baselineIdentity` (so a
+ * moved branch or edited source invalidates it) and the cache paths are safe.
+ * Returns whether the cached output was reused; a miss or any error returns
+ * false so the caller regenerates.
+ */
+export function tryReuseBaselineOutput(
+  profileKey: string,
+  baselineIdentity: string,
+  destSnap: string,
+  log: Logger,
+): boolean {
+  try {
+    const index = readBaselineCacheIndex(log);
+    const entry = index[profileKey];
+    if (!entry || entry.baselineIdentity !== baselineIdentity) return false;
+
+    const cache = baselineCachePaths(profileKey);
+    if (!isSafeBaselineCachePath(cache.dir) || !isSafeBaselineCachePath(cache.marker)) {
+      log.warn("Ignoring unsafe baseline cache path; regenerating baseline.");
+      delete index[profileKey];
+      persistBaselineIndex(index, log);
+      return false;
+    }
+    if (existsSync(cache.marker) && existsSync(cache.dir)) {
+      log.step("Baseline output regeneration (reusing cached output)");
+      rmSync(destSnap, { recursive: true, force: true });
+      cpSync(cache.dir, destSnap, { recursive: true, force: true });
+      return true;
+    }
+    // Index entry without materialized output: drop the stale entry.
+    delete index[profileKey];
+    persistBaselineIndex(index, log);
+    return false;
+  } catch (err) {
+    log.warn(`Could not read baseline cache index; regenerating baseline. ${String(err)}`);
+    return false;
+  }
+}
+
+/**
+ * Persist the freshly regenerated baseline output at `sourceSnap` under
+ * `profileKey`, tagged with `baselineIdentity`. Best effort: a cache-write
+ * failure is logged and swallowed so it never fails an otherwise-good diff.
+ */
+export function saveBaselineOutput(
+  profileKey: string,
+  baselineIdentity: string,
+  sourceSnap: string,
+  log: Logger,
+): void {
+  try {
+    const cache = baselineCachePaths(profileKey);
+    if (!isSafeBaselineCachePath(cache.dir) || !isSafeBaselineCachePath(cache.marker)) {
+      throw new Error("unsafe cache path");
+    }
+    rmSync(cache.dir, { recursive: true, force: true });
+    cpSync(sourceSnap, cache.dir, { recursive: true, force: true });
+    writeFileSync(cache.marker, `${new Date().toISOString()} ${baselineIdentity}\n`, "utf8");
+
+    const index = readBaselineCacheIndex(log);
+    index[profileKey] = { baselineIdentity, updatedAt: new Date().toISOString() };
+    writeBaselineCacheIndex(index);
+  } catch (err) {
+    log.warn(`Could not update baseline cache. ${String(err)}`);
+  }
 }

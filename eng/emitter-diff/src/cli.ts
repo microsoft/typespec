@@ -14,13 +14,10 @@ import { join } from "node:path";
 import { parseArgs } from "node:util";
 
 import {
-  baselineCachePaths,
   computeBaselineProfileKey,
   detectBaselineIdentity,
-  isSafeBaselineCachePath,
-  readBaselineCacheIndex,
-  writeBaselineCacheIndex,
-  type BaselineCacheIndex,
+  saveBaselineOutput,
+  tryReuseBaselineOutput,
 } from "./baseline-cache.js";
 import { diffDirs, printSummary, writeHtml } from "./diff.js";
 import { getEmitterDefaults, listEmitters } from "./registry.js";
@@ -92,8 +89,6 @@ ${color.bold("Options:")}
 `;
 
 async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
-  // Pin the branch name from origin/HEAD (handles non-`main` defaults), falling
-  // back to `main`.
   const originHead = await git(["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"], {
     cwd: repoRoot,
   });
@@ -101,8 +96,8 @@ async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
     (originHead.code === 0 && originHead.stdout.trim().replace(/^refs\/remotes\/origin\//, "")) ||
     "main";
 
-  // Prefer the `upstream` remote (fork workflow), then `origin`, and target that
-  // remote's actual owner/repo. A bare `gh:` ref would always resolve against
+  // Target the `upstream` remote (fork workflow), then `origin`.
+  // A bare `gh:` ref would always resolve against
   // origin, so `gh:upstream/main` on a fork would wrongly fetch branch
   // "upstream/main" from origin.
   for (const remote of ["upstream", "origin"]) {
@@ -110,14 +105,12 @@ async function resolveDefaultBaselineRef(repoRoot: string): Promise<string> {
     if (repo) return `github:${repo}@${branch}`;
   }
 
-  // No usable remote: this repo (origin, per gh: default) at its default branch.
   return `gh:${branch}`;
 }
 
 /**
  * Split a command string into argv, honoring single/double quotes but WITHOUT
- * invoking a shell. Multi-step pipelines (`&&`, `|`) are intentionally NOT
- * supported — put prep in a package.json script or separate CI steps.
+ * invoking a shell
  */
 function tokenizeCommand(command: string): string[] {
   const tokens: string[] = [];
@@ -254,7 +247,6 @@ async function main(): Promise<number> {
   const config = resolveConfig(values, log);
   if (!config) return 2;
 
-  // Repo root = current git working tree.
   const repoRoot = (await gitChecked(["rev-parse", "--show-toplevel"])).stdout.trim();
 
   const workDir = ensureDir(values["work-dir"] ?? defaultWorkDir());
@@ -276,9 +268,6 @@ async function main(): Promise<number> {
     ? classifyRef(values.head, repoRoot)
     : "current";
 
-  // Baseline source tree is materialized lazily: a cheap SHA resolve up front
-  // lets a baseline-output cache hit skip the expensive worktree checkout +
-  // regenerate. Only a cache miss (or a non-github ref) pays for materializing.
   let baselineTree: string | undefined;
   // For github refs this is repinned to the exact resolved SHA below, so the
   // checkout matches the identity we cache under even if the branch moves.
@@ -386,44 +375,15 @@ async function main(): Promise<number> {
     setup: config.setup ?? [],
     passthrough,
   });
-  const baselineCache = baselineCachePaths(baselineProfileKey);
-
-  const persistBaselineIndex = (index: BaselineCacheIndex): void => {
-    try {
-      writeBaselineCacheIndex(index);
-    } catch (err) {
-      // Best effort: a failed index write only means the cache may be recomputed
-      // next run; it must never abort an otherwise-successful diff.
-      log.warn(`Could not persist baseline cache index (ignored). ${String(err)}`);
-    }
-  };
 
   let baselineReused = false;
   if (useBaselineCache) {
-    try {
-      const index = readBaselineCacheIndex(log);
-      const entry = index[baselineProfileKey];
-      if (entry && entry.baselineIdentity === baselineIdentity) {
-        if (
-          !isSafeBaselineCachePath(baselineCache.dir) ||
-          !isSafeBaselineCachePath(baselineCache.marker)
-        ) {
-          log.warn("Ignoring unsafe baseline cache path; regenerating baseline.");
-          delete index[baselineProfileKey];
-          persistBaselineIndex(index);
-        } else if (existsSync(baselineCache.marker) && existsSync(baselineCache.dir)) {
-          log.step("Baseline output regeneration (reusing cached output)");
-          rmSync(baselineSnap, { recursive: true, force: true });
-          cpSync(baselineCache.dir, baselineSnap, { recursive: true, force: true });
-          baselineReused = true;
-        } else {
-          delete index[baselineProfileKey];
-          persistBaselineIndex(index);
-        }
-      }
-    } catch (err) {
-      log.warn(`Could not read baseline cache index; regenerating baseline. ${String(err)}`);
-    }
+    baselineReused = tryReuseBaselineOutput(
+      baselineProfileKey,
+      baselineIdentity,
+      baselineSnap,
+      log,
+    );
   }
 
   // Setup runs only in a tree the tool freshly materialized from GitHub — never
@@ -460,26 +420,7 @@ async function main(): Promise<number> {
   }
 
   if (useBaselineCache && !baselineReused) {
-    try {
-      if (
-        !isSafeBaselineCachePath(baselineCache.dir) ||
-        !isSafeBaselineCachePath(baselineCache.marker)
-      ) {
-        throw new Error("unsafe cache path");
-      }
-      rmSync(baselineCache.dir, { recursive: true, force: true });
-      cpSync(baselineSnap, baselineCache.dir, { recursive: true, force: true });
-      writeFileSync(
-        baselineCache.marker,
-        `${new Date().toISOString()} ${baselineIdentity}\n`,
-        "utf8",
-      );
-      const index = readBaselineCacheIndex(log);
-      index[baselineProfileKey] = { baselineIdentity, updatedAt: new Date().toISOString() };
-      writeBaselineCacheIndex(index);
-    } catch (err) {
-      log.warn(`Could not update baseline cache. ${String(err)}`);
-    }
+    saveBaselineOutput(baselineProfileKey, baselineIdentity, baselineSnap, log);
   }
 
   // Diff.
