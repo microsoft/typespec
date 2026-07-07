@@ -24,9 +24,6 @@ interface BaselineCacheIndexEntry {
 type BaselineCacheIndex = Record<string, BaselineCacheIndexEntry>;
 
 export function computeBaselineProfileKey(input: BaselineCacheProfileInput): string {
-  // The input is always constructed with a fixed key order and contains only
-  // strings and string arrays, so JSON.stringify already produces a stable,
-  // deterministic key across runs.
   return createHash("sha256").update(JSON.stringify(input)).digest("hex").slice(0, 16);
 }
 
@@ -86,9 +83,9 @@ function persistBaselineIndex(index: BaselineCacheIndex, log: Logger): void {
 /**
  * Reuse a previously cached baseline output for `profileKey` into `snapshotDir`,
  * but only when the cache entry's identity matches `baselineIdentity` (so a
- * moved branch or edited source invalidates it) and the cache paths are safe.
- * Returns whether the cached output was reused; a miss or any error returns
- * false so the caller regenerates.
+ * moved branch or edited source invalidates it). Returns whether the cached
+ * output was reused; a miss or any error returns false so the caller
+ * regenerates.
  */
 export function tryReuseBaselineOutput(
   profileKey: string,
