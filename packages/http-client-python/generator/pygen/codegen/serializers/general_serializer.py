@@ -198,6 +198,40 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("pkgutil_init.py.jinja2")
         return template.render()
 
+    def typeddict_names_for_init(self) -> list[str]:
+        """Names defined in this namespace's ``types.py`` that should be re-exported from ``__init__.py``.
+
+        Mirrors the gate and name selection used to generate ``types.py`` (see
+        ``CodeModelSerializer`` and ``TypesSerializer``) so that only names that actually exist in
+        ``types.py`` are imported. ``types.py`` lives at the namespace root next to the sync
+        ``__init__.py``, so nothing is re-exported from the ``aio`` init.
+        """
+        if self.async_mode:
+            return []
+        namespace_type = self.code_model.client_namespace_types.get(self.client_namespace)
+        if namespace_type is None:
+            return []
+        models = namespace_type.models
+        has_types_models = any(m.is_used_in_operations_via_types for m in models if m.base != "json")
+        has_types_enums = any(e.is_typeddict_mode for e in namespace_type.enums)
+        if not (has_types_models or has_types_enums):
+            return []
+
+        from .types_serializer import TypesSerializer
+
+        is_typeddict_mode = self.code_model.options["models-mode"] == "typeddict"
+        serializer = TypesSerializer(
+            code_model=self.code_model,
+            env=self.env,
+            client_namespace=self.client_namespace,
+            models=models,
+            enums=namespace_type.enums if is_typeddict_mode else None,
+        )
+        names = [e.name for e in serializer.literal_enums]
+        names += [m.name for m in serializer.discriminated_base_models]
+        names += [m.name for m in serializer.typeddict_models]
+        return sorted(set(names))
+
     def serialize_init_file(self, clients: list[Client]) -> str:
         template = self.env.get_template("init.py.jinja2")
         return template.render(
@@ -205,6 +239,7 @@ class GeneralSerializer(BaseSerializer):
             clients=clients,
             async_mode=self.async_mode,
             serialize_namespace=self.serialize_namespace,
+            typeddict_names=self.typeddict_names_for_init(),
         )
 
     def serialize_service_client_file(self, clients: list[Client]) -> str:

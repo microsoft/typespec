@@ -9,6 +9,13 @@
 from .{{ client.filename }} import {{ client.name }}  # type: ignore
     {% endfor %}
 {% endif %}
+{% if typeddict_names %}
+from .types import (  # type: ignore
+    {% for name in typeddict_names %}
+    {{ name }},
+    {% endfor %}
+)
+{% endif %}
 {% if not async_mode and code_model.options.get("package-version") %}
 from {{ code_model.get_relative_import_path(serialize_namespace, module_name="_version") }} import VERSION
 
@@ -19,6 +26,9 @@ __version__ = VERSION
 __all__ = [
     {% for client in clients %}
     {{ keywords.escape_str(client.name) }},
+    {% endfor %}
+    {% for name in typeddict_names %}
+    {{ keywords.escape_str(name) }},
     {% endfor %}
 ]
 {{ keywords.extend_all }}

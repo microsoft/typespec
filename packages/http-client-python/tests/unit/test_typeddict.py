@@ -252,3 +252,75 @@ def test_typed_dict_only_docstring_type():
     docstring = model.docstring_type()
     assert "types.Foo" in docstring
     assert "models.Foo" not in docstring
+
+
+# ---------- __init__.py re-exports types.py names ----------
+
+
+def _make_typeddict_named_model(code_model, name):
+    return TypedDictModelType(
+        yaml_data={
+            "name": name,
+            "type": "model",
+            "snakeCaseName": name.lower(),
+            "usage": 2,
+            "clientNamespace": "blah",
+        },
+        code_model=code_model,
+        properties=[],
+    )
+
+
+def _serialize_root_init(code_model, async_mode=False):
+    from pygen.codegen.serializers.general_serializer import GeneralSerializer
+
+    env = _make_env()
+    serializer = GeneralSerializer(code_model=code_model, env=env, async_mode=async_mode, client_namespace="blah")
+    return serializer.serialize_init_file(code_model.get_clients("blah"))
+
+
+def test_typeddict_mode_init_reexports_typeddicts():
+    """In typeddict mode, the namespace-root __init__.py should re-export the TypedDicts from types.py."""
+    code_model = _make_code_model(models_mode="typeddict")
+    foo = _make_typeddict_named_model(code_model, "Foo")
+    bar = _make_typeddict_named_model(code_model, "Bar")
+    code_model.model_types = [foo, bar]
+
+    output = _serialize_root_init(code_model)
+    assert "from .types import (" in output
+    assert "Foo," in output
+    assert "Bar," in output
+    assert "'Foo'" in output
+    assert "'Bar'" in output
+
+
+def test_dpg_mode_init_reexports_typeddict_copies():
+    """In dpg mode, TypedDict copies (base='typeddict') in types.py should be re-exported from __init__.py."""
+    code_model = _make_code_model(models_mode="dpg")
+    # A base='typeddict' copy lands in types.py and is used in operations via types.
+    copy = _make_typeddict_named_model(code_model, "Widget")
+    code_model.model_types = [copy]
+
+    output = _serialize_root_init(code_model)
+    assert "from .types import (" in output
+    assert "Widget," in output
+    assert "'Widget'" in output
+
+
+def test_async_init_does_not_reexport_typeddicts():
+    """The aio/__init__.py should not import from .types (types.py lives at the namespace root)."""
+    code_model = _make_code_model(models_mode="typeddict")
+    foo = _make_typeddict_named_model(code_model, "Foo")
+    code_model.model_types = [foo]
+
+    output = _serialize_root_init(code_model, async_mode=True)
+    assert "from .types import" not in output
+
+
+def test_init_without_types_has_no_types_import():
+    """When there are no TypedDicts, __init__.py should not import from .types."""
+    code_model = _make_code_model(models_mode="dpg")
+    code_model.model_types = []
+
+    output = _serialize_root_init(code_model)
+    assert "from .types import" not in output
