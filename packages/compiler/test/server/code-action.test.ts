@@ -1,8 +1,7 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { it } from "vitest";
 import { CodeActionKind, Range } from "vscode-languageserver";
-import { createLinterRule } from "../../src/core/library.js";
-import { defineLinter } from "../../src/core/linter.js";
+import { createLinterRule, defineLinter } from "../../src/core/library.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 it("expands dynamic codefixes into separate code actions", async () => {
