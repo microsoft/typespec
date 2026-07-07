@@ -29,6 +29,7 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
+  SurfaceCheckInfo,
   SurfaceDocDecorator,
 } from "../../generated-defs/TypeSpec.Spector.js";
 import { SpectorStateKeys } from "./lib.js";
@@ -42,10 +43,17 @@ export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatA
   context.program.stateMap(SpectorStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
 
-export const $surfaceDoc: SurfaceDocDecorator = (context, target, doc, formatArgs?) => {
-  const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
-  context.program.stateMap(SpectorStateKeys.SurfaceDoc).set(target, formattedDoc);
+export const $surfaceDoc: SurfaceDocDecorator = (context, target, doc, check?) => {
+  context.program
+    .stateMap(SpectorStateKeys.SurfaceDoc)
+    .set(target, { doc, explicitCheck: check } satisfies StoredSurfaceDoc);
 };
+
+/** What `@surfaceDoc` records per target: the prose plus any explicit check. */
+interface StoredSurfaceDoc {
+  doc: string;
+  explicitCheck?: SurfaceCheckInfo;
+}
 
 export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
   const properties = new Map().set("title", {
@@ -298,7 +306,10 @@ export function getSurfaceDoc(
   program: Program,
   target: SurfaceDocTarget,
 ): string | undefined {
-  return program.stateMap(SpectorStateKeys.SurfaceDoc).get(target);
+  const stored: StoredSurfaceDoc | undefined = program
+    .stateMap(SpectorStateKeys.SurfaceDoc)
+    .get(target);
+  return stored?.doc;
 }
 
 function getSurfaceParent(target: SurfaceDocTarget): SurfaceDocTarget | undefined {
@@ -377,16 +388,43 @@ function getEnclosingScenarioName(
 export function listSurfaceDocs(program: Program): SurfaceDoc[] {
   const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
   const result: SurfaceDoc[] = [];
-  for (const [target, doc] of map as Map<SurfaceDocTarget, string>) {
+  for (const [target, stored] of map as Map<SurfaceDocTarget, StoredSurfaceDoc>) {
     result.push({
       name: resolveSurfaceName(target),
       scenario: getEnclosingScenarioName(program, target),
       target,
-      doc,
-      checks: deriveSurfaceChecks(target),
+      doc: stored.doc,
+      checks: mergeExplicitCheck(deriveSurfaceChecks(target), stored.explicitCheck),
     });
   }
   return result.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Fold an author-supplied explicit check into the derived checks: if it shares
+ * a category with a derived check, its provided fields override that check's;
+ * otherwise it is appended as an additional check.
+ */
+function mergeExplicitCheck(
+  derived: SurfaceCheck[],
+  explicit: SurfaceCheckInfo | undefined,
+): SurfaceCheck[] {
+  if (explicit === undefined) {
+    return derived;
+  }
+  const override = pruneUndefined(explicit);
+  const existing = derived.find((c) => c.category === explicit.category);
+  if (existing) {
+    return derived.map((c) => (c === existing ? { ...c, ...override } : c));
+  }
+  return [...derived, { ...override, category: explicit.category }];
+}
+
+/** Drop `undefined` fields so an explicit check only overrides what it sets. */
+function pruneUndefined(check: SurfaceCheckInfo): Partial<SurfaceCheck> {
+  return Object.fromEntries(
+    Object.entries(check).filter(([, value]) => value !== undefined),
+  ) as Partial<SurfaceCheck>;
 }
 
 /**

@@ -13,6 +13,16 @@ import type {
   UnionVariant,
 } from "@typespec/compiler";
 
+export interface SurfaceCheckInfo {
+  readonly category: string;
+  readonly expected?: string;
+  readonly kind?: string;
+  readonly expectedBase?: string;
+  readonly expectedClient?: string;
+  readonly absentFrom?: string;
+  readonly internal?: boolean;
+}
+
 /**
  * Setup the boilerplate for a scenario service(server endpoint, etc.)
  */
@@ -53,15 +63,15 @@ export type ScenarioDocDecorator = (
  * the surface instead of the wire.
  *
  * The prose states intent once, language-agnostically. The precompute step
- * (`listSurfaceDocs`) additionally inspects the element's own client decorators
- * (e.g. `@clientName`, `@access`, `@clientLocation`, `@hierarchyBuilding`) to
+ * (`listSurfaceDocs`) additionally inspects the element's own decorators (e.g.
+ * `@list`, `@clientName`, `@access`, `@clientLocation`, `@hierarchyBuilding`) to
  * derive the machine-checkable, routable fields of each check — so an author
- * typically just writes the sentence and applies the normal client decorator.
- * A property with no recognized client decorator becomes an AI-verified check
- * against the prose.
+ * typically just writes the sentence and applies the normal decorator. A
+ * property with no recognized decorator becomes an AI-verified check against the
+ * prose, unless an explicit `check` is supplied.
  *
  * @param doc Natural-language description of the expected surface. Markdown.
- * @param formatArgs Format arguments interpolated into `doc` (as in `@scenarioDoc`).
+ * @param check Optional explicit check for detail the derivation can't infer.
  */
 export type SurfaceDocDecorator = (
   context: DecoratorContext,
@@ -76,7 +86,7 @@ export type SurfaceDocDecorator = (
     | EnumMember
     | UnionVariant,
   doc: string,
-  formatArgs?: Model,
+  check?: SurfaceCheckInfo,
 ) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecSpectorDecorators = {

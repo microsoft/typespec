@@ -40,6 +40,8 @@ Derived checks (matched by decorator name + namespace, no dependency on the clie
 | `@list` (`TypeSpec`)                                  | `paging`          |
 | _(none recognized)_                                  | AI-verified prose |
 
+For anything the derivation can't infer, pass an explicit `check` as the second argument. It is merged with the derived checks: when its `category` matches a derived check, its provided fields override that check; otherwise it is added as an extra check. This lets an author name a category for prose that has no backing decorator, or attach routing detail (e.g. the expected iterator name).
+
 Usage:
 
 ```tsp
@@ -50,8 +52,14 @@ model Widget {
   id: string;
 }
 
+// Derived automatically from @list.
 @surfaceDoc("Surfaces a lazy paged iterator on the client, not a raw response.")
-op listItems(): Item[];
+@list
+op listItems(): ListPage;
+
+// No backing decorator: state the category explicitly.
+@surfaceDoc("Surfaced as a lazy iterator named `ItemPager`.", #{ category: "paging", expected: "ItemPager" })
+op streamItems(): Item[];
 ```
 
 Run `tsp-spector generate-surface-checks <specsPath>` to precompute a language-neutral `surface-checks.json` manifest from every `@surfaceDoc`, analogous to how `@scenarioDoc` feeds the scenario manifest.
