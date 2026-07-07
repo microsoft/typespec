@@ -16,6 +16,7 @@ import { blackExcludeDirs, PYGEN_WHEEL_FILENAME } from "./constants.js";
 import { saveCodeModel } from "./external-process.js";
 import { PythonEmitterOptions, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
+import { quoteShellArg } from "./utils.js";
 
 export interface RunNodeEmitArgs {
   context: EmitContext<PythonEmitterOptions>;
@@ -116,7 +117,7 @@ export async function runNodeEmit({
   commandArgs["output-folder"] = outputDir;
   commandArgs["tsp-file"] = codeModelPath;
   const commandFlags = Object.entries(commandArgs)
-    .map(([key, value]) => `--${key}=${value}`)
+    .map(([key, value]) => `--${key}=${quoteShellArg(String(value))}`)
     .join(" ");
   const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
   execSync(command);

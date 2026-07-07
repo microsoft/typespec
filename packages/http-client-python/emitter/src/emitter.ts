@@ -42,18 +42,6 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     // Explicitly set unbranded flavor when not azure
     (options as any).flavor = "unbranded";
   }
-
-  if (
-    options["package-pprint-name"] !== undefined &&
-    !options["package-pprint-name"].startsWith('"')
-  ) {
-    // Only add quotes for shell compatibility when NOT using emit-codemodel-only mode
-    // (emit-codemodel-only passes options via JSON config files, not shell)
-    const needsShellQuoting = !options["use-pyodide"] && !options["emit-codemodel-only"];
-    options["package-pprint-name"] = needsShellQuoting
-      ? `"${options["package-pprint-name"]}"`
-      : `${options["package-pprint-name"]}`;
-  }
 }
 
 async function createPythonSdkContext(
