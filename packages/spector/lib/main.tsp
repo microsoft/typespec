@@ -37,27 +37,37 @@ extern dec scenarioDoc(
 );
 
 /**
- * An explicit surface check supplied directly on `@surfaceDoc`, for the cases
- * the automatic decorator-based derivation can't infer (e.g. a bespoke
- * category, or extra routing detail on top of a derived check). It is merged
- * with the derived checks: when its `category` matches a derived check the
- * provided fields override that check, otherwise it is added as an extra check.
+ * The category-specific parameters a verifier asserts against the generated
+ * surface. Which fields apply depends on the check's `category`.
  */
-model SurfaceCheckInfo {
-  /** Category that routes the check to a verifier (e.g. `naming`, `paging`). */
-  category: string;
+model SurfaceDetails {
   /** Expected client-facing identifier (`naming`). */
-  expected?: string;
+  name?: string;
   /** Symbol kind for casing-aware `naming` checks (e.g. `model`, `enum`). */
   kind?: string;
   /** Expected base type on the client surface (`hierarchy`). */
-  expectedBase?: string;
+  base?: string;
   /** Client the operation should be surfaced on (`client-location`). */
-  expectedClient?: string;
+  client?: string;
   /** Client the operation should be absent from (`client-location`). */
   absentFrom?: string;
   /** Whether the target should be hidden from the public surface (`access`). */
   internal?: boolean;
+}
+
+/**
+ * An explicit surface check supplied directly on `@surfaceDoc`, for the cases
+ * the automatic decorator-based derivation can't infer (e.g. a bespoke
+ * category, or extra routing detail on top of a derived check). Mirrors a
+ * `surface-checks.json` item: it is merged with the derived checks, and when its
+ * `category` matches a derived check the provided `details` override that
+ * check's, otherwise it is added as an extra check.
+ */
+model SurfaceCheckInfo {
+  /** Category that routes the check to a verifier (e.g. `naming`, `paging`). */
+  category: string;
+  /** Category-specific expectation the verifier asserts. */
+  details?: SurfaceDetails;
 }
 
 /**

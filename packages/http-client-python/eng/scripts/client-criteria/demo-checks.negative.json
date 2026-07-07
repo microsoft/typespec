@@ -6,32 +6,29 @@
       "scenario": "client-naming",
       "category": "naming",
       "target": "ServerExtensibleEnum",
-      "expected": "ClientExtensibleEnum",
-      "kind": "property"
+      "details": { "name": "ClientExtensibleEnum", "kind": "property" }
     },
     {
       "id": "NAMING_wrong_name",
       "scenario": "client-naming",
       "category": "naming",
       "target": "ServerExtensibleEnum",
-      "expected": "TotallyMadeUpEnum",
-      "kind": "enum"
+      "details": { "name": "TotallyMadeUpEnum", "kind": "enum" }
     },
     {
       "id": "LOCATION_wrong_client",
       "scenario": "client-location-move-to-existing-sub-client",
       "category": "client-location",
       "target": "deleteUser",
-      "expected_client": "UserOperations",
-      "absent_from": "AdminOperations"
+      "details": { "client": "UserOperations", "absentFrom": "AdminOperations" }
     },
     {
       "id": "HIERARCHY_wrong_base",
       "scenario": "hierarchy-building",
       "category": "hierarchy",
       "target": "Dog",
-      "expected_base": "Animal",
-      "verify": "Dog is surfaced as a subtype of Animal directly"
+      "doc": "Dog is surfaced as a subtype of Animal directly",
+      "details": { "base": "Animal" }
     }
   ]
 }

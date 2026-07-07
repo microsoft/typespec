@@ -148,20 +148,22 @@ def class_base_subtype(pkg: Path, target: str, expected_base: str):
 
 
 def run_routine(check: str, pkg: Path, item: dict, sig: dict, language: str):
+    details = item.get("details", {}) or {}
     if check == "export_visibility":
-        internal = "internal" in (item.get("verify", "") + item.get("access", "")).lower() or item.get("internal", False)
-        return export_visibility(pkg, item["target"], internal, sig.get("public_init", "models/__init__.py"))
+        return export_visibility(pkg, item["target"], details.get("internal", False),
+                                 sig.get("public_init", "models/__init__.py"))
     if check == "operation_client_membership":
-        return operation_client_membership(pkg, item["target"], item.get("expected_client"), item.get("absent_from"))
+        return operation_client_membership(pkg, item["target"], details.get("client"),
+                                           details.get("absentFrom"))
     if check == "class_base_subtype":
-        return class_base_subtype(pkg, item["target"], item.get("expected_base"))
-    expected = (item.get("client_names", {}) or {}).get(language) or item.get("expected")
+        return class_base_subtype(pkg, item["target"], details.get("base"))
+    expected = (item.get("client_names", {}) or {}).get(language) or details.get("name")
     if expected is None:
         return "na", f"no expected value for language '{language}'"
     if check == "identifier_exact":
         return identifier_exact(pkg, expected)
     if check == "identifier_idiomatic_casing":
-        return identifier_idiomatic_casing(pkg, expected, item.get("kind"), sig.get("casing", {}))
+        return identifier_idiomatic_casing(pkg, expected, details.get("kind"), sig.get("casing", {}))
     if check == "identifier_casing_insensitive":
         return identifier_casing_insensitive(pkg, expected)
     return "error", f"unknown check '{check}'"
@@ -197,7 +199,8 @@ def run_batch(args) -> None:
             if r.get("_needs_ai"):
                 src = by_id[r["id"]]
                 needs_ai.append({"id": src["id"], "category": src["category"],
-                                 "target": src.get("target"), "verify": src.get("verify", "")})
+                                 "target": src.get("target"), "doc": src.get("doc", ""),
+                                 "details": src.get("details", {})})
             else:
                 results.append(r)
     results.sort(key=lambda r: r["id"]); needs_ai.sort(key=lambda r: r["id"])
@@ -213,7 +216,7 @@ def run_single(args) -> None:
     elif not pkg.is_dir():
         out = {"status": "error", "evidence": f"package not found: {pkg}"}
     else:
-        item = {"target": args.target, "expected": args.expected, "internal": args.internal}
+        item = {"target": args.target, "details": {"name": args.expected, "internal": args.internal}}
         try:
             status, evidence = run_routine(sig["check"], pkg, item, sig, args.language)
             out = {"status": status, "evidence": evidence}

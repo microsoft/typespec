@@ -264,14 +264,23 @@ export type SurfaceDocTarget =
 export interface SurfaceCheck {
   /** The kind of assertion, used to route the check to a verifier. */
   category: string;
-  /** Expected client-facing identifier (`naming` / `exactName`). */
-  expected?: string;
-  /** Symbol kind for casing-aware `naming` checks. */
+  /** Category-specific expectation the verifier asserts. */
+  details?: SurfaceDetails;
+}
+
+/**
+ * The category-specific parameters a verifier asserts against the generated
+ * surface. Which fields apply depends on the check's `category`.
+ */
+export interface SurfaceDetails {
+  /** Expected client-facing identifier (`naming`). */
+  name?: string;
+  /** Symbol kind for casing-aware `naming` checks (e.g. `model`, `enum`). */
   kind?: string;
   /** Expected base type on the client surface (`hierarchy`). */
-  expectedBase?: string;
+  base?: string;
   /** Client the operation should be surfaced on (`client-location`). */
-  expectedClient?: string;
+  client?: string;
   /** Client the operation should be absent from (`client-location`). */
   absentFrom?: string;
   /** Whether the target should be hidden from the public surface (`access`). */
@@ -402,7 +411,7 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
 
 /**
  * Fold an author-supplied explicit check into the derived checks: if it shares
- * a category with a derived check, its provided fields override that check's;
+ * a category with a derived check, its provided `details` override that check's;
  * otherwise it is appended as an additional check.
  */
 function mergeExplicitCheck(
@@ -412,19 +421,21 @@ function mergeExplicitCheck(
   if (explicit === undefined) {
     return derived;
   }
-  const override = pruneUndefined(explicit);
+  const override = explicit.details ? pruneUndefined(explicit.details) : undefined;
   const existing = derived.find((c) => c.category === explicit.category);
   if (existing) {
-    return derived.map((c) => (c === existing ? { ...c, ...override } : c));
+    return derived.map((c) =>
+      c === existing ? normalizeCheck({ category: c.category, details: { ...c.details, ...override } }) : c,
+    );
   }
-  return [...derived, { ...override, category: explicit.category }];
+  return [...derived, normalizeCheck({ category: explicit.category, details: override })];
 }
 
 /** Drop `undefined` fields so an explicit check only overrides what it sets. */
-function pruneUndefined(check: SurfaceCheckInfo): Partial<SurfaceCheck> {
+function pruneUndefined(details: SurfaceDetails): SurfaceDetails {
   return Object.fromEntries(
-    Object.entries(check).filter(([, value]) => value !== undefined),
-  ) as Partial<SurfaceCheck>;
+    Object.entries(details).filter(([, value]) => value !== undefined),
+  ) as SurfaceDetails;
 }
 
 /**
@@ -489,7 +500,7 @@ const KNOWN_DECORATORS: KnownDecorator[] = [
       if (expected === undefined) {
         return undefined;
       }
-      return { category: "naming", expected, kind: getSurfaceKind(target) };
+      return { category: "naming", details: { name: expected, kind: getSurfaceKind(target) } };
     },
   },
   {
@@ -501,7 +512,7 @@ const KNOWN_DECORATORS: KnownDecorator[] = [
       if (access === undefined) {
         return undefined;
       }
-      return { category: "access", internal: access === "internal" };
+      return { category: "access", details: { internal: access === "internal" } };
     },
   },
   {
@@ -509,14 +520,13 @@ const KNOWN_DECORATORS: KnownDecorator[] = [
     name: "@clientLocation",
     namespace: CLIENT_GENERATOR_CORE,
     derive: (app, target) => {
-      const expectedClient = getTypeOrStringName(app, 0);
-      if (expectedClient === undefined) {
+      const client = getTypeOrStringName(app, 0);
+      if (client === undefined) {
         return undefined;
       }
       return {
         category: "client-location",
-        expectedClient,
-        absentFrom: getDeclaringContainerName(target),
+        details: { client, absentFrom: getDeclaringContainerName(target) },
       };
     },
   },
@@ -525,11 +535,11 @@ const KNOWN_DECORATORS: KnownDecorator[] = [
     name: "@hierarchyBuilding",
     namespace: CLIENT_GENERATOR_LEGACY,
     derive: (app) => {
-      const expectedBase = getTypeOrStringName(app, 0);
-      if (expectedBase === undefined) {
+      const base = getTypeOrStringName(app, 0);
+      if (base === undefined) {
         return undefined;
       }
-      return { category: "hierarchy", expectedBase };
+      return { category: "hierarchy", details: { base } };
     },
   },
 ];
@@ -547,10 +557,19 @@ function deriveSurfaceChecks(target: SurfaceDocTarget): SurfaceCheck[] {
     }
     const check = known.derive(app, target);
     if (check) {
-      checks.push(check);
+      checks.push(normalizeCheck(check));
     }
   }
   return checks;
+}
+
+/** Drop empty/undefined `details` so a check only carries fields that apply. */
+function normalizeCheck(check: SurfaceCheck): SurfaceCheck {
+  const details = check.details && pruneUndefined(check.details);
+  if (details && Object.keys(details).length > 0) {
+    return { category: check.category, details };
+  }
+  return { category: check.category };
 }
 
 function matchesDecorator(app: DecoratorApplication, known: KnownDecorator): boolean {

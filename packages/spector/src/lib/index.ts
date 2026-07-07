@@ -15,6 +15,7 @@ export {
   Scenario,
   ScenarioEndpoint,
   SurfaceCheck,
+  SurfaceDetails,
   SurfaceDoc,
   SurfaceDocTarget,
   UNSPECIFIED_CATEGORY,

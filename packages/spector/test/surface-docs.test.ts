@@ -94,7 +94,7 @@ describe("@surfaceDoc", () => {
           value2,
         }
       `),
-    ).toEqual([{ category: "naming", expected: "ClientExtensibleEnum", kind: "enum" }]);
+    ).toEqual([{ category: "naming", details: { name: "ClientExtensibleEnum", kind: "enum" } }]);
   });
 
   it("access: derived from @access", async () => {
@@ -106,7 +106,7 @@ describe("@surfaceDoc", () => {
           id: string;
         }
       `),
-    ).toEqual([{ category: "access", internal: true }]);
+    ).toEqual([{ category: "access", details: { internal: true } }]);
   });
 
   it("hierarchy: derived from @hierarchyBuilding", async () => {
@@ -121,7 +121,7 @@ describe("@surfaceDoc", () => {
           kind: string;
         }
       `),
-    ).toEqual([{ category: "hierarchy", expectedBase: "Pet" }]);
+    ).toEqual([{ category: "hierarchy", details: { base: "Pet" } }]);
   });
 
   it("client-location: derived from @clientLocation, absent from the declaring container", async () => {
@@ -134,7 +134,10 @@ describe("@surfaceDoc", () => {
         }
       `),
     ).toEqual([
-      { category: "client-location", expectedClient: "BatchClient", absentFrom: "WidgetOps" },
+      {
+        category: "client-location",
+        details: { client: "BatchClient", absentFrom: "WidgetOps" },
+      },
     ]);
   });
 
@@ -157,8 +160,11 @@ describe("@surfaceDoc", () => {
         id: string;
       }
     `);
-    expect(checks).toContainEqual({ category: "access", internal: true });
-    expect(checks).toContainEqual({ category: "naming", expected: "WidgetInternal", kind: "model" });
+    expect(checks).toContainEqual({ category: "access", details: { internal: true } });
+    expect(checks).toContainEqual({
+      category: "naming",
+      details: { name: "WidgetInternal", kind: "model" },
+    });
   });
 
   it("prose-only: no checks when no decorator is recognized (AI fallback)", async () => {
@@ -186,11 +192,11 @@ describe("@surfaceDoc", () => {
       await checksOf(`
         @surfaceDoc(
           "Surfaced as a lazy iterator named ItemPager.",
-          #{ category: "paging", expected: "ItemPager" }
+          #{ category: "paging", details: #{ name: "ItemPager" } }
         )
         op listItems(): string[];
       `),
-    ).toEqual([{ category: "paging", expected: "ItemPager" }]);
+    ).toEqual([{ category: "paging", details: { name: "ItemPager" } }]);
   });
 
   it("explicit: augments a derived check of the same category", async () => {
@@ -198,12 +204,12 @@ describe("@surfaceDoc", () => {
       await checksOf(`
         @surfaceDoc(
           "Surfaced as a lazy iterator named ItemPager.",
-          #{ category: "paging", expected: "ItemPager" }
+          #{ category: "paging", details: #{ name: "ItemPager" } }
         )
         @list
         op listItems(): { @pageItems items: string[]; @nextLink next?: url };
       `),
-    ).toEqual([{ category: "paging", expected: "ItemPager" }]);
+    ).toEqual([{ category: "paging", details: { name: "ItemPager" } }]);
   });
 
   it("explicit: overrides a derived field of the same category", async () => {
@@ -211,14 +217,14 @@ describe("@surfaceDoc", () => {
       await checksOf(`
         @surfaceDoc(
           "Renamed to WidgetOverride on the client surface.",
-          #{ category: "naming", expected: "WidgetOverride" }
+          #{ category: "naming", details: #{ name: "WidgetOverride" } }
         )
         @Azure.ClientGenerator.Core.clientName("WidgetInternal")
         model Widget {
           id: string;
         }
       `),
-    ).toEqual([{ category: "naming", expected: "WidgetOverride", kind: "model" }]);
+    ).toEqual([{ category: "naming", details: { name: "WidgetOverride", kind: "model" } }]);
   });
 
   it("explicit: is added alongside a derived check of a different category", async () => {
@@ -231,7 +237,10 @@ describe("@surfaceDoc", () => {
       @list
       op listItems(): { @pageItems items: string[]; @nextLink next?: url };
     `);
-    expect(checks).toContainEqual({ category: "naming", expected: "Items", kind: "operation" });
+    expect(checks).toContainEqual({
+      category: "naming",
+      details: { name: "Items", kind: "operation" },
+    });
     expect(checks).toContainEqual({ category: "paging" });
   });
 
@@ -251,15 +260,15 @@ describe("@surfaceDoc", () => {
     expect(item.category).toBe("naming");
     expect(item.target).toBe("ServerExtensibleEnum");
     expect(item.doc).toContain("Exposed to clients");
-    expect(item.expected).toBe("ClientExtensibleEnum");
-    expect(item.kind).toBe("enum");
+    expect(item.details?.name).toBe("ClientExtensibleEnum");
+    expect(item.details?.kind).toBe("enum");
     // A location the verifier can point back to for reporting.
     expect(typeof item.location.path).toBe("string");
     expect(item.location.start.line).toBeGreaterThanOrEqual(0);
     expect(item.location.end.line).toBeGreaterThanOrEqual(item.location.start.line);
   });
 
-  it("manifest: emits camelCase check fields as snake_case for verify.py", async () => {
+  it("manifest: groups category-specific fields under `details`", async () => {
     const items = await manifestItems(`
       interface WidgetOps {
         @Azure.ClientGenerator.Core.clientLocation("BatchClient")
@@ -269,10 +278,9 @@ describe("@surfaceDoc", () => {
     `);
     const item = items["WidgetOps_batchGet_client-location"];
     expect(item.category).toBe("client-location");
-    expect(item.expected_client).toBe("BatchClient");
-    expect(item.absent_from).toBe("WidgetOps");
-    // camelCase names must not leak into the manifest.
-    expect((item as Record<string, unknown>).expectedClient).toBeUndefined();
+    expect(item.details).toEqual({ client: "BatchClient", absentFrom: "WidgetOps" });
+    // Category-specific fields live under `details`, not flattened on the item.
+    expect((item as Record<string, unknown>).client).toBeUndefined();
     expect((item as Record<string, unknown>).absentFrom).toBeUndefined();
   });
 
@@ -284,7 +292,7 @@ describe("@surfaceDoc", () => {
     const item = items["getItem_unspecified"];
     expect(item.category).toBe("unspecified");
     expect(item.doc).toContain("strongly typed model");
-    expect(item.expected).toBeUndefined();
+    expect(item.details).toBeUndefined();
   });
 
   it("manifest: one item per derived check, each preserving the prose", async () => {
@@ -296,8 +304,11 @@ describe("@surfaceDoc", () => {
         id: string;
       }
     `);
-    expect(items["Widget_access"]).toMatchObject({ category: "access", internal: true });
-    expect(items["Widget_naming"]).toMatchObject({ expected: "WidgetInternal", kind: "model" });
+    expect(items["Widget_access"]).toMatchObject({
+      category: "access",
+      details: { internal: true },
+    });
+    expect(items["Widget_naming"].details).toEqual({ name: "WidgetInternal", kind: "model" });
     expect(items["Widget_access"].doc).toContain("Hidden from the public surface");
     expect(items["Widget_naming"].doc).toContain("Hidden from the public surface");
   });

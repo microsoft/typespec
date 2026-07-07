@@ -35,10 +35,11 @@ verifiers so the deterministic runner can decide **without calling AI** — see
   `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
   `UPPER_SNAKE`. So an enum renamed to `ClientExtensibleEnum` must appear exactly
   as `ClientExtensibleEnum` (not `client_extensible_enum`). The per-kind casing
-  map lives in `verifiers.json`; the manifest item carries the symbol `kind`.
+  map lives in `verifiers.json`; the manifest item carries the symbol `kind`
+  under `details`.
 - **resolving the expected name:** if the check has a `client_names` map
-  (`{"python": "...", "csharp": "..."}`), use this language's value; otherwise the
-  single `expected` name. A language with no entry is `N/A`.
+  (`{"python": "...", "csharp": "..."}`), use this language's value; otherwise
+  `details.name`. A language with no entry is `N/A`.
 
 ### exactName (`@exactName`)
 - the identifier equals the spec name **byte-for-byte**, no casing transform.

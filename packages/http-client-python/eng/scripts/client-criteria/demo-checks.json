@@ -6,16 +6,15 @@
       "scenario": "client-naming",
       "category": "naming",
       "target": "ServerExtensibleEnum",
-      "expected": "ClientExtensibleEnum",
-      "kind": "enum"
+      "details": { "name": "ClientExtensibleEnum", "kind": "enum" }
     },
     {
       "id": "Client_Hierarchy_Dog_extends_Pet",
       "scenario": "hierarchy-building",
       "category": "hierarchy",
       "target": "Dog",
-      "expected_base": "Pet",
-      "verify": "Dog is surfaced as a subtype of Pet (inherits Pet's members), not a direct subtype of Animal"
+      "doc": "Dog is surfaced as a subtype of Pet (inherits Pet's members), not a direct subtype of Animal",
+      "details": { "base": "Pet" }
     }
   ]
 }

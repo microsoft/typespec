@@ -40,7 +40,7 @@ Derived checks (matched by decorator name + namespace, no dependency on the clie
 | `@list` (`TypeSpec`)                                  | `paging`          |
 | _(none recognized)_                                  | AI-verified prose |
 
-For anything the derivation can't infer, pass an explicit `check` as the second argument. It is merged with the derived checks: when its `category` matches a derived check, its provided fields override that check; otherwise it is added as an extra check. This lets an author name a category for prose that has no backing decorator, or attach routing detail (e.g. the expected iterator name).
+For anything the derivation can't infer, pass an explicit `check` as the second argument. It is merged with the derived checks: when its `category` matches a derived check, its `details` override that check; otherwise it is added as an extra check. This lets an author name a category for prose that has no backing decorator, or attach routing detail (e.g. the expected iterator name).
 
 Usage:
 
@@ -58,7 +58,7 @@ model Widget {
 op listItems(): ListPage;
 
 // No backing decorator: state the category explicitly.
-@surfaceDoc("Surfaced as a lazy iterator named `ItemPager`.", #{ category: "paging", expected: "ItemPager" })
+@surfaceDoc("Surfaced as a lazy iterator named `ItemPager`.", #{ category: "paging", details: #{ name: "ItemPager" } })
 op streamItems(): Item[];
 ```
 

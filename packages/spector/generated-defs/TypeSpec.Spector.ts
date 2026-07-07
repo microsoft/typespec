@@ -15,10 +15,14 @@ import type {
 
 export interface SurfaceCheckInfo {
   readonly category: string;
-  readonly expected?: string;
+  readonly details?: SurfaceDetails;
+}
+
+export interface SurfaceDetails {
+  readonly name?: string;
   readonly kind?: string;
-  readonly expectedBase?: string;
-  readonly expectedClient?: string;
+  readonly base?: string;
+  readonly client?: string;
   readonly absentFrom?: string;
   readonly internal?: boolean;
 }

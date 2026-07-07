@@ -1,7 +1,7 @@
 import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
-import type { SurfaceCheck, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
+import type { SurfaceDetails, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
 import { UNSPECIFIED_CATEGORY } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles } from "../scenarios-resolver.js";
@@ -15,7 +15,7 @@ import { getCommit, getPackageJson } from "../utils/misc-utils.js";
 
 /** One language-neutral entry of `surface-checks.json` — what to check, for every emitter. */
 export interface SurfaceCheckItem {
-  /** Stable id, e.g. `Type_Model_Enum_Extensible_naming`. */
+  /** Stable id, e.g. `Widget_naming`. */
   id: string;
   /** The enclosing `@scenario` name this surface check belongs to. */
   scenario: string | undefined;
@@ -27,18 +27,8 @@ export interface SurfaceCheckItem {
   doc: string;
   /** Where the `@surfaceDoc` lives in the spec. */
   location: SurfaceCheckLocation;
-  /** Expected client-facing identifier (`naming` / `exactName`). */
-  expected?: string;
-  /** Symbol kind for casing-aware `naming` checks. */
-  kind?: string;
-  /** Expected base type on the client surface (`hierarchy`). */
-  expected_base?: string;
-  /** Client the operation should be surfaced on (`client-location`). */
-  expected_client?: string;
-  /** Client the operation should be absent from (`client-location`). */
-  absent_from?: string;
-  /** Whether the target should be hidden from the public surface (`access`). */
-  internal?: boolean;
+  /** Category-specific expectation; absent for AI-only (`unspecified`) checks. */
+  details?: SurfaceDetails;
 }
 
 export interface SurfaceCheckLocation {
@@ -98,23 +88,12 @@ export function createSurfaceChecksManifest(
         target,
         doc: surfaceDoc.doc,
         location,
-        ...renderCheckFields(check),
+        ...(check.details ? { details: check.details } : {}),
       });
     }
   }
   items.sort((a, b) => a.id.localeCompare(b.id));
   return { version: version ?? "?", commit, items };
-}
-
-function renderCheckFields(check: SurfaceCheck): Partial<SurfaceCheckItem> {
-  const fields: Partial<SurfaceCheckItem> = {};
-  if (check.expected !== undefined) fields.expected = check.expected;
-  if (check.kind !== undefined) fields.kind = check.kind;
-  if (check.expectedBase !== undefined) fields.expected_base = check.expectedBase;
-  if (check.expectedClient !== undefined) fields.expected_client = check.expectedClient;
-  if (check.absentFrom !== undefined) fields.absent_from = check.absentFrom;
-  if (check.internal !== undefined) fields.internal = check.internal;
-  return fields;
 }
 
 function uniqueId(used: Map<string, number>, base: string): string {
