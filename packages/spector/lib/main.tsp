@@ -37,57 +37,25 @@ extern dec scenarioDoc(
 );
 
 /**
- * A single language-agnostic assertion about the generated SDK surface — a
- * property of the emitted client (or service) code that is invisible on the
- * wire (naming, access, inheritance reshaping, operation location, ...). The
- * `doc` states the intent in plain, language-neutral terms; the remaining
- * fields carry the machine-checkable expectation that a per-emitter verifier
- * (or, as a fallback, AI) validates against the generated code.
- */
-model SurfaceCheck {
-  /**
-   * The kind of surface assertion, used to route the check to a verifier —
-   * e.g. `naming`, `access`, `hierarchy`, `client-location`, `exactName`.
-   */
-  category: string;
-
-  /** Language-agnostic description of the expected surface. */
-  doc: string;
-
-  /** Expected client-facing identifier (`naming` / `exactName` checks). */
-  expected?: string;
-
-  /**
-   * Symbol kind for casing-aware `naming` checks, so each emitter can recast
-   * the expected identifier into its idiomatic casing — one of `enum`,
-   * `model`, `property`, `parameter`, `operation`, `enumvalue`.
-   */
-  kind?: string;
-
-  /** Expected base type on the client surface (`hierarchy` checks). */
-  expectedBase?: string;
-
-  /** Client the operation should be surfaced on (`client-location` checks). */
-  expectedClient?: string;
-
-  /** Client the operation should be absent from (`client-location` checks). */
-  absentFrom?: string;
-
-  /** Whether the target should be hidden from the public surface (`access` checks). */
-  internal?: boolean;
-}
-
-/**
- * Describe one or more expected properties of the **generated SDK surface** for
- * this element — things a wire test can't see, such as a client rename, an
- * access change, or a reshaped inheritance hierarchy. A single `@surfaceDoc`
- * may carry multiple checks (e.g. an element that is both made internal and
- * renamed). The description is stated once, language-agnostically; each emitter
- * validates it against its own generated code. Mirrors `@scenarioDoc`, but for
+ * Describe, in plain natural language, one or more expected properties of the
+ * **generated SDK surface** for this element — things a wire test can't see,
+ * such as a client rename, an access change, an operation relocated to another
+ * client, or a reshaped inheritance hierarchy. Mirrors `@scenarioDoc`, but for
  * the surface instead of the wire.
- * @param checks The surface assertions to validate for this element.
+ *
+ * The prose states intent once, language-agnostically. The precompute step
+ * (`listSurfaceDocs`) additionally inspects the element's own client decorators
+ * (e.g. `@clientName`, `@access`, `@clientLocation`, `@hierarchyBuilding`) to
+ * derive the machine-checkable, routable fields of each check — so an author
+ * typically just writes the sentence and applies the normal client decorator.
+ * A property with no recognized client decorator becomes an AI-verified check
+ * against the prose.
+ *
+ * @param doc Natural-language description of the expected surface. Markdown.
+ * @param formatArgs Format arguments interpolated into `doc` (as in `@scenarioDoc`).
  */
 extern dec surfaceDoc(
   target: Namespace | Interface | Operation | Model | Enum | Union | ModelProperty | EnumMember | UnionVariant,
-  checks: valueof SurfaceCheck[]
+  doc: valueof string,
+  formatArgs?: Model
 );

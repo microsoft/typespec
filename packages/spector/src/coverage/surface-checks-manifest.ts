@@ -2,6 +2,7 @@ import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
 import type { SurfaceCheck, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
+import { UNSPECIFIED_CATEGORY } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles } from "../scenarios-resolver.js";
 import { importSpecExpect, importTypeSpec } from "../spec-utils/index.js";
@@ -76,6 +77,18 @@ export function createSurfaceChecksManifest(
     const location = getCheckLocation(scenariosPath, surfaceDoc.target);
     const target = getTargetName(surfaceDoc.target);
     const usedIds = new Map<string, number>();
+    if (surfaceDoc.checks.length === 0) {
+      // Prose with no recognized client decorator: one AI-verified check.
+      items.push({
+        id: uniqueId(usedIds, `${surfaceDoc.name}_${UNSPECIFIED_CATEGORY}`),
+        scenario: surfaceDoc.scenario,
+        category: UNSPECIFIED_CATEGORY,
+        target,
+        doc: surfaceDoc.doc,
+        location,
+      });
+      continue;
+    }
     for (const check of surfaceDoc.checks) {
       const id = uniqueId(usedIds, `${surfaceDoc.name}_${check.category}`);
       items.push({
@@ -83,7 +96,7 @@ export function createSurfaceChecksManifest(
         scenario: surfaceDoc.scenario,
         category: check.category,
         target,
-        doc: check.doc,
+        doc: surfaceDoc.doc,
         location,
         ...renderCheckFields(check),
       });

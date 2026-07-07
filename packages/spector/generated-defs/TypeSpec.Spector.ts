@@ -13,17 +13,6 @@ import type {
   UnionVariant,
 } from "@typespec/compiler";
 
-export interface SurfaceCheck {
-  readonly category: string;
-  readonly doc: string;
-  readonly expected?: string;
-  readonly kind?: string;
-  readonly expectedBase?: string;
-  readonly expectedClient?: string;
-  readonly absentFrom?: string;
-  readonly internal?: boolean;
-}
-
 /**
  * Setup the boilerplate for a scenario service(server endpoint, etc.)
  */
@@ -57,15 +46,22 @@ export type ScenarioDocDecorator = (
 ) => DecoratorValidatorCallbacks | void;
 
 /**
- * Describe one or more expected properties of the **generated SDK surface** for
- * this element — things a wire test can't see, such as a client rename, an
- * access change, or a reshaped inheritance hierarchy. A single `@surfaceDoc`
- * may carry multiple checks (e.g. an element that is both made internal and
- * renamed). The description is stated once, language-agnostically; each emitter
- * validates it against its own generated code. Mirrors `@scenarioDoc`, but for
+ * Describe, in plain natural language, one or more expected properties of the
+ * **generated SDK surface** for this element — things a wire test can't see,
+ * such as a client rename, an access change, an operation relocated to another
+ * client, or a reshaped inheritance hierarchy. Mirrors `@scenarioDoc`, but for
  * the surface instead of the wire.
  *
- * @param checks The surface assertions to validate for this element.
+ * The prose states intent once, language-agnostically. The precompute step
+ * (`listSurfaceDocs`) additionally inspects the element's own client decorators
+ * (e.g. `@clientName`, `@access`, `@clientLocation`, `@hierarchyBuilding`) to
+ * derive the machine-checkable, routable fields of each check — so an author
+ * typically just writes the sentence and applies the normal client decorator.
+ * A property with no recognized client decorator becomes an AI-verified check
+ * against the prose.
+ *
+ * @param doc Natural-language description of the expected surface. Markdown.
+ * @param formatArgs Format arguments interpolated into `doc` (as in `@scenarioDoc`).
  */
 export type SurfaceDocDecorator = (
   context: DecoratorContext,
@@ -79,7 +75,8 @@ export type SurfaceDocDecorator = (
     | ModelProperty
     | EnumMember
     | UnionVariant,
-  checks: readonly SurfaceCheck[],
+  doc: string,
+  formatArgs?: Model,
 ) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecSpectorDecorators = {

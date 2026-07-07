@@ -6,7 +6,8 @@ export {
   getScenarioDoc,
   getScenarioEndpoints,
   getScenarioName,
-  getSurfaceChecks,
+  getSurfaceDoc,
+  getSurfaceKind,
   isScenario,
   listScenarioIn,
   listScenarios,
@@ -16,6 +17,7 @@ export {
   SurfaceCheck,
   SurfaceDoc,
   SurfaceDocTarget,
+  UNSPECIFIED_CATEGORY,
 } from "./decorators.js";
 export { $lib, reportDiagnostic } from "./lib.js";
 export { $onValidate } from "./validate.js";

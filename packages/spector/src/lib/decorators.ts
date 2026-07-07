@@ -1,5 +1,6 @@
 import {
   $service,
+  DecoratorApplication,
   Enum,
   EnumMember,
   getNamespaceFullName,
@@ -11,6 +12,7 @@ import {
   Namespace,
   Operation,
   Program,
+  Type,
   Union,
   UnionVariant,
 } from "@typespec/compiler";
@@ -27,7 +29,6 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-  SurfaceCheck,
   SurfaceDocDecorator,
 } from "../../generated-defs/TypeSpec.Spector.js";
 import { SpectorStateKeys } from "./lib.js";
@@ -41,8 +42,9 @@ export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatA
   context.program.stateMap(SpectorStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
 
-export const $surfaceDoc: SurfaceDocDecorator = (context, target, checks) => {
-  context.program.stateMap(SpectorStateKeys.SurfaceDoc).set(target, checks);
+export const $surfaceDoc: SurfaceDocDecorator = (context, target, doc, formatArgs?) => {
+  const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
+  context.program.stateMap(SpectorStateKeys.SurfaceDoc).set(target, formattedDoc);
 };
 
 export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
@@ -247,9 +249,31 @@ export type SurfaceDocTarget =
   | EnumMember
   | UnionVariant;
 
-export type { SurfaceCheck };
+/**
+ * A single language-agnostic, machine-checkable assertion about the generated
+ * SDK surface, derived from a client decorator on a `@surfaceDoc` element.
+ */
+export interface SurfaceCheck {
+  /** The kind of assertion, used to route the check to a verifier. */
+  category: string;
+  /** Expected client-facing identifier (`naming` / `exactName`). */
+  expected?: string;
+  /** Symbol kind for casing-aware `naming` checks. */
+  kind?: string;
+  /** Expected base type on the client surface (`hierarchy`). */
+  expectedBase?: string;
+  /** Client the operation should be surfaced on (`client-location`). */
+  expectedClient?: string;
+  /** Client the operation should be absent from (`client-location`). */
+  absentFrom?: string;
+  /** Whether the target should be hidden from the public surface (`access`). */
+  internal?: boolean;
+}
 
-/** A resolved `@surfaceDoc` annotation with its language-agnostic surface checks. */
+/** Category used when no known client decorator backs the prose — AI verifies it. */
+export const UNSPECIFIED_CATEGORY = "unspecified";
+
+/** A resolved `@surfaceDoc` annotation: its prose plus the checks derived from decorators. */
 export interface SurfaceDoc {
   /**
    * Scenario-style name resolved from the element's position in the spec tree
@@ -260,14 +284,20 @@ export interface SurfaceDoc {
   scenario: string | undefined;
   /** The annotated element. */
   target: SurfaceDocTarget;
-  /** The surface assertions declared on the element. */
-  checks: readonly SurfaceCheck[];
+  /** The natural-language description the author wrote. */
+  doc: string;
+  /**
+   * Machine-checkable checks derived from the element's client decorators. May
+   * be empty, in which case the prose is verified against the surface by AI.
+   */
+  checks: SurfaceCheck[];
 }
 
-export function getSurfaceChecks(
+/** Return the natural-language prose authored with `@surfaceDoc` on `target`. */
+export function getSurfaceDoc(
   program: Program,
   target: SurfaceDocTarget,
-): readonly SurfaceCheck[] | undefined {
+): string | undefined {
   return program.stateMap(SpectorStateKeys.SurfaceDoc).get(target);
 }
 
@@ -340,18 +370,187 @@ function getEnclosingScenarioName(
 /**
  * Collect every `@surfaceDoc` in the program into a list of language-agnostic
  * surface docs. Analogous to {@link listScenarios}, but for the generated
- * surface instead of the wire. Feeds the `surface-checks.json` manifest.
+ * surface instead of the wire. For each annotation it keeps the author's prose
+ * and deterministically derives the machine-checkable checks from the element's
+ * own client decorators. Feeds the `surface-checks.json` manifest.
  */
 export function listSurfaceDocs(program: Program): SurfaceDoc[] {
   const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
   const result: SurfaceDoc[] = [];
-  for (const [target, checks] of map as Map<SurfaceDocTarget, readonly SurfaceCheck[]>) {
+  for (const [target, doc] of map as Map<SurfaceDocTarget, string>) {
     result.push({
       name: resolveSurfaceName(target),
       scenario: getEnclosingScenarioName(program, target),
       target,
-      checks,
+      doc,
+      checks: deriveSurfaceChecks(target),
     });
   }
   return result.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Map a `@surfaceDoc` target to the language-agnostic symbol kind used by
+ * casing-aware `naming` checks so each emitter can recast the expected
+ * identifier into its idiomatic casing.
+ */
+export function getSurfaceKind(target: SurfaceDocTarget): string | undefined {
+  switch (target.kind) {
+    case "Enum":
+    case "Union":
+      return "enum";
+    case "EnumMember":
+    case "UnionVariant":
+      return "enumvalue";
+    case "Model":
+      return "model";
+    case "ModelProperty":
+      return "property";
+    case "Operation":
+      return "operation";
+    case "Namespace":
+    case "Interface":
+      return "client";
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * A recognized client decorator that carries a machine-checkable surface
+ * assertion. Matched by decorator name + declaring namespace so spector does
+ * not need to depend on the client-generator package — it only recognizes the
+ * decorators if a spec applies them.
+ */
+interface KnownDecorator {
+  name: `@${string}`;
+  namespace: string;
+  derive: (app: DecoratorApplication, target: SurfaceDocTarget) => SurfaceCheck | undefined;
+}
+
+const CLIENT_GENERATOR_CORE = "Azure.ClientGenerator.Core";
+const CLIENT_GENERATOR_LEGACY = "Azure.ClientGenerator.Core.Legacy";
+
+const KNOWN_DECORATORS: KnownDecorator[] = [
+  {
+    // @clientName("RenamedForClients")
+    name: "@clientName",
+    namespace: CLIENT_GENERATOR_CORE,
+    derive: (app, target) => {
+      const expected = getStringArg(app, 0);
+      if (expected === undefined) {
+        return undefined;
+      }
+      return { category: "naming", expected, kind: getSurfaceKind(target) };
+    },
+  },
+  {
+    // @access(Access.internal | Access.public)
+    name: "@access",
+    namespace: CLIENT_GENERATOR_CORE,
+    derive: (app) => {
+      const access = getEnumMemberName(app, 0);
+      if (access === undefined) {
+        return undefined;
+      }
+      return { category: "access", internal: access === "internal" };
+    },
+  },
+  {
+    // @clientLocation(TargetClient) — moves an operation to another client
+    name: "@clientLocation",
+    namespace: CLIENT_GENERATOR_CORE,
+    derive: (app, target) => {
+      const expectedClient = getTypeOrStringName(app, 0);
+      if (expectedClient === undefined) {
+        return undefined;
+      }
+      return {
+        category: "client-location",
+        expectedClient,
+        absentFrom: getDeclaringContainerName(target),
+      };
+    },
+  },
+  {
+    // @hierarchyBuilding(Base) — reshapes the client inheritance hierarchy
+    name: "@hierarchyBuilding",
+    namespace: CLIENT_GENERATOR_LEGACY,
+    derive: (app) => {
+      const expectedBase = getTypeOrStringName(app, 0);
+      if (expectedBase === undefined) {
+        return undefined;
+      }
+      return { category: "hierarchy", expectedBase };
+    },
+  },
+];
+
+/**
+ * Deterministically derive the machine-checkable checks for a `@surfaceDoc`
+ * element by inspecting its own decorators for recognized client decorators.
+ */
+function deriveSurfaceChecks(target: SurfaceDocTarget): SurfaceCheck[] {
+  const checks: SurfaceCheck[] = [];
+  for (const app of target.decorators) {
+    const known = KNOWN_DECORATORS.find((k) => matchesDecorator(app, k));
+    if (!known) {
+      continue;
+    }
+    const check = known.derive(app, target);
+    if (check) {
+      checks.push(check);
+    }
+  }
+  return checks;
+}
+
+function matchesDecorator(app: DecoratorApplication, known: KnownDecorator): boolean {
+  return (
+    app.definition?.name === known.name &&
+    getNamespaceFullName(app.definition.namespace) === known.namespace
+  );
+}
+
+function getStringArg(app: DecoratorApplication, index: number): string | undefined {
+  const value = app.args[index]?.jsValue;
+  return typeof value === "string" ? value : undefined;
+}
+
+/** Read the name of an enum member passed as a decorator argument (e.g. `Access.internal`). */
+function getEnumMemberName(app: DecoratorApplication, index: number): string | undefined {
+  const arg = app.args[index];
+  if (arg === undefined) {
+    return undefined;
+  }
+  if (typeof arg.jsValue === "string") {
+    return arg.jsValue;
+  }
+  const value = arg.value as Type | undefined;
+  if (value && value.kind === "EnumMember") {
+    return typeof value.value === "string" ? value.value : value.name;
+  }
+  return undefined;
+}
+
+/** Read the name of a type (or a string literal) passed as a decorator argument. */
+function getTypeOrStringName(app: DecoratorApplication, index: number): string | undefined {
+  const arg = app.args[index];
+  if (arg === undefined) {
+    return undefined;
+  }
+  if (typeof arg.jsValue === "string") {
+    return arg.jsValue;
+  }
+  const value = arg.value as Type | undefined;
+  if (value && "name" in value && typeof value.name === "string") {
+    return value.name;
+  }
+  return undefined;
+}
+
+/** The name of the client/group an element is declared in — its surface origin. */
+function getDeclaringContainerName(target: SurfaceDocTarget): string | undefined {
+  const parent = getSurfaceParent(target);
+  return parent && typeof parent.name === "string" && parent.name ? parent.name : undefined;
 }

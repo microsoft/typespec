@@ -25,23 +25,32 @@ Specify how to implement this scenario. Value is markdown. Differ from @doc whic
 
 ### `@surfaceDoc`
 
-Describe one or more expected properties of the **generated SDK surface** for an element — things a wire test can't see, such as a client rename, an access change, or a reshaped inheritance hierarchy. Mirrors `@scenarioDoc`, but targets the surface instead of the wire. A single `@surfaceDoc` may carry multiple checks (e.g. an element that is both made internal and renamed). The description is stated once, language-agnostically; each emitter validates it against its own generated code.
+Describe, in plain natural language, an expected property of the **generated SDK surface** for an element — things a wire test can't see, such as a client rename, an access change, an operation relocated to another client, or a reshaped inheritance hierarchy. Mirrors `@scenarioDoc`, but targets the surface instead of the wire. The description is stated once, language-agnostically; each emitter validates it against its own generated code.
+
+You write the sentence and apply the normal client decorator. The precompute step (`listSurfaceDocs`) inspects the element's own client decorators to derive the machine-checkable, routable fields of each check, so a single element carrying multiple client decorators yields multiple checks. A property with no recognized client decorator becomes an AI-verified check against the prose.
+
+Derived checks (matched by decorator name + namespace, no dependency on the client-generator package):
+
+| Client decorator                                     | Derived check     |
+| ---------------------------------------------------- | ----------------- |
+| `@clientName` (`Azure.ClientGenerator.Core`)         | `naming`          |
+| `@access` (`Azure.ClientGenerator.Core`)             | `access`          |
+| `@clientLocation` (`Azure.ClientGenerator.Core`)     | `client-location` |
+| `@hierarchyBuilding` (`Azure.ClientGenerator.Core.Legacy`) | `hierarchy` |
+| _(none recognized)_                                  | AI-verified prose |
 
 Usage:
 
 ```tsp
-@surfaceDoc(#[
-  #{ category: "access", doc: "Hidden from the public client surface.", internal: true },
-  #{
-    category: "naming",
-    doc: "Renamed to `WidgetInternal` on the client surface.",
-    expected: "WidgetInternal",
-    kind: "model",
-  }
-])
+@access(Access.internal)
+@clientName("WidgetInternal")
+@surfaceDoc("Hidden from the public client surface and renamed to `WidgetInternal` for clients.")
 model Widget {
   id: string;
 }
+
+@surfaceDoc("Surfaces a lazy paged iterator on the client, not a raw response.")
+op listItems(): Item[];
 ```
 
 Run `tsp-spector generate-surface-checks <specsPath>` to precompute a language-neutral `surface-checks.json` manifest from every `@surfaceDoc`, analogous to how `@scenarioDoc` feeds the scenario manifest.
