@@ -457,7 +457,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? TryCreateSystemObjectBaseModelProvider(referencedBaseType, new HashSet<string>(visited), requireSerializationCapability: false)
                 : null;
             var inputModel = CreateSystemInputModel(systemType);
-            var systemObjectModelProvider = new SystemObjectModelProvider(systemType, inputModel, baseModelProvider, referencedType?.Properties);
+            var systemObjectModelProvider = new SystemObjectModelProvider(systemType, inputModel, baseModelProvider);
 
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemType] = systemObjectModelProvider;
             CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemObjectModelProvider.Type] = systemObjectModelProvider;

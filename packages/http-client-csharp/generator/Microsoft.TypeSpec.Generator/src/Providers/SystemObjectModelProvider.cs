@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -44,16 +45,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="systemType">The CSharp type from the external/system assembly.</param>
         /// <param name="inputModel">The input model type that this system type replaces.</param>
         /// <param name="baseModelProvider">The external/system base model provider, if any.</param>
-        /// <param name="inheritedProperties">Properties exposed by the external/system type for customization filtering.</param>
         public SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
-            ModelProvider? baseModelProvider,
-            IReadOnlyList<PropertyProvider>? inheritedProperties = null)
+            ModelProvider? baseModelProvider)
             : this(systemType, inputModel)
         {
             _baseModelProvider = baseModelProvider;
-            InheritedProperties = inheritedProperties ?? [];
             Reset();
         }
 
@@ -63,15 +61,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType SystemType => _systemType;
 
         /// <summary>
-        /// Gets properties exposed by the external/system type that should participate in
-        /// customization filtering without becoming generated constructor parameters.
-        /// </summary>
-        public IReadOnlyList<PropertyProvider> InheritedProperties { get; } = [];
-
-        /// <summary>
         /// Gets the cross-language definition ID from the input model.
         /// </summary>
         public string CrossLanguageDefinitionId { get; }
+
+        internal override IReadOnlyList<PropertyProvider> CustomizationProperties
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(SystemType.Namespace))
+                {
+                    return Properties;
+                }
+
+                return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    SystemType.Namespace,
+                    SystemType.Name,
+                    declaringTypeName: null,
+                    includeReferencedAssemblies: true)?.Properties.ToArray() ?? Properties;
+            }
+        }
 
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
