@@ -65,10 +65,10 @@ export interface RunOptions {
  */
 export function run(cmd: string, args: string[], opts: RunOptions = {}): Promise<RunResult> {
   return new Promise((resolve, reject) => {
-    // Only route through a shell for Windows .cmd shims (npm/pnpm/npx/code/yarn).
+    // Only route through a shell for Windows .cmd shims (npm/pnpm/npx/code).
     // Native binaries like git/node are spawned directly to avoid the shell
     // argument-escaping deprecation and quoting pitfalls.
-    const needsShell = process.platform === "win32" && /^(npm|pnpm|npx|yarn|code)$/.test(cmd);
+    const needsShell = process.platform === "win32" && /^(npm|pnpm|npx|code)$/.test(cmd);
     const spawnOpts: SpawnOptions = {
       cwd: opts.cwd,
       env: opts.env ?? process.env,

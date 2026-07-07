@@ -132,7 +132,7 @@ function tokenizeCommand(command: string): string[] {
 /**
  * Build the full argv (command args + passthrough) for a regenerate command.
  *
- * `npm`/`pnpm`/`yarn run <script>` swallow subsequent flags as their own config
+ * `npm`/`pnpm run <script>` swallow subsequent flags as their own config
  * unless a `--` separator forwards them to the script (e.g. `npm run regenerate
  * -- --name foo`). When the command is such a package-manager `run` invocation
  * and the user supplied passthrough args, insert that `--` automatically so
@@ -143,7 +143,7 @@ function buildRegenerateArgs(commandArgv: string[], passthrough: string[]): stri
   if (passthrough.length === 0) return base;
 
   const bin = (commandArgv[0] ?? "").toLowerCase().replace(/\.(cmd|exe|ps1)$/, "");
-  const isPm = bin === "npm" || bin === "pnpm" || bin === "yarn";
+  const isPm = bin === "npm" || bin === "pnpm";
   // Locate the actual run subcommand (npm also spells it `run-script`).
   const runIndex = isPm ? base.findIndex((a) => a === "run" || a === "run-script") : -1;
   // A `--` only separates script args when it comes after that subcommand.
