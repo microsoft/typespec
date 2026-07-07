@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -20,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class SystemObjectModelProvider : ModelProvider
     {
         private readonly CSharpType _systemType;
+        private readonly ModelProvider? _baseModelProvider;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -37,9 +39,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
+        /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
+        /// </summary>
+        /// <param name="systemType">The CSharp type from the external/system assembly.</param>
+        /// <param name="inputModel">The input model type that this system type replaces.</param>
+        /// <param name="baseModelProvider">The external/system base model provider, if any.</param>
+        /// <param name="inheritedProperties">Properties exposed by the external/system type for customization filtering.</param>
+        public SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            ModelProvider? baseModelProvider,
+            IReadOnlyList<PropertyProvider>? inheritedProperties = null)
+            : this(systemType, inputModel)
+        {
+            _baseModelProvider = baseModelProvider;
+            InheritedProperties = inheritedProperties ?? [];
+            Reset();
+        }
+
+        /// <summary>
         /// Gets the underlying system <see cref="CSharpType"/> that this provider wraps.
         /// </summary>
         public CSharpType SystemType => _systemType;
+
+        /// <summary>
+        /// Gets properties exposed by the external/system type that should participate in
+        /// customization filtering without becoming generated constructor parameters.
+        /// </summary>
+        public IReadOnlyList<PropertyProvider> InheritedProperties { get; } = [];
 
         /// <summary>
         /// Gets the cross-language definition ID from the input model.
@@ -57,6 +84,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
+
+        /// <inheritdoc/>
+        protected override CSharpType? BuildBaseType() => _baseModelProvider?.Type ?? base.BuildBaseType();
+
+        /// <inheritdoc/>
+        protected override ModelProvider? BuildBaseModelProvider() => _baseModelProvider ?? base.BuildBaseModelProvider();
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;

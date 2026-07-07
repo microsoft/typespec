@@ -98,6 +98,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider.BaseModelProvider);
         }
 
+        [Test]
+        public void CanRepresentExternalBaseChainAndInheritedPropertiesSeparately()
+        {
+            var baseSystemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var baseProvider = new SystemObjectModelProvider(baseSystemType, baseInputModel);
+
+            var inheritedPropertyInput = InputFactory.Model(
+                "TrackedResourceMetadata",
+                properties: [InputFactory.Property("resourceType", InputPrimitiveType.String, wireName: "type")]);
+            var inheritedProperties = new ModelProvider(inheritedPropertyInput).Properties;
+            var systemType = CreateSystemCSharpType("TrackedResourceData", "TestFramework");
+            var inputModel = InputFactory.Model("TrackedResource", properties: []);
+            var provider = new SystemObjectModelProvider(systemType, inputModel, baseProvider, inheritedProperties);
+
+            Assert.AreSame(baseProvider, provider.BaseModelProvider);
+            Assert.AreEqual(baseProvider.Type, provider.Type.BaseType);
+            Assert.IsEmpty(provider.Properties, "External inherited properties must not become constructor/input properties.");
+            Assert.AreEqual(1, provider.InheritedProperties.Count);
+            Assert.AreEqual("ResourceType", provider.InheritedProperties[0].Name);
+        }
+
         // -------------------------------------------------------------------
         // 3. Property deduplication: properties matching framework base are skipped
         // -------------------------------------------------------------------

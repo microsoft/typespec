@@ -410,6 +410,134 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return model;
                     }
                 }
+
+                if (TryCreateSystemObjectBaseModelProvider(baseType, [], requireSerializationCapability: true) is { } systemBaseModelProvider)
+                {
+                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemBaseModelProvider;
+                    return systemBaseModelProvider;
+                }
+            }
+
+            return null;
+        }
+
+        private SystemObjectModelProvider? TryCreateSystemObjectBaseModelProvider(
+            CSharpType systemType,
+            HashSet<string> visited,
+            bool requireSerializationCapability)
+        {
+            if (systemType.IsFrameworkType && systemType.FrameworkType == typeof(object))
+            {
+                return null;
+            }
+
+            var key = $"{systemType.Namespace}.{systemType.Name}";
+            if (!visited.Add(key))
+            {
+                return null;
+            }
+
+            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(systemType, out var existingProvider) &&
+                existingProvider is SystemObjectModelProvider existingSystemObjectModelProvider)
+            {
+                return existingSystemObjectModelProvider;
+            }
+
+            var referencedType = TryGetReferencedType(systemType);
+            if (requireSerializationCapability &&
+                (referencedType is null || !HasJsonModelWriteCoreInHierarchy(referencedType, new HashSet<string>(visited))))
+            {
+                return null;
+            }
+
+            var referencedBaseType = referencedType?.BaseType ??
+                systemType.BaseType ??
+                (referencedType is not null ? TryGetSerializationRootBaseType(referencedType, systemType) : null);
+            var baseModelProvider = referencedBaseType is not null
+                ? TryCreateSystemObjectBaseModelProvider(referencedBaseType, new HashSet<string>(visited), requireSerializationCapability: false)
+                : null;
+            var inputModel = CreateSystemInputModel(systemType);
+            var systemObjectModelProvider = new SystemObjectModelProvider(systemType, inputModel, baseModelProvider, referencedType?.Properties);
+
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemType] = systemObjectModelProvider;
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[systemObjectModelProvider.Type] = systemObjectModelProvider;
+            if (systemType.IsFrameworkType)
+            {
+                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[new CSharpType(systemType.FrameworkType)] = systemObjectModelProvider;
+            }
+
+            return systemObjectModelProvider;
+        }
+
+        private InputModelType CreateSystemInputModel(CSharpType systemType)
+        {
+            var crossLanguageDefinitionId = string.IsNullOrEmpty(systemType.Namespace) ? systemType.Name : $"{systemType.Namespace}.{systemType.Name}";
+            return new InputModelType(
+                systemType.Name,
+                _inputModel.Namespace,
+                crossLanguageDefinitionId,
+                _inputModel.Access,
+                _inputModel.Deprecation,
+                _inputModel.Summary,
+                _inputModel.Doc,
+                _inputModel.Usage,
+                [],
+                null,
+                [],
+                null,
+                null,
+                new Dictionary<string, InputModelType>(),
+                null,
+                _inputModel.ModelAsStruct,
+                new(),
+                _inputModel.IsDynamicModel);
+        }
+
+        private static TypeProvider? TryGetReferencedType(CSharpType systemType)
+        {
+            if (string.IsNullOrEmpty(systemType.Namespace))
+            {
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                systemType.Namespace,
+                systemType.Name,
+                declaringTypeName: null,
+                includeReferencedAssemblies: true);
+        }
+
+        private static bool HasJsonModelWriteCoreInHierarchy(TypeProvider typeProvider, HashSet<string> visited)
+        {
+            if (typeProvider.Methods.Any(method => method.Signature.Name == "JsonModelWriteCore"))
+            {
+                return true;
+            }
+
+            var baseType = typeProvider.BaseType ?? typeProvider.Type.BaseType;
+            if (baseType is null)
+            {
+                return false;
+            }
+
+            var key = $"{baseType.Namespace}.{baseType.Name}";
+            return visited.Add(key) &&
+                TryGetReferencedType(baseType) is { } baseTypeProvider &&
+                HasJsonModelWriteCoreInHierarchy(baseTypeProvider, visited);
+        }
+
+        private static CSharpType? TryGetSerializationRootBaseType(TypeProvider typeProvider, CSharpType systemType)
+        {
+            foreach (var method in typeProvider.Methods)
+            {
+                if (method.Signature.Name is not ("JsonModelCreateCore" or "PersistableModelCreateCore") ||
+                    method.Signature.ReturnType is not { } returnType ||
+                    returnType.AreNamesEqual(systemType))
+                {
+                    continue;
+                }
+
+                return returnType;
             }
 
             return null;
