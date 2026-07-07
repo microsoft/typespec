@@ -3,6 +3,7 @@ import "source-map-support/register.js";
 import yargs from "yargs";
 import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
+import { generateSurfaceChecks } from "../actions/generate-surface-checks.js";
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
 import { serverTest } from "../actions/server-test.js";
@@ -86,6 +87,32 @@ async function main() {
             overrideOutputFile,
           });
           overrideOutputFile = true;
+        }
+      },
+    )
+    .command(
+      "generate-surface-checks <scenariosPaths..>",
+      "Precompute the surface-checks manifest (from @surfaceDoc) for all specs.",
+      (cmd) => {
+        return cmd
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios",
+            type: "string",
+            array: true,
+            demandOption: true,
+          })
+          .option("outputFile", {
+            type: "string",
+            description: "Path to the generated surface-checks manifest (JSON).",
+            default: join(process.cwd(), "surface-checks.json"),
+          });
+      },
+      async (args) => {
+        for (const scenariosPath of args.scenariosPaths) {
+          await generateSurfaceChecks({
+            scenariosPath: resolve(process.cwd(), scenariosPath),
+            outputFile: resolve(process.cwd(), args.outputFile),
+          });
         }
       },
     )

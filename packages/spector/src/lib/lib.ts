@@ -27,6 +27,7 @@ export const $lib = createTypeSpecLibrary({
     Scenario: { description: "Mark a scenario to be executed" },
     ScenarioDoc: { description: "Mark a scenario documentation" },
     ScenarioService: { description: "Mark a scenario service to be executed" },
+    SurfaceDoc: { description: "Mark expected generated-surface checks for an element" },
   },
 });
 
