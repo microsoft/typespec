@@ -46,17 +46,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [_t];
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
         {
             return [new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, _t)];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_responseField, _exceptionField];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             return [BuildCtor()];
         }
@@ -76,7 +76,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }, this, XmlDocProvider.Empty);
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return [BuildValue()];
         }
@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return IsClientResult ? [] : [BuildGetRawResponse()];
         }

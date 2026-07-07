@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _models = models;
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = base.BuildMethods();
             if (methods.Length == 0)

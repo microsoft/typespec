@@ -72,17 +72,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => "ClientUriBuilder";
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_uriBuilderField, _pathAndQueryField, _pathLengthField];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return [UriBuilderProperty, PathAndQueryProperty];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
                 type: Type,
@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [new ConstructorProvider(signature, MethodBodyStatement.Empty, this, XmlDocProvider.Empty)];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
 

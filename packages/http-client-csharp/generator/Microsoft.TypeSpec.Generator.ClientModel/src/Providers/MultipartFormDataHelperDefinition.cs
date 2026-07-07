@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
             => [BuildFromEnumerableMethod(), BuildFromDictionaryMethod()];
 
         private MethodProvider BuildFromEnumerableMethod()

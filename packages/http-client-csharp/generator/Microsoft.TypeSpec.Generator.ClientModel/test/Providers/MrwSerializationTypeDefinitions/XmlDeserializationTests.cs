@@ -641,7 +641,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods()
                     .Where(m => m.Signature.Name.StartsWith("Deserialize") || m.Signature.Name.StartsWith("PersistableModelCreateCore"))];

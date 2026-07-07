@@ -26,13 +26,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods().Where(m => m.Signature.Name.Equals("JsonModelWriteCore"))];
             }
 
             protected internal override FieldProvider[] BuildFields() => [];
-            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected internal override ConstructorProvider[] BuildConstructors() => [];
         }
 
         [Test]

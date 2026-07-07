@@ -277,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             if (LatestVersionsFields is null)
             {
@@ -297,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. _serviceVersionsEnums.Values.OrderBy(e => e.Name)];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var configSectionCtor = BuildConfigurationSectionConstructor();
 
@@ -459,7 +459,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var properties = VersionProperties is not null
                 ? [.. VersionProperties.Values.OrderBy(p => p.Name)]

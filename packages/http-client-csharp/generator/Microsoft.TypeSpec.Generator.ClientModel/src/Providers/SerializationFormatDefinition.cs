@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return members;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override CSharpType BuildEnumUnderlyingType() => new CSharpType(typeof(int));

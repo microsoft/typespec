@@ -57,12 +57,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             List<FieldProvider> pipelineMessage20xClassifiersFields = new(_pipelineMessage20xClassifiers.Count);
             var orderedClassifierProperties = _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name);
@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. pipelineMessage20xClassifiersFields];
         }
 
-        protected override ScmMethodProvider[] BuildMethods()
+        protected internal override ScmMethodProvider[] BuildMethods()
         {
             List<ScmMethodProvider> methods = new List<ScmMethodProvider>();
 
