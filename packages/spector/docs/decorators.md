@@ -37,6 +37,7 @@ Derived checks (matched by decorator name + namespace, no dependency on the clie
 | `@access` (`Azure.ClientGenerator.Core`)             | `access`          |
 | `@clientLocation` (`Azure.ClientGenerator.Core`)     | `client-location` |
 | `@hierarchyBuilding` (`Azure.ClientGenerator.Core.Legacy`) | `hierarchy` |
+| `@list` (`TypeSpec`)                                  | `paging`          |
 | _(none recognized)_                                  | AI-verified prose |
 
 Usage:

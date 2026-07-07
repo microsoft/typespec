@@ -417,10 +417,11 @@ export function getSurfaceKind(target: SurfaceDocTarget): string | undefined {
 }
 
 /**
- * A recognized client decorator that carries a machine-checkable surface
- * assertion. Matched by decorator name + declaring namespace so spector does
- * not need to depend on the client-generator package — it only recognizes the
- * decorators if a spec applies them.
+ * A recognized decorator that carries a machine-checkable surface assertion —
+ * either a core paging/typing decorator or a client-generator decorator.
+ * Matched by decorator name + declaring namespace so spector does not need to
+ * depend on the client-generator package — it only recognizes the decorators if
+ * a spec applies them.
  */
 interface KnownDecorator {
   name: `@${string}`;
@@ -430,8 +431,17 @@ interface KnownDecorator {
 
 const CLIENT_GENERATOR_CORE = "Azure.ClientGenerator.Core";
 const CLIENT_GENERATOR_LEGACY = "Azure.ClientGenerator.Core.Legacy";
+const TYPESPEC_CORE = "TypeSpec";
 
 const KNOWN_DECORATORS: KnownDecorator[] = [
+  {
+    // @list — the operation surfaces a paginated iterator on the client
+    name: "@list",
+    namespace: TYPESPEC_CORE,
+    derive: () => {
+      return { category: "paging" };
+    },
+  },
   {
     // @clientName("RenamedForClients")
     name: "@clientName",
