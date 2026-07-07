@@ -95,7 +95,6 @@
     ]
   },
   "dependencies": {
-    "flatted": "^3.4.2",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",

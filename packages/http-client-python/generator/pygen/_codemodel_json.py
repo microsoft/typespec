@@ -3,19 +3,22 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-"""Graph-preserving JSON (de)serialization for the code model.
+"""Reference-preserving JSON (de)serialization for the code model.
 
 The code model is a cyclic object graph with heavy structural sharing (the emitter
-deduplicates types, and types reference each other, e.g. ``type.elementType``). Plain
-JSON cannot represent cycles or shared references, so we use the ``flatted`` wire format
-(https://github.com/WebReflection/flatted): a flat JSON array where every object, array
-and string is stored once in its own slot and nested references are encoded as numeric
-string indices into that array. Numbers, booleans and ``null`` are inlined.
+deduplicates types, and types reference each other, e.g. ``type.elementType``, and enums
+reference their own values). Plain JSON cannot represent cycles or shared references, so
+we use the same ``$id``/``$ref`` convention as the C# emitter and System.Text.Json's
+``ReferenceHandler.Preserve``:
 
-The reconstructed value is structurally identical to what ``yaml.safe_load`` used to
-return (same shared identity, same cycles), so the rest of the generator is unchanged.
+- The first time an object is seen it is written as ``{"$id": "N", ...properties}``.
+- The first time an array is seen it is written as ``{"$id": "N", "$values": [...]}``.
+- Any later reference to an already-seen object/array is written as ``{"$ref": "N"}``.
 
-The format is byte-compatible with the JavaScript ``flatted`` package used by the emitter.
+Because the ``$id`` is registered before recursing into a node's children, cycles are
+encoded as a ``$ref`` back to an enclosing node. The reconstructed value has the same
+shared identity and cycles as the original graph, so the rest of the generator is
+unchanged. The format is interoperable with the JavaScript serializer used by the emitter.
 """
 
 import json
@@ -27,96 +30,72 @@ _RECURSION_LIMIT = 100000
 
 
 def loads(text: str) -> Any:
-    """Parse a flatted JSON string into a (possibly cyclic) Python object graph."""
-    slots = json.loads(text)
-    cache: dict[int, Any] = {}
+    """Parse a ``$id``/``$ref`` JSON string into a (possibly cyclic) Python object graph."""
+    raw = json.loads(text)
+    id_map: dict[str, Any] = {}
     old_limit = sys.getrecursionlimit()
     sys.setrecursionlimit(max(old_limit, _RECURSION_LIMIT))
     try:
-        return _resolve_slot(0, slots, cache)
+        return _rebuild(raw, id_map)
     finally:
         sys.setrecursionlimit(old_limit)
 
 
-def _resolve_slot(index: int, slots: list, cache: dict[int, Any]) -> Any:
-    if index in cache:
-        return cache[index]
-    node = slots[index]
-    if isinstance(node, dict):
-        obj: dict[str, Any] = {}
-        cache[index] = obj  # register before recursing so cycles resolve
-        for key, value in node.items():
-            obj[key] = _resolve_child(value, slots, cache)
-        return obj
+def _rebuild(node: Any, id_map: dict[str, Any]) -> Any:
     if isinstance(node, list):
+        # Bare arrays only appear as the content of a "$values" wrapper, but handle
+        # them defensively anyway.
+        return [_rebuild(item, id_map) for item in node]
+    if not isinstance(node, dict):
+        return node
+    ref = node.get("$ref")
+    if ref is not None:
+        return id_map[ref]
+    node_id = node.get("$id")
+    if "$values" in node:
         arr: list[Any] = []
-        cache[index] = arr  # register before recursing so cycles resolve
-        for value in node:
-            arr.append(_resolve_child(value, slots, cache))
+        if node_id is not None:
+            id_map[node_id] = arr  # register before recursing so cycles resolve
+        for item in node["$values"]:
+            arr.append(_rebuild(item, id_map))
         return arr
-    # A real string / number / bool / null stored in its own slot.
-    cache[index] = node
-    return node
-
-
-def _resolve_child(value: Any, slots: list, cache: dict[int, Any]) -> Any:
-    # Inside a node, every string is an index reference; numbers/bools/null are inlined.
-    if isinstance(value, str):
-        return _resolve_slot(int(value), slots, cache)
-    return value
+    obj: dict[str, Any] = {}
+    if node_id is not None:
+        id_map[node_id] = obj  # register before recursing so cycles resolve
+    for key, value in node.items():
+        if key == "$id":
+            continue
+        obj[key] = _rebuild(value, id_map)
+    return obj
 
 
 def dumps(value: Any) -> str:
-    """Serialize a (possibly cyclic) Python object graph into a flatted JSON string."""
-    slots: list[Any] = []
-    known_str: dict[str, int] = {}
-    known_obj: dict[int, int] = {}
+    """Serialize a (possibly cyclic) Python object graph into a ``$id``/``$ref`` JSON string."""
+    ids: dict[int, str] = {}
+    counter = [0]
     old_limit = sys.getrecursionlimit()
     sys.setrecursionlimit(max(old_limit, _RECURSION_LIMIT))
     try:
-        _index_of(value, slots, known_str, known_obj)  # registers the root at slot 0
-        output: list[str] = []
-        i = 0
-        while i < len(slots):
-            node = slots[i]
-            if isinstance(node, (dict, list)):
-                output.append(json.dumps(_encode_node(node, slots, known_str, known_obj)))
-            else:
-                output.append(json.dumps(node))
-            i += 1
-        return "[" + ",".join(output) + "]"
+        return json.dumps(_encode(value, ids, counter))
     finally:
         sys.setrecursionlimit(old_limit)
 
 
-def _index_of(value: Any, slots: list, known_str: dict, known_obj: dict) -> str:
-    if isinstance(value, str):
-        index = known_str.get(value)
-        if index is None:
-            index = len(slots)
-            slots.append(value)
-            known_str[value] = index
-        return str(index)
-    # dict or list: dedup by identity
-    index = known_obj.get(id(value))
-    if index is None:
-        index = len(slots)
-        slots.append(value)
-        known_obj[id(value)] = index
-    return str(index)
-
-
-def _encode_node(node: Any, slots: list, known_str: dict, known_obj: dict) -> Any:
-    if isinstance(node, dict):
-        return {key: _encode_child(value, slots, known_str, known_obj) for key, value in node.items()}
-    return [_encode_child(value, slots, known_str, known_obj) for value in node]
-
-
-def _encode_child(value: Any, slots: list, known_str: dict, known_obj: dict) -> Any:
-    if value is None or isinstance(value, (bool, int, float)):
+def _encode(value: Any, ids: dict[int, str], counter: list) -> Any:
+    # Scalars (including strings) are inlined. bool is a subclass of int, so it is covered.
+    if value is None or isinstance(value, (bool, int, float, str)):
         return value
-    if isinstance(value, str):
-        return _index_of(value, slots, known_str, known_obj)
-    if isinstance(value, (dict, list)):
-        return _index_of(value, slots, known_str, known_obj)
-    return value
+    if not isinstance(value, (dict, list, tuple)):
+        return value
+    existing = ids.get(id(value))
+    if existing is not None:
+        return {"$ref": existing}
+    counter[0] += 1
+    node_id = str(counter[0])
+    ids[id(value)] = node_id
+    if isinstance(value, dict):
+        result: dict[str, Any] = {"$id": node_id}
+        for key, val in value.items():
+            result[key] = _encode(val, ids, counter)
+        return result
+    return {"$id": node_id, "$values": [_encode(item, ids, counter) for item in value]}

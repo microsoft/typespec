@@ -176,8 +176,10 @@ def {{ operation.name }}(self, {{ operation.parameters }}):
    - Builds the code model structure
 
 4. **Code Model Export**
-   - Serializes the JavaScript code model graph to JSON using the `flatted` format
-     (preserves the cyclic/shared object graph), saved to a temporary file
+   - Serializes the JavaScript code model graph to JSON using the `$id`/`$ref`
+     reference-preserving convention (the same one used by the C# emitter and
+     System.Text.Json's `ReferenceHandler.Preserve`), which preserves the cyclic/shared
+     object graph, saved to a temporary file
    - Converts Markdown descriptions to reStructuredText
 
 5. **Python Generator Invocation**
