@@ -83,17 +83,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             return [_multipartContentField, _randomField, _boundaryValuesFields];
         }
 
-        protected internal override PropertyProvider[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             return [_contentTypeProperty, _httpContentProperty];
         }
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
                 type: Type,
@@ -111,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             return
             [

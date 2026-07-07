@@ -149,8 +149,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 string tokenCredentialFieldName = TokenCredentialFieldName;
                 FormattableString tokenCredentialDescription = $"A credential used to authenticate to the service.";
-                if (ClientPipelineProvider.Instance.TokenCredentialType is not null &&
-                    tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType))
+                if (tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType))
                 {
                     tokenCredentialFieldName = TokenProviderFieldName;
                     tokenCredentialDescription = $"A credential provider used to authenticate to the service.";
@@ -255,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // figure out if this namespace has been changed for this client
             if (!IsLastNamespaceSegmentTheSame(ns, _inputClient.Namespace))
             {
-                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(Utilities.DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(DiagnosticCodes.ClientNamespaceConflict, $"namespace {_inputClient.Namespace} conflicts with client {_inputClient.Name}, please use `@clientName` to specify a different name for the client.", _inputClient.CrossLanguageDefinitionId);
             }
             return ns;
         }
@@ -427,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = [EndpointField];
 
@@ -561,12 +560,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        protected internal override PropertyProvider[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             return [PipelineProperty];
         }
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var mockingConstructor = ConstructorProviderHelper.BuildMockingConstructor(this);
             // handle sub-client constructors
@@ -1142,7 +1141,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return MethodCache[operation];
         }
 
-        protected internal override ScmMethodProvider[] BuildMethods()
+        protected override ScmMethodProvider[] BuildMethods()
         {
             var subClients = _subClients.Value;
             var subClientCount = subClients.Count;
@@ -1262,7 +1261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
-        protected internal sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
             List<MethodProvider> materializedMethods = [.. originalMethods];
 
@@ -1612,8 +1611,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private FieldProvider BuildTokenCredentialScopesField(InputOAuth2Auth oauth2Auth, CSharpType tokenCredentialType)
         {
-            return ClientPipelineProvider.Instance.TokenCredentialType is not null &&
-                tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType)
+            return tokenCredentialType.Equals(ClientPipelineProvider.Instance.TokenCredentialType)
                 ? BuildTokenCredentialFlowsField(oauth2Auth)
                 : BuildTokenCredentialScopesField(oauth2Auth);
         }

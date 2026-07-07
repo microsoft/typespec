@@ -108,12 +108,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => "ModelSerializationExtensions";
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             return [WireOptionsField, _jsonDocumentOptionsField, .. BuildXmlFields()];
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var writer = ScmKnownParameters.Utf8JsonWriter.As<Utf8JsonWriter>();
             var dateTimeOffsetValueParameter =
@@ -205,7 +205,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
-        protected internal override SuppressionStatement[] BuildDisabledFileWarnings()
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => HasFileBinaryContentJsonModel || HasFileBinaryContentXmlModel
                 ? [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)]
                 : [];

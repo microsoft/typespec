@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
             return type;
         }
 
-        protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+        protected override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             if (!IsCallingBaseCtor(constructor) &&
                 !IsEffectivelyPublic(constructor.Signature.Modifiers) &&
@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 constructor.Signature.Initializer.Arguments.Count > 0;
         }
 
-        protected internal override FieldProvider? VisitField(FieldProvider field)
+        protected override FieldProvider? VisitField(FieldProvider field)
         {
             // For ClientOptions, keep the non-public field as this currently represents the latest service version for a client.
             // For ClientProvider, keep const and static fields as they are referenced by stub constructor initializers
@@ -108,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
                 : null;
         }
 
-        protected internal override MethodProvider? VisitMethod(MethodProvider method)
+        protected override MethodProvider? VisitMethod(MethodProvider method)
         {
             if (method.Signature.ExplicitInterface is null && !IsEffectivelyPublic(method.Signature.Modifiers))
             {
@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.StubLibrary
             return method;
         }
 
-        protected internal override PropertyProvider? VisitProperty(PropertyProvider property)
+        protected override PropertyProvider? VisitProperty(PropertyProvider property)
         {
             if (!property.IsDiscriminator && !IsEffectivelyPublic(property.Modifiers))
             {

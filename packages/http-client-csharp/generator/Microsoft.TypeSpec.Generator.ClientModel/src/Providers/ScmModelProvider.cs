@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             if (JsonPatchField is null)
             {
@@ -96,7 +96,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [JsonPatchField, .. updatedFields];
         }
 
-        protected internal override PropertyProvider[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             PropertyProvider[] properties;
             if (JsonPatchProperty is null)
@@ -126,7 +126,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return properties;
         }
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             List<ConstructorProvider> constructors = [.. base.BuildConstructors()];
 

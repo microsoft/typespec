@@ -127,14 +127,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _expectedSubClientFactoryMethodNames = expectedSubClientFactoryMethodNames;
             }
 
-            protected internal override ScmMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods().Where(m => _expectedSubClientFactoryMethodNames.Contains(m.Signature?.Name))];
             }
 
-            protected internal override FieldProvider[] BuildFields() => [];
-            protected internal override ConstructorProvider[] BuildConstructors() => [];
-            protected internal override PropertyProvider[] BuildProperties() => [];
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
         }
     }
 }

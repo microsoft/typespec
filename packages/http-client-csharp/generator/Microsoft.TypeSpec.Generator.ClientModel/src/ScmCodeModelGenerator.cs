@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             _instance = this;
         }
 
-        protected internal override void Configure()
+        protected override void Configure()
         {
             base.Configure();
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));

@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _enumProvider.DeclarationModifiers;
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             // for string-based extensible enums, we are using `ToString` as its serialization
             // for non-string-based extensible enums, we need a method to serialize them

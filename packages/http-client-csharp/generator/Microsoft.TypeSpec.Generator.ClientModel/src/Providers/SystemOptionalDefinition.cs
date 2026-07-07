@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     internal sealed class SystemOptionalDefinition : OptionalDefinition
     {
         private const string IsDefinedMethodName = "IsDefined";
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             return [.. base.BuildMethods(), IsJsonElementDefined()];
         }

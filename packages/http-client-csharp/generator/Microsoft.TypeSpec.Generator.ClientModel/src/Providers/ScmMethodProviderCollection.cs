@@ -712,7 +712,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                Utilities.DiagnosticCodes.UnsupportedFrameworkType,
+                DiagnosticCodes.UnsupportedFrameworkType,
                 $"Unsupported framework type: {frameworkType}. Element will be skipped.",
                 ServiceMethod.Operation.CrossLanguageDefinitionId,
                 EmitterDiagnosticSeverity.Error);
@@ -1365,7 +1365,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Never found an array property, so there was invalid paging metadata.
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    Utilities.DiagnosticCodes.NoMatchingItemsProperty,
+                    DiagnosticCodes.NoMatchingItemsProperty,
                     "No property was found in the response model matching the items property",
                     ServiceMethod.Operation.CrossLanguageDefinitionId,
                     EmitterDiagnosticSeverity.Error);

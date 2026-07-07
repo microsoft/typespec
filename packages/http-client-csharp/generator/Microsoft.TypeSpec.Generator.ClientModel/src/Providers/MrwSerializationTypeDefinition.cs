@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
 
-        protected internal override SuppressionStatement[] BuildDisabledFileWarnings()
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
         {
             if (_model.CanonicalView.Properties.Any(p => ScmModelProvider.IsFileBinaryContentType(p.Type)))
             {
@@ -246,7 +246,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             List<ConstructorProvider> constructors = new();
             bool ctorWithNoParamsExist = false;
@@ -275,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Builds the serialization methods for the model.
         /// </summary>
         /// <returns>A list of serialization and deserialization methods for the model.</returns>
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
 
@@ -460,7 +460,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Builds the types that the model type serialization implements.
         /// </summary>
         /// <returns>An array of <see cref="CSharpType"/> types that the model implements.</returns>
-        protected internal override CSharpType[] BuildImplements()
+        protected override CSharpType[] BuildImplements()
         {
             var interfaces = new List<CSharpType>();
 

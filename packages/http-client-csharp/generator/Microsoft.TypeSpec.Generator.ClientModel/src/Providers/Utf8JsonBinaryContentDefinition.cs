@@ -56,17 +56,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType BuildBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             return [_streamField, _contentField];
         }
 
-        protected internal override PropertyProvider[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             return [_writerProperty];
         }
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var signature = new ConstructorSignature(
                 type: Type,
@@ -83,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [new ConstructorProvider(signature, body, this)];
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             return
             [

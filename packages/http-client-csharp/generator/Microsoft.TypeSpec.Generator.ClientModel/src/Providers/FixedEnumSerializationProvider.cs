@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return true;
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
             // serialization method (in some cases we do not need serialization)

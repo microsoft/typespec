@@ -1969,7 +1969,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _isAsync = isAsync;
             }
 
-            protected internal override ScmMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "queryParam", Type.Name: "InputEnum" } &&
@@ -1978,9 +1978,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 return [method];
             }
 
-            protected internal override FieldProvider[] BuildFields() => [];
-            protected internal override ConstructorProvider[] BuildConstructors() => [];
-            protected internal override PropertyProvider[] BuildProperties() => [];
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
         }
 
         // This custom client provider is used to validate operations where non-body request parameters are declared within a request body model.
@@ -1988,7 +1988,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             public TestNonBodyRequestParametersInBodyDiffClientProvider(InputClient client) : base(client) { }
 
-            protected internal override ScmMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
                     p is { Name: "body" } && m.Signature.Name.EndsWith("Async")));
@@ -1996,9 +1996,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 return [method];
             }
 
-            protected internal override FieldProvider[] BuildFields() => [];
-            protected internal override ConstructorProvider[] BuildConstructors() => [];
-            protected internal override PropertyProvider[] BuildProperties() => [];
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
         }
 
         private class UnsupportedAuthClientProvider : ClientProvider
@@ -2006,10 +2006,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             public UnsupportedAuthClientProvider(InputClient client)
                 : base(client) { }
 
-            protected internal override ScmMethodProvider[] BuildMethods() => [];
+            protected override ScmMethodProvider[] BuildMethods() => [];
 
-            protected internal override FieldProvider[] BuildFields() => [];
-            protected internal override PropertyProvider[] BuildProperties() => [];
+            protected override FieldProvider[] BuildFields() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
         }
 
         public static IEnumerable<TestCaseData> BuildAuthFieldsTestCases

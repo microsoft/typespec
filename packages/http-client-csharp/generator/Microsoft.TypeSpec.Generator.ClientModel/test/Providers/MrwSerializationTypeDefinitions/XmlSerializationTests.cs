@@ -821,7 +821,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
             }
 
-            protected internal override MethodProvider[] BuildMethods()
+            protected override MethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods()
                     .Where(m => m.Signature.Name.StartsWith("XmlModelWriteCore") ||
@@ -839,7 +839,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
             }
 
-            protected internal override MethodProvider[] BuildMethods()
+            protected override MethodProvider[] BuildMethods()
             {
                 // Filter to only include IPersistableModel explicit interface methods
                 return [.. base.BuildMethods()

@@ -1729,14 +1729,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         {
             public MockClientProvider(InputClient inputClient, ClientProvider clientProvider) : base(inputClient, clientProvider) { }
 
-            protected internal override ScmMethodProvider[] BuildMethods()
+            protected override ScmMethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods()];
             }
 
-            protected internal override FieldProvider[] BuildFields() => [];
+            protected override FieldProvider[] BuildFields() => [];
             protected internal override ConstructorProvider[] BuildConstructors() => [];
-            protected internal override PropertyProvider[] BuildProperties() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
 
             protected override TypeProvider[] BuildNestedTypes() => [];
         }

@@ -217,9 +217,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected internal override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
+        protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
-        protected internal override CSharpType[] BuildImplements() =>
+        protected override CSharpType[] BuildImplements() =>
          (_modelType: ItemModelType, IsAsync) switch
          {
              (null, true) => [new CSharpType(typeof(AsyncCollectionResult))],
@@ -228,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
              (_, false) => [new CSharpType(typeof(CollectionResult<>), ItemModelType)],
          };
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             var clientParameter = new ParameterProvider(
                 "client",
@@ -280,7 +280,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         public string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             MethodBodyStatement[] getRawPagesMethodBody = (Paging.NextLink, Paging.ContinuationToken) switch
             {

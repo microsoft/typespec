@@ -51,10 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.Multipart.cs");
         }
 
-        protected internal override SuppressionStatement[] BuildDisabledFileWarnings()
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
 
-        protected internal override ConstructorProvider[] BuildConstructors()
+        protected override ConstructorProvider[] BuildConstructors()
         {
             if (_hasJsonOrXmlUsage)
             {
@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [BuildEmptyConstructor()];
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var signature = new MethodSignature(
                 ToMultipartFormContentMethodName,

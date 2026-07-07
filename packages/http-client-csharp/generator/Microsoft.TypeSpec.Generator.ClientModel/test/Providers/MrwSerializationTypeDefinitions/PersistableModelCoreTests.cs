@@ -27,13 +27,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             {
             }
 
-            protected internal override MethodProvider[] BuildMethods()
+            protected override MethodProvider[] BuildMethods()
             {
                 return [.. base.BuildMethods().Where(m => m.Signature.Name.Equals("PersistableModelWriteCore"))];
             }
 
             protected internal override FieldProvider[] BuildFields() => [];
-            protected internal override ConstructorProvider[] BuildConstructors() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
         }
 
         [Test]

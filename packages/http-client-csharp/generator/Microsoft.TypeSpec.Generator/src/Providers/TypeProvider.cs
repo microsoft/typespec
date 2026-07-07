@@ -241,10 +241,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 BaseTypeProvider?.HasMethodInHierarchy(methodName, visited) == true;
         }
 
-        internal bool HasBaseMethodInHierarchy(string methodName)
+        public bool HasBaseMethodInHierarchy(string methodName)
             => BaseTypeProvider?.HasMethodInHierarchy(methodName) == true;
 
-        internal CSharpType? GetRootBaseTypeInHierarchy()
+        public CSharpType? GetRootBaseTypeInHierarchy()
         {
             var visited = new HashSet<TypeProvider>();
             var baseTypeProvider = BaseTypeProvider;
@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        internal CSharpType? GetBaseMethodReturnTypeInHierarchy(IReadOnlySet<string> methodNames)
+        public CSharpType? GetBaseMethodReturnTypeInHierarchy(IReadOnlySet<string> methodNames)
             => BaseTypeProvider?.GetMethodReturnTypeInHierarchy(methodNames);
 
         private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;

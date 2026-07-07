@@ -45,14 +45,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly FieldProvider _roundtripZFormatField;
         private readonly FieldProvider _defaultNumberFormatField;
 
-        protected internal override FieldProvider[] BuildFields()
+        protected override FieldProvider[] BuildFields()
         {
             return [_roundtripZFormatField, _defaultNumberFormatField];
         }
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var boolValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(bool));
             var boolSignature = new MethodSignature(

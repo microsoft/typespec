@@ -85,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [new AttributeStatement(typeof(ExperimentalAttribute), Literal(ClientSettingsDiagnosticId))];
         }
 
-        protected internal override PropertyProvider[] BuildProperties()
+        protected override PropertyProvider[] BuildProperties()
         {
             var properties = new List<PropertyProvider>();
 
@@ -156,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. properties];
         }
 
-        protected internal override MethodProvider[] BuildMethods()
+        protected override MethodProvider[] BuildMethods()
         {
             var sectionParam = new ParameterProvider("section", $"The configuration section.", IConfigurationSectionType);
             var body = new List<MethodBodyStatement>();
