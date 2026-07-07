@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@alloy-js/core": "catalog:",
-    "@pinterest/alloy-graphql": "^1.0.0",
+    "@pinterest/alloy-graphql": "^1.1.0",
     "@alloy-js/typescript": "catalog:",
     "change-case": "^5.4.4",
     "graphql": "^16.9.0"
@@ -42,8 +42,8 @@
     "watch": "alloy build --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/graphql/reference"
   },
   "files": [

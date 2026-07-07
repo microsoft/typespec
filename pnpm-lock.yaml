@@ -958,8 +958,8 @@ importers:
         specifier: 'catalog:'
         version: 0.24.0
       '@pinterest/alloy-graphql':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       change-case:
         specifier: ^5.4.4
         version: 5.4.4
@@ -3132,9 +3132,6 @@ packages:
     resolution: {integrity: sha512-CR0vvFkbLgYFXyK7AZW5FvjKYynX8RQR8RsxhTbJkm3KSTiS9vEM5051C8WYiSuaqDzqOVuP59ps971KEztNXQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  '@alloy-js/core@0.23.1':
-    resolution: {integrity: sha512-zbPXbiWjF3BvgO+a6dyDiA9uI19x5cHKDy5iC3U2/DIimIB0/j1/ObT9BNIzcM69h5pYt7ADDGXx5eNyb8j7bw==}
 
   '@alloy-js/core@0.24.1':
     resolution: {integrity: sha512-cye97/HGo0/G8XIc8UnS0PaSoSOj9DDPEiuKsXsn7xQgR1sbL+Nf0oTMZnL2fFb7mRnmULO84x5wK8R/YtReTg==}
@@ -5956,8 +5953,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@pinterest/alloy-graphql@1.0.0':
-    resolution: {integrity: sha512-94JK43FRDvNtdimaiyZIbqCQZJuM/ZK3Z3Ox6Z5n2ByTUFG2l4HL6ge4ILYy7Hm1DOvs2u9kUwewGXKmsALg1w==}
+  '@pinterest/alloy-graphql@1.1.0':
+    resolution: {integrity: sha512-4HDWyHC51xl3FguYJSzwda3Lr/JxjxDM9Hr62OZ4JEQ3o/bYXd3blfbvvDtTcEvi6u23qYocgFR1jQLpvIwy2A==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -14178,20 +14175,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.23.1':
-    dependencies:
-      '@types/ws': 8.18.1
-      '@vue/reactivity': 3.5.38
-      cli-table3: 0.6.5
-      devalue: 5.8.1
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.8.4
-      ws: 8.21.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
   '@alloy-js/core@0.24.1':
     dependencies:
       '@types/ws': 8.18.1
@@ -17779,9 +17762,9 @@ snapshots:
   '@pagefind/windows-x64@1.5.2':
     optional: true
 
-  '@pinterest/alloy-graphql@1.0.0':
+  '@pinterest/alloy-graphql@1.1.0':
     dependencies:
-      '@alloy-js/core': 0.23.1
+      '@alloy-js/core': 0.24.1
       graphql: 17.0.2
       pathe: 2.0.3
       pluralize: 8.0.0
