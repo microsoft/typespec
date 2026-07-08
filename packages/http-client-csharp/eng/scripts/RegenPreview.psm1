@@ -263,6 +263,11 @@ function Update-MgmtGenerator {
     $tempDir = Join-Path $EngFolder "temp-mgmt-package-update"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     
+    # Point the default registry at the public azure-sdk-for-js feed so dependency
+    # resolution doesn't fall back to the authenticated machine-global proxy
+    # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
+    
     try {
         $tempPackageJson = Join-Path $tempDir "package.json"
         
@@ -271,7 +276,7 @@ function Update-MgmtGenerator {
         Push-Location $tempDir
         try {
             # Install the mgmt package and regenerate lock file with both dependencies
-            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $tempDir
+            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only" $tempDir
             
             Copy-Item $tempPackageJson $mgmtEmitterJson -Force
             $lockFile = Join-Path $tempDir "package-lock.json"
@@ -576,7 +581,7 @@ function Update-OpenAIGenerator {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
-            $npmOutput = Invoke "npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $OpenAIRepoPath
+            $npmOutput = Invoke "npm install" $OpenAIRepoPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
                 throw "npm install failed"
@@ -903,7 +908,9 @@ function Update-AzureSpectorScenarios {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $AzureGeneratorPath
         try {
-            $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
+            # Use the public azure-sdk-for-js feed to avoid the authenticated
+            # machine-global proxy (packagefeedproxy) failing on uncached deps.
+            $installOutput = & npm install --registry "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"
