@@ -17,6 +17,14 @@ packages:
   - "@typespec/streams"
   - "@typespec/library-linter"
   - "@typespec/bundler"
+  - "@typespec/playground"
+  - "@typespec/spector"
+  - "@typespec/prettier-plugin-typespec"
+  - "@typespec/samples"
+  - "@typespec/spec-dashboard"
+  - "@typespec/tspd"
+  - "typespec-vscode"
+  - "@typespec/protobuf"
 ---
 
 Remove redundant top-level `describe` wrappers from tests per the documented test conventions.
