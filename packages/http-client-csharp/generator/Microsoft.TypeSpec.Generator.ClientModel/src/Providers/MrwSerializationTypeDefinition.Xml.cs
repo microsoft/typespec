@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -65,7 +66,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool ShouldOverrideXmlMethods => _shouldOverrideXmlMethods ??= !_isStruct &&
             (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) ||
                 HasGeneratedBaseCustomXmlModelWriteCoreMethod() ||
-                HasCustomBaseMethod(XmlModelWriteCoreMethodName));
+                HasCustomBaseXmlModelWriteCoreMethod());
 
         private bool HasGeneratedBaseSerializationMethod(string methodName)
             => _model.BaseModelProvider is not null &&
@@ -93,6 +94,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
                 modifiers.HasFlag(MethodSignatureModifiers.Override) ||
                 modifiers.HasFlag(MethodSignatureModifiers.Abstract);
+
+        private bool HasCustomBaseXmlModelWriteCoreMethod()
+            => GetCustomSerializationBaseType() is { } baseType &&
+                HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
+
+        private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
+        {
+            if (!visited.Add(type.FullyQualifiedName))
+            {
+                return false;
+            }
+
+            return HasCompatibleXmlModelWriteCore(type) ||
+                type.BaseType is not null && HasCompatibleXmlModelWriteCoreInHierarchy(type.BaseType, visited);
+        }
+
+        private bool HasCompatibleXmlModelWriteCore(CSharpType type)
+        {
+            if (type.IsFrameworkType)
+            {
+                return type.FrameworkType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                    .Any(method =>
+                        method.Name == XmlModelWriteCoreMethodName &&
+                        method.IsAssembly &&
+                        (method.IsVirtual || method.IsAbstract) &&
+                        !method.IsFinal &&
+                        method.ReturnType == typeof(void) &&
+                        method.GetParameters() is [{ ParameterType: var writerType }, { ParameterType: var optionsType }] &&
+                        writerType == typeof(XmlWriter) &&
+                        optionsType == typeof(ModelReaderWriterOptions));
+            }
+
+            return TryGetReferencedType(type)?.Methods.Any(IsXmlModelWriteCoreMethod) == true;
+        }
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
