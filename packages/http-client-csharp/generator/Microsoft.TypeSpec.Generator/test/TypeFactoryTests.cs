@@ -438,6 +438,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(type!.IsFrameworkType);
             Assert.AreEqual(typeof(Uri), type.FrameworkType);
             Assert.IsFalse(type.IsEnum);
+            Assert.Throws<InvalidOperationException>(() => _ = type.UnderlyingEnumType);
         }
 
         [Test]

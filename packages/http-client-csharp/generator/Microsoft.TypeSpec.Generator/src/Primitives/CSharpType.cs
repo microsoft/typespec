@@ -552,7 +552,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             // Preserve explicit enum semantics for framework types (e.g. referenced extensible enums,
             // which are structs and are not recognized as enums via reflection). The framework constructor
             // recomputes the underlying type from reflection and would otherwise drop it.
-            if (!ReferenceEquals(type, this) && IsFrameworkType && _underlyingType is not null)
+            if (IsFrameworkType && _underlyingType is not null)
             {
                 type._underlyingType = _underlyingType;
             }
