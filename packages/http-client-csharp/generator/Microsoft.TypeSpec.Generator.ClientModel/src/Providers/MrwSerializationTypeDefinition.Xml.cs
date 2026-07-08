@@ -90,9 +90,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
         private static bool IsOverridable(MethodSignatureModifiers modifiers)
-            => modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
-                modifiers.HasFlag(MethodSignatureModifiers.Override) ||
-                modifiers.HasFlag(MethodSignatureModifiers.Abstract);
+            => !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Override) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Abstract));
 
         private bool HasCustomBaseXmlModelWriteCoreMethod()
             => GetCustomSerializationBaseType() is { } baseType &&

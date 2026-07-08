@@ -365,6 +365,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 modifiers |= MethodSignatureModifiers.Override;
             }
+            if (methodSymbol.IsSealed)
+            {
+                modifiers |= MethodSignatureModifiers.Sealed;
+            }
             if (methodSymbol.IsAsync)
             {
                 modifiers |= MethodSignatureModifiers.Async;
