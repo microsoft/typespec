@@ -263,16 +263,41 @@ export type MutableTypeWithNamespace = MutableType | Namespace;
 
 // #region Mutator Application
 
+type SeenCache = CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>;
+
+// These keyers assign a stable identity to each type/mutator. They are backed by
+// `WeakMap`s and never strongly retain their keys, so they are safe to keep at
+// module scope and shared across programs.
 const typeId = CustomKeyMap.objectKeyer();
 const mutatorId = CustomKeyMap.objectKeyer();
-const seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
-  ([type, mutators]) => {
-    const key = `${typeId.getKey(type)}-${[...mutators.values()]
-      .map((v) => mutatorId.getKey(v))
-      .join("-")}`;
-    return key;
-  },
-);
+
+// `seen` memoizes mutation results so cyclic and shared types are cloned exactly
+// once. It must be shared across the nested `mutateSubgraph`/
+// `mutateSubgraphWithNamespace` calls a mutator makes while running (each spins
+// up its own engine); this is what lets recursive type graphs terminate instead
+// of recursing forever, and it also lets repeated mutations reuse earlier clones.
+//
+// The cache is scoped per `Program` rather than to the module so that it — and
+// every `Type` it references — becomes eligible for garbage collection once the
+// program does. A module-level cache would instead pin the type graph of every
+// mutated program in memory for the lifetime of the process.
+const seenByProgram = new WeakMap<Program, SeenCache>();
+
+function getSeenCache(program: Program): SeenCache {
+  let seen = seenByProgram.get(program);
+  if (seen === undefined) {
+    seen = new CustomKeyMap<[MutableTypeWithNamespace, Set<Mutator> | Mutator[]], Type>(
+      ([type, mutators]) => {
+        const key = `${typeId.getKey(type)}-${[...mutators.values()]
+          .map((v) => mutatorId.getKey(v))
+          .join("-")}`;
+        return key;
+      },
+    );
+    seenByProgram.set(program, seen);
+  }
+  return seen;
+}
 
 /**
  * Mutate the type graph, allowing namespaces to be mutated.
@@ -383,6 +408,12 @@ function createMutatorEngine(
 ): MutatorEngine {
   const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
+
+  // Shared across every engine operating on this program (including the nested
+  // engines a mutator spins up via re-entrant `mutateSubgraph` calls), so
+  // recursive type graphs are cloned once and terminate. Scoped to the program
+  // so it is collected once the program is.
+  const seen = getSeenCache(program);
 
   let preparingNamespace = false;
   const muts: Set<MutatorAll> = new Set(mutators);

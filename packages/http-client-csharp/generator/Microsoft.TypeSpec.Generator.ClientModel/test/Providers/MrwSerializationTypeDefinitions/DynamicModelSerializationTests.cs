@@ -532,6 +532,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void WriteRequiredNullableProperty()
+        {
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                    InputFactory.Property("foo", new InputNullableType(InputPrimitiveType.String), isRequired: true)
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void WriteModelPropertyType()
         {
             var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
@@ -594,6 +621,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Regression test for required root-level collection patch serialization:
+        // write the patched collection through Patch.WriteTo(writer, "$.<prop>") so it is emitted once.
+        [Test]
+        public void WriteRequiredCollectionDoesNotDuplicatePatchedKey()
+        {
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("tools", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore"));
+
+            var content = writer.Write().Content;
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile(), content);
+            StringAssert.DoesNotContain("writer.WriteRawValue(Patch.GetJson(\"$.tools\"u8));", content);
         }
 
         [Test]

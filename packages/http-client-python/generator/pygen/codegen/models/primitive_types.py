@@ -9,6 +9,7 @@ from typing import Any, Optional, Union, TYPE_CHECKING
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -276,6 +277,8 @@ class DecimalType(NumberType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "float"
         return "decimal.Decimal"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -286,7 +289,8 @@ class DecimalType(NumberType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("decimal", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("decimal", ImportType.STDLIB)
         return file_import
 
     @property
@@ -362,6 +366,8 @@ class DatetimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.datetime"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -375,7 +381,8 @@ class DatetimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -404,6 +411,8 @@ class TimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.time"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -417,7 +426,8 @@ class TimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -450,6 +460,8 @@ class UnixTimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "int"
         return "datetime.datetime"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -463,7 +475,8 @@ class UnixTimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -492,6 +505,8 @@ class DateType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.date"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -505,7 +520,8 @@ class DateType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -548,6 +564,8 @@ class DurationType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.timedelta"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -561,7 +579,8 @@ class DurationType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -593,6 +612,11 @@ class ByteArraySchema(PrimitiveType):
         return "bytearray"
 
     def docstring_type(self, **kwargs: Any) -> str:
+        return "bytes"
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "bytes"
 
     def get_declaration(self, value: str) -> str:

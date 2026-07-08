@@ -15,7 +15,7 @@ Welcome! This guide will help you set up your development environment and contri
 
 Before you begin, ensure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (version 18 or higher)
+- [Node.js](https://nodejs.org/) (version 22 or higher)
 - [npm](https://www.npmjs.com/) (comes with Node.js)
 - [pnpm](https://pnpm.io/) (for workspace management)
 - [Git](https://git-scm.com/)
@@ -85,6 +85,24 @@ npm run ci
 - Run linting: `npm run lint`
 - Format code: `npm run format`
 
+### Updating Emitter Option Documentation
+
+The emitter options documentation is **auto-generated** — do not edit it by hand.
+
+- The single source of truth is the option definitions in [`emitter/src/lib.ts`](./emitter/src/lib.ts). Update the `description` (and other schema fields) there.
+- Running `npm run regen-docs` regenerates **both** targets from that source:
+  - This package's [`README.md`](./README.md) (the `Emitter options` section).
+  - The website reference docs under `website/src/content/docs/docs/emitters/clients/http-client-python/reference/`.
+
+Because `regen-docs` reads the **compiled** emitter, always build first:
+
+```bash
+npm run build
+npm run regen-docs
+```
+
+If you edit `lib.ts` but skip `npm run build`, `regen-docs` will regenerate from the stale `dist/` output and your changes won't appear.
+
 ## Creating Pull Requests
 
 ### 1. Prepare Your PR
@@ -95,7 +113,7 @@ Before creating a pull request:
 - [ ] Ensure code is properly formatted: `npm run format`
 - [ ] Ensure code is properly linted: `npm run lint`
 - [ ] Add a changeset: `pnpm change add` (from repo root)
-- [ ] Update documentation if needed
+- [ ] Update documentation if needed (if you changed emitter options in `lib.ts`, run `npm run build && npm run regen-docs` — see [Updating Emitter Option Documentation](#updating-emitter-option-documentation))
 
 ### 2. Create the PR
 
@@ -119,45 +137,19 @@ Both must pass before your PR can be merged.
 
 ### Manual Regeneration Testing
 
-You can manually trigger the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow in `azure-sdk-for-python` to regenerate tests with either emitter:
-
-- **Branded** (`@azure-tools/typespec-python`): Select "branded" and optionally specify a version. If no version is given, it uses the version from [`eng/emitter-package.json`](https://github.com/Azure/azure-sdk-for-python/blob/main/eng/emitter-package.json).
-- **Unbranded** (`@typespec/http-client-python`): Select "unbranded" and optionally specify a version. If no version is given, it uses the latest published version on npm.
-
-The workflow checks out `microsoft/typespec` (at the ref you specify, defaulting to `main`), builds the regeneration infrastructure, installs the target emitter from npm, and runs the full regeneration.
+You can manually trigger the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow in `azure-sdk-for-python` to regenerate tests. The workflow checks out `microsoft/typespec` (at the ref you specify, defaulting to `main`), builds the regeneration infrastructure, installs the target emitter from npm, and runs the full regeneration.
 
 ### Post-Release: Updating azure-sdk-for-python
 
-Once a new version of the branded emitter (`@azure-tools/typespec-python`) is released, follow these steps to update `azure-sdk-for-python`:
+Once a new version of this emitter is released, follow these steps to update `azure-sdk-for-python`:
 
-1. **Update `eng/emitter-package.json`** in [Azure/azure-sdk-for-python](https://github.com/Azure/azure-sdk-for-python):
+1. Follow skill [emitter-package-update](https://github.com/Azure/azure-sdk-for-python/tree/main/.github/skills/emitter-package-update) to **create a PR** to update `eng/emitter-package.json` and `eng/emitter-package-lock.json` and submit them to `azure-sdk-for-python`.
 
-   Update the `@azure-tools/typespec-python` version to the newly released version:
+2. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up issue with the updated generated files.
 
-   ```json
-   {
-     "dependencies": {
-       "@azure-tools/typespec-python": "<new-version>"
-     }
-   }
-   ```
-
-2. **Regenerate config files** using `tsp-client`:
-
-   ```bash
-   tsp-client generate-config-files \
-     --package-json= < path-to-local-typespec-azure > /packages/typespec-python/package.json
-   ```
-
-   This updates the `devDependencies` in `eng/emitter-package.json` to match the branded emitter's peer dependencies.
-
-3. **Create a PR** with the updated `eng/emitter-package.json` and submit it to `azure-sdk-for-python`.
-
-4. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up PR with the updated generated files.
-
-5. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated/`](https://github.com/Azure/azure-sdk-for-python/tree/main/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
-   - `azure/` — Tests generated with the branded emitter (Azure SDK specs)
-   - `unbranded/` — Tests generated with the unbranded emitter (TypeSpec HTTP specs)
+3. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated`](https://github.com/Azure/azure-sdk-for-python/tree/typespec-python-generated-tests/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
+   - `azure/` — Tests generated with the branded emitter (Azure HTTP specs)
+   - `unbranded/` — Tests generated with the unbranded emitter (HTTP specs)
 
 ## Release Process
 
@@ -175,12 +167,14 @@ This consumes all pending change files under `.chronus/changes/` for this packag
 
 ### 2. Create a Release PR
 
-Create a branch from the version bump commit and open a PR to `main`:
+Create a branch from the version bump commit, push it, and open a PR to `main`:
 
 ```bash
 git checkout -b publish/python-release-<MM-DD>
 git push origin publish/python-release-<MM-DD>
 ```
+
+Then open a pull request targeting `main` (for example, via the GitHub UI or `gh pr create --base main`).
 
 > **Note:** The branch **must** use the `publish/` prefix. This tells CI to skip certain checks (consistency, external-integration) and enables auto-publish on merge.
 

@@ -4325,6 +4325,17 @@ Test query expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/explode/array?param=a&param=b
 
+### Routes_QueryParameters_QueryExpansion_Explode_model
+
+- Endpoint: `get /routes/query/query-expansion/explode/model{?param*}`
+
+Test query expansion with explode: true when passed a named model value.
+Per RFC 6570 form explode, each property of the model is expanded into its own
+query parameter using the property name as the key (the parameter name itself
+is not emitted).
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/explode/model?field=status&value=active
+
 ### Routes_QueryParameters_QueryExpansion_Explode_primitive
 
 - Endpoint: `get /routes/query/query-expansion/explode/primitive{?param*}`

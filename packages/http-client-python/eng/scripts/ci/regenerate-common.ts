@@ -172,9 +172,15 @@ export const AZURE_EMITTER_OPTIONS: Record<
     "package-name": "client-structure-twooperationgroup",
     namespace: "client.structure.twooperationgroup",
   },
-  "client/naming": {
-    namespace: "client.naming.main",
-  },
+  "client/naming": [
+    {
+      namespace: "client.naming.main",
+    },
+    {
+      "package-name": "client-naming-typeddict",
+      namespace: "client.naming.typeddict",
+    },
+  ],
   "client/overload": {
     namespace: "client.overload",
   },
@@ -274,14 +280,26 @@ export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<str
     "package-name": "typetest-model-nesteddiscriminator",
     namespace: "typetest.model.nesteddiscriminator",
   },
-  "type/model/inheritance/not-discriminated": {
-    "package-name": "typetest-model-notdiscriminated",
-    namespace: "typetest.model.notdiscriminated",
-  },
-  "type/model/inheritance/single-discriminator": {
-    "package-name": "typetest-model-singlediscriminator",
-    namespace: "typetest.model.singlediscriminator",
-  },
+  "type/model/inheritance/not-discriminated": [
+    {
+      "package-name": "typetest-model-notdiscriminated",
+      namespace: "typetest.model.notdiscriminated",
+    },
+    {
+      "package-name": "typetest-model-notdiscriminated-typeddict",
+      namespace: "typetest.model.notdiscriminated.typeddict",
+    },
+  ],
+  "type/model/inheritance/single-discriminator": [
+    {
+      "package-name": "typetest-model-singlediscriminator",
+      namespace: "typetest.model.singlediscriminator",
+    },
+    {
+      "package-name": "typetest-model-singlediscriminator-typeddict",
+      namespace: "typetest.model.singlediscriminator.typeddict",
+    },
+  ],
   "type/model/inheritance/recursive": [
     {
       "package-name": "typetest-model-recursive",
@@ -295,10 +313,17 @@ export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<str
       "clear-output-folder": "true",
     },
   ],
-  "type/model/usage": {
-    "package-name": "typetest-model-usage",
-    namespace: "typetest.model.usage",
-  },
+  "type/model/usage": [
+    {
+      "package-name": "typetest-model-usage",
+      namespace: "typetest.model.usage",
+    },
+    {
+      "package-name": "typetest-model-usage-typeddictonly",
+      namespace: "typetest.model.usage.typeddictonly",
+      "models-mode": "typeddict",
+    },
+  ],
   "type/model/visibility": [
     {
       "package-name": "typetest-model-visibility",
