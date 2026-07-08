@@ -118,6 +118,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ProtocolMethodIsInternalWhenGenerateProtocolMethodIsFalse()
+        {
+            var operation = InputFactory.Operation(
+                "CreateMessage",
+                generateProtocolMethod: false,
+                parameters:
+                [
+                    InputFactory.BodyParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            // Protocol methods (the RequestContent-based overloads) should be generated as internal, not omitted.
+            var protocolMethods = methodCollection.Where(m
+                => m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.IsTrue(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should be internal when generateProtocolMethod is false.");
+                Assert.IsFalse(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should not be public when generateProtocolMethod is false.");
+            }
+
+            // Convenience methods should remain public.
+            var convenienceMethods = methodCollection.Where(m
+                => !m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Convenience method '{convenienceMethod.Signature.Name}' should remain public.");
+            }
+        }
+
+        [Test]
         public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
         {
             var serviceMethod = InputFactory.BasicServiceMethod(
