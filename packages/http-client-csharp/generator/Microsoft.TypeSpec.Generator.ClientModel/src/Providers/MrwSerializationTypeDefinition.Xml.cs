@@ -81,6 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool IsXmlModelWriteCoreMethod(MethodProvider method)
             => method.Signature.Name == XmlModelWriteCoreMethodName &&
+                method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
                 IsOverridable(method.Signature.Modifiers) &&
                 !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
                 (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
