@@ -89,6 +89,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public async Task XmlModelWriteCoreDoesNotOverrideJsonOnlyCustomBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("JsonOnlyBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var xmlWriteCore = serializationProvider.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
+
+            Assert.IsTrue(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsTrue(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            StringAssert.DoesNotContain("base.XmlModelWriteCore", xmlWriteCore.BodyStatements!.ToDisplayString());
+        }
+
         // Validates that a custom deserialization hook can be used to customize property deserialization.
         [Test]
         public async Task CanCustomizeDeserializationMethod()

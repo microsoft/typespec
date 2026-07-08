@@ -61,13 +61,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private XmlPropertyCategories? _categorizedXmlProperties;
         private XmlPropertyCategories CategorizedXmlProperties => _categorizedXmlProperties ??= CategorizeXmlProperties(ownPropertiesOnly: true);
+        private bool? _shouldOverrideXmlMethods;
+        private bool ShouldOverrideXmlMethods => _shouldOverrideXmlMethods ??= !_isStruct &&
+            (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) || HasCustomBaseMethod(XmlModelWriteCoreMethodName));
+
+        private bool HasGeneratedBaseSerializationMethod(string methodName)
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.SerializationProviders
+                    .OfType<MrwSerializationTypeDefinition>()
+                    .Any(serialization => serialization.Methods.Any(method => method.Signature.Name == methodName));
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
-            if (ShouldOverrideMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
@@ -81,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildXmlModelWriteCoreMethodBody()
         {
-            var categorizedProperties = ShouldOverrideMethods
+            var categorizedProperties = ShouldOverrideXmlMethods
                 ? CategorizedXmlProperties
                 : AllCategorizedXmlProperties;
             var statements = new List<MethodBodyStatement>
@@ -90,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine
             };
 
-            if (ShouldOverrideMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 statements.Add(Base.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate());
             }
