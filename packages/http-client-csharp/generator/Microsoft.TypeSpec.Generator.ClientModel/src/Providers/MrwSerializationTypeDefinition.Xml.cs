@@ -63,7 +63,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private XmlPropertyCategories CategorizedXmlProperties => _categorizedXmlProperties ??= CategorizeXmlProperties(ownPropertiesOnly: true);
         private bool? _shouldOverrideXmlMethods;
         private bool ShouldOverrideXmlMethods => _shouldOverrideXmlMethods ??= !_isStruct &&
-            (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) || HasCustomBaseMethod(XmlModelWriteCoreMethodName));
+            (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) ||
+                HasGeneratedBaseCustomXmlModelWriteCoreMethod() ||
+                HasCustomBaseMethod(XmlModelWriteCoreMethodName));
 
         private bool HasGeneratedBaseSerializationMethod(string methodName)
             => _model.BaseModelProvider is not null &&
@@ -71,6 +73,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _model.BaseModelProvider.SerializationProviders
                     .OfType<MrwSerializationTypeDefinition>()
                     .Any(serialization => serialization.Methods.Any(method => method.Signature.Name == methodName));
+
+        private bool HasGeneratedBaseCustomXmlModelWriteCoreMethod()
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.CustomCodeView?.Methods.Any(IsXmlModelWriteCoreMethod) == true;
+
+        private bool IsXmlModelWriteCoreMethod(MethodProvider method)
+            => method.Signature.Name == XmlModelWriteCoreMethodName &&
+                method.Signature.Parameters.Count == 2;
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
