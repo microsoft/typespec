@@ -266,7 +266,8 @@ function Update-MgmtGenerator {
     # Point the default registry at the public azure-sdk-for-js feed so dependency
     # resolution doesn't fall back to the authenticated machine-global proxy
     # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
-    Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
+    $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=$publicRegistry`n" -Encoding utf8
     
     try {
         $tempPackageJson = Join-Path $tempDir "package.json"
@@ -910,7 +911,8 @@ function Update-AzureSpectorScenarios {
         try {
             # Use the public azure-sdk-for-js feed to avoid the authenticated
             # machine-global proxy (packagefeedproxy) failing on uncached deps.
-            $installOutput = & npm install --registry "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" 2>&1
+            $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+            $installOutput = & npm install --registry $publicRegistry 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"
