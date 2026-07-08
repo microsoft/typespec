@@ -268,6 +268,19 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
+/**
+ * Quotes a value so it can be safely embedded in a shell command line.
+ *
+ * The value is wrapped in double quotes (handling spaces and other separators)
+ * and any embedded double quotes are escaped. This quoting must only be applied
+ * when the value is passed through a shell (e.g. `execSync`); it must never be
+ * baked into the option value itself, otherwise the quotes leak into non-shell
+ * consumers such as the Pyodide runtime and end up in generated files.
+ */
+export function quoteShellArg(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
 // Library namespaces that should not be used as client namespaces
 const LIB_NAMESPACE = [
   "azure.core",
