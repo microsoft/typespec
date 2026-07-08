@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -114,16 +113,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (type.IsFrameworkType)
             {
-                return type.FrameworkType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                    .Any(method =>
-                        method.Name == XmlModelWriteCoreMethodName &&
-                        method.IsAssembly &&
-                        (method.IsVirtual || method.IsAbstract) &&
-                        !method.IsFinal &&
-                        method.ReturnType == typeof(void) &&
-                        method.GetParameters() is [{ ParameterType: var writerType }, { ParameterType: var optionsType }] &&
-                        writerType == typeof(XmlWriter) &&
-                        optionsType == typeof(ModelReaderWriterOptions));
+                return false;
             }
 
             return TryGetReferencedType(type)?.Methods.Any(IsXmlModelWriteCoreMethod) == true;
