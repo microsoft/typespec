@@ -7,6 +7,16 @@ packages:
   - "@typespec/versioning"
   - "@typespec/openapi"
   - "@typespec/sse"
+  - "@typespec/emitter-framework"
+  - "@typespec/http-server-csharp"
+  - "@typespec/spec-api"
+  - "@typespec/http-server-js"
+  - "@typespec/asset-emitter"
+  - "@typespec/internal-build-utils"
+  - "@typespec/html-program-viewer"
+  - "@typespec/streams"
+  - "@typespec/library-linter"
+  - "@typespec/bundler"
 ---
 
 Remove redundant top-level `describe` wrappers from tests per the documented test conventions.
