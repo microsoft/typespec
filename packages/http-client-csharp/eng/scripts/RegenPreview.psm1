@@ -1,5 +1,10 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Global
 
+# The public azure-sdk-for-js npm feed. Used for all npm install/ci commands so
+# dependency resolution doesn't fall back to the authenticated machine-global
+# proxy (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
+$script:PublicNpmRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+
 function Update-GeneratorPackage {
     <#
     .SYNOPSIS
@@ -83,24 +88,23 @@ function Update-GeneratorPackage {
 
         # Step 2: Install dependencies, clean, and build
         # Force the default registry to the public azure-sdk-for-js feed.
-        $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
         Push-Location $GeneratorPath
         try {
             Write-Host "Installing dependencies..." -ForegroundColor Gray
             if ($UseNpmCi) {
-                $installOutput = & npm install --package-lock-only --registry $publicRegistry 2>&1
+                $installOutput = & npm install --package-lock-only --registry $script:PublicNpmRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to update package-lock.json"
                 }
                 
-                $ciOutput = & npm ci --registry $publicRegistry 2>&1
+                $ciOutput = & npm ci --registry $script:PublicNpmRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $ciOutput -ForegroundColor Red
                     throw "Failed to install dependencies"
                 }
             } else {
-                $installOutput = & npm install --registry $publicRegistry 2>&1
+                $installOutput = & npm install --registry $script:PublicNpmRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to run npm install"
@@ -266,8 +270,7 @@ function Update-MgmtGenerator {
     # Point the default registry at the public azure-sdk-for-js feed so dependency
     # resolution doesn't fall back to the authenticated machine-global proxy
     # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
-    $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
-    Set-Content (Join-Path $tempDir ".npmrc") "registry=$publicRegistry`n" -Encoding utf8
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=$script:PublicNpmRegistry`n" -Encoding utf8
     
     try {
         $tempPackageJson = Join-Path $tempDir "package.json"
@@ -911,8 +914,7 @@ function Update-AzureSpectorScenarios {
         try {
             # Use the public azure-sdk-for-js feed to avoid the authenticated
             # machine-global proxy (packagefeedproxy) failing on uncached deps.
-            $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
-            $installOutput = & npm install --registry $publicRegistry 2>&1
+            $installOutput = & npm install --registry $script:PublicNpmRegistry 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"
