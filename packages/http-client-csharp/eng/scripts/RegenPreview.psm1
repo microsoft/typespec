@@ -1,8 +1,5 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Global
 
-# The public azure-sdk-for-js npm feed. Used for all npm install/ci commands so
-# dependency resolution doesn't fall back to the authenticated machine-global
-# proxy (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
 $script:PublicNpmRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
 
 function Update-GeneratorPackage {
