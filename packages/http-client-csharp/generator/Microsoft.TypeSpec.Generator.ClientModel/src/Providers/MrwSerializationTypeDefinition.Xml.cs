@@ -81,7 +81,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool IsXmlModelWriteCoreMethod(MethodProvider method)
             => method.Signature.Name == XmlModelWriteCoreMethodName &&
-                method.Signature.Parameters.Count == 2;
+                IsOverridable(method.Signature.Modifiers) &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(XmlWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
+
+        private static bool IsOverridable(MethodSignatureModifiers modifiers)
+            => modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                modifiers.HasFlag(MethodSignatureModifiers.Override) ||
+                modifiers.HasFlag(MethodSignatureModifiers.Abstract);
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
