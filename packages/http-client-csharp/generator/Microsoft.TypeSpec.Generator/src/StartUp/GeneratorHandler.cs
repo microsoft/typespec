@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var package in packageNamesInOrder)
             {
-                var packageDir = Path.Combine(rootDirectory, NodeModulesDir, package);
+                var packageDir = GetPackageDirectory(rootDirectory, package);
                 var packageDistPath = Path.Combine(packageDir, "dist");
 
                 if (Directory.Exists(packageDistPath))
@@ -232,6 +232,20 @@ namespace Microsoft.TypeSpec.Generator
 
             return SelectDeterministic(allProjects.Where(path => ContainsDirectorySegment(path, SrcDir)))
                 ?? SelectDeterministic(allProjects);
+        }
+
+        /// <summary>
+        /// Builds the path to a package's directory under 'node_modules'.
+        /// Scoped package names (e.g. '@scope/name') contain a forward slash that must be
+        /// split into separate path segments. Otherwise the forward slash is preserved verbatim
+        /// on Windows, which produces a path with mixed separators that fails once the path is
+        /// long enough for the runtime to apply the '\\?\' extended-length prefix.
+        /// </summary>
+        internal static string GetPackageDirectory(string rootDirectory, string package)
+        {
+            var segments = new List<string> { rootDirectory, NodeModulesDir };
+            segments.AddRange(package.Split('/'));
+            return Path.Combine(segments.ToArray());
         }
 
         private static string? SelectDeterministic(IEnumerable<string> paths) =>

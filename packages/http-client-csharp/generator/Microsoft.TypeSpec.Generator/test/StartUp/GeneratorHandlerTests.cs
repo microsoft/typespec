@@ -464,6 +464,29 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
         }
 
         [Test]
+        public void GetPackageDirectory_ScopedPackageSplitsOnSlash()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "@azure-typespec/http-client-csharp-mgmt");
+
+            var expected = Path.Combine(root, "node_modules", "@azure-typespec", "http-client-csharp-mgmt");
+            Assert.AreEqual(expected, result);
+            // The scoped package separator must be normalized to the platform separator so that
+            // long paths don't fail when the runtime applies the extended-length path prefix.
+            Assert.IsFalse(result.Contains('/') && Path.DirectorySeparatorChar != '/');
+        }
+
+        [Test]
+        public void GetPackageDirectory_UnscopedPackage()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "some-package");
+
+            var expected = Path.Combine(root, "node_modules", "some-package");
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
         public void AddConfiguredPluginDlls_NoPluginPaths_DoesNothing()
         {
             var config = new Configuration(
