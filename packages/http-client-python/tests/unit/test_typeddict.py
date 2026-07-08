@@ -8,7 +8,8 @@
 
 from jinja2 import PackageLoader, Environment
 
-from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType
+from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
+from pygen.codegen.models.imports import ImportType
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
@@ -252,3 +253,67 @@ def test_typed_dict_only_docstring_type():
     docstring = model.docstring_type()
     assert "types.Foo" in docstring
     assert "models.Foo" not in docstring
+
+
+# ---------- constant enum value (EnumValue) annotation & imports ----------
+
+
+def _make_enum_value(code_model, enum_name="Color", member_name="RED", value="red"):
+    """Build a single constant EnumValue attached to code_model."""
+    value_type_yaml = {"type": "string"}
+    enum_yaml = {
+        "type": "enum",
+        "name": enum_name,
+        "valueType": value_type_yaml,
+        "values": [],
+    }
+    enum_value_yaml = {
+        "type": "enumvalue",
+        "name": member_name,
+        "value": value,
+        "enumType": enum_yaml,
+        "valueType": value_type_yaml,
+    }
+    return build_type(enum_value_yaml, code_model)
+
+
+def _local_import_modules(file_import):
+    """Collect all LOCAL import module names from a FileImport."""
+    modules = set()
+    for section in file_import.to_dict().values():
+        modules.update(section.get(ImportType.LOCAL, {}).keys())
+    return modules
+
+
+def test_enum_value_dpg_annotation_uses_enum_member():
+    """In dpg mode a constant enum value annotates as ``Literal[Color.RED]``."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(code_model)
+    assert enum_value.type_annotation() == "Literal[Color.RED]"
+
+
+def test_enum_value_typeddict_annotation_uses_literal_value():
+    """In typeddict mode a constant enum value annotates with its literal value.
+
+    Enums are ``Literal`` aliases in types.py with no member attributes, so the
+    annotation must be ``Literal["red"]`` rather than ``Literal[Color.RED]``.
+    """
+    code_model = _make_code_model(models_mode="typeddict")
+    enum_value = _make_enum_value(code_model)
+    assert enum_value.type_annotation() == 'Literal["red"]'
+
+
+def test_enum_value_typeddict_does_not_import_enums_module():
+    """In typeddict mode ``_enums.py`` is never generated, so no import of it."""
+    code_model = _make_code_model(models_mode="typeddict")
+    enum_value = _make_enum_value(code_model)
+    modules = _local_import_modules(enum_value.imports())
+    assert not any("_enums" in module for module in modules)
+
+
+def test_enum_value_dpg_imports_enums_module():
+    """In dpg mode a constant enum value imports the enum from ``_enums.py``."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(code_model)
+    modules = _local_import_modules(enum_value.imports())
+    assert any("_enums" in module for module in modules)
