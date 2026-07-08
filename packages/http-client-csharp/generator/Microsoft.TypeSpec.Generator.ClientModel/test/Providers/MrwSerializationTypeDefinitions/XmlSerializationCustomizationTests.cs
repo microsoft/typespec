@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             MockHelpers.LoadMockGenerator();
             var inputModel = InputFactory.Model("mockInputModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml);
             var serializationProvider = new MrwSerializationTypeDefinition(inputModel, new ModelProvider(inputModel));
-            var method = typeof(MrwSerializationTypeDefinition).GetMethod("HasCompatibleXmlModelWriteCore", BindingFlags.Instance | BindingFlags.NonPublic);
+            var method = typeof(MrwSerializationTypeDefinition).GetMethod("GetXmlModelWriteCoreCompatibility", BindingFlags.Instance | BindingFlags.NonPublic);
 
             Assert.IsNotNull(method);
             Assert.AreEqual(false, method!.Invoke(serializationProvider, [new CSharpType(typeof(ReflectedInternalXmlBase))]));
