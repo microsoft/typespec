@@ -82,23 +82,25 @@ function Update-GeneratorPackage {
         }
 
         # Step 2: Install dependencies, clean, and build
+        # Force the default registry to the public azure-sdk-for-js feed.
+        $publicRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
         Push-Location $GeneratorPath
         try {
             Write-Host "Installing dependencies..." -ForegroundColor Gray
             if ($UseNpmCi) {
-                $installOutput = & npm install --package-lock-only 2>&1
+                $installOutput = & npm install --package-lock-only --registry $publicRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to update package-lock.json"
                 }
                 
-                $ciOutput = & npm ci 2>&1
+                $ciOutput = & npm ci --registry $publicRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $ciOutput -ForegroundColor Red
                     throw "Failed to install dependencies"
                 }
             } else {
-                $installOutput = & npm install 2>&1
+                $installOutput = & npm install --registry $publicRegistry 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to run npm install"
@@ -269,7 +271,7 @@ function Update-MgmtGenerator {
         Push-Location $tempDir
         try {
             # Install the mgmt package and regenerate lock file with both dependencies
-            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only" $tempDir
+            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $tempDir
             
             Copy-Item $tempPackageJson $mgmtEmitterJson -Force
             $lockFile = Join-Path $tempDir "package-lock.json"
@@ -574,7 +576,7 @@ function Update-OpenAIGenerator {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
-            $npmOutput = Invoke "npm install" $OpenAIRepoPath
+            $npmOutput = Invoke "npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/" $OpenAIRepoPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
                 throw "npm install failed"
@@ -901,7 +903,7 @@ function Update-AzureSpectorScenarios {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $AzureGeneratorPath
         try {
-            $installOutput = & npm install 2>&1
+            $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"
