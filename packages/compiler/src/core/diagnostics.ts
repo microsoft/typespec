@@ -22,12 +22,27 @@ import {
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 
-export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
+export interface LogDiagnosticsOptions {
+  /**
+   * Optional mapper to transform the diagnostic code before it is displayed
+   * (e.g. to display the short/scope-stripped form).
+   */
+  readonly mapCode?: (code: string) => string;
+}
+
+export function logDiagnostics(
+  diagnostics: readonly Diagnostic[],
+  logger: LogSink,
+  options?: LogDiagnosticsOptions,
+) {
   for (const diagnostic of diagnostics) {
     logger.log({
       level: diagnostic.severity,
       message: diagnostic.message,
-      code: diagnostic.code,
+      code:
+        options?.mapCode && diagnostic.code !== undefined
+          ? options.mapCode(diagnostic.code)
+          : diagnostic.code,
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),
       related: getRelatedLocations(diagnostic),

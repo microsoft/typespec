@@ -87,6 +87,23 @@ namespace Lib {
 }
 ```
 
+### Short diagnostic codes
+
+Diagnostic codes from a library are prefixed with the package name (e.g. `@typespec/http/no-service-found`), which can get verbose. You can also reference a diagnostic using its **short name**, where the package scope is stripped:
+
+- `@typespec/<name>` &rarr; `<name>` (e.g. `@typespec/http/no-service-found` &rarr; `http/no-service-found`)
+- `@<scope>/typespec-<name>` &rarr; `<name>` (e.g. `@azure-tools/typespec-autorest/no-foo` &rarr; `autorest/no-foo`)
+- A library may also declare a custom `alias` (e.g. `tcgc/no-foo`).
+
+```tsp
+#suppress "http/no-service-found" "standard library route"
+namespace Lib {
+  @route("/test") op get(): string;
+}
+```
+
+The full name is always accepted. If two loaded libraries would resolve to the same short name, that short name becomes ambiguous and you must use the full name for those libraries.
+
 ### Api
 
 There is currently no exposed api to resolve suppresssions

@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
-import { describe, it } from "vitest";
-import { getNodeForTarget } from "../../src/core/diagnostics.js";
-import { SyntaxKind } from "../../src/core/types.js";
+import { describe, expect, it } from "vitest";
+import { getNodeForTarget, logDiagnostics } from "../../src/core/diagnostics.js";
+import { NoTarget, SyntaxKind, type Diagnostic, type LogSink } from "../../src/core/types.js";
 import { SourceLocationOptions, getSourceLocation } from "../../src/index.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
@@ -112,6 +112,39 @@ describe("compiler: diagnostics", () => {
       } as any;
 
       strictEqual(getNodeForTarget(target), typeNode);
+    });
+  });
+
+  describe("logDiagnostics", () => {
+    function collectLoggedCodes(
+      diagnostics: readonly Diagnostic[],
+      options?: { mapCode?: (code: string) => string },
+    ): (string | undefined)[] {
+      const logged: (string | undefined)[] = [];
+      const sink: LogSink = {
+        log: (log) => logged.push(log.code),
+      };
+      logDiagnostics(diagnostics, sink, options);
+      return logged;
+    }
+
+    const diagnostics: Diagnostic[] = [
+      {
+        severity: "warning",
+        code: "@typespec/http/no-foo",
+        message: "msg",
+        target: NoTarget,
+      },
+    ];
+
+    it("logs the code unchanged without a mapper", () => {
+      expect(collectLoggedCodes(diagnostics)).toEqual(["@typespec/http/no-foo"]);
+    });
+
+    it("applies the mapCode transformation to the displayed code", () => {
+      expect(
+        collectLoggedCodes(diagnostics, { mapCode: (code) => code.replace("@typespec/", "") }),
+      ).toEqual(["http/no-foo"]);
     });
   });
 });

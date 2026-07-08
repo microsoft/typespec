@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
@@ -115,6 +116,7 @@ describe("compiler: linter", () => {
   async function createTestLinter(
     code: string | Record<string, string>,
     linterDef: LinterDefinition,
+    codeResolver?: ReturnType<typeof createDiagnosticCodeResolver>,
   ): Promise<Linter> {
     let result;
     if (typeof code === "string") {
@@ -141,8 +143,10 @@ describe("compiler: linter", () => {
       linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
     };
 
-    const linter = createLinter(result.program, (libName) =>
-      Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+    const linter = createLinter(
+      result.program,
+      (libName) => Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+      codeResolver,
     );
     return linter;
   }
@@ -402,6 +406,83 @@ describe("compiler: linter", () => {
       #suppress "my-lib/no-model-foo"
       model Foo {}`);
 
+      expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("(integration) short names", () => {
+    async function diagnoseWithLib(
+      code: string,
+      options: {
+        libName: string;
+        alias?: string;
+        enable: string;
+      },
+    ) {
+      const libDir = `node_modules/${options.libName}`;
+      return await Tester.files({
+        [`${libDir}/package.json`]: JSON.stringify({
+          name: options.libName,
+          main: "index.js",
+        }),
+        [`${libDir}/index.js`]: mockFile.js({
+          $lib: createTypeSpecLibrary({
+            name: options.libName,
+            alias: options.alias,
+            diagnostics: {},
+          }),
+          $linter: { rules: [noModelFoo] },
+        }),
+      }).diagnose(`import "${options.libName}";\n${code}`, {
+        compilerOptions: {
+          linterRuleSet: {
+            enable: { [options.enable]: true },
+          },
+        },
+      });
+    }
+
+    it("enables a rule using the scope-stripped short name", async () => {
+      const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+        libName: "@typespec/test-real",
+        enable: "test-real/no-model-foo",
+      });
+      expectDiagnostics(diagnostics, { code: "@typespec/test-real/no-model-foo" });
+    });
+
+    it("enables a rule using a library-declared alias", async () => {
+      const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+        libName: "@azure-tools/typespec-fake",
+        alias: "fake",
+        enable: "fake/no-model-foo",
+      });
+      expectDiagnostics(diagnostics, { code: "@azure-tools/typespec-fake/no-model-foo" });
+    });
+
+    it("suppresses a diagnostic using the short name", async () => {
+      const diagnostics = await diagnoseWithLib(
+        `
+        #suppress "test-real/no-model-foo" "intentional"
+        model Foo {}`,
+        {
+          libName: "@typespec/test-real",
+          enable: "test-real/no-model-foo",
+        },
+      );
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("suppresses a diagnostic reported with full name using the short name", async () => {
+      const diagnostics = await diagnoseWithLib(
+        `
+        #suppress "fake/no-model-foo" "intentional"
+        model Foo {}`,
+        {
+          libName: "@azure-tools/typespec-fake",
+          alias: "fake",
+          enable: "@azure-tools/typespec-fake/no-model-foo",
+        },
+      );
       expectDiagnosticEmpty(diagnostics);
     });
   });

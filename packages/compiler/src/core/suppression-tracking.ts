@@ -1,3 +1,4 @@
+import { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { defineCodeFix, getSourceLocation } from "./diagnostics.js";
 import { builtInLinterLibraryName } from "./linter.js";
 import { compilerDiagnosticCodes } from "./messages.js";
@@ -21,7 +22,10 @@ export interface SuppressionTracker {
   getUnusedSuppressions(): UnusedSuppression[];
 }
 
-export function createSuppressionTracker(sourceResolution: SourceResolution): SuppressionTracker {
+export function createSuppressionTracker(
+  sourceResolution: SourceResolution,
+  codeResolver?: DiagnosticCodeResolver,
+): SuppressionTracker {
   const suppressions = collectSuppressions(sourceResolution);
 
   return {
@@ -39,7 +43,7 @@ export function createSuppressionTracker(sourceResolution: SourceResolution): Su
         }
 
         const availability = getSuppressionSourceAvailability(
-          suppression.directive.code,
+          resolveCode(codeResolver, suppression.directive.code),
           sourceResolution,
         );
         if (availability === "unavailable") {
@@ -84,6 +88,10 @@ function collectSuppressions(
   }
 }
 
+function resolveCode(codeResolver: DiagnosticCodeResolver | undefined, code: string): string {
+  return codeResolver ? codeResolver.resolveCode(code) : code;
+}
+
 function getSuppressionSourceAvailability(
   code: string,
   sourceResolution: SourceResolution,
@@ -108,11 +116,15 @@ function matchesDiagnosticSource(code: string, source: string): boolean {
   return code.startsWith(`${source}/`);
 }
 
-export function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
+export function findDirectiveSuppressingOnNode(
+  code: string,
+  node: Node,
+  codeResolver?: DiagnosticCodeResolver,
+): Directive | undefined {
   let current: Node | undefined = node;
   do {
     if (current.directives) {
-      const directive = findDirectiveSuppressingCode(code, current.directives);
+      const directive = findDirectiveSuppressingCode(code, current.directives, codeResolver);
       if (directive) {
         return directive;
       }
@@ -125,16 +137,19 @@ export function findDirectiveSuppressingOnNode(code: string, node: Node): Direct
  * Returns the directive node that is suppressing this code.
  * @param code Code to check for suppression.
  * @param directives List of directives.
+ * @param codeResolver Optional resolver used to match short (scope-stripped or aliased) codes.
  * @returns Directive suppressing this code if found, `undefined` otherwise
  */
 export function findDirectiveSuppressingCode(
   code: string,
   directives: readonly DirectiveExpressionNode[],
+  codeResolver?: DiagnosticCodeResolver,
 ): Directive | undefined {
+  const resolvedCode = resolveCode(codeResolver, code);
   for (const directiveNode of directives) {
     const directive = parseDirective(directiveNode);
     if (directive?.name === "suppress") {
-      if (directive.code === code) {
+      if (resolveCode(codeResolver, directive.code) === resolvedCode) {
         return directive;
       }
     }
