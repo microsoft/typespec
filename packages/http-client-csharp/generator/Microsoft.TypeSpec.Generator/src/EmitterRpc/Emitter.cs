@@ -181,6 +181,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             BackCompatibilityChangeCategory.ModelFactoryMethodAdded => "Model Factory Method Added For Back-Compat",
             BackCompatibilityChangeCategory.ModelFactoryMethodSkipped => "Model Factory Method Back-Compat Skipped",
             BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded => "Method Back-Compat Overload Added For New Optional Parameter",
+            BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped => "Back-Compat Skipped For ApiCompat Baseline Accepted Removal",
             _ => category.ToString(),
         };
 

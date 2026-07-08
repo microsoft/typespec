@@ -12,12 +12,14 @@ using System.Reflection;
 using System.Text.Json;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal class GeneratorHandler
     {
         private const string NodeModulesDir = "node_modules";
+        private const string SrcDir = "src";
 
         public void LoadGenerator(CommandLineOptions options)
         {
@@ -190,14 +192,50 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static string? BuildPluginIfNeeded(string directory, Emitter emitter)
         {
-            var csprojFiles = Directory.GetFiles(directory, "*.csproj", SearchOption.AllDirectories);
-            if (csprojFiles.Length == 0)
+            var csprojPath = FindPluginProject(directory);
+            if (csprojPath == null)
             {
                 return null;
             }
 
-            return BuildPlugin(csprojFiles[0], directory, emitter);
+            return BuildPlugin(csprojPath, directory, emitter);
         }
+
+        /// <summary>
+        /// Selects the plugin project to build from <paramref name="directory"/>.
+        /// A plugin directory may contain multiple projects. This method prefers a project under
+        /// a 'src' directory to avoid building a test or sample project, and returns a
+        /// deterministic result that is stable across platforms and filesystems.
+        /// </summary>
+        internal static string? FindPluginProject(string directory)
+        {
+            // Fast path: search a top-level 'src' directory first.
+            var srcDirectory = Path.Combine(directory, SrcDir);
+            if (Directory.Exists(srcDirectory))
+            {
+                var srcProject = SelectDeterministic(
+                    Directory.EnumerateFiles(srcDirectory, "*.csproj", SearchOption.AllDirectories));
+                if (srcProject != null)
+                {
+                    return srcProject;
+                }
+            }
+
+            // Fall back to a full recursive search.
+            var allProjects = Directory
+                .EnumerateFiles(directory, "*.csproj", SearchOption.AllDirectories)
+                .ToArray();
+            if (allProjects.Length == 0)
+            {
+                return null;
+            }
+
+            return SelectDeterministic(allProjects.Where(path => ContainsDirectorySegment(path, SrcDir)))
+                ?? SelectDeterministic(allProjects);
+        }
+
+        private static string? SelectDeterministic(IEnumerable<string> paths) =>
+            paths.OrderBy(path => path, StringComparer.Ordinal).FirstOrDefault();
 
         /// <summary>
         /// Builds a plugin .csproj and returns the path to the output DLL by scanning
@@ -221,25 +259,41 @@ namespace Microsoft.TypeSpec.Generator
             };
 
             process.Start();
-            // Read both streams to avoid deadlocks, even though we only use stderr for error reporting.
-            process.StandardOutput.ReadToEnd();
+            // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
+            // errors to standard output rather than standard error, so we include both when
+            // reporting a failure.
+            var stdout = process.StandardOutput.ReadToEnd();
             var stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            if (process.ExitCode != 0)
+            var buildSucceeded = process.ExitCode == 0;
+            if (!buildSucceeded)
             {
-                throw new InvalidOperationException(
-                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
+                // Log a warning instead of an error so that a failed plugin build does not abort
+                // the entire generation. The build may fail when the same plugin is being built
+                // in parallel for multiple referenced projects within a single solution folder,
+                // in which case a previously built assembly may already exist and can still be
+                // reused below.
+                emitter.ReportDiagnostic(
+                    DiagnosticCodes.PluginBuildFailed,
+                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stdout}\n{stderr}",
+                    severity: EmitterDiagnosticSeverity.Warning);
             }
 
             var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
             if (dllPath != null)
             {
-                emitter.Info($"Plugin built: {dllPath}");
+                emitter.Info(buildSucceeded
+                    ? $"Plugin built: {dllPath}"
+                    : $"Using existing plugin artifact (not re-built): {dllPath}");
                 return dllPath;
             }
 
-            emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            if (buildSucceeded)
+            {
+                emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
+            }
+
             return null;
         }
 

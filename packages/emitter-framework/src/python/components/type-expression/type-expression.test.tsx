@@ -158,8 +158,8 @@ describe("handles UnionVariant types", () => {
 
 
       class Color(StrEnum):
-        RED = "red"
-        BLUE = "blue"
+          RED = "red"
+          BLUE = "blue"
 
 
       Literal[Color.RED]
@@ -192,8 +192,8 @@ describe("handles UnionVariant types", () => {
 
 
       class Status(IntEnum):
-        ACTIVE = 1
-        INACTIVE = 0
+          ACTIVE = 1
+          INACTIVE = 0
 
 
       Literal[Status.ACTIVE]
@@ -243,8 +243,8 @@ describe("handles UnionVariant types", () => {
 
 
       class Result(StrEnum):
-        SUCCESS = "success"
-        FAILURE = "failure"
+          SUCCESS = "success"
+          FAILURE = "failure"
 
 
       Literal[Result.SUCCESS]

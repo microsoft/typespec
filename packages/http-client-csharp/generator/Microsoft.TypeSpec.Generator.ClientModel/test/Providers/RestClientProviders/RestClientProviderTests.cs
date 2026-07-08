@@ -636,7 +636,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 foreach (var response in inputOperation.Responses)
                 {
                     if (response.IsErrorResponse)
+                    {
                         continue;
+                    }
+
                     expectedStatusCodes.AddRange(response.StatusCodes);
                 }
 
@@ -736,6 +739,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void TestBuildCreateRequestMethodWithExplodedModelQueryParameter()
+        {
+            var filterModel = InputFactory.Model(
+                "filterOptions",
+                properties:
+                [
+                    InputFactory.Property("field", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
+                ]);
+            var operation = InputFactory.Operation(
+                "sampleOp",
+                parameters: [InputFactory.QueryParameter("filter", filterModel, isRequired: true, explode: true)]);
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateSampleOpRequest");
+            Assert.IsNotNull(method);
+            var body = method!.BodyStatements!.ToDisplayString();
+
+            // A model-typed query parameter with `explode` is expanded into one query entry per
+            // property (RFC 6570 form explode) using each property's wire name, instead of serializing
+            // the whole object via ConvertToString (which produced the type name).
+            Assert.IsTrue(body.Contains("uri.AppendQuery(\"field\", filter.Field, true);"), body);
+            Assert.IsTrue(body.Contains("uri.AppendQuery(\"value\", filter.Value, true);"), body);
+            Assert.IsFalse(body.Contains("AppendQuery(\"filter\""), body);
+            Assert.IsFalse(body.Contains("ConvertToString(filter)"), body);
+        }
+
+        [Test]
         public void TestBuildCreateRequestMethodWithQueryParameters()
         {
             List<string> stringEnum = ["bar"];
@@ -803,6 +838,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "sampleOp",
                 parameters: parameters,
                 uri: "/{someOtherName}/{p2}/{p3}");
+
+            var client = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
+
+            var clientProvider = new ClientProvider(client);
+            var restClientProvider = new MockClientProvider(client, clientProvider);
+
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // An optional trailing path parameter must not emit a dangling separator when null.
+        // e.g. "/certificates/{certificateName}/{certificateVersion}" with a null version
+        // should produce "/certificates/{name}", not "/certificates/{name}/".
+        [Test]
+        public void TestBuildCreateRequestMethodWithOptionalPathParameter()
+        {
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter("certificateName", InputPrimitiveType.String, isRequired: true),
+                InputFactory.PathParameter("certificateVersion", InputPrimitiveType.String, isRequired: false),
+            ];
+            var operation = InputFactory.Operation(
+                "getCertificate",
+                parameters: parameters,
+                uri: "/certificates/{certificateName}/{certificateVersion}");
 
             var client = InputFactory.Client(
                 "TestClient",

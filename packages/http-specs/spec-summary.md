@@ -369,6 +369,90 @@ Expected response body:
 }
 ```
 
+### Encode_Boolean_Property_falseLower
+
+- Endpoint: `post /encode/boolean/property/false-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "false"
+}
+```
+
+### Encode_Boolean_Property_falseMixed
+
+- Endpoint: `post /encode/boolean/property/false-mixed`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "FaLsE"
+}
+```
+
+### Encode_Boolean_Property_trueLower
+
+- Endpoint: `post /encode/boolean/property/true-lower`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "true"
+}
+```
+
+### Encode_Boolean_Property_trueUpper
+
+- Endpoint: `post /encode/boolean/property/true-upper`
+
+Test operation with request and response model containing a property of boolean type with string encode.
+Expected request body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "TRUE"
+}
+```
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
@@ -4240,6 +4324,17 @@ Expected path: /routes/query/query-continuation/standard/record?fixed=true&param
 Test query expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/explode/array?param=a&param=b
+
+### Routes_QueryParameters_QueryExpansion_Explode_model
+
+- Endpoint: `get /routes/query/query-expansion/explode/model{?param*}`
+
+Test query expansion with explode: true when passed a named model value.
+Per RFC 6570 form explode, each property of the model is expanded into its own
+query parameter using the property name as the key (the parameter name itself
+is not emitted).
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/explode/model?field=status&value=active
 
 ### Routes_QueryParameters_QueryExpansion_Explode_primitive
 
