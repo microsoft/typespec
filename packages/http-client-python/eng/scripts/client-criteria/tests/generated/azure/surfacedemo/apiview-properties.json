@@ -1,0 +1,14 @@
+{
+    "CrossLanguagePackageId": "SurfaceDemo",
+    "CrossLanguageDefinitionId": {
+        "surfacedemo.models.Animal": "SurfaceDemo.Animal",
+        "surfacedemo.models.Pet": "SurfaceDemo.Pet",
+        "surfacedemo.models.Dog": "SurfaceDemo.Dog",
+        "surfacedemo.models.ClientExtensibleEnum": "SurfaceDemo.ServerExtensibleEnum",
+        "surfacedemo.SurfaceDemoClient.get_kind": "SurfaceDemo.getKind",
+        "surfacedemo.aio.SurfaceDemoClient.get_kind": "SurfaceDemo.getKind",
+        "surfacedemo.SurfaceDemoClient.get_dog": "SurfaceDemo.getDog",
+        "surfacedemo.aio.SurfaceDemoClient.get_dog": "SurfaceDemo.getDog"
+    },
+    "CrossLanguageVersion": "2a3e66ecd45f"
+}

@@ -7,7 +7,7 @@ _The shared `/check-surface` prompt and `verify.py` read these._
 - **language:** python _(selects which per-language client name applies when a check is language-scoped)_
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
-- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/demo-checks.json`
+- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/surface-checks.json`
 <!-- `node_modules/@typespec/spector/surface-checks.generated.md` *(precomputed)* -->
 
 ### What differs by flavor (branded = azure, unbranded)
@@ -63,14 +63,10 @@ verifiers so the deterministic runner can decide **without calling AI** — see
   matching class. Deterministic: assert the method is present on the
   **expected** client/group and absent from the one it moved from.
 
-### hierarchy (`@hierarchyBuilding`) — _AI by default, promotable_
+### hierarchy (`@hierarchyBuilding`)
 
 - a client subtype is expressed as the base in `class <Sub>(<Base>, …)` in
   `models/_models.py`; inherited members are attributes present on the subclass.
-- **Not** in `verifiers.json` by default, so the orchestrator verifies it with
-  AI. Add the `hierarchy` entry (see `verifiers.promoted.json`) to run it
-  deterministically via `class_base_subtype` instead — the spec assertion is
-  unchanged either way.
 
 > When an assertion has no concrete verifier here (and none in verifiers.json),
 > `/check-surface` may fall back to judgment — but add a verifier when

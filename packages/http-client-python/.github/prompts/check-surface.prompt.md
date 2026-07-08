@@ -16,8 +16,10 @@ Read:
 
 - `packages/${input:emitter}/eng/scripts/client-criteria/context.md` — Emitter
   facts (language, generated-root, flavors, checks-doc path) and concept prose.
-- The **checks doc** (spec-summary style) and its machine twin `*.json` next to
-  it — the batch runner reads the JSON, you read the markdown for the AI items.
+- The **checks doc** — the `checks-doc` JSON named in `context.md` (default
+  `surface-checks.json`): the batch runner reads it for deterministic checks and
+  you read its items' `doc` prose for the AI ones. Use this path unless the caller
+  explicitly overrides it.
 - `packages/${input:emitter}/eng/scripts/client-criteria/verifiers.json` — the
   routing table: a category listed here is deterministic; one not listed is AI.
 
@@ -34,7 +36,7 @@ prints `{"results": [...], "needs_ai": [...]}`:
 
 ```
 python packages/${input:emitter}/eng/scripts/client-criteria/verify.py --batch \
-  --checks packages/${input:emitter}/eng/scripts/client-criteria/<checks>.json \
+  --checks packages/${input:emitter}/eng/scripts/client-criteria/<checks-doc from context.md> \
   --verifiers packages/${input:emitter}/eng/scripts/client-criteria/verifiers.json \
   --generated-root <generated-root from context.md> \
   --flavor ${input:flavor} --language <language from context.md> --workers 16

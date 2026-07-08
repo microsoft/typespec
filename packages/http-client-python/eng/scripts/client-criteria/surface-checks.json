@@ -1,0 +1,49 @@
+{
+  "version": "0.31.0",
+  "commit": "0a3cf8a90330148cb197ea485f0f2c19cca5ae18",
+  "items": [
+    {
+      "id": "SurfaceDemo_Dog_hierarchy",
+      "scenario": "SurfaceDemo",
+      "category": "hierarchy",
+      "target": "Dog",
+      "doc": "Dog is surfaced as a subtype of Pet, not a direct subtype of Animal.",
+      "location": {
+        "path": "main.tsp",
+        "start": {
+          "line": 30,
+          "character": 0
+        },
+        "end": {
+          "line": 35,
+          "character": 1
+        }
+      },
+      "details": {
+        "base": "Pet"
+      }
+    },
+    {
+      "id": "SurfaceDemo_ServerExtensibleEnum_naming",
+      "scenario": "SurfaceDemo",
+      "category": "naming",
+      "target": "ServerExtensibleEnum",
+      "doc": "Enum is surfaced to clients as `ClientExtensibleEnum`.",
+      "location": {
+        "path": "main.tsp",
+        "start": {
+          "line": 17,
+          "character": 0
+        },
+        "end": {
+          "line": 22,
+          "character": 1
+        }
+      },
+      "details": {
+        "name": "ClientExtensibleEnum",
+        "kind": "enum"
+      }
+    }
+  ]
+}
