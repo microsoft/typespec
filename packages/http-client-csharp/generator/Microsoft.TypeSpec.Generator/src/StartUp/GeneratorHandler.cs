@@ -236,15 +236,16 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// Builds the path to a package's directory under 'node_modules'.
-        /// Scoped package names (e.g. '@scope/name') contain a forward slash that must be
-        /// split into separate path segments. Otherwise the forward slash is preserved verbatim
-        /// on Windows, which produces a path with mixed separators that fails once the path is
-        /// long enough for the runtime to apply the '\\?\' extended-length prefix.
+        /// Scoped package names (e.g. '@scope/name') use a forward slash that must be split into
+        /// separate path segments and recombined with the platform separator. Otherwise the forward
+        /// slash is preserved verbatim on Windows, producing a mixed-separator path that fails once
+        /// the path is long enough for the runtime to apply the '\\?\' extended-length prefix, which
+        /// requires canonical backslash separators.
         /// </summary>
         internal static string GetPackageDirectory(string rootDirectory, string package)
         {
             var segments = new List<string> { rootDirectory, NodeModulesDir };
-            segments.AddRange(package.Split('/'));
+            segments.AddRange(package.Split('/', '\\'));
             return Path.Combine(segments.ToArray());
         }
 

@@ -469,11 +469,12 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
             var root = Path.Combine("root", "project");
             var result = GeneratorHandler.GetPackageDirectory(root, "@azure-typespec/http-client-csharp-mgmt");
 
-            var expected = Path.Combine(root, "node_modules", "@azure-typespec", "http-client-csharp-mgmt");
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}@azure-typespec{sep}http-client-csharp-mgmt";
             Assert.AreEqual(expected, result);
             // The scoped package separator must be normalized to the platform separator so that
             // long paths don't fail when the runtime applies the extended-length path prefix.
-            Assert.IsFalse(result.Contains('/') && Path.DirectorySeparatorChar != '/');
+            Assert.IsFalse(result.Contains('/') && sep != '/');
         }
 
         [Test]
@@ -482,7 +483,8 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
             var root = Path.Combine("root", "project");
             var result = GeneratorHandler.GetPackageDirectory(root, "some-package");
 
-            var expected = Path.Combine(root, "node_modules", "some-package");
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}some-package";
             Assert.AreEqual(expected, result);
         }
 
