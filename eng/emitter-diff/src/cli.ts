@@ -1,4 +1,4 @@
-#!/usr/bin/env -S npx tsx
+#!/usr/bin/env -S node
 /**
  * emitter-diff — language-agnostic generated-code diff runner.
  *
@@ -18,9 +18,9 @@ import {
   detectBaselineIdentity,
   saveBaselineOutput,
   tryReuseBaselineOutput,
-} from "./baseline-cache.js";
-import { diffDirs, printSummary, writeHtml } from "./diff.js";
-import { getEmitterDefaults, listEmitters } from "./registry.js";
+} from "./baseline-cache.ts";
+import { diffDirs, printSummary, writeHtml, writeMarkdown } from "./diff.ts";
+import { getEmitterDefaults, listEmitters } from "./registry.ts";
 import {
   classifyRef,
   defaultWorkDir,
@@ -28,9 +28,9 @@ import {
   getRemoteRepo,
   materializeTree,
   resolveGithubIdentity,
-} from "./resolver.js";
-import type { ClassifiedRef, EmitterConfig, Logger } from "./types.js";
-import { color, createLogger, ensureDir, git, gitChecked, runChecked } from "./util.js";
+} from "./resolver.ts";
+import type { ClassifiedRef, EmitterConfig, Logger } from "./types.ts";
+import { color, createLogger, ensureDir, git, gitChecked, runChecked } from "./util.ts";
 
 function shouldUseBaselineCache(ciMode: boolean): { enabled: boolean; reason?: string } {
   if (ciMode) {
@@ -81,6 +81,7 @@ ${color.bold("Options:")}
                           of in parallel (avoids CPU oversubscription / races).
   --ci                    CI mode: disable local baseline cache.
   --html <file>           Write the rendered HTML diff (default: <work>/emitter-diff.html).
+  --md <file>             Write a Markdown diff summary (for $GITHUB_STEP_SUMMARY).
   --fail-on-diff          Exit non-zero when output differs (2 = diff, 1 = error).
   -- <args>               Everything after -- is appended to <command> verbatim
                           on both sides (e.g. a regenerate --name/--filter flag to
@@ -231,6 +232,7 @@ async function main(): Promise<number> {
       sequential: { type: "boolean" },
       ci: { type: "boolean" },
       html: { type: "string" },
+      md: { type: "string" },
       "fail-on-diff": { type: "boolean" },
       help: { type: "boolean", short: "h" },
     },
@@ -437,6 +439,7 @@ async function main(): Promise<number> {
   }
 
   if (htmlTarget) writeHtml(diff, htmlTarget, log);
+  if (values.md) writeMarkdown(diff, values.md, log);
 
   if (values["fail-on-diff"] && diff.hasChanges) {
     log.error("Differences detected and --fail-on-diff is set.");

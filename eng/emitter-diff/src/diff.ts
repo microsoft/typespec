@@ -8,8 +8,8 @@ import { writeFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import type { Logger } from "./types.js";
-import { color, git } from "./util.js";
+import type { Logger } from "./types.ts";
+import { color, git } from "./util.ts";
 
 export interface DiffResult {
   /** The unified patch text (empty when there are no differences). */
@@ -117,6 +117,57 @@ export function writePatch(diff: DiffResult, outFile: string, log: Logger): void
     return;
   }
   log.success(`Wrote unified diff to ${outFile}`);
+}
+
+/**
+ * Render the unified patch as GitHub-flavored Markdown: a summary line plus one
+ * collapsible `<details>` per file wrapping a fenced ```diff block. Written to a
+ * file the workflow appends to `$GITHUB_STEP_SUMMARY`, so the diff renders
+ * inline (and clickable) on the Actions run page — no zip download required.
+ *
+ * Job summaries are capped at ~1 MiB per step, so the body is truncated past
+ * `maxBytes`; the full report remains available as the HTML artifact.
+ */
+export function writeMarkdown(
+  diff: DiffResult,
+  outFile: string,
+  log: Logger,
+  maxBytes = 900_000,
+): void {
+  const header = `### Emitter diff\n\n`;
+  if (!diff.hasChanges) {
+    writeFileSync(outFile, `${header}No differences between baseline and head output.\n`, "utf8");
+    log.success(`No differences; wrote empty Markdown summary to ${resolve(outFile)}`);
+    return;
+  }
+
+  const summary = `**${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}**\n\n`;
+  let body = "";
+  let truncated = false;
+  for (const f of splitFiles(diff.patch)) {
+    const block =
+      `<details><summary><code>${mdEsc(f.name)}</code> ` +
+      `(+${f.insertions} / -${f.deletions})</summary>\n\n` +
+      "```diff\n" +
+      f.lines.join("\n") +
+      "\n```\n\n</details>\n\n";
+    if (Buffer.byteLength(header + summary + body + block, "utf8") > maxBytes) {
+      truncated = true;
+      break;
+    }
+    body += block;
+  }
+
+  const note = truncated
+    ? `> Diff truncated to fit the job summary. See the **emitter-diff-html** artifact for the full report.\n\n`
+    : "";
+  writeFileSync(outFile, header + summary + note + body, "utf8");
+  log.success(`Wrote Markdown summary to ${resolve(outFile)}`);
+}
+
+/** Escape text embedded in Markdown inline code / summary. */
+function mdEsc(s: string): string {
+  return s.replace(/`/g, "\\`").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // Self-contained report styling. Kept inline so the HTML renders fully offline

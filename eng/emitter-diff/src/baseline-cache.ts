@@ -3,8 +3,8 @@ import { cpSync, existsSync, readFileSync, renameSync, rmSync, writeFileSync } f
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import type { Logger } from "./types.js";
-import { ensureDir, git } from "./util.js";
+import type { Logger } from "./types.ts";
+import { ensureDir, git } from "./util.ts";
 
 export interface BaselineCacheProfileInput {
   emitter?: string;

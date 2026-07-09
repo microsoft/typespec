@@ -1,28 +1,18 @@
 /**
- * Small shared utilities with zero external dependencies so the tool can run
- * via `node`/`tsx` without a workspace install.
+ * Small shared utilities for the tool. Subprocess execution is delegated to
+ * `execa` and terminal colors to `picocolors` (both already used across the
+ * repo), so this module only wires them to the shapes the rest of the tool
+ * expects.
  */
-import { spawn, type SpawnOptions } from "node:child_process";
 import { mkdirSync } from "node:fs";
 
-import type { Logger } from "./types.js";
+import { execa, type Options } from "execa";
+import pc from "picocolors";
 
-// ---- Minimal ANSI colors (no picocolors dependency) ----
+import type { Logger } from "./types.ts";
 
-const useColor = process.stdout.isTTY && process.env.NO_COLOR === undefined;
-function wrap(open: number, close: number): (s: string) => string {
-  return (s) => (useColor ? `\x1b[${open}m${s}\x1b[${close}m` : s);
-}
-export const color = {
-  bold: wrap(1, 22),
-  dim: wrap(2, 22),
-  red: wrap(31, 39),
-  green: wrap(32, 39),
-  yellow: wrap(33, 39),
-  blue: wrap(34, 39),
-  cyan: wrap(36, 39),
-  gray: wrap(90, 39),
-};
+/** Terminal colors (picocolors auto-detects TTY / NO_COLOR / FORCE_COLOR). */
+export const color = pc;
 
 export function createLogger(): Logger {
   /* eslint-disable no-console */
@@ -56,104 +46,43 @@ export interface RunOptions {
 }
 
 /**
- * Spawn a command and resolve with its captured output. Never rejects on a
- * non-zero exit; inspect {@link RunResult.code}. Set `inherit` to stream
- * output straight to the terminal (used for long generation/test runs). Set
- * `prefix` to stream each output line tagged with that prefix instead — useful
- * when several children run concurrently and their logs would otherwise
- * interleave unintelligibly. `prefix` is ignored when `inherit` is set.
+ * Tee each complete line of a child stream to the parent process (tagged with
+ * `prefix`) while leaving the captured output untouched — useful when several
+ * children run concurrently and their logs would otherwise interleave
+ * unintelligibly. execa splits the stream into lines for us.
  */
-export function run(cmd: string, args: string[], opts: RunOptions = {}): Promise<RunResult> {
-  return new Promise((resolve, reject) => {
-    // Only route through a shell for Windows .cmd shims (npm/pnpm/npx/code).
-    // Native binaries like git/node are spawned directly to avoid the shell
-    // argument-escaping deprecation and quoting pitfalls.
-    const needsShell = process.platform === "win32" && /^(npm|pnpm|npx|code)$/.test(cmd);
-    const spawnOpts: SpawnOptions = {
-      cwd: opts.cwd,
-      env: opts.env ?? process.env,
-      stdio: opts.inherit ? "inherit" : "pipe",
-      shell: needsShell,
-    };
-    // With `shell: true`, passing an args array triggers a Node deprecation
-    // (DEP0190). Build a single quoted command line instead; spawn directly
-    // with the args array when no shell is involved.
-    const child = needsShell
-      ? spawn([cmd, ...args.map(quoteForShell)].join(" "), spawnOpts)
-      : spawn(cmd, args, spawnOpts);
-    let stdout = "";
-    let stderr = "";
-
-    // When a prefix is requested, tee complete lines to our own stdout/stderr
-    // tagged with the prefix while still capturing the raw output for the
-    // returned RunResult. A small line buffer holds partial trailing lines
-    // until the next chunk (or close) completes them.
-    const tee = !opts.inherit && opts.prefix !== undefined ? makeLineTee(opts.prefix) : undefined;
-
-    child.stdout?.on("data", (d) => {
-      const s = d.toString();
-      stdout += s;
-      tee?.stdout(s);
-    });
-    child.stderr?.on("data", (d) => {
-      const s = d.toString();
-      stderr += s;
-      tee?.stderr(s);
-    });
-    child.on("error", reject);
-    child.on("close", (code) => {
-      tee?.flush();
-      resolve({ code: code ?? 0, stdout, stderr });
-    });
-  });
-}
-
-/**
- * Build a pair of line-buffering writers that emit `${prefix}${line}` to the
- * parent process's stdout/stderr as complete lines arrive, plus a `flush` to
- * drain any partial trailing line when the child closes.
- */
-function makeLineTee(prefix: string): {
-  stdout: (s: string) => void;
-  stderr: (s: string) => void;
-  flush: () => void;
-} {
-  function writer(out: NodeJS.WriteStream): { write: (s: string) => void; rest: () => string } {
-    let buf = "";
-    return {
-      write(s: string) {
-        buf += s;
-        let nl: number;
-        while ((nl = buf.indexOf("\n")) >= 0) {
-          out.write(`${prefix}${buf.slice(0, nl)}\n`);
-          buf = buf.slice(nl + 1);
-        }
-      },
-      rest() {
-        const r = buf;
-        buf = "";
-        return r;
-      },
-    };
-  }
-  const o = writer(process.stdout);
-  const e = writer(process.stderr);
-  return {
-    stdout: o.write,
-    stderr: e.write,
-    flush() {
-      const ro = o.rest();
-      if (ro) process.stdout.write(`${prefix}${ro}\n`);
-      const re = e.rest();
-      if (re) process.stderr.write(`${prefix}${re}\n`);
-    },
+function teeLines(prefix: string, out: NodeJS.WriteStream) {
+  return function* (line: unknown): Generator<unknown> {
+    out.write(`${prefix}${String(line)}\n`);
+    yield line;
   };
 }
 
-/** Quote an argument for cmd.exe when running through a shell. */
-function quoteForShell(s: string): string {
-  if (s.length > 0 && /^[A-Za-z0-9_.:\\/=@^-]+$/.test(s)) return s;
-  return `"${s.replace(/"/g, '""')}"`;
+/**
+ * Spawn a command and resolve with its captured output. Never rejects on a
+ * non-zero exit; inspect {@link RunResult.code}. Set `inherit` to stream output
+ * straight to the terminal (used for long generation/test runs). Set `prefix`
+ * to stream each output line tagged with that prefix instead. `prefix` is
+ * ignored when `inherit` is set.
+ */
+export async function run(cmd: string, args: string[], opts: RunOptions = {}): Promise<RunResult> {
+  const base: Options = { cwd: opts.cwd, env: opts.env, reject: false };
+  const options: Options = opts.inherit
+    ? { ...base, stdio: "inherit" }
+    : opts.prefix !== undefined
+      ? {
+          ...base,
+          stdout: teeLines(opts.prefix, process.stdout),
+          stderr: teeLines(opts.prefix, process.stderr),
+        }
+      : base;
+
+  const result = await execa(cmd, args, options);
+  return {
+    code: result.exitCode ?? (result.failed ? 1 : 0),
+    stdout: typeof result.stdout === "string" ? result.stdout : "",
+    stderr: typeof result.stderr === "string" ? result.stderr : "",
+  };
 }
 
 /** Run a command and throw if it exits non-zero. */

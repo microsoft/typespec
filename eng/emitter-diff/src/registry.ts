@@ -7,7 +7,7 @@
  * `--generated-code-path`. New languages add a row here (or pass all
  * three flags directly and skip `--emitter`).
  */
-import type { EmitterConfig } from "./types.js";
+import type { EmitterConfig } from "./types.ts";
 
 // @typespec/http-client-python (microsoft/typespec). `regenerate` writes the
 // in-tree spector output under tests/generated.

@@ -33,19 +33,19 @@ plugin code.
 
 ```bash
 # Using a built-in preset (fills in command + paths):
-npx tsx eng/emitter-diff/src/cli.ts --emitter python --baseline gh:<sha>
+node eng/emitter-diff/src/cli.ts --emitter python --baseline gh:<sha>
 
 # Fully explicit (no preset needed):
-npx tsx eng/emitter-diff/src/cli.ts \
+node eng/emitter-diff/src/cli.ts \
   --command "npm run regenerate" \
   --emitter-path packages/http-client-python \
   --generated-code-path tests/generated \
   --baseline gh:<sha>
 ```
 
-> This tool is a set of plain `.ts` scripts — not an installed package. It runs through `tsx`
-> (a repo dev dependency), matching the rest of `eng/`, so there is nothing to build. Typecheck
-> with `npx tsc -p eng/emitter-diff`.
+> This tool is a set of plain `.ts` scripts — not an installed package. It runs through `node`
+> (which executes TypeScript directly on the versions this repo supports), so there is nothing to
+> build. Typecheck with `npx tsc -p eng/emitter-diff`.
 
 > **Build your checkout first.** `--head` defaults to the current working tree, and the tool runs
 > the regenerate command against it **as-is** — it never installs or builds your checkout (see
@@ -106,6 +106,8 @@ prints a `file://` link to it.
   out across cores) or trips generator races.
 - `--ci`: disable the local baseline-output cache (intended for CI).
 - `--html <file>`: write the rendered HTML report to this path.
+- `--md <file>`: write a Markdown report (collapsible per-file `diff` blocks) to this path. Handy for
+  a CI job summary (`$GITHUB_STEP_SUMMARY`) or a PR comment body.
 - `--fail-on-diff`: exit non-zero when output differs (exit `2` = diff present, `1` = hard error).
 - `-- <args>`: everything after `--` is appended to `--command` verbatim on **both** sides, so the
   diff stays apples-to-apples. Use it to regenerate only a subset of tests by forwarding the
@@ -122,7 +124,7 @@ regenerate command, which owns the filtering. For the **Python** emitter (`regen
 
 ```sh
 # Only the authentication packages, azure flavor
-npx tsx ../../eng/emitter-diff/src/cli.ts --emitter python -- --name authentication --flavor azure
+node ../../eng/emitter-diff/src/cli.ts --emitter python -- --name authentication --flavor azure
 
 # Via the package script (first `--` is npm's, second is emitter-diff's passthrough separator)
 npm run diff-spector-tests -- -- --name type/array
@@ -170,7 +172,10 @@ changes.
 ## Notes & limitations
 
 - `--html` renders a self-contained, GitHub-style HTML report (inline CSS, no external requests).
-  The tool has **zero runtime dependencies** — the diff itself is `git diff --no-index`.
+  `--md` renders a Markdown report (collapsible per-file `diff` blocks) suitable for a CI job
+  summary or PR comment. The diff itself is produced by `git diff --no-index`; the tool leans on
+  only a couple of small repo dev dependencies (`execa`, `picocolors`) for process spawning and
+  terminal coloring.
 - For github refs (including fork repos), the resolver uses a detached, commit-keyed cached git
   worktree under the temp directory, created from an isolated cache repo (not from your active
   checkout). Repeated runs on the same commit reuse it.

@@ -10,8 +10,8 @@ import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 
-import type { ClassifiedRef, Logger } from "./types.js";
-import { ensureDir, git, gitChecked } from "./util.js";
+import type { ClassifiedRef, Logger } from "./types.ts";
+import { ensureDir, git, gitChecked } from "./util.ts";
 
 /**
  * Classify a ref string. Explicit prefixes (`local:`, `github:`, `gh:`) are
