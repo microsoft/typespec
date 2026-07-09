@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator
     {
         private const string NodeModulesDir = "node_modules";
         private const string SrcDir = "src";
+        private const string PluginOutputRootDirName = "typespec-generator-plugins";
 
         public void LoadGenerator(CommandLineOptions options)
         {
@@ -346,7 +347,7 @@ namespace Microsoft.TypeSpec.Generator
         {
             var directory = Path.Combine(
                 Path.GetTempPath(),
-                "typespec-generator-plugins",
+                PluginOutputRootDirName,
                 GetAssemblyName(csprojPath),
                 $"{Environment.ProcessId}-{Guid.NewGuid():N}");
             Directory.CreateDirectory(directory);
