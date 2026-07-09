@@ -462,10 +462,7 @@ export class OpenAPI3SchemaEmitterBase<
         if (additionalProps.xml?.attribute) {
           return additionalProps;
         } else {
-          return {
-            allOf: [schema],
-            ...additionalProps,
-          };
+          return this.combineRefWithConstraints(schema, additionalProps);
         }
       }
     } else {
@@ -481,6 +478,22 @@ export class OpenAPI3SchemaEmitterBase<
 
       return merged;
     }
+  }
+
+  /**
+   * Combine a referenced schema (`$ref`) with additional sibling constraints such as
+   * `description`, `default`, or `readOnly`.
+   *
+   * OpenAPI 3.0 does not allow keywords alongside a `$ref`, so the reference is nested
+   * in an `allOf` and the constraints are emitted as siblings of that `allOf`. Emitters
+   * for spec versions that allow `$ref` siblings (OpenAPI 3.1, following JSON Schema
+   * 2020-12) override this to place the constraints directly next to the `$ref`.
+   */
+  protected combineRefWithConstraints(refSchema: any, constraints: Partial<Schema>): any {
+    return {
+      allOf: [refSchema],
+      ...constraints,
+    };
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
