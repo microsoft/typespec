@@ -19,7 +19,8 @@ using GraphQL;
 
 @schema
 namespace MyService {
-  // Types and operations go here
+// Types and operations go here
+
 }
 ```
 
@@ -28,7 +29,8 @@ You can optionally specify a name for the schema, which will be used in the outp
 ```typespec
 @schema(#{ name: "petstore" })
 namespace PetStore {
-  // ...
+// ...
+
 }
 ```
 
@@ -145,10 +147,10 @@ By default, all GraphQL types are non-nullable. To make a field or return type n
 ```typespec
 model Pet {
   id: string;
-  nickname: string | null;  // Nullable field
+  nickname: string | null; // Nullable field
 }
 
-@query op findPet(id: string): Pet | null;  // Nullable return
+@query op findPet(id: string): Pet | null; // Nullable return
 ```
 
 Generates:
@@ -156,11 +158,11 @@ Generates:
 ```graphql
 type Pet {
   id: String!
-  nickname: String  # No ! means nullable
+  nickname: String # No ! means nullable
 }
 
 type Query {
-  findPet(id: String!): Pet  # Nullable return
+  findPet(id: String!): Pet # Nullable return
 }
 ```
 
@@ -176,7 +178,7 @@ Generates:
 
 ```graphql
 type SearchResult {
-  pets: [Pet]!  # Non-null array, nullable elements
+  pets: [Pet]! # Non-null array, nullable elements
 }
 ```
 
@@ -214,15 +216,15 @@ The `interfaceOnly` option prevents the model from also being emitted as an obje
 
 ## Type Mappings
 
-| TypeSpec Type | GraphQL Type |
-|--------------|--------------|
-| `string` | `String` |
-| `boolean` | `Boolean` |
-| `int32` | `Int` |
-| `float32`, `float64` | `Float` |
-| `GraphQL.ID` | `ID` |
-| `T[]` | `[T!]!` |
-| `T \| null` | `T` (nullable) |
+| TypeSpec Type        | GraphQL Type   |
+| -------------------- | -------------- |
+| `string`             | `String`       |
+| `boolean`            | `Boolean`      |
+| `int32`              | `Int`          |
+| `float32`, `float64` | `Float`        |
+| `GraphQL.ID`         | `ID`           |
+| `T[]`                | `[T!]!`        |
+| `T \| null`          | `T` (nullable) |
 
 ## Example Configuration
 
