@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
@@ -100,7 +99,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     modifiers.HasFlag(MethodSignatureModifiers.Abstract));
 
         private bool HasCustomBaseXmlModelWriteCoreMethod()
-            => GetCustomSerializationBaseType() is { } baseType &&
+            => GetCustomSerializationBaseType() is not null &&
+                _model.BaseType is { } baseType &&
                 HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
 
         private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
@@ -110,31 +110,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            if (GetXmlModelWriteCoreCompatibility(type) is { } isCompatible)
+            var provider = TryGetTypeProvider(type);
+            if (provider is not null && GetXmlModelWriteCoreCompatibility(provider) is { } isCompatible)
             {
                 return isCompatible;
             }
 
-            return type.BaseType is not null && HasCompatibleXmlModelWriteCoreInHierarchy(type.BaseType, visited);
+            var baseType = provider?.BaseType ?? type.BaseType;
+            return baseType is not null && HasCompatibleXmlModelWriteCoreInHierarchy(baseType, visited);
         }
 
-        private bool? GetXmlModelWriteCoreCompatibility(CSharpType type)
+        private bool? GetXmlModelWriteCoreCompatibility(TypeProvider type)
         {
-            if (type.IsFrameworkType)
-            {
-                var method = type.FrameworkType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly)
-                    .FirstOrDefault(method =>
-                        method.Name == XmlModelWriteCoreMethodName &&
-                        method.ReturnType == typeof(void) &&
-                        method.GetParameters() is [{ ParameterType: var writerType }, { ParameterType: var optionsType }] &&
-                        writerType == typeof(XmlWriter) &&
-                        optionsType == typeof(ModelReaderWriterOptions));
+            var sourceMethod = type.Methods.FirstOrDefault(IsXmlModelWriteCoreSignature);
+            return sourceMethod is null ? null : IsXmlModelWriteCoreMethod(sourceMethod);
+        }
 
-                return method is null ? null : false;
+        private static TypeProvider? TryGetTypeProvider(CSharpType type)
+        {
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider))
+            {
+                return provider;
             }
 
-            var sourceMethod = TryGetReferencedType(type)?.Methods.FirstOrDefault(IsXmlModelWriteCoreSignature);
-            return sourceMethod is null ? null : IsXmlModelWriteCoreMethod(sourceMethod);
+            return TryGetReferencedType(type);
         }
 
         private MethodProvider BuildXmlModelWriteCoreMethod()

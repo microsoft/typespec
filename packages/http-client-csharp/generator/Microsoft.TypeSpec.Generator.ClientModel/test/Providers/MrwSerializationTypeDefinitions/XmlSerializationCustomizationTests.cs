@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.ClientModel.Primitives;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -142,18 +139,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
             Assert.IsFalse(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
             StringAssert.DoesNotContain("base.XmlModelWriteCore", xmlWriteCore.BodyStatements!.ToDisplayString());
-        }
-
-        [Test]
-        public void ReflectedInternalXmlModelWriteCoreIsNotOverrideCompatible()
-        {
-            MockHelpers.LoadMockGenerator();
-            var inputModel = InputFactory.Model("mockInputModel", usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml);
-            var serializationProvider = new MrwSerializationTypeDefinition(inputModel, new ModelProvider(inputModel));
-            var method = typeof(MrwSerializationTypeDefinition).GetMethod("GetXmlModelWriteCoreCompatibility", BindingFlags.Instance | BindingFlags.NonPublic);
-
-            Assert.IsNotNull(method);
-            Assert.AreEqual(false, method!.Invoke(serializationProvider, [new CSharpType(typeof(ReflectedInternalXmlBase))]));
         }
 
         [Test]
@@ -455,13 +440,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        private class ReflectedInternalXmlBase
-        {
-            internal virtual void XmlModelWriteCore(XmlWriter writer, ModelReaderWriterOptions options)
-            {
-            }
         }
     }
 }
