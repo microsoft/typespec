@@ -26,9 +26,9 @@ Available ruleSets:
 
 ## Rules
 
-| Name                                                                                                                        | Description                                                                               |
-| --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`@typespec/http/op-reference-container-route`](https://typespec.io/docs/libraries/http/rules/op-reference-container-route) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
+| Name                                                                                                                                  | Description                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`@typespec/http/op-reference-container-route`](https://typespec.io/docs/libraries/http/reference/rules/op-reference-container-route) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
 
 ## Decorators
 

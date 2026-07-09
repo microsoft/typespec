@@ -39,6 +39,9 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
   /** Documentation about the linter rules and ruleset provided in this library. */
   readonly linter?: LinterRefDoc;
 
+  /** Documentation about the diagnostics that this library can report. */
+  readonly diagnostics?: readonly DiagnosticRefDoc[];
+
   /** Documentation for sub-exports (e.g., "./streams", "./testing"). Keyed by export path. */
   readonly subExports?: ReadonlyMap<string, SubExportRefDoc>;
 };
@@ -72,6 +75,16 @@ export type LinterRuleSetRefDoc = ReferencableElement & {
 export type LinterRuleRefDoc = ReferencableElement & {
   readonly kind: "rule";
   readonly rule: LinterRuleDefinition<any, any>;
+  /** Extended documentation as raw markdown, read from a co-located `.md` file. */
+  readonly doc?: string;
+};
+
+export type DiagnosticRefDoc = ReferencableElement & {
+  readonly severity: "warning" | "error";
+  /** One-line summary shown in the diagnostics index. */
+  readonly description?: string;
+  /** Extended documentation as raw markdown. */
+  readonly doc?: string;
 };
 
 export type EmitterOptionRefDoc = {

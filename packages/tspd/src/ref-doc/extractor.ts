@@ -4,6 +4,7 @@ import {
   createDiagnosticCollector,
   Decorator,
   Diagnostic,
+  DiagnosticDefinition,
   DocContent,
   Enum,
   EnumMember,
@@ -40,12 +41,14 @@ import {
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
+import { readFileSync } from "fs";
 import { readFile } from "fs/promises";
 import { pathToFileURL } from "url";
-import { reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import {
   DecoratorRefDoc,
   DeprecationNotice,
+  DiagnosticRefDoc,
   EmitterOptionRefDoc,
   EmitterOptionVariantRefDoc,
   EnumMemberRefDoc,
@@ -125,7 +128,47 @@ export async function extractLibraryRefDocs(
     }
     const linter = entrypoint.$linter;
     if (lib && linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, resolveLinterDefinition(lib.name, linter));
+      const resolved = resolveLinterDefinition(lib.name, linter);
+      refDoc.linter = extractLinterRefDoc(lib.name, resolved, libraryPath);
+      // Only nag about missing docs for libraries that have started documenting their
+      // rules, to avoid noise for libraries that haven't opted in yet.
+      if (refDoc.linter.rules.some((r) => r.doc)) {
+        for (const r of refDoc.linter.rules) {
+          if (!r.doc) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "documentation-missing",
+                messageId: "rule",
+                format: { name: r.id },
+                target: NoTarget,
+              }),
+            );
+          }
+        }
+      }
+    }
+    if (lib?.diagnostics) {
+      refDoc.diagnostics = extractDiagnosticsRefDoc(
+        lib.name,
+        lib.diagnostics as Record<string, DiagnosticDefinition<any>>,
+        libraryPath,
+      );
+      // Only nag about missing docs for libraries that have started documenting their
+      // diagnostics, to avoid noise for libraries that haven't opted in yet.
+      if (refDoc.diagnostics.some((diag) => diag.doc)) {
+        for (const diag of refDoc.diagnostics) {
+          if (!diag.doc) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "documentation-missing",
+                messageId: "diagnostic",
+                format: { name: diag.id },
+                target: NoTarget,
+              }),
+            );
+          }
+        }
+      }
     }
   }
 
@@ -904,11 +947,37 @@ function resolveDescription(description: string | string[] | undefined): string 
   return Array.isArray(description) ? description.join("\n") : description;
 }
 
-function extractLinterRefDoc(libName: string, linter: LinterResolvedDefinition): LinterRefDoc {
+function tryReadDoc(libraryPath: string, relativePath: string): string | undefined {
+  try {
+    return readFileSync(joinPaths(libraryPath, relativePath), "utf-8");
+  } catch {
+    return undefined;
+  }
+}
+
+function extractLinterRefDoc(
+  libName: string,
+  linter: LinterResolvedDefinition,
+  libraryPath: string,
+): LinterRefDoc {
   return {
     ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
-    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),
+    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule, libraryPath)),
   };
+}
+
+function extractDiagnosticsRefDoc(
+  libName: string,
+  diagnostics: Record<string, DiagnosticDefinition<any>>,
+  libraryPath: string,
+): DiagnosticRefDoc[] {
+  return Object.entries(diagnostics).map(([name, def]) => ({
+    id: `${libName}/${name}`,
+    name,
+    severity: def.severity,
+    description: def.description,
+    doc: tryReadDoc(libraryPath, `src/diagnostics/${name}.md`),
+  }));
 }
 
 function extractLinterRuleSetsRefDoc(
@@ -928,6 +997,7 @@ function extractLinterRuleSetsRefDoc(
 function extractLinterRuleRefDoc(
   libName: string,
   rule: LinterRuleDefinition<any, any>,
+  libraryPath: string,
 ): LinterRuleRefDoc {
   const fullName = `${libName}/${rule.name}`;
   return {
@@ -935,5 +1005,6 @@ function extractLinterRuleRefDoc(
     id: fullName,
     name: fullName,
     rule,
+    doc: tryReadDoc(libraryPath, `src/rules/${rule.name}.md`),
   };
 }
