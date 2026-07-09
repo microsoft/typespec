@@ -174,6 +174,12 @@ export const libDef = {
         default: paramMessage`Name "${"name"}" must not begin with "__" (two underscores), which is reserved by GraphQL for introspection.`,
       },
     },
+    "unsupported-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Type "${"type"}" has no GraphQL equivalent. Using String as fallback.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,

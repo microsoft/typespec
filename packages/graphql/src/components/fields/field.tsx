@@ -19,7 +19,7 @@ export function Field(props: FieldProps) {
 
   if (type.kind === "Model" && isArrayModelType(type)) {
     const elemNullable = hasNullableElements(props.property);
-    const typeName = resolveGraphQLTypeName(type.indexer.value);
+    const typeName = resolveGraphQLTypeName(type.indexer.value, program);
 
     if (props.isInput) {
       return (
@@ -52,7 +52,7 @@ export function Field(props: FieldProps) {
     return (
       <gql.InputField
         name={props.property.name}
-        type={resolveGraphQLTypeName(type)}
+        type={resolveGraphQLTypeName(type, program)}
         nonNull={!nullable}
         description={doc}
         deprecated={deprecation?.message}
@@ -63,7 +63,7 @@ export function Field(props: FieldProps) {
   return (
     <gql.Field
       name={props.property.name}
-      type={resolveGraphQLTypeName(type)}
+      type={resolveGraphQLTypeName(type, program)}
       nonNull={!nullable}
       description={doc}
       deprecated={deprecation?.message}

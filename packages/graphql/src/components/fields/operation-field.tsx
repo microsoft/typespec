@@ -19,8 +19,8 @@ export function OperationField(props: OperationFieldProps) {
 
   const isList = returnType.kind === "Model" && isArrayModelType(returnType);
   const typeName = isList
-    ? resolveGraphQLTypeName(returnType.indexer.value)
-    : resolveGraphQLTypeName(returnType);
+    ? resolveGraphQLTypeName(returnType.indexer.value, program)
+    : resolveGraphQLTypeName(returnType, program);
   const elemNullable = isList && hasNullableElements(props.operation);
 
   return (
@@ -38,8 +38,8 @@ export function OperationField(props: OperationFieldProps) {
         const paramIsList = paramType.kind === "Model" && isArrayModelType(paramType);
         const paramElemNullable = paramIsList && hasNullableElements(param);
         const paramTypeName = paramIsList
-          ? resolveGraphQLTypeName(paramType.indexer.value)
-          : resolveGraphQLTypeName(paramType);
+          ? resolveGraphQLTypeName(paramType.indexer.value, program)
+          : resolveGraphQLTypeName(paramType, program);
 
         return (
           <gql.InputValue
