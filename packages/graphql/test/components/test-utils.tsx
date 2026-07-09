@@ -29,7 +29,5 @@ export function renderToSDL(program: Program, children: Children): string {
     { namePolicy: null },
   );
 
-  // Cast needed: alloy uses graphql@17-alpha internally, our package uses graphql@16.
-  // At runtime both are deduped via vitest config; the type mismatch is superficial.
-  return printSchema(schema as any);
+  return printSchema(schema);
 }

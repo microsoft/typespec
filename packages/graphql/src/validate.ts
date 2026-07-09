@@ -86,9 +86,13 @@ function validateModel(program: Program, model: Model) {
 }
 
 /**
- * Validate operation: check parameter names for reserved prefix.
+ * Validate operation: check operation name and parameter names for reserved prefix.
  */
 function validateOperation(program: Program, op: Operation) {
+  // Validate operation name (becomes a GraphQL field name on Query/Mutation/Subscription)
+  validateReservedName(program, op.name, op);
+
+  // Validate parameter names
   for (const param of op.parameters.properties.values()) {
     validateReservedName(program, param.name, param);
   }
