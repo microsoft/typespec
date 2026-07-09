@@ -9,6 +9,8 @@ export default mergeConfig(
       jsx: "preserve",
       sourcemap: "both",
     },
+    // Disable oxc transform to use babel (via alloyPlugin) for JSX
+    oxc: false,
     plugins: [alloyPlugin()],
     resolve: {
       conditions: ["development"],

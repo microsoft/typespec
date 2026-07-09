@@ -40,6 +40,7 @@ catalog:
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
   "@playwright/test": ^1.60.0
+  "@pinterest/alloy-graphql": ^1.1.0
   "@pnpm/workspace.find-packages": ^1000.0.65
   "@scalar/json-magic": ^0.12.15
   "@scalar/openapi-parser": ^0.28.6
@@ -103,6 +104,7 @@ catalog:
   execa: ^9.6.1
   express: ^5.2.1
   fast-xml-parser: ^5.7.0
+  graphql: ^17.0.0-alpha.9
   happy-dom: ^20.9.0
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1

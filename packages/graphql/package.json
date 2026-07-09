@@ -31,10 +31,10 @@
   },
   "dependencies": {
     "@alloy-js/core": "catalog:",
-    "@pinterest/alloy-graphql": "^1.1.0",
     "@alloy-js/typescript": "catalog:",
-    "change-case": "^5.4.4",
-    "graphql": "^16.9.0"
+    "@pinterest/alloy-graphql": "catalog:",
+    "change-case": "catalog:",
+    "graphql": "catalog:"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
@@ -58,17 +58,17 @@
     "@typespec/mutator-framework": "workspace:~"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.23.0",
-    "@alloy-js/rollup-plugin": "^0.1.1",
-    "@types/node": "~22.13.13",
+    "@alloy-js/cli": "catalog:",
+    "@alloy-js/rollup-plugin": "catalog:",
+    "@types/node": "catalog:",
     "@typespec/compiler": "workspace:~",
     "@typespec/emitter-framework": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/mutator-framework": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "rimraf": "~6.0.1",
-    "source-map-support": "~0.5.21",
-    "typescript": "~5.8.2",
-    "vitest": "^3.0.9"
+    "rimraf": "catalog:",
+    "source-map-support": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
