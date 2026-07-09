@@ -658,19 +658,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 && m.IsPartialMethod
                 && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
             Assert.IsNotNull(partialMethod, "HelloAgainAsync protocol method should be generated as partial");
-            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
 
-            // The implementation body uses `await`, so the `async` modifier must be present to
-            // avoid compiler error CS4032.
-            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            // Validate the full generated partial implementation. It must carry the `async`
+            // modifier (the body uses `await`, so omitting it produces compiler error CS4032) and
+            // reference the customer-chosen parameter names.
+            string actual;
+            using (var writer = new CodeWriter())
+            {
+                writer.WriteMethod(partialMethod!);
+                actual = writer.ToString(false);
+            }
 
-            // Custom signature changes should be applied (parameter renamed to "content").
-            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
-            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name);
-            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
-
-            // All parameters in the partial implementation must be required (no default values).
-            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
     }
 }
