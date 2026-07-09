@@ -82,9 +82,14 @@ namespace Microsoft.TypeSpec.Generator
             public bool Equals(ParameterProvider? x, ParameterProvider? y)
             {
                 if (ReferenceEquals(x, y))
+                {
                     return true;
+                }
+
                 if (x is null || y is null)
+                {
                     return false;
+                }
 
                 return x.Type.AreNamesEqual(y.Type)
                     && x.Name.ToVariableName() == y.Name.ToVariableName()

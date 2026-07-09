@@ -43,6 +43,7 @@ words:
   - canonicalizer
   - Cblack
   - Cbrown
+  - clid
   - clsx
   - cobertura
   - codehaus
@@ -199,6 +200,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - oxlint
   - openapiv
   - Packument
   - Perfolizer
@@ -238,6 +240,7 @@ words:
   - reinjected
   - repr
   - respecify
+  - responseasbool
   - rjust
   - rollup
   - rpaas
@@ -250,6 +253,8 @@ words:
   - sdkcore
   - segmentof
   - serde
+  - servicea
+  - serviceb
   - setuppy
   - sfixed
   - shiki
@@ -274,6 +279,7 @@ words:
   - tsconfigs
   - tsdoc
   - TSES
+  - tsgolint
   - tspd
   - tspwebsitepr
   - tsvs
@@ -307,6 +313,7 @@ words:
   - venvtools
   - VITE
   - vitest
+  - vnet
   - VNEXT
   - vsix
   - vsmarketplace

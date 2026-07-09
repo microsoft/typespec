@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "type": "module",
   "main": "dist/index.js",
   "repository": {
@@ -18,8 +18,8 @@
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
     "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "exports": {
     ".": {
@@ -80,6 +80,7 @@
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",
     "@typespec/compiler": "workspace:^",
+    "@types/node": "catalog:",
     "concurrently": "catalog:",
     "pathe": "catalog:",
     "prettier": "catalog:",

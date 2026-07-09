@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://typespec.io",
@@ -63,8 +63,8 @@
     "start": "vite",
     "test": "vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "lib/*.tsp",

@@ -11,6 +11,10 @@ export const compilerFeatures = {
     description:
       "Allows use of function declarations without experimental warnings in project code.",
   },
+  "auto-decorators": {
+    description:
+      "Allows use of auto decorator declarations without experimental warnings in project code.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;

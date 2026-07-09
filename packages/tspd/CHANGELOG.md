@@ -1,5 +1,17 @@
 # Changelog - @typespec/tspd
 
+## 0.75.0
+
+### Features
+
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Improve render of complex emitter options
+- [#10640](https://github.com/microsoft/typespec/pull/10640) Render documentation for sub exports
+
+### Bug Fixes
+
+- [#10880](https://github.com/microsoft/typespec/pull/10880) Render function type signatures with arrow syntax and avoid internal compiler imports.
+
+
 ## 0.74.2
 
 ### Bug Fixes

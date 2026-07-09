@@ -3,6 +3,7 @@ import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import {
@@ -113,6 +114,7 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
+  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -145,6 +147,7 @@ import {
   StringTemplateMiddleNode,
   StringTemplateSpan,
   StringTemplateSpanLiteral,
+  StringTemplateSpanNode,
   StringTemplateSpanValue,
   StringTemplateTailNode,
   StringValue,
@@ -2118,8 +2121,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
     const name = node.id.sv;
 
-    const implementation = symbol.value;
-    if (implementation === undefined) {
+    const isAuto = (node.modifierFlags & ModifierFlags.Auto) !== 0;
+    if (isAuto && !isCompilerFeatureEnabled(program, "auto-decorators", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "auto-decorator-disabled",
+          target: node,
+        }),
+      );
+    }
+    let implementation = symbol.value;
+    if (isAuto) {
+      implementation = createAutoDecoratorImplementation(symbol, node);
+    } else if (implementation === undefined) {
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
     const decoratorType: Decorator = createType({
@@ -2130,6 +2144,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       target: checkFunctionParameter(ctx, node.target, true),
       parameters: node.parameters.map((param) => checkFunctionParameter(ctx, param, true)),
       implementation: implementation ?? (() => {}),
+      declarationKind: isAuto ? "auto" : "extern",
     });
 
     namespace.decoratorDeclarations.set(name, decoratorType);
@@ -4677,31 +4692,42 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): IndeterminateEntity | StringValue | null {
     let hasType = false;
     let hasValue = false;
-    const spanTypeOrValues = node.spans.map(
-      (span) => [span, checkNode(ctx, span.expression)] as const,
-    );
+    const spanTypeOrValues: (readonly [
+      StringTemplateSpanNode,
+      Type | Value | IndeterminateEntity,
+    ])[] = [];
+    for (const span of node.spans) {
+      const typeOrValue = checkNode(ctx, span.expression);
+      // A null span is the value-world equivalent of `errorType`: the expression couldn't
+      // produce a usable value (e.g. an already-reported error, or a function call that can't
+      // be evaluated yet in a template declaration). Like `checkArrayValue`/`checkObjectValue`,
+      // propagate the null up so the whole template resolves to null instead of fabricating a
+      // partial string. It is re-evaluated against the real value when the template is instantiated.
+      if (typeOrValue === null) {
+        return null;
+      }
+      spanTypeOrValues.push([span, typeOrValue]);
+    }
+
     for (const [_, typeOrValue] of spanTypeOrValues) {
-      if (typeOrValue !== null) {
-        if (isValue(typeOrValue)) {
-          hasValue = true;
-        } else if (
-          "kind" in typeOrValue &&
-          (typeOrValue.kind === "TemplateParameter" ||
-            typeOrValue.kind === "TemplateParameterAccess")
-        ) {
-          if (typeOrValue.constraint) {
-            if (typeOrValue.constraint.valueType) {
-              hasValue = true;
-            }
-            if (typeOrValue.constraint.type) {
-              hasType = true;
-            }
-          } else {
+      if (isValue(typeOrValue)) {
+        hasValue = true;
+      } else if (
+        "kind" in typeOrValue &&
+        (typeOrValue.kind === "TemplateParameter" || typeOrValue.kind === "TemplateParameterAccess")
+      ) {
+        if (typeOrValue.constraint) {
+          if (typeOrValue.constraint.valueType) {
+            hasValue = true;
+          }
+          if (typeOrValue.constraint.type) {
             hasType = true;
           }
         } else {
           hasType = true;
         }
+      } else {
+        hasType = true;
       }
     }
 
@@ -4719,12 +4745,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       let str = node.head.value;
       for (const [span, typeOrValue] of spanTypeOrValues) {
         if (
-          typeOrValue !== null &&
-          (!("kind" in typeOrValue) ||
-            (typeOrValue.kind !== "TemplateParameter" &&
-              typeOrValue.kind !== "TemplateParameterAccess"))
+          !("kind" in typeOrValue) ||
+          (typeOrValue.kind !== "TemplateParameter" &&
+            typeOrValue.kind !== "TemplateParameterAccess")
         ) {
-          compilerAssert(typeOrValue !== null && isValue(typeOrValue), "Expected value.");
+          compilerAssert(isValue(typeOrValue), "Expected value.");
           str += stringifyValueForTemplate(typeOrValue);
         }
         str += span.literal.value;
@@ -4737,7 +4762,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
 
       for (const [span, typeOrValue] of spanTypeOrValues) {
-        compilerAssert(typeOrValue !== null && !isValue(typeOrValue), "Expected type.");
+        compilerAssert(!isValue(typeOrValue), "Expected type.");
 
         const type = typeOrValue.entityKind === "Indeterminate" ? typeOrValue.type : typeOrValue;
         const spanValue = createTemplateSpanValue(span.expression, type);
@@ -6907,9 +6932,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    const impl = sym.value ?? symbolLinks.declaredType?.implementation;
     return {
       definition: symbolLinks.declaredType,
-      decorator: sym.value ?? ((...args: any[]) => {}),
+      decorator: impl ?? ((...args: any[]) => {}),
       node: decNode,
       args,
     };

@@ -11,6 +11,11 @@ from azure.core import exceptions
 SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
 RESOURCE_GROUP_NAME = "test-rg"
 
+SIMPLE_ARM_ID = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Network/virtualNetworks/myVnet"
+ARM_ID_WITH_TYPE = SIMPLE_ARM_ID
+ARM_ID_WITH_TYPE_AND_SCOPE = SIMPLE_ARM_ID
+ARM_ID_WITH_ALL_SCOPES = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/virtualMachines/myVm"
+
 
 @pytest.fixture
 def client(credential, authentication_policy):
@@ -87,3 +92,37 @@ def test_error_create_for_user_defined_error(client):
     except exceptions.HttpResponseError as e:
         assert e.status_code == 400
         assert e.error.message == "Username should not contain only numbers."
+
+
+def test_arm_resource_identifiers_get(client):
+    result = client.arm_resource_identifiers.get(
+        resource_group_name=RESOURCE_GROUP_NAME, arm_resource_identifier_resource_name="armId"
+    )
+    assert result.location == "eastus"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.properties.simple_arm_id == SIMPLE_ARM_ID
+    assert result.properties.arm_id_with_type == ARM_ID_WITH_TYPE
+    assert result.properties.arm_id_with_type_and_scope == ARM_ID_WITH_TYPE_AND_SCOPE
+    assert result.properties.arm_id_with_all_scopes == ARM_ID_WITH_ALL_SCOPES
+
+
+def test_arm_resource_identifiers_create_or_replace(client):
+    result = client.arm_resource_identifiers.create_or_replace(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        arm_resource_identifier_resource_name="armId",
+        resource=models.ArmResourceIdentifierResource(
+            location="eastus",
+            properties=models.ArmResourceIdentifierResourceProperties(
+                simple_arm_id=SIMPLE_ARM_ID,
+                arm_id_with_type=ARM_ID_WITH_TYPE,
+                arm_id_with_type_and_scope=ARM_ID_WITH_TYPE_AND_SCOPE,
+                arm_id_with_all_scopes=ARM_ID_WITH_ALL_SCOPES,
+            ),
+        ),
+    )
+    assert result.location == "eastus"
+    assert result.properties.provisioning_state == "Succeeded"
+    assert result.properties.simple_arm_id == SIMPLE_ARM_ID
+    assert result.properties.arm_id_with_type == ARM_ID_WITH_TYPE
+    assert result.properties.arm_id_with_type_and_scope == ARM_ID_WITH_TYPE_AND_SCOPE
+    assert result.properties.arm_id_with_all_scopes == ARM_ID_WITH_ALL_SCOPES

@@ -38,6 +38,18 @@ When generating code, the generator can optionally receive a compiled assembly f
 2. Compares the generated types against the types in the last contract
 3. Automatically generates compatibility methods, properties, or enum members where differences are detected
 
+### ApiCompat Baseline Awareness
+
+Sometimes a breaking change (such as removing a model or a model factory method) is intentional and has already been reviewed and accepted. In the Azure SDK, such accepted breaking changes are recorded in an [ApiCompat](https://github.com/dotnet/sdk/tree/main/src/Compatibility) baseline (suppression) file, conventionally located at `eng/apicompatbaselines/<AssemblyName>.txt`.
+
+Without awareness of these files, the back-compat system would resurrect every member present in the last contract — re-introducing the very API that was intentionally removed (and potentially referencing types that no longer exist). To prevent this, the generator discovers the baseline file by walking up from the project directory and parses its `TypesMustExist` and `MembersMustExist` suppressions. The back-compat code then consults the baseline in two ways:
+
+- **Skipping resurrected members:** before regenerating a compatibility shim for a removed member, it checks whether the removal has been accepted in the baseline (matched by declaring-type full name, member name, and parameter count) and, if so, skips it.
+- **Allowing property type changes:** the back-compat system normally preserves a property's previous (last-contract) type to avoid a breaking change. When that previous type — or a type nested within it (e.g. the element type of a collection) — has itself been intentionally removed and accepted in the baseline, preserving it would reference a now-deleted type. In that case the generator allows the property to take its current (spec) type instead.
+
+> [!NOTE]
+> Baseline awareness is currently wired into the model factory back-compat path (`ModelFactoryProvider`) and the model property type-preservation path (`ModelProvider`). The other back-compat consumers (`ModelProvider` constructors, the enum providers, `ClientProvider`, and `RestClientProvider`) can be made baseline-aware in the same way as a follow-up.
+
 ## Supported Scenarios
 
 ### Model Factory Methods

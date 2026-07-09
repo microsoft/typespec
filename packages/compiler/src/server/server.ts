@@ -11,7 +11,7 @@ import {
   TextDocuments,
   WorkspaceEdit,
   createConnection,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";

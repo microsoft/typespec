@@ -21,9 +21,9 @@ describe("Python TypeDeclaration dispatcher", () => {
 
 
       class Foo(IntEnum):
-        ONE = 1
-        TWO = 2
-        THREE = 3
+          ONE = 1
+          TWO = 2
+          THREE = 3
 
 
     `);
@@ -40,7 +40,7 @@ describe("Python TypeDeclaration dispatcher", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import TypeAlias
+          from typing import TypeAlias
 
 
       my_date: TypeAlias = datetime`);
@@ -56,7 +56,7 @@ describe("Python TypeDeclaration dispatcher", () => {
       from typing import TYPE_CHECKING
 
       if TYPE_CHECKING:
-        from typing import TypeAlias
+          from typing import TypeAlias
 
 
       items: TypeAlias = list[int]`);
