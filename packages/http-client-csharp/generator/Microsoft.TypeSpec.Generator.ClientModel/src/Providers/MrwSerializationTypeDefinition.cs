@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -276,16 +275,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static CSharpType? TryGetMethodReturnType(CSharpType type, string methodName)
         {
-            if (type.IsFrameworkType)
-            {
-                var method = type.FrameworkType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                    .FirstOrDefault(method => method.Name == methodName);
-                return method is null ? null : new CSharpType(method.ReturnType);
-            }
-
-            if (TryGetReferencedType(type) is { } referencedType)
+            if (TryGetTypeProvider(type) is { } referencedType)
             {
                 return referencedType.Methods.FirstOrDefault(method => method.Signature.Name == methodName)?.Signature.ReturnType;
+            }
+
+            return null;
+        }
+
+        private static TypeProvider? TryGetTypeProvider(CSharpType type)
+        {
+            if (TryGetMappedTypeProvider(type) is { } provider)
+            {
+                return provider;
+            }
+
+            return TryGetReferencedType(type);
+        }
+
+        private static TypeProvider? TryGetMappedTypeProvider(CSharpType type)
+        {
+            foreach (var (mappedType, provider) in ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+            {
+                if (mappedType.FullyQualifiedName == type.FullyQualifiedName ||
+                    provider is SystemObjectModelProvider systemProvider &&
+                    systemProvider.SystemType.FullyQualifiedName == type.FullyQualifiedName)
+                {
+                    return provider;
+                }
             }
 
             return null;
@@ -297,7 +314,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                     type.Namespace,
                     type.Name,
-                    declaringTypeName: null,
+                    declaringTypeName: type.DeclaringType?.Name,
                     includeReferencedAssemblies: true);
 
         private static bool IsFrameworkRootType(CSharpType type)
@@ -307,25 +324,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
         {
-            if (!systemType.IsFrameworkType)
+            if (TryGetMappedTypeProvider(systemType) is not { } systemTypeProvider)
             {
                 return false;
             }
 
-            foreach (var @interface in systemType.FrameworkType.GetInterfaces())
-            {
-                if (@interface.IsGenericType)
-                {
-                    var definition = @interface.GetGenericTypeDefinition();
-                    if (definition == typeof(IJsonModel<>) || definition == typeof(IPersistableModel<>))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return systemTypeProvider.Implements.Any(IsModelReaderWriterInterface);
         }
+
+        private static bool IsModelReaderWriterInterface(CSharpType type)
+            => type.Namespace == typeof(IJsonModel<>).Namespace &&
+                (type.Name == nameof(IJsonModel<object>) || type.Name == nameof(IPersistableModel<object>));
 
         protected override ConstructorProvider[] BuildConstructors()
         {

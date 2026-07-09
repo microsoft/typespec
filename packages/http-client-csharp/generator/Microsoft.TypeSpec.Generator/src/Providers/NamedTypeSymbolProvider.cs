@@ -42,6 +42,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
+        protected internal override CSharpType[] BuildImplements()
+            => [.. _namedTypeSymbol.Interfaces.Select(i => i.GetCSharpType())];
+
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
 
         protected override CSharpType? BuildBaseType()

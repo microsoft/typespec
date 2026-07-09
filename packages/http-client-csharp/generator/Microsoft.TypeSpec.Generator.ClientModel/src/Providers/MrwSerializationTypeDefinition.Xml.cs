@@ -126,16 +126,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return sourceMethod is null ? null : IsXmlModelWriteCoreMethod(sourceMethod);
         }
 
-        private static TypeProvider? TryGetTypeProvider(CSharpType type)
-        {
-            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider))
-            {
-                return provider;
-            }
-
-            return TryGetReferencedType(type);
-        }
-
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
             MethodSignatureModifiers modifiers = _isStruct

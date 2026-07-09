@@ -246,7 +246,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             // The base wraps a framework type that declares the generated MRW *Core methods, so a
             // derived model must override them (mirrors deriving from an external MRW-generated type).
             var systemType = new CSharpType(typeof(FakeMrwBase));
-            var systemBase = new SystemObjectModelProvider(systemType, baseInputModel);
+            var systemBase = new FakeMrwSystemObjectModelProvider(systemType, baseInputModel);
 
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [baseInputModel, derivedInputModel],
@@ -352,6 +352,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             string IPersistableModel<FakeMrwBase>.GetFormatFromOptions(ModelReaderWriterOptions options)
                 => "J";
+        }
+
+        private class FakeMrwSystemObjectModelProvider : SystemObjectModelProvider
+        {
+            private readonly CSharpType _type;
+
+            public FakeMrwSystemObjectModelProvider(CSharpType type, InputModelType inputModel) : base(type, inputModel)
+            {
+                _type = type;
+            }
+
+            protected internal override CSharpType[] BuildImplements()
+                => [new CSharpType(typeof(IJsonModel<>), _type)];
         }
 
         private class DelayedBaseModelProvider(InputModelType inputModel) : ModelProvider(inputModel)
