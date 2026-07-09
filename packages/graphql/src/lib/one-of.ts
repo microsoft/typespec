@@ -6,10 +6,7 @@ import type { DecoratorContext, DecoratorFunction, Model } from "@typespec/compi
  * No-op — the decorator's presence on the type's `decorators` array is the
  * signal. No additional state storage is needed.
  */
-export const $oneOf: DecoratorFunction = (
-  _context: DecoratorContext,
-  _target: Model,
-) => {};
+export const $oneOf: DecoratorFunction = (_context: DecoratorContext, _target: Model) => {};
 
 /**
  * Check if a model has been marked as a @oneOf input object.

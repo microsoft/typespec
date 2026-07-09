@@ -4,8 +4,8 @@ import {
   isNullType,
   type Model,
   type Namespace,
-  type Operation,
   navigateTypesInNamespace,
+  type Operation,
   type Program,
   type Union,
 } from "@typespec/compiler";
@@ -108,9 +108,7 @@ function validateUnion(program: Program, unionType: Union) {
 
   // Check for empty union: no variants, or all variants are null.
   // GraphQL unions must have at least one member type.
-  const nonNullVariants = [...unionType.variants.values()].filter(
-    (v) => !isNullType(v.type),
-  );
+  const nonNullVariants = [...unionType.variants.values()].filter((v) => !isNullType(v.type));
 
   if (nonNullVariants.length === 0) {
     reportDiagnostic(program, {

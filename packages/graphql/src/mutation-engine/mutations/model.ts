@@ -10,9 +10,9 @@ import {
   type Value,
 } from "@typespec/compiler";
 import {
-  type MutationOptions,
   SimpleModelMutation,
   type MutationInfo,
+  type MutationOptions,
   type SimpleMutationEngine,
   type SimpleMutationOptions,
   type SimpleMutations,
@@ -21,7 +21,11 @@ import { isInterfaceOnly } from "../../lib/interface.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
 import { composeTemplateName } from "../../lib/template-composition.js";
 import { isRecordType } from "../../lib/type-utils.js";
-import { hasNoVisibleProperties, isPropertyVisible, type VisibilityFilter } from "../../lib/visibility.js";
+import {
+  hasNoVisibleProperties,
+  isPropertyVisible,
+  type VisibilityFilter,
+} from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
 /**
@@ -69,9 +73,8 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     const rawName = isTemplateInstance(this.sourceType)
       ? composeTemplateName(this.sourceType)
       : this.sourceType.name;
-    const visibilityFilter = this.options instanceof GraphQLMutationOptions
-      ? this.options.visibilityFilter
-      : undefined;
+    const visibilityFilter =
+      this.options instanceof GraphQLMutationOptions ? this.options.visibilityFilter : undefined;
     const inputQualifier =
       this.options instanceof GraphQLMutationOptions ? this.options.inputQualifier : undefined;
 
@@ -79,25 +82,27 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
       // Record<T> scalars should NOT get Input suffix - they're opaque map types with
       // no structural difference between input/output. Visibility-filtered scalars
       // (where all properties were removed) keep the Input suffix to distinguish variants.
-      const isPureRecord = isRecordType(this.sourceType) &&
+      const isPureRecord =
+        isRecordType(this.sourceType) &&
         (walkPropertiesInherited(this.sourceType).next().done ?? false);
       const scalarName = applyTypeNamePipeline(rawName, {
         isInput: isInputContext && !isPureRecord,
         isInterface: false,
         inputQualifier: isPureRecord ? undefined : inputQualifier,
       });
-      this.mutationNode.replace(program.checker.createType({
-        kind: "Scalar",
-        name: scalarName,
-        decorators: [],
-        derivedScalars: [],
-        constructors: new Map(),
-      }));
+      this.mutationNode.replace(
+        program.checker.createType({
+          kind: "Scalar",
+          name: scalarName,
+          decorators: [],
+          derivedScalars: [],
+          constructors: new Map(),
+        }),
+      );
       return;
     }
 
-    const needsInterfaceSuffix =
-      isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
+    const needsInterfaceSuffix = isInterfaceContext && !isInterfaceOnly(program, this.sourceType);
 
     this.mutationNode.mutate((model) => {
       model.name = applyTypeNamePipeline(rawName, {
@@ -118,9 +123,8 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
   }
 
   protected override mutateProperties(newOptions: MutationOptions = this.options) {
-    const visibilityFilter = this.options instanceof GraphQLMutationOptions
-      ? this.options.visibilityFilter
-      : undefined;
+    const visibilityFilter =
+      this.options instanceof GraphQLMutationOptions ? this.options.visibilityFilter : undefined;
 
     if (!visibilityFilter) {
       super.mutateProperties(newOptions);
@@ -159,14 +163,21 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     mutated.baseModel = undefined;
   }
 
-  private shouldReplaceWithScalar(program: Program, visibilityFilter: VisibilityFilter | undefined): boolean {
+  private shouldReplaceWithScalar(
+    program: Program,
+    visibilityFilter: VisibilityFilter | undefined,
+  ): boolean {
     if (!this.sourceType.name || isArrayModelType(this.sourceType)) return false;
     return this.willHaveNoFields(program, visibilityFilter);
   }
 
-  private willHaveNoFields(program: Program, visibilityFilter: VisibilityFilter | undefined): boolean {
+  private willHaveNoFields(
+    program: Program,
+    visibilityFilter: VisibilityFilter | undefined,
+  ): boolean {
     // Record<T> with no own/inherited properties → opaque map scalar
-    if (isRecordType(this.sourceType)) return walkPropertiesInherited(this.sourceType).next().done ?? false;
+    if (isRecordType(this.sourceType))
+      return walkPropertiesInherited(this.sourceType).next().done ?? false;
     // Model declared with no properties at all
     if (this.sourceType.properties.size === 0) return true;
     // All properties removed by visibility filtering (e.g., all @visibility(Lifecycle.Read) in input context)
@@ -178,9 +189,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     for (let i = 0; i < model.decorators.length; i++) {
       const dec = model.decorators[i];
       const argContext = decoratorArgContext.get(dec.decorator.name);
-      const options = argContext
-        ? new GraphQLMutationOptions(argContext)
-        : this.options;
+      const options = argContext ? new GraphQLMutationOptions(argContext) : this.options;
 
       let argsChanged = false;
       const newArgs = dec.args.map((arg) => {
@@ -201,6 +210,13 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
   private isMutatableType(value: Type | Value): value is Type {
     if (!isType(value)) return false;
     const kind = value.kind;
-    return kind === "Model" || kind === "Union" || kind === "Scalar" || kind === "Enum" || kind === "Interface" || kind === "Operation";
+    return (
+      kind === "Model" ||
+      kind === "Union" ||
+      kind === "Scalar" ||
+      kind === "Enum" ||
+      kind === "Interface" ||
+      kind === "Operation"
+    );
   }
 }

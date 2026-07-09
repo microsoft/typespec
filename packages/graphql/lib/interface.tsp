@@ -27,7 +27,12 @@ namespace TypeSpec.GraphQL;
  * //        type User implements Node { id: String!; name: String! }
  * ```
  */
-extern dec graphqlInterface(target: Model, options?: valueof {interfaceOnly?: boolean});
+extern dec graphqlInterface(
+  target: Model,
+  options?: valueof {
+    interfaceOnly?: boolean,
+  }
+);
 
 /**
  * Specify the GraphQL interfaces that should be implemented by a model.

@@ -1,11 +1,11 @@
 import type { Model } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
+import { createVisibilityFilters } from "../../src/lib/visibility.js";
 import {
   createGraphQLMutationEngine,
   GraphQLTypeContext,
 } from "../../src/mutation-engine/index.js";
-import { createVisibilityFilters } from "../../src/lib/visibility.js";
 import { Tester } from "../test-host.js";
 
 function createTestEngine(program: Parameters<typeof createGraphQLMutationEngine>[0]) {
@@ -253,10 +253,16 @@ describe("GraphQL Mutation Engine - Visibility Filtering", () => {
       filters = createVisibilityFilters(tester.program);
       const engine = createTestEngine(tester.program);
       const queryMutation = engine.mutateModel(
-        User, GraphQLTypeContext.Input, filters.query, "Query",
+        User,
+        GraphQLTypeContext.Input,
+        filters.query,
+        "Query",
       );
       const mutMutation = engine.mutateModel(
-        User, GraphQLTypeContext.Input, filters.mutation, "Mutation",
+        User,
+        GraphQLTypeContext.Input,
+        filters.mutation,
+        "Mutation",
       );
 
       const queryKeys = [...queryMutation.mutatedType.properties.keys()].sort();

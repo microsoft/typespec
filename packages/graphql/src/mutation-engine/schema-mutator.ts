@@ -11,12 +11,12 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { reportDiagnostic } from "../lib.js";
 import { setInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
 import { getOperationFields } from "../lib/operation-fields.js";
-import { reportDiagnostic } from "../lib.js";
-import { createVisibilityFilters } from "../lib/visibility.js";
 import { isStdScalar } from "../lib/scalar-mappings.js";
+import { createVisibilityFilters } from "../lib/visibility.js";
 import { GraphQLTypeUsage, type TypeUsageResolver } from "../type-usage.js";
 import type { GraphQLMutationEngine } from "./engine.js";
 import type { GraphQLModelMutation } from "./mutations/model.js";
@@ -83,8 +83,20 @@ export function mutateSchema(
         const usedByMutation = usage?.has(GraphQLTypeUsage.InputMutation) ?? false;
 
         if (hasVariance) {
-          const qm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query", "Query");
-          const mm = engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation", "Mutation");
+          const qm = engine.mutateModel(
+            node,
+            GraphQLTypeContext.Input,
+            filters.query,
+            "query",
+            "Query",
+          );
+          const mm = engine.mutateModel(
+            node,
+            GraphQLTypeContext.Input,
+            filters.mutation,
+            "mutation",
+            "Mutation",
+          );
           if (qm.mutatedType.properties.size > 0) {
             setInputType(qm.mutatedType);
             pushMutatedModel(qm);
@@ -103,7 +115,8 @@ export function mutateSchema(
 
             if (usedByQuery && usedByMutation) {
               setInputType(
-                engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query").mutatedType,
+                engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query")
+                  .mutatedType,
               );
             }
           }
@@ -158,7 +171,6 @@ export function mutateSchema(
     },
   });
 
-
   const seen = new Map<string, Type>();
   for (const type of mutatedTypes) {
     if (!("name" in type) || !type.name) continue;
@@ -184,8 +196,8 @@ export function mutateSchema(
   });
 }
 
-function isLibraryScalar(scalar: { namespace?: { name: string; namespace?: { name: string } } }): boolean {
+function isLibraryScalar(scalar: {
+  namespace?: { name: string; namespace?: { name: string } };
+}): boolean {
   return scalar.namespace?.name === "GraphQL" && scalar.namespace?.namespace?.name === "TypeSpec";
 }
-
-

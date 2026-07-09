@@ -49,5 +49,7 @@ export function operationsEqual(
   if (!ignoreNames && op1.name !== op2.name) {
     return false;
   }
-  return typesEqual(op1.returnType, op2.returnType) && modelsEqual(op1.parameters, op2.parameters, true);
+  return (
+    typesEqual(op1.returnType, op2.returnType) && modelsEqual(op1.parameters, op2.parameters, true)
+  );
 }

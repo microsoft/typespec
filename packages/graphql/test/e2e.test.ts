@@ -1,5 +1,5 @@
-import { expect, describe, it } from "vitest";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("e2e: operations", () => {
@@ -441,14 +441,17 @@ describe("e2e: input/output splitting", () => {
   });
 
   it("input-only model does not produce output type", async () => {
-    const result = await emitSingleSchemaWithDiagnostics(`
+    const result = await emitSingleSchemaWithDiagnostics(
+      `
       @schema namespace Test {
         model Book { title: string; }
         model CreatePayload { title: string; year: int32; }
         @query op getBooks(): Book[];
         @mutation op createBook(input: CreatePayload): Book;
       }
-    `, { "omit-unreachable-types": true });
+    `,
+      { "omit-unreachable-types": true },
+    );
     expect(result.graphQLOutput).toMatchInlineSnapshot(`
       "type Book {
         title: String!
@@ -754,9 +757,11 @@ describe("e2e: @operationFields on model used as input warns", () => {
     `);
     expect(result.graphQLOutput).toContain("getUser(id: String!): User!");
     expect(result.graphQLOutput).not.toMatch(/input UserInput[^}]*getUser/s);
-    const warnings = result.diagnostics.filter(d => d.severity === "warning");
+    const warnings = result.diagnostics.filter((d) => d.severity === "warning");
     expect(warnings.length).toBeGreaterThan(0);
-    expect(warnings.some(d => d.code === "@typespec/graphql/operation-fields-ignored-on-input")).toBe(true);
+    expect(
+      warnings.some((d) => d.code === "@typespec/graphql/operation-fields-ignored-on-input"),
+    ).toBe(true);
   });
 });
 

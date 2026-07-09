@@ -8,8 +8,8 @@ import {
 } from "@typespec/mutator-framework";
 import { applyFieldNamePipeline } from "../../lib/naming.js";
 import { setNullable, setNullableElements } from "../../lib/nullable.js";
-import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { getOperationKind } from "../../lib/operation-kind.js";
+import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { createVisibilityFilters } from "../../lib/visibility.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
@@ -34,7 +34,9 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     const visibilityFilter = isQuery ? filters.query : filters.mutation;
     const opKind = isQuery ? "query" : "mutation";
     const inputOptions = new GraphQLMutationOptions(
-      GraphQLTypeContext.Input, visibilityFilter, opKind,
+      GraphQLTypeContext.Input,
+      visibilityFilter,
+      opKind,
     );
     this.parameters = this.engine.mutate(
       this.sourceType.parameters,
@@ -79,7 +81,11 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
 
     // Remove parameters whose type was visibility-filtered to an empty model.
     for (const [name, param] of this.mutatedType.parameters.properties) {
-      if (param.type.kind === "Model" && !isArrayModelType(param.type) && param.type.properties.size === 0) {
+      if (
+        param.type.kind === "Model" &&
+        !isArrayModelType(param.type) &&
+        param.type.properties.size === 0
+      ) {
         this.mutatedType.parameters.properties.delete(name);
       }
     }

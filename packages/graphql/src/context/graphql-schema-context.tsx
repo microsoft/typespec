@@ -12,9 +12,7 @@ export function useGraphQLSchema(): GraphQLSchemaContextValue {
   const context = useContext(GraphQLSchemaContext);
 
   if (!context) {
-    throw new Error(
-      "useGraphQLSchema must be used within GraphQLSchemaContext.Provider.",
-    );
+    throw new Error("useGraphQLSchema must be used within GraphQLSchemaContext.Provider.");
   }
 
   return context;

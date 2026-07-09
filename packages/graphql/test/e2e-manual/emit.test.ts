@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { EmitterTester } from "../test-host.js";
-import { writeFileSync, mkdirSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
+import { describe, expect, it } from "vitest";
+import { EmitterTester } from "../test-host.js";
 
 const outputDir = join(import.meta.dirname, "output");
 mkdirSync(outputDir, { recursive: true });
@@ -25,7 +25,9 @@ async function emitSchema(name: string, code: string) {
   }
 
   // eslint-disable-next-line no-console
-  console.log(`${name}.graphql: ${sdl.split("\n").length} lines | ${errors.length} errors, ${warnings.length} warnings`);
+  console.log(
+    `${name}.graphql: ${sdl.split("\n").length} lines | ${errors.length} errors, ${warnings.length} warnings`,
+  );
   // eslint-disable-next-line no-console
   if (errors.length) console.log("  ERRORS:", errors.map((d) => d.message).join("; "));
   return { sdl, diagnostics, errors, warnings };
@@ -37,7 +39,9 @@ async function emitSchema(name: string, code: string) {
 // =============================================================================
 describe("schema: core content platform", () => {
   it("emits all core patterns", async () => {
-    const { sdl, errors } = await emitSchema("01-core", `
+    const { sdl, errors } = await emitSchema(
+      "01-core",
+      `
       @schema(#{ name: "core" })
       namespace Core {
         scalar DateTime extends utcDateTime;
@@ -178,7 +182,8 @@ describe("schema: core content platform", () => {
           @mutation createBoard(name: string, description?: string): Board;
         }
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain("type Query");
@@ -195,7 +200,9 @@ describe("schema: core content platform", () => {
 // =============================================================================
 describe("schema: generics", () => {
   it("emits instantiated generics including nested", async () => {
-    const { sdl, errors } = await emitSchema("02-generics", `
+    const { sdl, errors } = await emitSchema(
+      "02-generics",
+      `
       @schema(#{ name: "generics" })
       namespace Generics {
         scalar DateTime extends utcDateTime;
@@ -214,7 +221,8 @@ describe("schema: generics", () => {
         @query op getTree(rootId: string): TreeNode<Post>;
         @mutation op batchCreateTags(input: CreateInput<Tag>): Tag[];
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain("PagedResponseOfUser");
@@ -231,7 +239,9 @@ describe("schema: generics", () => {
 // =============================================================================
 describe("schema: visibility", () => {
   it("emits visibility-filtered input/output types", async () => {
-    const { sdl, errors } = await emitSchema("03-visibility", `
+    const { sdl, errors } = await emitSchema(
+      "03-visibility",
+      `
       @schema(#{ name: "visibility" })
       namespace Visibility {
         scalar DateTime extends utcDateTime;
@@ -271,7 +281,8 @@ describe("schema: visibility", () => {
         @query op findProfiles(filter: UserProfile): UserProfile[];
         @mutation op updateProfile(input: UserProfile): UserProfile;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain("type Account");
@@ -290,7 +301,9 @@ describe("schema: visibility", () => {
 // =============================================================================
 describe("schema: record types", () => {
   it("emits Record<T> as custom scalars", async () => {
-    const { sdl, errors } = await emitSchema("04-records", `
+    const { sdl, errors } = await emitSchema(
+      "04-records",
+      `
       @schema(#{ name: "records" })
       namespace Records {
         scalar DateTime extends utcDateTime;
@@ -311,7 +324,8 @@ describe("schema: record types", () => {
         @query op getConfig(): Config;
         @query op getStrictConfig(): StrictConfig;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain("scalar RecordOfString");
@@ -320,7 +334,9 @@ describe("schema: record types", () => {
   });
 
   it("emits a single scalar for Record<T> used in both input and output contexts", async () => {
-    const { sdl, errors } = await emitSchema("04b-records-dedup", `
+    const { sdl, errors } = await emitSchema(
+      "04b-records-dedup",
+      `
       @schema(#{ name: "records-dedup" })
       namespace RecordsDedup {
         model User {
@@ -331,7 +347,8 @@ describe("schema: record types", () => {
         @query op getUser(): User;
         @mutation op createUser(input: User): User;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(errors).toHaveLength(0);
@@ -355,7 +372,9 @@ describe("schema: record types", () => {
 // =============================================================================
 describe("schema: union as input", () => {
   it("emits @oneOf input for union in mutation param", async () => {
-    const { sdl } = await emitSchema("05-union-input", `
+    const { sdl } = await emitSchema(
+      "05-union-input",
+      `
       @schema(#{ name: "union-input" })
       namespace UnionInput {
         model Cat { name: string; indoor: boolean; }
@@ -365,7 +384,8 @@ describe("schema: union as input", () => {
         @query op getPets(): Pet[];
         @mutation op adoptPet(pet: Pet): Cat | Dog;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain("union Pet");
@@ -380,7 +400,9 @@ describe("schema: union as input", () => {
 // =============================================================================
 describe("schema: descriptions and deprecation", () => {
   it("emits doc comments and @deprecated directives", async () => {
-    const { sdl } = await emitSchema("06-descriptions", `
+    const { sdl } = await emitSchema(
+      "06-descriptions",
+      `
       @schema(#{ name: "descriptions" })
       namespace Descriptions {
         enum Priority { Low, Medium, High, Critical }
@@ -400,7 +422,8 @@ describe("schema: descriptions and deprecation", () => {
         /** Get a task by ID */
         @query op getTaskById(/** The unique ID */ id: string): Task | null;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(sdl).toContain('"The task title"');
@@ -416,7 +439,9 @@ describe("schema: descriptions and deprecation", () => {
 // =============================================================================
 describe("schema: @operationFields with visibility", () => {
   it("emits operation fields on output, excludes from input, warns", async () => {
-    const { sdl, errors, warnings } = await emitSchema("07-opfields", `
+    const { sdl, errors, warnings } = await emitSchema(
+      "07-opfields",
+      `
       @schema(#{ name: "opfields" })
       namespace OpFields {
         model Post { id: GraphQL.ID; title: string; }
@@ -435,7 +460,8 @@ describe("schema: @operationFields with visibility", () => {
         @query op searchUsers(filter: User): User[];
         @mutation op createUser(input: User): User;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(errors).toHaveLength(0);
@@ -446,7 +472,9 @@ describe("schema: @operationFields with visibility", () => {
     // No input variant has operation fields
     expect(sdl).not.toMatch(/input[^}]*getUser\(/s);
     // Warning about operation fields ignored on input
-    expect(warnings.some((d) => d.code === "@typespec/graphql/operation-fields-ignored-on-input")).toBe(true);
+    expect(
+      warnings.some((d) => d.code === "@typespec/graphql/operation-fields-ignored-on-input"),
+    ).toBe(true);
   });
 });
 
@@ -456,7 +484,9 @@ describe("schema: @operationFields with visibility", () => {
 // =============================================================================
 describe("schema: remaining patterns", () => {
   it("emits optional+nullable and constrained generic", async () => {
-    const { sdl, errors } = await emitSchema("08-gaps", `
+    const { sdl, errors } = await emitSchema(
+      "08-gaps",
+      `
       @schema(#{ name: "gaps" })
       namespace Gaps {
         model Item { bio?: string | null; count?: int32 | null; }
@@ -464,7 +494,8 @@ describe("schema: remaining patterns", () => {
         @query op getItem(): Item;
         @query op getLabel(): Labeled<"category">;
       }
-    `);
+    `,
+    );
 
     expect(sdl).toBeTruthy();
     expect(errors).toHaveLength(0);
@@ -482,7 +513,9 @@ describe("schema: remaining patterns", () => {
 // =============================================================================
 describe("schema: edge case - nested visibility-filtered empty model", () => {
   it("handles model with property whose type is fully visibility-filtered", async () => {
-    const { sdl, errors } = await emitSchema("09-nested-empty", `
+    const { sdl, errors } = await emitSchema(
+      "09-nested-empty",
+      `
       @schema(#{ name: "nested-empty" })
       namespace NestedEmpty {
         model Inner {
@@ -498,7 +531,8 @@ describe("schema: edge case - nested visibility-filtered empty model", () => {
         @query op getOuter(): Outer;
         @mutation op createOuter(input: Outer): Outer;
       }
-    `);
+    `,
+    );
 
     // This is a known edge case from code review Finding 2.
     // Inner as input has 0 properties after visibility filtering.
@@ -506,7 +540,10 @@ describe("schema: edge case - nested visibility-filtered empty model", () => {
     // eslint-disable-next-line no-console
     console.log("  [Finding 2] SDL:", sdl?.substring(0, 500));
     // eslint-disable-next-line no-console
-    console.log("  [Finding 2] Errors:", errors.map((d) => d.message));
+    console.log(
+      "  [Finding 2] Errors:",
+      errors.map((d) => d.message),
+    );
     // Don't assert pass/fail — just document current behavior
     expect(sdl !== undefined || errors.length > 0).toBe(true);
   });

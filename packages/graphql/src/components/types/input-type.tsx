@@ -1,5 +1,5 @@
-import { type Model, getDoc } from "@typespec/compiler";
 import * as gql from "@pinterest/alloy-graphql";
+import { type Model, getDoc } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { isOneOf } from "../../lib/one-of.js";
 import { Field } from "../fields/index.js";

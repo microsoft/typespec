@@ -1,9 +1,9 @@
 import { type Children } from "@alloy-js/core";
 import * as gql from "@pinterest/alloy-graphql";
 import { renderSchema } from "@pinterest/alloy-graphql";
-import { printSchema } from "graphql";
 import type { Program } from "@typespec/compiler";
 import { TspContext } from "@typespec/emitter-framework";
+import { printSchema } from "graphql";
 import { GraphQLSchemaContext } from "../../src/context/index.js";
 import type { TypeGraph } from "../../src/mutation-engine/type-graph.js";
 

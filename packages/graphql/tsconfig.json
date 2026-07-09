@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../http/tsconfig.json" }
-  ],
+  "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../http/tsconfig.json" }],
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",

@@ -218,9 +218,8 @@ describe("mutateSchema", () => {
       `,
     );
 
-    const sourceComposeArg = (Cat as Model).decorators.find(
-      (d) => d.decorator.name === "$compose",
-    )?.args[0];
+    const sourceComposeArg = (Cat as Model).decorators.find((d) => d.decorator.name === "$compose")
+      ?.args[0];
 
     const ns = tester.program.getGlobalNamespaceType();
     const typeUsage = resolveTypeUsage(tester.program, ns, true);

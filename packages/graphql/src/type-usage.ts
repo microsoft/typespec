@@ -59,7 +59,10 @@ export function resolveTypeUsage(
         if (isPropertyVisible(program, prop, filters.query)) queryVisible.add(prop.name);
         if (isPropertyVisible(program, prop, filters.mutation)) mutationVisible.add(prop.name);
       }
-      if (queryVisible.size !== mutationVisible.size || ![...queryVisible].every(k => mutationVisible.has(k))) {
+      if (
+        queryVisible.size !== mutationVisible.size ||
+        ![...queryVisible].every((k) => mutationVisible.has(k))
+      ) {
         inputOperationVariance.add(type);
       }
     }

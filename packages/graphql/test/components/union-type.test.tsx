@@ -1,5 +1,5 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
 import * as gql from "@pinterest/alloy-graphql";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { UnionType, type GraphQLUnion } from "../../src/components/types/index.js";
 import {

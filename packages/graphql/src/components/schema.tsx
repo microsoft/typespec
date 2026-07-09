@@ -1,19 +1,19 @@
-import { type Model } from "@typespec/compiler";
 import * as gql from "@pinterest/alloy-graphql";
+import { type Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { useGraphQLSchema } from "../context/index.js";
 import { isInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
 import { getOperationFields } from "../lib/operation-fields.js";
 import { getOperationKind } from "../lib/operation-kind.js";
 import { getSpecifiedBy } from "../lib/specified-by.js";
-import { useGraphQLSchema } from "../context/index.js";
+import { OperationField } from "./fields/index.js";
 import { EnumType } from "./types/enum-type.js";
 import { InputType } from "./types/input-type.js";
 import { InterfaceType } from "./types/interface-type.js";
 import { ObjectType } from "./types/object-type.js";
 import { ScalarType } from "./types/scalar-type.js";
 import { UnionType, type GraphQLUnion } from "./types/union-type.js";
-import { OperationField } from "./fields/index.js";
 
 export function Schema() {
   const { typeGraph } = useGraphQLSchema();
@@ -78,5 +78,4 @@ export function Schema() {
     }
     return <ObjectType type={model} />;
   }
-
 }

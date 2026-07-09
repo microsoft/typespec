@@ -19,9 +19,7 @@ type Tagged<BaseType, Tag extends PropertyKey> = BaseType & { [tags]: { [K in Ta
 type Interface = Tagged<Model, "interface">;
 
 const [getInterface, setInterface] = useStateSet<Interface>(GraphQLKeys.interface);
-const [getInterfaceOnly, setInterfaceOnly] = useStateSet<Interface>(
-  GraphQLKeys.interfaceOnly,
-);
+const [getInterfaceOnly, setInterfaceOnly] = useStateSet<Interface>(GraphQLKeys.interfaceOnly);
 const [getComposition, setComposition, _getCompositionMap] = useStateMap<Model, Interface[]>(
   GraphQLKeys.compose,
 );

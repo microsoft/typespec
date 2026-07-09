@@ -1,5 +1,5 @@
-import { type Scalar, getDoc } from "@typespec/compiler";
 import * as gql from "@pinterest/alloy-graphql";
+import { type Scalar, getDoc } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 
 export interface ScalarTypeProps {

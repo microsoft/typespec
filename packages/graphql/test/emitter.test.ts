@@ -1,5 +1,5 @@
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import { expect, describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("emitter", () => {

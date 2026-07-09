@@ -1,5 +1,5 @@
-import { type Enum, getDoc, getDeprecationDetails } from "@typespec/compiler";
 import * as gql from "@pinterest/alloy-graphql";
+import { type Enum, getDeprecationDetails, getDoc } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 
 export interface EnumTypeProps {

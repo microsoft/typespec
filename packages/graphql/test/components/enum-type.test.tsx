@@ -12,9 +12,7 @@ describe("EnumType component", () => {
   });
 
   it("renders a basic enum", async () => {
-    const { Color } = await tester.compile(
-      t.code`enum ${t.enum("Color")} { Red, Green, Blue }`,
-    );
+    const { Color } = await tester.compile(t.code`enum ${t.enum("Color")} { Red, Green, Blue }`);
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateEnum(Color).mutatedType;
@@ -86,9 +84,7 @@ describe("EnumType component", () => {
   });
 
   it("renders enum with mutation-engine-sanitized member names", async () => {
-    const { E } = await tester.compile(
-      t.code`enum ${t.enum("E")} { \`$val1$\`, \`val-2\` }`,
-    );
+    const { E } = await tester.compile(t.code`enum ${t.enum("E")} { \`$val1$\`, \`val-2\` }`);
 
     const engine = createGraphQLMutationEngine(tester.program);
     const mutated = engine.mutateEnum(E).mutatedType;

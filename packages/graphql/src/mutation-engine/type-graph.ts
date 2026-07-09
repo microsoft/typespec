@@ -28,7 +28,12 @@ export interface BuildTypeGraphOptions {
  * reference (through properties, return types, parameters), producing
  * a self-contained graph the renderer can resolve without external lookups.
  */
-export function buildTypeGraph(program: Program, tk: Typekit, types: Type[], options?: BuildTypeGraphOptions): TypeGraph {
+export function buildTypeGraph(
+  program: Program,
+  tk: Typekit,
+  types: Type[],
+  options?: BuildTypeGraphOptions,
+): TypeGraph {
   const globalNamespace = tk.type.clone(program.getGlobalNamespaceType());
   tk.type.finishType(globalNamespace);
 

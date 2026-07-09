@@ -159,8 +159,7 @@ export const libDef = {
     "empty-schema": {
       severity: "warning",
       messages: {
-        default:
-          "GraphQL schema has no operations. At minimum a Query root type is required.",
+        default: "GraphQL schema has no operations. At minimum a Query root type is required.",
       },
     },
     "empty-enum": {
