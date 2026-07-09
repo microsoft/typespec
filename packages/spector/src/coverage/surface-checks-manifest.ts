@@ -1,6 +1,7 @@
 import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
+import prettier from "prettier";
 import type { SurfaceDetails, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
 import { UNSPECIFIED_CATEGORY } from "../lib/decorators.js";
 import { logger } from "../logger.js";
@@ -13,7 +14,7 @@ import {
 } from "../utils/index.js";
 import { getCommit, getPackageJson } from "../utils/misc-utils.js";
 
-/** One language-neutral entry of `surface-checks.json` — what to check, for every emitter. */
+/** One language-neutral entry of the surface-checks doc — what to check, for every emitter. */
 export interface SurfaceCheckItem {
   /** Stable id, e.g. `Widget_naming`. */
   id: string;
@@ -94,6 +95,56 @@ export function createSurfaceChecksManifest(
   }
   items.sort((a, b) => a.id.localeCompare(b.id));
   return { version: version ?? "?", commit, items };
+}
+
+/**
+ * Render a {@link SurfaceChecksManifest} as a single Markdown document that is
+ * both human-readable and machine-readable: the table below is the source of
+ * truth consumed by `verify.py`, and is also easy to read in review. The
+ * `details` column encodes category-specific expectations as `key=value` pairs
+ * separated by `; ` (booleans as `true`/`false`).
+ */
+export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Promise<string> {
+  const lines = [
+    `# Surface checks`,
+    ``,
+    `<!-- version: ${manifest.version} · commit: ${manifest.commit} -->`,
+    ``,
+    `Generated from \`@surfaceDoc\` annotations. This table is both the human summary`,
+    `and the machine-readable checks doc parsed by \`verify.py\`.`,
+    ``,
+    `| id | scenario | category | target | details | doc |`,
+    `| --- | --- | --- | --- | --- | --- |`,
+  ];
+  for (const item of manifest.items) {
+    const cells = [
+      item.id,
+      item.scenario ?? "",
+      item.category,
+      item.target,
+      renderDetails(item.details),
+      escapeCell(item.doc),
+    ];
+    lines.push(`| ${cells.join(" | ")} |`);
+  }
+  return prettier.format(lines.join("\n"), { parser: "markdown" });
+}
+
+/** Encode `details` as `key=value; key=value` for the Markdown table cell. */
+function renderDetails(details: SurfaceDetails | undefined): string {
+  if (!details) {
+    return "";
+  }
+  return escapeCell(
+    Object.entries(details)
+      .map(([k, v]) => `${k}=${v}`)
+      .join("; "),
+  );
+}
+
+/** Escape characters that would break a Markdown table cell. */
+function escapeCell(text: string): string {
+  return text.replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
 
 function uniqueId(used: Map<string, number>, base: string): string {

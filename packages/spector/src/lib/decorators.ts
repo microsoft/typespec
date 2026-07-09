@@ -383,7 +383,7 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
  * surface docs. Analogous to {@link listScenarios}, but for the generated
  * surface instead of the wire. For each annotation it keeps the author's prose
  * and deterministically derives the machine-checkable checks from the element's
- * own client decorators. Feeds the `surface-checks.json` manifest.
+ * own client decorators. Feeds the `surface-checks.md` checks doc.
  */
 export function listSurfaceDocs(program: Program): SurfaceDoc[] {
   const map = program.stateMap(SpectorStateKeys.SurfaceDoc);

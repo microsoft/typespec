@@ -7,8 +7,8 @@ _The shared `/check-surface` prompt and `verify.py` read these._
 - **language:** python _(selects which per-language client name applies when a check is language-scoped)_
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
-- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/surface-checks.json`
-<!-- `node_modules/@typespec/spector/surface-checks.generated.md` *(precomputed)* -->
+- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/surface-checks.md`
+<!-- Markdown table generated from `@surfaceDoc`; both human- and machine-readable (parsed by verify.py). -->
 
 ### What differs by flavor (branded = azure, unbranded)
 

@@ -3,6 +3,7 @@ import { createTester, mockFile } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import {
   createSurfaceChecksManifest,
+  createSurfaceChecksSummary,
   type SurfaceCheckItem,
 } from "../src/coverage/surface-checks-manifest.js";
 import { listSurfaceDocs, type SurfaceCheck } from "../src/lib/decorators.js";
@@ -64,7 +65,7 @@ async function checksOf(code: string): Promise<SurfaceCheck[]> {
   return docs[0].checks;
 }
 
-/** Compile `code` and return the surface-checks.json items keyed by id. */
+/** Compile `code` and return the surface-checks items keyed by id. */
 async function manifestItems(code: string): Promise<Record<string, SurfaceCheckItem>> {
   const { program } = await Tester.compile(code);
   const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
@@ -311,5 +312,38 @@ describe("@surfaceDoc", () => {
     expect(items["Widget_naming"].details).toEqual({ name: "WidgetInternal", kind: "model" });
     expect(items["Widget_access"].doc).toContain("Hidden from the public surface");
     expect(items["Widget_naming"].doc).toContain("Hidden from the public surface");
+  });
+
+  it("renders a single Markdown table that carries every routable field", async () => {
+    const { program } = await Tester.compile(`
+      @Azure.ClientGenerator.Core.access(Azure.ClientGenerator.Core.Access.internal)
+      @Azure.ClientGenerator.Core.clientName("WidgetInternal")
+      @surfaceDoc("Hidden | renamed to WidgetInternal.")
+      model Widget {
+        id: string;
+      }
+    `);
+    const manifest = createSurfaceChecksManifest(
+      ".",
+      "1.0.0",
+      "abc123",
+      listSurfaceDocs(program),
+    );
+    const md = await createSurfaceChecksSummary(manifest);
+
+    // Header comment carries version/commit for provenance.
+    expect(md).toContain("version: 1.0.0");
+    expect(md).toContain("commit: abc123");
+    // Table header with the routable columns (prettier pads cell widths).
+    const header = md.split("\n").find((l) => l.includes("| id"));
+    expect(header).toBeDefined();
+    for (const col of ["id", "scenario", "category", "target", "details", "doc"]) {
+      expect(header).toContain(col);
+    }
+    // details encoded as key=value; booleans as true/false.
+    expect(md).toContain("internal=true");
+    expect(md).toContain("name=WidgetInternal; kind=model");
+    // Pipes inside prose are escaped so they don't break the table.
+    expect(md).toContain("Hidden \\| renamed to WidgetInternal.");
   });
 });

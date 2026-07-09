@@ -16,9 +16,9 @@ Read:
 
 - `packages/${input:emitter}/eng/scripts/client-criteria/context.md` — Emitter
   facts (language, generated-root, flavors, checks-doc path) and concept prose.
-- The **checks doc** — the `checks-doc` JSON named in `context.md` (default
-  `surface-checks.json`): the batch runner reads it for deterministic checks and
-  you read its items' `doc` prose for the AI ones. Use this path unless the caller
+- The **checks doc** — the `checks-doc` Markdown table named in `context.md`
+  (default `surface-checks.md`): the batch runner reads it for deterministic
+  checks and you read its rows' `doc` prose for the AI ones. Use this path unless the caller
   explicitly overrides it.
 - `packages/${input:emitter}/eng/scripts/client-criteria/verifiers.json` — the
   routing table: a category listed here is deterministic; one not listed is AI.

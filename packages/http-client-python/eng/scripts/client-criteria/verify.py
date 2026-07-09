@@ -185,8 +185,61 @@ def check_one(item: dict, sigs: dict, root: Path, flavor: str, language: str) ->
             "evidence": evidence, "how": "deterministic"}
 
 
+def _parse_details(cell: str) -> dict:
+    details = {}
+    cell = cell.strip()
+    if not cell:
+        return details
+    for pair in cell.split(";"):
+        pair = pair.strip()
+        if not pair or "=" not in pair:
+            continue
+        k, v = pair.split("=", 1)
+        k, v = k.strip(), v.strip().replace("\\|", "|")
+        if v == "true":
+            v = True
+        elif v == "false":
+            v = False
+        details[k] = v
+    return details
+
+
+def load_checks(path: str) -> list[dict]:
+    """Load checks from a JSON manifest or a Markdown table (single source of truth)."""
+    text = Path(path).read_text()
+    if not path.endswith(".md"):
+        return json.loads(text)["items"]
+    # Parse the Markdown table: | id | scenario | category | target | details | doc |
+    rows = []
+    header_seen = False
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip("|"))]
+        cells = [c.replace("\\|", "|") for c in cells]
+        if not header_seen:
+            if cells and cells[0] == "id":
+                header_seen = True
+            continue
+        if set("".join(cells)) <= {"-", " "}:  # separator row
+            continue
+        if len(cells) < 6:
+            continue
+        cid, scenario, category, target, details, doc = cells[:6]
+        rows.append({
+            "id": cid,
+            "scenario": scenario or None,
+            "category": category,
+            "target": target,
+            "details": _parse_details(details),
+            "doc": doc,
+        })
+    return rows
+
+
 def run_batch(args) -> None:
-    items = json.loads(Path(args.checks).read_text())["items"]
+    items = load_checks(args.checks)
     sigs = {k: v for k, v in json.loads(Path(args.verifiers).read_text()).items() if not k.startswith("_")}
     root = Path(args.generated_root)
 

@@ -10,5 +10,5 @@
         "surfacedemo.SurfaceDemoClient.get_dog": "SurfaceDemo.getDog",
         "surfacedemo.aio.SurfaceDemoClient.get_dog": "SurfaceDemo.getDog"
     },
-    "CrossLanguageVersion": "2a3e66ecd45f"
+    "CrossLanguageVersion": "4c149a7deb60"
 }

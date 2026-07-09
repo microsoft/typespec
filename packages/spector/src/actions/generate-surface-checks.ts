@@ -1,6 +1,9 @@
 import { writeFile } from "fs/promises";
 import pc from "picocolors";
-import { computeSurfaceChecksManifest } from "../coverage/surface-checks-manifest.js";
+import {
+  computeSurfaceChecksManifest,
+  createSurfaceChecksSummary,
+} from "../coverage/surface-checks-manifest.js";
 import { logger } from "../logger.js";
 
 export interface GenerateSurfaceChecksConfig {
@@ -18,8 +21,9 @@ export async function generateSurfaceChecks({
     process.exit(-1);
   }
 
-  await writeFile(outputFile, `${JSON.stringify(manifest, null, 2)}\n`);
+  const summary = await createSurfaceChecksSummary(manifest);
+  await writeFile(outputFile, summary);
   logger.info(
-    `${pc.green("✓")} Surface checks manifest generated at ${outputFile} (${manifest.items.length} checks).`,
+    `${pc.green("✓")} Surface checks doc generated at ${outputFile} (${manifest.items.length} checks).`,
   );
 }

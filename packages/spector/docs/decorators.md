@@ -65,4 +65,4 @@ op listItems(): ListPage;
 op streamItems(): Item[];
 ```
 
-Run `tsp-spector generate-surface-checks <specsPath>` to precompute a language-neutral `surface-checks.json` manifest from every `@surfaceDoc`, analogous to how `@scenarioDoc` feeds the scenario manifest.
+Run `tsp-spector generate-surface-checks <specsPath>` to precompute a language-neutral `surface-checks.md` checks doc from every `@surfaceDoc` — a single Markdown table that is both human-readable (skimmable in review) and machine-readable (parsed by the verifier), analogous to how `@scenarioDoc` feeds the scenario manifest.
