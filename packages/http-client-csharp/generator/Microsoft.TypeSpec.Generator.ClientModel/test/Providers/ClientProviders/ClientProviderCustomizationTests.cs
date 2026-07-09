@@ -631,5 +631,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 && m.Signature.Parameters.Any(p => p.Type.IsList)).ToList();
             Assert.AreEqual(0, nonPartialDuplicates.Count);
         }
+
+        // Validates that customizing an async protocol method via a partial method declaration
+        // still emits the `async` modifier on the implementation. The customer's partial
+        // declaration cannot carry `async` (it belongs to the implementing declaration), but the
+        // generated body uses `await`, so omitting it produces compiler error CS4032.
+        [Test]
+        public async Task CanCustomizeAsyncMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Find the async protocol method that should now be partial.
+            var partialMethod = clientProvider!.Methods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgainAsync"
+                && m.IsPartialMethod
+                && m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgainAsync protocol method should be generated as partial");
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+
+            // The implementation body uses `await`, so the `async` modifier must be present to
+            // avoid compiler error CS4032.
+            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+
+            // Custom signature changes should be applied (parameter renamed to "content").
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name);
+            Assert.AreEqual("options", partialMethod.Signature.Parameters[1].Name);
+
+            // All parameters in the partial implementation must be required (no default values).
+            Assert.IsTrue(partialMethod.Signature.Parameters.All(p => p.DefaultValue == null));
+        }
     }
 }
