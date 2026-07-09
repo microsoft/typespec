@@ -79,6 +79,7 @@ model Operation {
   unitValue?: Unit.Milligram;
   olympicRecord?: OlympicRecordModel;
   olympicRecordValue?: OlympicRecordModel.Olympic_100_Meters;
+
   // there is 2 level of nullable in this property, one of the type, one in the union
   reasoning_effort?: ReasoningEffort | null;
 }
