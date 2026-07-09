@@ -147,6 +147,28 @@ describe("buildTypeGraph", () => {
     expect(outputFoo.decorators.length).toBeGreaterThan(0);
   });
 
+  it("transitively registers union variant types", async () => {
+    const { TestNs } = await tester.compile(t.code`
+      namespace ${t.namespace("TestNs")} {
+        model Cat { meow: string; }
+        model Dog { bark: string; }
+        union Pet { cat: Cat, dog: Dog }
+      }
+    `);
+
+    const tk = $(tester.program);
+    const pet = TestNs.unions.get("Pet")!;
+
+    // Only pass the union, not the variant types directly
+    const graph = buildTypeGraph(tester.program, tk, [pet]);
+
+    // Union should be registered
+    expect(graph.globalNamespace.unions.has("Pet")).toBe(true);
+    // Variant types should be transitively registered
+    expect(graph.globalNamespace.models.has("Cat")).toBe(true);
+    expect(graph.globalNamespace.models.has("Dog")).toBe(true);
+  });
+
   it("supports chained stages", async () => {
     const { TestNs } = await tester.compile(t.code`
       namespace ${t.namespace("TestNs")} {

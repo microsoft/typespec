@@ -81,6 +81,9 @@ export function buildTypeGraph(
         if (!type.name) return;
         type.namespace = ns;
         ns.unions.set(type.name, type);
+        for (const variant of type.variants.values()) {
+          registerRef(ns, registered, variant.type);
+        }
         break;
       case "Scalar":
         type.namespace = ns;
