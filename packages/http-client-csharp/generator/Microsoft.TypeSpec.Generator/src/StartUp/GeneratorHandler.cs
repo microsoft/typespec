@@ -244,9 +244,12 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static string GetPackageDirectory(string rootDirectory, string package)
         {
-            var segments = new List<string> { rootDirectory, NodeModulesDir };
-            segments.AddRange(package.Split('/', '\\'));
-            return Path.Combine(segments.ToArray());
+            var packageSegments = package.Split('/', '\\');
+            var segments = new string[packageSegments.Length + 2];
+            segments[0] = rootDirectory;
+            segments[1] = NodeModulesDir;
+            packageSegments.CopyTo(segments, 2);
+            return Path.Combine(segments);
         }
 
         private static string? SelectDeterministic(IEnumerable<string> paths) =>
