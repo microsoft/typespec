@@ -183,13 +183,7 @@ function logProgramResult(
 
   if (program.diagnostics.length > 0) {
     log("Diagnostics were reported during compilation:\n");
-    const resolver =
-      "diagnosticCodeResolver" in program ? program.diagnosticCodeResolver : undefined;
-    logDiagnostics(
-      program.diagnostics,
-      host.logSink,
-      resolver ? { mapCode: (code) => resolver.getDisplayCode(code) } : undefined,
-    );
+    logDiagnostics(program.diagnostics, host.logSink);
     logDiagnosticCount(program.diagnostics);
   } else {
     log("\nCompilation completed successfully.");

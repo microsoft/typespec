@@ -36,9 +36,10 @@ export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
   warningCode: string,
   suppressionMessage: string = "",
+  id: string = "suppress",
 ): CodeFix {
   return defineCodeFix({
-    id: "suppress",
+    id,
     label: `Suppress warning: "${warningCode}"`,
     fix: (context) => {
       const location = findSuppressTarget(diagnosticTarget);

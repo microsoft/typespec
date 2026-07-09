@@ -66,6 +66,11 @@ export function createTypeSpecLibrary<
 >(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
 
+  compilerAssert(
+    lib.alias === undefined || !lib.alias.includes("/"),
+    `Library alias cannot contain a '/'. Got "${lib.alias}" for library "${lib.name}".`,
+  );
+
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
 
   function createStateSymbol(name: string): symbol {

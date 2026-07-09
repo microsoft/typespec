@@ -829,6 +829,14 @@ async function createProgram(
     if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
       mutate(diagnostic).codefixes ??= [];
       mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
+      // Also offer a suppress fix using the short (scope-stripped or aliased) code
+      // when the library has an unambiguous short name.
+      const shortCode = diagnosticCodeResolver?.getDisplayCode(diagnostic.code);
+      if (shortCode !== undefined && shortCode !== diagnostic.code) {
+        mutate(diagnostic.codefixes).push(
+          createSuppressCodeFix(diagnostic.target, shortCode, "", "suppress-short"),
+        );
+      }
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

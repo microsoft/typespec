@@ -4,7 +4,7 @@ packages:
   - "@typespec/compiler"
 ---
 
-Add support for short diagnostic and linter rule names. Diagnostic/rule codes can now be referenced by their scope-stripped short name (e.g. `http/no-foo` instead of `@typespec/http/no-foo`) or by a library-declared `alias`, both in `#suppress` directives and in the `linter` section of `tspconfig.yaml`. The full name is always accepted, and diagnostic output now displays the short name by default (falling back to the full name when it is ambiguous).
+Add support for short diagnostic and linter rule names. Diagnostic/rule codes can now be referenced by their scope-stripped short name (e.g. `http/no-foo` instead of `@typespec/http/no-foo`) or by a library-declared `alias`, both in `#suppress` directives and in the `linter` section of `tspconfig.yaml`. The full name is always accepted.
 
 ```tsp
 model Post {

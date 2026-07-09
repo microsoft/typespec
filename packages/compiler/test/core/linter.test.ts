@@ -485,6 +485,16 @@ describe("compiler: linter", () => {
       );
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("offers both the full and short name suppress code fixes", async () => {
+      const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+        libName: "@typespec/test-real",
+        enable: "test-real/no-model-foo",
+      });
+      const labels = diagnostics[0].codefixes?.map((fix) => fix.label);
+      expect(labels).toContain(`Suppress warning: "@typespec/test-real/no-model-foo"`);
+      expect(labels).toContain(`Suppress warning: "test-real/no-model-foo"`);
+    });
   });
 
   describe("async and sync rule together", () => {
