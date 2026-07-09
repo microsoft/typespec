@@ -108,6 +108,11 @@ prints a `file://` link to it.
 - `--html <file>`: write the rendered HTML report to this path.
 - `--md <file>`: write a Markdown report (collapsible per-file `diff` blocks) to this path. Handy for
   a CI job summary (`$GITHUB_STEP_SUMMARY`) or a PR comment body.
+- `--no-group`: render every file separately in the HTML/Markdown reports. By default, files that
+  share the same change — the same added/removed lines, even when the surrounding generated code
+  differs — are merged into a single collapsible group (with the shared diff shown once and every
+  once and every affected file listed), so a repeated change across many generated files is reviewed
+  once instead of N times.
 - `--fail-on-diff`: exit non-zero when output differs (exit `2` = diff present, `1` = hard error).
 - `-- <args>`: everything after `--` is appended to `--command` verbatim on **both** sides, so the
   diff stays apples-to-apples. Use it to regenerate only a subset of tests by forwarding the
@@ -173,9 +178,10 @@ changes.
 
 - `--html` renders a self-contained, GitHub-style HTML report (inline CSS, no external requests).
   `--md` renders a Markdown report (collapsible per-file `diff` blocks) suitable for a CI job
-  summary or PR comment. The diff itself is produced by `git diff --no-index`; the tool leans on
-  only a couple of small repo dev dependencies (`execa`, `picocolors`) for process spawning and
-  terminal coloring.
+  summary or PR comment. Both reports group files that share the same change into one block by
+  default (`--no-group` to disable), so reviewing a repeated diff is a one-time effort. The diff
+  itself is produced by `git diff --no-index`; the tool leans on only a couple of small repo dev
+  dependencies (`execa`, `picocolors`) for process spawning and terminal coloring.
 - For github refs (including fork repos), the resolver uses a detached, commit-keyed cached git
   worktree under the temp directory, created from an isolated cache repo (not from your active
   checkout). Repeated runs on the same commit reuse it.

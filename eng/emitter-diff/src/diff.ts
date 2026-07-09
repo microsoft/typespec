@@ -132,6 +132,7 @@ export function writeMarkdown(
   diff: DiffResult,
   outFile: string,
   log: Logger,
+  group = true,
   maxBytes = 900_000,
 ): void {
   const header = `### Emitter diff\n\n`;
@@ -141,15 +142,27 @@ export function writeMarkdown(
     return;
   }
 
-  const summary = `**${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}**\n\n`;
+  const files = splitFiles(diff.patch);
+  const groups = group ? groupFiles(files) : files.map(fileAsGroup);
+  const grouped = diff.filesChanged - groups.length;
+  const summary =
+    `**${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}**` +
+    (grouped > 0 ? ` — ${groups.length} unique change group(s)` : "") +
+    `\n\n`;
+
   let body = "";
   let truncated = false;
-  for (const f of splitFiles(diff.patch)) {
+  for (const g of groups) {
+    const multi = g.files.length > 1;
+    const summaryLine = multi
+      ? `${g.files.length} files with the same change (+${g.insertions} / -${g.deletions} each)`
+      : `<code>${mdEsc(g.files[0])}</code> (+${g.insertions} / -${g.deletions})`;
+    const fileList = multi ? g.files.map((n) => `- \`${mdEsc(n)}\``).join("\n") + "\n\n" : "";
     const block =
-      `<details><summary><code>${mdEsc(f.name)}</code> ` +
-      `(+${f.insertions} / -${f.deletions})</summary>\n\n` +
+      `<details><summary>${summaryLine}</summary>\n\n` +
+      fileList +
       "```diff\n" +
-      f.lines.join("\n") +
+      g.lines.join("\n") +
       "\n```\n\n</details>\n\n";
     if (Buffer.byteLength(header + summary + body + block, "utf8") > maxBytes) {
       truncated = true;
@@ -167,7 +180,7 @@ export function writeMarkdown(
 
 /** Escape text embedded in Markdown inline code / summary. */
 function mdEsc(s: string): string {
-  return s.replace(/`/g, "\\`").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // Self-contained report styling. Kept inline so the HTML renders fully offline
@@ -181,6 +194,8 @@ body { margin: 0; font-family: system-ui, sans-serif; color: #1f2328; background
 .file-header { padding: 8px 12px; background: #f6f8fa; border-bottom: 1px solid #d0d7de; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; gap: 12px; }
 .file-header .stat .add { color: #1a7f37; }
 .file-header .stat .del { color: #cf222e; }
+.group-files { margin: 0; padding: 8px 12px 8px 28px; background: #fff; border-bottom: 1px solid #d0d7de; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.group-files li { color: #57606a; }
 pre.hunks { margin: 0; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.5; tab-size: 2; }
 pre.hunks span { display: block; padding: 0 12px; white-space: pre; }
 .add { background: #e6ffec; }
@@ -191,6 +206,8 @@ pre.hunks span { display: block; padding: 0 12px; white-space: pre; }
   body { color: #e6edf3; background: #0d1117; }
   .summary, .file-header { background: #161b22; border-color: #30363d; }
   .file { border-color: #30363d; }
+  .group-files { background: #0d1117; border-color: #30363d; }
+  .group-files li { color: #7d8590; }
   .add { background: #12261e; } .del { background: #25171c; } .hunk { background: #121d2f; color: #7d8590; }
 }`;
 
@@ -231,7 +248,67 @@ function splitFiles(patch: string): FileDiff[] {
     if (line.startsWith("+") && !line.startsWith("+++")) cur.insertions++;
     else if (line.startsWith("-") && !line.startsWith("---")) cur.deletions++;
   }
-  return files.filter((f) => f.lines.some((l) => l.startsWith("@@")));
+  return files
+    .filter((f) => f.lines.some((l) => l.startsWith("@@")))
+    .map((f) => {
+      // Drop trailing blank lines (the patch's final newline lands on the last
+      // file) so an otherwise-identical last file still groups and renders clean.
+      while (f.lines.length > 0 && f.lines[f.lines.length - 1] === "") f.lines.pop();
+      return f;
+    });
+}
+
+/** A set of files that share the same change, rendered once as a group. */
+interface FileGroup {
+  /** Names of every file whose change matches this group, in first-seen order. */
+  files: string[];
+  /** Per-file insertions/deletions (identical for every file in the group). */
+  insertions: number;
+  deletions: number;
+  /** The representative diff lines shown for the whole group. */
+  lines: string[];
+}
+
+/**
+ * A signature identifying "the same change" across files: the ordered sequence
+ * of added/removed lines only. Context lines, hunk positions, and blob-hash
+ * `index` lines are ignored, so a repeated edit (e.g. an API-version bump)
+ * groups even when the surrounding generated code — class names, imports —
+ * differs from file to file. This is the common generated-code review case.
+ */
+function diffSignature(f: FileDiff): string {
+  return f.lines
+    .filter(
+      (l) =>
+        (l.startsWith("+") && !l.startsWith("+++")) || (l.startsWith("-") && !l.startsWith("---")),
+    )
+    .join("\n");
+}
+
+/**
+ * Collapse files that share an identical diff into groups so a repeated change
+ * (common in generated code) is reviewed once instead of N times. Order follows
+ * each group's first-seen file.
+ */
+function groupFiles(files: FileDiff[]): FileGroup[] {
+  const groups = new Map<string, FileGroup>();
+  const order: string[] = [];
+  for (const f of files) {
+    const sig = diffSignature(f);
+    let g = groups.get(sig);
+    if (!g) {
+      g = { files: [], insertions: f.insertions, deletions: f.deletions, lines: f.lines };
+      groups.set(sig, g);
+      order.push(sig);
+    }
+    g.files.push(f.name);
+  }
+  return order.map((s) => groups.get(s)!);
+}
+
+/** Wrap a single file as its own one-member group (used when grouping is off). */
+function fileAsGroup(f: FileDiff): FileGroup {
+  return { files: [f.name], insertions: f.insertions, deletions: f.deletions, lines: f.lines };
 }
 
 /** Render one file's diff lines as colored, escaped `<span>` rows. */
@@ -263,7 +340,7 @@ function htmlDoc(summaryHtml: string, bodyHtml = ""): string {
  * colored diff with inline CSS, so the report has zero runtime dependencies and
  * opens offline.
  */
-export function writeHtml(diff: DiffResult, outFile: string, log: Logger): void {
+export function writeHtml(diff: DiffResult, outFile: string, log: Logger, group = true): void {
   // No differences: still write a report so `--html <file>` always produces a
   // file (callers and CI artifact upload can rely on its presence).
   if (!diff.hasChanges) {
@@ -272,14 +349,24 @@ export function writeHtml(diff: DiffResult, outFile: string, log: Logger): void 
     return;
   }
 
-  const body = splitFiles(diff.patch)
-    .map((f) => {
-      const stat = `<span class="add">+${f.insertions}</span> <span class="del">-${f.deletions}</span>`;
-      return `<section class="file"><div class="file-header"><span>${esc(f.name)}</span><span class="stat">${stat}</span></div><pre class="hunks">${renderFileBody(f.lines)}</pre></section>`;
+  const files = splitFiles(diff.patch);
+  const groups = group ? groupFiles(files) : files.map(fileAsGroup);
+  const body = groups
+    .map((g) => {
+      const stat = `<span class="add">+${g.insertions}</span> <span class="del">-${g.deletions}</span>`;
+      const multi = g.files.length > 1;
+      const title = multi ? `${g.files.length} files with the same change` : esc(g.files[0]);
+      const fileList = multi
+        ? `<ul class="group-files">${g.files.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`
+        : "";
+      return `<section class="file"><div class="file-header"><span>${title}</span><span class="stat">${stat}</span></div>${fileList}<pre class="hunks">${renderFileBody(g.lines)}</pre></section>`;
     })
     .join("\n");
 
-  const summary = `${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}`;
+  const grouped = diff.filesChanged - groups.length;
+  const summary =
+    `${diff.filesChanged} file(s), +${diff.insertions} / -${diff.deletions}` +
+    (grouped > 0 ? ` &mdash; ${groups.length} unique change group(s)` : "");
   writeFileSync(outFile, htmlDoc(summary, body), "utf8");
   const abs = resolve(outFile);
   log.success(`Successfully created HTML report.`);

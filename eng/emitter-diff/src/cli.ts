@@ -82,6 +82,10 @@ ${color.bold("Options:")}
   --ci                    CI mode: disable local baseline cache.
   --html <file>           Write the rendered HTML diff (default: <work>/emitter-diff.html).
   --md <file>             Write a Markdown diff summary (for $GITHUB_STEP_SUMMARY).
+  --no-group              Render every file separately in the HTML/Markdown
+                          reports. By default, files that share the same change
+                          (same +/- lines) are merged into one group to cut
+                          review effort.
   --fail-on-diff          Exit non-zero when output differs (2 = diff, 1 = error).
   -- <args>               Everything after -- is appended to <command> verbatim
                           on both sides (e.g. a regenerate --name/--filter flag to
@@ -233,6 +237,7 @@ async function main(): Promise<number> {
       ci: { type: "boolean" },
       html: { type: "string" },
       md: { type: "string" },
+      "no-group": { type: "boolean" },
       "fail-on-diff": { type: "boolean" },
       help: { type: "boolean", short: "h" },
     },
@@ -438,8 +443,9 @@ async function main(): Promise<number> {
     printSummary(diff, log);
   }
 
-  if (htmlTarget) writeHtml(diff, htmlTarget, log);
-  if (values.md) writeMarkdown(diff, values.md, log);
+  const group = !values["no-group"];
+  if (htmlTarget) writeHtml(diff, htmlTarget, log, group);
+  if (values.md) writeMarkdown(diff, values.md, log, group);
 
   if (values["fail-on-diff"] && diff.hasChanges) {
     log.error("Differences detected and --fail-on-diff is set.");
