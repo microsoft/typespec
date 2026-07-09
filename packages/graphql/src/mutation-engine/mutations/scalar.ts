@@ -8,11 +8,7 @@ import {
 } from "@typespec/mutator-framework";
 import { reportDiagnostic } from "../../lib.js";
 import { applyTypeNamePipeline } from "../../lib/naming.js";
-import {
-  getCustomScalarMapping,
-  getScalarMapping,
-  isStdScalar,
-} from "../../lib/scalar-mappings.js";
+import { getScalarMapping, isStdScalar } from "../../lib/scalar-mappings.js";
 import { getSpecifiedBy, setSpecifiedByUrl } from "../../lib/specified-by.js";
 
 /**
@@ -65,14 +61,7 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
         scalar.baseScalar = undefined;
       });
     } else {
-      const customMapping = getCustomScalarMapping(program, this.sourceType);
-      if (customMapping) {
-        // Std library scalar that maps to a custom GraphQL scalar (e.g. int64 → Long)
-        this.mutationNode.mutate((scalar) => {
-          scalar.name = customMapping.graphqlName;
-          scalar.baseScalar = undefined;
-        });
-      } else if (!isStdScalar(tk, this.sourceType)) {
+      if (!isStdScalar(tk, this.sourceType)) {
         // User-defined custom scalar — sanitize name, strip extends.
         // May still have a mapping via extends chain (e.g. scalar MyInt extends int64),
         // which is used for @specifiedBy below but not for renaming.

@@ -131,6 +131,9 @@ export function mutateSchema(
     },
     scalar: (node: Scalar) => {
       if (typeUsage.isUnreachable(node)) return;
+      // Skip std library scalars and library scalars (TypeSpec.GraphQL.*)
+      // Std scalars either map to GraphQL built-ins or are handled via property type references
+      if (isStdScalar(tk, node) || isLibraryScalar(node)) return;
       const mutation = engine.mutateScalar(node);
       mutatedTypes.push(mutation.mutatedType);
     },

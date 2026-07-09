@@ -167,7 +167,7 @@ describe("GraphQL Mutation Engine - Scalars", () => {
     expect(mutation.mutatedType.name).toBe("int32");
   });
 
-  it("still renames mapped non-builtin std scalars like int64", async () => {
+  it("does not rename std scalars like int64 - fallback mapping is applied at print time", async () => {
     const { M } = await tester.compile(t.code`model ${t.model("M")} { big: int64; }`);
 
     const engine = createTestEngine(tester.program);
@@ -175,7 +175,8 @@ describe("GraphQL Mutation Engine - Scalars", () => {
     expect(int64Scalar.kind).toBe("Scalar");
     const mutation = engine.mutateScalar(int64Scalar as any);
 
-    expect(mutation.mutatedType.name).toBe("Long");
+    // Std scalars keep their original name; fallback mapping (int64 → String) is applied in resolveGraphQLTypeName
+    expect(mutation.mutatedType.name).toBe("int64");
   });
 
   it("warns when user-defined scalar collides with GraphQL built-in name", async () => {
