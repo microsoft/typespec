@@ -193,7 +193,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
 
       let argsChanged = false;
       const newArgs = dec.args.map((arg) => {
-        if (this.isMutatableType(arg.value)) {
+        if (this.isMutableType(arg.value)) {
           const mutation = this.engine.mutate(arg.value, options) as { mutatedType: Type };
           argsChanged = true;
           return { ...arg, value: mutation.mutatedType, jsValue: mutation.mutatedType };
@@ -207,7 +207,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     }
   }
 
-  private isMutatableType(value: Type | Value): value is Type {
+  private isMutableType(value: Type | Value): value is Type {
     if (!isType(value)) return false;
     const kind = value.kind;
     return (

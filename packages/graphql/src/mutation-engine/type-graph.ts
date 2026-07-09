@@ -5,9 +5,6 @@ import type { Typekit } from "@typespec/compiler/typekit";
  * A self-contained type world — a namespace containing only the mutated types
  * for a given stage or schema. Enables `navigateTypesInNamespace` to walk
  * the mutated graph, and serves as the inter-stage / inter-emitter contract.
- *
- * @see https://github.com/microsoft/typespec/pull/10693#discussion_r3243305988
- *   Timothee Guerin's exploration of TypeGraph at the compiler level.
  */
 export interface TypeGraph {
   readonly globalNamespace: Namespace;

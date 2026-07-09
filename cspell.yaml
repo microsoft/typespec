@@ -61,6 +61,7 @@ words:
   - debugpy
   - Declipse
   - dedented
+  - dedup
   - Dedupes
   - deps
   - deser
@@ -200,6 +201,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - opfields
   - oxlint
   - openapiv
   - Packument
@@ -364,6 +366,7 @@ ignorePaths:
   - "**/*.plist"
   - .git/**
   - .gitignore
+  - .claude/**
   - .vscode/**
   - .editorconfig
   - .github/CODEOWNERS
