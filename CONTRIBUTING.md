@@ -462,14 +462,6 @@ Process labels
 | `stale`        | #ffffff | Mark a PR that hasn't been recently updated and will be closed.                   |
 | `triaged:core` | #5319e7 |                                                                                   |
 
-#### external-review
-
-Markers indicating that the external owners of an area have been notified on a PR
-
-| Name                              | Color   | Description                                                                     |
-| --------------------------------- | ------- | ------------------------------------------------------------------------------- |
-| `external-review:emitter:graphql` | #ededed | The external owners of the 'emitter:graphql' area have been notified on this PR |
-
 #### misc
 
 Misc labels

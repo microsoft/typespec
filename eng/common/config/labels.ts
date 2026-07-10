@@ -1,7 +1,7 @@
 // cspell:ignore bfff
 import { defineConfig, defineLabels } from "../scripts/labels/config.js";
 import { repo } from "../scripts/utils/common.js";
-import { AreaPaths, ExternalOwners, externalReviewMarkerLabel } from "./area.js";
+import { AreaPaths, ExternalOwners } from "./area.js";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -196,19 +196,6 @@ export const CommonLabels = {
         description: "",
       },
     },
-  },
-  "external-review": {
-    description:
-      "Markers indicating that the external owners of an area have been notified on a PR",
-    labels: Object.fromEntries(
-      Object.keys(ExternalOwners).map((area) => [
-        externalReviewMarkerLabel(area),
-        {
-          color: "ededed",
-          description: `The external owners of the '${area}' area have been notified on this PR`,
-        },
-      ]),
-    ),
   },
 };
 

@@ -47,14 +47,6 @@ export const ExternalOwners: Partial<Record<keyof typeof AreaLabels, string[]>> 
 };
 
 /**
- * Marker label applied once external owners of an area have been notified on a PR,
- * used to avoid re-pinging them on every subsequent push.
- */
-export function externalReviewMarkerLabel(area: string): string {
-  return `external-review:${area}`;
-}
-
-/**
  * Path that should trigger every CI build.
  */
 const all = ["eng/common/", "vitest.config.ts", "tsconfig.base.json"];

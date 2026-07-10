@@ -20,12 +20,10 @@ configuration:
                     - packages/graphql/**/*
               - not:
                   hasLabel:
-                    label: external-review:emitter:graphql
+                    label: emitter:graphql
             then:
               - addReply:
                   reply: "@steverice @swatkatz — this PR modifies files in the `emitter:graphql`
                     area, which your team owns. Please take a look. (You can't
                     be added as a formal reviewer because you're not a
                     repository collaborator, so this is a heads-up instead.)"
-              - addLabel:
-                  label: external-review:emitter:graphql

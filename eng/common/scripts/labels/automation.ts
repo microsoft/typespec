@@ -1,11 +1,9 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { externalReviewMarkerLabel } from "../../config/area.js";
 import { CheckOptions, syncFile } from "../utils/common.js";
 import { expandFolder } from "../utils/find-area-changed.js";
 import {
   PolicyServiceConfig,
-  addLabel,
   addReply,
   and,
   eventResponderTask,
@@ -168,17 +166,17 @@ function createExternalReviewersConfig(config: RepoConfig): PolicyServiceConfig 
             if: [payloadType("Pull_Request")],
             then: entries.map(([area, owners]) => {
               const globs = (config.areaPaths[area] ?? []).map(expandFolder);
-              const marker = externalReviewMarkerLabel(area);
               const mentions = owners.map((owner) => `@${owner}`).join(" ");
-              // Only ping the first time the paths match (guarded by the marker label) so
-              // owners are not re-notified on every subsequent push.
+              // The area label (added by the prs.triage policy when these paths are
+              // modified) persists across events, so it doubles as the "already notified"
+              // guard: owners are pinged the first time the paths match and not on every
+              // subsequent push.
               return {
-                if: [includesModifiedFiles(globs), not(hasLabel(marker))],
+                if: [includesModifiedFiles(globs), not(hasLabel(area))],
                 then: [
                   addReply(
                     `${mentions} — this PR modifies files in the \`${area}\` area, which your team owns. Please take a look. (You can't be added as a formal reviewer because you're not a repository collaborator, so this is a heads-up instead.)`,
                   ),
-                  addLabel(marker),
                 ],
               };
             }),
