@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
+        private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
@@ -44,7 +45,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal override CSharpType[] BuildImplements()
             => [.. _namedTypeSymbol.AllInterfaces.Select(i => i.GetCSharpType())];
 
-        private protected override TypeProvider? BuildBaseTypeProvider()
+        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+
+        private TypeProvider? BuildBaseTypeProvider()
         {
             if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
             {

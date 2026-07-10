@@ -124,7 +124,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. derivedModels];
         }
-        private protected override TypeProvider? BuildBaseTypeProvider()
+        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+        private TypeProvider? _baseTypeProvider;
+
+        private TypeProvider? BuildBaseTypeProvider()
         {
             // First check if there's a generated base model
             if (BaseModelProvider != null)

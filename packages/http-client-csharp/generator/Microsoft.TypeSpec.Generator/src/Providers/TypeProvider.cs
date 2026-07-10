@@ -225,10 +225,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return modifiers;
         }
 
-        public TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
-        private TypeProvider? _baseTypeProvider;
-
-        private protected virtual TypeProvider? BuildBaseTypeProvider() => null;
+        internal virtual TypeProvider? BaseTypeProvider => null;
 
         protected virtual CSharpType? BuildBaseType() => null;
 
@@ -592,7 +589,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _description = null;
             _type = null;
             _arguments = null;
-            _baseTypeProvider = null;
         }
 
         /// <summary>

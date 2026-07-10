@@ -106,31 +106,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool HasCustomBaseXmlModelWriteCoreMethod()
             => GetCustomSerializationBaseType() is not null &&
-                BaseDeclaresCompatibleXmlModelWriteCore();
-
-        private bool BaseDeclaresCompatibleXmlModelWriteCore()
-        {
-            foreach (var provider in EnumerateBaseTypeProviders())
-            {
-                var source = provider.CustomCodeView ?? provider;
-                if (GetXmlModelWriteCoreCompatibility(source) is { } isCompatible)
-                {
-                    return isCompatible;
-                }
-            }
-
-            return _model.BaseType is { } baseType &&
+                _model.BaseType is { } baseType &&
                 HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
-        }
-
-        private IEnumerable<TypeProvider> EnumerateBaseTypeProviders()
-        {
-            var visited = new HashSet<TypeProvider>();
-            for (var provider = _model.BaseTypeProvider; provider is not null && visited.Add(provider); provider = provider.BaseTypeProvider)
-            {
-                yield return provider;
-            }
-        }
 
         private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
         {
