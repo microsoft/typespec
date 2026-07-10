@@ -584,12 +584,22 @@ try {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
             } else {
                 $serviceProj = Join-Path $tempDir "eng/service.proj"
+
+                # Service directories whose libraries share a single code generator plugin that each
+                # library's generation builds into a common output folder. These services are regenerated
+                # serially since they share a common plugin project that shouldn't be built in parallel.
+                $serialCodeGenServiceDirectories = @("ai")
+
                 foreach ($serviceDirectory in $serviceDirectories) {
                     Write-Host "Regenerating code for service directory: $serviceDirectory"
                     $previousErrorAction = $ErrorActionPreference
                     $ErrorActionPreference = "Continue"
                     try {
-                        Invoke "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:ServiceDirectory=$serviceDirectory" $tempDir
+                        $generateCommand = "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:Trace=true /p:ServiceDirectory=$serviceDirectory"
+                        if ($serialCodeGenServiceDirectories -contains $serviceDirectory) {
+                            $generateCommand += " /m:1 /p:BuildInParallel=false"
+                        }
+                        Invoke $generateCommand $tempDir
                         if ($LASTEXITCODE -ne 0) {
                             Write-Warning "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
                             Write-Host "##vso[task.complete result=SucceededWithIssues;]"

@@ -293,6 +293,10 @@ namespace SampleTypeSpec
             {
                 return ReadOnlySpan<byte>.Empty;
             }
+            if (local[1] == '.')
+            {
+                return local.Slice(2);
+            }
             return local.Length >= 4 && local[1] == '[' && (local[2] == '\'' || local[2] == '"') ? local.Slice(3) : ReadOnlySpan<byte>.Empty;
         }
 

@@ -109,7 +109,11 @@ export function isNullableType(type: Type): boolean {
 }
 
 export function getNonNullSdkType(type: SdkType): SdkType {
-  return type.kind === "nullable" ? type.type : type;
+  let nonNullType = type;
+  while (nonNullType.kind === "nullable") {
+    nonNullType = nonNullType.type;
+  }
+  return nonNullType;
 }
 
 export function getDefaultValue(value: Value | undefined): any {
