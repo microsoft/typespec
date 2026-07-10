@@ -275,7 +275,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements.ToArray();
         }
 
-        private string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
+        /// <summary>
+        /// The name of the method that retrieves the next response, e.g. "GetNextResponse" or "GetNextResponseAsync".
+        /// </summary>
+        public string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
 
         protected override MethodProvider[] BuildMethods()
         {

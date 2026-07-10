@@ -81,24 +81,25 @@ function Update-GeneratorPackage {
             Write-Host "  Updated dependencies to local packages" -ForegroundColor Green
         }
 
-        # Step 2: Install dependencies, clean, and build
+        # Step 2: Install dependencies, clean, and build.
+        # Force the default registry to the public azure-sdk-for-js feed.
         Push-Location $GeneratorPath
         try {
             Write-Host "Installing dependencies..." -ForegroundColor Gray
             if ($UseNpmCi) {
-                $installOutput = & npm install --package-lock-only 2>&1
+                $installOutput = & npm install --package-lock-only --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to update package-lock.json"
                 }
                 
-                $ciOutput = & npm ci 2>&1
+                $ciOutput = & npm ci --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $ciOutput -ForegroundColor Red
                     throw "Failed to install dependencies"
                 }
             } else {
-                $installOutput = & npm install 2>&1
+                $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
                 if ($LASTEXITCODE -ne 0) {
                     Write-Host $installOutput -ForegroundColor Red
                     throw "Failed to run npm install"
@@ -260,6 +261,11 @@ function Update-MgmtGenerator {
     # Regenerate the package-lock.json with the full (local) dependency graph
     $tempDir = Join-Path $EngFolder "temp-mgmt-package-update"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+    
+    # Point the default registry at the public azure-sdk-for-js feed so dependency
+    # resolution doesn't fall back to the authenticated machine-global proxy
+    # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
     
     try {
         $tempPackageJson = Join-Path $tempDir "package.json"
@@ -901,7 +907,7 @@ function Update-AzureSpectorScenarios {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
         Push-Location $AzureGeneratorPath
         try {
-            $installOutput = & npm install 2>&1
+            $installOutput = & npm install --registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/ 2>&1
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $installOutput -ForegroundColor Red
                 throw "npm install failed in Azure generator"

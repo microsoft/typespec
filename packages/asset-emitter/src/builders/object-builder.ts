@@ -5,9 +5,8 @@ import { type EmitEntity, EmitterResult } from "../types.js";
 const placeholderSym = Symbol("placeholder");
 const setSym = Symbol("ObjectBuilder.set");
 // eslint is confused by merging generic interface and classes
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, typescript/no-unsafe-declaration-merging
 export interface ObjectBuilder<T> extends Record<string, any> {}
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class ObjectBuilder<T> {
   public static SET = setSym;
 
