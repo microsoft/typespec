@@ -8,7 +8,7 @@ import {
   HttpCanonicalizer,
   type OperationHttpCanonicalization,
 } from "@typespec/http-canonicalization";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, expect, it } from "vitest";
 import { BusinessLogicInterface } from "../interfaces/interfaces.jsx";
 import { Controller } from "./controllers.jsx";
 
@@ -32,47 +32,45 @@ function canonicalizeOp(opType: any): OperationHttpCanonicalization {
   return canonicalizer.canonicalize(opType) as OperationHttpCanonicalization;
 }
 
-describe("Controller", () => {
-  it("renders a controller class with an action method", async () => {
-    const { PetStore, listPets } = await runner.compile(t.code`
-      interface ${t.interface("PetStore")} {
-        @route("/pets") @get ${t.op("listPets")}(): string[];
-      }
-    `);
+it("renders a controller class with an action method", async () => {
+  const { PetStore, listPets } = await runner.compile(t.code`
+    interface ${t.interface("PetStore")} {
+      @route("/pets") @get ${t.op("listPets")}(): string[];
+    }
+  `);
 
-    const canonOp = canonicalizeOp(listPets);
+  const canonOp = canonicalizeOp(listPets);
 
-    expect(
-      <Wrapper>
-        <BusinessLogicInterface type={PetStore} />
-        {"\n"}
-        <Controller type={PetStore} operations={[canonOp]} />
-      </Wrapper>,
-    ).toRenderTo(`
-      using Microsoft.AspNetCore.Mvc;
+  expect(
+    <Wrapper>
+      <BusinessLogicInterface type={PetStore} />
+      {"\n"}
+      <Controller type={PetStore} operations={[canonOp]} />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
 
-      public interface IPetStore
-      {
-          Task<string[]> ListPetsAsync();
-      }
-      [ApiController]
-      public partial class PetStoreController : ControllerBase
-      {
-          internal virtual IPetStore PetStoreImpl { get; }
-          public PetStoreController(IPetStore operations)
-          {
-              PetStoreImpl = operations;
-          }
+    public interface IPetStore
+    {
+        Task<string[]> ListPetsAsync();
+    }
+    [ApiController]
+    public partial class PetStoreController : ControllerBase
+    {
+        internal virtual IPetStore PetStoreImpl { get; }
+        public PetStoreController(IPetStore operations)
+        {
+            PetStoreImpl = operations;
+        }
 
-          [HttpGet]
-          [Route("/pets")]
-          [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string[]))]
-          public virtual async Task<IActionResult> ListPets()
-          {
-              var result = await PetStoreImpl.ListPetsAsync();
-              return Ok(result);
-          }
-      }
-    `);
-  });
+        [HttpGet]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string[]))]
+        public virtual async Task<IActionResult> ListPets()
+        {
+            var result = await PetStoreImpl.ListPetsAsync();
+            return Ok(result);
+        }
+    }
+  `);
 });
