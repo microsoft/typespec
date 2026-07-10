@@ -1,5 +1,5 @@
 import { EventEmitter } from "stream";
-import { assert, describe, it } from "vitest";
+import { assert, it } from "vitest";
 import { createMultipartReadable } from "../src/helpers/multipart.js";
 
 import type * as http from "node:http";
@@ -63,107 +63,105 @@ function createMultipartRequestLike(
   ) as any;
 }
 
-describe("multipart", () => {
-  it("correctly chunks multipart data", async () => {
-    const request = createMultipartRequestLike(exampleMultipart);
+it("correctly chunks multipart data", async () => {
+  const request = createMultipartRequestLike(exampleMultipart);
 
-    const stream = createMultipartReadable(request);
+  const stream = createMultipartReadable(request);
 
-    const parts: Array<{ headers: { [k: string]: string | undefined }; body: string }> = [];
+  const parts: Array<{ headers: { [k: string]: string | undefined }; body: string }> = [];
 
+  for await (const part of stream) {
+    parts.push({
+      headers: part.headers,
+      body: await (async () => {
+        const chunks = [];
+        for await (const chunk of part.body) {
+          chunks.push(chunk);
+        }
+        return Buffer.concat(chunks).toString();
+      })(),
+    });
+  }
+
+  assert.deepStrictEqual(parts, [
+    {
+      headers: {
+        "content-disposition": 'form-data; name="field1"',
+        "content-type": "application/json",
+      },
+      body: '"value1"',
+    },
+    {
+      headers: { "content-disposition": 'form-data; name="field2"' },
+      body: "value2",
+    },
+  ]);
+});
+
+it("detects missing boundary", () => {
+  assert.throws(() => {
+    createMultipartReadable({ headers: {} } as any);
+  }, "missing boundary");
+
+  assert.throws(() => {
+    createMultipartReadable({
+      headers: { "content-type": "multipart/form-data" },
+    } as any);
+  }, "missing boundary");
+});
+
+it("detects unexpected termination", async () => {
+  const request = createMultipartRequestLike(
+    [
+      "--boundary",
+      'Content-Disposition: form-data; name="field1"',
+      "Content-Type: application/json",
+      "",
+      '"value1"',
+      "--boundary asdf asdf",
+    ].join("\r\n"),
+  );
+
+  const stream = createMultipartReadable(request);
+
+  try {
     for await (const part of stream) {
-      parts.push({
-        headers: part.headers,
-        body: await (async () => {
-          const chunks = [];
-          for await (const chunk of part.body) {
-            chunks.push(chunk);
-          }
-          return Buffer.concat(chunks).toString();
-        })(),
-      });
-    }
-
-    assert.deepStrictEqual(parts, [
-      {
-        headers: {
-          "content-disposition": 'form-data; name="field1"',
-          "content-type": "application/json",
-        },
-        body: '"value1"',
-      },
-      {
-        headers: { "content-disposition": 'form-data; name="field2"' },
-        body: "value2",
-      },
-    ]);
-  });
-
-  it("detects missing boundary", () => {
-    assert.throws(() => {
-      createMultipartReadable({ headers: {} } as any);
-    }, "missing boundary");
-
-    assert.throws(() => {
-      createMultipartReadable({
-        headers: { "content-type": "multipart/form-data" },
-      } as any);
-    }, "missing boundary");
-  });
-
-  it("detects unexpected termination", async () => {
-    const request = createMultipartRequestLike(
-      [
-        "--boundary",
-        'Content-Disposition: form-data; name="field1"',
-        "Content-Type: application/json",
-        "",
-        '"value1"',
-        "--boundary asdf asdf",
-      ].join("\r\n"),
-    );
-
-    const stream = createMultipartReadable(request);
-
-    try {
-      for await (const part of stream) {
-        for await (const _ of part.body) {
-          // Do nothing
-        }
+      for await (const _ of part.body) {
+        // Do nothing
       }
-      assert.fail();
-    } catch (e) {
-      assert.equal((e as Error).message, "Unexpected characters after final boundary.");
     }
-  });
+    assert.fail();
+  } catch (e) {
+    assert.equal((e as Error).message, "Unexpected characters after final boundary.");
+  }
+});
 
-  it("detects invalid preamble text", async () => {
-    const request = createMultipartRequestLike(
-      [
-        "This is the preamble text. It should be ignored.--boundary",
-        'Content-Disposition: form-data; name="field1"',
-        "Content-Type: application/json",
-        "",
-        '"value1"',
-        "--boundary",
-        'Content-Disposition: form-data; name="field2"',
-        "",
-        "value2",
-        "--boundary--",
-      ].join("\r\n"),
-    );
+it("detects invalid preamble text", async () => {
+  const request = createMultipartRequestLike(
+    [
+      "This is the preamble text. It should be ignored.--boundary",
+      'Content-Disposition: form-data; name="field1"',
+      "Content-Type: application/json",
+      "",
+      '"value1"',
+      "--boundary",
+      'Content-Disposition: form-data; name="field2"',
+      "",
+      "value2",
+      "--boundary--",
+    ].join("\r\n"),
+  );
 
-    const stream = createMultipartReadable(request);
+  const stream = createMultipartReadable(request);
 
-    try {
-      for await (const part of stream) {
-        for await (const _ of part.body) {
-          // Do nothing
-        }
+  try {
+    for await (const part of stream) {
+      for await (const _ of part.body) {
+        // Do nothing
       }
-      assert.fail();
-    } catch (e) {
-      assert.equal((e as Error).message, "Invalid preamble in multipart body.");
     }
-  });
+    assert.fail();
+  } catch (e) {
+    assert.equal((e as Error).message, "Invalid preamble in multipart body.");
+  }
 });
