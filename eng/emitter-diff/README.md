@@ -154,8 +154,9 @@ trees** (installs deps, builds the emitter, creates any venv) before invoking th
 generated-output diff does not fail the PR. CI runs the tool without `--fail-on-diff`, so a diff
 still exits `0`; only a non-zero exit (a build/venv/generate failure) fails the job.
 
-The comment step needs `pull-requests: write`. PRs **from forks** get a read-only token, so the
-comment is best-effort there (`continue-on-error`) — the artifact and job summary still work.
+**Fork PRs are not run.** The job checks out and executes the PR's code (builds the emitter, runs
+`regenerate`), so a job-level `if` guard restricts it to same-repo PRs — it skips any PR whose head
+is a fork.
 
 ## Adding a new language
 
