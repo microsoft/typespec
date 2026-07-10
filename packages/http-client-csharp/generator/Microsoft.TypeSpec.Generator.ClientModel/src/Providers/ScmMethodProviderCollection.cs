@@ -256,6 +256,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            // The convenience method's public/internal accessibility follows the service method's
+            // accessibility, independent of the protocol method. The protocol method may be internal
+            // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
+            // convenience method should still be public.
+            if (ServiceMethod.Accessibility == "public")
+            {
+                modifiers &= ~MethodSignatureModifiers.Internal;
+                modifiers |= MethodSignatureModifiers.Public;
+            }
+
             var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
             if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                 !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
@@ -1040,7 +1050,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+            var methodModifiers = ServiceMethod.Accessibility == "public" && ServiceMethod.Operation.GenerateProtocolMethod ?
                 MethodSignatureModifiers.Public :
                 MethodSignatureModifiers.Internal;
 
