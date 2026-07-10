@@ -62,6 +62,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
         }
 
+        [Test]
+        public void IncludesInterfacesInheritedFromBaseType()
+        {
+            var baseModel = new DisposableBaseModel();
+            var derivedModel = new DerivedModel(baseModel);
+            var compilation = CompilationHelper.LoadCompilation([baseModel, derivedModel], [typeof(IDisposable)]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "DerivedModel");
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+
+            Assert.IsTrue(namedTypeSymbolProvider.Implements.Any(i => i.Equals(typeof(IDisposable))));
+        }
+
         private class Model : TypeProvider
         {
             protected override string BuildRelativeFilePath() => ".";
@@ -89,6 +102,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                         new AutoPropertyBody(true), this),
                 ];
             }
+        }
+
+        private class DisposableBaseModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => "DisposableBaseModel";
+
+            protected internal override CSharpType[] BuildImplements()
+                => [typeof(IDisposable)];
+
+            protected internal override MethodProvider[] BuildMethods()
+                => [new MethodProvider(
+                    new MethodSignature("Dispose", $"", MethodSignatureModifiers.Public, null, $"", []),
+                    Snippet.ThrowExpression(Snippet.Null),
+                    this)];
+        }
+
+        private class DerivedModel(DisposableBaseModel baseModel) : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => "DerivedModel";
+
+            protected override CSharpType? BuildBaseType() => baseModel.Type;
         }
     }
 }

@@ -81,8 +81,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool IsXmlModelWriteCoreMethod(MethodProvider method)
             => IsXmlModelWriteCoreSignature(method) &&
-                method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                HasInternalOnlyAccessibility(method.Signature.Modifiers) &&
                 IsOverridable(method.Signature.Modifiers);
+
+        private static bool HasInternalOnlyAccessibility(MethodSignatureModifiers modifiers)
+            => modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Protected) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Private);
 
         private bool IsXmlModelWriteCoreSignature(MethodProvider method)
             => method.Signature.Name == XmlModelWriteCoreMethodName &&
@@ -100,8 +106,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool HasCustomBaseXmlModelWriteCoreMethod()
             => GetCustomSerializationBaseType() is not null &&
-                _model.BaseType is { } baseType &&
+                BaseDeclaresCompatibleXmlModelWriteCore();
+
+        private bool BaseDeclaresCompatibleXmlModelWriteCore()
+        {
+            foreach (var provider in EnumerateBaseTypeProviders())
+            {
+                var source = provider.CustomCodeView ?? provider;
+                if (GetXmlModelWriteCoreCompatibility(source) is { } isCompatible)
+                {
+                    return isCompatible;
+                }
+            }
+
+            return _model.BaseType is { } baseType &&
                 HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
+        }
+
+        private IEnumerable<TypeProvider> EnumerateBaseTypeProviders()
+        {
+            var visited = new HashSet<TypeProvider>();
+            for (var provider = _model.BaseTypeProvider; provider is not null && visited.Add(provider); provider = provider.BaseTypeProvider)
+            {
+                yield return provider;
+            }
+        }
 
         private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
         {

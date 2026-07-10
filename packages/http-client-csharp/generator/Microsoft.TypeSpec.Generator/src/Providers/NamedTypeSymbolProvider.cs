@@ -22,7 +22,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
-        private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
@@ -43,9 +42,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
         protected internal override CSharpType[] BuildImplements()
-            => [.. _namedTypeSymbol.Interfaces.Select(i => i.GetCSharpType())];
+            => [.. _namedTypeSymbol.AllInterfaces.Select(i => i.GetCSharpType())];
 
-        internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
+        private protected override TypeProvider? BuildBaseTypeProvider()
+        {
+            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
+            {
+                return null;
+            }
+
+            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
+        }
 
         protected override CSharpType? BuildBaseType()
         {
@@ -55,16 +62,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return _namedTypeSymbol.BaseType!.GetCSharpType();
-        }
-
-        private TypeProvider? BuildBaseTypeProvider()
-        {
-            if (ShouldSkipBaseType(_namedTypeSymbol.BaseType))
-            {
-                return null;
-            }
-
-            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
         }
 
         private bool ShouldSkipBaseType(INamedTypeSymbol? baseType)
@@ -517,6 +514,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => MethodSignatureModifiers.Protected,
             Accessibility.Internal => MethodSignatureModifiers.Internal,
             Accessibility.Public => MethodSignatureModifiers.Public,
+            Accessibility.ProtectedOrInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal,
+            Accessibility.ProtectedAndInternal => MethodSignatureModifiers.Protected | MethodSignatureModifiers.Private,
             _ => MethodSignatureModifiers.None
         };
 

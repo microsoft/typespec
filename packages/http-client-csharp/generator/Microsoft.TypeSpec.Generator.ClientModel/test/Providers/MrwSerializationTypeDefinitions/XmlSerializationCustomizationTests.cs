@@ -142,6 +142,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task XmlModelWriteCoreDoesNotOverrideProtectedInternalCustomExternalBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("Prop1", InputPrimitiveType.String, serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("prop1")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("ProtectedInternalXmlBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var xmlWriteCore = serializationProvider.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
+
+            Assert.IsTrue(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            Assert.IsTrue(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(xmlWriteCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            StringAssert.DoesNotContain("base.XmlModelWriteCore", xmlWriteCore.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
         public async Task XmlModelWriteCoreOverridesGeneratedBaseWithCustomReplacement()
         {
             var baseModel = InputFactory.Model(

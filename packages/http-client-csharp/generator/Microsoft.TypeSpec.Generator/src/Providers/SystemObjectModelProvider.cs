@@ -27,23 +27,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         /// <param name="systemType">The CSharp type from the external/system assembly.</param>
         /// <param name="inputModel">The input model type that this system type replaces.</param>
-        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel) : base(inputModel)
+        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false)
         {
-            _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
-            CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
-
-            // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
-            // Clear those cached values so Name/Namespace/BaseType are rebuilt from the wrapped type.
-            Reset();
         }
 
         public SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
             bool skipDerivedConstructorParameters)
-            : this(systemType, inputModel)
+            : base(inputModel)
         {
+            _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
+            CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
+
+            // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
+            // Clear those cached values so Name/Namespace/BaseType are rebuilt from the wrapped type.
             Reset();
         }
 
