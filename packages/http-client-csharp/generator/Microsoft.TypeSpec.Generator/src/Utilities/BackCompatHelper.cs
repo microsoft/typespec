@@ -266,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             foreach (var previousParam in previousSignature.Parameters)
             {
-                if (parametersByName.TryGetValue(previousParam.Name, out var matchingParam))
+                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam))
                 {
                     reorderedParameters.Add(matchingParam);
                 }
@@ -279,7 +279,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             foreach (var previousParam in previousSignature.Parameters)
             {
-                if (parametersByName.TryGetValue(previousParam.Name, out var matchingParam)
+                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam)
                     && matchingParam.DefaultValue is not null
                     && previousParam.DefaultValue is not null)
                 {
@@ -452,7 +452,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     return false;
                 }
 
-                if (currentParam.Location == ParameterLocation.Body)
+                if (currentParam.Location is ParameterLocation.Body or ParameterLocation.Unknown)
                 {
                     return false;
                 }

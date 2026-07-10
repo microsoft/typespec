@@ -93,6 +93,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         }
 
         [Test]
+        public void ParsesMembersMustExistField()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+
+            // A removed field/enum member has no parameter list; it is recorded with arity 0.
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "LegacyField", 0));
+        }
+
+        [Test]
+        public void ParsesEnumValuesMustMatch()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+
+            // An accepted enum value difference suppresses back-compat handling for that member.
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.CapacityLevel", "FiftyThousand", 0));
+            // A different member on the same enum must not match.
+            Assert.IsFalse(baseline.IsMemberSuppressed("Ns.CapacityLevel", "OneHundred", 0));
+        }
+
+        [Test]
         public void IgnoresUnknownRulesAndMalformedLines()
         {
             var baseline = Helpers.GetApiCompatBaselineFromFile();

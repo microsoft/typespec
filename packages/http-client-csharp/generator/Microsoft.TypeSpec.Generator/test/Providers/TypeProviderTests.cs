@@ -243,7 +243,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The last contract published GetData(int param1); the current generation adds an optional
             // non-body parameter param2.
             var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
-            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default);
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
             var getData = new MethodProvider(
                 new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
                 Snippet.Return(Snippet.Null),
@@ -291,6 +291,103 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var typeProvider = new TestTypeProvider(name: "TestClient");
             Assert.IsNull(typeProvider.LastContractView);
             Assert.IsNull(BackCompatHelper.FindPreviousParameterName(typeProvider.LastContractView, "oldParam", "Foo"));
+        }
+
+        [Test]
+        public async Task TryRestorePreviousParameterOrderMatchesNonCanonicalParameterNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+
+            // Current generation declares Foo(second_param, first_param) — the reverse of the
+            // previous Foo(first_param, second_param). The raw names are snake_case, so matching
+            // requires normalizing both sides via ToVariableName.
+            var firstParam = new ParameterProvider("first_param", $"", new CSharpType(typeof(string)));
+            var secondParam = new ParameterProvider("second_param", $"", new CSharpType(typeof(int)));
+            var currentFoo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [secondParam, firstParam]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var previousSignature = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("first_param", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("second_param", $"", new CSharpType(typeof(int))),
+                ]);
+
+            var reordered = BackCompatHelper.TryRestorePreviousParameterOrder(currentFoo, previousSignature);
+
+            Assert.IsTrue(reordered);
+            CollectionAssert.AreEqual(
+                new[] { "first_param", "second_param" },
+                currentFoo.Signature.Parameters.Select(p => p.Name).ToArray());
+        }
+
+        // Validates that the default-value preservation performed while reordering also matches by
+        // the normalized parameter identifier, restoring the previously-published default onto the
+        // current parameter even when the raw name is snake_case.
+        [Test]
+        public async Task TryRestorePreviousParameterOrderPreservesPreviousDefaultForNonCanonicalNames()
+        {
+            await MockHelpers.LoadMockGeneratorAsync();
+
+            // Current declares Foo(second_param = default, first_param) — reverse of previous order.
+            var firstParam = new ParameterProvider("first_param", $"", new CSharpType(typeof(string)));
+            var secondParam = new ParameterProvider("second_param", $"", new CSharpType(typeof(int)), defaultValue: Snippet.Default);
+            var currentFoo = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [secondParam, firstParam]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            // The previously-published second_param carried a distinct default representation.
+            var previousDefault = Snippet.Literal(0);
+            var previousSignature = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("first_param", $"", new CSharpType(typeof(string))),
+                    new ParameterProvider("second_param", $"", new CSharpType(typeof(int)), defaultValue: previousDefault),
+                ]);
+
+            var reordered = BackCompatHelper.TryRestorePreviousParameterOrder(currentFoo, previousSignature);
+
+            Assert.IsTrue(reordered);
+            CollectionAssert.AreEqual(
+                new[] { "first_param", "second_param" },
+                currentFoo.Signature.Parameters.Select(p => p.Name).ToArray());
+
+            // The current second_param's default was restored from the previous contract.
+            var restoredSecond = currentFoo.Signature.Parameters.Single(p => p.Name == "second_param");
+            Assert.AreSame(previousDefault, restoredSecond.DefaultValue);
+        }
+
+        // Validates that a new optional parameter with an Unknown location is not treated as a
+        // non-body parameter, so no back-compat overload is produced for it.
+        [Test]
+        public void HasNewOptionalNonBodyParametersOnlyRejectsUnknownLocation()
+        {
+            var previousSignature = new MethodSignature(
+                "GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [new ParameterProvider("param1", $"", new CSharpType(typeof(int)))]);
+
+            // A new optional parameter whose location is Unknown must not qualify.
+            var unknownLocationSignature = new MethodSignature(
+                "GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("param1", $"", new CSharpType(typeof(int))),
+                    new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Unknown),
+                ]);
+
+            Assert.IsFalse(BackCompatHelper.HasNewOptionalNonBodyParametersOnly(previousSignature, unknownLocationSignature));
+
+            // The same shape with an explicit non-body location does qualify.
+            var queryLocationSignature = new MethodSignature(
+                "GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"",
+                [
+                    new ParameterProvider("param1", $"", new CSharpType(typeof(int))),
+                    new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query),
+                ]);
+
+            Assert.IsTrue(BackCompatHelper.HasNewOptionalNonBodyParametersOnly(previousSignature, queryLocationSignature));
         }
 
         // Validates that the base BuildMethodsForBackCompatibility default automatically restores a
@@ -351,8 +448,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         // When the restored name is used both as an argument (AsArgument -> _asArgument) and
         // as a variable (-> _asVariable), materializing both cached expressions before the rename, the
-        // rename must keep them sharing one declaration. Otherwise the writer uniquifies the two
-        // declarations of the same name into "oldParam0"/"oldParam1", producing non-compiling code.
+        // rename must keep them sharing one declaration. Otherwise the writer renames the two
+        // declarations of the same name to "oldParam0"/"oldParam1", producing non-compiling code.
         [Test]
         public async Task BuildMethodsForBackCompatibilityRestoredNameDoesNotSplitDeclarations()
         {

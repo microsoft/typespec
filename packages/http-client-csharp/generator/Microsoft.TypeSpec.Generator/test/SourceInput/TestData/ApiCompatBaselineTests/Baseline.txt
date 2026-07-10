@@ -6,3 +6,5 @@ MembersMustExist : Member 'public Ns.Foo..ctor(Ns.Kind, System.String)' does not
 MembersMustExist : Member 'public Ns.Kind Ns.Foo.Kind.get()' does not exist in the implementation but it does exist in the contract.
 MembersMustExist : Member 'public System.Void Ns.Foo.Kind.set(Ns.Kind)' does not exist in the implementation but it does exist in the contract.
 MembersMustExist : Member 'public System.Void Ns.Foo.Configure(System.Collections.Generic.IDictionary<System.String, System.Int32>, System.String)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public Ns.Kind Ns.Foo.LegacyField' does not exist in the implementation but it does exist in the contract.
+EnumValuesMustMatch : Enum value 'Ns.CapacityLevel Ns.CapacityLevel.FiftyThousand' is (System.Int32)10 in the implementation but (System.Int32)50000 in the contract.

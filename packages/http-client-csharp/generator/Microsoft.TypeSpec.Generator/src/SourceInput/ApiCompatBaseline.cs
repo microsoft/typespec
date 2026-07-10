@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
     {
         private const string TypesMustExist = "TypesMustExist";
         private const string MembersMustExist = "MembersMustExist";
+        private const string EnumValuesMustMatch = "EnumValuesMustMatch";
 
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
@@ -98,9 +99,15 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                         suppressedTypes.Add(quoted);
                         break;
                     case MembersMustExist:
-                        if (TryParseMember(quoted, out var memberKey))
+                        if (TryParseMember(quoted, out var memberKey) || TryParseField(quoted, out memberKey))
                         {
                             suppressedMembers.Add(memberKey);
+                        }
+                        break;
+                    case EnumValuesMustMatch:
+                        if (TryParseField(quoted, out var enumMemberKey))
+                        {
+                            suppressedMembers.Add(enumMemberKey);
                         }
                         break;
                     // Other rule ids (e.g. CannotRemoveAttribute) do not describe a removed
@@ -253,6 +260,39 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             var parameterCount = CountParameters(signature.Substring(parenIndex + 1, signature.Length - parenIndex - 2));
             memberKey = new MemberKey(declaringTypeFullName, memberName, parameterCount);
+            return true;
+        }
+
+        // Parses an ApiCompat field/enum-value signature (which has no parameter list) of the form:
+        //   [modifiers] FieldType Namespace.DeclaringType.MemberName
+        // for example:
+        //   Ns.CapacityLevel Ns.CapacityLevel.FiftyThousand
+        //   public Ns.Kind Ns.Foo.Kind
+        // Enum members are recorded with a parameter count of zero.
+        private static bool TryParseField(string signature, out MemberKey memberKey)
+        {
+            memberKey = default;
+
+            // Field/enum-value signatures never contain a parameter list.
+            if (signature.Contains('('))
+            {
+                return false;
+            }
+
+            // The fully-qualified member path is the last whitespace-delimited token (the tokens
+            // before it are access modifiers and the field/enum type).
+            var lastSpace = signature.LastIndexOf(' ');
+            var memberPath = lastSpace >= 0 ? signature.Substring(lastSpace + 1) : signature;
+
+            var lastDot = memberPath.LastIndexOf('.');
+            if (lastDot <= 0 || lastDot == memberPath.Length - 1)
+            {
+                return false;
+            }
+
+            var declaringTypeFullName = memberPath.Substring(0, lastDot);
+            var memberName = memberPath.Substring(lastDot + 1);
+            memberKey = new MemberKey(declaringTypeFullName, memberName, 0);
             return true;
         }
 

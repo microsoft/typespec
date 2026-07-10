@@ -1,0 +1,3 @@
+# The Third enum member was intentionally removed during migration; suppress the difference so the
+# back-compat system honors the removal instead of re-adding it.
+EnumValuesMustMatch : Enum value 'Sample.Models.MockInputEnum Sample.Models.MockInputEnum.Third' is (System.Int32)2 in the implementation but (System.Int32)2 in the contract.

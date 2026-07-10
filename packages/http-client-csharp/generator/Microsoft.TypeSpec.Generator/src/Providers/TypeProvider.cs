@@ -861,7 +861,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
-
             BackCompatHelper.AddOverloadsForNewOptionalParameters(this, methods);
 
             return methods;
@@ -920,19 +919,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (int i = 0; i < constructors.Count; i++)
                 {
                     var currentConstructor = constructors[i];
+                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                    {
+                        continue;
+                    }
 
                     // Check if parameters match (same count and types)
                     if (BackCompatHelper.ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
                     {
                         // Change the modifier from private protected to public
-                        if (currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) &&
-                            currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                        {
-                            currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
-                            CodeModelGenerator.Instance.Emitter.Debug(
-                                $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
-                                BackCompatibilityChangeCategory.ConstructorModifierPreserved);
-                        }
+                        currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorModifierPreserved);
                     }
                 }
             }
