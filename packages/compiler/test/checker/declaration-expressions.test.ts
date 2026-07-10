@@ -12,9 +12,7 @@ import { Tester as BaseTester } from "../tester.js";
  */
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
   libraries: [],
-  compilerOptions: {
-    configFile: { features: ["declaration-expressions"] } as any,
-  },
+  features: ["declaration-expressions"],
 });
 
 describe("enum", () => {
