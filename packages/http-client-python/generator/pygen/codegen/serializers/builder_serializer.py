@@ -827,6 +827,27 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 next((o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType))),
             )
             binary_body_param = binary_overload.parameters.body_parameter
+            other_overload = cast(
+                OperationType,
+                next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
+            )
+            other_body_param = other_overload.parameters.body_parameter
+            # When the non-binary overload also serializes to raw content (e.g. a `bytes` body
+            # with a binary content type), both branches assign the same value to the same
+            # content kwarg. Emitting the isinstance branch would be redundant and confuses
+            # mypy's type narrowing, so collapse it to a single assignment.
+            if (
+                isinstance(other_body_param.type, ByteArraySchema)
+                and other_body_param.default_content_type != "application/json"
+                and binary_overload.request_builder.parameters.body_parameter.client_name
+                == other_overload.request_builder.parameters.body_parameter.client_name
+            ):
+                if binary_body_param.default_content_type and not same_content_type:
+                    retval.append(
+                        f'content_type = content_type or "{binary_body_param.default_content_type}"{check_body_suffix}'
+                    )
+                retval.extend(self._create_body_parameter(binary_overload))
+                return retval
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
             if binary_body_param.default_content_type and not same_content_type:
                 retval.append(
@@ -834,10 +855,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 )
             retval.extend(f"    {l}" for l in self._create_body_parameter(binary_overload))
             retval.append("else:")
-            other_overload = cast(
-                OperationType,
-                next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
-            )
             retval.extend(f"    {l}" for l in self._create_body_parameter(other_overload))
             if other_overload.parameters.body_parameter.default_content_type and not same_content_type:
                 retval.append(

@@ -113,6 +113,8 @@ def get_body_type_for_description(body_parameter: dict[str, Any]) -> str:
         return "binary"
     if body_parameter["type"]["type"] == "string":
         return "string"
+    if body_parameter["type"]["type"] == "bytes":
+        return "byte"
     return "JSON"
 
 
