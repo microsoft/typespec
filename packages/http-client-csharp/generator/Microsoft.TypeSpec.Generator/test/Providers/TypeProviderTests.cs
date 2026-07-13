@@ -25,6 +25,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void BuildAttributesForBackCompatibilityDeduplicatesAttributes()
+        {
+            var provider = new AttributeTestProvider();
+            var attributes = provider.GetBackCompatibilityAttributes();
+
+            // The three generated attributes contain a duplicate ObsoleteAttribute which should be collapsed.
+            Assert.AreEqual(2, attributes.Count);
+            var rendered = attributes.Select(a => a.ToDisplayString()).ToList();
+            Assert.AreEqual(rendered.Count, rendered.Distinct().Count());
+        }
+
+        private class AttributeTestProvider : TestTypeProvider
+        {
+            internal AttributeTestProvider() : base()
+            {
+            }
+
+            protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute)),
+                new AttributeStatement(typeof(ObsoleteAttribute)),
+                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+            ];
+
+            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility();
+        }
+
+        [Test]
         public void TestUpdateCanonicalView()
         {
             var typeProvider = new TestTypeProvider();
