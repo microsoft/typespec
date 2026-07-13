@@ -10,7 +10,7 @@ const { installVSCodeExtension, uninstallVSCodeExtension } =
   await import("../../src/core/cli/actions/vscode.js");
 
 function createHost() {
-  return { logger: { trace: vi.fn() } } as any;
+  return { logger: { trace: vi.fn(), warn: vi.fn() } } as any;
 }
 
 beforeEach(() => {
@@ -38,6 +38,21 @@ it("uninstall runs `code --uninstall-extension` for the marketplace extension", 
     ["--uninstall-extension", "microsoft.typespec-vscode"],
     expect.anything(),
   );
+});
+
+it("warns that `tsp code install` is deprecated and points to the docs", async () => {
+  const host = createHost();
+  await installVSCodeExtension(host, { insiders: false });
+  expect(host.logger.warn).toHaveBeenCalledWith(
+    expect.stringContaining("https://typespec.io/docs/introduction/editor/vscode/"),
+  );
+  expect(host.logger.warn).toHaveBeenCalledWith(expect.stringContaining("tsp code install"));
+});
+
+it("warns that `tsp code uninstall` is deprecated", async () => {
+  const host = createHost();
+  await uninstallVSCodeExtension(host, { insiders: false });
+  expect(host.logger.warn).toHaveBeenCalledWith(expect.stringContaining("tsp code uninstall"));
 });
 
 it("uses `code-insiders` when --insiders is set", async () => {

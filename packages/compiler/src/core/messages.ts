@@ -1162,6 +1162,12 @@ const diagnostics = {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
+  "cli-command-deprecated": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`The "${"command"}" command is deprecated. Install and manage the extension directly from the marketplace instead. See ${"docsUrl"} for details.`,
+    },
+  },
   // #endregion CLI
 } as const;
 

@@ -4,7 +4,7 @@ import { joinPaths } from "../../path-utils.js";
 import { Diagnostic, NoTarget } from "../../types.js";
 import { downloadVsixFromMarketplace } from "../download-vsix.js";
 import { CliCompilerHost } from "../types.js";
-import { run } from "../utils.js";
+import { reportDeprecatedCommand, run } from "../utils.js";
 
 const VSIX_ALREADY_INSTALLED = 1001;
 const VSIX_NOT_INSTALLED = 1002;
@@ -18,7 +18,11 @@ const VS_EXTENSION = {
   id: "typespec.typespecvs",
 } as const;
 
+/** Documentation page describing how to install/manage the Visual Studio extension. */
+const VS_DOCS_URL = "https://typespec.io/docs/introduction/editor/vs";
+
 export async function installVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  reportDeprecatedCommand(host, "tsp vs install", VS_DOCS_URL);
   const diagnostics = createDiagnosticCollector();
   const vsixInstaller = diagnostics.pipe(getVsixInstallerPath());
   if (vsixInstaller === undefined) {
@@ -49,6 +53,7 @@ export async function installVSExtension(host: CliCompilerHost): Promise<readonl
 }
 
 export async function uninstallVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  reportDeprecatedCommand(host, "tsp vs uninstall", VS_DOCS_URL);
   const [vsixInstaller, diagnostics] = getVsixInstallerPath();
   if (vsixInstaller === undefined) {
     return diagnostics;
