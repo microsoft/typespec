@@ -24,7 +24,9 @@ either as flags or via a built-in `--emitter` preset.
   `<tree>/<emitter-path>`. This is the emitter's _unmodified_ regenerate command; the tool does
   not reach into it.
 - The `<emitter-path>/<generated-code-path>` subtree is snapshotted for each side and the
-  two snapshots are diffed.
+  two snapshots are diffed. `--generated-code-path` accepts **multiple roots** — an emitter that
+  writes generated code to several directories (e.g. Go) passes a comma-separated list or repeats
+  the flag; each root is snapshotted under its own relative path so outputs never collide.
 
 Because the tool just runs a command, **any emitter with a regenerate script works** — no per-language
 plugin code.
@@ -41,6 +43,13 @@ node eng/emitter-diff/src/cli.ts \
   --emitter-path packages/http-client-python \
   --generated-code-path tests/generated \
   --baseline gh:<sha>
+
+# Multiple generated roots (e.g. Go writes several) — comma-separated (or repeat the flag):
+node eng/emitter-diff/src/cli.ts \
+  --command "npm run tspcompile" \
+  --emitter-path packages/typespec-go \
+  --generated-code-path test/http-specs,test/azure-http-specs \
+  --baseline github:Azure/autorest.go@<sha>
 ```
 
 > This tool is a set of plain `.ts` scripts — not an installed package. It runs through `node`
@@ -55,12 +64,12 @@ node eng/emitter-diff/src/cli.ts \
 
 ### Emitter config
 
-| Flag                           | Meaning                                                      |
-| ------------------------------ | ------------------------------------------------------------ |
-| `--emitter <name>`             | Built-in preset that fills in the three fields below.        |
-| `--command <cmd>`              | Regenerate command, run verbatim in `--emitter-path`.        |
-| `--emitter-path <path>`        | Package dir (relative to a tree root) to run the command in. |
-| `--generated-code-path <path>` | Generated-code dir (relative to `--emitter-path`) to diff.   |
+| Flag                           | Meaning                                                                                                                                                                                                                                            |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--emitter <name>`             | Built-in preset that fills in the three fields below.                                                                                                                                                                                              |
+| `--command <cmd>`              | Regenerate command, run verbatim in `--emitter-path`.                                                                                                                                                                                              |
+| `--emitter-path <path>`        | Package dir (relative to a tree root) to run the command in.                                                                                                                                                                                       |
+| `--generated-code-path <path>` | Generated-code dir (relative to `--emitter-path`) to diff. Accepts **multiple roots** — comma-separated (`a,b`) or by repeating the flag — for an emitter with several generated roots (e.g. Go); each is snapshotted under its own relative path. |
 
 A preset supplies all three; each flag still overrides the preset value. To onboard a new language,
 add a row to `EMITTER_DEFAULTS` in `src/registry.ts` — or just pass the three flags directly and

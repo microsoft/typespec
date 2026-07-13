@@ -62,6 +62,9 @@ ${color.bold("Emitter config")} (a preset fills these; each is overridable):
   --emitter-path <path>   Package dir (rel to tree root) to run the command in.
   --generated-code-path <path>
                           Generated-code dir (rel to --emitter-path) to diff.
+                          For an emitter that writes to several roots (e.g. Go),
+                          pass a comma-separated list or repeat the flag; each
+                          root is snapshotted under its own relative path.
   --setup <cmd>           Prep command run in a freshly fetched GitHub tree before
                           <command> (repeatable, runs in order; a preset supplies
                           defaults like install+build). Overrides preset defaults.
@@ -152,13 +155,25 @@ function buildRegenerateArgs(commandArgv: string[], passthrough: string[]): stri
   return needsSeparator ? [...base, "--", ...passthrough] : [...base, ...passthrough];
 }
 
+/**
+ * Normalize the generated-code-path config into a clean list. Accepts a single
+ * string, a repeated-flag array, and/or comma-separated values in any element
+ * (`"a,b"` ≡ `["a", "b"]`), trimming blanks so trailing commas are harmless.
+ */
+function asPathList(paths: string | string[]): string[] {
+  return (Array.isArray(paths) ? paths : [paths])
+    .flatMap((p) => p.split(","))
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
+}
+
 /** Merge a `--emitter` preset (if any) with explicit flag overrides. */
 function resolveConfig(
   values: {
     emitter?: string;
     command?: string;
     "emitter-path"?: string;
-    "generated-code-path"?: string;
+    "generated-code-path"?: string[];
     setup?: string[];
     "no-setup"?: boolean;
   },
@@ -179,12 +194,17 @@ function resolveConfig(
 
   const command = values.command ?? preset.command;
   const emitterPath = values["emitter-path"] ?? preset.emitterPath;
-  const generatedCodePath = values["generated-code-path"] ?? preset.generatedCodePath;
+  // Explicit --generated-code-path flags (repeatable) override the preset.
+  const generatedFlags = values["generated-code-path"];
+  const generatedCodePath =
+    generatedFlags && generatedFlags.length > 0 ? generatedFlags : preset.generatedCodePath;
 
   const missing: string[] = [];
   if (!command) missing.push("--command");
   if (!emitterPath) missing.push("--emitter-path");
-  if (!generatedCodePath) missing.push("--generated-code-path");
+  if (!generatedCodePath || asPathList(generatedCodePath).length === 0) {
+    missing.push("--generated-code-path");
+  }
   if (missing.length > 0) {
     log.error(
       `Missing required emitter config: ${missing.join(", ")}. ` +
@@ -227,7 +247,7 @@ async function main(): Promise<number> {
       emitter: { type: "string" },
       command: { type: "string" },
       "emitter-path": { type: "string" },
-      "generated-code-path": { type: "string" },
+      "generated-code-path": { type: "string", multiple: true },
       setup: { type: "string", multiple: true },
       "no-setup": { type: "boolean" },
       baseline: { type: "string" },
@@ -311,7 +331,7 @@ async function main(): Promise<number> {
         `Emitter path not found for ${label}: ${runDir} (--emitter-path ${config.emitterPath}).`,
       );
     }
-    const generatedDir = join(runDir, config.generatedCodePath);
+    const generatedPaths = asPathList(config.generatedCodePath);
     const inherit = logPrefix === undefined;
     if (runSetup && config.setup && config.setup.length > 0) {
       const setupKey = createHash("sha256").update(JSON.stringify(config.setup)).digest("hex");
@@ -343,15 +363,27 @@ async function main(): Promise<number> {
       inherit,
       prefix: logPrefix,
     });
-    if (!existsSync(generatedDir)) {
-      throw new Error(
-        `Generated code not found after regenerating ${label}: ${generatedDir} ` +
-          `(--generated-code-path ${config.generatedCodePath}). ` +
-          `Did the command write there?`,
-      );
+    // Snapshot each generated root. A single path is snapshotted flat at the
+    // diff root (paths in the diff are relative to that root). Multiple paths
+    // are each namespaced under their own relative path so files from different
+    // roots never collide and the diff shows which root a change belongs to.
+    const multi = generatedPaths.length > 1;
+    for (const genPath of generatedPaths) {
+      const generatedDir = join(runDir, genPath);
+      if (!existsSync(generatedDir)) {
+        throw new Error(
+          `Generated code not found after regenerating ${label}: ${generatedDir} ` +
+            `(--generated-code-path ${genPath}). ` +
+            `Did the command write there?`,
+        );
+      }
     }
     rmSync(snapDir, { recursive: true, force: true });
-    cpSync(generatedDir, snapDir, { recursive: true, force: true });
+    for (const genPath of generatedPaths) {
+      const generatedDir = join(runDir, genPath);
+      const dest = multi ? join(snapDir, genPath) : snapDir;
+      cpSync(generatedDir, dest, { recursive: true, force: true });
+    }
   };
 
   // ---- Baseline output cache (local, interactive only) ----
@@ -378,7 +410,7 @@ async function main(): Promise<number> {
     baselineRef: baselineRefValue,
     command: config.command,
     emitterPath: config.emitterPath,
-    generatedCodePath: config.generatedCodePath,
+    generatedCodePath: asPathList(config.generatedCodePath),
     setup: config.setup ?? [],
     passthrough,
   });

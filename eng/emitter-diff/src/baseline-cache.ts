@@ -11,7 +11,7 @@ export interface BaselineCacheProfileInput {
   baselineRef: string;
   command: string;
   emitterPath: string;
-  generatedCodePath: string;
+  generatedCodePath: string | string[];
   setup: string[];
   passthrough: string[];
 }

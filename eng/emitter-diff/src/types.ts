@@ -47,10 +47,13 @@ export interface EmitterConfig {
    */
   emitterPath: string;
   /**
-   * Path (relative to `emitterPath`) to the generated code the command writes.
-   * This subtree is snapshotted and diffed. Example: `tests/generated`.
+   * Path(s) (relative to `emitterPath`) to the generated code the command
+   * writes. Each subtree is snapshotted and diffed. A single path snapshots its
+   * contents at the diff root (`tests/generated`); multiple paths are each
+   * namespaced under their own relative path so outputs from different roots
+   * never collide (e.g. Go's `["test/http-specs", "test/azure-http-specs"]`).
    */
-  generatedCodePath: string;
+  generatedCodePath: string | string[];
   /**
    * Optional prep commands run in order in `<tree>/<emitterPath>` before the
    * regenerate command — but ONLY for a tree the tool freshly materialized from
