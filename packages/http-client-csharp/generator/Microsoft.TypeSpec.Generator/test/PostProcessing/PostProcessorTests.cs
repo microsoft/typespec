@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -289,6 +293,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             Assert.AreEqual(Helpers.GetExpectedFromFile().TrimEnd(), output, "The output should match the expected content.");
         }
 
+        [Test]
+        public void InternalizeUsesProviderPublicApiReferences()
+        {
+            MockHelpers.LoadMockGenerator(configuration: """{ "package-name": "Sample", "disable-xml-docs": false }""");
+
+            var request = new TestTypeProvider("RequestBody");
+            var dependency = new TestTypeProvider("Dependency");
+            var response = new TestTypeProvider("ResponseBody");
+            response.PropertiesToBuild.Add(new PropertyProvider(
+                null,
+                MethodSignatureModifiers.Public,
+                dependency.Type,
+                "Dependency",
+                new AutoPropertyBody(false),
+                response));
+
+            var client = new TestTypeProvider("SampleClient");
+            client.FieldsToBuild.Add(new FieldProvider(FieldModifiers.Private, request.Type, "_request", client));
+            client.MethodsToBuild.Add(new MethodProvider(
+                new MethodSignature("Get", null, MethodSignatureModifiers.Public, response.Type, null, []),
+                MethodBodyStatement.Empty,
+                client));
+
+            var providers = new[] { client, request, response, dependency };
+
+            var postProcessor = new PostProcessor([]);
+            postProcessor.Internalize(providers);
+
+            Assert.IsTrue(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(response.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(request.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            var requestFile = new TypeProviderWriter(request).Write();
+            StringAssert.Contains("/// <summary> The RequestBody. </summary>", requestFile.Content);
+            StringAssert.Contains("internal partial class RequestBody", requestFile.Content);
+        }
+
         private class TestPostProcessor : PostProcessor
         {
             private readonly string _rootFile;
@@ -302,6 +345,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             {
                 return document.Name == _rootFile ? Task.FromResult(true) : Task.FromResult(false);
             }
+        }
+
+        private class TestTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+
+            public TestTypeProvider(string name = "Test")
+            {
+                _name = name;
+            }
+
+            public List<FieldProvider> FieldsToBuild { get; } = [];
+            public List<MethodProvider> MethodsToBuild { get; } = [];
+            public List<PropertyProvider> PropertiesToBuild { get; } = [];
+
+            protected override string BuildName() => _name;
+
+            protected override string BuildNamespace() => "Sample";
+
+            protected override FormattableString BuildDescription() => $"The {Name}.";
+
+            protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
+
+            protected internal override FieldProvider[] BuildFields() => [.. FieldsToBuild];
+
+            protected internal override MethodProvider[] BuildMethods() => [.. MethodsToBuild];
+
+            protected internal override PropertyProvider[] BuildProperties() => [.. PropertiesToBuild];
         }
     }
 }

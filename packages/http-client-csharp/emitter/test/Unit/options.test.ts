@@ -124,7 +124,7 @@ describe("Configuration tests", async () => {
     }
     const customOptions: TestEmitterOptions = {
       "package-name": "custom-package",
-      "unreferenced-types-handling": "removeOrInternalize",
+      "unreferenced-types-handling": "internalize",
       "disable-xml-docs": true,
       "disable-roslyn-reduce": true,
       license: {
@@ -141,7 +141,7 @@ describe("Configuration tests", async () => {
     const config = createConfiguration(customOptions, "rootNamespace", sdkContext);
 
     expect(config["package-name"]).toBe("custom-package");
-    expect(config["unreferenced-types-handling"]).toBe("removeOrInternalize");
+    expect(config["unreferenced-types-handling"]).toBe("internalize");
     expect(config["disable-xml-docs"]).toBe(true);
     expect(config["disable-roslyn-reduce"]).toBe(true);
     expect(config.license).toEqual({

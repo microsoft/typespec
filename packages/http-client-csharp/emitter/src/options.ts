@@ -15,7 +15,7 @@ type ApiVersionSelection = string | Record<string, string>;
 
 export interface CSharpEmitterOptions {
   "api-version"?: ApiVersionSelection;
-  "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
+  "unreferenced-types-handling"?: "internalize" | "keepAll";
   "new-project"?: boolean;
   "save-inputs"?: boolean;
   debug?: boolean;
@@ -61,10 +61,10 @@ export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = 
     },
     "unreferenced-types-handling": {
       type: "string",
-      enum: ["removeOrInternalize", "internalize", "keepAll"],
+      enum: ["internalize", "keepAll"],
       nullable: true,
       description:
-        "Defines the strategy on how to handle unreferenced types. The default value is `removeOrInternalize`.",
+        "Defines the strategy on how to handle unreferenced types. The default value is `internalize`.",
     },
     "new-project": {
       type: "boolean",

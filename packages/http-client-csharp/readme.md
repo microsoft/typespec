@@ -78,9 +78,9 @@ Set to `false` to skip generation of convenience methods. The default value is `
 
 ### `unreferenced-types-handling`
 
-**Type:** `"removeOrInternalize" | "internalize" | "keepAll"`
+**Type:** `"internalize" | "keepAll"`
 
-Defines the strategy on how to handle unreferenced types. The default value is `removeOrInternalize`.
+Defines the strategy on how to handle unreferenced types. The default value is `internalize`.
 
 ### `new-project`
 

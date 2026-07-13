@@ -90,6 +90,19 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // Ensure back-compatibility processing is done after all visitors have run
                 outputType.ProcessTypeForBackCompatibility();
+            }
+
+            PostProcessTypeProviders(output.TypeProviders);
+
+            LoggingHelpers.LogElapsedTime("All generated type providers post-processed");
+
+            var modelFactory = output.ModelFactory.Value;
+            foreach (var outputType in output.TypeProviders)
+            {
+                if (ReferenceEquals(outputType, modelFactory) && outputType.Methods.Count == 0)
+                {
+                    continue;
+                }
 
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
@@ -110,8 +123,6 @@ namespace Microsoft.TypeSpec.Generator
             DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
 
             LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
-
-            await generatedCodeWorkspace.PostProcessAsync();
 
             // Write the generated files to the output directory
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
@@ -136,6 +147,21 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             LoggingHelpers.LogElapsedTime("All files have been written to disk");
+        }
+
+        private static void PostProcessTypeProviders(IReadOnlyList<TypeProvider> typeProviders)
+        {
+            if (Configuration.UnreferencedTypesHandling == Configuration.UnreferencedTypesHandlingOption.KeepAll)
+            {
+                return;
+            }
+
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            var postProcessor = new PostProcessor(
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
+                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
+                additionalNonRootTypeNames: CodeModelGenerator.Instance.NonRootTypes);
+            postProcessor.Internalize(typeProviders);
         }
 
         internal static void FilterAllCustomizedMembers(OutputLibrary output)

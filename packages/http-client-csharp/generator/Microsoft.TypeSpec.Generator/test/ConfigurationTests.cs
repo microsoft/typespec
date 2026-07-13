@@ -156,7 +156,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
-        [TestCase("removeOrInternalize")]
         [TestCase("keepAll")]
         [TestCase("internalize")]
         public void UnreferencedTypeHandling(string input)
@@ -170,7 +169,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             MockHelpers.LoadMockGenerator(configuration: mockJson);
             var expected = input switch
             {
-                "removeOrInternalize" => Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
                 "keepAll" => Configuration.UnreferencedTypesHandlingOption.KeepAll,
                 "internalize" => Configuration.UnreferencedTypesHandlingOption.Internalize,
                 _ => throw new ArgumentException("Invalid input", nameof(input))

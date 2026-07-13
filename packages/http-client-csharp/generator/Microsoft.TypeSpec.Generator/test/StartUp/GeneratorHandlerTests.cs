@@ -495,7 +495,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
                 new Dictionary<string, BinaryData>(),
                 "TestPackage",
                 false,
-                Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                Configuration.UnreferencedTypesHandlingOption.Internalize,
                 null,
                 pluginPaths: null);
 
@@ -513,7 +513,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
                 new Dictionary<string, BinaryData>(),
                 "TestPackage",
                 false,
-                Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                Configuration.UnreferencedTypesHandlingOption.Internalize,
                 null,
                 pluginPaths: ["/nonexistent/path"]);
 
@@ -540,7 +540,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
                     new Dictionary<string, BinaryData>(),
                     "TestPackage",
                     false,
-                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    Configuration.UnreferencedTypesHandlingOption.Internalize,
                     null,
                     pluginPaths: [testDir]);
 
@@ -577,7 +577,7 @@ namespace AutoBuildPlugin { public class Dummy { } }");
                     new Dictionary<string, BinaryData>(),
                     "TestPackage",
                     false,
-                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    Configuration.UnreferencedTypesHandlingOption.Internalize,
                     null,
                     pluginPaths: [testDir]);
 
@@ -619,7 +619,7 @@ namespace Plugin2 { public class Dummy { } }");
                     new Dictionary<string, BinaryData>(),
                     "TestPackage",
                     false,
-                    Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize,
+                    Configuration.UnreferencedTypesHandlingOption.Internalize,
                     null,
                     pluginPaths: [testDir1, testDir2]);
 
