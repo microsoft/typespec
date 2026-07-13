@@ -33,6 +33,10 @@ export function applyEncoding(
     }
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     targetObject.type = newType.type;
+    if (newType.type !== "array") {
+      delete targetObject.items;
+      delete targetObject.prefixItems;
+    }
     // If the target already has a format it takes priority. (e.g. int32)
     targetObject[encodedFieldName] = mergeFormatAndEncoding(
       targetObject[encodedFieldName],

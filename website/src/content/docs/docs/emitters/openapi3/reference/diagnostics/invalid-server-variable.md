@@ -6,6 +6,8 @@ title: "invalid-server-variable"
 @typespec/openapi3/invalid-server-variable
 ```
 
+**Severity:** error
+
 This diagnostic is issued when a variable in the `@server` decorator is not defined as a string type.
 Since server variables are substituted into the server URL which is a string, all variables must have string values.
 

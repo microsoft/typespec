@@ -6,6 +6,8 @@ title: "invalid-schema"
 @typespec/openapi3/invalid-schema
 ```
 
+**Severity:** error
+
 This diagnostic is issued when a schema is invalid according to the OpenAPI v3 specification.
 
 To fix this issue, review your TypeSpec definitions to ensure they map to valid OpenAPI schemas.

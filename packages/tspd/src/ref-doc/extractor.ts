@@ -975,7 +975,6 @@ function extractDiagnosticsRefDoc(
     id: `${libName}/${name}`,
     name,
     severity: def.severity,
-    description: def.description,
     doc: tryReadDoc(libraryPath, `src/diagnostics/${name}.md`),
   }));
 }

@@ -6,6 +6,8 @@ title: "duplicate-header"
 @typespec/openapi3/duplicate-header
 ```
 
+**Severity:** error
+
 This diagnostic is issued when a response header is defined more than once for a response of a specific status code.
 
 To fix this issue, ensure that each response header is defined only once for each status code.

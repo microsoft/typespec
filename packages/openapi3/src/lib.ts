@@ -321,7 +321,6 @@ export const $lib = createTypeSpecLibrary({
     },
     "invalid-server-variable": {
       severity: "error",
-      description: "A variable in the `@server` decorator is not assignable to `string`.",
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
@@ -353,15 +352,12 @@ export const $lib = createTypeSpecLibrary({
     },
     "path-query": {
       severity: "error",
-      description: "An `@route` path contains a query parameter, which OpenAPI v3 does not allow.",
       messages: {
         default: `OpenAPI does not allow paths containing a query string.`,
       },
     },
     "duplicate-header": {
       severity: "error",
-      description:
-        "A response header is defined more than once for a response of a specific status code.",
       messages: {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
       },
@@ -375,15 +371,12 @@ export const $lib = createTypeSpecLibrary({
 
     "invalid-schema": {
       severity: "error",
-      description: "A schema is invalid according to the OpenAPI v3 specification.",
       messages: {
         default: paramMessage`Couldn't get schema for type ${"type"}`,
       },
     },
     "union-null": {
       severity: "error",
-      description:
-        "The result of model composition is effectively a `null` schema, which cannot be represented in OpenAPI.",
       messages: {
         default: "Cannot have a union containing only null types.",
       },
@@ -410,7 +403,6 @@ export const $lib = createTypeSpecLibrary({
     },
     "inline-cycle": {
       severity: "error",
-      description: "A cyclic reference was detected within inline schemas.",
       messages: {
         default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
       },

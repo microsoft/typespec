@@ -13,10 +13,8 @@ import {
   MarkdownSection,
   codeblock,
   inlinecode,
-  link,
   renderMarkdowDoc,
   section,
-  table,
 } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
@@ -64,13 +62,10 @@ export function renderToAstroStarlightMarkdown(
     files[`rules/${rule.rule.name}.md`] = renderRule(rule);
   }
 
-  const diagnosticsIndex = renderDiagnostics(refDoc);
-  if (diagnosticsIndex) {
-    files["diagnostics.md"] = diagnosticsIndex;
-    for (const diagnostic of refDoc.diagnostics ?? []) {
-      if (diagnostic.doc) {
-        files[`diagnostics/${diagnostic.name}.md`] = renderDiagnostic(diagnostic);
-      }
+  // Generate one page per documented diagnostic, under `diagnostics/`. No index page.
+  for (const diagnostic of refDoc.diagnostics ?? []) {
+    if (diagnostic.doc) {
+      files[`diagnostics/${diagnostic.name}.md`] = renderDiagnostic(diagnostic);
     }
   }
 
@@ -313,33 +308,6 @@ function renderRule(rule: LinterRuleRefDoc): string {
   return renderMarkdowDoc(content, 2);
 }
 
-function renderDiagnostics(refDoc: TypeSpecLibraryRefDoc): string | undefined {
-  const diagnostics = refDoc.diagnostics;
-  // Only generate the diagnostics reference once a library has started documenting its
-  // diagnostics (at least one has `docs`). This keeps libraries that haven't opted in yet
-  // from getting an empty/auto index page.
-  if (diagnostics === undefined || !diagnostics.some((d) => d.doc)) {
-    return undefined;
-  }
-  const sorted = [...diagnostics].sort((a, b) => a.name.localeCompare(b.name, "en"));
-  const rows: string[][] = [["Code", "Severity", "Description"]];
-  for (const diagnostic of sorted) {
-    const label = inlinecode(diagnostic.id);
-    const codeCell = diagnostic.doc ? link(label, `./diagnostics/${diagnostic.name}.md`) : label;
-    rows.push([codeCell, diagnostic.severity, diagnostic.description ?? ""]);
-  }
-  const content: MarkdownDoc = [
-    "---",
-    `title: "Diagnostics"`,
-    "---",
-    "",
-    "The following diagnostics can be reported by this library.",
-    "",
-    table(rows),
-  ];
-  return renderMarkdowDoc(content, 2);
-}
-
 function renderDiagnostic(diagnostic: DiagnosticRefDoc): string {
   const content: MarkdownDoc = [
     "---",
@@ -347,6 +315,8 @@ function renderDiagnostic(diagnostic: DiagnosticRefDoc): string {
     "---",
     "",
     codeblock(diagnostic.id, 'text title="Id"'),
+    "",
+    `**Severity:** ${diagnostic.severity}`,
   ];
   if (diagnostic.doc) {
     content.push("", diagnostic.doc);

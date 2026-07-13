@@ -6,6 +6,8 @@ title: "inline-cycle"
 @typespec/openapi3/inline-cycle
 ```
 
+**Severity:** error
+
 This diagnostic is issued when a cyclic reference is detected within inline schemas.
 
 To fix this issue, refactor the schemas to remove the cyclic reference.

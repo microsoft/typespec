@@ -81,9 +81,7 @@ export type LinterRuleRefDoc = ReferencableElement & {
 
 export type DiagnosticRefDoc = ReferencableElement & {
   readonly severity: "warning" | "error";
-  /** One-line summary shown in the diagnostics index. */
-  readonly description?: string;
-  /** Extended documentation as raw markdown. */
+  /** Extended documentation as raw markdown, read from a co-located `.md` file. */
   readonly doc?: string;
 };
 
