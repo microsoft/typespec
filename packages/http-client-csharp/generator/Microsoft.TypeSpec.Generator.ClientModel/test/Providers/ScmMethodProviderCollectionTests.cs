@@ -1624,36 +1624,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByWireName()
         {
-            // Options-bag override where a grouped query property has a client name ("bidx")
-            // that differs from its wire name ("asset_bidx"), e.g. @query("asset_bidx") bidx.
-            // The convenience body must resolve the property by wire name; otherwise the emitter
-            // throws "Property with serialized name 'bidx' not found in model 'GetPointOptions'".
+            // Options-bag override where a grouped query property has a client name ("bandIndex")
+            // that differs from its wire name ("band_index"), e.g. @query("band_index") bandIndex.
+            // The convenience body must still resolve the property; otherwise the emitter throws
+            // "Property with name 'bandIndex' not found in model 'GetPointOptions'".
             var optionsModel = InputFactory.Model(
                 "GetPointOptions",
                 properties:
                 [
                     InputFactory.Property(
-                        "bidx",
+                        "bandIndex",
                         InputPrimitiveType.String,
                         isRequired: false,
                         isHttpMetadata: true,
-                        wireName: "asset_bidx"),
+                        wireName: "band_index"),
                 ]);
 
             var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
-            var bidxParam = InputFactory.QueryParameter("bidx", InputPrimitiveType.String, isRequired: false);
-            bidxParam.Update(methodParameterSegments:
+            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false);
+            bandIndexParam.Update(methodParameterSegments:
             [
                 InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
-                // Segments carry the client name ("bidx"); the property's wire name is "asset_bidx".
-                InputFactory.MethodParameter("bidx", InputPrimitiveType.String, isRequired: false),
+                // Segments carry the client name ("bandIndex"); the property's wire name is "band_index".
+                InputFactory.MethodParameter("bandIndex", InputPrimitiveType.String, isRequired: false),
             ]);
 
             var serviceMethod = InputFactory.BasicServiceMethod(
                 "GetPoint",
                 InputFactory.Operation(
                     "GetPoint",
-                    parameters: [collectionIdParam, bidxParam],
+                    parameters: [collectionIdParam, bandIndexParam],
                     responses: [InputFactory.OperationResponse([200])]),
                 parameters:
                 [
@@ -1676,9 +1676,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             // Before the fix, building the body threw because the grouped query property was
-            // looked up by client name ("bidx") instead of wire name ("asset_bidx").
+            // looked up only by wire name ("band_index") while the segment carried the client
+            // name ("bandIndex").
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.That(methodBody, Does.Contain(".Bidx"));
+            Assert.That(methodBody, Does.Contain(".BandIndex"));
         }
 
         [Test]

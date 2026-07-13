@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         /// <summary>
         /// Searches for a property in the model and its base models by matching either the
         /// property's serialized (wire) name or its client name. Method-parameter segments carry
-        /// the client name, which can differ from the wire name (e.g. <c>@query("asset_bidx") bidx</c>).
+        /// the client name, which can differ from the wire name (e.g. <c>@query("band_index") bandIndex</c>).
         /// </summary>
         private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string segmentName)
         {
