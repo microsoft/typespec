@@ -58,8 +58,10 @@
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
+    "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
+    "@typespec/sse": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^"
   }
