@@ -817,6 +817,12 @@ const diagnostics = {
       default: paramMessage`Emitter '${"emitterName"}' requires '${"requiredImport"}' to be imported. Add 'import "${"requiredImport"}".`,
     },
   },
+  "permission-not-granted": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Emitter '${"emitterName"}' requested permissions that were not granted: ${"permissions"}. To allow them, add the following to your tspconfig.yaml:\n${"suggestion"}`,
+    },
+  },
 
   /**
    * Linter

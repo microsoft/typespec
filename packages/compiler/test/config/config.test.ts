@@ -253,6 +253,40 @@ describe("compiler: config file loading", () => {
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].code, "invalid-schema");
     });
+
+    it("succeeds with a valid permissions grant", () => {
+      deepStrictEqual(
+        validate({
+          permissions: {
+            "@typespec/openapi3": {
+              "fs-read": ["./schemas"],
+              "fs-write": ["./extra"],
+              network: ["*.example.com"],
+              env: ["MY_TOKEN"],
+              exec: ["git"],
+            },
+            "@typespec/other": { exec: true },
+          },
+        }),
+        [],
+      );
+    });
+
+    it("fails with an unknown permission key", () => {
+      const diagnostics = validate({
+        permissions: { "@typespec/openapi3": { "fs-delete": ["./x"] } },
+      } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
+
+    it("fails when a permission scope is not a string array", () => {
+      const diagnostics = validate({
+        permissions: { "@typespec/openapi3": { "fs-read": "everything" } },
+      } as any);
+      strictEqual(diagnostics.length, 1);
+      strictEqual(diagnostics[0].code, "invalid-schema");
+    });
   });
 
   describe("project config validation", () => {

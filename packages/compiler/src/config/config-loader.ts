@@ -251,6 +251,7 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emit,
     options,
+    permissions: data.permissions,
     linter: data.linter,
   });
 }
