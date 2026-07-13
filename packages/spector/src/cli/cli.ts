@@ -10,6 +10,7 @@ import { serverTest } from "../actions/server-test.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
+import { verifySurfaceChecks } from "../actions/verify-surface-checks.js";
 import { logger } from "../logger.js";
 import { getCommit } from "../utils/misc-utils.js";
 
@@ -114,6 +115,54 @@ async function main() {
             outputFile: resolve(process.cwd(), args.outputFile),
           });
         }
+      },
+    )
+    .command(
+      "verify-surface-checks",
+      "Run the deterministic client-surface checks (shared, language-agnostic engine).",
+      (cmd) => {
+        return cmd
+          .option("checks", {
+            type: "string",
+            demandOption: true,
+            description: "Path to the checks doc (Markdown table from @surfaceDoc, or JSON).",
+          })
+          .option("verifiers", {
+            type: "string",
+            demandOption: true,
+            description: "Path to the emitter's declarative verifiers.json routing table.",
+          })
+          .option("generated-root", {
+            type: "string",
+            demandOption: true,
+            description: "Root of the generated SDKs; packages live under <root>/<flavor>/.",
+          })
+          .option("flavor", {
+            type: "string",
+            default: "azure",
+            description: "Flavor subfolder under generated-root (e.g. azure, unbranded).",
+          })
+          .option("language", {
+            type: "string",
+            demandOption: true,
+            description: "Emitter language (selects per-language client names).",
+          })
+          .option("scenario", {
+            type: "string",
+            description: "Optional case-insensitive substring filter on the check id.",
+          });
+      },
+      async (args) => {
+        const output = await verifySurfaceChecks({
+          checksPath: resolve(process.cwd(), args.checks),
+          verifiersPath: resolve(process.cwd(), args.verifiers),
+          generatedRoot: resolve(process.cwd(), args["generated-root"]),
+          flavor: args.flavor,
+          language: args.language,
+          scenario: args.scenario,
+        });
+        // eslint-disable-next-line no-console
+        console.log(JSON.stringify(output, null, 2));
       },
     )
     .command("server", "Server management", (cmd) => {

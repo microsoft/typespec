@@ -7,11 +7,7 @@ import { UNSPECIFIED_CATEGORY } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles } from "../scenarios-resolver.js";
 import { importSpecExpect, importTypeSpec } from "../spec-utils/index.js";
-import {
-  createDiagnosticReporter,
-  Diagnostic,
-  getSourceLocationStr,
-} from "../utils/index.js";
+import { createDiagnosticReporter, Diagnostic, getSourceLocationStr } from "../utils/index.js";
 import { getCommit, getPackageJson } from "../utils/misc-utils.js";
 
 /** One language-neutral entry of the surface-checks doc — what to check, for every emitter. */
@@ -100,7 +96,8 @@ export function createSurfaceChecksManifest(
 /**
  * Render a {@link SurfaceChecksManifest} as a single Markdown document that is
  * both human-readable and machine-readable: the table below is the source of
- * truth consumed by `verify.py`, and is also easy to read in review. The
+ * truth consumed by the shared `verify-surface-checks` runner, and is also easy
+ * to read in review. The
  * `details` column encodes category-specific expectations as `key=value` pairs
  * separated by `; ` (booleans as `true`/`false`).
  */
@@ -111,7 +108,7 @@ export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Pro
     `<!-- version: ${manifest.version} · commit: ${manifest.commit} -->`,
     ``,
     `Generated from \`@surfaceDoc\` annotations. This table is both the human summary`,
-    `and the machine-readable checks doc parsed by \`verify.py\`.`,
+    `and the machine-readable checks doc parsed by the shared \`verify-surface-checks\` runner.`,
     ``,
     `| id | scenario | category | target | details | doc |`,
     `| --- | --- | --- | --- | --- | --- |`,

@@ -2,13 +2,13 @@
 
 ## Emitter facts
 
-_The shared `/check-surface` prompt and `verify.py` read these._
+_The shared `/check-surface` prompt and `tsp-spector verify-surface-checks` read these._
 
 - **language:** python _(selects which per-language client name applies when a check is language-scoped)_
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
 - **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/surface-checks.md`
-<!-- Markdown table generated from `@surfaceDoc`; both human- and machine-readable (parsed by verify.py). -->
+<!-- Markdown table generated from `@surfaceDoc`; both human- and machine-readable (parsed by the shared runner). -->
 
 ### What differs by flavor (branded = azure, unbranded)
 
@@ -20,8 +20,9 @@ flavor-invariant.
 
 What each verifiable concept looks like in generated Python. Authored once,
 reused across every scenario that uses the concept. Prefer concrete, checkable
-verifiers so the deterministic runner can decide **without calling AI** — see
-`verifiers.json` for the machine-readable form.
+verifiers so the shared deterministic runner can decide **without calling AI** —
+see `verifiers.json` for the machine-readable declarative form (file globs +
+regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
 
 ### access: internal
 
