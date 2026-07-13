@@ -38,10 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         private class AttributeTestProvider : TestTypeProvider
         {
-            internal AttributeTestProvider() : base()
-            {
-            }
-
             protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
             [
                 new AttributeStatement(typeof(ObsoleteAttribute)),
