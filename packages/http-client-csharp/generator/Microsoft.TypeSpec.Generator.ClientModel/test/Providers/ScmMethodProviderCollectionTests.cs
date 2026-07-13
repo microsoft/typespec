@@ -1679,7 +1679,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // looked up only by wire name ("band_index") while the segment carried the client
             // name ("bandIndex").
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.That(methodBody, Does.Contain(".BandIndex"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 
         [Test]
