@@ -701,7 +701,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
-            var hasAttributes = LastContractView?.Attributes != null && LastContractView.Attributes.Count > 0;
+            // Only non-public types can be internalized for back-compatibility, so there is no attribute
+            // work to do for public types even when the last contract declares attributes.
+            var hasAttributes = !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
+                LastContractView?.Attributes is { Count: > 0 };
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
@@ -737,8 +740,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
             // Restore any back-compat attributes from the last contract that are not already present in the
-            // generated or custom-code attributes. Because attributes are only ever added (never removed),
-            // a larger count than the current attributes indicates new attributes were restored.
+            // generated or custom-code attributes. BuildAttributesForBackCompatibility returns either the
+            // current attributes unchanged or a superset with the restored attributes appended, so a larger
+            // count reliably signals that new attributes were added.
             IReadOnlyList<AttributeStatement>? newAttributes = null;
             if (hasAttributes)
             {
