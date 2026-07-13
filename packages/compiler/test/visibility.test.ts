@@ -1596,6 +1596,208 @@ describe("compiler: visibility core", () => {
     ok(!arrA.properties.has("invisible"));
   });
 
+  it("applies visibility filter to base model (extends)", async () => {
+    const { UserCreate } = await Tester.compile(t.code`
+      model Base {
+        @visibility(Lifecycle.Read) id: string;
+      }
+
+      model Auditable extends Base {
+        @visibility(Lifecycle.Read) created_at: utcDateTime;
+        @visibility(Lifecycle.Read) updated_at: utcDateTime;
+      }
+
+      model User extends Auditable {
+        name: string;
+      }
+
+      @test model ${t.model("UserCreate")} is FilterVisibility<User, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(UserCreate);
+
+    // User's own property 'name' has default visibility (all), so it should be visible
+    ok(UserCreate.properties.has("name"));
+
+    // The base model should be transformed (Auditable -> AuditableCreate)
+    const auditableCreate = UserCreate.baseModel;
+    ok(auditableCreate);
+    strictEqual(auditableCreate.name, "AuditableCreate");
+
+    // Auditable's read-only properties should be filtered out
+    ok(!auditableCreate.properties.has("created_at"));
+    ok(!auditableCreate.properties.has("updated_at"));
+
+    // The base of Auditable (Base) should also be transformed
+    const baseCreate = auditableCreate.baseModel;
+    ok(baseCreate);
+    strictEqual(baseCreate.name, "BaseCreate");
+
+    // Base's read-only property should be filtered out
+    ok(!baseCreate.properties.has("id"));
+  });
+
+  it("does not transform base model when all properties are visible", async () => {
+    const { ChildFiltered } = await Tester.compile(t.code`
+      model Parent {
+        name: string;
+      }
+
+      model Child extends Parent {
+        @visibility(Lifecycle.Read) id: string;
+        description: string;
+      }
+
+      @test model ${t.model("ChildFiltered")} is FilterVisibility<Child, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(ChildFiltered);
+
+    // Child's 'description' is visible (default visibility), 'id' is not
+    ok(ChildFiltered.properties.has("description"));
+    ok(!ChildFiltered.properties.has("id"));
+
+    // Parent has no properties with restricted visibility, so it should remain unchanged
+    const base = ChildFiltered.baseModel;
+    ok(base);
+    strictEqual(base.name, "Parent");
+    ok(base.properties.has("name"));
+  });
+
+  it("applies visibility filter across multiple layers where base is unchanged", async () => {
+    const { Result } = await Tester.compile(t.code`
+      model GrandParent {
+        gp_all: string;
+      }
+
+      model Parent extends GrandParent {
+        parent_all: string;
+      }
+
+      model Child extends Parent {
+        @visibility(Lifecycle.Read) child_read: string;
+        child_all: string;
+      }
+
+      @test model ${t.model("Result")} is FilterVisibility<Child, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(Result);
+
+    // Child's properties
+    ok(Result.properties.has("child_all"));
+    ok(!Result.properties.has("child_read"));
+
+    // Neither Parent nor GrandParent have visibility-restricted properties,
+    // so the entire base chain should remain unchanged
+    const parentBase = Result.baseModel;
+    ok(parentBase);
+    strictEqual(parentBase.name, "Parent");
+    ok(parentBase.properties.has("parent_all"));
+
+    const gpBase = parentBase.baseModel;
+    ok(gpBase);
+    strictEqual(gpBase.name, "GrandParent");
+    ok(gpBase.properties.has("gp_all"));
+  });
+
+  it("applies visibility filter across multiple inheritance layers", async () => {
+    const { Result } = await Tester.compile(t.code`
+      model GrandParent {
+        @visibility(Lifecycle.Read) gp_read: string;
+        gp_all: string;
+      }
+
+      model Parent extends GrandParent {
+        parent_all: string;
+      }
+
+      model Child extends Parent {
+        @visibility(Lifecycle.Read) child_read: string;
+        child_all: string;
+      }
+
+      @test model ${t.model("Result")} is FilterVisibility<Child, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(Result);
+
+    // Child's properties
+    ok(Result.properties.has("child_all"));
+    ok(!Result.properties.has("child_read"));
+
+    // Parent is transformed because its base (GrandParent) is transformed
+    const parentFiltered = Result.baseModel;
+    ok(parentFiltered);
+    strictEqual(parentFiltered.name, "ParentCreate");
+    ok(parentFiltered.properties.has("parent_all"));
+
+    // GrandParent needs transformation (has read-only property)
+    const gpFiltered = parentFiltered.baseModel;
+    ok(gpFiltered);
+    strictEqual(gpFiltered.name, "GrandParentCreate");
+    ok(gpFiltered.properties.has("gp_all"));
+    ok(!gpFiltered.properties.has("gp_read"));
+  });
+
+  it("applies visibility filter to base model via applyVisibilityFilter", async () => {
+    const { User, program } = await Tester.compile(t.code`
+      model Base {
+        @visibility(Lifecycle.Read) id: string;
+      }
+
+      model ${t.model("User")} extends Base {
+        name: string;
+      }
+    `);
+
+    const fnContext = { program } satisfies Pick<FunctionContext, "program">;
+    const lifecycle = getLifecycleVisibilityEnum(program);
+    const filtered = applyVisibilityFilter(
+      fnContext,
+      User,
+      anyFilter(lifecycle.members.get("Create")!),
+      "{name}Create",
+    );
+
+    ok(filtered);
+    strictEqual(filtered.name, "UserCreate");
+    ok(filtered.properties.has("name"));
+
+    // Base model should be transformed
+    const baseFiltered = filtered.baseModel;
+    ok(baseFiltered);
+    strictEqual(baseFiltered.name, "BaseCreate");
+    ok(!baseFiltered.properties.has("id"));
+  });
+
+  it("does not produce infinite regress for self-referential models", async () => {
+    const { Result } = await Tester.compile(t.code`
+      model LinkedNode {
+        value: string;
+        @visibility(Lifecycle.Read) id: string;
+        next?: LinkedNode;
+      }
+
+      model Child extends LinkedNode {
+        extra: string;
+      }
+
+      @test model ${t.model("Result")} is FilterVisibility<Child, #{ all: #[Lifecycle.Create] }, "{name}Create">;
+    `);
+
+    ok(Result);
+    ok(Result.properties.has("extra"));
+
+    // Base model (LinkedNode) should be filtered and renamed
+    const base = Result.baseModel;
+    ok(base);
+    strictEqual(base.name, "LinkedNodeCreate");
+    ok(base.properties.has("value"));
+    ok(base.properties.has("next"));
+    ok(!base.properties.has("id"));
+  });
+
   it("does not duplicate encodedName metadata", async () => {
     const diagnostics = await Tester.diagnose(`
       model SomeModel {
