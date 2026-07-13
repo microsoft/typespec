@@ -1622,7 +1622,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByWireName()
+        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByClientName()
         {
             // Options-bag override where a grouped query property has a client name ("bandIndex")
             // that differs from its wire name ("band_index"), e.g. @query("band_index") bandIndex.
