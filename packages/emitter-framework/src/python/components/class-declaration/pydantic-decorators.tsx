@@ -36,7 +36,9 @@ export function fieldValidatorDecorator(
 /**
  * Build a `@model_validator(...)` decorator for method `decorators`.
  */
-export function modelValidatorDecorator(options: PydanticModelValidatorOptions): Children {
+export function modelValidatorDecorator(
+  options: PydanticModelValidatorOptions = {},
+): Children {
   const args: string[] = [];
   if (options.mode !== undefined) args.push(`mode=${JSON.stringify(options.mode)}`);
   return code`@${py.pydanticModule["."].model_validator}(${args.join(", ")})`;
