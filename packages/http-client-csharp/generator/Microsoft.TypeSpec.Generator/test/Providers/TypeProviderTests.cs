@@ -31,12 +31,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var attributes = provider.GetBackCompatibilityAttributes();
 
             // With no last contract to restore attributes from, the method only ever adds new back-compat
-            // attributes, so it returns the generated attributes unchanged (without deduplicating them).
+            // attributes, so it returns the original attributes unchanged (without deduplicating them).
             Assert.AreEqual(3, attributes.Count);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityAddsAttributeFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract declares [Obsolete("bc")] which is not present in the original set, so it
+            // should be appended to the result.
+            var attributes = provider.GetBackCompatibilityAttributes([]);
+
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual("ObsoleteAttribute", attributes[0].Type.Name);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDoesNotDuplicateExistingAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The original set already contains the same [Obsolete("bc")] attribute that the last contract
+            // declares, so nothing new is added and the original list is returned unchanged.
+            IReadOnlyList<AttributeStatement> original =
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("bc")),
+            ];
+            var attributes = provider.GetBackCompatibilityAttributes(original);
+
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreSame(original, attributes);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsCodeGenAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract only declares a CodeGen-specific attribute, which is never restored, so the
+            // original (empty) list is returned unchanged.
+            var original = Array.Empty<AttributeStatement>();
+            var attributes = provider.GetBackCompatibilityAttributes(original);
+
+            Assert.AreEqual(0, attributes.Count);
+            Assert.AreSame(original, attributes);
         }
 
         private class AttributeTestProvider : TestTypeProvider
         {
+            public AttributeTestProvider(string? name = null)
+                : base(name: name)
+            {
+            }
+
             protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
             [
                 new AttributeStatement(typeof(ObsoleteAttribute)),
@@ -44,7 +96,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
             ];
 
-            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility();
+            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility(Attributes);
+
+            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes(IEnumerable<AttributeStatement> original) => BuildAttributesForBackCompatibility(original);
         }
 
         [Test]

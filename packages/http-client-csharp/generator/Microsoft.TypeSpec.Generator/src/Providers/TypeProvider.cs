@@ -701,10 +701,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
-            // Only non-public types can be internalized for back-compatibility, so there is no attribute
-            // work to do for public types even when the last contract declares attributes.
-            var hasAttributes = !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) &&
-                LastContractView?.Attributes is { Count: > 0 };
+            var hasAttributes = LastContractView?.Attributes is { Count: > 0 };
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
@@ -746,7 +743,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<AttributeStatement>? newAttributes = null;
             if (hasAttributes)
             {
-                var backCompatAttributes = BuildAttributesForBackCompatibility();
+                var backCompatAttributes = BuildAttributesForBackCompatibility(Attributes);
                 if (backCompatAttributes.Count != Attributes.Count)
                 {
                     newAttributes = backCompatAttributes;
@@ -838,28 +835,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => [.. originalConstructors];
 
         /// <summary>
-        /// Builds the set of type-level attributes to emit, adding any back-compatibility attributes
-        /// restored from the last contract that are not already present in the original set of generated
-        /// and custom-code attributes. Attributes are only restored for non-public types (which are the
-        /// only ones that can be internalized) and CodeGen-specific attributes are never restored. The
-        /// original attributes are returned unchanged when there is nothing new to add.
+        /// Adds any back-compatibility attributes from the last contract that are not already present in
+        /// <paramref name="originalAttributes"/> (or the custom-code attributes). CodeGen-specific
+        /// attributes are never restored. The original attributes are returned unchanged when there is
+        /// nothing new to add.
         /// </summary>
-        protected internal IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility()
+        protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
-            var originalAttributes = Attributes;
+            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
 
-            // Only non-public types can be internalized for back-compatibility, so attributes from the last
-            // contract are only restored for them.
-            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
-                LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
             {
-                return originalAttributes;
+                return original;
             }
 
             // Track the original (generated + custom) attributes so we only add back-compat attributes
             // that don't already exist.
             var seen = new HashSet<string>();
-            foreach (var attribute in originalAttributes)
+            foreach (var attribute in original)
             {
                 seen.Add(attribute.ToDisplayString());
             }
@@ -873,12 +866,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (ShouldPreserveLastContractAttribute(attribute) && seen.Add(attribute.ToDisplayString()))
                 {
-                    merged ??= [.. originalAttributes];
+                    merged ??= [.. original];
                     merged.Add(attribute);
                 }
             }
 
-            return merged ?? originalAttributes;
+            return merged ?? original;
         }
 
         private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
