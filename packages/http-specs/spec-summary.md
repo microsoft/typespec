@@ -5332,6 +5332,81 @@ Basic jsonl streaming for response.
 
 Basic jsonl streaming for request.
 
+### Streaming_Sse_Basic_receive
+
+- Endpoint: `get /streaming/sse/basic/receive`
+
+Basic SSE streaming for response. The server streams a sequence of unnamed
+`message` events, each carrying a JSON `Info` payload, then closes the
+connection. Since the union variant is unnamed, no `event:` field is emitted
+and each event defaults to the `message` type.
+
+Expected response body (content type `text/event-stream`):
+
+```
+data: {"desc": "one"}
+
+data: {"desc": "two"}
+
+data: {"desc": "three"}
+
+```
+
+### Streaming_Sse_Named_receive
+
+- Endpoint: `get /streaming/sse/named/receive`
+
+SSE streaming with multiple named events and a terminal event, modeled after
+an OpenAI-style streaming response. Each named union variant sets the SSE
+`event:` field; the terminal `[DONE]` event signals the client to disconnect.
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: responseCreated
+data: {"id": "resp_1"}
+
+event: responseDelta
+data: {"delta": "Hello"}
+
+event: responseDelta
+data: {"delta": " world"}
+
+data: [DONE]
+
+```
+
+### Streaming_Sse_Retrieve_stream
+
+- Endpoint: `post /streaming/sse/retrieve/stream`
+
+A POST request with a JSON body whose response is an SSE stream, modeled
+after a knowledge-retrieval service. The server streams `partialResult`
+events as results become available, a final `finalResult` event, and a
+terminal `[DONE]` event.
+
+Expected request body (content type `application/json`):
+
+```
+{"query": "what is typespec?"}
+```
+
+Expected response body (content type `text/event-stream`):
+
+```
+event: partialResult
+data: {"text": "partial one"}
+
+event: partialResult
+data: {"text": "partial two"}
+
+event: finalResult
+data: {"references": ["doc1", "doc2"]}
+
+data: [DONE]
+
+```
+
 ### Type_Array_BooleanValue_get
 
 - Endpoint: `get /type/array/boolean`
