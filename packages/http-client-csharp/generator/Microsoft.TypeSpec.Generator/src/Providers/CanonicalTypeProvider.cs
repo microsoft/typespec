@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
-            return _generatedTypeProvider.BuildAttributesForBackCompatibility();
+            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;

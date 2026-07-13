@@ -25,15 +25,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void BuildAttributesForBackCompatibilityDeduplicatesAttributes()
+        public void BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWhenNoLastContract()
         {
             var provider = new AttributeTestProvider();
             var attributes = provider.GetBackCompatibilityAttributes();
 
-            // The three generated attributes contain a duplicate ObsoleteAttribute which should be collapsed.
-            Assert.AreEqual(2, attributes.Count);
-            var rendered = attributes.Select(a => a.ToDisplayString()).ToList();
-            Assert.AreEqual(rendered.Count, rendered.Distinct().Count());
+            // With no last contract to restore attributes from, the method only ever adds new back-compat
+            // attributes, so it returns the generated attributes unchanged (without deduplicating them).
+            Assert.AreEqual(3, attributes.Count);
         }
 
         private class AttributeTestProvider : TestTypeProvider

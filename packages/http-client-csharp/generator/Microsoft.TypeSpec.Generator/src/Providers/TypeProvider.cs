@@ -701,6 +701,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+            var hasAttributes = LastContractView?.Attributes != null && LastContractView.Attributes.Count > 0;
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
@@ -735,7 +736,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            // Restore any back-compat attributes from the last contract that are not already present in the
+            // generated or custom-code attributes. Because attributes are only ever added (never removed),
+            // a larger count than the current attributes indicates new attributes were restored.
+            IReadOnlyList<AttributeStatement>? newAttributes = null;
+            if (hasAttributes)
+            {
+                var backCompatAttributes = BuildAttributesForBackCompatibility();
+                if (backCompatAttributes.Count != Attributes.Count)
+                {
+                    newAttributes = backCompatAttributes;
+                }
+            }
+
+            if (newFields != null || newMethods != null || newConstructors != null || newAttributes != null)
             {
                 if (updatedEnumValues != null)
                 {
@@ -761,7 +775,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
                 }
 
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                Update(fields: newFields, methods: newMethods, constructors: newConstructors, attributes: newAttributes);
             }
         }
 
@@ -820,39 +834,47 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => [.. originalConstructors];
 
         /// <summary>
-        /// Builds the set of type-level attributes to emit, preserving back-compatibility by merging the
-        /// generated attributes with the compatible attributes restored from the last contract and the
-        /// custom-code attributes. Attributes restored from the last contract are limited to non-public
-        /// types and exclude CodeGen-specific attributes that should not be preserved. The merged result is
-        /// deduplicated so identical attributes are only emitted once.
+        /// Builds the set of type-level attributes to emit, adding any back-compatibility attributes
+        /// restored from the last contract that are not already present in the original set of generated
+        /// and custom-code attributes. Attributes are only restored for non-public types (which are the
+        /// only ones that can be internalized) and CodeGen-specific attributes are never restored. The
+        /// original attributes are returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility()
         {
+            var originalAttributes = Attributes;
+
             // Only non-public types can be internalized for back-compatibility, so attributes from the last
             // contract are only restored for them.
-            var lastContractAttributes = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                ? null
-                : LastContractView?.Attributes.Where(ShouldPreserveLastContractAttribute);
-
-            return DeduplicateAttributes(
-                Attributes,
-                lastContractAttributes,
-                CustomCodeView?.Attributes);
-        }
-
-        private static IReadOnlyList<AttributeStatement> DeduplicateAttributes(params IEnumerable<AttributeStatement>?[] attributeSets)
-        {
-            var seen = new HashSet<string>();
-            var attributes = new List<AttributeStatement>();
-            foreach (var attribute in attributeSets.SelectMany(static attributeSet => attributeSet ?? []))
+            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
             {
-                if (seen.Add(attribute.ToDisplayString()))
+                return originalAttributes;
+            }
+
+            // Track the original (generated + custom) attributes so we only add back-compat attributes
+            // that don't already exist.
+            var seen = new HashSet<string>();
+            foreach (var attribute in originalAttributes)
+            {
+                seen.Add(attribute.ToDisplayString());
+            }
+            foreach (var attribute in CustomCodeView?.Attributes ?? [])
+            {
+                seen.Add(attribute.ToDisplayString());
+            }
+
+            List<AttributeStatement>? merged = null;
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (ShouldPreserveLastContractAttribute(attribute) && seen.Add(attribute.ToDisplayString()))
                 {
-                    attributes.Add(attribute);
+                    merged ??= [.. originalAttributes];
+                    merged.Add(attribute);
                 }
             }
 
-            return attributes;
+            return merged ?? originalAttributes;
         }
 
         private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
