@@ -4,6 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 
+import pytest
+
 from pygen import OptionsDict
 
 
@@ -25,3 +27,26 @@ def test_constructor_and_setitem_agree():
     options["models-mode"] = "none"
     via_setitem = options["models-mode"]
     assert via_ctor == via_setitem
+
+
+def test_package_mode_validation_uses_from_typespec_from_constructor_any_order():
+    with pytest.raises(ValueError):
+        OptionsDict({"from-typespec": True, "package-mode": "dataplane", "package-version": "1.0.0"})
+
+    with pytest.raises(ValueError):
+        OptionsDict({"package-mode": "dataplane", "from-typespec": True, "package-version": "1.0.0"})
+
+
+def test_package_mode_typespec_value_succeeds_in_any_constructor_order():
+    assert (
+        OptionsDict({"from-typespec": True, "package-mode": "azure-dataplane", "package-version": "1.0.0"})[
+            "package-mode"
+        ]
+        == "azure-dataplane"
+    )
+    assert (
+        OptionsDict({"package-mode": "azure-dataplane", "from-typespec": True, "package-version": "1.0.0"})[
+            "package-mode"
+        ]
+        == "azure-dataplane"
+    )

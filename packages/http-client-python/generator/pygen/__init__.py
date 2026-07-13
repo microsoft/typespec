@@ -44,10 +44,9 @@ class OptionsDict(MutableMapping):
     }
 
     def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
-        self._data = {}
-        if options:
-            for key, value in options.items():
-                self._data[key] = self._validate_and_transform(key, value)
+        self._data = options.copy() if options else {}
+        for key in list(self._data):
+          self._data[key] = self._validate_and_transform(key, self._data[key])
         self._validate_combinations()
 
     def __getitem__(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
