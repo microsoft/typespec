@@ -7,104 +7,102 @@ import { getCompletionNodeAtPosition } from "../../src/server/serverlib.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { dumpAST } from "../ast-test-utils.js";
 
-describe("compiler: server: misc", () => {
-  describe("getCompletionNodeAtPosition", () => {
-    async function getNodeAtCursor(
-      sourceWithCursor: string,
-    ): Promise<{ root: TypeSpecScriptNode; detail: PositionDetail | undefined }> {
-      const { source, pos } = extractCursor(sourceWithCursor);
-      const root = parse(source, { comments: true, docs: true });
-      dumpAST(root);
-      return { detail: getCompletionNodeAtPosition(root, pos), root };
-    }
+describe("getCompletionNodeAtPosition", () => {
+  async function getNodeAtCursor(
+    sourceWithCursor: string,
+  ): Promise<{ root: TypeSpecScriptNode; detail: PositionDetail | undefined }> {
+    const { source, pos } = extractCursor(sourceWithCursor);
+    const root = parse(source, { comments: true, docs: true });
+    dumpAST(root);
+    return { detail: getCompletionNodeAtPosition(root, pos), root };
+  }
 
-    it("return identifier for property return type", async () => {
-      const { detail } = await getNodeAtCursor(`
+  it("return identifier for property return type", async () => {
+    const { detail } = await getNodeAtCursor(`
         model Foo {
           prop: stri┆ng
         }
       `);
-      const node = detail?.node;
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier as const);
-      strictEqual(node.sv, "string");
-    });
+    const node = detail?.node;
+    ok(node);
+    strictEqual(node.kind, SyntaxKind.Identifier as const);
+    strictEqual(node.sv, "string");
+  });
 
-    it("return missing identifier node when at the position for model property type", async () => {
-      const { detail } = await getNodeAtCursor(`
+  it("return missing identifier node when at the position for model property type", async () => {
+    const { detail } = await getNodeAtCursor(`
         model Foo {
           prop: ┆
         }
       `);
-      const node = detail?.getPositionDetailAfterTrivia()?.node;
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier as const);
-      strictEqual(node.sv, "<missing identifier>1");
-    });
+    const node = detail?.getPositionDetailAfterTrivia()?.node;
+    ok(node);
+    strictEqual(node.kind, SyntaxKind.Identifier as const);
+    strictEqual(node.sv, "<missing identifier>1");
+  });
 
-    it("return string literal when in non completed string", async () => {
-      const { detail } = await getNodeAtCursor(`
+  it("return string literal when in non completed string", async () => {
+    const { detail } = await getNodeAtCursor(`
         import "┆
       `);
-      const node = detail?.node;
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.StringLiteral);
-    });
+    const node = detail?.node;
+    ok(node);
+    strictEqual(node.kind, SyntaxKind.StringLiteral);
+  });
 
-    it("return string literal when in non completed multi line string", async () => {
-      const { detail } = await getNodeAtCursor(`
+  it("return string literal when in non completed multi line string", async () => {
+    const { detail } = await getNodeAtCursor(`
         model Foo {
           prop: """┆
         }
       `);
-      const node = detail?.node;
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.StringLiteral);
-    });
+    const node = detail?.node;
+    ok(node);
+    strictEqual(node.kind, SyntaxKind.StringLiteral);
+  });
 
-    it("return missing identifier between dot and close paren", async () => {
-      const { detail } = await getNodeAtCursor(`
+  it("return missing identifier between dot and close paren", async () => {
+    const { detail } = await getNodeAtCursor(`
         @myDecN.┆)
       `);
-      const node = detail?.node;
-      ok(node);
-      strictEqual(node.kind, SyntaxKind.Identifier as const);
-      strictEqual(node.sv, "<missing identifier>1");
-    });
+    const node = detail?.node;
+    ok(node);
+    strictEqual(node.kind, SyntaxKind.Identifier as const);
+    strictEqual(node.sv, "<missing identifier>1");
+  });
 
-    describe("resolve real node when no potential identifier", () => {
-      it("return namespace when in namespace body", async () => {
-        const { detail } = await getNodeAtCursor(`
+  describe("resolve real node when no potential identifier", () => {
+    it("return namespace when in namespace body", async () => {
+      const { detail } = await getNodeAtCursor(`
         namespace Foo {
           ┆
         }
       `);
-        const node = detail?.node;
-        ok(node);
-        strictEqual(node.kind, SyntaxKind.NamespaceStatement as const);
-        strictEqual(node.id.sv, "Foo");
-      });
+      const node = detail?.node;
+      ok(node);
+      strictEqual(node.kind, SyntaxKind.NamespaceStatement as const);
+      strictEqual(node.id.sv, "Foo");
     });
   });
+});
 
-  describe("fatal error logging", () => {
-    it("writes pending server logs and fatal stack to the provided writer", () => {
-      const messages: string[] = [];
-      const error = new Error("boom");
+describe("fatal error logging", () => {
+  it("writes pending server logs and fatal stack to the provided writer", () => {
+    const messages: string[] = [];
+    const error = new Error("boom");
 
-      writeServerFatalError(
-        (message) => messages.push(message),
-        [{ level: "info", message: "pending message", detail: { value: 123 } }],
-        error,
-      );
+    writeServerFatalError(
+      (message) => messages.push(message),
+      [{ level: "info", message: "pending message", detail: { value: 123 } }],
+      error,
+    );
 
-      const output = messages.join("");
-      ok(output.includes("[info] pending message:\n{ value: 123 }\n"));
-      ok(output.includes("Error: boom"));
-    });
+    const output = messages.join("");
+    ok(output.includes("[info] pending message:\n{ value: 123 }\n"));
+    ok(output.includes("Error: boom"));
+  });
 
-    it("formats non-error fatal values", () => {
-      strictEqual(formatFatalError({ reason: "boom" }), "{ reason: 'boom' }");
-    });
+  it("formats non-error fatal values", () => {
+    strictEqual(formatFatalError({ reason: "boom" }), "{ reason: 'boom' }");
   });
 });
