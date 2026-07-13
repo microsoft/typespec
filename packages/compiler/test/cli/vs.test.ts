@@ -15,6 +15,9 @@ function createHost() {
 
 beforeEach(() => {
   mockRun.mockReset();
+  // `run` is mocked; return a spawnSync-like result so Windows code paths
+  // (e.g. isVSInstalled reading `proc.status`) don't throw.
+  mockRun.mockReturnValue({ status: 1, stdout: "" });
 });
 
 it("warns that `tsp vs install` is deprecated and points to the docs", async () => {
