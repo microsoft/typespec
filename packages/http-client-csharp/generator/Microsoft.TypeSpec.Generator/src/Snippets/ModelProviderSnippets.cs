@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
-            TypeProvider currentModel = model;
+            ModelProvider currentModel = model;
             ValueExpression propertyAccessExpression = modelVariable;
 
             for (int i = 0; i < propertySegments.Count; i++)
@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                     {
                         propertyAccessExpression = propertyAccessExpression.NullConditional();
                     }
-                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
+                    currentModel = (ModelProvider)CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
                 }
             }
 
@@ -50,10 +50,10 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         /// property's serialized (wire) name or its client name. Method-parameter segments carry
         /// the client name, which can differ from the wire name (e.g. <c>@query("band_index") bandIndex</c>).
         /// </summary>
-        private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string segmentName)
+        private static PropertyProvider FindPropertyInModelHierarchy(ModelProvider model, string segmentName)
         {
             // Properties may only be populated on the canonical view at this stage.
-            var properties = (model as ModelProvider)?.CanonicalView.Properties ?? model.Properties;
+            var properties = model.CanonicalView.Properties;
 
             // Try to find the property by wire name, then by client name (segments carry the
             // camelCase client name; the C# property name is PascalCase).
@@ -66,9 +66,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
 
             // If not found, search in the base model hierarchy
-            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            if (model.BaseModelProvider != null)
             {
-                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, segmentName);
+                return FindPropertyInModelHierarchy(model.BaseModelProvider, segmentName);
             }
 
             // If not found anywhere, throw an exception with a helpful message
