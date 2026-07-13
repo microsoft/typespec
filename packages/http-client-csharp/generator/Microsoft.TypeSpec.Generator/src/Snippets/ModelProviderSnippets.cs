@@ -38,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                     {
                         propertyAccessExpression = propertyAccessExpression.NullConditional();
                     }
-                    currentModel = (ModelProvider)CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
+                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type] as ModelProvider
+                        ?? throw new System.InvalidOperationException($"Cannot navigate the property path through '{property.Name}' because its type is not a model.");
                 }
             }
 
