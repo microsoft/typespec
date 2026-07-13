@@ -1641,7 +1641,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 ]);
 
             var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
-            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false);
+            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false, serializedName: "band_index");
             bandIndexParam.Update(methodParameterSegments:
             [
                 InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
