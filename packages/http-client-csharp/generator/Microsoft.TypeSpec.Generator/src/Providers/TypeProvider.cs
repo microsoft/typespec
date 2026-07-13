@@ -736,10 +736,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            // Restore any back-compat attributes from the last contract that are not already present in the
-            // generated or custom-code attributes. BuildAttributesForBackCompatibility returns either the
-            // current attributes unchanged or a superset with the restored attributes appended, so a larger
-            // count reliably signals that new attributes were added.
             IReadOnlyList<AttributeStatement>? newAttributes = null;
             if (hasAttributes)
             {

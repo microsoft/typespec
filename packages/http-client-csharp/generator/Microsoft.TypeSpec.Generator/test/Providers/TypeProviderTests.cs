@@ -28,11 +28,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWhenNoLastContract()
         {
             var provider = new AttributeTestProvider();
-            var attributes = provider.GetBackCompatibilityAttributes();
 
             // With no last contract to restore attributes from, the method only ever adds new back-compat
             // attributes, so it returns the original attributes unchanged (without deduplicating them).
-            Assert.AreEqual(3, attributes.Count);
+            var attributes = provider.GetBackCompatibilityAttributes();
+            provider.Update(attributes: attributes);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
         [Test]
@@ -44,9 +46,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The last contract declares [Obsolete("bc")] which is not present in the original set, so it
             // should be appended to the result.
             var attributes = provider.GetBackCompatibilityAttributes([]);
+            provider.Update(attributes: attributes);
 
-            Assert.AreEqual(1, attributes.Count);
-            Assert.AreEqual("ObsoleteAttribute", attributes[0].Type.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
         [Test]
@@ -63,8 +65,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             ];
             var attributes = provider.GetBackCompatibilityAttributes(original);
 
-            Assert.AreEqual(1, attributes.Count);
+            // No new attribute is added, so the original list is returned by reference (no allocation).
             Assert.AreSame(original, attributes);
+
+            provider.Update(attributes: attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
         [Test]
@@ -78,9 +83,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var original = Array.Empty<AttributeStatement>();
             var attributes = provider.GetBackCompatibilityAttributes(original);
 
-            Assert.AreEqual(0, attributes.Count);
+            // Nothing is restored, so the original list is returned by reference (no allocation).
             Assert.AreSame(original, attributes);
+
+            provider.Update(attributes: attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
+
+        private static string Write(TypeProvider provider) =>
+            CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 
         private class AttributeTestProvider : TestTypeProvider
         {
@@ -88,6 +99,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 : base(name: name)
             {
             }
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
+                TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
 
             protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
             [
