@@ -881,9 +881,6 @@ def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstrin
 # pylint: enable=docstring-missing-param
 class Model(_MyMutableMapping):
     _is_model = True
-    # label whether current class's _attr_to_rest_field has been calculated
-    # could not see _attr_to_rest_field directly because subclass inherits it from parent class
-    _calculated: set[str] = set()
 
     def __init__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         class_name = self.__class__.__name__
@@ -1024,18 +1021,28 @@ class Model(_MyMutableMapping):
         return Model(self.__dict__)
 
     def __new__(cls, *args: typing.Any, **kwargs: typing.Any) -> Self:
-        if f"{cls.__module__}.{cls.__qualname__}" not in cls._calculated:
+        # First time we build this class, compute its field metadata and cache it on the class.
+        # Check `cls.__dict__` (this class's own attrs), not a shared set: subclasses inherit
+        # `_attr_to_rest_field`, so this is only True once *this* class is done. No lock needed.
+        if "_attr_to_rest_field" not in cls.__dict__:
             # we know the last nine classes in mro are going to be 'Model', '_MyMutableMapping', 'MutableMapping',
             # 'Mapping', 'Collection', 'Sized', 'Iterable', 'Container' and 'object'
             mros = cls.__mro__[:-9][::-1]  # ignore parents, and reverse the mro order
+            # Read from a copy (`dict(...)`), not the original: another thread building a parent class
+            # may write its cache into that parent's attrs at the same time, and reading the original
+            # while it changes raises "dictionary changed size during iteration" (silently swallowed
+            # during deserialization, returning raw JSON). The copy has the same fields anyway.
             attr_to_rest_field: dict[str, _RestField] = {  # map attribute name to rest_field property
-                k: v for mro_class in mros for k, v in mro_class.__dict__.items() if k[0] != "_" and hasattr(v, "_type")
+                k: v
+                for mro_class in mros
+                for k, v in dict(mro_class.__dict__).items()
+                if k[0] != "_" and hasattr(v, "_type")
             }
             annotations = {
                 k: v
                 for mro_class in mros
                 if hasattr(mro_class, "__annotations__")
-                for k, v in mro_class.__annotations__.items()
+                for k, v in dict(mro_class.__annotations__).items()
             }
             for attr, rf in attr_to_rest_field.items():
                 rf._module = cls.__module__
@@ -1043,17 +1050,20 @@ class Model(_MyMutableMapping):
                     rf._type = rf._get_deserialize_callable_from_annotation(annotations.get(attr, None))
                 if not rf._rest_name_input:
                     rf._rest_name_input = attr
-            cls._attr_to_rest_field: dict[str, _RestField] = dict(attr_to_rest_field.items())
             {% if code_model.has_padded_model_property %}
             cls._backcompat_attr_to_rest_field: dict[str, _RestField] = {
-                Model._get_backcompat_attribute_name(cls._attr_to_rest_field, attr): rf for attr, rf in cls
-                ._attr_to_rest_field.items()
+                Model._get_backcompat_attribute_name(attr_to_rest_field, attr): rf
+                for attr, rf in attr_to_rest_field.items()
             }
             {% endif %}
             # Build XML field plan for fast _init_from_xml (only for XML models)
             if getattr(cls, "_xml", None):
                 cls._xml_field_plan = _build_xml_field_plan(cls, attr_to_rest_field)
-            cls._calculated.add(f"{cls.__module__}.{cls.__qualname__}")
+            # Set `_attr_to_rest_field` LAST: it's the "done" flag checked above, so the extra maps
+            # are set first and are ready before another thread sees it. Built as a local and assigned
+            # in one step, never mutated after - readers always see a complete map. Two threads racing
+            # here just build the same map twice (harmless), so no lock is needed.
+            cls._attr_to_rest_field: dict[str, _RestField] = dict(attr_to_rest_field)
 
         return super().__new__(cls)
 
