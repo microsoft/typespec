@@ -746,6 +746,12 @@ const diagnostics = {
       default: paramMessage`Duplicate name: "${"name"}"`,
     },
   },
+  "duplicate-suppression": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
+    },
+  },
   "decorator-decl-target": {
     severity: "error",
     messages: {
