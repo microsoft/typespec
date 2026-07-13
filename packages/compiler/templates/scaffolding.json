@@ -125,10 +125,6 @@
         "destination": "src/rules/no-interfaces.rule.ts"
       },
       {
-        "path": "library-ts/src/testing/index.ts.mu",
-        "destination": "src/testing/index.ts"
-      },
-      {
         "path": "library-ts/test/decorators.test.ts.mu",
         "destination": "test/decorators.test.ts"
       },
@@ -184,10 +180,6 @@
       {
         "path": "emitter-ts/src/lib.ts",
         "destination": "src/lib.ts"
-      },
-      {
-        "path": "emitter-ts/src/testing/index.ts.mu",
-        "destination": "src/testing/index.ts"
       },
       {
         "path": "emitter-ts/test/hello.test.ts",
