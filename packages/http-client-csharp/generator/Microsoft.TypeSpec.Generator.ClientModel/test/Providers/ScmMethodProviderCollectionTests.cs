@@ -1622,6 +1622,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByWireName()
+        {
+            // Options-bag override where a grouped query property has a client name ("bidx")
+            // that differs from its wire name ("asset_bidx"), e.g. @query("asset_bidx") bidx.
+            // The convenience body must resolve the property by wire name; otherwise the emitter
+            // throws "Property with serialized name 'bidx' not found in model 'GetPointOptions'".
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "bidx",
+                        InputPrimitiveType.String,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "asset_bidx"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            var bidxParam = InputFactory.QueryParameter("bidx", InputPrimitiveType.String, isRequired: false);
+            bidxParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                // Segments carry the client name ("bidx"); the property's wire name is "asset_bidx".
+                InputFactory.MethodParameter("bidx", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, bidxParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            // Before the fix, building the body threw because the grouped query property was
+            // looked up by client name ("bidx") instead of wire name ("asset_bidx").
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.That(methodBody, Does.Contain(".Bidx"));
+        }
+
+        [Test]
         public async Task MethodParameterSegments_BodyParameterSerialization()
         {
             // Test scenario: Body parameter with MethodParameterSegments should be serialized

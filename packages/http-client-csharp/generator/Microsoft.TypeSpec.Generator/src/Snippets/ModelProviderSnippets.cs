@@ -46,12 +46,20 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         }
 
         /// <summary>
-        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// Searches for a property in the model and its base models by matching either the
+        /// property's serialized (wire) name or its client name. Method-parameter segments carry
+        /// the client name, which can differ from the wire name (e.g. <c>@query("asset_bidx") bidx</c>).
         /// </summary>
-        private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string segmentName)
         {
-            // First, try to find the property in the current model
-            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            // Properties may only be populated on the canonical view at this stage.
+            var properties = (model as ModelProvider)?.CanonicalView.Properties ?? model.Properties;
+
+            // Try to find the property by wire name, then by client name (segments carry the
+            // camelCase client name; the C# property name is PascalCase).
+            var property = properties.FirstOrDefault(p => p.WireInfo?.SerializedName == segmentName)
+                ?? properties.FirstOrDefault(p => p.InputProperty?.Name == segmentName)
+                ?? properties.FirstOrDefault(p => string.Equals(p.Name, segmentName, System.StringComparison.OrdinalIgnoreCase));
             if (property != null)
             {
                 return property;
@@ -60,12 +68,12 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             // If not found, search in the base model hierarchy
             if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
             {
-                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, segmentName);
             }
 
             // If not found anywhere, throw an exception with a helpful message
             throw new System.InvalidOperationException(
-                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
+                $"Property with name '{segmentName}' not found in model '{model.Name}' or its base models.");
         }
 
         private static bool NeedsNullableConditional(PropertyProvider property)
