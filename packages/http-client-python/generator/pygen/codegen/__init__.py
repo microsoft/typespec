@@ -5,10 +5,10 @@
 # --------------------------------------------------------------------------
 import logging
 from typing import Any
-import yaml
 
 
 from .. import Plugin
+from .. import _codemodel_json as codemodel_json
 from ..utils import parse_args
 from .models.code_model import CodeModel
 from .serializers import JinjaSerializer
@@ -62,7 +62,7 @@ class CodeGenerator(Plugin):
     def get_yaml(self) -> dict[str, Any]:
         # tsp file doesn't have to be relative to output folder
         with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
-            return yaml.safe_load(fd.read())
+            return codemodel_json.loads(fd.read())
 
     def get_serializer(self, code_model: CodeModel):
         return JinjaSerializer(code_model, output_folder=self.output_folder)

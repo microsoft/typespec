@@ -1,6 +1,7 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, emitFile, joinPaths, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
+import { serializeCodeModel } from "./code-model-serializer.js";
 import { emitCodeModel } from "./code-model.js";
 import {
   BLOB_STORAGE_BASE_URL,
@@ -8,7 +9,6 @@ import {
   PYGEN_WHEEL_FILENAME,
   PYODIDE_VERSION,
 } from "./constants.js";
-import { dumpCodeModelToYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import { loadPyodide, PyodideInterface } from "./pyodide-loader.js";
@@ -234,13 +234,13 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       return;
     }
 
-    const yamlFilePath = "/yaml/python-yaml-path.yaml";
-    pyodide.FS.mkdirTree("/yaml");
+    const codeModelFilePath = "/codemodel/python-codemodel-path.json";
+    pyodide.FS.mkdirTree("/codemodel");
     pyodide.FS.mkdirTree("/output");
     clearMemfsDirectory(pyodide, "/output");
-    pyodide.FS.writeFile(yamlFilePath, dumpCodeModelToYaml(parsedYamlMap));
+    pyodide.FS.writeFile(codeModelFilePath, serializeCodeModel(parsedYamlMap));
 
-    await runPyodideGeneration(pyodide, "/output", yamlFilePath, commandArgs);
+    await runPyodideGeneration(pyodide, "/output", codeModelFilePath, commandArgs);
     await copyPyodideOutputToHost(context, pyodide, "/output");
   } else {
     await runNodeEmit({

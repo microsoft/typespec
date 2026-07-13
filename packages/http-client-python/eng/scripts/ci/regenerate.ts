@@ -3,8 +3,8 @@
  * Regenerates Python SDK code from TypeSpec definitions.
  *
  * Two-phase pipeline:
- *   1. TypeSpec compile (in-process, parallel) -> emits per-spec YAML only.
- *   2. Single batched Python subprocess reads all YAMLs and writes the
+ *   1. TypeSpec compile (in-process, parallel) -> emits per-spec code model only.
+ *   2. Single batched Python subprocess reads all code models and writes the
  *      final `.py` files. Amortizes Python-startup cost across many specs.
  *
  * Shared helpers/data live in `regenerate-common.ts` (kept identical with the
@@ -185,14 +185,15 @@ async function regenerateFlavor(
   const allSpecs = [...azureSpecs, ...standardSpecs];
 
   // Build task groups (tasks for same spec run sequentially to avoid state pollution).
-  // emitYamlOnly: true -> phase 1 emits YAML only; phase 2 (runBatchPythonProcessing) writes .py files.
-  const groups = buildTaskGroups(allSpecs, flags, ctx, { emitYamlOnly: true });
+  // emitCodeModelOnly: true -> phase 1 emits the code model only; phase 2
+  // (runBatchPythonProcessing) writes .py files.
+  const groups = buildTaskGroups(allSpecs, flags, ctx, { emitCodeModelOnly: true });
   const totalTasks = groups.reduce((sum, g) => sum + g.tasks.length, 0);
 
   console.log(pc.cyan(`Found ${allSpecs.length} specs (${totalTasks} total tasks) to compile`));
   console.log(pc.cyan(`Using ${jobs} parallel jobs\n`));
 
-  // Run compilation (emits YAML only)
+  // Run compilation (emits the code model only)
   const startTime = performance.now();
   const results = await runParallel(groups, jobs, ctx);
   const compileTime = (performance.now() - startTime) / 1000;

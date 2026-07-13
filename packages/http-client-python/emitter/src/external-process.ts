@@ -2,8 +2,8 @@ import { joinPaths } from "@typespec/compiler";
 import { ChildProcess, spawn, SpawnOptions } from "child_process";
 import { randomUUID } from "crypto";
 import { mkdir, writeFile } from "fs/promises";
-import jsyaml from "js-yaml";
 import os from "os";
+import { serializeCodeModel } from "./code-model-serializer.js";
 
 const tspCodeGenTempDir = joinPaths(os.tmpdir(), "tsp-codegen");
 
@@ -12,33 +12,20 @@ export function createTempPath(extension: string, prefix: string = "") {
 }
 
 /**
- * Serialize the given codemodel to a YAML string.
+ * Save the given codemodel in a JSON file.
  *
- * The generated YAML is consumed by the Python generator, which parses it with
- * PyYAML (YAML 1.1). js-yaml, on the other hand, dumps using YAML 1.2 rules, so
- * plain scalars such as `2020_01_01` (a snake-cased enum member name) are left
- * unquoted because YAML 1.2 does not treat underscores as integer separators.
- * PyYAML would then read `2020_01_01` back as the integer `20200101`, corrupting
- * string values (e.g. enum member names, descriptions). Forcing every string
- * scalar to be quoted guarantees that PyYAML round-trips them as strings.
- * @param codemodel Codemodel to serialize
- * @return the YAML representation of the codemodel.
- */
-export function dumpCodeModelToYaml(codemodel: unknown): string {
-  return jsyaml.dump(codemodel, { forceQuotes: true, quotingType: '"' });
-}
-
-/**
- * Save the given codemodel in a yaml file.
+ * The codemodel is a cyclic object graph with shared references, so it is serialized with
+ * the `$id`/`$ref` reference-preserving convention (the same one used by the C# emitter
+ * and System.Text.Json's `ReferenceHandler.Preserve`), which preserves cycles and
+ * structural sharing. The Python generator reads it back with a matching decoder.
  * @param name Name of the codemodel. To give a guide to the temp file name.
  * @param codemodel Codemodel to save
  * @return the absolute path to the created codemodel.
  */
-export async function saveCodeModelAsYaml(name: string, codemodel: unknown): Promise<string> {
+export async function saveCodeModel(name: string, codemodel: unknown): Promise<string> {
   await mkdir(tspCodeGenTempDir, { recursive: true });
-  const filename = createTempPath(".yaml", name);
-  const yamlStr = dumpCodeModelToYaml(codemodel);
-  await writeFile(filename, yamlStr);
+  const filename = createTempPath(".json", name);
+  await writeFile(filename, serializeCodeModel(codemodel));
   return filename;
 }
 

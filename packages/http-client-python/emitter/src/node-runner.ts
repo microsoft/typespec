@@ -13,7 +13,7 @@ import path, { dirname } from "path";
 import { loadPyodide, PyodideInterface } from "pyodide";
 import { fileURLToPath } from "url";
 import { blackExcludeDirs, PYGEN_WHEEL_FILENAME } from "./constants.js";
-import { saveCodeModelAsYaml } from "./external-process.js";
+import { saveCodeModel } from "./external-process.js";
 import { PythonEmitterOptions, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { quoteShellArg } from "./utils.js";
@@ -41,21 +41,22 @@ export async function runNodeEmit({
   const program = context.program;
   const outputDir = context.emitterOutputDir;
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
+  const codeModelPath = await saveCodeModel("python-codemodel-path", parsedYamlMap);
 
   if (program.compilerOptions.noEmit || program.hasError()) {
     return;
   }
 
-  // If emit-yaml-only mode, just copy YAML to output dir for batch processing
-  if (resolvedOptions["emit-yaml-only"]) {
+  // If emit-codemodel-only mode, just record the code model location in the output dir
+  // for batch processing.
+  if (resolvedOptions["emit-codemodel-only"]) {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
     }
-    // Copy YAML to output dir with command args embedded
+    // Write a config file pointing at the code model plus the command args.
     // Use unique filename to avoid conflicts when multiple specs share output dir
-    const configId = path.basename(yamlPath, ".yaml");
-    const batchConfig = { yamlPath, commandArgs, outputDir };
+    const configId = path.basename(codeModelPath, ".json");
+    const batchConfig = { codeModelPath, commandArgs, outputDir };
     fs.writeFileSync(
       path.join(outputDir, `.tsp-codegen-${configId}.json`),
       JSON.stringify(batchConfig, null, 2),
@@ -84,10 +85,19 @@ export async function runNodeEmit({
     // mount output folder to pyodide
     pyodide.FS.mkdirTree("/output");
     pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
-    // mount yaml file to pyodide
-    pyodide.FS.mkdirTree("/yaml");
-    pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
-    await runPyodideGeneration(pyodide, "/output", `/yaml/${path.basename(yamlPath)}`, commandArgs);
+    // mount code model file to pyodide
+    pyodide.FS.mkdirTree("/codemodel");
+    pyodide.FS.mount(
+      pyodide.FS.filesystems.NODEFS,
+      { root: path.dirname(codeModelPath) },
+      "/codemodel",
+    );
+    await runPyodideGeneration(
+      pyodide,
+      "/output",
+      `/codemodel/${path.basename(codeModelPath)}`,
+      commandArgs,
+    );
     return;
   }
 
@@ -105,7 +115,7 @@ export async function runNodeEmit({
     return;
   }
   commandArgs["output-folder"] = outputDir;
-  commandArgs["tsp-file"] = yamlPath;
+  commandArgs["tsp-file"] = codeModelPath;
   const commandFlags = Object.entries(commandArgs)
     .map(([key, value]) => `--${key}=${quoteShellArg(String(value))}`)
     .join(" ");

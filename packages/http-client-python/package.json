@@ -95,7 +95,6 @@
     ]
   },
   "dependencies": {
-    "js-yaml": "^4.2.0",
     "marked": "^15.0.6",
     "pyodide": "0.26.2",
     "semver": "~7.6.2",
@@ -120,7 +119,6 @@
     "@typespec/streams": "~0.83.0",
     "@typespec/xml": "~0.83.0",
     "@typespec/http-specs": "0.1.0-alpha.39-dev.2",
-    "@types/js-yaml": "~4.0.5",
     "@types/node": "~25.0.2",
     "@types/semver": "7.5.8",
     "c8": "^10.1.3",

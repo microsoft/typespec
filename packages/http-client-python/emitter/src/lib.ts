@@ -31,7 +31,7 @@ export interface PythonEmitterOptions {
     urls?: boolean;
   };
   "clear-output-folder"?: boolean;
-  "emit-yaml-only"?: boolean;
+  "emit-codemodel-only"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -147,11 +147,11 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       description:
         "Whether to clear the output folder before generating the code. Defaults to `false`.",
     },
-    "emit-yaml-only": {
+    "emit-codemodel-only": {
       type: "boolean",
       nullable: true,
       description:
-        "Emit YAML code model only, without running Python generator. For batch processing.",
+        "Emit the serialized code model only, without running the Python generator. For batch processing.",
     },
   },
   required: [],
