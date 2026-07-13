@@ -819,6 +819,52 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
             => [.. originalConstructors];
 
+        /// <summary>
+        /// Builds the set of type-level attributes to emit, preserving back-compatibility by merging the
+        /// generated attributes with the compatible attributes restored from the last contract and the
+        /// custom-code attributes. Attributes restored from the last contract are limited to non-public
+        /// types and exclude CodeGen-specific attributes that should not be preserved. The merged result is
+        /// deduplicated so identical attributes are only emitted once.
+        /// </summary>
+        protected internal IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility()
+        {
+            // Only non-public types can be internalized for back-compatibility, so attributes from the last
+            // contract are only restored for them.
+            var lastContractAttributes = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                ? null
+                : LastContractView?.Attributes.Where(ShouldPreserveLastContractAttribute);
+
+            return DeduplicateAttributes(
+                Attributes,
+                lastContractAttributes,
+                CustomCodeView?.Attributes);
+        }
+
+        private static IReadOnlyList<AttributeStatement> DeduplicateAttributes(params IEnumerable<AttributeStatement>?[] attributeSets)
+        {
+            var seen = new HashSet<string>();
+            var attributes = new List<AttributeStatement>();
+            foreach (var attribute in attributeSets.SelectMany(static attributeSet => attributeSet ?? []))
+            {
+                if (seen.Add(attribute.ToDisplayString()))
+                {
+                    attributes.Add(attribute);
+                }
+            }
+
+            return attributes;
+        }
+
+        private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
+        {
+            var attributeName = attribute.Data?.AttributeClass?.Name;
+            return attributeName is not
+                (CodeGenAttributes.CodeGenSuppressAttributeName or
+                CodeGenAttributes.CodeGenMemberAttributeName or
+                CodeGenAttributes.CodeGenTypeAttributeName or
+                CodeGenAttributes.CodeGenSerializationAttributeName);
+        }
+
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
         private bool ShouldGenerate(ConstructorProvider constructor)
