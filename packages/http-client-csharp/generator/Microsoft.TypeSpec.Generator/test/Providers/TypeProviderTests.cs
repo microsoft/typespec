@@ -257,6 +257,86 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // TypeProvider: a STATIC method that gained an optional non-body parameter gets a hidden overload
+        // whose body delegates through the declaring type (not `this`), since a static method cannot use
+        // an instance receiver.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsStaticOverloadForNewOptionalParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published static GetData(int param1); the current generation adds an
+            // optional non-body parameter param2.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Static, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "StaticOverloadType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a VOID method that gained an optional non-body parameter gets a hidden overload
+        // whose body invokes the current method as a statement (no `return`), since a void method has no
+        // value to return.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsVoidOverloadForNewOptionalParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published void DoWork(int param1); the current generation adds an
+            // optional non-body parameter param2.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var doWork = new MethodProvider(
+                new MethodSignature("DoWork", $"", MethodSignatureModifiers.Public, null, $"", [param1, param2]),
+                MethodBodyStatement.Empty,
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "VoidOverloadType", ns: "Test", methods: [doWork]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: when a previous signature's removal is accepted in the ApiCompat baseline, the
+        // optional-parameter overload pass must NOT resurrect it even though the replacement method added
+        // optional parameters.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOverloadForBaselineAcceptedRemoval()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // The last contract published GetData(int param1); the current generation adds an optional
+            // param2. The baseline accepts the removal of GetData(int), so no overload must be added.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "SkipOverloadType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the current method remains; the accepted removal is not resurrected as an overload.
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual(2, typeProvider.Methods[0].Signature.Parameters.Count);
+        }
+
         // Validates the shared lookup that any provider can use to restore a previously-published
         // parameter name from its last contract.
         [Test]

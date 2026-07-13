@@ -129,11 +129,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (currentLookup.TryGetValue(field.Name, out var existingMember))
                 {
-                    // Preserve the last contract's explicit value for integer enums so members keep
-                    // their exact values.
-                    ValueExpression? initializationValue = null;
+                    // By default, preserve the last contract's explicit value for integer enums so
+                    // members keep their exact values. If the baseline accepts a value change for this
+                    // member (EnumValuesMustMatch), honor the current value instead of restoring the old.
+                    ValueExpression? initializationValue = existingMember.Field.InitializationValue;
                     var memberValue = existingMember.Value;
-                    if (IsIntValueType && field.InitializationValue is LiteralExpression { Literal: { } lastContractValue })
+                    if (IsIntValueType
+                        && field.InitializationValue is LiteralExpression { Literal: { } lastContractValue }
+                        && CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, field.Name, 0) != true)
                     {
                         initializationValue = field.InitializationValue;
                         memberValue = lastContractValue;

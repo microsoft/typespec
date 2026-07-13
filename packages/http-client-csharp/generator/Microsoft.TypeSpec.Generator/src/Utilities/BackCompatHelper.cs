@@ -393,7 +393,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     }
                 }
 
-                if (previousStillExists || matchedCurrent is null)
+                if (previousStillExists || matchedCurrent is null || IsMethodRemovalAcceptedInBaseline(enclosingType, previousSignature))
                 {
                     continue;
                 }
@@ -486,11 +486,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 arguments.Add(PositionalReference(variableName, value));
             }
 
+            var invocationTarget = currentSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
+                ? Static(enclosingType.Type)
+                : This;
+            var delegatingCall = invocationTarget.Invoke(currentSignature.Name, arguments);
+            MethodBodyStatement body = IsVoidReturnType(currentSignature.ReturnType)
+                ? delegatingCall.Terminate()
+                : Return(delegatingCall);
+
             return new MethodProvider(
                 MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true),
-                Return(This.Invoke(currentSignature.Name, arguments)),
+                body,
                 enclosingType,
                 previousMethod.XmlDocs);
         }
+
+        private static bool IsVoidReturnType(CSharpType? returnType) =>
+            returnType is null || (returnType.IsFrameworkType && returnType.FrameworkType == typeof(void));
     }
 }

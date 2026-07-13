@@ -681,6 +681,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(1, (fields[1].InitializationValue as LiteralExpression)?.Literal);
         }
 
+        // Validates that when a shared integer enum member's value was intentionally changed and the
+        // baseline accepts it (recorded as an EnumValuesMustMatch suppression), back-compat honors the
+        // CURRENT value instead of restoring the old last-contract value.
+        [Test]
+        public async Task BackCompat_IntEnumChangedValueHonoredWhenBaselineAccepts()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Last contract: Recover = 0, Default = 5. Current changes Default to 1; the baseline accepts
+            // the value change, so back-compat must keep the current value (1) rather than restoring 5.
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 1),
+                ("Recover", 0),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order is preserved from the last contract: Recover first, Default second.
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // Recover was unchanged, so it keeps its (identical) value of 0.
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+
+            // Default's accepted value change is honored: the CURRENT value (1) is kept, not the old (5).
+            var defaultValue = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(defaultValue);
+            Assert.AreEqual(1, defaultValue?.Literal);
+        }
+
         // Validates that string enum order is also preserved from last contract
         [Test]
         public async Task BackCompat_StringEnumOrderPreserved()
