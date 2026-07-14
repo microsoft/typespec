@@ -1,5 +1,62 @@
 # Change Log - @typespec/compiler
 
+## 1.14.0
+
+### Deprecations
+
+- [#11169](https://github.com/microsoft/typespec/pull/11169) `tsp code install` and `tsp vs install` now install the editor extensions from the marketplace instead of downloading the `typespec-vscode`/`typespec-vs` npm packages. `tsp code install` delegates to `code --install-extension microsoft.typespec-vscode`, and `tsp vs install` downloads the latest vsix from the Visual Studio Marketplace.
+  
+  The `tsp code` and `tsp vs` commands (`install`/`uninstall`) are now deprecated. They keep working but emit a deprecation warning; install and manage the extensions directly from the marketplace instead.
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Features
+
+- [#11247](https://github.com/microsoft/typespec/pull/11247) Add `setAutoDecorator` API to programmatically apply an `auto` decorator to a target, mirroring what the synthesized `auto dec` implementation does when the decorator is written in source. This lets emitters and mutators mark synthetic types without reaching into the program state map directly.
+  
+  ```ts
+  import { setAutoDecorator } from "@typespec/compiler";
+  
+  setAutoDecorator(program, "MyLib.myFlag", target);
+  ```
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+- [#10956](https://github.com/microsoft/typespec/pull/10956) Support importing .ts decorator modules from TypeSpec source files.
+- [#10197](https://github.com/microsoft/typespec/pull/10197) Added `auto` decorator modifier for declaring decorators that auto-store their arguments as metadata without requiring a JavaScript implementation.
+  
+  ```typespec
+  auto dec label(target: Model, value: valueof string);
+  
+  @label("my-model")
+  model Foo {}
+  ```
+  
+  Added compiler API `hasAutoDecorator`, `getAutoDecoratorValue`, and `getAutoDecoratorTargets` for reading auto decorator values by FQN.
+- [#11247](https://github.com/microsoft/typespec/pull/11247) `createTester` now mounts each discovered library's `tspconfig.yaml` into the virtual file system, so experimental features a library opts into (e.g. `auto-decorators`) are honored when compiling against the tester.
+- [#10805](https://github.com/microsoft/typespec/pull/10805) Dim unused `#suppress` directives for available compiler and library diagnostics in editor scenarios.
+  
+  ```typespec
+  #suppress "deprecated" "old suppression"
+  model Widget {}
+  ```
+
+### Bug Fixes
+
+- [#11113](https://github.com/microsoft/typespec/pull/11113) Warn on duplicate `#suppress` directives on the same node.
+- [#10921](https://github.com/microsoft/typespec/pull/10921) Fix diagnostic target node mapping for value entities.
+- [#11235](https://github.com/microsoft/typespec/pull/11235) Fix directory entrypoint resolution ignoring `package.json` `tspMain` when a `tspconfig.yaml` with `kind: project` is present but does not specify an `entrypoint`. The resolution order is now: explicit config `entrypoint`, then `package.json` `tspMain`, then `main.tsp`.
+- [#11011](https://github.com/microsoft/typespec/pull/11011) Keep the `is`/`extends` keyword on the declaration line when the base is a template reference with multiple arguments. The template argument list now controls the line breaking instead of the keyword being pushed onto its own indented line.
+- [#11010](https://github.com/microsoft/typespec/pull/11010) Fix formatter inserting a blank line and over-indenting a `union` expression used directly as one of multiple template arguments (e.g. `PickProperties<Source, "a" | "b">`)
+- [#11235](https://github.com/microsoft/typespec/pull/11235) Fix compiler feature flags (e.g. `auto-decorators`) not being enabled for library code. A library can now opt into a feature via its own `tspconfig.yaml` `features`, enabling it only for that library's source files without requiring the consuming project to enable it.
+- [#11121](https://github.com/microsoft/typespec/pull/11121) Fix memory leak in the experimental mutator engine where a module-level `seen` cache pinned the type graph of every mutated program in memory for the lifetime of the process. The cache is now scoped per `Program` (via a `WeakMap`), so it is released once the program is garbage collected while still being shared across the nested mutations required for recursive type graphs to terminate.
+- [#11056](https://github.com/microsoft/typespec/pull/11056) Fix `Expected type.` internal compiler error when a string template interpolates a function call that references a template parameter on a template declaration (e.g. `@doc("${myFn(T)}") model Crud<T extends Reflection.Model> {}`). The deferred function call now defers the whole template, which is evaluated at instantiation.
+
+
 ## 1.13.0
 
 ### Deprecations

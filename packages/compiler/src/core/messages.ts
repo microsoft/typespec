@@ -1142,6 +1142,12 @@ const diagnostics = {
       default: "Visual Studio extension is not supported on non-Windows.",
     },
   },
+  "vsix-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download extension "${"id"}" from the marketplace: ${"message"}.`,
+    },
+  },
   "vscode-in-path": {
     severity: "error",
     messages: {
@@ -1154,6 +1160,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
+    },
+  },
+  "cli-command-deprecated": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`The "${"command"}" command is deprecated. Install and manage the extension directly from the marketplace instead. See ${"docsUrl"} for details.`,
     },
   },
   // #endregion CLI

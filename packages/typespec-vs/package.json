@@ -1,7 +1,8 @@
 {
   "name": "typespec-vs",
+  "private": true,
   "author": "Microsoft Corporation",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "TypeSpec Language Support for Visual Studio",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
