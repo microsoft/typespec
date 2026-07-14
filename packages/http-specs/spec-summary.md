@@ -83,6 +83,19 @@ Expects header 'x-ms-api-key': 'valid-key'
 
 Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
 
+### Documentation_Lists_bulletPointsModel
+
+- Endpoint: `post /documentation/lists/bullet-points/model`
+
+Test bullet points in model and enum documentation.
+Expected input:
+
+```json
+{
+  "input": { "prop": "Simple" }
+}
+```
+
 ### Documentation_Lists_bulletPointsOp
 
 - Endpoint: `get /documentation/lists/bullet-points/op`

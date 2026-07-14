@@ -91,8 +91,6 @@ export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Pro
   const lines = [
     `# Surface checks`,
     ``,
-    `<!-- version: ${manifest.version} · commit: ${manifest.commit} -->`,
-    ``,
     `Generated from \`@surfaceDoc\` annotations. This table is both the human summary`,
     `and the machine-readable checks doc parsed by the shared \`verify-surface-checks\` runner.`,
     ``,

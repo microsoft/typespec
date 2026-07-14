@@ -82,6 +82,7 @@ namespace Lists {
     Italic: "Italic",
   }
 
+  @scenario
   @scenarioDoc("""
     Test bullet points in model and enum documentation.
     Expected input:

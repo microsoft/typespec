@@ -199,9 +199,9 @@ describe("@surfaceDoc", () => {
     const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
     const md = await createSurfaceChecksSummary(manifest);
 
-    // Header comment carries version/commit for provenance.
-    expect(md).toContain("version: 1.0.0");
-    expect(md).toContain("commit: abc123");
+    // The rendered doc is idempotent: no volatile version/commit provenance.
+    expect(md).not.toContain("commit:");
+    expect(md).toContain("Generated from `@surfaceDoc` annotations.");
     // Table header with the routable columns (prettier pads cell widths).
     const header = md.split("\n").find((l) => l.includes("| id"));
     expect(header).toBeDefined();
