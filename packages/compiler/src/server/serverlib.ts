@@ -24,7 +24,6 @@ import {
   InitializeParams,
   InitializeResult,
   Location,
-  MarkupContent,
   MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
@@ -53,6 +52,7 @@ import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
+import { isFileRef } from "../core/file-ref.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
@@ -159,6 +159,9 @@ export function createServer(
     npmPackageProvider,
     (exports) => exports.$linter !== undefined,
   );
+  // Provider used to resolve any TypeSpec library (that depends on the compiler) by name,
+  // e.g. to look up the extended documentation of a diagnostic/rule when hovering an error.
+  const libraryProvider = new LibraryProvider(npmPackageProvider, () => true);
 
   const updateManager = new UpdateManager("doc-update", log);
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
@@ -899,13 +902,14 @@ export function createServer(
       return { contents: [] };
     }
 
-    const id = getNodeAtPosition(script, document.offsetAt(params.position));
+    const offset = document.offsetAt(params.position);
+    const sections: string[] = [];
+
+    const id = getNodeAtPosition(script, offset);
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
-    if (!sym || sym.length === 0) {
-      return { contents: { kind: MarkupKind.Markdown, value: "" } };
-    } else {
+    if (sym && sym.length > 0) {
       // Only show full definition if the symbol is a model or interface that has extends or is clauses.
       // Avoid showing full definition in other cases which can be long and not useful
       let includeExpandedDefinition = false;
@@ -924,21 +928,98 @@ export function createServer(
         }
       }
 
-      const markdown: MarkupContent = {
-        kind: MarkupKind.Markdown,
-        value:
-          sym && sym.length > 0
-            ? await getSymbolDetails(program, sym[0], {
-                includeSignature: true,
-                includeParameterTags: true,
-                includeExpandedDefinition,
-              })
-            : "",
-      };
-      return {
-        contents: markdown,
-      };
+      const details = await getSymbolDetails(program, sym[0], {
+        includeSignature: true,
+        includeParameterTags: true,
+        includeExpandedDefinition,
+      });
+      if (details) {
+        sections.push(details);
+      }
     }
+
+    const diagnosticDoc = await getDiagnosticDocMarkdownAtPosition(script.file.path, offset);
+    if (diagnosticDoc) {
+      sections.push(diagnosticDoc);
+    }
+
+    return {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: sections.join("\n\n---\n\n"),
+      },
+    };
+  }
+
+  /**
+   * Build a markdown section with the extended documentation (and reference link) of any
+   * diagnostic currently reported that covers the given offset in the given file.
+   */
+  async function getDiagnosticDocMarkdownAtPosition(
+    filePath: string,
+    offset: number,
+  ): Promise<string | undefined> {
+    const sections: string[] = [];
+    const seenCodes = new Set<string>();
+    for (const diag of currentDiagnosticIndex.values()) {
+      if (typeof diag.code !== "string" || seenCodes.has(diag.code)) {
+        continue;
+      }
+      const location = getSourceLocation(diag.target, { locateId: true });
+      if (!location?.file || location.file.path !== filePath) {
+        continue;
+      }
+      if (offset < location.pos || offset > location.end) {
+        continue;
+      }
+      seenCodes.add(diag.code);
+      const markdown = await resolveDiagnosticDocMarkdown(diag, filePath);
+      if (markdown) {
+        sections.push(markdown);
+      }
+    }
+    return sections.length > 0 ? sections.join("\n\n---\n\n") : undefined;
+  }
+
+  /** Resolve the extended docs + reference link markdown for a single reported diagnostic. */
+  async function resolveDiagnosticDocMarkdown(
+    diag: Diagnostic,
+    filePath: string,
+  ): Promise<string | undefined> {
+    const code = diag.code as string;
+    const segments = code.split("/");
+    const localCode = segments.pop();
+    const libName = segments.join("/");
+    const sections: string[] = [];
+
+    if (libName && localCode) {
+      try {
+        const pkg = await libraryProvider.getLibrary(getDirectoryPath(filePath), libName);
+        const exports = await pkg?.getModuleExports();
+        const definition =
+          exports?.$lib?.diagnostics?.[localCode] ??
+          exports?.$linter?.rules?.find((rule: any) => rule?.name === localCode);
+        const docs = definition?.docs;
+        let docText: string | undefined;
+        if (typeof docs === "string") {
+          docText = docs;
+        } else if (isFileRef(docs) && pkg) {
+          const file = await compilerHost.readFile(joinPaths(pkg.rootFolder, docs.path));
+          docText = file.text;
+        }
+        if (docText && docText.trim().length > 0) {
+          sections.push(docText.trim());
+        }
+      } catch {
+        // Ignore failures to resolve documentation; just fall back to the link (if any).
+      }
+    }
+
+    if (diag.url) {
+      sections.push(`[See documentation](${diag.url})`);
+    }
+
+    return sections.length > 0 ? sections.join("\n\n") : undefined;
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {

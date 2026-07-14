@@ -1,6 +1,8 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { Hover, MarkupKind } from "vscode-languageserver";
+import { fileRef } from "../../src/core/file-ref.js";
+import { createTypeSpecLibrary } from "../../src/core/library.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -858,6 +860,132 @@ interface TestNs.Bird {
     if (typeof contents === "string") {
       return contents;
     }
+    if (Array.isArray(contents)) {
+      return contents.map((x) => (typeof x === "string" ? x : x.value)).join("\n");
+    }
+    return contents.value;
+  }
+});
+
+describe("compiler: server: on hover: diagnostic docs", () => {
+  it("shows the extended docs and reference link of a diagnostic reported at the position", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      docs: "This is the **extended** documentation for always-error.",
+      referenceDocsBaseUrl: "https://example.com/test-lib/reference",
+    });
+    ok(value);
+    ok(
+      value.includes("This is the **extended** documentation for always-error."),
+      `Expected extended docs in hover, got:\n${value}`,
+    );
+    ok(
+      value.includes(
+        "[See documentation](https://example.com/test-lib/reference/diagnostics/always-error)",
+      ),
+      `Expected reference link in hover, got:\n${value}`,
+    );
+  });
+
+  it("reads docs from a co-located file referenced with fileRef", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      docs: fileRef.fromPackageRoot("docs/always-error.md"),
+      docFile: {
+        path: "test/node_modules/test-lib/docs/always-error.md",
+        content: "Documentation loaded from a file.",
+      },
+    });
+    ok(value);
+    ok(
+      value.includes("Documentation loaded from a file."),
+      `Expected file-based docs in hover, got:\n${value}`,
+    );
+  });
+
+  it("shows only the link when the diagnostic has no docs", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      referenceDocsBaseUrl: "https://example.com/test-lib/reference",
+    });
+    ok(value);
+    ok(
+      value.includes(
+        "[See documentation](https://example.com/test-lib/reference/diagnostics/always-error)",
+      ),
+      `Expected reference link in hover, got:\n${value}`,
+    );
+  });
+
+  async function getHoverValueWithLibDiagnostic(options: {
+    docs?: string | ReturnType<typeof fileRef.fromPackageRoot>;
+    referenceDocsBaseUrl?: string;
+    docFile?: { path: string; content: string };
+  }): Promise<string | undefined> {
+    const testHost = await createTestServerHost();
+
+    const $lib = createTypeSpecLibrary({
+      name: "test-lib",
+      ...(options.referenceDocsBaseUrl
+        ? { referenceDocs: { baseUrl: options.referenceDocsBaseUrl } }
+        : {}),
+      diagnostics: {
+        "always-error": {
+          severity: "error",
+          ...(options.docs !== undefined ? { docs: options.docs } : {}),
+          messages: { default: "Always errors." },
+        },
+      },
+    } as any);
+
+    testHost.addJsFile("test/node_modules/test-lib/index.js", {
+      $lib,
+      $decorators: {
+        TestLib: {
+          alwaysError: (context: any, target: any) => {
+            ($lib as any).reportDiagnostic(context.program, { code: "always-error", target });
+          },
+        },
+      },
+    });
+    testHost.addTypeSpecFile(
+      "test/node_modules/test-lib/package.json",
+      JSON.stringify({
+        name: "test-lib",
+        version: "0.1.0",
+        main: "index.js",
+        tspMain: "main.tsp",
+        peerDependencies: { "@typespec/compiler": "*" },
+      }),
+    );
+    testHost.addTypeSpecFile(
+      "test/node_modules/test-lib/main.tsp",
+      `import "./index.js";\nnamespace TestLib;\nextern dec alwaysError(target: unknown);\n`,
+    );
+    testHost.addTypeSpecFile(
+      "test/package.json",
+      JSON.stringify({ dependencies: { "test-lib": "*" } }),
+    );
+    if (options.docFile) {
+      testHost.addTypeSpecFile(options.docFile.path, options.docFile.content);
+    }
+
+    const { source, pos } = extractCursor(`
+      import "test-lib";
+      using TestLib;
+
+      @alwaysError
+      model Fo┆o {}
+    `);
+    const textDocument = testHost.addOrUpdateDocument("test/main.tsp", source);
+
+    // Full compile first so linter/library diagnostics are indexed for hover to pick up.
+    await testHost.server.compile(textDocument, undefined, { mode: "full" });
+
+    const hover = await testHost.server.getHover({
+      textDocument,
+      position: textDocument.positionAt(pos),
+    });
+    if (!hover) return undefined;
+    const contents = hover.contents;
+    if (typeof contents === "string") return contents;
     if (Array.isArray(contents)) {
       return contents.map((x) => (typeof x === "string" ? x : x.value)).join("\n");
     }
