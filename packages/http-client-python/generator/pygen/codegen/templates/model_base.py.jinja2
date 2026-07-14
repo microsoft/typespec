@@ -161,7 +161,15 @@ def _is_readonly(p):
 
 
 class SdkJSONEncoder(JSONEncoder):
-    """A JSON encoder that's capable of serializing datetime objects and bytes."""
+    """A JSON encoder that's capable of serializing datetime objects and bytes.
+
+    :param args: Additional positional arguments passed to the base ``JSONEncoder``.
+    :type args: typing.Any
+    :keyword exclude_readonly: Whether to exclude readonly properties. Defaults to False.
+    :paramtype exclude_readonly: bool
+    :keyword format: The format to use for serialization. Defaults to None.
+    :paramtype format: typing.Optional[str]
+    """
 
     def __init__(self, *args, exclude_readonly: bool = False, format: typing.Optional[str] = None, **kwargs):
         super().__init__(*args, **kwargs)
