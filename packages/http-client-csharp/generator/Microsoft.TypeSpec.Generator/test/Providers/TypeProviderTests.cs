@@ -387,6 +387,97 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // TypeProvider: a back-compat overload for a static extension method must preserve the extension
+        // 'this' modifier so the generated shim is still an extension method (a common scenario is a
+        // static "<Client>Extensions" class that gained an optional parameter).
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityPreservesExtensionThisKeyword()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published a static extension method GetData(this object client, int param1);
+            // the current generation adds an optional non-body parameter param2.
+            var client = new ParameterProvider("client", $"", new CSharpType(typeof(object)));
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature(
+                    "GetData",
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension,
+                    new CSharpType(typeof(string)),
+                    $"",
+                    [client, param1, param2]),
+                Snippet.Return(Snippet.Literal("foo")),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "ExtensionOverloadType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a back-compat overload for a method with a 'ref' parameter must preserve the
+        // 'ref' modifier on that parameter in the generated shim signature.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityPreservesRefKeyword()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published TryGetData(string value, ref int result); the current generation
+            // adds an optional non-body parameter param2.
+            var value = new ParameterProvider("value", $"", new CSharpType(typeof(string)));
+            var result = new ParameterProvider("result", $"", new CSharpType(typeof(int)), isRef: true);
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var tryGetData = new MethodProvider(
+                new MethodSignature("TryGetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(bool)), $"", [value, result, param2]),
+                Snippet.Return(Snippet.False),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "RefOverloadType", ns: "Test", methods: [tryGetData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // The back-compat shim reproduces the previous signature TryGetData(string value, ref int result)
+            // with the 'ref' modifier retained on both the parameter and the delegating call.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a back-compat overload for a method with an 'out' parameter must preserve the
+        // 'out' modifier on both the parameter and the delegating call so the generated code compiles.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityPreservesOutKeyword()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published TryParse(string value, out int result); the current generation
+            // adds an optional non-body parameter param2.
+            var value = new ParameterProvider("value", $"", new CSharpType(typeof(string)));
+            var result = new ParameterProvider("result", $"", new CSharpType(typeof(int)), isOut: true);
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var tryParse = new MethodProvider(
+                new MethodSignature("TryParse", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(bool)), $"", [value, result, param2]),
+                new MethodBodyStatement[]
+                {
+                    // Assign the out parameter so the generated method body is valid C#.
+                    result.Assign(Snippet.Literal(0)).Terminate(),
+                    Snippet.Return(Snippet.False),
+                },
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "OutOverloadType", ns: "Test", methods: [tryParse]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // The back-compat shim reproduces the previous signature TryParse(string value, out int result)
+            // with the 'out' modifier retained on both the parameter and the delegating call.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // TypeProvider: when a previous signature's removal is accepted in the ApiCompat baseline, the
         // optional-parameter overload pass must NOT resurrect it even though the replacement method added
         // optional parameters.

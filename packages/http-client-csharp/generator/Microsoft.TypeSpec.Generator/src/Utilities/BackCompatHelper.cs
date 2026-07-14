@@ -482,6 +482,19 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             // Build the delegating call: forward each previous parameter and pass default for the new ones.
+            // Named argument syntax cannot be combined with 'ref'/'out', so when any parameter is passed by
+            // reference every argument is forwarded positionally instead (the arguments are already built in
+            // the current method's parameter order).
+            bool hasByRefParameter = false;
+            foreach (var currentParam in currentSignature.Parameters)
+            {
+                if (currentParam.IsRef || currentParam.IsOut)
+                {
+                    hasByRefParameter = true;
+                    break;
+                }
+            }
+
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
             foreach (var currentParam in currentSignature.Parameters)
             {
@@ -489,7 +502,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 ValueExpression value = previousParametersByName.TryGetValue(variableName, out var previousParam)
                     ? previousParam
                     : currentParam.DefaultValue ?? Default;
-                arguments.Add(PositionalReference(variableName, value));
+
+                if (hasByRefParameter)
+                {
+                    arguments.Add(currentParam.IsRef || currentParam.IsOut
+                        ? value.AsArgument(isRef: currentParam.IsRef, isOut: currentParam.IsOut)
+                        : value);
+                }
+                else
+                {
+                    arguments.Add(PositionalReference(variableName, value));
+                }
             }
 
             var invocationTarget = currentSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
