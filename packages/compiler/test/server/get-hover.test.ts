@@ -6,39 +6,38 @@ import { createTypeSpecLibrary } from "../../src/core/library.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
-describe("compiler: server: on hover", () => {
-  describe("scalar", () => {
-    it("scalar declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("scalar", () => {
+  it("scalar declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
           scalar myStr┆ing;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "scalar myString\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "scalar myString\n" + "```",
+      },
     });
+  });
 
-    it("scalar reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("scalar reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           scalar myString;
           scalar myStringEx extends myStr┆ing;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "scalar myString\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "scalar myString\n" + "```",
+      },
     });
+  });
 
-    it("scalar init with object literal argument", async () => {
-      const hover = await getHoverAtCursor(`          
+  it("scalar init with object literal argument", async () => {
+    const hover = await getHoverAtCursor(`          
       model MyModel {
         /**
          * name of the model
@@ -50,19 +49,19 @@ describe("compiler: server: on hover", () => {
       }
       const abc = MyString.createFromModel(#{ na┆me: "hello" });
       `);
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
-        },
-      });
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+      },
     });
   });
+});
 
-  describe("enum", () => {
-    it("normal enum", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("enum", () => {
+  it("normal enum", async () => {
+    const hover = await getHoverAtCursor(
+      `
         enum Direc┆tion {
           North,
           East,
@@ -70,18 +69,18 @@ describe("compiler: server: on hover", () => {
           West,
         }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "enum Direction\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "enum Direction\n" + "```",
+      },
     });
+  });
 
-    it("normal enum member in namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("normal enum member in namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
         namespace TestNS;
         enum Direction {
           Nor┆th,
@@ -90,53 +89,53 @@ describe("compiler: server: on hover", () => {
           West,
         }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "(enum member)\n" + "```typespec\n" + "TestNS.Direction.North\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "(enum member)\n" + "```typespec\n" + "TestNS.Direction.North\n" + "```",
+      },
     });
   });
+});
 
-  describe("alias", () => {
-    it("test alias declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("alias", () => {
+  it("test alias declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
           namespace TestNS;
           alias Mix┆ed<T> = string | int16 | Array<T>;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "alias TestNS.Mixed<T>\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "alias TestNS.Mixed<T>\n" + "```",
+      },
     });
+  });
 
-    it("test alias reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("test alias reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           namespace TestNS;
           alias myString = string;
           alias myStringEx = myStr┆ing;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "alias TestNS.myString\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "alias TestNS.myString\n" + "```",
+      },
     });
   });
+});
 
-  describe("decorator", () => {
-    it("test decorator", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("decorator", () => {
+  it("test decorator", async () => {
+    const hover = await getHoverAtCursor(
+      `
           import "./dec-types.js";
 
           /**
@@ -147,20 +146,20 @@ describe("compiler: server: on hover", () => {
           @si┆ngle
           namespace TestNS;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value:
-            "```typespec\n" +
-            "dec single(context: unknown)\n" +
-            "```\n\n" +
-            "description of single decorator",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value:
+          "```typespec\n" +
+          "dec single(context: unknown)\n" +
+          "```\n\n" +
+          "description of single decorator",
+      },
     });
+  });
 
-    const decArgModelDef = `
+  const decArgModelDef = `
     import "./dec-types.js";
 
     /**
@@ -197,9 +196,9 @@ describe("compiler: server: on hover", () => {
 
     extern dec single(target, arg: MyLogArg);`;
 
-    it("test model expression as decorator parameter value", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("test model expression as decorator parameter value", async () => {
+    const hover = await getHoverAtCursor(
+      `
           ${decArgModelDef}
           @single({
             ms┆g: "hello",
@@ -214,24 +213,24 @@ describe("compiler: server: on hover", () => {
           })
           namespace TestNS;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value:
-            "(model property)\n" +
-            "```typespec\n" +
-            "MyLogArg.msg: string\n" +
-            "```\n" +
-            "\n" +
-            "my log message",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value:
+          "(model property)\n" +
+          "```typespec\n" +
+          "MyLogArg.msg: string\n" +
+          "```\n" +
+          "\n" +
+          "my log message",
+      },
     });
+  });
 
-    it("test nested model expression as decorator parameter value", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("test nested model expression as decorator parameter value", async () => {
+    const hover = await getHoverAtCursor(
+      `
           ${decArgModelDef}
           @single({
             msg: "hello",
@@ -246,40 +245,40 @@ describe("compiler: server: on hover", () => {
           })
           namespace TestNS;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value:
-            "(model property)\n" +
-            "```typespec\n" +
-            "MyLogContext<T>.item: Record<Element>\n" +
-            "```\n" +
-            "\n" +
-            "items of context",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value:
+          "(model property)\n" +
+          "```typespec\n" +
+          "MyLogContext<T>.item: Record<Element>\n" +
+          "```\n" +
+          "\n" +
+          "items of context",
+      },
+    });
+  });
+});
+
+describe("namespace", () => {
+  it("normal namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
+          namespace Test┆NS;
+        `,
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "namespace TestNS\n" + "```",
+      },
     });
   });
 
-  describe("namespace", () => {
-    it("normal namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
-          namespace Test┆NS;
-        `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "namespace TestNS\n" + "```",
-        },
-      });
-    });
-
-    it("nested namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("nested namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
         namespace Foo {
           namespace Bar {
             namespace B┆az {
@@ -288,53 +287,53 @@ describe("compiler: server: on hover", () => {
           }
         }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "namespace Foo.Bar.Baz\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "namespace Foo.Bar.Baz\n" + "```",
+      },
     });
   });
+});
 
-  describe("model", () => {
-    it("model declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("model", () => {
+  it("model declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
           model Ani┆mal{
               name: string;
               age: int16;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "model Animal\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "model Animal\n" + "```",
+      },
     });
+  });
 
-    it("model property with function type", async () => {
-      const hover = await getHoverAtCursor(`
+  it("model property with function type", async () => {
+    const hover = await getHoverAtCursor(`
         model Test {
           fu┆nc: fn(v: valueof string) => valueof string;
         }
       `);
 
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value:
-            "(model property)\n```typespec\nTest.func: fn (v: valueof string) => valueof string\n```",
-        },
-      });
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value:
+          "(model property)\n```typespec\nTest.func: fn (v: valueof string) => valueof string\n```",
+      },
     });
+  });
 
-    it("model reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("model reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           model Animal{
             name: string;
             age: int16;
@@ -342,18 +341,18 @@ describe("compiler: server: on hover", () => {
           model Cat is Ani┆mal{
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "model Animal\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "model Animal\n" + "```",
+      },
     });
+  });
 
-    it("model in namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("model in namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -362,18 +361,18 @@ describe("compiler: server: on hover", () => {
               age: int16;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "model TestNs.Animal\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "model TestNs.Animal\n" + "```",
+      },
     });
+  });
 
-    it("model with one template arg", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("model with one template arg", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -383,18 +382,18 @@ describe("compiler: server: on hover", () => {
               tTag: T;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "model TestNs.Animal<T>\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "model TestNs.Animal<T>\n" + "```",
+      },
     });
+  });
 
-    it("model with two template args", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("model with two template args", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -404,18 +403,18 @@ describe("compiler: server: on hover", () => {
               tTag: T;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "model TestNs.Animal<T, P>\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "model TestNs.Animal<T, P>\n" + "```",
+      },
     });
+  });
 
-    it("model with extends and is (full definition expected)", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("model with extends and is (full definition expected)", async () => {
+    const hover = await getHoverAtCursor(
+      `
           namespace TestNs;
           
           model Do┆g is Animal<string, DogProperties> {
@@ -439,11 +438,11 @@ describe("compiler: server: on hover", () => {
               color: string;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: `\`\`\`typespec
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: `\`\`\`typespec
 model TestNs.Dog
 \`\`\`
 
@@ -459,49 +458,49 @@ model TestNs.Dog{
   properties: TestNs.DogProperties;
 }
 \`\`\``,
-        },
-      });
+      },
     });
   });
+});
 
-  describe("interface", () => {
-    it("interface declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
+describe("interface", () => {
+  it("interface declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
           interface IAct┆ions{
               fly(): void;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "interface IActions\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "interface IActions\n" + "```",
+      },
     });
+  });
 
-    it("interface reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("interface reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           interface IActions{
               fly(): void;
           }
           interface IActionsEx extends IAct┆ions{
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "interface IActions\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "interface IActions\n" + "```",
+      },
     });
+  });
 
-    it("interface in namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("interface in namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -509,18 +508,18 @@ model TestNs.Dog{
             fly(): void;
         }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "interface TestNs.IActions\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "interface TestNs.IActions\n" + "```",
+      },
     });
+  });
 
-    it("interface with extends", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("interface with extends", async () => {
+    const hover = await getHoverAtCursor(
+      `
           namespace TestNs;
           
           interface IActions{
@@ -531,11 +530,11 @@ model TestNs.Dog{
             eat(): void;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: `\`\`\`typespec
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: `\`\`\`typespec
 interface TestNs.Bird
 \`\`\`
 
@@ -547,95 +546,95 @@ interface TestNs.Bird {
   op eat(): void;
 }
 \`\`\``,
-        },
-      });
+      },
+    });
+  });
+});
+
+describe("operation", () => {
+  it("operation declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
+          op Ea┆t(food: string): void;
+        `,
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op Eat(food: string): void\n" + "```",
+      },
     });
   });
 
-  describe("operation", () => {
-    it("operation declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
-          op Ea┆t(food: string): void;
-        `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op Eat(food: string): void\n" + "```",
-        },
-      });
-    });
-
-    it("operation reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           op Eat(food: string): void;
           op Swallow is Ea┆t;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op Eat(food: string): void\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op Eat(food: string): void\n" + "```",
+      },
     });
+  });
 
-    it("operation in namespace", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation in namespace", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
           op Ea┆t(food: string): void;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op TestNs.Eat(food: string): void\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op TestNs.Eat(food: string): void\n" + "```",
+      },
     });
+  });
 
-    it("operation with one template arg", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation with one template arg", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
           op Ea┆t<T>(food: string): void;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op TestNs.Eat<T>(food: string): void\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op TestNs.Eat<T>(food: string): void\n" + "```",
+      },
     });
+  });
 
-    it("operation with two template args", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation with two template args", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
           op Ea┆t<T, P>(food: string): void;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op TestNs.Eat<T, P>(food: string): void\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op TestNs.Eat<T, P>(food: string): void\n" + "```",
+      },
     });
+  });
 
-    it("operation in interface", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation in interface", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -643,18 +642,18 @@ interface TestNs.Bird {
             op Ea┆t<T, P>(food: string): string;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op TestNs.IActions.Eat<T, P>(food: string): string\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op TestNs.IActions.Eat<T, P>(food: string): string\n" + "```",
+      },
     });
+  });
 
-    it("operation in interface with template", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("operation in interface with template", async () => {
+    const hover = await getHoverAtCursor(
+      `
           @service(#{title: "RT"})
           namespace TestNs;
           
@@ -662,50 +661,49 @@ interface TestNs.Bird {
             op Ea┆t<T, P>(food: string): string;
           }
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value:
-            "```typespec\n" + "op TestNs.IActions<Q>.Eat<T, P>(food: string): string\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "op TestNs.IActions<Q>.Eat<T, P>(food: string): string\n" + "```",
+      },
+    });
+  });
+});
+
+describe("const", () => {
+  it("declaration", async () => {
+    const hover = await getHoverAtCursor(
+      `
+          const a┆bc = #{ a: 123 };
+        `,
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
+      },
     });
   });
 
-  describe("const", () => {
-    it("declaration", async () => {
-      const hover = await getHoverAtCursor(
-        `
-          const a┆bc = #{ a: 123 };
-        `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
-        },
-      });
-    });
-
-    it("reference", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("reference", async () => {
+    const hover = await getHoverAtCursor(
+      `
           const abc = #{ a: 123 };
           const def = a┆bc;
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "```typespec\n" + "const abc: { a: 123 }\n" + "```",
+      },
     });
+  });
 
-    it("object literal property", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("object literal property", async () => {
+    const hover = await getHoverAtCursor(
+      `
           model MyModel {
             /**
              * name of the model
@@ -714,33 +712,33 @@ interface TestNs.Bird {
           }
           const abc : MyModel = #{ na┆me: "hello" };
         `,
-      );
-      deepStrictEqual(hover, {
-        contents: {
-          kind: MarkupKind.Markdown,
-          value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
-        },
-      });
+    );
+    deepStrictEqual(hover, {
+      contents: {
+        kind: MarkupKind.Markdown,
+        value: "(model property)\n```typespec\nMyModel.name: string\n```\n\nname of the model",
+      },
     });
   });
+});
 
-  describe("template access", () => {
-    it("shows template parameter hover using extends signature", async () => {
-      const hover = await getHoverAtCursor(`
+describe("template access", () => {
+  it("shows template parameter hover using extends signature", async () => {
+    const hover = await getHoverAtCursor(`
         model X<T extends string> {
           value: T┆;
         }
       `);
 
-      const value = getHoverValue(hover);
-      ok(value);
-      ok(value.includes("(template parameter)"));
-      ok(value.includes("T extends string"));
-    });
+    const value = getHoverValue(hover);
+    ok(value);
+    ok(value.includes("(template parameter)"));
+    ok(value.includes("T extends string"));
+  });
 
-    it("shows template access hover with concrete constraint information", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("shows template access hover with concrete constraint information", async () => {
+    const hover = await getHoverAtCursor(
+      `
         model X {
           a: string;
         }
@@ -748,31 +746,31 @@ interface TestNs.Bird {
           p: M.a::ty┆pe;
         }
         `,
-      );
+    );
 
-      const value = getHoverValue(hover);
-      ok(value);
-      ok(value.includes("(template access)"));
-      ok(value.includes("M.a::type extends string"));
-    });
+    const value = getHoverValue(hover);
+    ok(value);
+    ok(value.includes("(template access)"));
+    ok(value.includes("M.a::type extends string"));
+  });
 
-    it("shows template access hover for reflection-constrained metaproperties", async () => {
-      const hover = await getHoverAtCursor(
-        `
+  it("shows template access hover for reflection-constrained metaproperties", async () => {
+    const hover = await getHoverAtCursor(
+      `
         model Y<P extends Reflection.ModelProperty> {
           p: P::ty┆pe;
         }
         `,
-      );
+    );
 
-      const value = getHoverValue(hover);
-      ok(value);
-      ok(value.includes("(template access)"));
-      ok(value.includes("P::type extends unknown"));
-    });
+    const value = getHoverValue(hover);
+    ok(value);
+    ok(value.includes("(template access)"));
+    ok(value.includes("P::type extends unknown"));
+  });
 
-    it("keeps template access hover in template declarations with downstream instantiations", async () => {
-      const memberHover = await getHoverAtCursor(`
+  it("keeps template access hover in template declarations with downstream instantiations", async () => {
+    const memberHover = await getHoverAtCursor(`
         model X<s extends Reflection.Scalar> {
           y: s;
         }
@@ -789,12 +787,12 @@ interface TestNs.Bird {
 
         interface Z extends Operations<foo<string>> {}
       `);
-      const memberValue = getHoverValue(memberHover);
-      ok(memberValue);
-      ok(memberValue.includes("(template access)"));
-      ok(memberValue.includes("M.y extends X<string>.y"));
+    const memberValue = getHoverValue(memberHover);
+    ok(memberValue);
+    ok(memberValue.includes("(template access)"));
+    ok(memberValue.includes("M.y extends X<string>.y"));
 
-      const metapropertyHover = await getHoverAtCursor(`
+    const metapropertyHover = await getHoverAtCursor(`
         model X<s extends Reflection.Scalar> {
           y: s;
         }
@@ -811,12 +809,12 @@ interface TestNs.Bird {
 
         interface Z extends Operations<foo<string>> {}
       `);
-      const metapropertyValue = getHoverValue(metapropertyHover);
-      ok(metapropertyValue);
-      ok(metapropertyValue.includes("(template access)"));
-      ok(metapropertyValue.includes("M.y::type extends string"));
+    const metapropertyValue = getHoverValue(metapropertyHover);
+    ok(metapropertyValue);
+    ok(metapropertyValue.includes("(template access)"));
+    ok(metapropertyValue.includes("M.y::type extends string"));
 
-      const returnTypeHover = await getHoverAtCursor(`
+    const returnTypeHover = await getHoverAtCursor(`
         model X<s extends Reflection.Scalar> {
           y: s;
         }
@@ -833,38 +831,11 @@ interface TestNs.Bird {
 
         interface Z extends Operations<foo<string>> {}
       `);
-      const returnTypeValue = getHoverValue(returnTypeHover);
-      ok(returnTypeValue);
-      ok(returnTypeValue.includes("(template access)"));
-      ok(returnTypeValue.includes("O::returnType extends unknown"));
-    });
+    const returnTypeValue = getHoverValue(returnTypeHover);
+    ok(returnTypeValue);
+    ok(returnTypeValue.includes("(template access)"));
+    ok(returnTypeValue.includes("O::returnType extends unknown"));
   });
-
-  async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undefined> {
-    const { source, pos } = extractCursor(sourceWithCursor);
-    const testHost = await createTestServerHost();
-    testHost.addJsFile("dec-types.js", {
-      $single: () => {},
-    });
-    const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
-    return await testHost.server.getHover({
-      textDocument,
-      position: textDocument.positionAt(pos),
-    });
-  }
-
-  /** Normalize hover contents into a single comparable string for assertions. */
-  function getHoverValue(hover: Hover | undefined): string | undefined {
-    if (!hover) return undefined;
-    const contents = hover.contents;
-    if (typeof contents === "string") {
-      return contents;
-    }
-    if (Array.isArray(contents)) {
-      return contents.map((x) => (typeof x === "string" ? x : x.value)).join("\n");
-    }
-    return contents.value;
-  }
 });
 
 describe("compiler: server: on hover: diagnostic docs", () => {
@@ -992,3 +963,29 @@ describe("compiler: server: on hover: diagnostic docs", () => {
     return contents.value;
   }
 });
+
+async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undefined> {
+  const { source, pos } = extractCursor(sourceWithCursor);
+  const testHost = await createTestServerHost();
+  testHost.addJsFile("dec-types.js", {
+    $single: () => {},
+  });
+  const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
+  return await testHost.server.getHover({
+    textDocument,
+    position: textDocument.positionAt(pos),
+  });
+}
+
+/** Normalize hover contents into a single comparable string for assertions. */
+function getHoverValue(hover: Hover | undefined): string | undefined {
+  if (!hover) return undefined;
+  const contents = hover.contents;
+  if (typeof contents === "string") {
+    return contents;
+  }
+  if (Array.isArray(contents)) {
+    return contents.map((x) => (typeof x === "string" ? x : x.value)).join("\n");
+  }
+  return contents.value;
+}

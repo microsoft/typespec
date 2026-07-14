@@ -69,6 +69,7 @@ export interface ApplyCodeFixExpect {
 }
 
 export function createLinterRuleTester(
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   runner: BasicTestRunner | TesterInstance,
   ruleDef: LinterRuleDefinition<string, DiagnosticMessages>,
   libraryName: string,
@@ -221,6 +222,7 @@ export function createLinterRuleTester(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 function isLegacyTestRunner(tester: BasicTestRunner | TesterInstance): tester is BasicTestRunner {
   return "autoCodeOffset" in tester;
 }
