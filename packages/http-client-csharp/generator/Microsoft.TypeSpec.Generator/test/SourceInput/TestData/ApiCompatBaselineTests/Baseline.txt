@@ -8,3 +8,13 @@ MembersMustExist : Member 'public System.Void Ns.Foo.Kind.set(Ns.Kind)' does not
 MembersMustExist : Member 'public System.Void Ns.Foo.Configure(System.Collections.Generic.IDictionary<System.String, System.Int32>, System.String)' does not exist in the implementation but it does exist in the contract.
 MembersMustExist : Member 'public Ns.Kind Ns.Foo.LegacyField' does not exist in the implementation but it does exist in the contract.
 EnumValuesMustMatch : Enum value 'Ns.CapacityLevel Ns.CapacityLevel.FiftyThousand' is (System.Int32)10 in the implementation but (System.Int32)50000 in the contract.
+MembersMustExist : Member 'public System.String Ns.Overloads.Get(System.String)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithNullable(System.Nullable<System.Int32>)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithArray(System.String[])' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithList(System.Collections.Generic.List<System.String>)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithNestedGeneric(System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.Int32>>)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithMany(System.Int32, System.String, System.Boolean)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithEnum(Sample.Models.MyKind)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithNullableEnum(System.Nullable<Sample.Models.MyKind>)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithModel(Sample.Models.MyModel)' does not exist in the implementation but it does exist in the contract.
+MembersMustExist : Member 'public System.Void Ns.Types.WithDictionary(System.Collections.Generic.Dictionary<System.String, Sample.Models.MyModel>)' does not exist in the implementation but it does exist in the contract.

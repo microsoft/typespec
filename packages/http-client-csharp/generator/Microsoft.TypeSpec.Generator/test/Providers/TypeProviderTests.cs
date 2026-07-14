@@ -307,6 +307,86 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // TypeProvider: an async Task<T> method that gained an optional non-body parameter gets a hidden
+        // overload that is NOT declared 'async' (it returns the delegated task directly). An async shim
+        // would emit `return this.FooAsync(...);` from an `async Task<T>` method, which is CS4016.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsAsyncTaskOfTOverloadForNewOptionalParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published async Task<string> GetDataAsync(int param1); the current
+            // generation adds an optional non-body parameter param2.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetDataAsync", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Async, new CSharpType(typeof(Task<string>)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "AsyncOverloadType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: an async Task (non-generic) method that gained an optional non-body parameter
+        // gets a hidden overload that is NOT declared 'async' and returns the delegated task.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsAsyncTaskOverloadForNewOptionalParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published async Task DoWorkAsync(int param1); the current generation adds
+            // an optional non-body parameter param2.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var doWork = new MethodProvider(
+                new MethodSignature("DoWorkAsync", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Async, new CSharpType(typeof(Task)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "AsyncTaskOverloadType", ns: "Test", methods: [doWork]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: accepting the removal of ONE overload in the ApiCompat baseline must not suppress
+        // the optional-parameter overload for a DIFFERENT overload with the same arity but different
+        // parameter types. The baseline accepts removal of GetData(string); the current GetData(int)
+        // gained an optional parameter and must still receive its back-compat overload.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsOverloadWhenDifferentOverloadRemovalAccepted()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // The last contract published GetData(int param1); the current generation adds an optional
+            // param2. The baseline accepts removal of the unrelated GetData(string) overload only.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "DifferentOverloadRemovalType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // The GetData(int) overload is still added because only GetData(string) removal was accepted.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // TypeProvider: when a previous signature's removal is accepted in the ApiCompat baseline, the
         // optional-parameter overload pass must NOT resurrect it even though the replacement method added
         // optional parameters.

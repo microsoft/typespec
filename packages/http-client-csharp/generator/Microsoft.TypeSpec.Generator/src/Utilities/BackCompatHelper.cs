@@ -40,16 +40,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         /// <summary>
         /// Returns true when the removal of a previously-published method — identified by the enclosing
-        /// type's fully-qualified name, the method name, and the parameter count — has been accepted in
-        /// the ApiCompat baseline, in which case back compatibility must not resurrect or restore it.
-        /// Emits an informational log entry when a suppression is honored.
+        /// type's fully-qualified name, the method name, and the exact parameter types — has been
+        /// accepted in the ApiCompat baseline, in which case back compatibility must not resurrect or
+        /// restore it. Emits an informational log entry when a suppression is honored.
         /// </summary>
         public static bool IsMethodRemovalAcceptedInBaseline(TypeProvider enclosingType, MethodSignature previousSignature)
         {
-            if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
+            var parameterTypes = new CSharpType[previousSignature.Parameters.Count];
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                parameterTypes[i] = previousSignature.Parameters[i].Type;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
                     enclosingType.Type.FullyQualifiedName,
                     previousSignature.Name,
-                    previousSignature.Parameters.Count) != true)
+                    parameterTypes) != true)
             {
                 return false;
             }
@@ -494,8 +500,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 ? delegatingCall.Terminate()
                 : Return(delegatingCall);
 
+            // The shim delegates without awaiting, so it must not be declared 'async'.
+            var signature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true, shouldNotBeAsync: true);
+
             return new MethodProvider(
-                MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true),
+                signature,
                 body,
                 enclosingType,
                 previousMethod.XmlDocs);
