@@ -548,7 +548,13 @@ async function createProgram(
       ...resolution,
       metadata,
       definition: libDefinition,
-      linter: linterDef && resolveLinterDefinition(libraryNameOrPath, linterDef),
+      linter:
+        linterDef &&
+        resolveLinterDefinition(
+          libraryNameOrPath,
+          linterDef,
+          libDefinition?.referenceDocs?.baseUrl,
+        ),
     };
   }
 
