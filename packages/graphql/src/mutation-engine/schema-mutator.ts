@@ -11,8 +11,8 @@ import {
   type Union,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { setInputType } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { reportDiagnostic } from "../lib.js";
-import { setInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
 import { getOperationFields } from "../lib/operation-fields.js";
 import { isStdScalar } from "../lib/scalar-mappings.js";
@@ -98,11 +98,11 @@ export function mutateSchema(
             "Mutation",
           );
           if (qm.mutatedType.properties.size > 0) {
-            setInputType(qm.mutatedType);
+            setInputType(program, qm.mutatedType);
             pushMutatedModel(qm);
           }
           if (mm.mutatedType.properties.size > 0) {
-            setInputType(mm.mutatedType);
+            setInputType(program, mm.mutatedType);
             pushMutatedModel(mm);
           }
         } else {
@@ -110,11 +110,12 @@ export function mutateSchema(
             ? engine.mutateModel(node, GraphQLTypeContext.Input, filters.mutation, "mutation")
             : engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query");
           if (emitted.mutatedType.properties.size > 0) {
-            setInputType(emitted.mutatedType);
+            setInputType(program, emitted.mutatedType);
             pushMutatedModel(emitted);
 
             if (usedByQuery && usedByMutation) {
               setInputType(
+                program,
                 engine.mutateModel(node, GraphQLTypeContext.Input, filters.query, "query")
                   .mutatedType,
               );
@@ -161,7 +162,7 @@ export function mutateSchema(
         const mutation = engine.mutateUnion(node, GraphQLTypeContext.Input, filter, opKind);
         const mutated = mutation.mutatedType;
         if (mutated.kind === "Model") {
-          setInputType(mutated);
+          setInputType(program, mutated);
           mutatedTypes.push(mutated);
         } else if (mutated.kind === "Union") {
           mutatedTypes.push(mutated);

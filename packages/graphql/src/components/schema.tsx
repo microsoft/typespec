@@ -1,8 +1,8 @@
 import * as gql from "@pinterest/alloy-graphql";
 import { type Model } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { isInputType } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { useGraphQLSchema } from "../context/index.js";
-import { isInputType } from "../lib/input-type.js";
 import { isInterface } from "../lib/interface.js";
 import { getOperationFields } from "../lib/operation-fields.js";
 import { getOperationKind } from "../lib/operation-kind.js";
@@ -73,7 +73,7 @@ export function Schema() {
     if (isInterface(program, model)) {
       return <InterfaceType type={model} />;
     }
-    if (isInputType(model)) {
+    if (isInputType(program, model)) {
       return <InputType type={model} />;
     }
     return <ObjectType type={model} />;

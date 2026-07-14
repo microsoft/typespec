@@ -1,11 +1,6 @@
-import {
-  type DecoratorContext,
-  type DecoratorFunction,
-  type Program,
-  type Scalar,
-  validateDecoratorUniqueOnNode,
-} from "@typespec/compiler";
+import { type Program, type Scalar, validateDecoratorUniqueOnNode } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
+import type { SpecifiedByDecorator } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { GraphQLKeys } from "../lib.js";
 
 const [getSpecifiedByUrl, setSpecifiedByUrl] = useStateMap<Scalar, string>(GraphQLKeys.specifiedBy);
@@ -19,11 +14,7 @@ export function getSpecifiedBy(program: Program, scalar: Scalar): string | undef
   return getSpecifiedByUrl(program, scalar);
 }
 
-export const $specifiedBy: DecoratorFunction = (
-  context: DecoratorContext,
-  target: Scalar,
-  url: string,
-) => {
+export const $specifiedBy: SpecifiedByDecorator = (context, target, url) => {
   validateDecoratorUniqueOnNode(context, target, $specifiedBy);
   setSpecifiedByUrl(context.program, target, url);
 };

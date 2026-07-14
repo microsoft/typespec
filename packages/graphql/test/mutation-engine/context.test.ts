@@ -1,7 +1,7 @@
 import type { Model } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { isOneOf } from "../../src/lib/one-of.js";
+import { isOneOf } from "../../generated-defs/TypeSpec.GraphQL.js";
 import {
   createGraphQLMutationEngine,
   GraphQLTypeContext,
@@ -161,7 +161,7 @@ describe("GraphQL Mutation Engine - Operation Context Propagation", () => {
     const unionMutation = engine.mutateUnion(Pet, GraphQLTypeContext.Input);
     expect(unionMutation.mutatedType.kind).toBe("Model");
     expect(unionMutation.mutatedType.name).toBe("PetInput");
-    expect(isOneOf(unionMutation.mutatedType as Model)).toBe(true);
+    expect(isOneOf(tester.program, unionMutation.mutatedType as Model)).toBe(true);
   });
 
   it("keeps union return type as union via operation mutation", async () => {

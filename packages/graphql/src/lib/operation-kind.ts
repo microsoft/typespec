@@ -1,6 +1,11 @@
 import { type DecoratorContext, type Operation } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { useStateMap } from "@typespec/compiler/utils";
+import type {
+  MutationDecorator,
+  QueryDecorator,
+  SubscriptionDecorator,
+} from "../../generated-defs/TypeSpec.GraphQL.js";
 import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 
 export type GraphQLOperationKind = "Mutation" | "Query" | "Subscription";
@@ -45,9 +50,9 @@ function createOperationKindDecorator(operationKind: GraphQLOperationKind) {
   };
 }
 
-export const $mutation = createOperationKindDecorator("Mutation");
-export const $query = createOperationKindDecorator("Query");
-export const $subscription = createOperationKindDecorator("Subscription");
+export const $mutation: MutationDecorator = createOperationKindDecorator("Mutation");
+export const $query: QueryDecorator = createOperationKindDecorator("Query");
+export const $subscription: SubscriptionDecorator = createOperationKindDecorator("Subscription");
 
 export const OPERATION_KIND_DECORATORS = [$mutation, $query, $subscription];
 

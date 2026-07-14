@@ -1,8 +1,7 @@
 import { getDoc, type Model, type Union } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { isNullable } from "../../src/lib/nullable.js";
-import { isOneOf } from "../../src/lib/one-of.js";
+import { isNullable, isOneOf } from "../../generated-defs/TypeSpec.GraphQL.js";
 import {
   createGraphQLMutationEngine,
   GraphQLTypeContext,
@@ -33,7 +32,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     expect(mutation.wrapperModels).toHaveLength(0);
     // The replacement type is NOT marked nullable — nullability for inline T | null
     // is tracked on the model property, not the shared scalar singleton.
-    expect(isNullable(mutation.mutatedType)).toBe(false);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(false);
   });
 
   it("replaces nullable model union with inner type", async () => {
@@ -52,7 +51,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     expect(mutation.wrapperModels).toHaveLength(0);
     // The replacement type is NOT marked nullable — nullability for inline T | null
     // is tracked on the model property, not the shared type.
-    expect(isNullable(mutation.mutatedType)).toBe(false);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(false);
   });
 
   it("creates wrapper models for scalar variants", async () => {
@@ -275,7 +274,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     // Strip null → Cat, Cat → dedup → 1 variant → collapse
     expect(mutation.mutatedType.kind).toBe("Model");
     expect(mutation.mutatedType.name).toBe("Cat");
-    expect(isNullable(mutation.mutatedType)).toBe(true);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(true);
   });
 
   it("handles circular type references without infinite recursion", async () => {
@@ -317,7 +316,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
 
     const nameProp = mutation.mutatedType.properties.get("name")!;
     expect(nameProp.type.kind).toBe("Scalar");
-    expect(printMutatedType(nameProp)).toBe("String");
+    expect(printMutatedType(tester.program, nameProp)).toBe("String");
   });
 
   it("string[] property → [String!]!", async () => {
@@ -327,7 +326,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
 
     const tagsProp = mutation.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tagsProp)).toBe("[String!]!");
+    expect(printMutatedType(tester.program, tagsProp)).toBe("[String!]!");
   });
 
   it("(string | null)[] property → [String]!", async () => {
@@ -339,7 +338,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
 
     const tagsProp = mutation.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tagsProp)).toBe("[String]!");
+    expect(printMutatedType(tester.program, tagsProp)).toBe("[String]!");
   });
 
   it("string[] | null property → [String!]", async () => {
@@ -351,7 +350,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
 
     const tagsProp = mutation.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tagsProp)).toBe("[String!]");
+    expect(printMutatedType(tester.program, tagsProp)).toBe("[String!]");
   });
 
   it("(string | null)[] | null property → [String]", async () => {
@@ -363,7 +362,7 @@ describe("GraphQL Mutation Engine - Unions", () => {
     const mutation = engine.mutateModel(Foo, GraphQLTypeContext.Output);
 
     const tagsProp = mutation.mutatedType.properties.get("tags")!;
-    expect(printMutatedType(tagsProp)).toBe("[String]");
+    expect(printMutatedType(tester.program, tagsProp)).toBe("[String]");
   });
 });
 
@@ -388,7 +387,7 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
     // Union is replaced with a Model in the type graph
     expect(mutation.mutatedType.kind).toBe("Model");
     expect(mutation.mutatedType.name).toBe("PetInput");
-    expect(isOneOf(mutation.mutatedType as Model)).toBe(true);
+    expect(isOneOf(tester.program, mutation.mutatedType as Model)).toBe(true);
   });
 
   it("PascalCases oneOf model name for snake_case unions", async () => {
@@ -520,7 +519,7 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
     expect(mutatedUnion.variants.size).toBe(2);
 
     // The result should be marked as nullable
-    expect(isNullable(mutatedUnion)).toBe(true);
+    expect(isNullable(tester.program, mutatedUnion)).toBe(true);
   });
 
   it("strips null from multi-variant union in input context", async () => {
@@ -543,8 +542,8 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
     expect(model.properties.has("dog")).toBe(true);
 
     // Should be marked as both @oneOf and nullable
-    expect(isOneOf(model)).toBe(true);
-    expect(isNullable(model)).toBe(true);
+    expect(isOneOf(tester.program, model)).toBe(true);
+    expect(isNullable(tester.program, model)).toBe(true);
   });
 
   it("non-nullable union is not marked as nullable", async () => {
@@ -559,7 +558,7 @@ describe("GraphQL Mutation Engine - oneOf Input Objects", () => {
     const engine = createTestEngine(tester.program);
     const mutation = engine.mutateUnion(Pet, GraphQLTypeContext.Output);
 
-    expect(isNullable(mutation.mutatedType)).toBe(false);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(false);
   });
 
   it("exposes typeContext on union mutation", async () => {

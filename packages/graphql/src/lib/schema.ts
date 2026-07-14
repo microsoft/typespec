@@ -1,12 +1,7 @@
-import {
-  type DecoratorContext,
-  type DecoratorFunction,
-  type Namespace,
-  type Program,
-  validateDecoratorUniqueOnNode,
-} from "@typespec/compiler";
+import { type Namespace, type Program, validateDecoratorUniqueOnNode } from "@typespec/compiler";
 
 import { useStateMap } from "@typespec/compiler/utils";
+import type { SchemaDecorator } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { GraphQLKeys } from "../lib.js";
 
 export interface SchemaDetails {
@@ -64,11 +59,7 @@ export function addSchema(
   setSchema(program, namespace, { ...existing, ...details, type: namespace });
 }
 
-export const $schema: DecoratorFunction = (
-  context: DecoratorContext,
-  target: Namespace,
-  options: SchemaDetails = {},
-) => {
+export const $schema: SchemaDecorator = (context, target, options) => {
   validateDecoratorUniqueOnNode(context, target, $schema);
   addSchema(context.program, target, options);
 };

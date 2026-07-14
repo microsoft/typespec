@@ -1,7 +1,7 @@
 import type { Model } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { isInputType } from "../../src/lib/input-type.js";
+import { isInputType } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
 import { mutateSchema } from "../../src/mutation-engine/schema-mutator.js";
 import { resolveTypeUsage } from "../../src/type-usage.js";
@@ -203,8 +203,8 @@ describe("mutateSchema", () => {
     const bookOutput = typeGraph.globalNamespace.models.get("Book")!;
     const bookInput = typeGraph.globalNamespace.models.get("BookInput")!;
 
-    expect(isInputType(bookOutput)).toBe(false);
-    expect(isInputType(bookInput)).toBe(true);
+    expect(isInputType(tester.program, bookOutput)).toBe(false);
+    expect(isInputType(tester.program, bookInput)).toBe(true);
   });
 
   it("mutateDecoratorTypeArgs does not corrupt source type decorator args", async () => {

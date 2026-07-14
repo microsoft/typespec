@@ -1,6 +1,5 @@
 import {
   type DecoratorContext,
-  type DecoratorFunction,
   type Model,
   type ModelProperty,
   type Program,
@@ -9,6 +8,10 @@ import {
 } from "@typespec/compiler";
 
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
+import type {
+  ComposeDecorator,
+  GraphqlInterfaceDecorator,
+} from "../../generated-defs/TypeSpec.GraphQL.js";
 import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 import { propertiesEqual } from "./utils.js";
 
@@ -126,11 +129,7 @@ function validateImplementsInterfacesProperties(
   return valid;
 }
 
-export const $graphqlInterface: DecoratorFunction = (
-  context: DecoratorContext,
-  target: Model,
-  options?: { interfaceOnly?: boolean },
-) => {
+export const $graphqlInterface: GraphqlInterfaceDecorator = (context, target, options) => {
   validateDecoratorUniqueOnNode(context, target, $graphqlInterface);
   setInterface(context.program, target as Interface);
   if (options?.interfaceOnly) {
@@ -138,17 +137,14 @@ export const $graphqlInterface: DecoratorFunction = (
   }
 };
 
-export const $compose: DecoratorFunction = (
-  context: DecoratorContext,
-  target: Model,
-  ...interfaces: Interface[]
-) => {
-  validateImplementedsAreInterfaces(context, interfaces);
-  validateNoCircularImplementation(context, target, interfaces);
-  validateImplementsInterfacesProperties(context, target, interfaces);
+export const $compose: ComposeDecorator = (context, target, ...interfaces) => {
+  validateImplementedsAreInterfaces(context, interfaces as Interface[]);
+  validateNoCircularImplementation(context, target, interfaces as Interface[]);
+  validateImplementsInterfacesProperties(context, target, interfaces as Interface[]);
   const existingCompose = getComposition(context.program, target);
+  let composed = interfaces as Interface[];
   if (existingCompose) {
-    interfaces = [...existingCompose, ...interfaces];
+    composed = [...existingCompose, ...composed];
   }
-  setComposition(context.program, target, interfaces);
+  setComposition(context.program, target, composed);
 };

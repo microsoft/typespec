@@ -1,13 +1,13 @@
 import {
   walkPropertiesInherited,
   type DecoratorContext,
-  type DecoratorFunction,
   type Interface,
   type Model,
   type Operation,
   type Program,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
+import type { OperationFieldsDecorator } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { GraphQLKeys, reportDiagnostic } from "../lib.js";
 import { operationsEqual } from "./utils.js";
 
@@ -91,12 +91,12 @@ export function addOperationField(
   setOperationFields(context.program, model, operationFields);
 }
 
-export const $operationFields: DecoratorFunction = (
-  context: DecoratorContext,
-  target: Model,
-  ...operationOrInterfaces: (Operation | Interface)[]
+export const $operationFields: OperationFieldsDecorator = (
+  context,
+  target,
+  ...operationOrInterfaces
 ): void => {
-  for (const operationOrInterface of operationOrInterfaces) {
+  for (const operationOrInterface of operationOrInterfaces as (Operation | Interface)[]) {
     if (operationOrInterface.kind === "Operation") {
       addOperationField(context, target, operationOrInterface);
     } else {

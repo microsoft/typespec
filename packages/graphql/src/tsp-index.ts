@@ -1,8 +1,6 @@
-import type { DecoratorImplementations } from "@typespec/compiler";
+import type { TypeSpecGraphQLDecorators } from "../generated-defs/TypeSpec.GraphQL.js";
 import { $lib } from "./lib.js";
 import { $compose, $graphqlInterface } from "./lib/interface.js";
-import { $nullable, $nullableElements } from "./lib/nullable.js";
-import { $oneOf } from "./lib/one-of.js";
 import { $operationFields } from "./lib/operation-fields.js";
 import { $mutation, $query, $subscription } from "./lib/operation-kind.js";
 import { $schema } from "./lib/schema.js";
@@ -11,18 +9,15 @@ import { $onValidate } from "./validate.js";
 
 export { $lib, $onValidate };
 
-export const $decorators: DecoratorImplementations = {
+export const $decorators = {
   "TypeSpec.GraphQL": {
     compose: $compose,
     graphqlInterface: $graphqlInterface,
     mutation: $mutation,
-    nullable: $nullable,
-    nullableElements: $nullableElements,
-    oneOf: $oneOf,
     operationFields: $operationFields,
     query: $query,
     schema: $schema,
     specifiedBy: $specifiedBy,
     subscription: $subscription,
-  },
+  } satisfies TypeSpecGraphQLDecorators,
 };
