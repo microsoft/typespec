@@ -185,8 +185,7 @@ export function PydanticSettingsClassDeclaration(props: PydanticSettingsClassDec
     }
   }
 
-  const hasStructuredConfig =
-    settingsConfigExpression === undefined && configEntries.length > 0;
+  const hasStructuredConfig = settingsConfigExpression === undefined && configEntries.length > 0;
   const hasExpressionConfig = settingsConfigExpression !== undefined;
 
   const modelConfigExpression = hasExpressionConfig ? (

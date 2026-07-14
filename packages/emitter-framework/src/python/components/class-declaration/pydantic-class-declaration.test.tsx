@@ -91,7 +91,10 @@ describe("Python PydanticClassDeclaration", () => {
 
     expect(
       getOutput(program, [
-        <ClassDeclaration name="AppSettings" bases={[py.pydanticSettingsModule["."].BaseSettings]} />,
+        <ClassDeclaration
+          name="AppSettings"
+          bases={[py.pydanticSettingsModule["."].BaseSettings]}
+        />,
       ]),
     ).toRenderTo(`
       from pydantic_settings import BaseSettings
