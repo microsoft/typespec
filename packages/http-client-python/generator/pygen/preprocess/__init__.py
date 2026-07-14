@@ -402,11 +402,12 @@ class PreProcessPlugin(YamlUpdatePlugin):
         # For a binary `bytes` body (e.g. content type application/octet-stream or a custom
         # binary media type), add an IO overload alongside the `bytes` one. This keeps backward
         # compatibility for services migrating from swagger, whose binary bodies were typed as IO.
+        is_multipart = self.is_tsp and has_multi_part_content_type(body_parameter)
+        is_binary_body = not has_json_content_type(body_parameter) and not is_multipart
         if (
             body_parameter
             and body_parameter["type"]["type"] == "bytes"
-            and not has_json_content_type(body_parameter)
-            and not (self.is_tsp and has_multi_part_content_type(body_parameter))
+            and is_binary_body
             and self.options["models-mode"] != "typeddict"
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
