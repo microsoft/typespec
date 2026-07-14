@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
@@ -21,71 +21,69 @@ import {
 } from "../src/core/types.js";
 import { expectDiagnosticEmpty } from "../src/testing/expect.js";
 
-describe("compiler: binder", () => {
-  let binder: Binder;
-  beforeEach(() => {
-    binder = createBinder(createProgramShim());
-  });
+let binder: Binder;
+beforeEach(() => {
+  binder = createBinder(createProgramShim());
+});
 
-  it("binds blockless namespaces", () => {
-    const code = `
+it("binds blockless namespaces", () => {
+  const code = `
       namespace A.B;
       namespace C {
 
       }
       model D { }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 3);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          B: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {
-              C: {
-                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-                exports: {},
-              },
-              D: {
-                flags: SymbolFlags.Model | SymbolFlags.Declaration,
-              },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 3);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        B: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {
+            C: {
+              flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+              exports: {},
+            },
+            D: {
+              flags: SymbolFlags.Model | SymbolFlags.Declaration,
             },
           },
         },
       },
-    });
+    },
   });
+});
 
-  it("namespace inside blockless namespace with the same name", () => {
-    const code = `
+it("namespace inside blockless namespace with the same name", () => {
+  const code = `
       namespace A.B;
       namespace A.B {
         model D { }
       }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 4);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          B: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {
-              A: {
-                declarations: [SyntaxKind.NamespaceStatement],
-                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-                exports: {
-                  B: {
-                    flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-                    exports: {
-                      D: {
-                        flags: SymbolFlags.Model | SymbolFlags.Declaration,
-                      },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 4);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        B: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {
+            A: {
+              declarations: [SyntaxKind.NamespaceStatement],
+              flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+              exports: {
+                B: {
+                  flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+                  exports: {
+                    D: {
+                      flags: SymbolFlags.Model | SymbolFlags.Declaration,
                     },
                   },
                 },
@@ -94,68 +92,69 @@ describe("compiler: binder", () => {
           },
         },
       },
-    });
+    },
   });
+});
 
-  // Regression test for https://github.com/microsoft/typespec/issues/8630
-  it("nested namespace with same name within file namespace", () => {
-    const code = `
+// Regression test for https://github.com/microsoft/typespec/issues/8630
+it("nested namespace with same name within file namespace", () => {
+  const code = `
       namespace Top;
 
       namespace A {}
       namespace B.A {}
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 4);
-    assertBindings("root", script.symbol.exports!, {
-      Top: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          A: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {},
-          },
-          B: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {
-              A: {
-                declarations: [SyntaxKind.NamespaceStatement],
-                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-                exports: {},
-              },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 4);
+  assertBindings("root", script.symbol.exports!, {
+    Top: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        A: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {},
+        },
+        B: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {
+            A: {
+              declarations: [SyntaxKind.NamespaceStatement],
+              flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+              exports: {},
             },
           },
         },
       },
-    });
+    },
   });
-  it("binds namespaces", () => {
-    const code = `
+});
+it("binds namespaces", () => {
+  const code = `
       namespace A {
         namespace B {
 
         }
       }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 2);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          B: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {},
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 2);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        B: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {},
         },
       },
-    });
+    },
   });
+});
 
-  it("binds duplicate namespaces declared in the same file", () => {
-    const code = `
+it("binds duplicate namespaces declared in the same file", () => {
+  const code = `
       namespace test;
       namespace A {
         namespace B {
@@ -173,345 +172,344 @@ describe("compiler: binder", () => {
         op get2(): void;
       }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 5);
-    assertBindings("root", script.symbol.exports!, {
-      test: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          A: {
-            declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            exports: {
-              B: {
-                declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
-                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-                exports: {},
-              },
-              get1: {
-                flags: SymbolFlags.Operation | SymbolFlags.Declaration,
-              },
-              get2: {
-                flags: SymbolFlags.Operation | SymbolFlags.Declaration,
-              },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 5);
+  assertBindings("root", script.symbol.exports!, {
+    test: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        A: {
+          declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          exports: {
+            B: {
+              declarations: [SyntaxKind.NamespaceStatement, SyntaxKind.NamespaceStatement],
+              flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+              exports: {},
+            },
+            get1: {
+              flags: SymbolFlags.Operation | SymbolFlags.Declaration,
+            },
+            get2: {
+              flags: SymbolFlags.Operation | SymbolFlags.Declaration,
             },
           },
         },
       },
-    });
+    },
   });
+});
 
-  it("binds models", () => {
-    const code = `
+it("binds models", () => {
+  const code = `
       namespace A {
         model A { }
       }
 
       model B<Foo, Bar> { }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          A: {
-            flags: SymbolFlags.Model | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        A: {
+          flags: SymbolFlags.Model | SymbolFlags.Declaration,
         },
       },
-      B: {
-        declarations: [SyntaxKind.ModelStatement],
-        flags: SymbolFlags.Model | SymbolFlags.Declaration,
-      },
-    });
-
-    const BNode = script.statements[1] as ModelStatementNode;
-    assertBindings("B", BNode.locals!, {
-      Foo: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-      Bar: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-    });
+    },
+    B: {
+      declarations: [SyntaxKind.ModelStatement],
+      flags: SymbolFlags.Model | SymbolFlags.Declaration,
+    },
   });
-  it("binds enums", () => {
-    const code = `
+
+  const BNode = script.statements[1] as ModelStatementNode;
+  assertBindings("B", BNode.locals!, {
+    Foo: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+    Bar: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+  });
+});
+it("binds enums", () => {
+  const code = `
       namespace A {
         enum A { }
       }
 
       enum B { }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          A: {
-            flags: SymbolFlags.Enum | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        A: {
+          flags: SymbolFlags.Enum | SymbolFlags.Declaration,
         },
       },
-      B: {
-        declarations: [SyntaxKind.EnumStatement],
-        flags: SymbolFlags.Enum | SymbolFlags.Declaration,
-      },
-    });
+    },
+    B: {
+      declarations: [SyntaxKind.EnumStatement],
+      flags: SymbolFlags.Enum | SymbolFlags.Declaration,
+    },
   });
+});
 
-  it("binds operations", () => {
-    const code = `
+it("binds operations", () => {
+  const code = `
       namespace A {
         op Foo(): void;
       }
 
       op Foo(): void;
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          Foo: {
-            declarations: [SyntaxKind.OperationStatement],
-            flags: SymbolFlags.Operation | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        Foo: {
+          declarations: [SyntaxKind.OperationStatement],
+          flags: SymbolFlags.Operation | SymbolFlags.Declaration,
         },
       },
-      Foo: {
-        declarations: [SyntaxKind.OperationStatement],
-        flags: SymbolFlags.Operation | SymbolFlags.Declaration,
-      },
-    });
+    },
+    Foo: {
+      declarations: [SyntaxKind.OperationStatement],
+      flags: SymbolFlags.Operation | SymbolFlags.Declaration,
+    },
   });
+});
 
-  it("binds interfaces", () => {
-    const code = `
+it("binds interfaces", () => {
+  const code = `
       namespace A {
         interface Foo { }
       }
 
       interface Bar<T, U> { }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          Foo: {
-            declarations: [SyntaxKind.InterfaceStatement],
-            flags: SymbolFlags.Interface | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        Foo: {
+          declarations: [SyntaxKind.InterfaceStatement],
+          flags: SymbolFlags.Interface | SymbolFlags.Declaration,
         },
       },
-      Bar: {
-        declarations: [SyntaxKind.InterfaceStatement],
-        flags: SymbolFlags.Interface | SymbolFlags.Declaration,
-      },
-    });
-
-    const INode = script.statements[1] as InterfaceStatementNode;
-    assertBindings("Bar", INode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-    });
+    },
+    Bar: {
+      declarations: [SyntaxKind.InterfaceStatement],
+      flags: SymbolFlags.Interface | SymbolFlags.Declaration,
+    },
   });
 
-  it("binds union statements", () => {
-    const code = `
+  const INode = script.statements[1] as InterfaceStatementNode;
+  assertBindings("Bar", INode.locals!, {
+    T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+    U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+  });
+});
+
+it("binds union statements", () => {
+  const code = `
       namespace A {
         union Foo { }
       }
 
       union Bar<T, U> { }
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          Foo: {
-            declarations: [SyntaxKind.UnionStatement],
-            flags: SymbolFlags.Union | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        Foo: {
+          declarations: [SyntaxKind.UnionStatement],
+          flags: SymbolFlags.Union | SymbolFlags.Declaration,
         },
       },
-      Bar: {
-        declarations: [SyntaxKind.UnionStatement],
-        flags: SymbolFlags.Union | SymbolFlags.Declaration,
-      },
-    });
-
-    const UNode = script.statements[1] as UnionStatementNode;
-    assertBindings("Bar", UNode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-    });
+    },
+    Bar: {
+      declarations: [SyntaxKind.UnionStatement],
+      flags: SymbolFlags.Union | SymbolFlags.Declaration,
+    },
   });
 
-  it("binds alias statements", () => {
-    const code = `
+  const UNode = script.statements[1] as UnionStatementNode;
+  assertBindings("Bar", UNode.locals!, {
+    T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+    U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+  });
+});
+
+it("binds alias statements", () => {
+  const code = `
       namespace A {
         alias Foo = string;
       }
 
       alias Bar<T, U> = { a: T, b: U };
     `;
-    const script = bindTypeSpec(code);
-    strictEqual(script.namespaces.length, 1);
-    assertBindings("root", script.symbol.exports!, {
-      A: {
-        declarations: [SyntaxKind.NamespaceStatement],
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        exports: {
-          Foo: {
-            declarations: [SyntaxKind.AliasStatement],
-            flags: SymbolFlags.Alias | SymbolFlags.Declaration,
-          },
+  const script = bindTypeSpec(code);
+  strictEqual(script.namespaces.length, 1);
+  assertBindings("root", script.symbol.exports!, {
+    A: {
+      declarations: [SyntaxKind.NamespaceStatement],
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      exports: {
+        Foo: {
+          declarations: [SyntaxKind.AliasStatement],
+          flags: SymbolFlags.Alias | SymbolFlags.Declaration,
         },
       },
-      Bar: {
-        declarations: [SyntaxKind.AliasStatement],
-        flags: SymbolFlags.Alias | SymbolFlags.Declaration,
-      },
-    });
-
-    const ANode = script.statements[1] as AliasStatementNode;
-    assertBindings("Bar", ANode.locals!, {
-      T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-      U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
-    });
+    },
+    Bar: {
+      declarations: [SyntaxKind.AliasStatement],
+      flags: SymbolFlags.Alias | SymbolFlags.Declaration,
+    },
   });
 
-  it("binds JS files", () => {
-    const $myDec = () => {};
-    const $myDec2 = () => {};
-    $myDec2.namespace = "Bar";
-
-    const fn = () => {};
-    const fn2 = () => {};
-    fn2.namespace = "Bar";
-
-    const exports = {
-      namespace: "Foo",
-      $myDec,
-      $myDec2,
-      fn,
-      fn2,
-    };
-
-    const sourceFile = bindJs(exports);
-    assertBindings("jsFile", sourceFile.symbol.exports!, {
-      Foo: {
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        declarations: [SyntaxKind.JsNamespaceDeclaration],
-        exports: {
-          Bar: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            declarations: [SyntaxKind.JsNamespaceDeclaration],
-            exports: {
-              "@myDec2": {
-                flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-                declarations: [SyntaxKind.JsSourceFile],
-              },
-            },
-          },
-          "@myDec": {
-            flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-            declarations: [SyntaxKind.JsSourceFile],
-          },
-        },
-      },
-    });
+  const ANode = script.statements[1] as AliasStatementNode;
+  assertBindings("Bar", ANode.locals!, {
+    T: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
+    U: { flags: SymbolFlags.TemplateParameter | SymbolFlags.Declaration },
   });
-
-  it("binds $decorators in JS file", () => {
-    const exports = {
-      $decorators: {
-        "Foo.Bar": { myDec2: () => {} },
-        Foo: { myDec: () => {} },
-      },
-    };
-
-    const sourceFile = bindJs(exports);
-    assertBindings("jsFile", sourceFile.symbol.exports!, {
-      Foo: {
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        declarations: [SyntaxKind.JsNamespaceDeclaration],
-        exports: {
-          Bar: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            declarations: [SyntaxKind.JsNamespaceDeclaration],
-            exports: {
-              "@myDec2": {
-                flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-                declarations: [SyntaxKind.JsSourceFile],
-              },
-            },
-          },
-          "@myDec": {
-            flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-            declarations: [SyntaxKind.JsSourceFile],
-          },
-        },
-      },
-    });
-  });
-
-  it("binds $functions in JS file", () => {
-    const exports = {
-      $functions: {
-        "Foo.Bar": { myFn2: () => {} },
-        "": { myFn: () => {} },
-      },
-    };
-
-    const sourceFile = bindJs(exports);
-    assertBindings("jsFile", sourceFile.symbol.exports!, {
-      Foo: {
-        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-        declarations: [SyntaxKind.JsNamespaceDeclaration],
-        exports: {
-          Bar: {
-            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
-            declarations: [SyntaxKind.JsNamespaceDeclaration],
-            exports: {
-              myFn2: {
-                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
-                declarations: [SyntaxKind.JsSourceFile],
-              },
-            },
-          },
-        },
-      },
-      myFn: {
-        flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
-        declarations: [SyntaxKind.JsSourceFile],
-      },
-    });
-  });
-
-  function bindTypeSpec(code: string) {
-    const sourceFile = parse(code);
-    expectDiagnosticEmpty(sourceFile.parseDiagnostics);
-    binder.bindSourceFile(sourceFile);
-    return sourceFile;
-  }
-
-  function bindJs(exports: any) {
-    const sourceFile = createJsSourceFile(exports);
-    binder.bindJsSourceFile(sourceFile);
-    return sourceFile;
-  }
 });
+
+it("binds JS files", () => {
+  const $myDec = () => {};
+  const $myDec2 = () => {};
+  $myDec2.namespace = "Bar";
+
+  const fn = () => {};
+  const fn2 = () => {};
+  fn2.namespace = "Bar";
+
+  const exports = {
+    namespace: "Foo",
+    $myDec,
+    $myDec2,
+    fn,
+    fn2,
+  };
+
+  const sourceFile = bindJs(exports);
+  assertBindings("jsFile", sourceFile.symbol.exports!, {
+    Foo: {
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      declarations: [SyntaxKind.JsNamespaceDeclaration],
+      exports: {
+        Bar: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          declarations: [SyntaxKind.JsNamespaceDeclaration],
+          exports: {
+            "@myDec2": {
+              flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
+              declarations: [SyntaxKind.JsSourceFile],
+            },
+          },
+        },
+        "@myDec": {
+          flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
+          declarations: [SyntaxKind.JsSourceFile],
+        },
+      },
+    },
+  });
+});
+
+it("binds $decorators in JS file", () => {
+  const exports = {
+    $decorators: {
+      "Foo.Bar": { myDec2: () => {} },
+      Foo: { myDec: () => {} },
+    },
+  };
+
+  const sourceFile = bindJs(exports);
+  assertBindings("jsFile", sourceFile.symbol.exports!, {
+    Foo: {
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      declarations: [SyntaxKind.JsNamespaceDeclaration],
+      exports: {
+        Bar: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          declarations: [SyntaxKind.JsNamespaceDeclaration],
+          exports: {
+            "@myDec2": {
+              flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
+              declarations: [SyntaxKind.JsSourceFile],
+            },
+          },
+        },
+        "@myDec": {
+          flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
+          declarations: [SyntaxKind.JsSourceFile],
+        },
+      },
+    },
+  });
+});
+
+it("binds $functions in JS file", () => {
+  const exports = {
+    $functions: {
+      "Foo.Bar": { myFn2: () => {} },
+      "": { myFn: () => {} },
+    },
+  };
+
+  const sourceFile = bindJs(exports);
+  assertBindings("jsFile", sourceFile.symbol.exports!, {
+    Foo: {
+      flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+      declarations: [SyntaxKind.JsNamespaceDeclaration],
+      exports: {
+        Bar: {
+          flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+          declarations: [SyntaxKind.JsNamespaceDeclaration],
+          exports: {
+            myFn2: {
+              flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+              declarations: [SyntaxKind.JsSourceFile],
+            },
+          },
+        },
+      },
+    },
+    myFn: {
+      flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+      declarations: [SyntaxKind.JsSourceFile],
+    },
+  });
+});
+
+function bindTypeSpec(code: string) {
+  const sourceFile = parse(code);
+  expectDiagnosticEmpty(sourceFile.parseDiagnostics);
+  binder.bindSourceFile(sourceFile);
+  return sourceFile;
+}
+
+function bindJs(exports: any) {
+  const sourceFile = createJsSourceFile(exports);
+  binder.bindJsSourceFile(sourceFile);
+  return sourceFile;
+}
 
 type BindTest = Record<string, BindingDescriptor>;
 interface BindingDescriptor {
