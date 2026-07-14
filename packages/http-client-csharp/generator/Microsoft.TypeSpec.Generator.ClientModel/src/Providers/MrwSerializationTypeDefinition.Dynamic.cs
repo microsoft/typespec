@@ -419,7 +419,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         statements.Add(new IfStatement(ReadOnlySpanSnippets.IsEmpty(currentSlice))
                         {
                             Return(new InvokeMethodExpression(null, tryResolveMethodName,
-                                [new VariableExpression(valueVar.Type, valueVar.Declaration, IsOut: true)]))
+                                [new ArgumentExpression(valueVar, IsOut: true)]))
                         });
                     }
 

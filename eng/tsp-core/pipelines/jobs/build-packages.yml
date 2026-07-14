@@ -2,8 +2,14 @@ jobs:
   - job: build
     displayName: Build Packages
 
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
     variables:
       TYPESPEC_SKIP_WEBSITE_BUILD: true # Disable docusaurus build
+      TYPESPEC_SKIP_VS_BUILD: true # VS extension is built in the dedicated build-vs (Windows) job
 
     steps:
       - template: /eng/tsp-core/pipelines/templates/install.yml
@@ -32,18 +38,11 @@ jobs:
           Contents: "*.vsix"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
-      - task: CopyFiles@2
-        displayName: "Copy VS extension .vsix to artifact directory"
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
-
       - task: AzureCLI@2
         displayName: "Publish bundled packages to package storage"
         inputs:
           azureSubscription: "Azure SDK Engineering System"
-          scriptType: batch
+          scriptType: bash
           scriptLocation: inlineScript
           inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
 
@@ -74,15 +73,15 @@ jobs:
         displayName: "Publish playground"
         inputs:
           azureSubscription: "Azure SDK Engineering System"
-          scriptType: batch
+          scriptType: bash
           scriptLocation: inlineScript
           inlineScript: |
-            az storage blob upload-batch ^
-              --auth-mode login ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/web/" ^
+            az storage blob upload-batch \
+              --auth-mode login \
+              --destination '$web' \
+              --account-name "cadlplayground" \
+              --destination-path / \
+              --source "./packages/playground-website/dist/web/" \
               --overwrite
 
     templateContext:
@@ -104,8 +103,3 @@ jobs:
           path: $(Build.ArtifactStagingDirectory)/vscode-extension
           artifact: vscode-extension-unsigned
           displayName: Publish VSCode extension(.vsix) as pipeline artifacts
-
-        - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/vs-extension
-          artifact: vs-extension-unsigned
-          displayName: Publish VS extension(.vsix) as pipeline artifacts

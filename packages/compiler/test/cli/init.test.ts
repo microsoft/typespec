@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, expect, it, vi } from "vitest";
 import { CliCompilerHost } from "../../src/core/cli/types.js";
 import { CompilerPackageRoot } from "../../src/core/node-host.js";
 import { resolvePath } from "../../src/core/path-utils.js";
@@ -136,170 +136,168 @@ function parseYaml(host: CliCompilerHost, path: string): Promise<Record<string, 
   return host.readFile(path).then((f) => coreParseYaml(f.text)[0].value as any);
 }
 
-describe("no-prompt", () => {
-  const consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
-  afterAll(() => {
-    consoleMock.mockRestore();
+const consoleMock = vi.spyOn(console, "log").mockImplementation(() => {});
+afterAll(() => {
+  consoleMock.mockRestore();
+});
+
+it("should create a new project with the specified template", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
   });
 
-  it("should create a new project with the specified template", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
+  const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
 
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
+  expect(packageJson.name).toBe("test-project");
+  expect(tspConfig.emit).toEqual(["@typespec/openapi3"]);
+});
+
+it("does not ask for permission if directory has files", async () => {
+  const { fs, compilerHost } = await createTestFSWithCliCompilerHost();
+  fs.set("/tmp/test-project/some-file.txt", "content");
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+  });
+  const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
+  expect(packageJson.name).toBe("test-project");
+});
+
+it("should support overriding project name", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+    "project-name": "custom-project-name",
+  });
+
+  const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
+  expect(packageJson.name).toBe("custom-project-name");
+});
+
+it("should support overriding emitters", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+    emitters: ["@typespec/openapi3", "@typespec/http-client-csharp"],
+  });
+
+  const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
+  expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
+});
+
+it("defaults to initialValue for parameters", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "withParams",
+    "no-prompt": true,
+    args: ["param1=value1"],
+  });
+
+  const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
+  expect(tspConfig.parameters).toEqual({
+    param1: { default: "value1" },
+    param2: { default: "default-value" },
+    param3: { default: "another-default-value" },
+  });
+});
+
+it("should support passing in arguments", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "withParams",
+    "no-prompt": true,
+    args: ["param1=value1", "param2=value2", "param3=value3"],
+  });
+
+  const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
+  expect(tspConfig.parameters).toEqual({
+    param1: { default: "value1" },
+    param2: { default: "value2" },
+    param3: { default: "value3" },
+  });
+});
+
+it("can't add emitters not specified by the template", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
+    emitters: ["@typespec/openapi3", "@typespec/http-client-csharp", "my-fake-emitter"],
+  });
+
+  const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
+  expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
+});
+
+it("should throw an error if no template is specified with no-prompt", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await expect(
+    initTypeSpecProject(compilerHost, "/tmp/test-project", {
       "no-prompt": true,
-    });
+    }),
+  ).rejects.toThrowError(
+    `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: "foo", "withParams"`,
+  );
+});
 
-    const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
-    const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
+it("should throw an error if the specified template does not exist", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
 
-    expect(packageJson.name).toBe("test-project");
-    expect(tspConfig.emit).toEqual(["@typespec/openapi3"]);
-  });
-
-  it("does not ask for permission if directory has files", async () => {
-    const { fs, compilerHost } = await createTestFSWithCliCompilerHost();
-    fs.set("/tmp/test-project/some-file.txt", "content");
-
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
+  await expect(
+    initTypeSpecProject(compilerHost, "/tmp/test-project", {
+      template: "non-existent-template",
       "no-prompt": true,
-    });
-    const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
-    expect(packageJson.name).toBe("test-project");
-  });
+    }),
+  ).rejects.toThrowError("Unexpected error: Cannot find template non-existent-template");
+});
 
-  it("should support overriding project name", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
+it("should throw an error if a required argument is not provided", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
 
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
-      "no-prompt": true,
-      "project-name": "custom-project-name",
-    });
-
-    const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
-    expect(packageJson.name).toBe("custom-project-name");
-  });
-
-  it("should support overriding emitters", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
-      "no-prompt": true,
-      emitters: ["@typespec/openapi3", "@typespec/http-client-csharp"],
-    });
-
-    const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
-    expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
-  });
-
-  it("defaults to initialValue for parameters", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await expect(
+    initTypeSpecProject(compilerHost, "/tmp/test-project", {
       template: "withParams",
       "no-prompt": true,
-      args: ["param1=value1"],
-    });
+    }),
+  ).rejects.toThrowError(
+    `Missing value for parameter "param1". Provide it using --args param1=value`,
+  );
+});
 
-    const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
-    expect(tspConfig.parameters).toEqual({
-      param1: { default: "value1" },
-      param2: { default: "default-value" },
-      param3: { default: "another-default-value" },
-    });
+it("should resolve package versions from npm registry", async () => {
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
   });
 
-  it("should support passing in arguments", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "withParams",
-      "no-prompt": true,
-      args: ["param1=value1", "param2=value2", "param3=value3"],
-    });
+  const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
+  expect(packageJson.dependencies["@typespec/compiler"]).toBe("^1.0.0");
+  expect(packageJson.dependencies["@typespec/http"]).toBe("^1.0.0");
+  expect(packageJson.dependencies["@typespec/openapi3"]).toBe("^1.0.0");
+});
 
-    const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
-    expect(tspConfig.parameters).toEqual({
-      param1: { default: "value1" },
-      param2: { default: "value2" },
-      param3: { default: "value3" },
-    });
+it("should fallback to 'latest' when npm registry is unreachable", async () => {
+  fetchMock.mockRejectedValue(new Error("Network error"));
+
+  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    template: "foo",
+    "no-prompt": true,
   });
 
-  it("can't add emitters not specified by the template", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
-      "no-prompt": true,
-      emitters: ["@typespec/openapi3", "@typespec/http-client-csharp", "my-fake-emitter"],
-    });
-
-    const tspConfig = await parseYaml(compilerHost, "/tmp/test-project/tspconfig.yaml");
-    expect(tspConfig.emit).toEqual(["@typespec/openapi3", "@typespec/http-client-csharp"]);
-  });
-
-  it("should throw an error if no template is specified with no-prompt", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await expect(
-      initTypeSpecProject(compilerHost, "/tmp/test-project", {
-        "no-prompt": true,
-      }),
-    ).rejects.toThrowError(
-      `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: "foo", "withParams"`,
-    );
-  });
-
-  it("should throw an error if the specified template does not exist", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await expect(
-      initTypeSpecProject(compilerHost, "/tmp/test-project", {
-        template: "non-existent-template",
-        "no-prompt": true,
-      }),
-    ).rejects.toThrowError("Unexpected error: Cannot find template non-existent-template");
-  });
-
-  it("should throw an error if a required argument is not provided", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await expect(
-      initTypeSpecProject(compilerHost, "/tmp/test-project", {
-        template: "withParams",
-        "no-prompt": true,
-      }),
-    ).rejects.toThrowError(
-      `Missing value for parameter "param1". Provide it using --args param1=value`,
-    );
-  });
-
-  it("should resolve package versions from npm registry", async () => {
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
-      "no-prompt": true,
-    });
-
-    const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
-    expect(packageJson.dependencies["@typespec/compiler"]).toBe("^1.0.0");
-    expect(packageJson.dependencies["@typespec/http"]).toBe("^1.0.0");
-    expect(packageJson.dependencies["@typespec/openapi3"]).toBe("^1.0.0");
-  });
-
-  it("should fallback to 'latest' when npm registry is unreachable", async () => {
-    fetchMock.mockRejectedValue(new Error("Network error"));
-
-    const { compilerHost } = await createTestFSWithCliCompilerHost();
-    await initTypeSpecProject(compilerHost, "/tmp/test-project", {
-      template: "foo",
-      "no-prompt": true,
-    });
-
-    const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
-    expect(packageJson.dependencies["@typespec/compiler"]).toBe("latest");
-  });
+  const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
+  expect(packageJson.dependencies["@typespec/compiler"]).toBe("latest");
 });
