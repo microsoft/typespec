@@ -1632,6 +1632,15 @@ function createOAPIEmitter(
     // Description is already provided in the parameter itself.
     delete schema.description;
 
+    const extensions = getExtensions(program, param);
+    if (extensions && !("$ref" in schema)) {
+      for (const key of extensions.keys()) {
+        if (key in schema) {
+          delete schema[key];
+        }
+      }
+    }
+
     const oaiParam: OpenAPI3ParameterBase = {
       required: !param.optional,
       description: getDoc(program, param),
