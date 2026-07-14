@@ -20,15 +20,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class SystemObjectModelProvider : ModelProvider
     {
         private readonly CSharpType _systemType;
+        private readonly bool _skipDerivedConstructorParameters;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
         /// </summary>
         /// <param name="systemType">The CSharp type from the external/system assembly.</param>
         /// <param name="inputModel">The input model type that this system type replaces.</param>
-        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel) : base(inputModel)
+        public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false)
+        {
+        }
+
+        public SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            bool skipDerivedConstructorParameters)
+            : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
+            _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -57,6 +68,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <inheritdoc/>
         // _systemType may be null when called from base constructor before field assignment.
         protected override string BuildNamespace() => _systemType?.Namespace ?? string.Empty;
+
+        /// <inheritdoc/>
+        protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+
+        /// <inheritdoc/>
+        protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;

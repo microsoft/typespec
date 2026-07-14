@@ -340,6 +340,7 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("internal ", modifiers.HasFlag(MethodSignatureModifiers.Internal))
                 .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("new ", modifiers.HasFlag(MethodSignatureModifiers.New))
+                .AppendRawIf("sealed ", modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
@@ -837,6 +838,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
                     .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
+                    .AppendRawIf("sealed ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));

@@ -1862,6 +1862,42 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanFilterCanonicalDuplicateWirePathFromSystemObjectModelProviderBase()
+        {
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property("type", InputPrimitiveType.String, wireName: "type"),
+                    InputFactory.Property("defaultName", InputPrimitiveType.String, wireName: "name"),
+                    InputFactory.Property("childProp", InputPrimitiveType.String),
+                ],
+                usage: InputModelTypeUsage.Json);
+            var systemInputModel = InputFactory.Model(
+                "ResourceData",
+                properties:
+                [
+                    InputFactory.Property("resourceType", InputPrimitiveType.String, wireName: "type"),
+                    InputFactory.Property("name", InputPrimitiveType.String, wireName: "name"),
+                ],
+                usage: InputModelTypeUsage.Json);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, systemInputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var customBaseType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[customBaseType] = new SystemObjectModelProvider(customBaseType, systemInputModel);
+
+            var modelProvider = new ModelProvider(childModel);
+            var propertyNames = modelProvider.Properties.Select(p => p.Name).ToArray();
+
+            Assert.That(propertyNames, Does.Not.Contain("Type"));
+            Assert.That(propertyNames, Does.Contain("DefaultName"));
+            Assert.That(propertyNames, Does.Contain("ChildProp"));
+        }
+
+        [Test]
         public async Task CanReadPropertyAttributes()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

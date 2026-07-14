@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -319,6 +320,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
+            var customWirePaths = new HashSet<string>();
 
             foreach (var customProperty in BuildAllCustomProperties())
             {
@@ -326,6 +328,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customProperty.OriginalName != null)
                 {
                     customProperties.Add(customProperty.OriginalName);
+                }
+                if (TryGetWirePath(customProperty, out var customWirePath))
+                {
+                    customWirePaths.Add(customWirePath);
                 }
             }
 
@@ -340,13 +346,46 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var property in specProperties)
             {
-                if (ShouldGenerate(property, customProperties))
+                if (ShouldGenerate(property, customProperties) &&
+                    !IsCanonicalDuplicateWireProperty(property, customWirePaths))
                 {
                     properties.Add(property);
                 }
             }
 
             return [.. properties];
+        }
+
+        private static bool IsCanonicalDuplicateWireProperty(PropertyProvider property, HashSet<string> customWirePaths)
+        {
+            if (!TryGetWirePath(property, out var wirePath) || !customWirePaths.Contains(wirePath))
+            {
+                return false;
+            }
+
+            return property.Name == wirePath.ToIdentifierName();
+        }
+
+        private static bool TryGetWirePath(PropertyProvider property, out string wirePath)
+        {
+            if (property.WireInfo is not null)
+            {
+                wirePath = property.WireInfo.SerializedName;
+                return true;
+            }
+
+            foreach (var attribute in property.Attributes)
+            {
+                if (attribute.Type.Name is "WirePath" or "WirePathAttribute" &&
+                    attribute.Arguments is [LiteralExpression { Literal: string value }, ..])
+                {
+                    wirePath = value;
+                    return true;
+                }
+            }
+
+            wirePath = string.Empty;
+            return false;
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)

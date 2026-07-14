@@ -29,9 +29,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         /// Creates a non-framework CSharpType with the given name and namespace.
         /// Uses the internal constructor accessible via InternalsVisibleTo.
         /// </summary>
-        private static CSharpType CreateSystemCSharpType(string name, string ns)
+        private static CSharpType CreateSystemCSharpType(string name, string ns, CSharpType? baseType = null)
             => new(name, ns, isValueType: false, isNullable: false, declaringType: null,
-                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false, baseType: baseType);
 
         [SetUp]
         public void Setup()
@@ -96,6 +96,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The base should be a SystemObjectModelProvider — impossible with SystemObjectTypeProvider
             Assert.IsNotNull(derivedProvider!.BaseModelProvider);
             Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider.BaseModelProvider);
+        }
+
+        [Test]
+        public void CanRepresentExternalBaseChainWithoutSeparateInheritedProperties()
+        {
+            var baseSystemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var baseProvider = new SystemObjectModelProvider(baseSystemType, baseInputModel);
+
+            var inputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [InputFactory.Property("resourceType", InputPrimitiveType.String, wireName: "type")]);
+            var systemTypeWithBase = CreateSystemCSharpType("TrackedResourceData", "TestFramework", baseSystemType);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseSystemType] = baseProvider;
+
+            var provider = new SystemObjectModelProvider(systemTypeWithBase, inputModel, skipDerivedConstructorParameters: true);
+
+            Assert.AreSame(baseProvider, provider.BaseModelProvider);
+            Assert.AreEqual(baseProvider.Type, provider.Type.BaseType);
+            Assert.AreEqual(1, provider.Properties.Count);
+            Assert.AreEqual("ResourceType", provider.Properties[0].Name);
         }
 
         // -------------------------------------------------------------------

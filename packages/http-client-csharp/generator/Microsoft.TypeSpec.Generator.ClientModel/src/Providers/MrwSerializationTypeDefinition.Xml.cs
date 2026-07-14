@@ -61,13 +61,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private XmlPropertyCategories? _categorizedXmlProperties;
         private XmlPropertyCategories CategorizedXmlProperties => _categorizedXmlProperties ??= CategorizeXmlProperties(ownPropertiesOnly: true);
+        private bool? _shouldOverrideXmlMethods;
+        private bool ShouldOverrideXmlMethods => _shouldOverrideXmlMethods ??= !_isStruct &&
+            (HasGeneratedBaseSerializationMethod(XmlModelWriteCoreMethodName) ||
+                HasGeneratedBaseCustomXmlModelWriteCoreMethod() ||
+                HasCustomBaseXmlModelWriteCoreMethod());
+
+        private bool HasGeneratedBaseSerializationMethod(string methodName)
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.SerializationProviders
+                    .OfType<MrwSerializationTypeDefinition>()
+                    .Any(serialization => serialization.Methods.Any(method => method.Signature.Name == methodName));
+
+        private bool HasGeneratedBaseCustomXmlModelWriteCoreMethod()
+            => _model.BaseModelProvider is not null &&
+                _model.BaseModelProvider is not SystemObjectModelProvider &&
+                _model.BaseModelProvider.CustomCodeView?.Methods.Any(IsXmlModelWriteCoreMethod) == true;
+
+        private bool IsXmlModelWriteCoreMethod(MethodProvider method)
+            => IsXmlModelWriteCoreSignature(method) &&
+                HasInternalOnlyAccessibility(method.Signature.Modifiers) &&
+                IsOverridable(method.Signature.Modifiers);
+
+        private static bool HasInternalOnlyAccessibility(MethodSignatureModifiers modifiers)
+            => modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Public) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Protected) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
+        private bool IsXmlModelWriteCoreSignature(MethodProvider method)
+            => method.Signature.Name == XmlModelWriteCoreMethodName &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(XmlWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
+
+        private static bool IsOverridable(MethodSignatureModifiers modifiers)
+            => !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Override) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Abstract));
+
+        private bool HasCustomBaseXmlModelWriteCoreMethod()
+            => GetCustomSerializationBaseType() is not null &&
+                _model.BaseType is { } baseType &&
+                HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
+
+        private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
+        {
+            if (!visited.Add(type.FullyQualifiedName))
+            {
+                return false;
+            }
+
+            var provider = TryGetTypeProvider(type);
+            if (provider is not null && GetXmlModelWriteCoreCompatibility(provider) is { } isCompatible)
+            {
+                return isCompatible;
+            }
+
+            var baseType = provider?.BaseType ?? type.BaseType;
+            return baseType is not null && HasCompatibleXmlModelWriteCoreInHierarchy(baseType, visited);
+        }
+
+        private bool? GetXmlModelWriteCoreCompatibility(TypeProvider type)
+        {
+            var sourceMethod = type.Methods.FirstOrDefault(IsXmlModelWriteCoreSignature);
+            return sourceMethod is null ? null : IsXmlModelWriteCoreMethod(sourceMethod);
+        }
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
-            if (_shouldOverrideXmlMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
@@ -81,7 +151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildXmlModelWriteCoreMethodBody()
         {
-            var categorizedProperties = _shouldOverrideXmlMethods
+            var categorizedProperties = ShouldOverrideXmlMethods
                 ? CategorizedXmlProperties
                 : AllCategorizedXmlProperties;
             var statements = new List<MethodBodyStatement>
@@ -90,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine
             };
 
-            if (_shouldOverrideXmlMethods)
+            if (ShouldOverrideXmlMethods)
             {
                 statements.Add(Base.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate());
             }
