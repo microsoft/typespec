@@ -33,6 +33,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public void SkipExternalModels()
+        {
+            var external = new InputExternalTypeMetadata("OpenAI.Responses.ResponseTool", "OpenAI", "2.11.0");
+            var externalModel = InputFactory.Model("ExternalTool", external: external);
+            var localModel = InputFactory.Model("LocalThing");
+            var instance = MockHelpers.LoadMockGenerator(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalModel, localModel]).Object;
+
+            var modelFactory = instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ExternalTool"),
+                "Externally-linked models must not get a model factory method.");
+            Assert.IsNotNull(
+                modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "LocalThing"),
+                "Local models must still get a model factory method.");
+        }
+
+        [Test]
         public void ListParamShape()
         {
             var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
@@ -40,7 +60,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -63,7 +85,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -86,7 +110,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -108,7 +134,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             foreach (var model in models)
             {
                 if (!model!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
                     continue; //skip internal models
+                }
 
                 Assert.IsNotNull(model, "Null ModelProvider found");
                 var method = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == model!.Name);
@@ -377,6 +405,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
+        {
+            // The previous contract contains a "PublicModel1OldName" factory method that no longer
+            // exists in the current contract. Normally a back-compat shim would be regenerated, but
+            // here the removal has been accepted in the ApiCompat baseline, so it must be skipped.
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NoCurrentOverloadFound"),
+                apiCompatBaseline: baseline)).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods;
+
+            // The suppressed back-compat method should NOT have been regenerated.
+            var backwardCompatibilityMethod = methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1OldName");
+            Assert.IsNull(backwardCompatibilityMethod);
+
+            // No extra back-compat method beyond the current factory methods.
+            Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), methods.Count);
         }
 
         [Test]
@@ -917,6 +975,61 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(4, publicModel1Methods[0].Signature.Parameters.Count);
         }
 
+        // Back-compat members are synthesized in ProcessTypeForBackCompatibility, which runs after the
+        // main library visitor pass. This test ensures those newly-added members are still run through
+        // the registered visitors (only the new members, not the already-visited existing ones).
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodIsVisited()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NewModelPropertyAdded"))).Object;
+
+            var recordingVisitor = new RecordingMethodVisitor();
+            _instance.AddVisitor(recordingVisitor);
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var backCompatMethod = modelFactory.Methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.All(p => p.Name != "dictProp"));
+            Assert.IsNotNull(backCompatMethod, "Expected a back-compat overload to be synthesized.");
+
+            // The synthesized back-compat method must have been visited.
+            Assert.IsTrue(
+                recordingVisitor.VisitedMethods.Contains(backCompatMethod!),
+                "The back-compat method was not visited by the library visitor.");
+
+            // Existing methods that were already part of the contract are not re-visited by the visitor
+            // added after the main pass (they would have been visited during the main pass in a real run).
+            var currentOverloadMethod = modelFactory.Methods
+                .FirstOrDefault(m => m.Signature.Name == "PublicModel1" && m.Signature.Parameters.Any(p => p.Name == "dictProp"));
+            Assert.IsNotNull(currentOverloadMethod);
+            Assert.IsFalse(recordingVisitor.VisitedMethods.Contains(currentOverloadMethod!));
+        }
+
+        // Verifies that a visitor can mutate (rename) a synthesized back-compat method and the change is
+        // reflected in the final generated methods.
+        [Test]
+        public async Task BackCompatibility_BackCompatMethodCanBeMutatedByVisitor()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "BackCompatibility_NewModelPropertyAdded"))).Object;
+
+            _instance.AddVisitor(new BackCompatMethodRenamingVisitor());
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // The visitor renames any method carrying the EditorBrowsableNever attribute (the back-compat
+            // overload) so the mutation must be observable on the final method collection.
+            var renamed = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "PublicModel1Renamed");
+            Assert.IsNotNull(renamed, "The visitor's rename of the back-compat method was not applied.");
+        }
+
         private static InputModelType[] GetTestModels()
         {
             InputType additionalPropertiesUnknown = InputPrimitiveType.Any;
@@ -943,6 +1056,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 InputFactory.Model("BaseModel", properties: properties, derivedModels: [derivedModel]),
                 InputFactory.Model("ModelWithUnknownAdditionalProperties", properties: properties, additionalProperties: additionalPropertiesUnknown),
             ];
+        }
+
+        private class RecordingMethodVisitor : LibraryVisitor
+        {
+            public List<MethodProvider> VisitedMethods { get; } = [];
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                VisitedMethods.Add(method);
+                return method;
+            }
+        }
+
+        private class BackCompatMethodRenamingVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == "PublicModel1"
+                    && method.Signature.Attributes.Any(a => a.ToDisplayString().Contains("EditorBrowsable")))
+                {
+                    method.Signature.Update(name: "PublicModel1Renamed");
+                }
+                return method;
+            }
         }
     }
 }

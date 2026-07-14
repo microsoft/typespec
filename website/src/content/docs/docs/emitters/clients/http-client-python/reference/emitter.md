@@ -38,9 +38,9 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 ### `api-version`
 
-**Type:** `string`
+**Type:** `undefined`
 
-Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`.
+Use this flag if you would like to generate the sdk only for a specific version. Default value is the latest version. Also accepts values `latest` and `all`. For multi-service packages, provide a map from each service namespace's full name to its desired version; services not listed default to their latest version.
 
 ### `license`
 
@@ -106,7 +106,17 @@ Whether to validate the versioning of the package. Defaults to `true`. If set to
 
 **Type:** `string`
 
-The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.
+The subdirectory (relative to the package namespace folder) to generate the code in. Use this to keep emitter-generated code separate from hand-written/customized code, so regeneration only overwrites the subdirectory and leaves your customizations untouched. If not specified, the code is generated directly in the package namespace folder. Note: if you're using this flag, you will need to add and maintain the versioning file (`_version.py`) yourself.
+
+Example: for `namespace: azure.storage.blob` with `generation-subdir: _generated`, generated code lands in `azure/storage/blob/_generated/` while your customized code lives in `azure/storage/blob/`. A typical `tspconfig.yaml` looks like:
+
+```yaml
+options:
+  "@azure-tools/typespec-python":
+    emitter-output-dir: "{output-dir}/{service-dir}/azure-storage-blob"
+    namespace: "azure.storage.blob"
+    generation-subdir: "_generated"
+```
 
 ### `keep-setup-py`
 
@@ -114,8 +124,20 @@ The subdirectory to generate the code in. If not specified, the code will be gen
 
 Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.
 
+### `keep-pyproject-fields`
+
+**Type:** `object`
+
+Which manually customized `[project]` fields to preserve in an existing `pyproject.toml` instead of overwriting them on regeneration. Set a field to `true` to keep it. By default no fields are preserved.
+
 ### `clear-output-folder`
 
 **Type:** `boolean`
 
 Whether to clear the output folder before generating the code. Defaults to `false`.
+
+### `emit-yaml-only`
+
+**Type:** `boolean`
+
+Emit YAML code model only, without running Python generator. For batch processing.

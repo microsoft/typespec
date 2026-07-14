@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.75.0",
+  "version": "0.76.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating TypeSpec docs",
   "homepage": "https://typespec.io",
@@ -46,8 +46,8 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "lib/*.tsp",

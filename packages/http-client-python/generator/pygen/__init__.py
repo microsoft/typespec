@@ -29,6 +29,7 @@ class OptionsDict(MutableMapping):
         "from-typespec": False,
         "generate-sample": False,
         "keep-setup-py": False,
+        "keep-pyproject-fields": "",
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,
@@ -44,6 +45,8 @@ class OptionsDict(MutableMapping):
 
     def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
+        for key in list(self._data):
+            self._data[key] = self._validate_and_transform(key, self._data[key])
         self._validate_combinations()
 
     def __getitem__(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
@@ -167,10 +170,10 @@ class OptionsDict(MutableMapping):
         if key == "models-mode" and value == "none":
             value = False  # switch to falsy value for easier code writing
 
-        if key == "models-mode" and value not in ["msrest", "dpg", False]:
+        if key == "models-mode" and value not in ["msrest", "dpg", "typeddict", False]:
             raise ValueError(
-                "--models-mode can only be 'msrest', 'dpg' or 'none'. "
-                "Pass in 'msrest' if you want msrest models, or "
+                "--models-mode can only be 'msrest', 'dpg', 'typeddict', or 'none'. "
+                "Pass in 'msrest' if you want msrest models, 'typeddict' for TypedDict models, or "
                 "'none' if you don't want any."
             )
         if key == "package-mode":

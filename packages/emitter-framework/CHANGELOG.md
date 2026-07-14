@@ -1,5 +1,20 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.19.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.18.0
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] Export new utilities from `@typespec/emitter-framework/csharp`: `getDocComments`, `getNullableUnionInnerType`, `efRefkey`, and `declarationRefkeys`
+- [#10372](https://github.com/microsoft/typespec/pull/10372) [csharp] `EnumDeclaration` now emits the doc comments of the TypeSpec enum
+
+
 ## 0.17.0
 
 ### Features

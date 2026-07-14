@@ -11,56 +11,54 @@ const scenarioRoot = resolvePath(
   "test/config/scenarios",
 );
 
-describe("compiler: resolve compiler options", () => {
-  const tspOutputPath = resolvePath(`${process.cwd()}/tsp-output`);
-  describe("specifying explicit config file", () => {
-    const resolveOptions = async (path: string) => {
-      const fullPath = resolvePath(scenarioRoot, path);
-      const [{ configFile: config, ...options }, diagnostics] = await resolveCompilerOptions(
-        NodeHost,
-        {
-          cwd: normalizePath(process.cwd()),
-          entrypoint: fullPath, // not really used here
-          configPath: fullPath,
-        },
-      );
-      return [options, diagnostics] as const;
-    };
+const tspOutputPath = resolvePath(`${process.cwd()}/tsp-output`);
+describe("specifying explicit config file", () => {
+  const resolveOptions = async (path: string) => {
+    const fullPath = resolvePath(scenarioRoot, path);
+    const [{ configFile: config, ...options }, diagnostics] = await resolveCompilerOptions(
+      NodeHost,
+      {
+        cwd: normalizePath(process.cwd()),
+        entrypoint: fullPath, // not really used here
+        configPath: fullPath,
+      },
+    );
+    return [options, diagnostics] as const;
+  };
 
-    it("loads config at the given path", async () => {
-      const [options, diagnostics] = await resolveOptions("custom/myConfig.yaml");
-      expectDiagnosticEmpty(diagnostics);
+  it("loads config at the given path", async () => {
+    const [options, diagnostics] = await resolveOptions("custom/myConfig.yaml");
+    expectDiagnosticEmpty(diagnostics);
 
-      deepStrictEqual(options, {
-        config: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
-        emit: ["openapi"],
-        options: {},
-        outputDir: tspOutputPath,
-      });
+    deepStrictEqual(options, {
+      config: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
+      emit: ["openapi"],
+      options: {},
+      outputDir: tspOutputPath,
     });
+  });
 
-    it("loads config with nested parameters", async () => {
-      const [options, diagnostics] = await resolveOptions("custom/myConfigNested.yaml");
-      expectDiagnosticEmpty(diagnostics);
+  it("loads config with nested parameters", async () => {
+    const [options, diagnostics] = await resolveOptions("custom/myConfigNested.yaml");
+    expectDiagnosticEmpty(diagnostics);
 
-      deepStrictEqual(options, {
-        config: resolvePath(scenarioRoot, "custom/myConfigNested.yaml"),
-        emit: ["openapi"],
-        options: {
-          description: {
-            name: "Testing name: Sphere",
-            details: { one: "Type: Microsoft", two: { "two-one": "Default: Microsoft" } },
-          },
+    deepStrictEqual(options, {
+      config: resolvePath(scenarioRoot, "custom/myConfigNested.yaml"),
+      emit: ["openapi"],
+      options: {
+        description: {
+          name: "Testing name: Sphere",
+          details: { one: "Type: Microsoft", two: { "two-one": "Default: Microsoft" } },
         },
-        outputDir: tspOutputPath,
-      });
+      },
+      outputDir: tspOutputPath,
     });
+  });
 
-    it("emit diagnostics", async () => {
-      const [_, diagnostics] = await resolveOptions("not-found.yaml");
-      expectDiagnostics(diagnostics, {
-        code: "config-path-not-found",
-      });
+  it("emit diagnostics", async () => {
+    const [_, diagnostics] = await resolveOptions("not-found.yaml");
+    expectDiagnostics(diagnostics, {
+      code: "config-path-not-found",
     });
   });
 });

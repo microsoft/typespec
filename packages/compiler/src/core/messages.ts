@@ -269,6 +269,13 @@ const diagnostics = {
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
     },
   },
+  "auto-decorator-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Auto decorator declarations require the 'auto-decorators' feature to be enabled. Add 'auto-decorators' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
   "using-invalid-ref": {
     severity: "error",
     messages: {
@@ -564,6 +571,8 @@ const diagnostics = {
     messages: {
       default: paramMessage`Modifier '${"modifier"}' is invalid.`,
       "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "missing-required-one-of": paramMessage`Declaration of type '${"nodeKind"}' is missing one of the required modifiers: ${"modifiers"}.`,
+      "mutually-exclusive": paramMessage`Modifiers '${"modifierA"}' and '${"modifierB"}' cannot be used together.`,
       "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
     },
   },
@@ -735,6 +744,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Duplicate name: "${"name"}"`,
+    },
+  },
+  "duplicate-suppression": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
     },
   },
   "decorator-decl-target": {
@@ -942,7 +957,7 @@ const diagnostics = {
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
       wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
-      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric types.`,
+      firstArg: `First argument of "@encode" must be the encoding name or the string type when encoding numeric or boolean types.`,
     },
   },
 
@@ -1127,6 +1142,12 @@ const diagnostics = {
       default: "Visual Studio extension is not supported on non-Windows.",
     },
   },
+  "vsix-download-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Failed to download extension "${"id"}" from the marketplace: ${"message"}.`,
+    },
+  },
   "vscode-in-path": {
     severity: "error",
     messages: {
@@ -1141,8 +1162,15 @@ const diagnostics = {
       default: paramMessage`The --option parameter value "${"value"}" must be in the format: <emitterName>.some-options=value`,
     },
   },
+  "cli-command-deprecated": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`The "${"command"}" command is deprecated. Install and manage the extension directly from the marketplace instead. See ${"docsUrl"} for details.`,
+    },
+  },
   // #endregion CLI
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;
+export const compilerDiagnosticCodes = new Set(Object.keys(diagnostics));
 export const { createDiagnostic, reportDiagnostic } = createDiagnosticCreator(diagnostics);

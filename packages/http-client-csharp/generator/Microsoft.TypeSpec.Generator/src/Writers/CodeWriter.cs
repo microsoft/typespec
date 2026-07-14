@@ -288,7 +288,9 @@ namespace Microsoft.TypeSpec.Generator
         internal void WriteXmlDocsNoScope(XmlDocProvider? docs)
         {
             if (CodeModelGenerator.Instance.Configuration.DisableXmlDocs || docs is null)
+            {
                 return;
+            }
 
             if (docs.Inherit is not null)
             {
@@ -628,7 +630,9 @@ namespace Microsoft.TypeSpec.Generator
                     }
 
                     if (i < arguments.Count - 1)
+                    {
                         AppendRaw(",");
+                    }
                 }
             }
         }
@@ -666,7 +670,10 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(type.Namespace);
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
+                {
                     AppendRaw($"{type.DeclaringType.Name}.");
+                }
+
                 AppendRaw(type.Name);
             }
 
@@ -719,7 +726,9 @@ namespace Microsoft.TypeSpec.Generator
         private CodeWriter AppendRaw(ReadOnlySpan<char> span)
         {
             if (span.Length == 0 )
+            {
                 return this;
+            }
 
             AddSpaces(span);
 
@@ -741,7 +750,9 @@ namespace Microsoft.TypeSpec.Generator
 
             int spaces = _atBeginningOfLine ? (_scopes.Peek().Depth) * 4 : 0;
             if (spaces == 0)
+            {
                 return;
+            }
 
             var destination = _builder.GetSpan(spaces);
             destination.Slice(0, spaces).Fill(_space);
@@ -954,7 +965,9 @@ namespace Microsoft.TypeSpec.Generator
             var reader = _builder.ExtractReader();
             var totalLength = reader.Length;
             if (totalLength == 0)
+            {
                 return string.Empty;
+            }
 
             var builder = new StringBuilder((int)totalLength);
             IEnumerable<string> namespaces = _usingNamespaces

@@ -180,7 +180,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 convenienceBodyParameters = bodyParams;
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    renamedSignatureParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
             }
             else
             {
@@ -256,6 +261,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            // The convenience method's public/internal accessibility follows the service method's
+            // accessibility, independent of the protocol method. The protocol method may be internal
+            // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
+            // convenience method should still be public.
+            if (ServiceMethod.Accessibility == "public")
+            {
+                modifiers &= ~MethodSignatureModifiers.Internal;
+                modifiers |= MethodSignatureModifiers.Public;
+            }
+
             var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
             if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                 !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
@@ -272,13 +287,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private IEnumerable<MethodBodyStatement> GetStackVariablesForProtocolParamConversion(IReadOnlyList<ParameterProvider> convenienceMethodParameters, out Dictionary<string, ValueExpression> declarations)
         {
             List<MethodBodyStatement> statements = new List<MethodBodyStatement>();
-            declarations = new Dictionary<string, ValueExpression>();
+            var localDeclarations = declarations = new Dictionary<string, ValueExpression>();
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+
+            // Serializes the body via Utf8JsonWriter to stay AOT/trim safe (avoids BinaryData.FromObjectAsJson<T>, which trips IL2026/IL3050).
+            void AddUtf8JsonContent(CSharpType serializationType, ValueExpression value)
+            {
+                statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                    serializationType,
+                    value,
+                    content.JsonWriter(),
+                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    SerializationFormat.Default));
+                localDeclarations["content"] = content;
+            }
 
             foreach (var parameter in convenienceMethodParameters)
             {
                 if (parameter.SpreadSource != null)
+                {
                     continue;
+                }
 
                 if (parameter.Location == ParameterLocation.Body)
                 {
@@ -307,11 +337,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.Equals(typeof(string)))
                     {
-                        var bdExpression = ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true
-                            ? BinaryDataSnippets.FromObjectAsJson(parameter)
-                            : BinaryDataSnippets.FromString(parameter);
-                        statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
-                        declarations["content"] = content;
+                        if (ServiceMethod.Operation.RequestMediaTypes?.Contains("application/json") == true)
+                        {
+                            AddUtf8JsonContent(parameter.Type, parameter);
+                        }
+                        else
+                        {
+                            statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(BinaryDataSnippets.FromString(parameter)), out var content));
+                            declarations["content"] = content;
+                        }
+                    }
+                    else if (parameter.Type.IsEnum)
+                    {
+                        AddUtf8JsonContent(parameter.Type, parameter);
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
@@ -320,14 +358,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
-                        statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
-                        statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
-                            parameter.Type.FrameworkType,
-                            parameter,
-                            content.JsonWriter(),
-                            ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                            SerializationFormat.Default));
-                        declarations["content"] = content;
+                        AddUtf8JsonContent(parameter.Type.FrameworkType, parameter);
                     }
                     else
                     {
@@ -945,8 +976,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                         else if (convenienceParam.Type.IsEnum)
                         {
-                            AddArgument(protocolParam, RequestContentApiSnippets.Create(
-                                BinaryDataSnippets.FromObjectAsJson(convenienceParam.Type.ToSerial(convenienceParam))));
+                            AddArgument(protocolParam, declarations["content"]);
                         }
                         else if (convenienceParam.Type.Equals(typeof(BinaryData)))
                         {
@@ -1025,7 +1055,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+            var methodModifiers = ServiceMethod.Accessibility == "public" && ServiceMethod.Operation.GenerateProtocolMethod ?
                 MethodSignatureModifiers.Public :
                 MethodSignatureModifiers.Internal;
 
@@ -1082,7 +1112,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    requiredCustomParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
 
                 bodyParameters = requiredCustomParameters;
                 // Re-resolve the request options parameter from the customized parameter list so the
@@ -1115,7 +1150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(createRequestMethod.Signature,
-                            [.. bodyParameters.Select(p => (ValueExpression)p)]), out var message),
+                            BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
                         .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
@@ -1139,6 +1174,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 protocolMethod.XmlDocs.Update(summary: summary, exceptions: exceptions);
             }
             return protocolMethod;
+        }
+
+        // The protocol method orders its parameters required-first (optional parameters and the
+        // request options/context parameter are moved to the end so they can have default values).
+        // This order can differ from the CreateRequest method's parameter order, which follows the
+        // operation/declaration order. Passing the protocol parameters positionally would therefore
+        // bind them to the wrong CreateRequest parameters (for example, swapping an optional path
+        // parameter with the request body). Reorder the arguments to match the CreateRequest
+        // signature by mapping each CreateRequest parameter to the protocol parameter with the same
+        // name. If the names cannot be reconciled, fall back to the original positional behavior.
+        private static ValueExpression[] BuildCreateRequestArguments(
+            MethodSignature createRequestSignature,
+            IReadOnlyList<ParameterProvider> bodyParameters)
+        {
+            var createRequestParameters = createRequestSignature.Parameters;
+            if (createRequestParameters.Count == bodyParameters.Count)
+            {
+                var arguments = new ValueExpression[createRequestParameters.Count];
+                bool allMatched = true;
+                for (int i = 0; i < createRequestParameters.Count; i++)
+                {
+                    var match = bodyParameters.FirstOrDefault(p => p.Name == createRequestParameters[i].Name);
+                    if (match is null)
+                    {
+                        allMatched = false;
+                        break;
+                    }
+
+                    arguments[i] = match;
+                }
+
+                if (allMatched)
+                {
+                    return arguments;
+                }
+            }
+
+            return [.. bodyParameters.Select(p => (ValueExpression)p)];
         }
 
         private ParameterProvider ProcessOptionalParameters(

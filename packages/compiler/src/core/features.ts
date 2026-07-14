@@ -11,6 +11,10 @@ export const compilerFeatures = {
     description:
       "Allows use of function declarations without experimental warnings in project code.",
   },
+  "auto-decorators": {
+    description:
+      "Allows use of auto decorator declarations without experimental warnings in project code.",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;
@@ -28,13 +32,22 @@ export function isCompilerFeatureEnabled(
   feature: CompilerFeatureName,
   target?: DiagnosticTarget,
 ): boolean {
-  if (!program.compilerOptions.configFile?.features?.includes(feature)) {
-    return false;
-  }
-
+  // Without a target, fall back to the root project config (e.g. global feature checks).
   if (target === undefined) {
-    return true;
+    return program.compilerOptions.configFile?.features?.includes(feature) ?? false;
   }
 
-  return getLocationContext(program, target).type === "project";
+  // Resolve the feature set from the package that owns the source file so that a library
+  // can enable a feature for its own code via its own `tspconfig.yaml`, independently of
+  // the consuming project's config.
+  const context = getLocationContext(program, target);
+  switch (context.type) {
+    case "project":
+      return program.compilerOptions.configFile?.features?.includes(feature) ?? false;
+    case "library":
+      return context.features?.includes(feature) ?? false;
+    default:
+      // compiler (standard library) and synthetic code are never gated.
+      return false;
+  }
 }

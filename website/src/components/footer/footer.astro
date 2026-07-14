@@ -75,6 +75,19 @@ const { class: className } = Astro.props;
     color: var(--colorBrandForeground1);
   }
 
+  .manage-cookies {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: var(--colorNeutralForeground2);
+    text-decoration: underline;
+  }
+  .manage-cookies:hover {
+    color: var(--colorBrandForeground1);
+  }
+
   .theme-picker {
     display: flex;
     align-items: flex-start;
@@ -148,6 +161,15 @@ const { class: className } = Astro.props;
     <div class="general-links">
       <div>
         <Link href={Links.privacy} title="Microsoft Privacy Policy"> Privacy </Link>
+      </div>
+      <div>
+        <button
+          type="button"
+          class="manage-cookies"
+          onclick="window.manageConsent && window.manageConsent()"
+        >
+          Manage cookies
+        </button>
       </div>
       <div>
         <Link href={Links.termsOfUse} title="Microsoft Terms Of Use"> Terms of use </Link>

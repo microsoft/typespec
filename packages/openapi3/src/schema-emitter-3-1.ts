@@ -12,9 +12,11 @@ import {
   compilerAssert,
   Enum,
   getDiscriminatedUnion,
+  getDoc,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
+  getSummary,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
@@ -26,7 +28,6 @@ import {
   Union,
 } from "@typespec/compiler";
 import { MetadataInfo } from "@typespec/http";
-import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { serializeExample } from "./examples.js";
 import { JsonSchemaModule } from "./json-schema.js";
@@ -34,7 +35,7 @@ import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
+import { OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
 import { JsonType, OpenAPISchema3_1 } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
@@ -183,6 +184,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       return {};
     }
 
+    if (this._options.enumStrategy === "annotated") {
+      return this.#annotatedEnumSchema(en);
+    }
+
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
@@ -198,6 +203,46 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     };
 
     return this.applyConstraints(en, schema);
+  }
+
+  #annotatedEnumSchema(en: Enum): OpenAPISchema3_1 {
+    const program = this.emitter.getProgram();
+    const oneOf: OpenAPISchema3_1[] = [];
+    for (const member of en.members.values()) {
+      const value = member.value ?? member.name;
+      const subschema: OpenAPISchema3_1 = { const: value };
+      const title = getSummary(program, member);
+      if (title !== undefined) {
+        subschema.title = title;
+      }
+      const description = getDoc(program, member);
+      if (description !== undefined) {
+        subschema.description = description;
+      }
+      oneOf.push(subschema);
+    }
+
+    return this.applyConstraints(en, { oneOf });
+  }
+
+  protected override combineRefWithConstraints(
+    refSchema: any,
+    constraints: Partial<OpenAPISchema3_1>,
+  ): any {
+    // Some constraints already compose the reference themselves (e.g. the XML module wraps
+    // it in an `allOf`). In that case defer to the base behavior, otherwise we would emit
+    // both a top-level `$ref` and an `allOf` pointing at the same schema.
+    if ("allOf" in constraints) {
+      return super.combineRefWithConstraints(refSchema, constraints);
+    }
+    // OpenAPI 3.1 allows keywords alongside `$ref` (JSON Schema 2020-12 semantics),
+    // so the constraints are merged directly onto the reference instead of wrapping it
+    // in an unnecessary `allOf`.
+    const merged = new ObjectBuilder<OpenAPISchema3_1>(refSchema);
+    for (const [key, value] of Object.entries(constraints)) {
+      setProperty(merged, key, value);
+    }
+    return merged;
   }
 
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
@@ -253,7 +298,6 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPISchema3_1> => {
       const schema = schemaMember.schema;
-      const type = schemaMember.type;
       const additionalProps: Partial<OpenAPISchema3_1> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
@@ -261,26 +305,9 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
-        if (
-          (schema instanceof Placeholder || "$ref" in schema) &&
-          !(type && shouldInline(program, type))
-        ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
-            return new ObjectBuilder({
-              type: "object",
-              allOf: Builders.array([schema]),
-              ...additionalProps,
-            });
-          } else {
-            return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
-          }
-        } else {
-          const merged = new ObjectBuilder<OpenAPISchema3_1>(schema);
-          for (const [key, value] of Object.entries(additionalProps)) {
-            setProperty(merged, key, value);
-          }
-          return merged;
-        }
+        // OpenAPI 3.1 allows sibling keywords next to `$ref`, so union-wide
+        // constraints are merged directly onto the member schema.
+        return this.combineRefWithConstraints(schema, additionalProps);
       }
     };
 

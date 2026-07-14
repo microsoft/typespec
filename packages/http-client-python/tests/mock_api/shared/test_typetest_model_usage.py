@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typetest.model.usage import UsageClient, models
+from typetest.model.usage.types import InputRecord, InputOutputRecord
 
 
 @pytest.fixture
@@ -26,3 +27,16 @@ def test_output(client: UsageClient):
 def test_input_and_output(client: UsageClient):
     input_output = models.InputOutputRecord(required_prop="example-value")
     assert input_output == client.input_and_output(input_output)
+
+
+def test_input_typeddict(client: UsageClient):
+    # Pass a TypedDict (plain dict with wire names) instead of a model
+    result = client.input({"requiredProp": "example-value"})
+    assert result is None
+
+
+def test_input_and_output_typeddict(client: UsageClient):
+    # Pass a TypedDict, get a model back
+    result = client.input_and_output({"requiredProp": "example-value"})
+    assert isinstance(result, models.InputOutputRecord)
+    assert result.required_prop == "example-value"

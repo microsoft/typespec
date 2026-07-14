@@ -118,6 +118,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ProtocolMethodIsInternalWhenGenerateProtocolMethodIsFalse()
+        {
+            var operation = InputFactory.Operation(
+                "CreateMessage",
+                generateProtocolMethod: false,
+                parameters:
+                [
+                    InputFactory.BodyParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            // Protocol methods (the RequestContent-based overloads) should be generated as internal, not omitted.
+            var protocolMethods = methodCollection.Where(m
+                => m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.IsTrue(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should be internal when generateProtocolMethod is false.");
+                Assert.IsFalse(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should not be public when generateProtocolMethod is false.");
+            }
+
+            // Convenience methods should remain public.
+            var convenienceMethods = methodCollection.Where(m
+                => !m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Convenience method '{convenienceMethod.Signature.Name}' should remain public.");
+            }
+        }
+
+        [Test]
         public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
         {
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -378,14 +428,80 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 if (isExtensible)
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToString())", convenienceMethod.BodyStatements!.ToDisplayString());
                 }
                 else
                 {
-                    StringAssert.Contains("BinaryData.FromObjectAsJson(color.ToSerialString())",
+                    StringAssert.Contains("content.JsonWriter.WriteStringValue(color.ToSerialString())",
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
+        }
+
+        // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [TestCase(false, false, "content.JsonWriter.WriteStringValue(color.ToSerialString())")]
+        [TestCase(true, false, "content.JsonWriter.WriteStringValue(color.ToString())")]
+        [TestCase(false, true, "content.JsonWriter.WriteNumberValue(((int)color))")]
+        [TestCase(true, true, "content.JsonWriter.WriteNumberValue(color.ToSerialInt32())")]
+        public void EnumBodySerializedWithUtf8JsonWriter(bool isExtensible, bool useInt, string expectedWriteExpression)
+        {
+            InputType enumType = useInt
+                ? InputFactory.Int32Enum("color", [("red", 1), ("green", 2)], isExtensible: isExtensible)
+                : InputFactory.StringEnum("color", [("red", "red"), ("green", "green")], isExtensible: isExtensible);
+
+            var inputOperation = InputFactory.Operation(
+                "PutColor",
+                parameters: [InputFactory.BodyParameter("color", enumType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutColor",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("color", enumType, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutColor");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains(expectedWriteExpression, statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
+        }
+
+        // String bodies with a JSON media type must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
+        [Test]
+        public void JsonStringBodySerializedWithUtf8JsonWriter()
+        {
+            var inputOperation = InputFactory.Operation(
+                "PutString",
+                parameters: [InputFactory.BodyParameter("value", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])],
+                requestMediaTypes: ["application/json"]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutString",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("value", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "PutString");
+            Assert.IsNotNull(convenienceMethod);
+
+            var statements = convenienceMethod!.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("new global::Sample.Utf8JsonBinaryContent()", statements);
+            StringAssert.Contains("content.JsonWriter.WriteStringValue(value)", statements);
+            StringAssert.DoesNotContain("FromObjectAsJson", statements);
         }
 
         [TestCase(true, false, true)]
@@ -609,6 +725,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 var optionsParameter = protocolMethodParameters.Single(p => p.Name == "options");
                 Assert.IsNotNull(optionsParameter.DefaultValue, "RequestOptions should be optional");
             }
+        }
+
+        // Regression test for https://github.com/Azure/azure-sdk-for-net/issues/60160.
+        // When an optional parameter appears before a required body parameter in the operation
+        // (e.g. an optional path version followed by the required body), the protocol method
+        // reorders its parameters required-first, which differs from the CreateRequest method's
+        // declaration order. The call site must still pass the arguments in the CreateRequest
+        // method's parameter order, not the protocol method's order.
+        [Test]
+        public void ProtocolMethodCallsCreateRequestWithArgumentsInBuilderOrder()
+        {
+            MockHelpers.LoadMockGenerator();
+            List<InputParameter> parameters =
+            [
+                InputFactory.PathParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+                InputFactory.PathParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false),
+                InputFactory.BodyParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true),
+            ];
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter(
+                    "name",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "version",
+                    InputPrimitiveType.String,
+                    isRequired: false,
+                    location: InputRequestLocation.Path),
+                InputFactory.MethodParameter(
+                    "body",
+                    InputPrimitiveType.String,
+                    isRequired: true,
+                    location: InputRequestLocation.Body),
+            ];
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: parameters);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            var protocolMethod = methodCollection.Single(m =>
+                m.Signature.Parameters.Any(p => p.Name == "options")
+                && m.Signature.Name == "TestOperation");
+
+            // The protocol method orders parameters required-first: (name, content, version, options).
+            var protocolParameterOrder = string.Join(", ", protocolMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, content, version, options", protocolParameterOrder);
+
+            // The CreateRequest builder keeps declaration order: (name, version, content, options).
+            var createRequestMethod = client!.RestClient.GetCreateRequestMethod(inputOperation);
+            var expectedArguments = string.Join(", ", createRequestMethod.Signature.Parameters.Select(p => p.Name));
+            Assert.AreEqual("name, version, content, options", expectedArguments);
+
+            // The call site must use the CreateRequest builder's order, not the protocol method's order.
+            var body = protocolMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains($"{createRequestMethod.Signature.Name}({expectedArguments})", body);
+            StringAssert.DoesNotContain($"{createRequestMethod.Signature.Name}(name, content, version, options)", body);
         }
 
         [Test]
@@ -1433,6 +1619,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(2, p2Param.MethodParameterSegments!.Count, "p2 should have 2 segments");
             Assert.AreEqual("wrapper", p2Param.MethodParameterSegments[0].Name);
             Assert.AreEqual("p2", p2Param.MethodParameterSegments[1].Name);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByClientName()
+        {
+            // Options-bag override where a grouped query property has a client name ("bandIndex")
+            // that differs from its wire name ("band_index"), e.g. @query("band_index") bandIndex.
+            // The convenience body must still resolve the property; otherwise the emitter throws
+            // "Property with name 'bandIndex' not found in model 'GetPointOptions'".
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "bandIndex",
+                        InputPrimitiveType.String,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "band_index"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false, serializedName: "band_index");
+            bandIndexParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                // Segments carry the client name ("bandIndex"); the property's wire name is "band_index".
+                InputFactory.MethodParameter("bandIndex", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, bandIndexParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            // Before the fix, building the body threw because the grouped query property was
+            // looked up only by wire name ("band_index") while the segment carried the client
+            // name ("bandIndex").
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 
         [Test]

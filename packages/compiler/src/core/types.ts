@@ -758,6 +758,8 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
+  /** How this decorator was declared. */
+  declarationKind: "extern" | "auto";
 }
 
 /**
@@ -1212,6 +1214,7 @@ export enum SyntaxKind {
   CallExpression,
   ScalarConstructor,
   InternalKeyword,
+  AutoKeyword,
   FunctionTypeExpression,
 }
 
@@ -1778,6 +1781,10 @@ export interface InternalKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.InternalKeyword;
 }
 
+export interface AutoKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.AutoKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1834,11 +1841,12 @@ export const enum ModifierFlags {
   None,
   Extern = 1 << 1,
   Internal = 1 << 2,
+  Auto = 1 << 3,
 
-  All = Extern | Internal,
+  All = Extern | Internal | Auto,
 }
 
-export type Modifier = ExternKeywordNode | InternalKeywordNode;
+export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode;
 
 /**
  * Represent a decorator declaration
@@ -2085,6 +2093,13 @@ export interface LibraryLocationContext {
 
   /** Module definition */
   readonly flags?: PackageFlags;
+
+  /**
+   * Compiler features enabled for this library, as declared in the library's own
+   * `tspconfig.yaml` `features`. Used to gate experimental features (e.g. `auto-decorators`)
+   * for the library's own source files, independently of the consuming project's config.
+   */
+  readonly features?: readonly string[];
 }
 
 export interface LibraryInstance {

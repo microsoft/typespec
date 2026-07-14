@@ -1,6 +1,6 @@
 {
   "name": "@typespec/xml",
-  "version": "0.83.0",
+  "version": "0.84.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing xml bindings",
   "homepage": "https://typespec.io",
@@ -39,8 +39,8 @@
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
-    "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/libraries/xml/reference",
     "api-extractor": "api-extractor run --local --verbose"
   },

@@ -139,6 +139,7 @@ export enum Token {
 
   ExternKeyword = __StartModifierKeyword,
   InternalKeyword,
+  AutoKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -194,7 +195,6 @@ export enum Token {
   ImplKeyword,
   SatisfiesKeyword,
   FlagKeyword,
-  AutoKeyword,
   PartialKeyword,
   PrivateKeyword,
   PublicKeyword,
@@ -310,6 +310,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
+  [Token.AutoKeyword, "'auto'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -342,7 +343,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ImplKeyword, "'impl'"],
   [Token.SatisfiesKeyword, "'satisfies'"],
   [Token.FlagKeyword, "'flag'"],
-  [Token.AutoKeyword, "'auto'"],
   [Token.PartialKeyword, "'partial'"],
   [Token.PrivateKeyword, "'private'"],
   [Token.PublicKeyword, "'public'"],
@@ -383,6 +383,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["auto", Token.AutoKeyword],
   ["internal", Token.InternalKeyword],
 
   // Reserved keywords
@@ -416,7 +417,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
@@ -455,7 +455,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],

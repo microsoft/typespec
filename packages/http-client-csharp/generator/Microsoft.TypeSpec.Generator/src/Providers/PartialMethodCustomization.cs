@@ -166,9 +166,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="customSignature">The customer's partial declaration signature.</param>
         /// <param name="implementationParameters">The parameters to use for the implementation.
         /// Must all be required (no default values) per the C# partial method rules.</param>
+        /// <param name="returnType">The return type the implementation should use. Pass the
+        /// generator's own return type rather than relying on the customer's parsed declaration:
+        /// the customer's declaration may reference types generated into the same assembly, which
+        /// are unresolved when the declaration is read (Roslyn surfaces them as error types with no
+        /// namespace), producing malformed <c>global::.TypeName</c> output. C# requires a partial
+        /// method's declaration and implementation to share the same return type, so the generator's
+        /// resolved return type is necessarily the correct one. When <c>null</c>, the customer's
+        /// parsed return type is used as a fallback.</param>
+        /// <param name="additionalModifiers">Extra modifiers to apply to the implementation that
+        /// cannot appear on the customer's partial declaration. In particular, the customer cannot
+        /// declare a partial method as <c>async</c> (that modifier belongs to the implementing
+        /// declaration, not the defining one), so callers whose generated body uses <c>await</c>
+        /// must pass <see cref="MethodSignatureModifiers.Async"/> here to avoid emitting an
+        /// <c>await</c> body without the <c>async</c> modifier (compiler error CS4032).</param>
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
-            IReadOnlyList<ParameterProvider> implementationParameters)
+            IReadOnlyList<ParameterProvider> implementationParameters,
+            CSharpType? returnType = null,
+            MethodSignatureModifiers additionalModifiers = MethodSignatureModifiers.None)
         {
             if (customSignature is null)
             {
@@ -183,8 +199,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(
                 customSignature.Name,
                 customSignature.Description,
-                customSignature.Modifiers | MethodSignatureModifiers.Partial,
-                customSignature.ReturnType,
+                customSignature.Modifiers | MethodSignatureModifiers.Partial | additionalModifiers,
+                returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,
                 customSignature.Attributes,

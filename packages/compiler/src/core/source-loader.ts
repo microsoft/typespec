@@ -1,3 +1,4 @@
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import {
   ModuleResolutionResult,
   ResolvedModule,
@@ -96,6 +97,9 @@ export async function createSourceLoader(
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const externals: string[] = [];
+  // Cache of resolved feature lists from each library's own tspconfig.yaml, keyed by the
+  // library root directory, to avoid re-reading the config for every import of the library.
+  const libraryFeaturesCache = new Map<string, readonly string[] | undefined>();
 
   const externalsOpts = options?.externals;
   const isExternal = externalsOpts
@@ -280,9 +284,11 @@ export async function createSourceLoader(
       );
 
       const metadata = computeModuleMetadata(library);
+      const features = await resolveLibraryFeatures(library.path);
       locationContext = {
         type: "library",
         metadata,
+        ...(features && { features }),
       };
     }
 
@@ -356,6 +362,27 @@ export async function createSourceLoader(
       jsSourceFiles.set(path, file);
     }
     return file;
+  }
+
+  /**
+   * Resolve the compiler features a library opted into via its own `tspconfig.yaml`.
+   * Features are only honored when the library config is a project config (`kind: "project"`),
+   * matching the rule that `features` is only meaningful in a project config.
+   * @param libraryRoot Absolute path to the library root directory (containing `package.json`).
+   */
+  async function resolveLibraryFeatures(
+    libraryRoot: string,
+  ): Promise<readonly string[] | undefined> {
+    if (libraryFeaturesCache.has(libraryRoot)) {
+      return libraryFeaturesCache.get(libraryRoot);
+    }
+    // `lookup: false` restricts the search to the library root only, so we never pick up the
+    // consuming project's config by walking up the directory tree.
+    const config = await loadTypeSpecConfigForPath(host, libraryRoot, false, false);
+    const features =
+      config.diagnostics.length === 0 && config.kind === "project" ? config.features : undefined;
+    libraryFeaturesCache.set(libraryRoot, features);
+    return features;
   }
 }
 

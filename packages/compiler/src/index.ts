@@ -1,5 +1,11 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+  setAutoDecorator,
+} from "./core/auto-decorator.js";
+export {
   Checker,
   CreateTypeProps,
   // TODO: feels like all of those should move to a separate file
