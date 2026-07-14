@@ -367,16 +367,5 @@ namespace Microsoft.TypeSpec.Generator
             => provider.RelativeFilePath.Contains(
                 $"{Path.DirectorySeparatorChar}Generated{Path.DirectorySeparatorChar}Internal{Path.DirectorySeparatorChar}",
                 StringComparison.Ordinal);
-
-        private static HashSet<string> GetSimpleNames(HashSet<string> names)
-        {
-            var simpleNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var name in names)
-            {
-                simpleNames.Add(StripGenericArity(GetSimpleName(name)));
-            }
-
-            return simpleNames;
-        }
     }
 }
