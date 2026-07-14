@@ -1269,13 +1269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // when one was already published.
                 UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
 
-                // Protocol and CreateRequest methods send Content-Type as a plain header value even
-                // when the input is modeled as a literal/constant, so avoid the general factory's
-                // constant-to-enum parameter shaping for this generated header.
-                ParameterProvider? parameter = IsContentTypeParameter(inputParam) &&
-                    methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest
-                    ? CreateContentTypeParameter(inputParam)
-                    : ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
+                ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
                 {
                     continue;
@@ -1297,7 +1291,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                        if (IsContentTypeParameter(inputParam))
+                        {
+                            parameter.Type = new CSharpType(typeof(string), isNullable: !inputParam.IsRequired);
+                            parameter.Validation = inputParam.IsRequired
+                                ? ParameterValidationType.AssertNotNullOrEmpty
+                                : ParameterValidationType.None;
+                        }
+                        else
+                        {
+                            parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
+                        }
                     }
                 }
                 else if (methodType is ScmMethodKind.Convenience &&
@@ -1388,20 +1392,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
-        }
-
-        private static ParameterProvider CreateContentTypeParameter(InputParameter inputParam)
-        {
-            var type = new CSharpType(typeof(string), isNullable: !inputParam.IsRequired);
-            return new ParameterProvider(
-                inputParam.Name,
-                DocHelpers.GetFormattableDescription(inputParam.Summary, inputParam.Doc) ?? FormattableStringHelpers.Empty,
-                type,
-                defaultValue: inputParam.IsRequired ? null : Default,
-                location: ParameterLocation.Header,
-                wireInfo: new WireInformation(SerializationFormat.Default, inputParam.SerializedName),
-                validation: inputParam.IsRequired ? ParameterValidationType.AssertNotNullOrEmpty : ParameterValidationType.None,
-                inputParameter: inputParam);
         }
 
         private static bool HasLiteralContentTypeHeader(InputOperation operation)

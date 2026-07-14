@@ -288,6 +288,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("skillId", methodParameters[0].Name);
             Assert.AreEqual("content", methodParameters[1].Name);
             Assert.AreEqual("contentType", methodParameters[2].Name);
+            Assert.AreEqual(typeof(string), methodParameters[2].Type.FrameworkType);
+            Assert.AreEqual(!isRequired, methodParameters[2].Type.IsNullable);
+            Assert.AreEqual(
+                isRequired ? ParameterValidationType.AssertNotNullOrEmpty : ParameterValidationType.None,
+                methodParameters[2].Validation);
+        }
+
+        [Test]
+        public void ProtocolContentTypeParameterUsesTypeFactory()
+        {
+            var contentTypeEnum = InputFactory.StringEnum(
+                "ContentTypeEnum",
+                [("application/json", "application/json")],
+                isExtensible: true);
+            var contentTypeParameter = InputFactory.MethodParameter(
+                "contentType",
+                InputFactory.Union([contentTypeEnum], "contentType"),
+                isRequired: true,
+                location: InputRequestLocation.Header,
+                serializedName: "Content-Type");
+            var operation = InputFactory.Operation(
+                "Upload",
+                parameters: [contentTypeParameter]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [contentTypeParameter]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var factoryCalled = false;
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [client],
+                createParameterCore: parameter =>
+                {
+                    factoryCalled = true;
+                    return new ParameterProvider(parameter);
+                });
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+            factoryCalled = false;
+
+            var methodParameters = RestClientProvider.GetMethodParameters(
+                serviceMethod,
+                ScmMethodKind.Protocol,
+                clientProvider!);
+
+            Assert.IsTrue(factoryCalled);
+            Assert.AreEqual(1, methodParameters.Count);
+            Assert.AreEqual(typeof(string), methodParameters[0].Type.FrameworkType);
+            Assert.AreEqual(ParameterValidationType.AssertNotNullOrEmpty, methodParameters[0].Validation);
         }
 
         [Test]
