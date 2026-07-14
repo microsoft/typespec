@@ -60,7 +60,7 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
     };
     if (diagnosticDef.url) {
       mutate(result).url = diagnosticDef.url;
-    } else if (referenceDocsBaseUrl) {
+    } else if (diagnosticDef.docs && referenceDocsBaseUrl) {
       mutate(result).url =
         `${referenceDocsBaseUrl.replace(/\/$/, "")}/diagnostics/${String(diagnostic.code)}`;
     }

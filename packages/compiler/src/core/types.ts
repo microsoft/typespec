@@ -2500,8 +2500,8 @@ export interface TypeSpecLibraryDef<
 
   /**
    * Reference documentation configuration for this library.
-   * When set, the compiler auto-generates the `url` of each diagnostic and linter rule that
-   * does not specify one explicitly, pointing at the generated reference pages:
+   * When set, the compiler auto-generates the `url` of each documented diagnostic and linter
+   * rule that does not specify one explicitly, pointing at the generated reference pages:
    *  - diagnostics -> `${baseUrl}/diagnostics/<code>`
    *  - linter rules -> `${baseUrl}/rules/<name>`
    */

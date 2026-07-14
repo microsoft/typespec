@@ -53,7 +53,7 @@ export function resolveLinterDefinition(
 ): LinterResolvedDefinition {
   const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
     const resolved: LinterRule<string, any> = { ...rule, id: `${libName}/${rule.name}` };
-    if (resolved.url === undefined && referenceDocsBaseUrl) {
+    if (resolved.url === undefined && resolved.docs && referenceDocsBaseUrl) {
       resolved.url = `${referenceDocsBaseUrl.replace(/\/$/, "")}/rules/${rule.name}`;
     }
     return resolved;

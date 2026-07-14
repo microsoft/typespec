@@ -159,9 +159,6 @@ export function createServer(
     npmPackageProvider,
     (exports) => exports.$linter !== undefined,
   );
-  // Provider used to resolve any TypeSpec library (that depends on the compiler) by name,
-  // e.g. to look up the extended documentation of a diagnostic/rule when hovering an error.
-  const libraryProvider = new LibraryProvider(npmPackageProvider, () => true);
 
   const updateManager = new UpdateManager("doc-update", log);
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
@@ -938,7 +935,11 @@ export function createServer(
       }
     }
 
-    const diagnosticDoc = await getDiagnosticDocMarkdownAtPosition(script.file.path, offset);
+    const diagnosticDoc = await getDiagnosticDocMarkdownAtPosition(
+      program,
+      script.file.path,
+      offset,
+    );
     if (diagnosticDoc) {
       sections.push(diagnosticDoc);
     }
@@ -953,9 +954,12 @@ export function createServer(
 
   /**
    * Build a markdown section with the extended documentation (and reference link) of any
-   * diagnostic currently reported that covers the given offset in the given file.
+   * reported diagnostic that covers the given offset in the given file. Reuses the diagnostics
+   * from the last full compile (matched the same way the squiggles are), since the extended
+   * documentation cannot be attached to the LSP diagnostic itself.
    */
   async function getDiagnosticDocMarkdownAtPosition(
+    program: Program,
     filePath: string,
     offset: number,
   ): Promise<string | undefined> {
@@ -973,7 +977,7 @@ export function createServer(
         continue;
       }
       seenCodes.add(diag.code);
-      const markdown = await resolveDiagnosticDocMarkdown(diag, filePath);
+      const markdown = await resolveDiagnosticDocMarkdown(program, diag);
       if (markdown) {
         sections.push(markdown);
       }
@@ -983,8 +987,8 @@ export function createServer(
 
   /** Resolve the extended docs + reference link markdown for a single reported diagnostic. */
   async function resolveDiagnosticDocMarkdown(
+    program: Program,
     diag: Diagnostic,
-    filePath: string,
   ): Promise<string | undefined> {
     const code = diag.code as string;
     const segments = code.split("/");
@@ -993,25 +997,28 @@ export function createServer(
     const sections: string[] = [];
 
     if (libName && localCode) {
-      try {
-        const pkg = await libraryProvider.getLibrary(getDirectoryPath(filePath), libName);
-        const exports = await pkg?.getModuleExports();
-        const definition =
-          exports?.$lib?.diagnostics?.[localCode] ??
-          exports?.$linter?.rules?.find((rule: any) => rule?.name === localCode);
-        const docs = definition?.docs;
-        let docText: string | undefined;
-        if (typeof docs === "string") {
-          docText = docs;
-        } else if (isFileRef(docs) && pkg) {
-          const file = await compilerHost.readFile(joinPaths(pkg.rootFolder, docs.path));
+      // Reuse the library already loaded by the compiler instead of re-resolving/reloading it.
+      const library = await program.getLoadedLibraryInfo(libName);
+      const docs =
+        library?.$lib?.diagnostics?.[localCode]?.docs ??
+        library?.$linter?.rules?.find((rule) => rule.name === localCode)?.docs;
+      let docText: string | undefined;
+      if (typeof docs === "string") {
+        docText = docs;
+      } else if (isFileRef(docs) && library) {
+        try {
+          const file = await compilerHost.readFile(joinPaths(library.packageRoot, docs.path));
           docText = file.text;
+        } catch (error) {
+          log({
+            level: "debug",
+            message: `Unable to read extended documentation for diagnostic '${code}'.`,
+            detail: error,
+          });
         }
-        if (docText && docText.trim().length > 0) {
-          sections.push(docText.trim());
-        }
-      } catch {
-        // Ignore failures to resolve documentation; just fall back to the link (if any).
+      }
+      if (docText && docText.trim().length > 0) {
+        sections.push(docText.trim());
       }
     }
 

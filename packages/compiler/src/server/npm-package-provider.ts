@@ -112,11 +112,6 @@ export class NpmPackage {
     return this.packageJsonData;
   }
 
-  /** Absolute path to the folder containing this package's `package.json`. */
-  get rootFolder(): string {
-    return this.packageJsonFolder;
-  }
-
   private packageModule: Record<string, any> | undefined;
   async getModuleExports(): Promise<Record<string, any> | undefined> {
     if (!this.packageModule) {
