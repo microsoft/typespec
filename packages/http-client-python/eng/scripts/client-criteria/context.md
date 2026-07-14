@@ -7,7 +7,7 @@ _The shared `/check-surface` prompt and `tsp-spector verify-surface-checks` read
 - **language:** python _(selects which per-language client name applies when a check is language-scoped)_
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
-- **checks-doc:** `packages/http-client-python/eng/scripts/client-criteria/surface-checks.md`
+- **checks-doc:** `packages/http-specs/surface-checks.md` _(generated from `@surfaceDoc`, ships with the specs)_
 <!-- Markdown table generated from `@surfaceDoc`; both human- and machine-readable (parsed by the shared runner). -->
 
 ### What differs by flavor (branded = azure, unbranded)
