@@ -24,20 +24,33 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsKeptName(string providerName, string simpleName, HashSet<string> roots, HashSet<string> nodes)
         {
-            if (roots.Contains(providerName) && nodes.Contains(providerName))
+            return MatchesGeneratedNode(providerName, simpleName, roots, nodes);
+        }
+
+        private static bool MatchesGeneratedNode(
+            string providerName,
+            string simpleName,
+            HashSet<string> candidateNames,
+            HashSet<string> nodes,
+            bool ignoreGenericArity = true)
+        {
+            if (candidateNames.Contains(providerName) && nodes.Contains(providerName))
             {
                 return true;
             }
 
-            if (!roots.Contains(simpleName))
+            var simpleNameLookup = ignoreGenericArity
+                ? _simpleNameLookupCache.GetValue(nodes, BuildSimpleNameLookup)
+                : _metadataSimpleNameLookupCache.GetValue(nodes, BuildMetadataSimpleNameLookup);
+            if (!simpleNameLookup.TryGetValue(simpleName, out var matches) || matches.Length != 1)
             {
                 return false;
             }
 
-            var simpleNameLookup = _simpleNameLookupCache.GetValue(nodes, BuildSimpleNameLookup);
-            return simpleNameLookup.TryGetValue(simpleName, out var matches) &&
-                matches.Length == 1 &&
-                string.Equals(matches[0], providerName, StringComparison.Ordinal);
+            var matchingNode = matches[0];
+            return (string.Equals(providerName, simpleName, StringComparison.Ordinal) ||
+                    string.Equals(providerName, matchingNode, StringComparison.Ordinal)) &&
+                (candidateNames.Contains(matchingNode) || candidateNames.Contains(simpleName));
         }
 
         private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
@@ -333,6 +346,14 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static Dictionary<string, string[]> BuildSimpleNameLookup(HashSet<string> nodes)
+            => BuildSimpleNameLookup(nodes, ignoreGenericArity: true);
+
+        private static Dictionary<string, string[]> BuildMetadataSimpleNameLookup(HashSet<string> nodes)
+            => BuildSimpleNameLookup(nodes, ignoreGenericArity: false);
+
+        private static Dictionary<string, string[]> BuildSimpleNameLookup(
+            HashSet<string> nodes,
+            bool ignoreGenericArity)
         {
             var lookup = new Dictionary<string, List<string>>(StringComparer.Ordinal);
             foreach (var node in nodes)
@@ -342,7 +363,11 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                var simpleName = StripGenericArity(GetSimpleName(node));
+                var simpleName = GetSimpleName(node);
+                if (ignoreGenericArity)
+                {
+                    simpleName = StripGenericArity(simpleName);
+                }
                 if (!lookup.TryGetValue(simpleName, out var matchingNodes))
                 {
                     matchingNodes = [];

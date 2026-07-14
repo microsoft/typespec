@@ -186,6 +186,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void AmbiguousUnqualifiedBuildableTypeDoesNotMatchRemovedProviderBySimpleName()
+        {
+            var keptFoo = new GeneratedModelTestTypeProvider("Foo", TypeSignatureModifiers.Public, ns: "Kept");
+            var removedFoo = new GeneratedModelTestTypeProvider("Foo", TypeSignatureModifiers.Public, ns: "Removed");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(removedFoo, keptFoo),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            CodeModelGenerator.Instance.AddTypeToKeep(keptFoo.Type.FullyQualifiedName);
+
+            ProviderReferenceMapAnalyzer.Analyze([keptFoo, removedFoo]);
+
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(keptFoo));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(removedFoo));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.IsResolvableBuildableType(CreateNamedType("Foo", string.Empty)));
+        }
+
+        [Test]
+        public void UnqualifiedGenericBuildableTypeUsesArityWhenMatchingRemovedProvider()
+        {
+            var genericArgument = CreateNamedType("T", string.Empty);
+            var keptFoo = new GeneratedModelTestTypeProvider("Foo", TypeSignatureModifiers.Public, ns: "Kept");
+            var removedGenericFoo = new GenericTestTypeProvider(
+                "Foo`1",
+                TypeSignatureModifiers.Public,
+                "Removed",
+                genericArgument);
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(keptFoo, removedGenericFoo),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            CodeModelGenerator.Instance.AddTypeToKeep(keptFoo.Type.FullyQualifiedName);
+
+            ProviderReferenceMapAnalyzer.Analyze([keptFoo, removedGenericFoo]);
+
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(removedGenericFoo));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.IsResolvableBuildableType(
+                CreateNamedType("Foo", string.Empty, genericArgument)));
+        }
+
+        [Test]
         public void HelperRootBodyDependencyRootsGeneratedGenericDependency()
         {
             var genericArgument = CreateNamedType("T", string.Empty);
@@ -953,6 +992,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
             Assert.IsTrue(genericModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(genericModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsEmpty(modelFactory.Methods.Select(m => m.Signature.Name));
+        }
+
+        [Test]
+        public void RemovedModelDoesNotRemoveFactoryMethodForSameNamedModel()
+        {
+            var keptModel = new GeneratedModelTestTypeProvider("Widget", TypeSignatureModifiers.Public, ns: "Kept");
+            var removedModel = new GeneratedModelTestTypeProvider("Widget", TypeSignatureModifiers.Public, ns: "Removed");
+            var outputLibrary = new TestOutputLibrary(keptModel, removedModel);
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => outputLibrary,
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            CodeModelGenerator.Instance.AddTypeToKeep(keptModel.Type.FullyQualifiedName);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.Update(methods:
+            [
+                new MethodProvider(
+                    new MethodSignature(
+                        "Widget",
+                        $"",
+                        MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
+                        keptModel.Type,
+                        $"",
+                        []),
+                    MethodBodyStatement.Empty,
+                    modelFactory)
+            ]);
+
+            ProviderReferenceMapAnalyzer.Analyze([keptModel, removedModel, modelFactory]);
+
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(keptModel));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(removedModel));
+            Assert.AreEqual(new[] { "Widget" }, modelFactory.Methods.Select(m => m.Signature.Name));
         }
 
         [Test]

@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator
     {
         private static ProviderReferenceMapResult? _latestResult;
         private static readonly ConditionalWeakTable<HashSet<string>, Dictionary<string, string[]>> _simpleNameLookupCache = new();
+        private static readonly ConditionalWeakTable<HashSet<string>, Dictionary<string, string[]>> _metadataSimpleNameLookupCache = new();
         private static TypeProvider? _preWriteModelFactory;
         private static MethodProvider[]? _preWriteModelFactoryMethods;
 
@@ -59,45 +60,64 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool TryGetProvider(CSharpType type, bool exact, out TypeProvider provider)
         {
-            var outputProvider = FindOutputProviderByName(CodeModelGenerator.Instance.OutputLibrary.TypeProviders, type, exact);
+            var outputProvider = FindOutputProviderByName(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders,
+                GetProviderTypeName(type));
             if (outputProvider != null)
             {
                 provider = outputProvider;
                 return true;
             }
 
-            if (!exact &&
-                string.IsNullOrEmpty(type.Namespace) &&
-                CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(type.Name, out var mappedProvider))
+            if (!exact && string.IsNullOrEmpty(type.Namespace))
             {
-                provider = mappedProvider;
-                return true;
+                if (_latestResult != null)
+                {
+                    var simpleNameLookup = _metadataSimpleNameLookupCache.GetValue(_latestResult.Nodes, BuildMetadataSimpleNameLookup);
+                    var simpleName = GetSimpleName(GetProviderTypeName(type));
+                    if (!simpleNameLookup.TryGetValue(simpleName, out var matches) ||
+                        matches.Length != 1)
+                    {
+                        provider = null!;
+                        return false;
+                    }
+
+                    outputProvider = FindOutputProviderByName(
+                        CodeModelGenerator.Instance.OutputLibrary.TypeProviders,
+                        matches[0]);
+                    if (outputProvider != null)
+                    {
+                        provider = outputProvider;
+                        return true;
+                    }
+                }
+                else if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(type.Name, out var mappedProvider))
+                {
+                    provider = mappedProvider;
+                    return true;
+                }
             }
 
             provider = null!;
             return false;
         }
 
-        private static TypeProvider? FindOutputProviderByName(IEnumerable<TypeProvider> providers, CSharpType type, bool exact)
+        private static TypeProvider? FindOutputProviderByName(IEnumerable<TypeProvider> providers, string name)
         {
-            var name = GetProviderTypeName(type);
             foreach (var provider in providers)
             {
-                if (string.Equals(GetProviderTypeName(provider.Type), name, StringComparison.Ordinal) ||
-                    !exact &&
-                    string.IsNullOrEmpty(type.Namespace) &&
-                    string.Equals(provider.Type.Name, type.Name, StringComparison.Ordinal))
+                if (string.Equals(GetProviderTypeName(provider.Type), name, StringComparison.Ordinal))
                 {
                     return provider;
                 }
 
-                var nestedProvider = FindOutputProviderByName(provider.NestedTypes, type, exact);
+                var nestedProvider = FindOutputProviderByName(provider.NestedTypes, name);
                 if (nestedProvider != null)
                 {
                     return nestedProvider;
                 }
 
-                var serializationProvider = FindOutputProviderByName(provider.SerializationProviders, type, exact);
+                var serializationProvider = FindOutputProviderByName(provider.SerializationProviders, name);
                 if (serializationProvider != null)
                 {
                     return serializationProvider;
@@ -120,10 +140,13 @@ namespace Microsoft.TypeSpec.Generator
                 return true;
             }
 
-            var simpleNameLookup = _simpleNameLookupCache.GetValue(_latestResult.RemoveCandidates, BuildSimpleNameLookup);
             return string.IsNullOrEmpty(type.Namespace) &&
-                simpleNameLookup.TryGetValue(type.Name, out var matches) &&
-                matches.Length == 1;
+                MatchesGeneratedNode(
+                    providerName,
+                    GetSimpleName(providerName),
+                    _latestResult.RemoveCandidates,
+                    _latestResult.Nodes,
+                    ignoreGenericArity: false);
         }
 
         public static void ResetPreWriteAccessibility()
@@ -141,7 +164,7 @@ namespace Microsoft.TypeSpec.Generator
 
             // Accessibility has to be adjusted before files are written. Roslyn can remove files
             // later, but it cannot safely change provider declarations or model factory signatures.
-            var (internalizeCandidates, publicCandidates) = GetPreWriteAccessibilityCandidates(providers);
+            var (internalizeCandidates, publicCandidates, nodes) = GetPreWriteAccessibilityCandidates(providers);
             foreach (var provider in GetGeneratedProviders(providers))
             {
                 var providerName = GetProviderTypeName(provider.Type);
@@ -159,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            RemoveMethodsFromModelFactory(GetSimpleNames(internalizeCandidates));
+            RemoveMethodsFromModelFactory(internalizeCandidates, nodes);
         }
 
         public static void RestorePreWriteModelFactoryMethods()
@@ -222,14 +245,15 @@ namespace Microsoft.TypeSpec.Generator
             _latestResult = new ProviderReferenceMapResult(
                 internalizeCandidates,
                 publicCandidates,
-                removeCandidates);
+                removeCandidates,
+                graph.Nodes);
             if (Configuration.UnreferencedTypesHandling == Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize)
             {
-                RemoveMethodsFromModelFactory(GetSimpleNames(removeCandidates));
+                RemoveMethodsFromModelFactory(removeCandidates, graph.Nodes);
             }
         }
 
-        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicCandidates) GetPreWriteAccessibilityCandidates(IReadOnlyList<TypeProvider> providers)
+        private static (HashSet<string> InternalizeCandidates, HashSet<string> PublicCandidates, HashSet<string> Nodes) GetPreWriteAccessibilityCandidates(IReadOnlyList<TypeProvider> providers)
         {
             var generatedProviders = GetGeneratedProviders(providers);
             var graph = BuildGraph(generatedProviders);
@@ -251,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator
                 generatedInternalDeclarations,
                 generatedDiscriminatorBaseNames);
 
-            return (internalizeCandidates, publicCandidates);
+            return (internalizeCandidates, publicCandidates, graph.Nodes);
         }
 
         /// <summary>

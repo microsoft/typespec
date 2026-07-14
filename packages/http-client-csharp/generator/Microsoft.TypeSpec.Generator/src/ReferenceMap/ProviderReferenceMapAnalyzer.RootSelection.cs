@@ -96,15 +96,13 @@ namespace Microsoft.TypeSpec.Generator
         private static bool ShouldUseUnionVariantFallbackRoots() =>
             CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
-        private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove)
+        private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove, HashSet<string> nodes)
         {
             if (namesToRemove.Count == 0)
             {
                 return;
             }
 
-            var fullNamesToRemove = namesToRemove;
-            var simpleNamesToRemove = GetSimpleNames(namesToRemove);
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             _preWriteModelFactory = modelFactory;
             _preWriteModelFactoryMethods ??= [.. modelFactory.Methods];
@@ -113,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator
             for (int i = 0; i < modelFactory.Methods.Count; i++)
             {
                 var method = modelFactory.Methods[i];
-                if (!ShouldRemoveModelFactoryMethod(method, fullNamesToRemove, simpleNamesToRemove))
+                if (!ShouldRemoveModelFactoryMethod(method, namesToRemove, nodes))
                 {
                     methodsToKeep.Add(method);
                     continue;
@@ -135,22 +133,24 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool ShouldRemoveModelFactoryMethod(
             MethodProvider method,
-            HashSet<string> fullNamesToRemove,
-            HashSet<string> simpleNamesToRemove)
+            HashSet<string> namesToRemove,
+            HashSet<string> nodes)
         {
-            if (simpleNamesToRemove.Contains(method.Signature.Name))
-            {
-                return true;
-            }
-
             if (method.Signature.ReturnType == null)
             {
-                return false;
+                return MatchesGeneratedNode(
+                    method.Signature.Name,
+                    method.Signature.Name,
+                    namesToRemove,
+                    nodes);
             }
 
             var returnTypeName = GetProviderTypeName(method.Signature.ReturnType);
-            return fullNamesToRemove.Contains(returnTypeName) ||
-                simpleNamesToRemove.Contains(StripGenericArity(GetSimpleName(returnTypeName)));
+            return MatchesGeneratedNode(
+                returnTypeName,
+                StripGenericArity(GetSimpleName(returnTypeName)),
+                namesToRemove,
+                nodes);
         }
 
         private static HashSet<string> GetGeneratedDeclaredNodes(IReadOnlyList<TypeProvider> providers, HashSet<string> nodes, bool publicOnly)
