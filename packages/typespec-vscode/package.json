@@ -1,7 +1,7 @@
 {
   "name": "typespec-vscode",
   "private": true,
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",

@@ -1,5 +1,25 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.39
+
+### Features
+
+- [#11125](https://github.com/microsoft/typespec/pull/11125) Add `Routes_QueryParameters_QueryExpansion_Explode_model` scenario covering a named model-valued query parameter with explode expansion (`{?param*}`), which per RFC 6570 form explode expands each property into its own query entry (`?field=status&value=active`).
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+
+### Bug Fixes
+
+- [#10962](https://github.com/microsoft/typespec/pull/10962) Fix the dollar-sign query scenario route to match the mock API.
+- [#10978](https://github.com/microsoft/typespec/pull/10978) Fix the swapped mock api uris for the `Routes_fixed` and `Routes_InInterface` scenarios so they match the routes defined in the spec.
+
+
 ## 0.1.0-alpha.38
 
 ### Features
