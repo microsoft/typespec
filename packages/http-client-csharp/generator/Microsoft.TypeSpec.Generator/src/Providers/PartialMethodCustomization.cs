@@ -173,24 +173,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<ParameterProvider> customParameters,
             bool removeDefaults)
         {
-            if (generatorParameters is null)
-            {
-                throw new ArgumentNullException(nameof(generatorParameters));
-            }
-
-            if (customParameters is null)
-            {
-                throw new ArgumentNullException(nameof(customParameters));
-            }
-
-            if (generatorParameters.Count != customParameters.Count)
-            {
-                throw new ArgumentException(
-                    $"Parameter counts differ ({generatorParameters.Count} vs {customParameters.Count}).",
-                    nameof(customParameters));
-            }
-
-            for (int i = 0; i < generatorParameters.Count; i++)
+            for (int i = 0; i < generatorParameters.Count && i < customParameters.Count; i++)
             {
                 var generatedParameter = generatorParameters[i];
                 generatedParameter.Update(name: customParameters[i].Name);
