@@ -38,6 +38,7 @@ import {
   TypeSpecLibrary,
   Union,
   UnionVariant,
+  type FileRef,
   type PackageJson,
 } from "@typespec/compiler";
 import { SyntaxKind, type DocUnknownTagNode } from "@typespec/compiler/ast";
@@ -130,20 +131,16 @@ export async function extractLibraryRefDocs(
     if (lib && linter) {
       const resolved = resolveLinterDefinition(lib.name, linter);
       refDoc.linter = extractLinterRefDoc(lib.name, resolved, libraryPath);
-      // Only nag about missing docs for libraries that have started documenting their
-      // rules, to avoid noise for libraries that haven't opted in yet.
-      if (refDoc.linter.rules.some((r) => r.doc)) {
-        for (const r of refDoc.linter.rules) {
-          if (!r.doc) {
-            diagnostics.add(
-              createDiagnostic({
-                code: "documentation-missing",
-                messageId: "rule",
-                format: { name: r.id },
-                target: NoTarget,
-              }),
-            );
-          }
+      for (const r of refDoc.linter.rules) {
+        if (!r.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "rule",
+              format: { name: r.id },
+              target: NoTarget,
+            }),
+          );
         }
       }
     }
@@ -153,20 +150,16 @@ export async function extractLibraryRefDocs(
         lib.diagnostics as Record<string, DiagnosticDefinition<any>>,
         libraryPath,
       );
-      // Only nag about missing docs for libraries that have started documenting their
-      // diagnostics, to avoid noise for libraries that haven't opted in yet.
-      if (refDoc.diagnostics.some((diag) => diag.doc)) {
-        for (const diag of refDoc.diagnostics) {
-          if (!diag.doc) {
-            diagnostics.add(
-              createDiagnostic({
-                code: "documentation-missing",
-                messageId: "diagnostic",
-                format: { name: diag.id },
-                target: NoTarget,
-              }),
-            );
-          }
+      for (const diag of refDoc.diagnostics) {
+        if (!diag.doc) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "documentation-missing",
+              messageId: "diagnostic",
+              format: { name: diag.id },
+              target: NoTarget,
+            }),
+          );
         }
       }
     }
@@ -947,9 +940,11 @@ function resolveDescription(description: string | string[] | undefined): string 
   return Array.isArray(description) ? description.join("\n") : description;
 }
 
-function tryReadDoc(libraryPath: string, relativePath: string): string | undefined {
+function resolveDoc(doc: string | FileRef | undefined, libraryPath: string): string | undefined {
+  if (doc === undefined) return undefined;
+  if (typeof doc === "string") return doc;
   try {
-    return readFileSync(joinPaths(libraryPath, relativePath), "utf-8");
+    return readFileSync(joinPaths(libraryPath, doc.path), "utf-8");
   } catch {
     return undefined;
   }
@@ -975,7 +970,7 @@ function extractDiagnosticsRefDoc(
     id: `${libName}/${name}`,
     name,
     severity: def.severity,
-    doc: tryReadDoc(libraryPath, `src/diagnostics/${name}.md`),
+    doc: resolveDoc(def.docs, libraryPath),
   }));
 }
 
@@ -1004,6 +999,6 @@ function extractLinterRuleRefDoc(
     id: fullName,
     name: fullName,
     rule,
-    doc: tryReadDoc(libraryPath, `src/rules/${rule.name}.md`),
+    doc: resolveDoc(rule.docs, libraryPath),
   };
 }

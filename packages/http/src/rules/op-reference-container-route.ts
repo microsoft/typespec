@@ -1,4 +1,4 @@
-import { Operation, createRule, paramMessage } from "@typespec/compiler";
+import { Operation, createRule, fileRef, paramMessage } from "@typespec/compiler";
 import { getRoutePath } from "../route.js";
 import { OperationContainer } from "../types.js";
 
@@ -8,6 +8,7 @@ export const opReferenceContainerRouteRule = createRule({
   description:
     "Check for referenced (`op is`) operations which have a @route on one of their containers.",
   url: "https://typespec.io/docs/libraries/http/reference/rules/op-reference-container-route",
+  docs: fileRef.fromPackageRoot("src/rules/op-reference-container-route.md"),
   messages: {
     default: paramMessage`Operation ${"opName"} references an operation which has a @route prefix on its namespace or interface: "${"routePrefix"}".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.`,
   },

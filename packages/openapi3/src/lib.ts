@@ -1,4 +1,4 @@
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import { createTypeSpecLibrary, fileRef, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
@@ -321,6 +321,7 @@ export const $lib = createTypeSpecLibrary({
     },
     "invalid-server-variable": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/invalid-server-variable.md"),
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
       },
@@ -352,12 +353,14 @@ export const $lib = createTypeSpecLibrary({
     },
     "path-query": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/path-query.md"),
       messages: {
         default: `OpenAPI does not allow paths containing a query string.`,
       },
     },
     "duplicate-header": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/duplicate-header.md"),
       messages: {
         default: paramMessage`The header ${"header"} is defined across multiple content types`,
       },
@@ -371,12 +374,14 @@ export const $lib = createTypeSpecLibrary({
 
     "invalid-schema": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/invalid-schema.md"),
       messages: {
         default: paramMessage`Couldn't get schema for type ${"type"}`,
       },
     },
     "union-null": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/union-null.md"),
       messages: {
         default: "Cannot have a union containing only null types.",
       },
@@ -403,6 +408,7 @@ export const $lib = createTypeSpecLibrary({
     },
     "inline-cycle": {
       severity: "error",
+      docs: fileRef.fromPackageRoot("src/diagnostics/inline-cycle.md"),
       messages: {
         default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
       },
