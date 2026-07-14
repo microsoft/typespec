@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -308,9 +309,12 @@ namespace Microsoft.TypeSpec.Generator
             // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
             // errors to standard output rather than standard error, so we include both when
             // reporting a failure.
-            var stdout = process.StandardOutput.ReadToEnd();
-            var stderr = process.StandardError.ReadToEnd();
+            var stdoutTask = process.StandardOutput.ReadToEndAsync();
+            var stderrTask = process.StandardError.ReadToEndAsync();
             process.WaitForExit();
+            Task.WaitAll(stdoutTask, stderrTask);
+            var stdout = stdoutTask.Result;
+            var stderr = stderrTask.Result;
 
             if (process.ExitCode != 0)
             {

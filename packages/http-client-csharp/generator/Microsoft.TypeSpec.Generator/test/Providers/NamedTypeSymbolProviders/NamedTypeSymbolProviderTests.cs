@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -368,6 +369,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             var doIt = provider.Methods.Single(m => m.Signature.Name == "DoIt");
             Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
+        }
+
+        [Test]
+        public async Task BodyDependenciesIncludeUsingNamespaceCandidatesForUnresolvedTypeSyntax()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomClient")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.BodyDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.ReferencedModel"));
+        }
+
+        [Test]
+        public async Task PublicInterfaceMemberSignatureDependenciesAreIncluded()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "ICustomApi")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.SignatureDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.GeneratedModel"));
+        }
+
+        [Test]
+        public async Task PublicNestedMemberSignatureDependenciesAreIncluded()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomApi")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.IsTrue(provider.SignatureDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.GeneratedModel"));
+        }
+
+        [Test]
+        public async Task SourceInputHelperYieldsNestedSymbols()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+
+            var symbols = Microsoft.TypeSpec.Generator.SourceInput.SourceInputHelper.GetSymbols(compilation.Assembly.Modules.First().GlobalNamespace);
+
+            Assert.IsTrue(symbols.Any(symbol => symbol.MetadataName == "Nested"));
+        }
+
+        [Test]
+        public async Task SourceInputLookupUsesFullNestedDeclaringTypeName()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var sourceInputModel = new SourceInputModel(compilation, lastContract: null);
+
+            var nestedType = sourceInputModel.FindForTypeInCustomization("Sample", "Target", "Outer+Middle");
+
+            Assert.IsNotNull(nestedType);
+            Assert.AreEqual("Sample.Outer+Middle+Target", ((NamedTypeSymbolProvider)nestedType!).MetadataName);
+        }
+
+        [Test]
+        public async Task MetadataNamePreservesGenericArity()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var symbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "CustomModel`1")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.AreEqual("Sample.Models.CustomModel`1", provider.MetadataName);
         }
 
         // Operator signatures parsed from a customization partial must compare equal to the corresponding generated signatures.

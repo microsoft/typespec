@@ -40,6 +40,17 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void CreateUnion_TracksNestedCollectionModelVariantsToKeep()
+        {
+            var variant = InputFactory.Model("InputContent", "Sample.Models");
+            var union = InputFactory.Union([InputPrimitiveType.String, InputFactory.Array(variant)]);
+
+            CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(union);
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, Does.Contain("Sample.Models.InputContent"));
+        }
+
+        [Test]
         public void ExtensibleStringNullableEnumType()
         {
             var input = InputFactory.StringEnum(

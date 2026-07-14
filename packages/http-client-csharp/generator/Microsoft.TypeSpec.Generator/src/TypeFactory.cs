@@ -21,6 +21,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
 
+        private OptionalDefinition? _optionalProvider;
+        private OptionalDefinition OptionalProvider => _optionalProvider ??= new();
+
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
@@ -97,11 +100,7 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            // we only keep the type if it is not framework type and not literal
-                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
-                            {
-                                UnionVariantTypesToKeep.Add(unionInput.Name);
-                            }
+                            AddUnionVariantTypesToKeep(unionInput);
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -129,6 +128,24 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return type;
+        }
+
+        private void AddUnionVariantTypesToKeep(CSharpType type)
+        {
+            if (!type.IsFrameworkType && !type.IsLiteral)
+            {
+                UnionVariantTypesToKeep.Add(type.FullyQualifiedName);
+            }
+
+            if (type.IsArray && type.ElementType is { } elementType)
+            {
+                AddUnionVariantTypesToKeep(elementType);
+            }
+
+            foreach (var argument in type.Arguments)
+            {
+                AddUnionVariantTypesToKeep(argument);
+            }
         }
 
         /// <summary>
@@ -200,11 +217,8 @@ namespace Microsoft.TypeSpec.Generator
 
             if (modelProvider != null)
             {
-                if (model.Access == "public")
-                {
-                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
-                }
-
+                // Input accessibility alone does not make a model part of the emitted public API.
+                // The provider reference map roots models from actual generated/custom signatures.
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
                 TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
@@ -298,11 +312,6 @@ namespace Microsoft.TypeSpec.Generator
                 { Type: { IsValueType: true, IsStruct: false } } => enumProvider.FixedEnumView ?? enumProvider,
                 _ => enumProvider,
             };
-
-            if (enumType.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
-            }
 
             EnumCache.Add(enumCacheKey, enumProvider);
 

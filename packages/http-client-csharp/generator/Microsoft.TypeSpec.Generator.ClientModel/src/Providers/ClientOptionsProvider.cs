@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ClientProvider _clientProvider;
         private readonly Dictionary<InputEnumType, EnumProvider>? _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;
+        private static readonly List<ClientProvider> _singletonClientProviders = [];
 
         internal ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
@@ -80,8 +81,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Use singleton instance
                 if (_singletonInstance == null)
                 {
+                    _singletonClientProviders.Clear();
                     // Create singleton with namespace-based naming
                     _singletonInstance = new ClientOptionsProvider(inputClient, clientProvider);
+                }
+                if (!_singletonClientProviders.Contains(clientProvider))
+                {
+                    _singletonClientProviders.Add(clientProvider);
                 }
                 return _singletonInstance;
             }
@@ -247,6 +253,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+
+        // TODO https://github.com/microsoft/typespec/issues/11181: Remove this once generated source parity no longer depends on internal ClientOptions XML docs.
+        protected override bool ShouldWriteTypeXmlDocs => CustomCodeView is null;
+
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+        {
+            if (this == _singletonInstance)
+            {
+                TypeSignatureModifiers singletonAccessibility = TypeSignatureModifiers.None;
+                foreach (var clientProvider in _singletonClientProviders)
+                {
+                    singletonAccessibility |= GetAccessibilityModifiers(clientProvider.DeclarationModifiers);
+                }
+
+                return singletonAccessibility;
+            }
+
+            return GetAccessibilityModifiers(_clientProvider.DeclarationModifiers);
+        }
+
+        private static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
+            => modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
 
         protected override string BuildName()
         {

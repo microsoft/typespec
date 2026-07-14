@@ -791,12 +791,12 @@ namespace Redirected { public class Dummy { } }");
             {
                 Directory.CreateDirectory(testDir);
 
-                // Multi-targeting (multiple frameworks) produces a separate output folder
-                // per framework. The previous path-computation logic could not reliably
-                // pick a framework; the scan should still locate a loadable assembly.
+                // Multi-targeting uses <TargetFrameworks> and can produce a separate output
+                // folder per framework. Keep this test on installed target packs so it stays
+                // hermetic in CI; the scan should still locate a loadable assembly.
                 File.WriteAllText(Path.Combine(testDir, "MultiTarget.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net10.0;net10.0</TargetFrameworks>
   </PropertyGroup>
 </Project>");
 

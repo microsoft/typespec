@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
@@ -45,11 +50,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
-            if (IsPublicContext(_provider))
+            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
-            foreach (var attribute in _provider.GetAttributes())
+            foreach (var attribute in GetTypeAttributes())
             {
                 attribute.Write(writer);
                 if (attribute is AttributeStatement)
@@ -96,6 +101,42 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 WriteClassOrStructContent(writer);
             }
         }
+
+        private IReadOnlyList<MethodBodyStatement> GetTypeAttributes()
+        {
+            var attributes = _provider.GetAttributes();
+            if (_provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                return attributes;
+            }
+
+            var seen = attributes.Select(static attribute => attribute.ToDisplayString()).ToHashSet();
+            var lastContractAttributes = _provider.LastContractView?.Attributes
+                .Where(attribute =>
+                    ShouldPreserveLastContractAttribute(attribute) &&
+                    IsResolvableLastContractAttribute(attribute) &&
+                    seen.Add(attribute.ToDisplayString())) ?? [];
+            return [.. attributes, .. lastContractAttributes];
+        }
+
+        private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
+        {
+            var attributeName = attribute.Data?.AttributeClass?.Name;
+            return attributeName is not
+                (CodeGenAttributes.CodeGenSuppressAttributeName or
+                CodeGenAttributes.CodeGenMemberAttributeName or
+                CodeGenAttributes.CodeGenTypeAttributeName or
+                CodeGenAttributes.CodeGenSerializationAttributeName);
+        }
+
+        private static bool IsResolvableLastContractAttribute(AttributeStatement attribute) =>
+            ProviderReferenceMapAnalyzer.IsResolvableBuildableType(attribute.Type) &&
+            attribute.Arguments.All(IsResolvableLastContractAttributeArgument) &&
+            attribute.PositionalArguments.All(static argument => IsResolvableLastContractAttributeArgument(argument.Value));
+
+        private static bool IsResolvableLastContractAttributeArgument(ValueExpression argument) =>
+            argument is not TypeOfExpression typeOf ||
+            ProviderReferenceMapAnalyzer.IsResolvableBuildableType(typeOf.Type);
 
         private void WriteClassOrStructContent(CodeWriter writer)
         {
@@ -207,6 +248,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteMethods(CodeWriter writer)
         {
+            if (_provider is ModelFactoryProvider { PreserveLeadingMethodSeparator: true } && _provider.Methods.Count > 0)
+            {
+                writer.WriteLine();
+            }
+
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
                 writer.WriteMethod(_provider.Methods[i]);

@@ -503,6 +503,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void SharedSingletonOptionsArePublicWhenAnyClientIsPublic()
+        {
+            var client1 = InputFactory.Client("InternalClient", clientNamespace: "TestNamespace");
+            var client2 = InputFactory.Client("PublicClient", clientNamespace: "TestNamespace");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
+
+            Assert.IsNotNull(clientProvider1);
+            Assert.IsNotNull(clientProvider2);
+
+            clientProvider1!.Update(modifiers: TypeSignatureModifiers.Internal);
+            clientProvider2!.Update(modifiers: TypeSignatureModifiers.Public);
+
+            var options = clientProvider1.ClientOptions;
+            Assert.AreSame(options, clientProvider2.ClientOptions);
+            Assert.IsTrue(options!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
         public void NamespaceLastSegmentIsUsedForSingletonName()
         {
             var client1 = InputFactory.Client("ClientA", clientNamespace: "Company.Service.Api");

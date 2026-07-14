@@ -1524,7 +1524,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicModelsAreNotIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
                 "MockInputModel",
@@ -1537,7 +1537,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
-            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
         [Test]
@@ -1577,12 +1577,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         // Regression test for two complementary fixes:
         //
-        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;
-        //    registration is performed by TypeFactory.CreateModel after construction completes.
-        //    This mirrors the EnumProvider lifecycle and prevents a virtual call chain
-        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) from
-        //    being dispatched on a partially-constructed derived ModelProvider whose override
-        //    reads derived-class fields that are still uninitialized.
+        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor,
+        //    so construction does not dispatch a virtual call chain
+        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) on a
+        //    partially-constructed derived ModelProvider whose override reads derived-class fields
+        //    that are still uninitialized.
         //
         // 2. AddTypeToKeep(TypeProvider) defers FQN resolution until the keep set is consumed,
         //    so even ctor-time callers cannot force premature TypeProvider.Type evaluation.

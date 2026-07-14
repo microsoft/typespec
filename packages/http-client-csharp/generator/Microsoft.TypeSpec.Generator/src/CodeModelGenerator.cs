@@ -242,7 +242,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <remarks>
         /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
-        /// post-processing. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// reference-map analysis. This makes it safe to call this method from a <see cref="TypeProvider"/>
         /// constructor (including base constructors that run before the derived constructor body), since
         /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
         /// <c>Build*</c> methods on a not-yet-fully-constructed instance.

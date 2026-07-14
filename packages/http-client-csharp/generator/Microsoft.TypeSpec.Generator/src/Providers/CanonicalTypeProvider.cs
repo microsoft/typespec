@@ -48,7 +48,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
-            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
+            var lastContractAttributes = _generatedTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                ? null
+                : _generatedTypeProvider.LastContractView?.Attributes.Where(ShouldPreserveLastContractAttribute);
+            // TODO https://github.com/microsoft/typespec/issues/11232: Move this generated/last-contract/custom attribute merge into a shared TypeProvider back-compat API.
+            return DeduplicateAttributes(
+                _generatedTypeProvider.Attributes,
+                lastContractAttributes,
+                _generatedTypeProvider.CustomCodeView?.Attributes);
+        }
+
+        private static IReadOnlyList<AttributeStatement> DeduplicateAttributes(params IEnumerable<AttributeStatement>?[] attributeSets)
+        {
+            var seen = new HashSet<string>();
+            var attributes = new List<AttributeStatement>();
+            foreach (var attribute in attributeSets.SelectMany(static attributeSet => attributeSet ?? []))
+            {
+                if (seen.Add(attribute.ToDisplayString()))
+                {
+                    attributes.Add(attribute);
+                }
+            }
+
+            return attributes;
+        }
+
+        private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
+        {
+            var attributeName = attribute.Data?.AttributeClass?.Name;
+            return attributeName is not
+                (CodeGenAttributes.CodeGenSuppressAttributeName or
+                CodeGenAttributes.CodeGenMemberAttributeName or
+                CodeGenAttributes.CodeGenTypeAttributeName or
+                CodeGenAttributes.CodeGenSerializationAttributeName);
         }
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;

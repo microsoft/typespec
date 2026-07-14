@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -17,6 +18,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
     internal class TypeProviderWriterTests
     {
         public TypeProviderWriterTests()
+        {
+            MockHelpers.LoadMockGenerator();
+        }
+
+        [TearDown]
+        public void TearDown()
         {
             MockHelpers.LoadMockGenerator();
         }
@@ -116,6 +123,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                         initializationValue: new LiteralExpression(2))
                 ];
             }
+        }
+
+        [Test]
+        public void TypeProviderWriter_DoesNotPreserveStaleModelFactoryUsings()
+        {
+            var outputPath = Path.Combine(TestContext.CurrentContext.WorkDirectory, "Writers", nameof(TypeProviderWriter_DoesNotPreserveStaleModelFactoryUsings));
+            if (Directory.Exists(outputPath))
+            {
+                Directory.Delete(outputPath, recursive: true);
+            }
+
+            var generatedPath = Path.Combine(outputPath, "src", "Generated");
+            Directory.CreateDirectory(generatedPath);
+            File.WriteAllText(Path.Combine(generatedPath, "SampleModelFactory.cs"), """
+                using Removed.Namespace;
+
+                namespace Sample
+                {
+                    public static partial class SampleModelFactory
+                    {
+                    }
+                }
+                """);
+
+            MockHelpers.LoadMockGenerator(configuration: "{}", outputPath: outputPath, inputNamespaceName: "Sample");
+
+            var codeFile = new TypeProviderWriter(new ModelFactoryProvider([])).Write();
+
+            Assert.IsFalse(codeFile.Content.Contains("using Removed.Namespace;", StringComparison.Ordinal));
         }
     }
 }
