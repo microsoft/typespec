@@ -9,7 +9,7 @@ namespace TypeSpec.GraphQL;
  * union types. The decorator's presence on the type's `decorators` array is
  * the signal — the implementation is a no-op.
  */
-extern dec nullable(target: ModelProperty | Operation | Union | Model);
+internal extern dec nullable(target: ModelProperty | Operation | Union | Model);
 
 /**
  * Mark a field or operation as having nullable array elements in the emitted GraphQL schema.
@@ -17,4 +17,4 @@ extern dec nullable(target: ModelProperty | Operation | Union | Model);
  * Applied automatically by the mutation engine when it detects `Array<T | null>`
  * patterns. Causes the emitter to emit `[T]` instead of `[T!]`.
  */
-extern dec nullableElements(target: ModelProperty | Operation);
+internal extern dec nullableElements(target: ModelProperty | Operation);
