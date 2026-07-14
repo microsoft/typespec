@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -158,6 +159,51 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
+        /// Renames the generator parameters in place using the customer's partial declaration
+        /// parameter names while preserving the existing parameter instances.
+        /// </summary>
+        /// <remarks>
+        /// Use this when a method body has already been constructed with the generator
+        /// parameters. Body expressions may hold cached <see cref="Expressions.VariableExpression"/>
+        /// instances from those parameters, so replacing the parameters with clones would update
+        /// the signature but leave the body referencing the old declarations.
+        /// </remarks>
+        public static IReadOnlyList<ParameterProvider> RenameParametersInPlace(
+            IReadOnlyList<ParameterProvider> generatorParameters,
+            IReadOnlyList<ParameterProvider> customParameters,
+            bool removeDefaults)
+        {
+            if (generatorParameters is null)
+            {
+                throw new ArgumentNullException(nameof(generatorParameters));
+            }
+
+            if (customParameters is null)
+            {
+                throw new ArgumentNullException(nameof(customParameters));
+            }
+
+            if (generatorParameters.Count != customParameters.Count)
+            {
+                throw new ArgumentException(
+                    $"Parameter counts differ ({generatorParameters.Count} vs {customParameters.Count}).",
+                    nameof(customParameters));
+            }
+
+            for (int i = 0; i < generatorParameters.Count; i++)
+            {
+                var generatedParameter = generatorParameters[i];
+                generatedParameter.Update(name: customParameters[i].Name);
+                if (removeDefaults)
+                {
+                    generatedParameter.DefaultValue = null;
+                }
+            }
+
+            return generatorParameters;
+        }
+
+        /// <summary>
         /// Builds a <see cref="MethodSignature"/> for a partial method implementation using
         /// <paramref name="customSignature"/> (modifiers, name, return type, attributes, and
         /// other signature metadata) and the supplied <paramref name="implementationParameters"/>.
@@ -177,7 +223,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
             IReadOnlyList<ParameterProvider> implementationParameters,
-            CSharpType? returnType = null)
+            CSharpType? returnType = null,
+            MethodSignatureModifiers generatedModifiers = MethodSignatureModifiers.None)
         {
             if (customSignature is null)
             {
@@ -192,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(
                 customSignature.Name,
                 customSignature.Description,
-                customSignature.Modifiers | MethodSignatureModifiers.Partial,
+                customSignature.Modifiers | MethodSignatureModifiers.Partial | (generatedModifiers & MethodSignatureModifiers.Async),
                 returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,

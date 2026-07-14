@@ -273,6 +273,38 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public async Task PartialMethodCustomizationRenamesGeneratedBodyReferences()
+        {
+            var typeProvider = new MutableMethodsTypeProvider();
+            var parameter = new ParameterProvider("param1", $"", typeof(int), defaultValue: Snippet.Default);
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, typeof(int), $"", [parameter]),
+                Snippet.Return(parameter),
+                typeProvider);
+            typeProvider.MethodProviders = [methodProvider];
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            typeProvider.Update(reset: true);
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
+            var partialMethod = typeProvider.Methods.Single();
+            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+            Assert.IsTrue(partialMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.AreEqual("renamed", partialMethod.Signature.Parameters[0].Name);
+            Assert.IsNull(partialMethod.Signature.Parameters[0].DefaultValue);
+            Assert.That(partialMethod.BodyStatements?.ToDisplayString(), Does.Contain("return renamed;"));
+            Assert.That(partialMethod.BodyStatements?.ToDisplayString(), Does.Not.Contain("param1"));
+        }
+
+        [Test]
         public async Task MatchingConstructorSignatureIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();

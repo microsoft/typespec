@@ -682,6 +682,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteMethodDeclaration_WithVirtualPartialModifier()
+        {
+            var methodSignature = new MethodSignature(
+                "CreateOrUpdate",
+                $"Creates or updates a resource.",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual | MethodSignatureModifiers.Partial,
+                typeof(int),
+                null,
+                []);
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteMethodDeclarationNoScope(methodSignature);
+
+            var result = codeWriter.ToString(false);
+            Assert.AreEqual("public virtual partial int CreateOrUpdate()", result);
+        }
+
+        [Test]
         public void CodeWriter_WriteMethod_PartialMethodWithBody()
         {
             var methodSignature = new MethodSignature(
