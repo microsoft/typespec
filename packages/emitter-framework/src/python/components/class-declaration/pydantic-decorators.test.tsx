@@ -33,10 +33,10 @@ describe("Python pydantic decorator helpers", () => {
 
 
       class User(BaseModel):
-        @field_validator("name", mode="before")
-        @classmethod
-        def normalize_name(cls, value: str) -> str:
-          pass
+          @field_validator("name", mode="before")
+          @classmethod
+          def normalize_name(cls, value: str) -> str:
+              pass
 
 
     `);
@@ -63,10 +63,10 @@ describe("Python pydantic decorator helpers", () => {
 
 
       class User(BaseModel):
-        @model_validator(mode="after")
-        @classmethod
-        def check_model(cls, value: str) -> str:
-          pass
+          @model_validator(mode="after")
+          @classmethod
+          def check_model(cls, value: str) -> str:
+              pass
 
 
     `);
@@ -99,12 +99,12 @@ describe("Python pydantic decorator helpers", () => {
 
 
       class User(BaseModel):
-        @field_serializer("name", when_used="json")
-        def serialize_name(self) -> str:
-          pass
-        @computed_field
-        def display_name(self) -> str:
-          pass
+          @field_serializer("name", when_used="json")
+          def serialize_name(self) -> str:
+              pass
+          @computed_field
+          def display_name(self) -> str:
+              pass
 
 
     `);

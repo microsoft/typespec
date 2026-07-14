@@ -25,7 +25,7 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class User(BaseModel):
-        id: str
+          id: str
 
     `);
   });
@@ -50,8 +50,8 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class User(BaseModel):
-        model_config = ConfigDict(frozen=True, extra="forbid", validate_assignment=True)
-        id: str
+          model_config = ConfigDict(frozen=True, extra="forbid", validate_assignment=True)
+          id: str
 
     `);
   });
@@ -77,10 +77,10 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class User(BaseModel):
-        @field_validator("name", mode="before")
-        @classmethod
-        def strip_name(cls, value: str) -> str:
-          pass
+          @field_validator("name", mode="before")
+          @classmethod
+          def strip_name(cls, value: str) -> str:
+              pass
 
 
     `);
@@ -98,7 +98,7 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class AppSettings(BaseSettings):
-        pass
+          pass
 
     `);
   });
@@ -119,7 +119,7 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class AppSettings(BaseSettings):
-        model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env")
+          model_config = SettingsConfigDict(env_prefix="APP_", env_file=".env")
 
 
     `);
@@ -137,7 +137,7 @@ describe("Python PydanticClassDeclaration", () => {
 
 
       class TagList(RootModel[list[str]]):
-        pass
+          pass
 
     `);
   });
