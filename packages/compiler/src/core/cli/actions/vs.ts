@@ -2,16 +2,27 @@ import { createDiagnosticCollector } from "../../diagnostics.js";
 import { createDiagnostic } from "../../messages.js";
 import { joinPaths } from "../../path-utils.js";
 import { Diagnostic, NoTarget } from "../../types.js";
-import { installVsix } from "../install-vsix.js";
+import { downloadVsixFromMarketplace } from "../download-vsix.js";
 import { CliCompilerHost } from "../types.js";
-import { run } from "../utils.js";
+import { reportDeprecatedCommand, run } from "../utils.js";
 
 const VSIX_ALREADY_INSTALLED = 1001;
 const VSIX_NOT_INSTALLED = 1002;
 const VSIX_USER_CANCELED = 2005;
 const VS_SUPPORTED_VERSION_RANGE = "[17.0,)";
 
+/** Marketplace identity of the TypeSpec Visual Studio extension. */
+const VS_EXTENSION = {
+  publisher: "typespec",
+  name: "typespecvs",
+  id: "typespec.typespecvs",
+} as const;
+
+/** Documentation page describing how to install/manage the Visual Studio extension. */
+const VS_DOCS_URL = "https://typespec.io/docs/introduction/editor/vs";
+
 export async function installVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  reportDeprecatedCommand(host, "tsp vs install", VS_DOCS_URL);
   const diagnostics = createDiagnosticCollector();
   const vsixInstaller = diagnostics.pipe(getVsixInstallerPath());
   if (vsixInstaller === undefined) {
@@ -27,20 +38,22 @@ export async function installVSExtension(host: CliCompilerHost): Promise<readonl
     ];
   }
 
-  await installVsix(host, "typespec-vs", (vsixPaths) => {
-    for (const vsix of vsixPaths) {
-      // eslint-disable-next-line no-console
-      console.log(`Installing extension for Visual Studio...`);
-      run(host, vsixInstaller, [vsix], {
-        allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
-      });
-    }
+  const downloadDiagnostics = await downloadVsixFromMarketplace(host, VS_EXTENSION, (vsix) => {
+    // eslint-disable-next-line no-console
+    console.log(`Installing extension for Visual Studio...`);
+    run(host, vsixInstaller, [vsix], {
+      allowedExitCodes: [VSIX_ALREADY_INSTALLED, VSIX_USER_CANCELED],
+    });
   });
+  for (const diagnostic of downloadDiagnostics) {
+    diagnostics.add(diagnostic);
+  }
 
   return diagnostics.diagnostics;
 }
 
 export async function uninstallVSExtension(host: CliCompilerHost): Promise<readonly Diagnostic[]> {
+  reportDeprecatedCommand(host, "tsp vs uninstall", VS_DOCS_URL);
   const [vsixInstaller, diagnostics] = getVsixInstallerPath();
   if (vsixInstaller === undefined) {
     return diagnostics;

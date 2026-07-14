@@ -180,7 +180,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 convenienceBodyParameters = bodyParams;
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    renamedSignatureParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
             }
             else
             {
@@ -1107,7 +1112,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    requiredCustomParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
 
                 bodyParameters = requiredCustomParameters;
                 // Re-resolve the request options parameter from the customized parameter list so the

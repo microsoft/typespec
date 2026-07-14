@@ -1,8 +1,13 @@
 import { createDiagnostic } from "../../messages.js";
 import { Diagnostic, NoTarget } from "../../types.js";
-import { installVsix } from "../install-vsix.js";
 import { CliCompilerHost } from "../types.js";
-import { run } from "../utils.js";
+import { reportDeprecatedCommand, run } from "../utils.js";
+
+/** Marketplace identifier of the TypeSpec VS Code extension. */
+const VSCODE_EXTENSION_ID = "microsoft.typespec-vscode";
+
+/** Documentation page describing how to install/manage the VS Code extension. */
+const VSCODE_DOCS_URL = "https://typespec.io/docs/introduction/editor/vscode/";
 
 export interface InstallVSCodeExtensionOptions {
   insiders: boolean;
@@ -10,10 +15,9 @@ export interface InstallVSCodeExtensionOptions {
 export async function installVSCodeExtension(
   host: CliCompilerHost,
   options: InstallVSCodeExtensionOptions,
-) {
-  return await installVsix(host, "typespec-vscode", (vsixPaths) =>
-    runCode(host, ["--install-extension", vsixPaths[0]], options.insiders),
-  );
+): Promise<readonly Diagnostic[]> {
+  reportDeprecatedCommand(host, "tsp code install", VSCODE_DOCS_URL);
+  return runCode(host, ["--install-extension", VSCODE_EXTENSION_ID], options.insiders);
 }
 
 export interface UninstallVSCodeExtensionOptions {
@@ -24,7 +28,8 @@ export async function uninstallVSCodeExtension(
   host: CliCompilerHost,
   options: UninstallVSCodeExtensionOptions,
 ) {
-  return runCode(host, ["--uninstall-extension", "microsoft.typespec-vscode"], options.insiders);
+  reportDeprecatedCommand(host, "tsp code uninstall", VSCODE_DOCS_URL);
+  return runCode(host, ["--uninstall-extension", VSCODE_EXTENSION_ID], options.insiders);
 }
 
 function runCode(
