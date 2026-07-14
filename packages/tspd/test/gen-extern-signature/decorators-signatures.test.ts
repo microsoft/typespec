@@ -462,25 +462,19 @@ function importLine(imports: string[]) {
   return `import type { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
 }
 
-function autoImportLine(typeImports: string[], valueImports: string[]) {
-  const all = [...valueImports, ...typeImports.map((t) => `type ${t}`)];
-  all.sort((a, b) => {
-    const nameA = a.replace("type ", "");
-    const nameB = b.replace("type ", "");
-    return nameA.localeCompare(nameB);
-  });
-  return `import { ${all.join(", ")} } from "@typespec/compiler";`;
-}
-
 describe("auto decorator accessors", () => {
   it("generate accessor for no-arg auto decorator (boolean flag)", async () => {
     await expectSignatures({
       code: `auto dec myFlag(target: Model);`,
       expected: `
-${autoImportLine(["Model", "Program"], ["hasAutoDecorator"])}
+import { hasAutoDecorator, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
 
 export function isMyFlag(program: Program, target: Model): boolean {
   return hasAutoDecorator(program, "myFlag", target);
+}
+
+export function setMyFlag(program: Program, target: Model): void {
+  setAutoDecorator(program, "myFlag", target);
 }
   `,
     });
@@ -490,10 +484,14 @@ export function isMyFlag(program: Program, target: Model): boolean {
     await expectSignatures({
       code: `auto dec myLabel(target: Model, label: valueof string);`,
       expected: `
-${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
+import { getAutoDecoratorValue, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
 
 export function getMyLabel(program: Program, target: Model): string | undefined {
   return getAutoDecoratorValue(program, "myLabel", target)?.["label"] as any;
+}
+
+export function setMyLabel(program: Program, target: Model, label: string): void {
+  setAutoDecorator(program, "myLabel", target, { label: label });
 }
   `,
     });
@@ -503,10 +501,14 @@ export function getMyLabel(program: Program, target: Model): string | undefined 
     await expectSignatures({
       code: `auto dec myTags(target: Model, ...tags: valueof string[]);`,
       expected: `
-${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
+import { getAutoDecoratorValue, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
 
 export function getMyTags(program: Program, target: Model): readonly string[] | undefined {
   return getAutoDecoratorValue(program, "myTags", target)?.["tags"] as any;
+}
+
+export function setMyTags(program: Program, target: Model, tags: readonly string[]): void {
+  setAutoDecorator(program, "myTags", target, { tags: tags });
 }
   `,
     });
@@ -516,10 +518,14 @@ export function getMyTags(program: Program, target: Model): readonly string[] | 
     await expectSignatures({
       code: `auto dec myMeta(target: Model, name: valueof string, version: valueof int32);`,
       expected: `
-${autoImportLine(["Model", "Program"], ["getAutoDecoratorValue"])}
+import { getAutoDecoratorValue, type Model, type Program, setAutoDecorator } from "@typespec/compiler";
 
 export function getMyMeta(program: Program, target: Model): { name: string; version: number } | undefined {
   return getAutoDecoratorValue(program, "myMeta", target) as any;
+}
+
+export function setMyMeta(program: Program, target: Model, value: { name: string; version: number }): void {
+  setAutoDecorator(program, "myMeta", target, value);
 }
   `,
     });
@@ -570,6 +576,8 @@ export function getMyMeta(program: Program, target: Model): { name: string; vers
     // Verify auto decorator parts
     expect(result).toContain("isDataFlag");
     expect(result).toContain("hasAutoDecorator");
+    expect(result).toContain("setDataFlag");
+    expect(result).toContain("setAutoDecorator");
     // Verify no $decorators type for auto decorators
     expect(result).not.toContain("dataFlag: ");
   });
