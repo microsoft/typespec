@@ -205,12 +205,85 @@ describe("@surfaceDoc", () => {
     // Table header with the routable columns (prettier pads cell widths).
     const header = md.split("\n").find((l) => l.includes("| id"));
     expect(header).toBeDefined();
-    for (const col of ["id", "scenario", "category", "target", "details", "doc"]) {
+    for (const col of ["id", "scenario", "category", "target", "scope", "details", "doc"]) {
       expect(header).toContain(col);
     }
     // details encoded as key=value.
     expect(md).toContain("expected=WidgetInternal; kind=model");
     // Pipes inside prose are escaped so they don't break the table.
     expect(md).toContain("Hidden \\| renamed to WidgetInternal.");
+  });
+
+  // --- per-language exact names (scope → value dict) ----------------------
+
+  it("expands a `scope → value` dict into one verbatim check per scope", async () => {
+    const { program } = await Tester.compile(`
+      model IOThing {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get the thing.")
+      @surfaceDoc("naming", IOThing, #{ python: "io_thing", csharp: "IOThing" })
+      op get(): IOThing;
+    `);
+    const docs = listSurfaceDocs(program);
+    expect(docs).toHaveLength(2);
+    const byScope = Object.fromEntries(docs.map((d) => [d.scope, d]));
+    expect(byScope["python"].expected).toBe("io_thing");
+    expect(byScope["csharp"].expected).toBe("IOThing");
+    expect(byScope["python"].category).toBe("naming");
+  });
+
+  it("leaves scope unset for a single canonical (recast) value", async () => {
+    const doc = await docOf(`
+      model Widget {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get a widget.")
+      @surfaceDoc("naming", Widget, "Widget")
+      op get(): Widget;
+    `);
+    expect(doc.scope).toBeUndefined();
+  });
+
+  it("includes the scope in the manifest id and renders a scope column", async () => {
+    const { program } = await Tester.compile(`
+      model IOThing {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get the thing.")
+      @surfaceDoc("naming", IOThing, #{ python: "io_thing" })
+      op get(): IOThing;
+    `);
+    const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
+    const item = manifest.items.find((i) => i.id === "IOThing_naming_python");
+    expect(item).toBeDefined();
+    expect(item!.scope).toBe("python");
+    expect(item!.details).toEqual({ expected: "io_thing", kind: "model" });
+    const md = await createSurfaceChecksSummary(manifest);
+    expect(md).toContain("io_thing");
+    expect(md).toContain("python");
+  });
+
+  it("records multiple @surfaceDocs on the same target (different categories)", async () => {
+    const { program } = await Tester.compile(`
+      model Widget {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get a widget.")
+      @surfaceDoc("naming", Widget, "WidgetClient")
+      @surfaceDoc("access", Widget, "internal")
+      op get(): Widget;
+    `);
+    const docs = listSurfaceDocs(program);
+    expect(docs).toHaveLength(2);
+    expect(docs.map((d) => d.category).sort()).toEqual(["access", "naming"]);
   });
 });

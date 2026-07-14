@@ -44,8 +44,13 @@ regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
   `ClientExtensibleEnum` must appear exactly as `ClientExtensibleEnum` (not
   `client_extensible_enum`). The per-kind casing map lives in `verifiers.json`
   (`{expected:byKind}`); the manifest carries the subject's `kind` under
-  `details`. `exactName`-style byte-for-byte checks are just a `naming` check
-  whose `verifiers.json` entry omits the casing recast.
+  `details`.
+- **exact per-language names:** when a name can't be derived by casing (a
+  reserved-word escape, an acronym, a hard rename), the spec author supplies a
+  `scope → value` dict on `@surfaceDoc` (e.g. `#{ python: "io_thing" }`). Those
+  checks carry a `scope` column; the engine only runs the ones scoped to
+  `python` and matches `{expected}` **verbatim** (the `:byKind` recast is
+  skipped). The same `naming` routine handles both — no `verifiers.json` change.
 
 ### flatten
 

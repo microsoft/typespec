@@ -62,10 +62,27 @@ export type ScenarioDocDecorator = (
  * verifier for an emitter is verified against the prose by AI — so introducing a
  * new category never requires any emitter to change.
  *
+ * By default `expected` is a single canonical, language-agnostic string and each
+ * emitter recasts it to its idiomatic form (e.g. `{expected:byKind}`). When a
+ * name can't be derived by casing (a reserved-word escape, an acronym, a hard
+ * rename), pass a **dict mapping scope → exact value** instead — keyed the same
+ * way the client-generator decorators are scoped (`"python"`, `"python,csharp"`,
+ * `"!java"`). A dict value is matched **verbatim** for its scope; a language not
+ * listed in the dict is not checked.
+ *
+ * ```tsp
+ * // idiomatic: one canonical name, every emitter recasts it
+ * @surfaceDoc("naming", widgetName, "widgetName")
+ *
+ * // exact per language: each scope matched verbatim
+ * @surfaceDoc("naming", ioThing, #{ python: "io_thing", csharp: "IOThing" })
+ * ```
+ *
  * @param category The kind of surface assertion. See {
  * @link SurfaceCategory}.
  * @param subject The type or member the check is about (may differ from `target`).
- * @param expected The expected client-surface output for this category.
+ * @param expected The expected client-surface output: a single string (recast per
+ * language) or a `scope → value` dict (each value matched verbatim for its scope).
  * @param doc Optional extra natural-language description. Markdown.
  */
 export type SurfaceDocDecorator = (
@@ -81,7 +98,7 @@ export type SurfaceDocDecorator = (
     | "paging"
     | "other",
   subject: Type,
-  expected: string,
+  expected: string | Record<string, string>,
   doc?: string,
 ) => DecoratorValidatorCallbacks | void;
 

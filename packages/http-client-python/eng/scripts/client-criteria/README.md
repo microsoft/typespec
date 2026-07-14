@@ -17,6 +17,10 @@ per language.
 `@scenarioDoc`, you add `@surfaceDoc(category, subject, expected, doc?)` — an
 explicit, language-agnostic assertion: the `category` of surface property, the
 `subject` type/member it's about, and the `expected` client-facing output.
+`expected` is normally a single canonical string that each emitter **recasts**
+to its idiomatic form; when a name can't be derived by casing, it can instead be
+a `scope → value` dict (e.g. `#{ python: "io_thing", csharp: "IOThing" }`) whose
+values are matched **verbatim** for their language.
 Nothing is inferred from other decorators, so a check is deterministic to read
 and grounded in a real scenario. A precompute step collects every `@surfaceDoc`
 into a shared **checks doc**. Each emitter supplies a **context.md** (what those
@@ -55,24 +59,24 @@ and `expected` say about-what and to-what. `SurfaceCategory` is an **extensible*
 union — the named members are the canonical, tight set, but any string is
 accepted.
 
-| category         | `subject` is…                | `expected` is…                                    |
-| ---------------- | ---------------------------- | ------------------------------------------------- |
-| `naming`         | renamed type/member/op/param | canonical client identifier (recast per language) |
-| `access`         | type/operation               | `"internal"` or `"public"`                         |
-| `clientLocation` | operation                    | client/group name it should be surfaced on        |
-| `hierarchy`      | derived model                | base type's client name                           |
-| `flatten`        | the flattened property       | promoted property name(s); blank = just inlined   |
-| `paging`         | operation                    | item/element type the pager yields                |
-| `other`          | anything                     | free-form; verified against the prose (AI)        |
+| category         | `subject` is…                | `expected` is…                                                                                |
+| ---------------- | ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `naming`         | renamed type/member/op/param | canonical client identifier (recast per language, or a `scope → value` dict matched verbatim) |
+| `access`         | type/operation               | `"internal"` or `"public"`                                                                    |
+| `clientLocation` | operation                    | client/group name it should be surfaced on                                                    |
+| `hierarchy`      | derived model                | base type's client name                                                                       |
+| `flatten`        | the flattened property       | promoted property name(s); blank = just inlined                                               |
+| `paging`         | operation                    | item/element type the pager yields                                                            |
+| `other`          | anything                     | free-form; verified against the prose (AI)                                                    |
 
 The precompute step derives one fixed, category-agnostic set of placeholders for
 **every** category — so the core never needs to know what a category means:
 
-| placeholder  | derived from                    |
-| ------------ | ------------------------------- |
-| `{target}`   | the `subject`'s name            |
-| `{expected}` | the `expected` argument         |
-| `{kind}`     | the `subject`'s symbol kind     |
+| placeholder  | derived from                        |
+| ------------ | ----------------------------------- |
+| `{target}`   | the `subject`'s name                |
+| `{expected}` | the `expected` argument             |
+| `{kind}`     | the `subject`'s symbol kind         |
 | `{origin}`   | the `subject`'s declaring container |
 
 ### Adding a category
@@ -89,8 +93,6 @@ An emitter that adds **nothing** for a category still works: it falls back to
 AI-verifying the prose — exactly how `other` behaves. So promoting a check from
 `other` to a specific category (a central spec edit) never requires any emitter
 to change; each opts into determinism at its own pace.
-
-
 
 One call (Copilot Chat agent mode or CLI):
 

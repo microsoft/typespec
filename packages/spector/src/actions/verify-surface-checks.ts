@@ -26,6 +26,11 @@ export interface CheckItem {
   scenario?: string;
   category: string;
   target: string;
+  /**
+   * Language scope, e.g. `python` or `!java`. Set only for verbatim per-language
+   * checks; empty means all languages (idiomatic recast).
+   */
+  scope?: string;
   details: Record<string, string | boolean>;
   doc: string;
   /** Optional per-language resolved names, e.g. `{ "python": "…" }`. */
@@ -54,13 +59,14 @@ export function parseChecksDoc(text: string): CheckItem[] {
       continue;
     }
     if (cells.every((c) => /^[- ]*$/.test(c))) continue; // separator row
-    if (cells.length < 6) continue;
-    const [id, scenario, category, target, details, doc] = cells;
+    if (cells.length < 7) continue;
+    const [id, scenario, category, target, scope, details, doc] = cells;
     rows.push({
       id,
       scenario: scenario || undefined,
       category,
       target,
+      scope: scope || undefined,
       details: parseDetails(details),
       doc,
     });
@@ -85,9 +91,36 @@ function parseDetails(cell: string): Record<string, string | boolean> {
   return out;
 }
 
-// ---------------------------------------------------------------------------
-// Verifiers (declarative routing table, authored per emitter)
-// ---------------------------------------------------------------------------
+/**
+ * Decide whether a scoped check applies to the active language, using the same
+ * scope grammar as the client-generator decorators: comma-separated language
+ * names, `!name` to exclude, and `!(a,b)` to exclude a group. An empty/undefined
+ * scope applies to every language.
+ */
+export function scopeApplies(scope: string | undefined, language: string): boolean {
+  const s = scope?.trim();
+  if (!s) return true;
+  const group = s.match(/^!\((.*)\)$/);
+  if (group) {
+    const excluded = group[1].split(",").map((x) => x.trim());
+    return !excluded.includes(language);
+  }
+  const positives: string[] = [];
+  const negatives: string[] = [];
+  for (const part of s
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean)) {
+    if (part.startsWith("!")) {
+      negatives.push(part.slice(1).trim());
+    } else {
+      positives.push(part);
+    }
+  }
+  if (positives.length > 0) return positives.includes(language);
+  if (negatives.length > 0) return !negatives.includes(language);
+  return true;
+}
 
 type Expect =
   | "present"
@@ -197,7 +230,8 @@ function resolveVar(
     val = d == null ? undefined : String(d);
   }
   if (val == null) return undefined;
-  if (mod) {
+  // A scoped check carries a verbatim per-language value — never recase it.
+  if (mod && !item.scope) {
     const casing = mod === "byKind" ? casingMap?.[String(item.details?.kind)] : mod;
     if (!casing) return undefined; // no casing rule for this kind → N/A
     val = applyCasing(val, casing);
@@ -372,7 +406,9 @@ export async function verifySurfaceChecks(
 ): Promise<VerifySurfaceChecksOutput> {
   const { checksPath, verifiersPath, generatedRoot, flavor, language, scenario } = config;
   const items = parseChecksDoc(await readFile(checksPath, "utf8")).filter(
-    (it) => !scenario || it.id.toLowerCase().includes(scenario.toLowerCase()),
+    (it) =>
+      (!scenario || it.id.toLowerCase().includes(scenario.toLowerCase())) &&
+      scopeApplies(it.scope, language),
   );
   const rawVerifiers = JSON.parse(await readFile(verifiersPath, "utf8")) as Record<string, unknown>;
   const verifiers: Record<string, Verifier> = {};

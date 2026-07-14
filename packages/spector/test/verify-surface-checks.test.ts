@@ -63,6 +63,7 @@ beforeAll(async () => {
     join(pkg, "operations", "_operations.py"),
     `class WidgetsOperations:\n    def get_widget(self):\n        pass\n\nclass GadgetsOperations:\n    def list_gadgets(self):\n        pass\n`,
   );
+  await writeFile(join(pkg, "models", "_scoped.py"), `class IOThing:\n    pass\n`);
 
   verifiersPath = join(root, "verifiers.json");
   await writeFile(verifiersPath, JSON.stringify(verifiers));
@@ -185,6 +186,51 @@ describe("verify-surface-checks (shared engine)", () => {
     expect(bad.results[0].status).toBe("fail"); // getWidget is on Widgets, not Gadgets
   });
 
+  it("scope: a check scoped to another language is skipped entirely", async () => {
+    const out = await run([
+      {
+        id: "s1",
+        scenario: "surfacedemo",
+        category: "naming",
+        target: "IOThing",
+        scope: "csharp",
+        details: { name: "IOThing", kind: "enum" },
+        doc: "",
+      },
+    ]);
+    expect(out.results).toHaveLength(0);
+    expect(out.needs_ai).toHaveLength(0);
+  });
+
+  it("scope: a scoped value is matched verbatim, bypassing idiomatic casing", async () => {
+    const out = await run([
+      {
+        id: "s2",
+        scenario: "surfacedemo",
+        category: "naming",
+        target: "IOThing",
+        scope: "python",
+        details: { name: "IOThing", kind: "enum" },
+        doc: "",
+      },
+    ]);
+    expect(out.results[0]).toMatchObject({ status: "pass", how: "deterministic" });
+  });
+
+  it("scope: an unscoped value is still recast (pascal mangles IOThing → no match)", async () => {
+    const out = await run([
+      {
+        id: "s3",
+        scenario: "surfacedemo",
+        category: "naming",
+        target: "IOThing",
+        details: { name: "IOThing", kind: "enum" },
+        doc: "",
+      },
+    ]);
+    expect(out.results[0].status).toBe("fail");
+  });
+
   it("no verifier for a category → needs_ai", async () => {
     const out = await run([
       {
@@ -273,9 +319,9 @@ describe("verify-surface-checks (shared engine)", () => {
 
   it("parseChecksDoc reads a Markdown table with details + escaped pipes", () => {
     const md = [
-      "| id | scenario | category | target | details | doc |",
-      "| --- | --- | --- | --- | --- | --- |",
-      "| x1 | S | access | Widget | internal=true | Hidden \\| renamed. |",
+      "| id | scenario | category | target | scope | details | doc |",
+      "| --- | --- | --- | --- | --- | --- | --- |",
+      "| x1 | S | access | Widget | | internal=true | Hidden \\| renamed. |",
     ].join("\n");
     const items = parseChecksDoc(md);
     expect(items[0]).toMatchObject({

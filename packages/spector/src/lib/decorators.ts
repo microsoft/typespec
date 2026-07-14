@@ -48,19 +48,28 @@ export const $surfaceDoc: SurfaceDocDecorator = (
   expected,
   doc?,
 ) => {
-  context.program.stateMap(SpectorStateKeys.SurfaceDoc).set(target, {
+  const map = context.program.stateMap(SpectorStateKeys.SurfaceDoc);
+  const existing: StoredSurfaceDoc[] = map.get(target) ?? [];
+  existing.push({
     category,
     subject: subject as SurfaceSubject,
-    expected,
+    expected: expected as string | Record<string, string>,
     doc,
-  } satisfies StoredSurfaceDoc);
+  });
+  // A target can carry several `@surfaceDoc`s (different categories), so store a
+  // list — never overwrite a previously recorded check.
+  map.set(target, existing);
 };
 
-/** What `@surfaceDoc` records per target. */
+/**
+ * What a single `@surfaceDoc` application records. `expected` is either one
+ * canonical string (recast per language) or a `scope → value` dict (each value
+ * matched verbatim for its scope).
+ */
 interface StoredSurfaceDoc {
   category: string;
   subject: SurfaceSubject;
-  expected: string;
+  expected: string | Record<string, string>;
   doc?: string;
 }
 
@@ -306,14 +315,20 @@ export interface SurfaceDoc {
   category: string;
   /** The expected client-surface output for this category. */
   expected: string;
+  /**
+   * The language scope this check applies to, e.g. `"python"`, `"python,csharp"`,
+   * or `"!java"`. Set only when `expected` came from a `scope → value` dict; in
+   * that case the value is matched **verbatim**. Unset = all languages (recast).
+   */
+  scope?: string;
   /** Natural-language description (author-supplied, or synthesized for fallback). */
   doc: string;
 }
 
 /** A short prose fallback so the AI path always has something to verify against. */
-function synthesizeDoc(stored: StoredSurfaceDoc): string {
-  const subjectName = typeof stored.subject.name === "string" ? stored.subject.name : "the subject";
-  return `${stored.category}: ${subjectName} → ${stored.expected}`;
+function synthesizeDoc(category: string, subject: SurfaceSubject, expected: string): string {
+  const subjectName = typeof subject.name === "string" ? subject.name : "the subject";
+  return `${category}: ${subjectName} → ${expected}`;
 }
 
 function getSurfaceParent(target: SurfaceSubject): SurfaceSubject | undefined {
@@ -386,18 +401,41 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
 export function listSurfaceDocs(program: Program): SurfaceDoc[] {
   const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
   const result: SurfaceDoc[] = [];
-  for (const [target, stored] of map as Map<SurfaceDocTarget, StoredSurfaceDoc>) {
-    result.push({
-      name: resolveSurfaceName(stored.subject),
-      scenario: getEnclosingScenarioName(program, target),
-      target,
-      subject: stored.subject,
-      category: stored.category,
-      expected: stored.expected,
-      doc: stored.doc ?? synthesizeDoc(stored),
-    });
+  for (const [target, storedList] of map as Map<SurfaceDocTarget, StoredSurfaceDoc[]>) {
+    for (const stored of storedList) {
+      const subjectName = resolveSurfaceName(stored.subject);
+      const scenario = getEnclosingScenarioName(program, target);
+      for (const { expected, scope } of expandExpected(stored.expected)) {
+        result.push({
+          name: subjectName,
+          scenario,
+          target,
+          subject: stored.subject,
+          category: stored.category,
+          expected,
+          scope,
+          doc: stored.doc ?? synthesizeDoc(stored.category, stored.subject, expected),
+        });
+      }
+    }
   }
-  return result.sort((a, b) => a.name.localeCompare(b.name));
+  return result.sort(
+    (a, b) => a.name.localeCompare(b.name) || (a.scope ?? "").localeCompare(b.scope ?? ""),
+  );
+}
+
+/**
+ * Normalize an author's `expected` into one entry per check. A bare string is a
+ * single, unscoped (idiomatically recast) check; a `scope → value` dict yields
+ * one verbatim check per scope key.
+ */
+function expandExpected(
+  expected: string | Record<string, string>,
+): { expected: string; scope?: string }[] {
+  if (typeof expected === "string") {
+    return [{ expected }];
+  }
+  return Object.entries(expected).map(([scope, value]) => ({ expected: value, scope }));
 }
 
 /**

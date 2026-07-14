@@ -20,6 +20,11 @@ export interface SurfaceCheckItem {
   category: string;
   /** The subject symbol's own name, matched against the generated code. */
   target: string;
+  /**
+   * Language scope, e.g. `python` or `!java`. Set only for verbatim per-language
+   * checks (from a `scope → value` dict); empty means all languages (recast).
+   */
+  scope?: string;
   /** Language-agnostic description of the expected surface. */
   doc: string;
   /** Where the `@surfaceDoc` lives in the spec. */
@@ -65,11 +70,13 @@ export function createSurfaceChecksManifest(
     const location = getCheckLocation(scenariosPath, surfaceDoc.subject);
     const target = getSubjectName(surfaceDoc.subject);
     const details = buildSurfaceDetails(surfaceDoc);
+    const scopeSuffix = surfaceDoc.scope ? `_${surfaceDoc.scope.replace(/[^\w]+/g, "-")}` : "";
     items.push({
-      id: uniqueId(usedIds, `${surfaceDoc.name}_${surfaceDoc.category}`),
+      id: uniqueId(usedIds, `${surfaceDoc.name}_${surfaceDoc.category}${scopeSuffix}`),
       scenario: surfaceDoc.scenario,
       category: surfaceDoc.category,
       target,
+      ...(surfaceDoc.scope ? { scope: surfaceDoc.scope } : {}),
       doc: surfaceDoc.doc,
       location,
       ...(Object.keys(details).length > 0 ? { details } : {}),
@@ -94,8 +101,8 @@ export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Pro
     `Generated from \`@surfaceDoc\` annotations. This table is both the human summary`,
     `and the machine-readable checks doc parsed by the shared \`verify-surface-checks\` runner.`,
     ``,
-    `| id | scenario | category | target | details | doc |`,
-    `| --- | --- | --- | --- | --- | --- |`,
+    `| id | scenario | category | target | scope | details | doc |`,
+    `| --- | --- | --- | --- | --- | --- | --- |`,
   ];
   for (const item of manifest.items) {
     const cells = [
@@ -103,6 +110,7 @@ export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Pro
       item.scenario ?? "",
       item.category,
       item.target,
+      item.scope ?? "",
       renderDetails(item.details),
       escapeCell(item.doc),
     ];
