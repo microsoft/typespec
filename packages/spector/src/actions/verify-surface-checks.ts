@@ -89,7 +89,11 @@ function parseDetails(cell: string): Record<string, string | boolean> {
 // Verifiers (declarative routing table, authored per emitter)
 // ---------------------------------------------------------------------------
 
-type Expect = "present" | "absent" | { absentWhen: string };
+type Expect =
+  | "present"
+  | "absent"
+  | { absentWhen: string }
+  | { whenExpected: Record<string, "present" | "absent"> };
 
 /** A pattern rule: search `files` for `find`; PASS per `expect`. */
 export interface Rule {
@@ -99,7 +103,7 @@ export interface Rule {
   scope?: string;
   /** Regex template with `{var[:casing]}` placeholders. */
   find: string;
-  /** `present` (default), `absent`, or `{ absentWhen: <detail key> }`. */
+  /** `present` (default), `absent`, `{ absentWhen: <detail key> }`, or `{ whenExpected: { <value>: present|absent } }`. */
   expect?: Expect;
   /** Per-kind casing map for the `{name:byKind}` modifier. */
   casing?: Record<string, string>;
@@ -240,6 +244,9 @@ async function readGlobbed(pkgDir: string, files: string | string[] | undefined)
 function resolveExpect(expect: Expect | undefined, item: CheckItem): "present" | "absent" {
   if (!expect) return "present";
   if (typeof expect === "string") return expect;
+  if ("whenExpected" in expect) {
+    return expect.whenExpected[String(item.details?.expected)] ?? "present";
+  }
   return item.details?.[expect.absentWhen] ? "absent" : "present";
 }
 

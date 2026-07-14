@@ -2,8 +2,8 @@ import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
 import prettier from "prettier";
-import type { SurfaceDetails, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
-import { UNSPECIFIED_CATEGORY } from "../lib/decorators.js";
+import type { SurfaceDetails, SurfaceDoc, SurfaceSubject } from "../lib/decorators.js";
+import { buildSurfaceDetails } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles } from "../scenarios-resolver.js";
 import { importSpecExpect, importTypeSpec } from "../spec-utils/index.js";
@@ -18,13 +18,13 @@ export interface SurfaceCheckItem {
   scenario: string | undefined;
   /** The kind of surface assertion (routes the check to a verifier). */
   category: string;
-  /** The annotated symbol's own name, matched against the generated code. */
+  /** The subject symbol's own name, matched against the generated code. */
   target: string;
   /** Language-agnostic description of the expected surface. */
   doc: string;
   /** Where the `@surfaceDoc` lives in the spec. */
   location: SurfaceCheckLocation;
-  /** Category-specific expectation; absent for AI-only (`unspecified`) checks. */
+  /** Generic detail fields (`expected`, `kind`, `origin`); absent for prose-only checks. */
   details?: SurfaceDetails;
 }
 
@@ -60,34 +60,20 @@ export function createSurfaceChecksManifest(
   surfaceDocs: SurfaceDoc[],
 ): SurfaceChecksManifest {
   const items: SurfaceCheckItem[] = [];
+  const usedIds = new Map<string, number>();
   for (const surfaceDoc of surfaceDocs) {
-    const location = getCheckLocation(scenariosPath, surfaceDoc.target);
-    const target = getTargetName(surfaceDoc.target);
-    const usedIds = new Map<string, number>();
-    if (surfaceDoc.checks.length === 0) {
-      // Prose with no recognized client decorator: one AI-verified check.
-      items.push({
-        id: uniqueId(usedIds, `${surfaceDoc.name}_${UNSPECIFIED_CATEGORY}`),
-        scenario: surfaceDoc.scenario,
-        category: UNSPECIFIED_CATEGORY,
-        target,
-        doc: surfaceDoc.doc,
-        location,
-      });
-      continue;
-    }
-    for (const check of surfaceDoc.checks) {
-      const id = uniqueId(usedIds, `${surfaceDoc.name}_${check.category}`);
-      items.push({
-        id,
-        scenario: surfaceDoc.scenario,
-        category: check.category,
-        target,
-        doc: surfaceDoc.doc,
-        location,
-        ...(check.details ? { details: check.details } : {}),
-      });
-    }
+    const location = getCheckLocation(scenariosPath, surfaceDoc.subject);
+    const target = getSubjectName(surfaceDoc.subject);
+    const details = buildSurfaceDetails(surfaceDoc);
+    items.push({
+      id: uniqueId(usedIds, `${surfaceDoc.name}_${surfaceDoc.category}`),
+      scenario: surfaceDoc.scenario,
+      category: surfaceDoc.category,
+      target,
+      doc: surfaceDoc.doc,
+      location,
+      ...(Object.keys(details).length > 0 ? { details } : {}),
+    });
   }
   items.sort((a, b) => a.id.localeCompare(b.id));
   return { version: version ?? "?", commit, items };
@@ -150,12 +136,12 @@ function uniqueId(used: Map<string, number>, base: string): string {
   return count === 0 ? base : `${base}_${count + 1}`;
 }
 
-function getTargetName(target: SurfaceDocTarget): string {
-  return typeof target.name === "string" ? target.name : "";
+function getSubjectName(subject: SurfaceSubject): string {
+  return typeof subject.name === "string" ? subject.name : "";
 }
 
-function getCheckLocation(scenariosPath: string, target: SurfaceDocTarget): SurfaceCheckLocation {
-  const tspLocation = getSourceLocation(target);
+function getCheckLocation(scenariosPath: string, subject: SurfaceSubject): SurfaceCheckLocation {
+  const tspLocation = getSourceLocation(subject);
   return {
     path: normalizePath(relative(scenariosPath, tspLocation.file.path)),
     start: tspLocation.file.getLineAndCharacterOfPosition(tspLocation.pos),

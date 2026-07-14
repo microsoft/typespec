@@ -37,74 +37,81 @@ extern dec scenarioDoc(
 );
 
 /**
- * The category-specific parameters a verifier asserts against the generated
- * surface. Which fields apply depends on the check's `category`.
+ * The category of a client-surface check: what kind of generated-surface
+ * property is being asserted. This is an **extensible** union — the named
+ * members are the canonical, tight set every emitter understands, but any
+ * string is accepted so a new category can be introduced without changing this
+ * core library. A category an emitter hasn't onboarded a verifier for simply
+ * falls back to being verified against the prose (AI), exactly like `other`.
+ *
+ * Each category fixes what `subject` and `expected` mean:
+ *
+ * | category         | `subject` is…                | `expected` is…                                   |
+ * | ---------------- | ---------------------------- | ------------------------------------------------ |
+ * | `naming`         | renamed type/member/op/param | canonical client identifier (recast per language) |
+ * | `access`         | type/operation               | `"internal"` or `"public"`                        |
+ * | `clientLocation` | operation                    | client/group name it should be surfaced on        |
+ * | `hierarchy`      | derived model                | base type's client name                           |
+ * | `flatten`        | the flattened property       | promoted property name(s); blank = just inlined   |
+ * | `paging`         | operation                    | item/element type the pager yields                |
+ * | `other`          | anything                     | free-form; verified against the prose (AI)        |
  */
-model SurfaceDetails {
-  /** Expected client-facing identifier (`naming`). */
-  name?: string;
+union SurfaceCategory {
+  string,
 
-  /** Symbol kind for casing-aware `naming` checks (e.g. `model`, `enum`). */
-  kind?: string;
+  /** Client-facing identifier of `subject` (recast to the language's idiomatic casing). */
+  naming: "naming",
 
-  /** Expected base type on the client surface (`hierarchy`). */
-  base?: string;
+  /** Public vs internal visibility of `subject` on the client surface. */
+  access: "access",
 
-  /** Client the operation should be surfaced on (`client-location`). */
-  client?: string;
+  /** Which client or operation group an operation is surfaced on. */
+  clientLocation: "client-location",
 
-  /** Client the operation should be absent from (`client-location`). */
-  absentFrom?: string;
+  /** Base type `subject` extends on the client surface. */
+  hierarchy: "hierarchy",
 
-  /** Whether the target should be hidden from the public surface (`access`). */
-  internal?: boolean;
+  /** Nested model properties inlined onto the parent model. */
+  flatten: "flatten",
+
+  /** `subject` surfaces as a pageable collection of an item type. */
+  paging: "paging",
+
+  /** No mechanical rule — verified against the prose (AI residual). */
+  other: "other",
 }
 
 /**
- * An explicit surface check supplied directly on `@surfaceDoc`, for the cases
- * the automatic decorator-based derivation can't infer (e.g. a bespoke
- * category, or extra routing detail on top of a derived check). Mirrors a
- * `surface-checks.json` item: it is merged with the derived checks, and when its
- * `category` matches a derived check the provided `details` override that
- * check's, otherwise it is added as an extra check.
- */
-model SurfaceCheckInfo {
-  /** Category that routes the check to a verifier (e.g. `naming`, `paging`). */
-  category: string;
-
-  /** Category-specific expectation the verifier asserts. */
-  details?: SurfaceDetails;
-}
-
-/**
- * Describe, in plain natural language, one or more expected properties of the
- * **generated SDK surface** for this element — things a wire test can't see,
- * such as a client rename, an access change, an operation relocated to another
- * client, or a reshaped inheritance hierarchy. Mirrors `@scenarioDoc`, but for
- * the surface instead of the wire.
+ * Describe one expected property of the **generated SDK surface** — something a
+ * wire test can't see, such as a client rename, an access change, an operation
+ * relocated to another client, or a reshaped inheritance hierarchy. Mirrors
+ * `@scenarioDoc`, but for the surface instead of the wire.
  *
- * The prose states intent once, language-agnostically. The precompute step
- * (`listSurfaceDocs`) additionally inspects the element's own decorators (e.g.
- * `@list`, `@clientName`, `@access`, `@clientLocation`, `@hierarchyBuilding`) to
- * derive the machine-checkable, routable fields of each check — so an author
- * typically just writes the sentence and applies the normal decorator. A
- * property with no recognized decorator becomes an AI-verified check against the
- * prose, unless an explicit `check` is supplied.
+ * To keep surface checks deterministic and grounded in a real scenario,
+ * `@surfaceDoc` may only be applied to an element that also carries
+ * `@scenarioDoc` (a `@scenario` namespace/interface/operation). The check itself
+ * is fully explicit: the author states the `category`, the `subject` the check
+ * is about (a type/member reference — which may differ from the annotated
+ * operation), and the `expected` client-surface output. Nothing is inferred from
+ * other decorators, so adding or reading a check needs no knowledge of the
+ * client-generator vocabulary.
  *
- * @param doc Natural-language description of the expected surface. Markdown.
- * @param check Optional explicit check for detail the derivation can't infer.
+ * The precompute step (`listSurfaceDocs`) records these language-agnostically;
+ * each emitter's `verifiers.json` decides how to check a category using the
+ * generic `{target}` (subject name), `{expected}`, `{kind}` (subject kind) and
+ * `{origin}` (subject's declaring container) placeholders. A category with no
+ * verifier for an emitter is verified against the prose by AI — so introducing a
+ * new category never requires any emitter to change.
+ *
+ * @param category The kind of surface assertion. See {@link SurfaceCategory}.
+ * @param subject The type or member the check is about (may differ from `target`).
+ * @param expected The expected client-surface output for this category.
+ * @param doc Optional extra natural-language description. Markdown.
  */
 extern dec surfaceDoc(
-  target:
-    | Namespace
-    | Interface
-    | Operation
-    | Model
-    | Enum
-    | Union
-    | ModelProperty
-    | EnumMember
-    | UnionVariant,
-  doc: valueof string,
-  check?: valueof SurfaceCheckInfo
+  target: Namespace | Interface | Operation,
+  category: valueof SurfaceCategory,
+  subject: unknown,
+  expected: valueof string,
+  doc?: valueof string
 );

@@ -35,39 +35,36 @@ regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
 
 - present in the public `__init__.py` exports, no leading underscore.
 
-### naming (`@clientName`)
+### naming
 
-- the generated identifier equals the client name **recast to Python's idiomatic
-  casing for the symbol kind** (case-sensitive): `enum`/`model`/`type` →
-  `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
-  `UPPER_SNAKE`. So an enum renamed to `ClientExtensibleEnum` must appear exactly
-  as `ClientExtensibleEnum` (not `client_extensible_enum`). The per-kind casing
-  map lives in `verifiers.json`; the manifest item carries the symbol `kind`
-  under `details`.
-- **resolving the expected name:** if the check has a `client_names` map
-  (`{"python": "...", "csharp": "..."}`), use this language's value; otherwise
-  `details.name`. A language with no entry is `N/A`.
+- the generated identifier equals the `expected` client name **recast to
+  Python's idiomatic casing for the subject's kind** (case-sensitive):
+  `enum`/`model`/`type` → `PascalCase`, `property`/`parameter`/`operation` →
+  `snake_case`, enum value → `UPPER_SNAKE`. So an enum whose `expected` is
+  `ClientExtensibleEnum` must appear exactly as `ClientExtensibleEnum` (not
+  `client_extensible_enum`). The per-kind casing map lives in `verifiers.json`
+  (`{expected:byKind}`); the manifest carries the subject's `kind` under
+  `details`. `exactName`-style byte-for-byte checks are just a `naming` check
+  whose `verifiers.json` entry omits the casing recast.
 
-### exactName (`@exactName`)
+### flatten
 
-- the identifier equals the spec name **byte-for-byte**, no casing transform.
+- the nested model's fields appear directly as attributes on the parent class;
+  `expected` names the promoted property (blank = assert inlined).
 
-### flatten (`@flattenProperty`)
-
-- the nested model's fields appear directly as attributes on the parent class.
-
-### client-location (`@clientLocation`)
+### client-location
 
 - an operation group is a class under `operations/_operations.py`; a method is a
   public `def` on it; the **root client** is the main `*Client` class. An
   operation is "on" a client/group when its snake_case name is a method of the
-  matching class. Deterministic: assert the method is present on the
-  **expected** client/group and absent from the one it moved from.
+  matching class. Deterministic: assert the method is present on the `expected`
+  client/group and absent from its `origin` (the one it moved from).
 
-### hierarchy (`@hierarchyBuilding`)
+### hierarchy
 
-- a client subtype is expressed as the base in `class <Sub>(<Base>, …)` in
-  `models/_models.py`; inherited members are attributes present on the subclass.
+- a client subtype is expressed as the base in `class <target>(<expected>, …)`
+  in `models/_models.py`; inherited members are attributes present on the
+  subclass.
 
 > When an assertion has no concrete verifier here (and none in verifiers.json),
 > `/check-surface` may fall back to judgment — but add a verifier when
