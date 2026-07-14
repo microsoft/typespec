@@ -838,8 +838,8 @@ namespace Microsoft.TypeSpec.Generator
                     .AppendRawIf("abstract ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Abstract))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
-                    .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async))
-                    .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial));
+                    .AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                    .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
 
                 var isImplicit = methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
                 var isImplicitOrExplicit = isImplicit || methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);

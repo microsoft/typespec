@@ -33,6 +33,7 @@ from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
+from .unions_serializer import UnionsSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
 from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
@@ -120,7 +121,7 @@ class JinjaSerializer(ReaderAndWriter):
             # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches,too-many-statements
     def serialize(self) -> None:
         # remove existing folders when generate from tsp
         if self.code_model.is_tsp and self.code_model.options.get("clear-output-folder"):
@@ -200,12 +201,13 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _utils/py.typed/_types.py/_validation.py
+            # _utils/py.typed/_unions.py/types.py/_validation.py
             # is always put in top level namespace
             if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
+            is_typeddict_mode = self.code_model.options["models-mode"] == "typeddict"
             if (
                 self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
             ) and self.code_model.options["models-mode"]:
@@ -213,7 +215,27 @@ class JinjaSerializer(ReaderAndWriter):
                     env=env,
                     namespace=client_namespace,
                     models=client_namespace_type.models,
-                    enums=client_namespace_type.enums,
+                    enums=[] if is_typeddict_mode else client_namespace_type.enums,
+                )
+
+            # write types.py per namespace (alongside models/)
+            # Only generate types.py if at least one model/enum would be imported via types
+            # in operations (the model itself volunteers this via is_used_in_operations_via_types)
+            has_types_models = any(
+                m.is_used_in_operations_via_types for m in client_namespace_type.models if m.base != "json"
+            )
+            has_types_enums = any(e.is_typeddict_mode for e in client_namespace_type.enums)
+            if has_types_models or has_types_enums:
+                generation_dir = self.code_model.get_generation_dir(client_namespace)
+                self.write_file(
+                    generation_dir / Path("types.py"),
+                    TypesSerializer(
+                        code_model=self.code_model,
+                        env=env,
+                        client_namespace=client_namespace,
+                        models=client_namespace_type.models,
+                        enums=client_namespace_type.enums if is_typeddict_mode else None,
+                    ).serialize(),
                 )
 
             if not self.code_model.options["models-mode"]:
@@ -298,11 +320,19 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
-        serializer = DpgModelSerializer if self.code_model.options["models-mode"] == "dpg" else MsrestModelSerializer
-        if self.code_model.has_non_json_models(models):
+        models_mode = self.code_model.options["models-mode"]
+        if models_mode in ("dpg", "typeddict"):
+            serializer = DpgModelSerializer
+        else:
+            serializer = MsrestModelSerializer
+        # Filter out typed-dict-only models and typeddict copies — they only appear in types.py, not as model classes
+        class_models = [m for m in models if not m.is_typed_dict_only and m.base != "typeddict"]
+        if self.code_model.has_non_json_models(class_models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env, client_namespace=namespace, models=models).serialize(),
+                serializer(
+                    code_model=self.code_model, env=env, client_namespace=namespace, models=class_models
+                ).serialize(),
             )
         if enums:
             self.write_file(
@@ -313,7 +343,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
         self.write_file(
             models_path / Path("__init__.py"),
-            ModelInitSerializer(code_model=self.code_model, env=env, models=models, enums=enums).serialize(),
+            ModelInitSerializer(code_model=self.code_model, env=env, models=class_models, enums=enums).serialize(),
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)
@@ -442,7 +472,9 @@ class JinjaSerializer(ReaderAndWriter):
             # when there is client.py, there must be __init__.py
             self.write_file(
                 generation_path / Path(f"{async_path}__init__.py"),
-                general_serializer.serialize_init_file([c for c in clients if c.has_operations]),
+                general_serializer.serialize_init_file(
+                    [c for c in clients if c.has_operations],
+                ),
             )
 
             # if there was a patch file before, we keep it
@@ -519,11 +551,14 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_validation_file(),
             )
 
-        # write _types.py
+        # write _unions.py
         if self.code_model.named_unions:
             self.write_file(
-                generation_dir / Path("_types.py"),
-                TypesSerializer(code_model=self.code_model, env=env).serialize(),
+                generation_dir / Path("_unions.py"),
+                UnionsSerializer(
+                    code_model=self.code_model,
+                    env=env,
+                ).serialize(),
             )
 
     # pylint: disable=line-too-long

@@ -203,11 +203,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// method's declaration and implementation to share the same return type, so the generator's
         /// resolved return type is necessarily the correct one. When <c>null</c>, the customer's
         /// parsed return type is used as a fallback.</param>
+        /// <param name="additionalModifiers">Extra modifiers to apply to the implementation that
+        /// cannot appear on the customer's partial declaration. In particular, the customer cannot
+        /// declare a partial method as <c>async</c> (that modifier belongs to the implementing
+        /// declaration, not the defining one), so callers whose generated body uses <c>await</c>
+        /// must pass <see cref="MethodSignatureModifiers.Async"/> here to avoid emitting an
+        /// <c>await</c> body without the <c>async</c> modifier (compiler error CS4032).</param>
         public static MethodSignature BuildPartialSignature(
             MethodSignature customSignature,
             IReadOnlyList<ParameterProvider> implementationParameters,
             CSharpType? returnType = null,
-            MethodSignatureModifiers generatedModifiers = MethodSignatureModifiers.None)
+            MethodSignatureModifiers additionalModifiers = MethodSignatureModifiers.None)
         {
             if (customSignature is null)
             {
@@ -222,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(
                 customSignature.Name,
                 customSignature.Description,
-                customSignature.Modifiers | MethodSignatureModifiers.Partial | (generatedModifiers & MethodSignatureModifiers.Async),
+                customSignature.Modifiers | MethodSignatureModifiers.Partial | additionalModifiers,
                 returnType ?? customSignature.ReturnType,
                 customSignature.ReturnDescription,
                 implementationParameters,

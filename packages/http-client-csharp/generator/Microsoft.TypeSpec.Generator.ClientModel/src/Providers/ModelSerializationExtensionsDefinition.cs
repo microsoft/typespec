@@ -759,6 +759,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(ReadOnlySpanSnippets.Empty())
                 },
                 new IfStatement(indexable[Int(0)].NotEqual(Literal('$'))) { Return(ReadOnlySpanSnippets.Empty()) },
+                new IfStatement(indexable[Int(1)].Equal(Literal('.'))) { Return(ReadOnlySpanSnippets.Slice(local, Int(2))) },
                 Return(new TernaryConditionalExpression(
                     ReadOnlySpanSnippets.Length(local).GreaterThanOrEqual(Int(4))
                         .And(indexable[Int(1)].Equal(Literal('[')))

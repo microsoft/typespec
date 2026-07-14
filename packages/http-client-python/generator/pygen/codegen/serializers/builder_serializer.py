@@ -196,6 +196,16 @@ def is_json_model_type(parameters: ParameterListType) -> bool:
     )
 
 
+def _is_dpg_or_typeddict_body(body_param: BodyParameter) -> bool:
+    """Check if a body parameter is a DPG model or a CombinedType wrapping one."""
+    body_type = body_param.type
+    if isinstance(body_type, DPGModelType):
+        return True
+    if isinstance(body_type, CombinedType):
+        return body_type.target_model_subtype((DPGModelType,)) is not None
+    return False
+
+
 class _BuilderBaseSerializer(Generic[BuilderType]):
     def __init__(self, code_model: CodeModel, async_mode: bool, client_namespace: str) -> None:
         self.code_model = code_model
@@ -712,8 +722,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
                 f"'{serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
+        elif self.code_model.options["models-mode"] == "typeddict":
+            # TypedDict-only models are plain dicts — no serialization needed
+            create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
         elif self.code_model.options["models-mode"] == "dpg":
-            if json_serializable(body_param.default_content_type):
+            # Check if this is a typeddict-only model within dpg mode — skip serialization
+            body_model_type = body_param.type
+            if isinstance(body_model_type, CombinedType):
+                body_model_type = body_model_type.target_model_subtype((DPGModelType,))
+            is_typeddict_only_body = isinstance(body_model_type, DPGModelType) and getattr(
+                body_model_type, "is_typed_dict_only", False
+            )
+            if is_typeddict_only_body:
+                create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
+            elif json_serializable(body_param.default_content_type):
                 if hasattr(body_param.type, "encode") and body_param.type.encode:  # type: ignore
                     create_body_call = (
                         f"_{body_kwarg_name} = json.dumps({body_param.client_name}, "
@@ -791,9 +813,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
         all_dpg_model_overloads = False
-        if self.code_model.options["models-mode"] == "dpg" and builder.overloads:
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and builder.overloads:
             all_dpg_model_overloads = all(
-                isinstance(o.parameters.body_parameter.type, DPGModelType) for o in builder.overloads
+                _is_dpg_or_typeddict_body(o.parameters.body_parameter) for o in builder.overloads
             )
         if not all_dpg_model_overloads:
             for v in sorted(set(client_names), key=client_names.index):
@@ -1002,6 +1024,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             elif self.code_model.options["models-mode"] == "dpg":
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
+                elif isinstance(response.type, ModelType) and response.type.is_typed_dict_only:
+                    # Typed-dict-only models skip deserialization — return raw JSON
+                    deserialize_code.append("if response.content:")
+                    deserialize_code.append("    deserialized = response.json()")
+                    deserialize_code.append("else:")
+                    deserialize_code.append("    deserialized = None")
                 else:
                     format_filed = (
                         f', format="{response.type.encode}"'
@@ -1437,18 +1465,23 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             )
         pylint_disable = ""
         if self.code_model.options["models-mode"] == "dpg":
-            item_type = builder.item_type.type_annotation(
-                is_operation_file=True, serialize_namespace=self.serialize_namespace
-            )
-            pylint_disable = (
-                "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
-            )
-            list_of_elem_deserialized = [
-                "_deserialize(",
-                f"{item_type},{pylint_disable}",
-                f"deserialized{access},",
-                ")",
-            ]
+            is_item_typed_dict_only = isinstance(builder.item_type, ModelType) and builder.item_type.is_typed_dict_only
+            if is_item_typed_dict_only:
+                # Typed-dict-only models skip deserialization — return raw JSON items
+                list_of_elem_deserialized = [f"deserialized{access}"]
+            else:
+                item_type = builder.item_type.type_annotation(
+                    is_operation_file=True, serialize_namespace=self.serialize_namespace
+                )
+                pylint_disable = (
+                    "  # pylint: disable=protected-access" if getattr(builder.item_type, "internal", False) else ""
+                )
+                list_of_elem_deserialized = [
+                    "_deserialize(",
+                    f"{item_type},{pylint_disable}",
+                    f"deserialized{access},",
+                    ")",
+                ]
         else:
             list_of_elem_deserialized = [f"deserialized{access}"]
         list_of_elem_deserialized_str = "\n    ".join(list_of_elem_deserialized)

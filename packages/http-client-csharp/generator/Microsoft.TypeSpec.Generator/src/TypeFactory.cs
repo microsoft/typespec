@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator
             // Check if this type has external type information
             if (inputType.External != null)
             {
-                return CreateExternalType(inputType.External);
+                return CreateExternalType(inputType.External, inputType);
             }
 
             CSharpType? type;
@@ -322,30 +322,42 @@ namespace Microsoft.TypeSpec.Generator
         /// Factory method for creating a <see cref="CSharpType"/> based on external type properties.
         /// </summary>
         /// <param name="externalProperties">The <see cref="InputExternalTypeMetadata"/> to convert.</param>
+        /// <param name="inputType">The originating <see cref="InputType"/>, when available, used to preserve
+        /// semantics (such as extensible-enum backing) that reflection alone cannot recover from the resolved type.</param>
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
-        private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties)
+        private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null)
         {
-            // 1. Try to create a framework type from the fully qualified name. This stays as the
-            // first attempt because it's free (no I/O) and is the source of truth for BCL types.
-            var frameworkType = CreateFrameworkType(externalProperties.Identity);
-            if (frameworkType != null)
+            // Resolve the type: first as a framework type from the fully qualified name (free, no I/O, and the
+            // source of truth for BCL types), then, on a miss, dynamically from the NuGet package named in the
+            // metadata. ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
+            // pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
+            var resolvedType = CreateFrameworkType(externalProperties.Identity);
+            if (resolvedType == null && !string.IsNullOrEmpty(externalProperties.Package))
             {
-                return new CSharpType(frameworkType);
+                resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
             }
 
-            // 2. Fallback: dynamically resolve the type from the NuGet package named in the metadata.
-            // ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
-            // pre-walk in CSharpGen.ExecuteAsync; on a miss it resolves on-demand.
-            if (!string.IsNullOrEmpty(externalProperties.Package))
+            if (resolvedType != null)
             {
-                var resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
-                if (resolvedType != null)
+                var externalType = new CSharpType(resolvedType);
+
+                // A referenced extensible enum is implemented as a value-type struct, so the resolved
+                // framework type is not recognized as an enum via reflection and loses its enum semantics.
+                // Rebuild it preserving the underlying enum type so downstream serialization emits inline
+                // construction (e.g. new Kind(value)) instead of a broken ModelReaderWriter.Read<T> fallback.
+                if (inputType is InputEnumType { IsExtensible: true } externalEnum)
                 {
-                    return new CSharpType(resolvedType);
+                    var underlyingType = CreateCSharpType(externalEnum.ValueType);
+                    if (underlyingType is { IsFrameworkType: true })
+                    {
+                        externalType = externalType.WithUnderlyingEnumType(underlyingType.FrameworkType);
+                    }
                 }
+
+                return externalType;
             }
 
-            // 3. Neither path worked — emit a diagnostic that explains what was attempted.
+            // Neither path resolved the type — emit a diagnostic that explains what was attempted.
             // Each branch is a self-contained sentence so the final message reads naturally and
             // doesn't repeat "could not be resolved".
             var details = string.IsNullOrEmpty(externalProperties.Package)
