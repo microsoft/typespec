@@ -102,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (type?.IsDictionary == true)
                     {
                         TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType);
-                        if (parameter is InputHeaderParameter { CollectionHeaderPrefix: not null and not "" })
+                        if (parameter is InputHeaderParameter headerParameter &&
+                            !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix))
                         {
                             TryAddDependency(dependencies, dependencyNames, new PipelineRequestHeadersExtensionsDefinition().Type);
                         }
@@ -121,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var dependencies = new List<CSharpType>();
             var dependencyNames = new HashSet<string>(StringComparer.Ordinal);
-            TryAddDependency(dependencies, dependencyNames, new TypeFormattersDefinition().Type);
+            TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type);
             return dependencies;
         }
 

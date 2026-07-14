@@ -348,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
-        internal void ClearCachedAttributes() => _attributes = null;
+        internal void ResetAttributes() => _attributes = null;
 
         /// <summary>
         /// Indicates whether this provider's attributes should contribute to the reference map. Providers whose

@@ -127,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator
 
             if (removedLeadingMethod && methodsToKeep.Count > 0)
             {
-                modelFactory.PreserveLeadingMethodSeparatorForBackCompat();
+                modelFactory.PreserveLeadingMethodSeparator = true;
             }
 
             modelFactory.Update(methods: methodsToKeep);

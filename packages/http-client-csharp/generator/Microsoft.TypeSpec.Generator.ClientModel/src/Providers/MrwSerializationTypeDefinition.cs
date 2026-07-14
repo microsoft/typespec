@@ -122,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             : [];
 
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
-            [new OptionalDefinition().Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
+            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
         {

@@ -29,9 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _models = models;
         }
 
-        internal bool PreserveLeadingMethodSeparator { get; private set; }
-
-        internal void PreserveLeadingMethodSeparatorForBackCompat() => PreserveLeadingMethodSeparator = true;
+        internal bool PreserveLeadingMethodSeparator { get; set; }
 
         protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 

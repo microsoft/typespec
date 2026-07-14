@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ClientProvider _clientProvider;
         private readonly Dictionary<InputEnumType, EnumProvider>? _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;
+        // All clients sharing the singleton are tracked so its accessibility reflects every owner.
         private static readonly List<ClientProvider> _singletonClientProviders = [];
 
         internal ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
@@ -78,11 +79,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (UseSingletonInstance(inputClient))
             {
-                // Use singleton instance
                 if (_singletonInstance == null)
                 {
                     _singletonClientProviders.Clear();
-                    // Create singleton with namespace-based naming
                     _singletonInstance = new ClientOptionsProvider(inputClient, clientProvider);
                 }
                 if (!_singletonClientProviders.Contains(clientProvider))

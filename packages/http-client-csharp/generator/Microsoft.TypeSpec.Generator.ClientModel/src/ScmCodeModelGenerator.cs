@@ -30,6 +30,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
             new SerializationFormatDefinition();
 
+        private SystemOptionalDefinition? _systemOptionalDefinition;
+        internal SystemOptionalDefinition SystemOptionalDefinition =>
+            _systemOptionalDefinition ??= new SystemOptionalDefinition();
+
+        private TypeFormattersDefinition? _typeFormattersDefinition;
+        internal TypeFormattersDefinition TypeFormattersDefinition =>
+            _typeFormattersDefinition ??= new TypeFormattersDefinition();
+
         /// <summary>
         /// Gets the options that control ConfigurationSchema.json generation.
         /// </summary>

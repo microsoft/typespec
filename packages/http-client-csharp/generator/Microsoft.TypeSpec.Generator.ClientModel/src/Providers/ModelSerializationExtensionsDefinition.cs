@@ -109,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName() => "ModelSerializationExtensions";
 
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
-            [new TypeFormattersDefinition().Type];
+            [ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type];
 
         protected override FieldProvider[] BuildFields()
         {

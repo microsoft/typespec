@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
 
         protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
-            [new OptionalDefinition().Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
+            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override ConstructorProvider[] BuildConstructors()
         {

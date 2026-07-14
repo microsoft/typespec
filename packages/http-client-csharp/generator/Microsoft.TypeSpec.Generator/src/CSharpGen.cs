@@ -102,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator
                         // Attributes for providers excluded from reference-map attribute analysis can still depend
                         // on the final reference-map result. Clear any attributes cached during pre-write setup so
                         // the writer rebuilds them after PrepareForGeneration has finalized provider removals.
-                        outputType.ClearCachedAttributes();
+                        outputType.ResetAttributes();
                     }
                 }
 
