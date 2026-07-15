@@ -219,6 +219,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments

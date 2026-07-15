@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.28
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
 ## 0.58.0-alpha.27
 
 ### Features

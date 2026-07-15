@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.30
+
+### Bug Fixes
+
+- [#10999](https://github.com/microsoft/typespec/pull/10999) Update the union definition to include unnamed string literals and null
+
+
 ## 0.58.0-alpha.29
 
 ### Features
