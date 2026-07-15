@@ -148,6 +148,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task VisitorAttributesArePreservedAfterReferenceMapAnalysis()
+        {
+            var outputPath = Path.Combine(
+                TestContext.CurrentContext.WorkDirectory,
+                nameof(ModelReaderWriterContextDefinitionTests),
+                nameof(VisitorAttributesArePreservedAfterReferenceMapAnalysis));
+            var outputLibrary = new TestOutputLibrary([new RemovedProviderWithFrameworkDependency()]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => outputLibrary,
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                outputPath: outputPath);
+            mockGenerator.Object.AddVisitor(new ContextAttributeVisitor());
+
+            await new CSharpGen().ExecuteAsync();
+
+            var context = outputLibrary.TypeProviders.OfType<ModelReaderWriterContextDefinition>().Single();
+            Assert.IsTrue(context.Attributes.Any(attribute => attribute.Type.Equals(typeof(ObsoleteAttribute))));
+            var content = await File.ReadAllTextAsync(Path.Combine(outputPath, context.RelativeFilePath));
+            StringAssert.Contains("[Obsolete]", content);
+            StringAssert.DoesNotContain(nameof(RemovedProviderWithFrameworkDependency), content);
+        }
+
+        [Test]
         public void RemovedFrameworkTypeIsNotMatchedToKeptProviderWithSameSimpleName()
         {
             var keptProvider = new ShadowedBuildableProvider("Sample");
@@ -1473,6 +1496,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     .. providers,
                     new TestMrwSerialization(_implementsPersistableModel, _includeTypeWithDepModelProperty)
                 ];
+            }
+        }
+
+        private sealed class ContextAttributeVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelReaderWriterContextDefinition)
+                {
+                    type.Update(attributes: [.. type.Attributes, new AttributeStatement(typeof(ObsoleteAttribute))]);
+                }
+
+                return type;
             }
         }
 

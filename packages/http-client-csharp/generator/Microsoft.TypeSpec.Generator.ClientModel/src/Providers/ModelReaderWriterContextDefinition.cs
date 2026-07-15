@@ -35,6 +35,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override bool ShouldAnalyzeAttributesInReferenceMap => false;
 
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
+        {
+            var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
+            return [.. BuildAttributes(), .. visitorAttributes];
+        }
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
@@ -88,6 +94,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        private static bool IsBuildableAttribute(MethodBodyStatement statement)
+        {
+            var attribute = statement switch
+            {
+                AttributeStatement directAttribute => directAttribute,
+                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                _ => null
+            };
+
+            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
         }
 
         private HashSet<string> GetCustomizedBuildableTypes()

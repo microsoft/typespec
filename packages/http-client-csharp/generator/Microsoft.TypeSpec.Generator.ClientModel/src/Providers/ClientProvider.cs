@@ -432,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (method.BodyStatements != null)
                 {
-                    return [new ClientPipelineExtensionsDefinition().Type];
+                    return [ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type];
                 }
             }
 

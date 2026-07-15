@@ -84,9 +84,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
-                new ClientPipelineExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
                 new CancellationTokenExtensionsDefinition(),
-                new PipelineRequestHeadersExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition,
                 .. GetMultipartFormDataTypes(),
                 new ModelReaderWriterContextDefinition()
             ];

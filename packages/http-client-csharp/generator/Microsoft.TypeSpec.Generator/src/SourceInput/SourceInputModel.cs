@@ -94,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return providers;
         }
 
-        internal IReadOnlyList<TypeProvider> GetCustomizationTypeProviders() => _customizationTypeProviders.Value;
+        internal IReadOnlyList<TypeProvider> CustomizationTypeProviders => _customizationTypeProviders.Value;
 
         private static INamedTypeSymbol? FindNamedTypeSymbol(Compilation compilation, bool includeReferencedAssemblies, string fullyQualifiedMetadataName)
             => includeReferencedAssemblies

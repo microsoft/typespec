@@ -396,9 +396,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
             {
-                if (GetInvocationName(invocation) == "SetDelimited")
+                var invocationName = GetInvocationName(invocation);
+                if (invocationName == null)
                 {
-                    dependencies.Add(CreateUnresolvedDependencyType("SetDelimited"));
+                    continue;
+                }
+
+                foreach (var provider in CodeModelGenerator.Instance.GetCustomCodeMethodDependencies(invocationName))
+                {
+                    dependencies.Add(provider.Type);
                 }
             }
         }

@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
         private const string MaxPageSizeParameterName = "maxPageSize";
+        private const string ContentParameterName = "content";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -1385,7 +1386,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var parameter in serviceMethod.Parameters)
             {
                 if (parameter.Location == InputRequestLocation.Body &&
-                    !string.Equals(parameter.Name, "content", StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -1498,7 +1499,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return true;
             }
 
-            if (string.Equals(parameter.Name, "content", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }

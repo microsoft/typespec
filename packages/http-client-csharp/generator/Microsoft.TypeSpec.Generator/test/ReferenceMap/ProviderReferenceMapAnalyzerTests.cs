@@ -334,7 +334,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public void CustomCodeBodyDependencyRootsUniqueGeneratedExtensionMethodProvider()
+        public void UnregisteredCustomCodeMethodDependencyDoesNotRootGeneratedExtensionProvider()
         {
             var customCodeView = new BodyDependencyTestTypeProvider("CustomType", "Sample", CreateNamedType("SetValue", string.Empty));
             var customType = new CustomizableTestTypeProvider("CustomType", TypeSignatureModifiers.Public, customCodeView, ns: "Sample");
@@ -344,7 +344,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.Analyze([customType, extensionProvider]);
 
-            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(extensionProvider));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(extensionProvider));
         }
 
         [Test]

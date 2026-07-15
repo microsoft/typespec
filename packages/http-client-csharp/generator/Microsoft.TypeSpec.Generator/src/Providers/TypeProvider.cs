@@ -348,11 +348,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
-        internal void ResetAttributes() => _attributes = null;
+        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite() => BuildAttributesForWrite();
 
         /// <summary>
-        /// Indicates whether this provider's attributes should contribute to the reference map. Providers whose
-        /// attributes depend on the final reference-map result can opt out so cached attributes are rebuilt after analysis.
+        /// Builds the attributes emitted by the writer. Providers whose generated attributes depend on final
+        /// generation decisions can override this without replacing attributes updated by visitors.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite() => GetAttributes();
+
+        /// <summary>
+        /// Indicates whether this provider's attributes should contribute to reference-map analysis.
         /// </summary>
         protected internal virtual bool ShouldAnalyzeAttributesInReferenceMap => true;
 

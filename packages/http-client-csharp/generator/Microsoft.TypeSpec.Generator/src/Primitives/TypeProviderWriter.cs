@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
-            foreach (var attribute in _provider.GetAttributes())
+            foreach (var attribute in _provider.GetAttributesForWrite())
             {
                 attribute.Write(writer);
                 if (attribute is AttributeStatement)
