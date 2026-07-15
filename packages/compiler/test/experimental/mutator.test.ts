@@ -7,7 +7,7 @@ import {
   MutatorFlow,
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
-import { Model, Namespace, Operation } from "../../src/index.js";
+import { Model, ModelProperty, Namespace, Operation } from "../../src/index.js";
 import { mockFile, t } from "../../src/testing/index.js";
 import { expectTypeEquals } from "../../src/testing/test-utils.js";
 import { Tester } from "../tester.js";
@@ -37,6 +37,89 @@ it("works", async () => {
   expect(Foo.properties.size).toBe(2);
   expect(Foo.properties.get("x")).toBeDefined();
   expect(Foo.properties.get("y")).toBeDefined();
+});
+
+it("reuses cached clones across top-level calls within a program", async () => {
+  // The `seen` cache is scoped per Program (rather than cleared after each
+  // mutation), so repeated mutations of the same type with the same mutator
+  // reuse the earlier clone instead of producing a fresh one. This preserves
+  // clone identity across the many overlapping subgraphs an emitter mutates.
+  const { Foo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        x: string;
+      };
+    `);
+  const mutator: Mutator = {
+    name: "test",
+    Model: {
+      mutate: (_model, clone) => {
+        clone.properties.delete("x");
+      },
+    },
+  };
+
+  const first = mutateSubgraph(program, [mutator], Foo);
+  const second = mutateSubgraph(program, [mutator], Foo);
+
+  // The second call hits the program-scoped cache and returns the same clone.
+  expect(first.type).toBe(second.type);
+});
+
+it("scopes the mutation cache per program", async () => {
+  // The cache is keyed on the Program, so mutating equivalent types compiled in
+  // separate programs never returns a clone belonging to the other program.
+  const mutator: Mutator = {
+    name: "test",
+    Model: {
+      mutate: (_model, clone) => {
+        clone.properties.delete("x");
+      },
+    },
+  };
+  const source = t.code`
+      model ${t.model("Foo")} {
+        x: string;
+      };
+    `;
+
+  const a = await Tester.compile(source);
+  const b = await Tester.compile(source);
+
+  const mutatedA = mutateSubgraph(a.program, [mutator], a.Foo);
+  const mutatedB = mutateSubgraph(b.program, [mutator], b.Foo);
+
+  expect(mutatedA.type).not.toBe(mutatedB.type);
+  expect(mutatedA.realm?.hasType(mutatedA.type as Model)).toBeTruthy();
+  expect(mutatedB.realm?.hasType(mutatedB.type as Model)).toBeTruthy();
+  expect(mutatedA.realm?.hasType(mutatedB.type as Model)).toBeFalsy();
+});
+
+it("breaks cycles across re-entrant mutateSubgraph calls", async () => {
+  // Mutators (e.g. @typespec/http's merge-patch transform) sometimes call
+  // mutateSubgraph recursively from inside their own `mutate` function, which
+  // spins up a fresh engine per call. With a self-referential model this only
+  // terminates if the `seen` cache is shared across those nested engines; a
+  // narrowly-scoped (per-engine) cache would recurse forever and overflow the
+  // stack.
+  const { Foo, program } = await Tester.compile(t.code`
+      model ${t.model("Foo")} {
+        self?: Foo;
+      };
+    `);
+
+  const reentrant: Mutator = {
+    name: "reentrant",
+    Model: {
+      mutate: (model, clone, innerProgram) => {
+        for (const [key, prop] of model.properties) {
+          const mutated = mutateSubgraph(innerProgram, [reentrant], prop);
+          clone.properties.set(key, mutated.type as ModelProperty);
+        }
+      },
+    },
+  };
+
+  expect(() => mutateSubgraph(program, [reentrant], Foo)).not.toThrow();
 });
 
 it("recurses the model", async () => {

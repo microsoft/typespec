@@ -13,6 +13,7 @@ import {
   isStableApiVersionString,
   isVersionEarlierThan,
   isVersionedByDate,
+  resolveApiVersionOption,
 } from "../src/versioning-utils.js";
 
 function createMockVersion(value: string, index: number): Version {
@@ -58,6 +59,14 @@ describe("versioning-utils", () => {
   it("isStableApiVersion", () => {
     expect(isStableApiVersionString("2022-09-01")).toBe(true);
     expect(isStableApiVersionString("2023-12-01-preview")).toBe(false);
+  });
+
+  it("resolveApiVersionOption", () => {
+    expect(resolveApiVersionOption(undefined)).toBe(undefined);
+    expect(resolveApiVersionOption("latest")).toBe("latest");
+    expect(resolveApiVersionOption("all")).toBe("all");
+    expect(resolveApiVersionOption("2024-06-01")).toBe("2024-06-01");
+    expect(resolveApiVersionOption({ ComputeDisk: "2025-01-02" })).toBe(undefined);
   });
 
   it("filterApiVersionsByStability filters preview versions for stable target", () => {

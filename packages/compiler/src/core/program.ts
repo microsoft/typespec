@@ -46,6 +46,7 @@ import {
   SuppressionTracker,
   createSuppressionTracker,
   findDirectiveSuppressingOnNode,
+  findDuplicateSuppressions,
 } from "./suppression-tracking.js";
 import {
   CompilerHost,
@@ -299,6 +300,16 @@ async function createTypeGraph(
   // Set up suppression tracking for this graph now that sources are resolved, so
   // diagnostics reported during checking can be marked as suppressed.
   mutate(program).suppressionTracker = createSuppressionTracker(sourceLoader.resolution);
+
+  program.reportDiagnostics(
+    findDuplicateSuppressions(sourceLoader.resolution).map(({ directive }) =>
+      createDiagnostic({
+        code: "duplicate-suppression",
+        format: { code: directive.code },
+        target: directive.node,
+      }),
+    ),
+  );
 
   const resolver = createResolver(program);
 

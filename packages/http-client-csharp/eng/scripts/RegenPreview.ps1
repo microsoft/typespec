@@ -843,6 +843,10 @@ try {
         $tempDir = Join-Path $engFolder "temp-package-update"
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
         
+        # Create a local .npmrc pointing at the public azure-sdk-for-js registry so that
+        # installing the local package tarball does not require authentication.
+        Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
+        
         # Helper function to update emitter package files
         $updateEmitterPackage = {
             param($PackagePath, $EmitterJsonName, $LockJsonName)

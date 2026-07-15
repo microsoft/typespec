@@ -3,7 +3,7 @@ import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 import * as prettier from "prettier";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 import * as plugin from "../../../src/formatter/index.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
@@ -54,15 +54,13 @@ async function testScenario(name: string) {
   }
 }
 
-describe("compiler: prettier formatter scenarios", () => {
-  // describe has to be sync, so using sync readdir here.
-  const scenarioFiles = readdirSync(join(packageRoot, "test/formatter/scenarios/inputs"));
+// describe has to be sync, so using sync readdir here.
+const scenarioFiles = readdirSync(join(packageRoot, "test/formatter/scenarios/inputs"));
 
-  for (const file of scenarioFiles) {
-    if (file.endsWith(".tsp")) {
-      it(file, async () => {
-        await testScenario(file);
-      });
-    }
+for (const file of scenarioFiles) {
+  if (file.endsWith(".tsp")) {
+    it(file, async () => {
+      await testScenario(file);
+    });
   }
-});
+}

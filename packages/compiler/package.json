@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -104,8 +104,8 @@
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "dependencies": {
     "@babel/code-frame": "catalog:",

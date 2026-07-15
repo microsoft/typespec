@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
-            TypeProvider currentModel = model;
+            ModelProvider currentModel = model;
             ValueExpression propertyAccessExpression = modelVariable;
 
             for (int i = 0; i < propertySegments.Count; i++)
@@ -38,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
                     {
                         propertyAccessExpression = propertyAccessExpression.NullConditional();
                     }
-                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
+                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type] as ModelProvider
+                        ?? throw new System.InvalidOperationException($"Cannot navigate the property path through '{property.Name}' because its type is not a model.");
                 }
             }
 
@@ -46,26 +47,34 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         }
 
         /// <summary>
-        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// Searches for a property in the model and its base models by matching either the
+        /// property's serialized (wire) name or its client name. Method-parameter segments carry
+        /// the client name, which can differ from the wire name (e.g. <c>@query("band_index") bandIndex</c>).
         /// </summary>
-        private static PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        private static PropertyProvider FindPropertyInModelHierarchy(ModelProvider model, string segmentName)
         {
-            // First, try to find the property in the current model
-            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            // Properties may only be populated on the canonical view at this stage.
+            var properties = model.CanonicalView.Properties;
+
+            // Try to find the property by wire name, then by client name (segments carry the
+            // camelCase client name; the C# property name is PascalCase).
+            var property = properties.FirstOrDefault(p => p.WireInfo?.SerializedName == segmentName)
+                ?? properties.FirstOrDefault(p => p.InputProperty?.Name == segmentName)
+                ?? properties.FirstOrDefault(p => string.Equals(p.Name, segmentName, System.StringComparison.OrdinalIgnoreCase));
             if (property != null)
             {
                 return property;
             }
 
             // If not found, search in the base model hierarchy
-            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            if (model.BaseModelProvider != null)
             {
-                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+                return FindPropertyInModelHierarchy(model.BaseModelProvider, segmentName);
             }
 
             // If not found anywhere, throw an exception with a helpful message
             throw new System.InvalidOperationException(
-                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
+                $"Property with name '{segmentName}' not found in model '{model.Name}' or its base models.");
         }
 
         private static bool NeedsNullableConditional(PropertyProvider property)

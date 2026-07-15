@@ -12,7 +12,7 @@ import com.azure.core.util.Context;
 public interface LroNoBodies {
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -26,7 +26,7 @@ public interface LroNoBodies {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -40,8 +40,8 @@ public interface LroNoBodies {
         Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,8 +52,8 @@ public interface LroNoBodies {
     ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param context The context to associate with this operation.

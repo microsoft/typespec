@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -47,8 +47,8 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt  --output-dir ../../website/src/content/docs/docs/emitters/json-schema/reference",
     "api-extractor": "api-extractor run --local --verbose"
   },
