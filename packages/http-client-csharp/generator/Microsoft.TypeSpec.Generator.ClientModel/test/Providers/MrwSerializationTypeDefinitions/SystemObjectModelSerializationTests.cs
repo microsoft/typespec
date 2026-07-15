@@ -356,7 +356,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             public ModelProvider? BaseModel { get; set; }
 
-            protected override TypeProvider? BuildBaseTypeProvider() => BaseModel;
+            internal override TypeProvider? BaseTypeProvider => BaseModel;
 
             protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }

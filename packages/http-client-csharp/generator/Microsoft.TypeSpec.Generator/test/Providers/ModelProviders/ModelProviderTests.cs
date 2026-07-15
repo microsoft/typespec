@@ -566,7 +566,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             public ModelProvider? CyclicBase { get; set; }
 
-            protected override TypeProvider? BuildBaseTypeProvider() => CyclicBase;
+            internal override TypeProvider? BaseTypeProvider => CyclicBase;
         }
 
         [Test]
