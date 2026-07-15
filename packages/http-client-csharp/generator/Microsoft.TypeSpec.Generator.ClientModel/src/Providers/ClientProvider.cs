@@ -72,7 +72,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal TypeProvider BackCompatProvider => _backCompatProvider ?? this;
 
-        public ParameterProvider? ClientOptionsParameter { get; }
+        private ParameterProvider? _clientOptionsParameter;
+        public ParameterProvider? ClientOptionsParameter
+            => ClientOptions is null ? null : _clientOptionsParameter ??= ScmKnownParameters.ClientOptions(ClientOptions.Type);
 
         protected override FormattableString BuildDescription()
         {
@@ -108,7 +110,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
-            ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)

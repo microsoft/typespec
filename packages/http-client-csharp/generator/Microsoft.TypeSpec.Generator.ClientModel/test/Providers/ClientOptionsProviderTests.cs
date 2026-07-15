@@ -503,25 +503,72 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void SharedSingletonOptionsArePublicWhenAnyClientIsPublic()
+        public async Task SharedSingletonOptionsArePublicWhenAnyClientIsPublic()
         {
-            var client1 = InputFactory.Client("InternalClient", clientNamespace: "TestNamespace");
-            var client2 = InputFactory.Client("PublicClient", clientNamespace: "TestNamespace");
+            List<string> apiVersions = ["1.0"];
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                apiVersions.Select(version => (version, version)),
+                usage: InputModelTypeUsage.ApiVersionEnum);
+            var apiVersionParameter = InputFactory.QueryParameter(
+                "apiVersion",
+                inputEnum,
+                isRequired: true,
+                scope: InputParameterScope.Client,
+                isApiVersion: true);
+            var operation = InputFactory.Operation("Get", parameters: [apiVersionParameter]);
+            var client1 = InputFactory.Client(
+                "InternalClient",
+                methods: [InputFactory.BasicServiceMethod("Get", operation)],
+                parameters: [apiVersionParameter]);
+            var client2 = InputFactory.Client("PublicClient");
 
-            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client1, client2],
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"unreferenced-types-handling\":\"keepAll\"}");
 
-            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
-            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
-
-            Assert.IsNotNull(clientProvider1);
-            Assert.IsNotNull(clientProvider2);
-
-            clientProvider1!.Update(modifiers: TypeSignatureModifiers.Internal);
-            clientProvider2!.Update(modifiers: TypeSignatureModifiers.Public);
+            var clientProviders = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().ToList();
+            var clientProvider1 = clientProviders.Single(client => client.Name == "InternalClient");
+            var clientProvider2 = clientProviders.Single(client => client.Name == "PublicClient");
+            Assert.IsTrue(clientProvider1.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(clientProvider2.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
             var options = clientProvider1.ClientOptions;
             Assert.AreSame(options, clientProvider2.ClientOptions);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
             Assert.IsTrue(options!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(options.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+
+            var declaration = new TypeProviderWriter(options).Write().Content;
+            StringAssert.Contains("public partial class SampleClientOptions", declaration);
+            StringAssert.DoesNotContain("public internal partial class", declaration);
+        }
+
+        [Test]
+        public async Task SharedSingletonOptionsAreInternalWhenAllClientsAreInternal()
+        {
+            var client1 = InputFactory.Client("ClientA");
+            var client2 = InputFactory.Client("ClientB");
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client1, client2],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                configuration: "{\"unreferenced-types-handling\":\"keepAll\"}");
+
+            var clientProviders = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().ToList();
+            var options = clientProviders.Single(client => client.Name == "ClientA").ClientOptions;
+            Assert.AreSame(options, clientProviders.Single(client => client.Name == "ClientB").ClientOptions);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
+            Assert.IsTrue(options!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(options.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+            var declaration = new TypeProviderWriter(options).Write().Content;
+            StringAssert.Contains("internal partial class SampleClientOptions", declaration);
         }
 
         [Test]

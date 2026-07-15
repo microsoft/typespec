@@ -18,10 +18,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             foreach (var inputClient in inputClients)
             {
+                CreateClientProviders(inputClient);
+            }
+
+            foreach (var inputClient in inputClients)
+            {
                 BuildClient(inputClient, types);
             }
 
             return [.. types];
+        }
+
+        private static void CreateClientProviders(InputClient inputClient)
+        {
+            foreach (var child in inputClient.Children)
+            {
+                CreateClientProviders(child);
+            }
+
+            ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
         }
 
         private static void BuildClient(InputClient inputClient, HashSet<TypeProvider> types)
