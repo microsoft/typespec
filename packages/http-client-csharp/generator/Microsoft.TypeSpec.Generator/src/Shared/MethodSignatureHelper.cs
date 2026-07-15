@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator
             return true;
         }
 
-        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod)
+        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod, bool shouldNotBeAsync = false)
         {
             if (hideMethod)
             {
@@ -64,13 +64,17 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
+            var modifiers = shouldNotBeAsync
+                ? previousMethodSignature.Modifiers & ~MethodSignatureModifiers.Async
+                : previousMethodSignature.Modifiers;
+
             var attributes = hideMethod
                 ? [.. previousMethodSignature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]
                 : previousMethodSignature.Attributes;
             return new MethodSignature(
                 previousMethodSignature.Name,
                 previousMethodSignature.Description,
-                previousMethodSignature.Modifiers,
+                modifiers,
                 previousMethodSignature.ReturnType,
                 previousMethodSignature.ReturnDescription,
                 previousMethodSignature.Parameters,
