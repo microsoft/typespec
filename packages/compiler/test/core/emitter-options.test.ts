@@ -189,7 +189,7 @@ describe("compiler: emitter options defined in TypeSpec", () => {
     const diagnostics = await diagnoseEmitterOptions({ count: "not a number" });
     expectDiagnostics(diagnostics, {
       code: "invalid-emitter-options",
-      message: "Expected type number",
+      message: `Type '"not a number"' is not assignable to type 'int32'`,
     });
   });
 

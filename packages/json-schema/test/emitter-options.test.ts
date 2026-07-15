@@ -34,7 +34,7 @@ describe("json-schema: emitter options validation", () => {
     } as any);
     expectDiagnostics(diagnostics, {
       code: "invalid-emitter-options",
-      message: "Expected type boolean",
+      message: `Type '"yes"' is not assignable to type 'boolean'`,
     });
   });
 

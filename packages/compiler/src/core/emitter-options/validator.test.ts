@@ -56,8 +56,8 @@ describe("scalars", () => {
         );
         expect(errors).toEqual([
           {
-            code: "type-mismatch",
-            message: "Expected type number",
+            code: "invalid-value",
+            message: `Type '"not a number"' is not assignable to type '${typeStr}'`,
             target: ["prop"],
           },
         ]);
@@ -302,8 +302,8 @@ describe("custom scalars", () => {
     );
     expect(errors).toEqual([
       {
-        code: "type-mismatch",
-        message: "Expected type string",
+        code: "invalid-value",
+        message: "Type '123' is not assignable to type 'myPath'",
         target: ["prop"],
       },
     ]);
@@ -321,8 +321,8 @@ describe("Record", () => {
     );
     expect(errors).toEqual([
       {
-        code: "type-mismatch",
-        message: "Expected type string",
+        code: "invalid-value",
+        message: "Type '1' is not assignable to type 'string'",
         target: ["prop", "b"],
       },
     ]);
@@ -340,7 +340,7 @@ describe("numeric ranges and integer-ness", () => {
     expect(errors).toEqual([
       {
         code: "invalid-value",
-        message: "Value 9999 is not assignable to int8, out of range [-128, 127].",
+        message: "Type '9999' is not assignable to type 'int8'",
         target: ["prop"],
       },
     ]);
@@ -351,7 +351,7 @@ describe("numeric ranges and integer-ness", () => {
     expect(errors).toEqual([
       {
         code: "invalid-value",
-        message: "Value 1.5 is not assignable to int32, expected an integer.",
+        message: "Type '1.5' is not assignable to type 'int32'",
         target: ["prop"],
       },
     ]);
@@ -362,7 +362,7 @@ describe("numeric ranges and integer-ness", () => {
     expect(errors).toEqual([
       {
         code: "invalid-value",
-        message: "Value -3 is not assignable to uint8, out of range [0, 255].",
+        message: "Type '-3' is not assignable to type 'uint8'",
         target: ["prop"],
       },
     ]);
@@ -406,6 +406,64 @@ describe("@minValue/@maxValue", () => {
   it("accepts a value within range", async () => {
     const errors = await validateOptions(
       `model EmitterOptions { @minValue(1) @maxValue(10) prop?: int32; }`,
+      { prop: 5 },
+    );
+    expect(errors).toEqual([]);
+  });
+
+  it("rejects a value not greater than @minValueExclusive (property residual)", async () => {
+    const errors = await validateOptions(
+      `model EmitterOptions { @minValueExclusive(0) prop?: int32; }`,
+      { prop: 0 },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Value 0 must be greater than 0.",
+        target: ["prop"],
+      },
+    ]);
+  });
+});
+
+describe("scalar-declared constraints (delegated to the type checker)", () => {
+  it("rejects a value outside a scalar-declared @minValue/@maxValue", async () => {
+    const errors = await validateOptions(
+      `
+      @minValue(1) @maxValue(10) scalar Ranged extends int32;
+      model EmitterOptions { prop?: Ranged; }`,
+      { prop: 20 },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: "Type '20' is not assignable to type 'Ranged'",
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("rejects a value outside a scalar-declared @minLength/@maxLength", async () => {
+    const errors = await validateOptions(
+      `
+      @minLength(2) @maxLength(4) scalar Sized extends string;
+      model EmitterOptions { prop?: Sized; }`,
+      { prop: "x" },
+    );
+    expect(errors).toEqual([
+      {
+        code: "invalid-value",
+        message: `Type '"x"' is not assignable to type 'Sized'`,
+        target: ["prop"],
+      },
+    ]);
+  });
+
+  it("accepts a value satisfying scalar-declared constraints", async () => {
+    const errors = await validateOptions(
+      `
+      @minValue(1) @maxValue(10) scalar Ranged extends int32;
+      model EmitterOptions { prop?: Ranged; }`,
       { prop: 5 },
     );
     expect(errors).toEqual([]);
@@ -502,8 +560,8 @@ describe("scalar identity (not name)", () => {
     );
     expect(errors).toEqual([
       {
-        code: "type-mismatch",
-        message: "Expected type string",
+        code: "invalid-value",
+        message: "Type '123' is not assignable to type 'Foo.int32'",
         target: ["prop"],
       },
     ]);

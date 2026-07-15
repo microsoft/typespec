@@ -7,21 +7,11 @@ import {
   getMinValueAsNumeric,
   getMinValueExclusiveAsNumeric,
 } from "../intrinsic-type-state.js";
-import { numericRanges } from "../numeric-ranges.js";
 import { Numeric } from "../numeric.js";
 import { isPathAbsolute } from "../path-utils.js";
 import { Program } from "../program.js";
 import { isArrayModelType } from "../type-utils.js";
-import type {
-  ArrayModelType,
-  Enum,
-  IntrinsicScalarName,
-  Model,
-  ModelProperty,
-  Scalar,
-  Type,
-  Union,
-} from "../types.js";
+import type { ArrayModelType, Enum, Model, ModelProperty, Scalar, Type, Union } from "../types.js";
 
 export interface ValidationError {
   code: string;
@@ -31,58 +21,30 @@ export interface ValidationError {
   value?: string;
 }
 
-const knownScalarNames: readonly IntrinsicScalarName[] = [
-  "string",
-  "url",
-  "boolean",
-  "bytes",
-  "numeric",
-  "integer",
-  "float",
-  "decimal",
-  "decimal128",
-  "int8",
-  "int16",
-  "int32",
-  "int64",
-  "uint8",
-  "uint16",
-  "uint32",
-  "uint64",
-  "safeint",
-  "float32",
-  "float64",
-];
-
 /**
  * Resolved, realm-specific references used to identify scalars by identity rather
  * than by name, so user-defined scalars that merely share a name with a built-in
- * (e.g. a user `scalar int32` or `scalar absolutePath`) are not mis-classified.
+ * (e.g. a user `scalar absolutePath`) are not mis-classified.
  */
 interface ValidationContext {
   readonly program: Program;
-  /** Identity map of the std scalar type to its intrinsic name. */
-  readonly stdScalars: Map<Scalar, IntrinsicScalarName>;
   /** The `absolutePath` scalar from `@typespec/compiler/emitter`, if available in this realm. */
   readonly absolutePath: Scalar | undefined;
+  /** The std `bytes` scalar, which has no literal type to synthesize and is validated structurally. */
+  readonly bytes: Scalar | undefined;
 }
 
 function createValidationContext(program: Program): ValidationContext {
-  const stdScalars = new Map<Scalar, IntrinsicScalarName>();
-  for (const name of knownScalarNames) {
-    const scalar = program.checker.getStdType(name);
-    if (scalar) {
-      stdScalars.set(scalar, name);
-    }
-  }
-
   // Resolve the real `absolutePath` scalar by identity. It is declared in
   // `@typespec/compiler/emitter` and only present when the emitter's options file
   // imports it; when absent, no value gets absolute-path semantics.
   const [absolutePathType] = program.resolveTypeReference("absolutePath");
   const absolutePath = absolutePathType?.kind === "Scalar" ? absolutePathType : undefined;
 
-  return { program, stdScalars, absolutePath };
+  const bytesType = program.checker.getStdType("bytes");
+  const bytes = bytesType?.kind === "Scalar" ? bytesType : undefined;
+
+  return { program, absolutePath, bytes };
 }
 
 export function validateEmitterOptions(
@@ -342,7 +304,8 @@ function validateScalar(
   // Special-case the built-in `absolutePath` scalar (from `@typespec/compiler/emitter`).
   // Matched by identity so a user-defined `scalar absolutePath` is not affected. It extends
   // `string` but additionally requires the value to be an absolute path, mirroring the
-  // legacy JSON-schema `format: absolute-path` validation.
+  // legacy JSON-schema `format: absolute-path` validation. This is not part of type
+  // assignability, so it is checked here rather than delegated to the relation checker.
   if (context.absolutePath && scalarChainIncludes(type, context.absolutePath)) {
     if (typeof value === "string" && (value.startsWith(".") || !isPathAbsolute(value))) {
       return [
@@ -356,38 +319,65 @@ function validateScalar(
     }
   }
 
-  // Resolve custom scalars (e.g. `scalar myInt extends int32`) to their known built-in
-  // base by identity so they validate against the underlying representation.
-  let builtin: IntrinsicScalarName | undefined;
-  for (let scalar: Scalar | undefined = type; scalar; scalar = scalar.baseScalar) {
-    const name = context.stdScalars.get(scalar);
-    if (name !== undefined) {
-      builtin = name;
-      break;
+  // `bytes` has no literal type that can be synthesized, so validate it structurally.
+  if (context.bytes && scalarChainIncludes(type, context.bytes)) {
+    if (value instanceof Uint8Array) {
+      return [];
     }
+    return [{ code: "type-mismatch", message: `Expected type bytes`, target: [] }];
   }
-  if (builtin === undefined) {
+
+  // Delegate the core type decision to the compiler's relation checker by synthesizing the
+  // value as a literal type: this reuses scalar identity, built-in numeric range/integer-ness,
+  // and scalar-declared `@minValue`/`@maxValue`(`Exclusive`)/`@minLength`/`@maxLength` instead
+  // of reimplementing them.
+  const leaf = synthesizeLeaf(context.program, value);
+  if (leaf === undefined) {
+    return [
+      { code: "invalid-value", message: `Value is not assignable to ${type.name}`, target: [] },
+    ];
+  }
+  const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(leaf, type, type);
+  if (!assignable) {
     return [
       {
-        code: "unsupported",
-        message: `${type.name} is not supported for emitter options.`,
+        code: "invalid-value",
+        message: diagnostics[0]?.message ?? `Value is not assignable to ${type.name}`,
         target: [],
       },
     ];
   }
 
-  const typeErrors = validateBuiltinScalar(value, builtin);
-  if (typeErrors.length > 0) {
-    return typeErrors;
-  }
-
+  // Residual checks the type system does not enforce on assignment: `@pattern` (any string
+  // position) and property-level value/length constraints (decorators on the owning
+  // `ModelProperty`, which the relation checker ignores — it only reads scalar constraints).
   if (typeof value === "string") {
-    return validateStringConstraints(context, value, type, property);
+    return validateStringResidual(context, value, type, property);
   }
   if (typeof value === "number") {
-    return validateNumericConstraints(context, value, builtin, type, property);
+    return validateNumericResidual(context, value, property);
   }
   return [];
+}
+
+/**
+ * Synthesize a leaf literal type (or the intrinsic `null`) for a primitive config value so it
+ * can be checked against a scalar via {@link Checker.isTypeAssignableTo}. Returns `undefined`
+ * for values that have no literal representation (objects, arrays, `Uint8Array`, ...).
+ */
+function synthesizeLeaf(program: Program, value: unknown): Type | undefined {
+  switch (typeof value) {
+    case "string":
+      return program.checker.createLiteralType(value);
+    case "number":
+      return program.checker.createLiteralType(value);
+    case "boolean":
+      return program.checker.createLiteralType(value);
+  }
+  if (value === null) {
+    return program.checker.nullType;
+  }
+  return undefined;
 }
 
 /** Whether `scalar` or any of its base scalars is identical to `target`. */
@@ -425,7 +415,7 @@ function effectiveConstraint<T>(
   return undefined;
 }
 
-function validateStringConstraints(
+function validateStringResidual(
   context: ValidationContext,
   value: string,
   scalar: Scalar,
@@ -433,6 +423,8 @@ function validateStringConstraints(
 ): readonly ValidationError[] {
   const errors: ValidationError[] = [];
 
+  // `@pattern` is not encoded in type assignability, so it is checked here. Read it from the
+  // owning property and the scalar chain so it applies in array/`Record`/union positions too.
   const pattern = effectiveConstraint(context, getPattern, scalar, property);
   if (pattern && !new RegExp(pattern).test(value)) {
     errors.push({
@@ -442,65 +434,45 @@ function validateStringConstraints(
     });
   }
 
-  const minLength = effectiveConstraint(context, getMinLength, scalar, property);
-  if (minLength !== undefined && value.length < minLength) {
-    errors.push({
-      code: "invalid-value",
-      message: `String "${value}" is too short, expected at least ${minLength} characters.`,
-      target: [],
-    });
-  }
-
-  const maxLength = effectiveConstraint(context, getMaxLength, scalar, property);
-  if (maxLength !== undefined && value.length > maxLength) {
-    errors.push({
-      code: "invalid-value",
-      message: `String "${value}" is too long, expected at most ${maxLength} characters.`,
-      target: [],
-    });
+  // Property-level `@minLength`/`@maxLength` are decorator metadata the relation checker does
+  // not enforce on assignment (only scalar-declared ones are), so apply them here.
+  if (property) {
+    const minLength = getMinLength(context.program, property);
+    if (minLength !== undefined && value.length < minLength) {
+      errors.push({
+        code: "invalid-value",
+        message: `String "${value}" is too short, expected at least ${minLength} characters.`,
+        target: [],
+      });
+    }
+    const maxLength = getMaxLength(context.program, property);
+    if (maxLength !== undefined && value.length > maxLength) {
+      errors.push({
+        code: "invalid-value",
+        message: `String "${value}" is too long, expected at most ${maxLength} characters.`,
+        target: [],
+      });
+    }
   }
 
   return errors;
 }
 
-function validateNumericConstraints(
+function validateNumericResidual(
   context: ValidationContext,
   value: number,
-  builtin: IntrinsicScalarName,
-  scalar: Scalar,
   property: ModelProperty | undefined,
 ): readonly ValidationError[] {
+  // Property-level `@minValue`/`@maxValue` (and exclusive variants) are decorator metadata the
+  // relation checker does not enforce on assignment (only scalar-declared ones are), so apply
+  // them here.
+  if (!property) {
+    return [];
+  }
   const errors: ValidationError[] = [];
   const numericValue = Numeric(String(value));
 
-  // Built-in integer-ness and range for sized scalars (int8, uint32, float32, ...).
-  if (builtin === "integer") {
-    if (!numericValue.isInteger) {
-      errors.push({
-        code: "invalid-value",
-        message: `Value ${value} is not assignable to ${builtin}, expected an integer.`,
-        target: [],
-      });
-    }
-  } else if (builtin in numericRanges) {
-    const [low, high, options] = numericRanges[builtin as keyof typeof numericRanges];
-    if (options.int && !numericValue.isInteger) {
-      errors.push({
-        code: "invalid-value",
-        message: `Value ${value} is not assignable to ${builtin}, expected an integer.`,
-        target: [],
-      });
-    } else if (numericValue.lt(low) || numericValue.gt(high)) {
-      errors.push({
-        code: "invalid-value",
-        message: `Value ${value} is not assignable to ${builtin}, out of range [${low.asNumber()}, ${high.asNumber()}].`,
-        target: [],
-      });
-    }
-  }
-
-  // Explicit `@minValue`/`@maxValue` (and exclusive variants) on the property or scalar.
-  const min = effectiveConstraint(context, getMinValueAsNumeric, scalar, property);
+  const min = getMinValueAsNumeric(context.program, property);
   if (min !== undefined && numericValue.lt(min)) {
     errors.push({
       code: "invalid-value",
@@ -508,7 +480,7 @@ function validateNumericConstraints(
       target: [],
     });
   }
-  const max = effectiveConstraint(context, getMaxValueAsNumeric, scalar, property);
+  const max = getMaxValueAsNumeric(context.program, property);
   if (max !== undefined && numericValue.gt(max)) {
     errors.push({
       code: "invalid-value",
@@ -516,12 +488,7 @@ function validateNumericConstraints(
       target: [],
     });
   }
-  const minExclusive = effectiveConstraint(
-    context,
-    getMinValueExclusiveAsNumeric,
-    scalar,
-    property,
-  );
+  const minExclusive = getMinValueExclusiveAsNumeric(context.program, property);
   if (minExclusive !== undefined && numericValue.lte(minExclusive)) {
     errors.push({
       code: "invalid-value",
@@ -529,12 +496,7 @@ function validateNumericConstraints(
       target: [],
     });
   }
-  const maxExclusive = effectiveConstraint(
-    context,
-    getMaxValueExclusiveAsNumeric,
-    scalar,
-    property,
-  );
+  const maxExclusive = getMaxValueExclusiveAsNumeric(context.program, property);
   if (maxExclusive !== undefined && numericValue.gte(maxExclusive)) {
     errors.push({
       code: "invalid-value",
@@ -544,54 +506,4 @@ function validateNumericConstraints(
   }
 
   return errors;
-}
-
-function validateBuiltinScalar(
-  value: unknown,
-  name: IntrinsicScalarName,
-): readonly ValidationError[] {
-  switch (name) {
-    case "string":
-    case "url":
-      return assertType(value, "string");
-    case "boolean":
-      return assertType(value, "boolean");
-    case "numeric":
-    case "integer":
-    case "float":
-    case "decimal":
-    case "decimal128":
-    case "int8":
-    case "int16":
-    case "int32":
-    case "int64":
-    case "uint8":
-    case "uint16":
-    case "uint32":
-    case "uint64":
-    case "safeint":
-    case "float32":
-    case "float64":
-      return assertType(value, "number");
-    case "bytes":
-      if (value instanceof Uint8Array) {
-        return [];
-      }
-      return [{ code: "type-mismatch", message: `Expected type bytes`, target: [] }];
-    default:
-      return [
-        {
-          code: "unsupported",
-          message: `${name} is not supported for emitter options.`,
-          target: [],
-        },
-      ];
-  }
-}
-
-function assertType(value: unknown, expectedType: string): readonly ValidationError[] {
-  if (typeof value === expectedType) {
-    return [];
-  }
-  return [{ code: "type-mismatch", message: `Expected type ${expectedType}`, target: [] }];
 }
