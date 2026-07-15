@@ -217,8 +217,11 @@ namespace Microsoft.TypeSpec.Generator
 
             if (modelProvider != null)
             {
-                // Input accessibility alone does not make a model part of the emitted public API.
-                // The provider reference map roots models from actual generated/custom signatures.
+                if (model.Access == "public")
+                {
+                    CodeModelGenerator.Instance.AddTypeToKeep(modelProvider);
+                }
+
                 CSharpTypeMap[modelProvider.Type] = modelProvider;
                 TypeProvidersByName[modelProvider.Type.Name] = modelProvider;
             }
@@ -317,6 +320,11 @@ namespace Microsoft.TypeSpec.Generator
 
             if (enumProvider != null)
             {
+                if (enumType.Access == "public")
+                {
+                    CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
+                }
+
                 CSharpTypeMap[enumProvider.Type] = enumProvider;
                 TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
             }

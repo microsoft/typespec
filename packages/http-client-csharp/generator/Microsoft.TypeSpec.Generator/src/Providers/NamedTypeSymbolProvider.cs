@@ -53,6 +53,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
+        protected override CSharpType[] GetTypeArguments() =>
+            [.. _namedTypeSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())];
+
         private static string GetMetadataName(INamedTypeSymbol symbol)
         {
             if (symbol.ContainingType is null)
@@ -344,6 +347,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    GenericArguments: methodSymbol.TypeParameters.IsEmpty
+                        ? null
+                        : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
                     ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
 
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));

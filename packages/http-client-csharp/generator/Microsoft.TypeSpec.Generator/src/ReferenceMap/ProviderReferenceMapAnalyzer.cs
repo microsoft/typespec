@@ -338,7 +338,7 @@ namespace Microsoft.TypeSpec.Generator
                 internalizeCandidates,
                 customInternalDeclarations,
                 generatedInternalDeclarations,
-                customPublicRoots,
+                publicRoots,
                 internalizeReferences,
                 generatedImplementationInternalDeclarations);
             RemovePublicApiExposedCandidates(

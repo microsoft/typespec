@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
     public class ClientBodyDependencyReferenceMapTests
     {
         [Test]
-        public async Task OperationBodyParameterModelIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicOperationBodyParameterModelIsRetained()
         {
             var requestModel = InputFactory.Model("RequestBody");
             var parameter = InputFactory.BodyParameter("body", requestModel, isRequired: true);
@@ -29,14 +29,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                unexpectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "RequestBody.cs"),
-                    Path.Combine("src", "Generated", "Models", "RequestBody.Serialization.cs")
-                ]);
+                publicModelNames: ["RequestBody"]);
         }
 
         [Test]
-        public async Task ProtocolOnlyOperationBodyParameterModelIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicProtocolOnlyOperationBodyParameterModelIsRetained()
         {
             var requestModel = InputFactory.Model("RequestBody");
             var parameter = InputFactory.BodyParameter("body", requestModel, isRequired: true);
@@ -50,10 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                unexpectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "RequestBody.cs"),
-                    Path.Combine("src", "Generated", "Models", "RequestBody.Serialization.cs")
-                ]);
+                publicModelNames: ["RequestBody"]);
         }
 
         [Test]
@@ -130,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task CustomInternalBoundaryInternalizesPublicNonRootModel()
+        public async Task PublicInputRootsOverrideCustomInternalBoundary()
         {
             var customInternalModel = InputFactory.Model("CustomInternalModel");
             var publicWrapper = InputFactory.Model(
@@ -178,8 +172,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
 
                 ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(CodeModelGenerator.Instance.OutputLibrary.TypeProviders);
 
-                Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), "PublicWrapper should be internalized when its public surface exposes a custom/internal type.");
-                Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), "CustomInternalModel should remain internal.");
+                Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "PublicWrapper should remain public because it is an explicit input root.");
+                Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "Public input roots should preserve their declared accessibility.");
             }
             finally
             {
@@ -192,7 +186,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task OperationResponseBodyModelIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicOperationResponseBodyModelIsRetained()
         {
             var metadataOnlyModel = InputFactory.Model("MetadataOnlyResponse");
             var operation = InputFactory.Operation(
@@ -213,10 +207,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                unexpectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.cs"),
-                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.Serialization.cs")
-                ]);
+                publicModelNames: ["MetadataOnlyResponse"]);
         }
 
         [Test]
@@ -245,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task InternalAdditionalRootModelIsRemovedWhenNotOtherwiseReferenced()
+        public async Task InternalAdditionalRootModelIsRetainedAsInternal()
         {
             var metadataOnlyModel = InputFactory.Model("MetadataOnlyResponse", access: "internal");
             var operation = InputFactory.Operation(
@@ -265,11 +256,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [metadataOnlyModel],
                 clients: [client],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [
+                expectedFiles: [
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.cs"),
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.Serialization.cs")
                 ],
+                internalModelNames: ["MetadataOnlyResponse"],
                 configureGenerator: () =>
                 {
                     var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "MetadataOnlyResponse");
@@ -278,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task AdditionalRootEnumIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicAdditionalRootEnumIsRetained()
         {
             var metadataOnlyEnum = InputFactory.StringEnum(
                 "MetadataOnlyResponseKind",
@@ -300,15 +291,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [],
                 clients: [client],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [
+                expectedFiles: [
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyResponseKind.cs"),
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyResponseKind.Serialization.cs")
                 ]);
         }
 
         [Test]
-        public async Task ContentTypeHeaderEnumIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicContentTypeHeaderEnumIsRetained()
         {
             var contentTypeEnum = InputFactory.StringEnum(
                 "UpdateSnapshotRequestContentType",
@@ -342,8 +332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [],
                 clients: [client],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [
+                expectedFiles: [
                     Path.Combine("src", "Generated", "Models", "UpdateSnapshotRequestContentType.cs"),
                     Path.Combine("src", "Generated", "Models", "UpdateSnapshotRequestContentType.Serialization.cs")
                 ],
@@ -352,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task PublicEnumIsRemovedWhenNotOtherwiseReferenced()
+        public async Task PublicEnumIsRetainedWhenNotOtherwiseReferenced()
         {
             var metadataOnlyEnum = InputFactory.StringEnum(
                 "MetadataOnlyKind",
@@ -363,8 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [],
                 clients: [],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [
+                expectedFiles: [
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyKind.cs"),
                     Path.Combine("src", "Generated", "Models", "MetadataOnlyKind.Serialization.cs")
                 ]);
@@ -458,7 +446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task NestedBodyModelGraphDoesNotBecomePublic()
+        public async Task PublicNestedBodyModelGraphRemainsPublic()
         {
             var nestedModel = InputFactory.Model("NestedToolParameter");
             var toolModel = InputFactory.Model(
@@ -475,16 +463,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                unexpectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "ToolConfig.cs"),
-                    Path.Combine("src", "Generated", "Models", "ToolConfig.Serialization.cs"),
-                    Path.Combine("src", "Generated", "Models", "NestedToolParameter.cs"),
-                    Path.Combine("src", "Generated", "Models", "NestedToolParameter.Serialization.cs")
-                ]);
+                publicModelNames: ["ToolConfig", "NestedToolParameter"]);
         }
 
         [Test]
-        public async Task NonDiscriminatorDerivedBodyModelDoesNotBecomePublicFromPublicBase()
+        public async Task PublicNonDiscriminatorDerivedBodyModelRemainsPublic()
         {
             var baseTool = InputFactory.Model("BaseTool");
             var concreteTool = InputFactory.Model(
@@ -498,8 +481,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             await GenerateAndAssertMixedModels(
                 [baseTool, concreteTool],
                 [client],
-                publicModelNames: ["BaseTool"],
-                internalModelNames: ["ConcreteTool"]);
+                publicModelNames: ["BaseTool", "ConcreteTool"],
+                internalModelNames: []);
         }
 
         [Test]
@@ -560,8 +543,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                publicModelNames: ["BaseResult"],
-                internalModelNames: ["DerivedResult", "DerivedDependency", "TransitiveDependency"]);
+                publicModelNames: ["BaseResult", "DerivedResult", "DerivedDependency", "TransitiveDependency"]);
         }
 
         [Test]
@@ -757,7 +739,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task CustomModelFactoryPartialDoesNotKeepBodyOnlyModelPublic()
+        public async Task PublicBodyOnlyModelRemainsPublicWithCustomModelFactory()
         {
             var requestModel = InputFactory.Model("RequestBody");
             var parameter = InputFactory.BodyParameter("body", requestModel, isRequired: true);
@@ -780,10 +762,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                         """)
                 ],
                 expectedFiles: [],
-                unexpectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "RequestBody.cs"),
-                    Path.Combine("src", "Generated", "Models", "RequestBody.Serialization.cs")
-                ]);
+                publicModelNames: ["RequestBody"]);
         }
 
         [Test]
@@ -815,7 +794,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                         """)
                 ],
                 expectedFiles: [],
-                internalModelNames: ["CompactResource"],
+                publicModelNames: ["CompactResource"],
                 internalClientNames: ["Responses"]);
         }
 

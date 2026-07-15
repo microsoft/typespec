@@ -1524,7 +1524,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void PublicModelsAreNotIncludedInAdditionalRootTypes()
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
         {
             var inputModel = InputFactory.Model(
                 "MockInputModel",
@@ -1537,7 +1537,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(modelProvider);
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
-            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToList());
+            Assert.IsTrue(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(modelProvider));
         }
 
         [Test]

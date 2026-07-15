@@ -410,9 +410,20 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<string, string[]>? serializationProviderNamesByType,
             bool includeAttributes = true,
             bool includeAttributeArguments = true,
-            string? providerNamespace = null)
+            string? providerNamespace = null,
+            string? containingProviderTypeName = null,
+            IReadOnlySet<string>? contextualTypeExclusions = null)
         {
-            AddTypeReference(references, signature.ReturnType, nodes, serializationProviderNamesByType, providerNamespace);
+            HashSet<string>? signatureTypeExclusions = contextualTypeExclusions == null
+                ? null
+                : new(contextualTypeExclusions, StringComparer.Ordinal);
+            if (signature is MethodSignature { GenericArguments: not null } genericMethodSignature)
+            {
+                signatureTypeExclusions ??= new(StringComparer.Ordinal);
+                signatureTypeExclusions.UnionWith(genericMethodSignature.GenericArguments.Select(argument => argument.Name));
+            }
+
+            AddTypeReference(references, signature.ReturnType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
             if (includeAttributes)
             {
                 AddAttributes(references, signature.Attributes, nodes, serializationProviderNamesByType, includeAttributeArguments);
@@ -420,7 +431,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var parameter in signature.Parameters)
             {
-                AddTypeReference(references, parameter.Type, nodes, serializationProviderNamesByType, providerNamespace);
+                AddTypeReference(references, parameter.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
                 if (includeAttributes)
                 {
                     AddAttributes(references, parameter.Attributes, nodes, serializationProviderNamesByType, includeAttributeArguments);
@@ -429,12 +440,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (signature is MethodSignature methodSignature)
             {
-                AddTypeReference(references, methodSignature.ExplicitInterface, nodes, serializationProviderNamesByType, providerNamespace);
+                AddTypeReference(references, methodSignature.ExplicitInterface, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
                 if (methodSignature.GenericArguments != null)
                 {
                     foreach (var genericArgument in methodSignature.GenericArguments)
                     {
-                        AddTypeReference(references, genericArgument, nodes, serializationProviderNamesByType, providerNamespace);
+                        AddTypeReference(references, genericArgument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
                     }
                 }
 
@@ -442,14 +453,14 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     foreach (var constraint in methodSignature.GenericParameterConstraints)
                     {
-                        AddTypeReference(references, constraint.Type, nodes, serializationProviderNamesByType, providerNamespace);
+                        AddTypeReference(references, constraint.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
                     }
                 }
             }
 
             if (signature is ConstructorSignature constructorSignature)
             {
-                AddTypeReference(references, constructorSignature.Type, nodes, serializationProviderNamesByType, providerNamespace);
+                AddTypeReference(references, constructorSignature.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
             }
         }
 
@@ -502,7 +513,9 @@ namespace Microsoft.TypeSpec.Generator
             CSharpType? type,
             HashSet<string> nodes,
             IReadOnlyDictionary<string, string[]>? serializationProviderNamesByType = null,
-            string? providerNamespace = null)
+            string? providerNamespace = null,
+            string? containingProviderTypeName = null,
+            IReadOnlySet<string>? contextualTypeExclusions = null)
         {
             if (type == null)
             {
@@ -511,12 +524,16 @@ namespace Microsoft.TypeSpec.Generator
 
             if (type.IsArray)
             {
-                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType, providerNamespace);
+                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
                 return;
             }
 
             var providerTypeName = GetProviderTypeName(type);
-            if (nodes.Contains(providerTypeName))
+            var matchedContainingType = string.IsNullOrEmpty(type.Namespace) &&
+                contextualTypeExclusions?.Contains(type.Name) != true &&
+                !string.IsNullOrEmpty(containingProviderTypeName) &&
+                AddExactMetadataNameMatch(references, $"{containingProviderTypeName}.{providerTypeName}", nodes);
+            if (!matchedContainingType && nodes.Contains(providerTypeName))
             {
                 references.Add(providerTypeName);
             }
@@ -529,18 +546,19 @@ namespace Microsoft.TypeSpec.Generator
                     references.Add(serializationProviderName);
                 }
             }
-            else if (!nodes.Contains(providerTypeName) &&
+            else if (!matchedContainingType &&
+                !nodes.Contains(providerTypeName) &&
                 string.IsNullOrEmpty(type.Namespace) &&
                 !string.IsNullOrEmpty(providerNamespace))
             {
                 AddExactMetadataNameMatch(references, $"{providerNamespace}.{providerTypeName}", nodes);
             }
 
-            AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace);
-            AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace);
+            AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+            AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
             foreach (var argument in type.Arguments)
             {
-                AddTypeReference(references, argument, nodes, serializationProviderNamesByType, providerNamespace);
+                AddTypeReference(references, argument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
             }
         }
 

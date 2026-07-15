@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -92,6 +93,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             // The base type should be null to prevent stack overflow when the base type contains
             // the derived type as a generic type argument
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
+        }
+
+        [Test]
+        public void ValidateGenericTypeAndMethodArguments()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class GenericType<TType>
+                        {
+                            public TMethod Convert<TMethod>(TType value, TMethod fallback) => fallback;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.GenericType`1");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var method = provider.Methods.Single(method => method.Signature.Name == "Convert");
+
+            Assert.AreEqual("TType", provider.Type.Arguments.Single().Name);
+            Assert.AreEqual("TMethod", method.Signature.GenericArguments!.Single().Name);
         }
 
         [Test]

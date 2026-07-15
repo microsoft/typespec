@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -61,6 +62,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(context));
             Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(unusedModel));
+        }
+
+        [Test]
+        public void RootedTypeWithInternalPartialDeclarationRemainsPublic()
+        {
+            var model = new ModelProvider(InputFactory.Model("PublicModel", "Sample.Models", access: "public"));
+            var internalPartial = new TestTypeProvider(
+                "PublicModel",
+                TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class,
+                ns: "Sample.Models");
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(model, internalPartial));
+            CodeModelGenerator.Instance.AddTypeToKeep(model);
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([model, internalPartial]);
+
+            Assert.IsTrue(model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]
@@ -153,6 +170,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             Assert.IsTrue(keptVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsFalse(collidingVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
+        public void UnionVariantEnumRemainsPublic()
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "Variant",
+                [("One", "one")],
+                access: null!,
+                clientNamespace: "Sample");
+            MockHelpers.LoadMockGenerator(inputEnumTypes: [inputEnum]);
+            var variant = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<EnumProvider>()
+                .Single(provider => provider.Name == "Variant");
+            CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep.Add(variant.Type.FullyQualifiedName);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([variant]);
+
+            Assert.IsTrue(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
+        public void KnownDiscriminatorVariantRemainsPublic()
+        {
+            var discriminator = InputFactory.Property(
+                "kind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var derivedInput = InputFactory.Model(
+                "KnownVariant",
+                "Sample",
+                access: null!,
+                discriminatedKind: "known");
+            var baseInput = InputFactory.Model(
+                "BaseModel",
+                "Sample",
+                access: null!,
+                properties: [discriminator],
+                derivedModels: [derivedInput],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInput, derivedInput]);
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var baseProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "BaseModel");
+            var derivedProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "KnownVariant");
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
+
+            Assert.IsTrue(baseProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(derivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]

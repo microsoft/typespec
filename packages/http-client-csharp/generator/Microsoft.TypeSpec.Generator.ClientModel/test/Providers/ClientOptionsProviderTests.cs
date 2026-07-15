@@ -384,6 +384,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task CustomizedPublicConstructorKeepsNestedServiceVersionPublic()
+        {
+            string[] apiVersions = ["2023-10-01-preview-1", "2023-11-01", "2024-01-01"];
+            var enumValues = apiVersions.Select((a, index) => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                access: string.Empty,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+            var inputClient = InputFactory.Client("RawClient", clientNamespace: "SampleNamespace");
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .OfType<ClientProvider>()
+                .Single(provider => provider.Name == "RawClient");
+            var clientOptionsProvider = clientProvider.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+            var serviceVersionProvider = clientOptionsProvider!.NestedTypes.Single();
+            Assert.IsTrue(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsNotNull(clientOptionsProvider.CustomCodeView);
+            var customConstructor = clientOptionsProvider.CustomCodeView!.Constructors.Single();
+            var customServiceVersionType = customConstructor.Signature.Parameters.Single().Type;
+            Assert.IsEmpty(customServiceVersionType.Namespace);
+            Assert.IsNull(customServiceVersionType.DeclaringType);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
+
+            Assert.IsTrue(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(serviceVersionProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
         public void SingletonCreatedForMultipleClientsWithStandardParameters()
         {
             var client1 = InputFactory.Client("ClientA", clientNamespace: "TestNamespace");

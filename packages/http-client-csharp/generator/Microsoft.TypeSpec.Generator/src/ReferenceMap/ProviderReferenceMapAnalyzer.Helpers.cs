@@ -74,12 +74,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsAdditionalRootProvider(TypeProvider provider, HashSet<string> roots, HashSet<string> nodes)
         {
-            if (provider.DeclaringTypeProvider != null || !IsKept(provider.Type, roots, nodes))
-            {
-                return false;
-            }
-
-            return provider is not ModelProvider && provider is not EnumProvider;
+            return provider.DeclaringTypeProvider == null && IsKept(provider.Type, roots, nodes);
         }
 
         private static bool IsModelFactoryProvider(TypeProvider provider)
@@ -503,6 +498,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AddUnionVariantRoots(roots, providers, nodes);
+            AddKnownDiscriminatorVariantRoots(roots, providers, nodes);
 
             return roots;
         }
@@ -512,13 +508,33 @@ namespace Microsoft.TypeSpec.Generator
             var unionVariantTypesToKeep = CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep;
             foreach (var provider in GetGeneratedProviders(providers))
             {
-                if (provider is not ModelProvider ||
-                    !unionVariantTypesToKeep.Contains(provider.Type.FullyQualifiedName))
+                if (!unionVariantTypesToKeep.Contains(provider.Type.FullyQualifiedName))
                 {
                     continue;
                 }
 
                 AddMatchingName(roots, GetProviderTypeName(provider.Type), nodes);
+            }
+        }
+
+        private static void AddKnownDiscriminatorVariantRoots(
+            HashSet<string> roots,
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes)
+        {
+            foreach (var provider in GetGeneratedProviders(providers))
+            {
+                if (provider is not ModelProvider
+                    {
+                        IsUnknownDiscriminatorModel: false,
+                        DiscriminatorValue: not null
+                    } modelProvider ||
+                    !modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                AddTypeReference(roots, modelProvider.Type, nodes);
             }
         }
 
@@ -687,6 +703,10 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> generatedTypeNames,
             bool publicOnly)
         {
+            var containingProviderTypeName = NormalizeMetadataTypeName(GetCustomCodeViewIdentity(customCodeView));
+            var contextualTypeExclusions = customCodeView.Type.Arguments
+                .Select(argument => argument.Name)
+                .ToHashSet(StringComparer.Ordinal);
             AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames);
             AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames, includeUnqualifiedSimpleNameReferences: true);
             if (!publicOnly)
@@ -708,7 +728,14 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddSignatureReferences(roots, constructor.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+                AddSignatureReferences(
+                    roots,
+                    constructor.Signature,
+                    generatedTypeNames,
+                    serializationProviderNamesByType: null,
+                    includeAttributes: !publicOnly,
+                    containingProviderTypeName: containingProviderTypeName,
+                    contextualTypeExclusions: contextualTypeExclusions);
             }
 
             foreach (var method in customCodeView.Methods)
@@ -718,7 +745,14 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddSignatureReferences(roots, method.Signature, generatedTypeNames, serializationProviderNamesByType: null, includeAttributes: !publicOnly);
+                AddSignatureReferences(
+                    roots,
+                    method.Signature,
+                    generatedTypeNames,
+                    serializationProviderNamesByType: null,
+                    includeAttributes: !publicOnly,
+                    containingProviderTypeName: containingProviderTypeName,
+                    contextualTypeExclusions: contextualTypeExclusions);
             }
 
             foreach (var property in customCodeView.Properties)
@@ -728,7 +762,12 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddTypeReference(roots, property.Type, generatedTypeNames);
+                AddTypeReference(
+                    roots,
+                    property.Type,
+                    generatedTypeNames,
+                    containingProviderTypeName: containingProviderTypeName,
+                    contextualTypeExclusions: contextualTypeExclusions);
                 AddTypeReference(roots, property.ExplicitInterface, generatedTypeNames);
                 if (!publicOnly)
                 {
@@ -743,7 +782,12 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                AddTypeReference(roots, field.Type, generatedTypeNames);
+                AddTypeReference(
+                    roots,
+                    field.Type,
+                    generatedTypeNames,
+                    containingProviderTypeName: containingProviderTypeName,
+                    contextualTypeExclusions: contextualTypeExclusions);
                 if (!publicOnly)
                 {
                     AddAttributes(roots, field.Attributes, generatedTypeNames, serializationProviderNamesByType: null, includeArguments: true);
@@ -842,13 +886,16 @@ namespace Microsoft.TypeSpec.Generator
             return declarations;
         }
 
-        private static void AddExactMetadataNameMatch(HashSet<string> target, string metadataName, HashSet<string> generatedTypeNames)
+        private static bool AddExactMetadataNameMatch(HashSet<string> target, string metadataName, HashSet<string> generatedTypeNames)
         {
             var normalizedName = NormalizeMetadataTypeName(metadataName);
             if (!string.IsNullOrEmpty(normalizedName) && generatedTypeNames.Contains(normalizedName))
             {
                 target.Add(normalizedName);
+                return true;
             }
+
+            return false;
         }
 
         private static string NormalizeMetadataTypeName(string metadataName)
@@ -859,7 +906,7 @@ namespace Microsoft.TypeSpec.Generator
                 metadataName = metadataName.Substring(0, arrayIndex);
             }
 
-            return metadataName;
+            return metadataName.Replace('+', '.');
         }
 
         private static HashSet<string> GetGeneratedPersistableModelProxyTypeNames(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
@@ -886,16 +933,20 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> generatedTypeNames)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
+            var nonInternalDeclarations = new HashSet<string>(StringComparer.Ordinal);
             foreach (var provider in GetGeneratedProviders(providers))
             {
-                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
+                if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 {
-                    continue;
+                    AddTypeReference(declarations, provider.Type, generatedTypeNames);
                 }
-
-                AddTypeReference(declarations, provider.Type, generatedTypeNames);
+                else
+                {
+                    AddTypeReference(nonInternalDeclarations, provider.Type, generatedTypeNames);
+                }
             }
 
+            declarations.ExceptWith(nonInternalDeclarations);
             return declarations;
         }
 
