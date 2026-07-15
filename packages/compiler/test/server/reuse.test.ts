@@ -1,5 +1,5 @@
 import { ok } from "assert";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 import { visitChildren } from "../../src/core/parser.js";
 import type { SymbolTable } from "../../src/core/types.js";
 import { Program } from "../../src/index.js";
@@ -7,149 +7,148 @@ import { expectDiagnosticEmpty, resolveVirtualPath } from "../../src/testing/ind
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { mutate } from "../../src/utils/misc.js";
 
-describe("compiler: server: reuse", () => {
-  it("reuses unchanged programs", async () => {
-    const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.tsp", "model M  {}");
-    const oldResult = await host.server.compile(document, undefined, {
-      skipCache: true,
-      mode: "full",
-    });
-    ok(oldResult);
-    expectDiagnosticEmpty(oldResult.program.diagnostics);
-    const newResult = await host.server.compile(document, undefined, { mode: "full" });
-    ok(newResult);
-    expectSameProgram(oldResult.program, newResult.program);
+it("reuses unchanged programs", async () => {
+  const host = await createTestServerHost();
+  const document = host.addOrUpdateDocument("main.tsp", "model M  {}");
+  const oldResult = await host.server.compile(document, undefined, {
+    skipCache: true,
+    mode: "full",
   });
+  ok(oldResult);
+  expectDiagnosticEmpty(oldResult.program.diagnostics);
+  const newResult = await host.server.compile(document, undefined, { mode: "full" });
+  ok(newResult);
+  expectSameProgram(oldResult.program, newResult.program);
+});
 
-  it("reuses unchanged files", async () => {
-    const source = `import "./other.tsp"; model M extends N {}`;
-    const otherSource = `model N {}`;
+it("reuses unchanged files", async () => {
+  const source = `import "./other.tsp"; model M extends N {}`;
+  const otherSource = `model N {}`;
 
-    const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.tsp", source);
+  const host = await createTestServerHost();
+  const document = host.addOrUpdateDocument("main.tsp", source);
 
-    host.addOrUpdateDocument("other.tsp", otherSource);
+  host.addOrUpdateDocument("other.tsp", otherSource);
 
-    const oldResult = await host.server.compile(document, undefined, {
-      skipCache: true,
-      mode: "full",
-    });
-    ok(oldResult);
-    expectDiagnosticEmpty(oldResult.program.diagnostics);
-
-    host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newResult = await host.server.compile(document, undefined, {
-      skipCache: true,
-      mode: "full",
-    });
-    ok(newResult);
-    expectDiagnosticEmpty(newResult.program.diagnostics);
-
-    expectNotSameProgram(oldResult.program, newResult.program);
-    expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
-    expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
+  const oldResult = await host.server.compile(document, undefined, {
+    skipCache: true,
+    mode: "full",
   });
+  ok(oldResult);
+  expectDiagnosticEmpty(oldResult.program.diagnostics);
 
-  it("reuses cache when no change: core/full on core", async () => {
-    const source = `model M {}`;
-
-    const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.tsp", source);
-
-    const oldResult = await host.server.compile(document, undefined, {
-      mode: "core",
-    });
-    ok(oldResult);
-    expectDiagnosticEmpty(oldResult.program.diagnostics);
-
-    const newResult = await host.server.compile(document, undefined, {
-      mode: "core",
-    });
-    ok(newResult);
-    expectDiagnosticEmpty(newResult.program.diagnostics);
-
-    ok(newResult.tracker === oldResult.tracker, "Cache should be used for core -> core.");
-
-    const fullResult = await host.server.compile(document, undefined, {
-      mode: "full",
-    });
-    ok(fullResult);
-    expectDiagnosticEmpty(fullResult.program.diagnostics);
-
-    ok(fullResult.tracker !== newResult.tracker, "Cache should not be used for core -> full.");
+  host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
+  const newResult = await host.server.compile(document, undefined, {
+    skipCache: true,
+    mode: "full",
   });
+  ok(newResult);
+  expectDiagnosticEmpty(newResult.program.diagnostics);
 
-  it("reuses cache when no change: core/full on full", async () => {
-    const source = `model M {}`;
+  expectNotSameProgram(oldResult.program, newResult.program);
+  expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
+  expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
+});
 
-    const host = await createTestServerHost();
-    const document = host.addOrUpdateDocument("main.tsp", source);
+it("reuses cache when no change: core/full on core", async () => {
+  const source = `model M {}`;
 
-    const oldResult = await host.server.compile(document, undefined, {
-      mode: "full",
-    });
-    ok(oldResult);
-    expectDiagnosticEmpty(oldResult.program.diagnostics);
+  const host = await createTestServerHost();
+  const document = host.addOrUpdateDocument("main.tsp", source);
 
-    const newResult = await host.server.compile(document, undefined, {
-      mode: "full",
-    });
-    ok(newResult);
-    expectDiagnosticEmpty(newResult.program.diagnostics);
-
-    ok(newResult.tracker === oldResult.tracker, "Cache should be used for full -> full.");
-
-    await oldResult.tracker.getCompileResult();
-    const coreResult = await host.server.compile(document, undefined, {
-      mode: "core",
-    });
-    ok(coreResult);
-    expectDiagnosticEmpty(coreResult.program.diagnostics);
-
-    ok(coreResult.tracker === newResult.tracker, "Cache should be used for full -> core.");
+  const oldResult = await host.server.compile(document, undefined, {
+    mode: "core",
   });
+  ok(oldResult);
+  expectDiagnosticEmpty(oldResult.program.diagnostics);
 
-  it("not reuse cache when there is change", async () => {
-    const source = `model M {}`;
-
-    const host = await createTestServerHost();
-    let document = host.addOrUpdateDocument("main.tsp", source);
-
-    const coreResult = await host.server.compile(document, undefined, {
-      mode: "core",
-    });
-    ok(coreResult);
-    expectDiagnosticEmpty(coreResult.program.diagnostics);
-    const fullResult = await host.server.compile(document, undefined, {
-      mode: "full",
-    });
-    ok(fullResult);
-    expectDiagnosticEmpty(fullResult.program.diagnostics);
-
-    document = host.addOrUpdateDocument("main.tsp", source + " // change");
-
-    const newCoreResult = await host.server.compile(document, undefined, {
-      mode: "core",
-    });
-    ok(newCoreResult);
-    expectDiagnosticEmpty(newCoreResult.program.diagnostics);
-
-    ok(newCoreResult.tracker !== coreResult.tracker, "Cache should not be used for core.");
-
-    await coreResult.tracker.getCompileResult();
-    const newFullResult = await host.server.compile(document, undefined, {
-      mode: "full",
-    });
-    ok(newFullResult);
-    expectDiagnosticEmpty(newFullResult.program.diagnostics);
-
-    ok(newFullResult.tracker !== fullResult.tracker, "Cache should not be used for full.");
+  const newResult = await host.server.compile(document, undefined, {
+    mode: "core",
   });
+  ok(newResult);
+  expectDiagnosticEmpty(newResult.program.diagnostics);
 
-  it("does not mutate symbols when reusing unchanged files", async () => {
-    // trigger features that add symbols during checking: using statements, member references, namespace merging
-    const source = `
+  ok(newResult.tracker === oldResult.tracker, "Cache should be used for core -> core.");
+
+  const fullResult = await host.server.compile(document, undefined, {
+    mode: "full",
+  });
+  ok(fullResult);
+  expectDiagnosticEmpty(fullResult.program.diagnostics);
+
+  ok(fullResult.tracker !== newResult.tracker, "Cache should not be used for core -> full.");
+});
+
+it("reuses cache when no change: core/full on full", async () => {
+  const source = `model M {}`;
+
+  const host = await createTestServerHost();
+  const document = host.addOrUpdateDocument("main.tsp", source);
+
+  const oldResult = await host.server.compile(document, undefined, {
+    mode: "full",
+  });
+  ok(oldResult);
+  expectDiagnosticEmpty(oldResult.program.diagnostics);
+
+  const newResult = await host.server.compile(document, undefined, {
+    mode: "full",
+  });
+  ok(newResult);
+  expectDiagnosticEmpty(newResult.program.diagnostics);
+
+  ok(newResult.tracker === oldResult.tracker, "Cache should be used for full -> full.");
+
+  await oldResult.tracker.getCompileResult();
+  const coreResult = await host.server.compile(document, undefined, {
+    mode: "core",
+  });
+  ok(coreResult);
+  expectDiagnosticEmpty(coreResult.program.diagnostics);
+
+  ok(coreResult.tracker === newResult.tracker, "Cache should be used for full -> core.");
+});
+
+it("not reuse cache when there is change", async () => {
+  const source = `model M {}`;
+
+  const host = await createTestServerHost();
+  let document = host.addOrUpdateDocument("main.tsp", source);
+
+  const coreResult = await host.server.compile(document, undefined, {
+    mode: "core",
+  });
+  ok(coreResult);
+  expectDiagnosticEmpty(coreResult.program.diagnostics);
+  const fullResult = await host.server.compile(document, undefined, {
+    mode: "full",
+  });
+  ok(fullResult);
+  expectDiagnosticEmpty(fullResult.program.diagnostics);
+
+  document = host.addOrUpdateDocument("main.tsp", source + " // change");
+
+  const newCoreResult = await host.server.compile(document, undefined, {
+    mode: "core",
+  });
+  ok(newCoreResult);
+  expectDiagnosticEmpty(newCoreResult.program.diagnostics);
+
+  ok(newCoreResult.tracker !== coreResult.tracker, "Cache should not be used for core.");
+
+  await coreResult.tracker.getCompileResult();
+  const newFullResult = await host.server.compile(document, undefined, {
+    mode: "full",
+  });
+  ok(newFullResult);
+  expectDiagnosticEmpty(newFullResult.program.diagnostics);
+
+  ok(newFullResult.tracker !== fullResult.tracker, "Cache should not be used for full.");
+});
+
+it("does not mutate symbols when reusing unchanged files", async () => {
+  // trigger features that add symbols during checking: using statements, member references, namespace merging
+  const source = `
       import "./other.tsp";
 
       using OtherNamespace;
@@ -183,7 +182,7 @@ describe("compiler: server: reuse", () => {
         }
       }`;
 
-    const otherSource = `
+  const otherSource = `
       namespace OtherNamespace {
         model OtherModel {}
       }
@@ -191,30 +190,29 @@ describe("compiler: server: reuse", () => {
         model MergedIntoNamespace {}
       }`;
 
-    const host = await createTestServerHost();
-    host.addOrUpdateDocument("other.tsp", otherSource);
-    const document = host.addOrUpdateDocument("main.tsp", source);
-    const oldResult = await host.server.compile(document, undefined, {
-      skipCache: true,
-      mode: "core",
-    });
-    ok(oldResult);
-    expectDiagnosticEmpty(oldResult.program.diagnostics);
-
-    freezeSymbolTables(oldResult.program);
-
-    host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newResult = await host.server.compile(document, undefined, {
-      skipCache: true,
-      mode: "core",
-    });
-    ok(newResult);
-    expectDiagnosticEmpty(newResult.program.diagnostics);
-
-    expectNotSameProgram(oldResult.program, newResult.program);
-    expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
-    expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
+  const host = await createTestServerHost();
+  host.addOrUpdateDocument("other.tsp", otherSource);
+  const document = host.addOrUpdateDocument("main.tsp", source);
+  const oldResult = await host.server.compile(document, undefined, {
+    skipCache: true,
+    mode: "core",
   });
+  ok(oldResult);
+  expectDiagnosticEmpty(oldResult.program.diagnostics);
+
+  freezeSymbolTables(oldResult.program);
+
+  host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
+  const newResult = await host.server.compile(document, undefined, {
+    skipCache: true,
+    mode: "core",
+  });
+  ok(newResult);
+  expectDiagnosticEmpty(newResult.program.diagnostics);
+
+  expectNotSameProgram(oldResult.program, newResult.program);
+  expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
+  expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
 });
 
 function expectSameProgram(oldProgram: Program, newProgram: Program) {

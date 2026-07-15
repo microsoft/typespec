@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
