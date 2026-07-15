@@ -186,6 +186,9 @@ catalogs:
     '@types/yargs':
       specifier: ^17.0.35
       version: 17.0.35
+    '@typescript/typescript6':
+      specifier: ~6.0.2
+      version: 6.0.2
     '@typespec/ts-http-runtime':
       specifier: 0.3.6
       version: 0.3.6
@@ -451,8 +454,8 @@ catalogs:
       specifier: ^4.11.0
       version: 4.12.0
     typescript:
-      specifier: ~6.0.2
-      version: 6.0.3
+      specifier: ~7.0.2
+      version: 7.0.2
     uri-template:
       specifier: ^2.0.0
       version: 2.0.0
@@ -463,8 +466,8 @@ catalogs:
       specifier: ^0.14.1
       version: 0.14.4
     vite-plugin-dts:
-      specifier: 5.0.2
-      version: 5.0.2
+      specifier: 5.0.3
+      version: 5.0.3
     vitest:
       specifier: ^4.1.3
       version: 4.1.9
@@ -501,6 +504,22 @@ overrides:
   diff@>=6.0.0 <8.0.3: '>=8.0.3'
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
+
+packageExtensionsChecksum: sha256-4YSh4zP75XA+++lyY9fWL3hMc60HZdvYOS3UQO+KxA0=
+
+patchedDependencies:
+  '@alloy-js/cli@0.24.0':
+    hash: 16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5
+    path: patches/@alloy-js__cli@0.24.0.patch
+  '@astrojs/check@0.9.9':
+    hash: 70bd6937feb1750545522946c9aa6c8d294a83c50888372c4fa5dca52085a243
+    path: patches/@astrojs__check@0.9.9.patch
+  '@astrojs/language-server@2.16.10':
+    hash: 766165acbf660da233fdaf4a5fab692b2f13b5f5d42f98e661bdb133727d579a
+    path: patches/@astrojs__language-server@2.16.10.patch
+  typedoc@0.28.19:
+    hash: 0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742
+    path: patches/typedoc@0.28.19.patch
 
 importers:
 
@@ -565,7 +584,7 @@ importers:
         version: 0.14.1
       prettier-plugin-organize-imports:
         specifier: 'catalog:'
-        version: 4.3.0(prettier@3.8.4)(typescript@6.0.3)
+        version: 4.3.0(prettier@3.8.4)(typescript@7.0.2)
       prettier-plugin-sh:
         specifier: 'catalog:'
         version: 0.18.1(prettier@3.8.4)
@@ -580,7 +599,7 @@ importers:
         version: 2.9.14
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -609,7 +628,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -618,10 +637,10 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: 'catalog:'
-        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+        version: 0.9.9(patch_hash=70bd6937feb1750545522946c9aa6c8d294a83c50888372c4fa5dca52085a243)(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@7.0.2)
       '@astrojs/starlight':
         specifier: 'catalog:'
-        version: 0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@6.0.3)
+        version: 0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@7.0.2)
       '@expressive-code/core':
         specifier: 'catalog:'
         version: 0.43.1
@@ -639,7 +658,7 @@ importers:
         version: 19.2.7
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -667,7 +686,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -710,7 +729,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -750,7 +769,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
@@ -847,7 +866,7 @@ importers:
         version: link:../tmlanguage-generator
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -866,7 +885,7 @@ importers:
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)
       '@alloy-js/core':
         specifier: 'catalog:'
         version: 0.24.1
@@ -911,7 +930,7 @@ importers:
         version: 0.23.2
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -944,7 +963,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -991,6 +1010,9 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.17)
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -1011,16 +1033,16 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
       vite-plugin-checker:
         specifier: 'catalog:'
-        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1053,7 +1075,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1090,7 +1112,7 @@ importers:
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)
       '@alloy-js/core':
         specifier: 'catalog:'
         version: 0.24.1
@@ -1120,7 +1142,7 @@ importers:
         version: link:../tspd
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1151,7 +1173,7 @@ importers:
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
@@ -1205,7 +1227,7 @@ importers:
         version: 1.1.1
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       uri-template:
         specifier: 'catalog:'
         version: 2.0.0
@@ -1251,7 +1273,7 @@ importers:
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
@@ -1317,7 +1339,7 @@ importers:
         version: 2.0.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1405,7 +1427,7 @@ importers:
         version: 4.22.4
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1460,7 +1482,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
 
   packages/internal-build-utils:
     dependencies:
@@ -1509,7 +1531,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1555,7 +1577,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1579,7 +1601,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1607,7 +1629,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1658,7 +1680,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1737,7 +1759,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -1768,7 +1790,7 @@ importers:
         version: 0.5.21
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
@@ -1856,7 +1878,7 @@ importers:
         version: 10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@storybook/react-vite':
         specifier: 'catalog:'
-        version: 10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       '@testing-library/dom':
         specifier: 'catalog:'
         version: 10.4.1
@@ -1881,6 +1903,9 @@ importers:
       '@types/swagger-ui-dist':
         specifier: 'catalog:'
         version: 3.30.6
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
       '@typespec/react-components':
         specifier: workspace:^
         version: link:../react-components
@@ -1901,16 +1926,16 @@ importers:
         version: 10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
       vite-plugin-checker:
         specifier: 'catalog:'
-        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2005,6 +2030,9 @@ importers:
       '@types/swagger-ui':
         specifier: 'catalog:'
         version: 5.32.0
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.2(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2025,13 +2053,13 @@ importers:
         version: 7.0.1(rolldown@1.0.3)(rollup@4.62.2)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2083,7 +2111,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2124,6 +2152,9 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.17)
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.2(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2138,16 +2169,16 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
       vite-plugin-checker:
         specifier: 'catalog:'
-        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2180,7 +2211,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2253,7 +2284,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2299,7 +2330,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2327,7 +2358,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
 
   packages/spec-dashboard:
     dependencies:
@@ -2356,6 +2387,9 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.17)
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.0.2(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2367,16 +2401,16 @@ importers:
         version: 7.0.1(rolldown@1.0.3)(rollup@4.62.2)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
       vite-plugin-checker:
         specifier: 'catalog:'
-        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       vite-plugin-dts:
         specifier: 'catalog:'
-        version: 5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+        version: 5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
 
   packages/spector:
     dependencies:
@@ -2455,7 +2489,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
 
   packages/sse:
     devDependencies:
@@ -2491,7 +2525,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2543,7 +2577,7 @@ importers:
         version: 4.22.4
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2573,7 +2607,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2595,7 +2629,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
 
   packages/tsp-integration:
     dependencies:
@@ -2629,7 +2663,7 @@ importers:
     devDependencies:
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2668,10 +2702,10 @@ importers:
         version: 3.8.4
       typedoc:
         specifier: 'catalog:'
-        version: 0.28.19(typescript@6.0.3)
+        version: 0.28.19(patch_hash=0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742)(typescript@7.0.2)
       typedoc-plugin-markdown:
         specifier: 'catalog:'
-        version: 4.12.0(typedoc@0.28.19(typescript@6.0.3))
+        version: 4.12.0(typedoc@0.28.19(patch_hash=0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742)(typescript@7.0.2))
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -2681,7 +2715,7 @@ importers:
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
-        version: 0.24.0
+        version: 0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
         version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
@@ -2708,7 +2742,7 @@ importers:
         version: 0.5.21
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2786,7 +2820,7 @@ importers:
         version: 5.32.7
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2825,7 +2859,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2855,7 +2889,7 @@ importers:
         version: 6.1.3
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
@@ -2864,13 +2898,13 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: 'catalog:'
-        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+        version: 0.9.9(patch_hash=70bd6937feb1750545522946c9aa6c8d294a83c50888372c4fa5dca52085a243)(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@7.0.2)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 6.0.0(@types/node@26.0.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tsx@4.22.4)(yaml@2.9.0)
       '@astrojs/starlight':
         specifier: 'catalog:'
-        version: 0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@6.0.3)
+        version: 0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@7.0.2)
       '@docsearch/css':
         specifier: 'catalog:'
         version: 4.6.3
@@ -2921,7 +2955,7 @@ importers:
         version: 0.35.2
       typescript:
         specifier: 'catalog:'
-        version: 6.0.3
+        version: 7.0.2
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -7453,6 +7487,130 @@ packages:
 
   '@types/yoga-layout@1.9.2':
     resolution: {integrity: sha512-S9q47ByT2pPvD65IvrWp7qppVMpk9WGMbVq9wbWZOHg6tnXSD4vyhao6nOSBwwfDdV2p3Kx9evA9vI+XWTfDvw==}
+
+  '@typescript/typescript-aix-ppc64@7.0.2':
+    resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [ppc64]
+    os: [aix]
+
+  '@typescript/typescript-darwin-arm64@7.0.2':
+    resolution: {integrity: sha512-gowzar9MwS/aRWp6f3a4KUqzRjAZjOsmGNCM6LcTgXum+dBfgsBVMN+AgvOCCbguXyick6LJhpBszxMebJ8syA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/typescript-darwin-x64@7.0.2':
+    resolution: {integrity: sha512-SZ9xZInqApNlNGc9s0W1VSsktYSOe9cFqNOIqmN1Gs8SmkjKZYFt017G4VwPxASInODuAdbTW7sXiFUf893RgA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/typescript-freebsd-arm64@7.0.2':
+    resolution: {integrity: sha512-W5NH4y/J0plIIS5b2xvTEkU7JFxyqdMAOgf+Ilhl0vHQXKO5dZoxd+C/jEtq56c4F3wk71RB4BMRQ2XdI+bwYQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [freebsd]
+
+  '@typescript/typescript-freebsd-x64@7.0.2':
+    resolution: {integrity: sha512-UMGDx5sTpzNw3WiPebH7l90IWfJggEd+egHt/q6p7/Cm3zqoV7VxkGXt+3DxPIw8CcmvAB0j3sVVfbhX+M4Tpw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@typescript/typescript-linux-arm64@7.0.2':
+    resolution: {integrity: sha512-Qh4eU4/y3yDjnfjjyPYihMj5/ODIlmt+Bzu17OI+fiSRDW57QmU5SiN63exPRNJPKUzcc1INa1NXdrJ+MqHjUQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/typescript-linux-arm@7.0.2':
+    resolution: {integrity: sha512-gffT3xPz9sR7j/YJExkyPntrI0P2EP9XbOyWzth2/Gs0RstK+90RBcO0ncXoXy/beYll1SXw846Nf2zdnEz0QQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/typescript-linux-loong64@7.0.2':
+    resolution: {integrity: sha512-uEHck9i8hoAzXPiYRib1O7miOnz23SxIeVl6F4LXox+qov1K35jHcEW6VHKvZI+pyvl7fZEP4MCU5LYvIq1GuQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [loong64]
+    os: [linux]
+
+  '@typescript/typescript-linux-mips64el@7.0.2':
+    resolution: {integrity: sha512-R4KvAMnE43W5Qeqb0Ly56O3mWMWIAgsMyz36DCaycd5nbg/9kzm0liw3JocfRqyJY0KPmzFjbswozXyW0DnIYA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [mips64el]
+    os: [linux]
+
+  '@typescript/typescript-linux-ppc64@7.0.2':
+    resolution: {integrity: sha512-DORx5b3sd/4S7eayxm4FQv+A7CrkUIGRaHiwI8oiHTAI1fAPWhF4J0vAlkC8biAlHSVVwxMQ3tjZ2/DVbnQiiA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [ppc64]
+    os: [linux]
+
+  '@typescript/typescript-linux-riscv64@7.0.2':
+    resolution: {integrity: sha512-wf0jqEDOjrPRnKwYRyyJDRo11KMbvMFrU+q4zqKyChODBzvlkbhNQfKvLxQCcwTpdDaXSHZTVuh0JoCrKCUMHQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [riscv64]
+    os: [linux]
+
+  '@typescript/typescript-linux-s390x@7.0.2':
+    resolution: {integrity: sha512-IkwJc3L7yhytWd/ewjyxNDfOmswCm9GWMJT/ue/dU4aZNbwZeYAetq42VyLmsmSjvoX7z74X6ZaYCtzAr0EuGw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [s390x]
+    os: [linux]
+
+  '@typescript/typescript-linux-x64@7.0.2':
+    resolution: {integrity: sha512-EYdf2cNg7rgCWJnxCdJ+F3V39O8ihb37eHAu1LK8oAFizgTQbPOK7zHHXbPt8rX24COqODXeI3sIf0fCXG7H/A==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/typescript-netbsd-arm64@7.0.2':
+    resolution: {integrity: sha512-+polYF4MF04aPpO5FTkHran9yUQDSXqy5GiSDKpsll5jy3l3+g9QLhpf39T+ePtefhXLOGrLl0QIjkQP6VnelA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [netbsd]
+
+  '@typescript/typescript-netbsd-x64@7.0.2':
+    resolution: {integrity: sha512-8YIT0EHM/3dq10ZOVF/A7pc/YSMtbcecct4rWtexrnSCHOPcpC2KTLXfTCR6vDpnSiY12heNb1GiN/wu+T/FyA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [netbsd]
+
+  '@typescript/typescript-openbsd-arm64@7.0.2':
+    resolution: {integrity: sha512-APT8+ClYnuYm1u9+kgGXoMj2VzWzcymwh2gNSQVySHfkRDGOTVkoWLjCmOQSaO+PoqQ57B0flRp9SA+7GnnkzQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [openbsd]
+
+  '@typescript/typescript-openbsd-x64@7.0.2':
+    resolution: {integrity: sha512-yX7s+Q0Dln0Dt9tEzZsAjXXR/+ytBM7AlglaqyeMPxQszJ1JhlJdZ6jLA+IzldHtflX81em7lDao1xXu+aRRkg==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [openbsd]
+
+  '@typescript/typescript-sunos-x64@7.0.2':
+    resolution: {integrity: sha512-dLJDGaLZ1D4HPQn62u1n8mBDkJREwMsAkCdkwd4Ieqw+x3TUyTsqY0YiBCtE6H6OzzgGk3iuZ3vFWRS+E8/d1g==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [sunos]
+
+  '@typescript/typescript-win32-arm64@7.0.2':
+    resolution: {integrity: sha512-Gyl1Vy6OsWesLzmq+EP0Fb7b4Nid5232AvcA2SFcdYreldpNtYFFofPjnt62y9hQy7VTaZp65ICJjuAQRaVcIQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/typescript-win32-x64@7.0.2':
+    resolution: {integrity: sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/typescript6@6.0.2':
+    resolution: {integrity: sha512-mbCddXd+jm7hfx7w2YU64/Av4/NqqeG3GoRZgxPcgoTxYjhrcfJRw9ULch71SS4G+Q3bOXFhRvPqjguN0Hyp5w==}
+    hasBin: true
 
   '@typespec/ts-http-runtime@0.3.6':
     resolution: {integrity: sha512-jIXhD0eWQ1JA6ln/5Dltyx22UxWNrw0hZmhy2rlv6m6KgF7kplHx3g0fzi09lNmTJQRR91OlemYp3xFnvDK9og==}
@@ -13000,6 +13158,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@7.0.2:
+    resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
+    engines: {node: '>=16.20.0'}
+    hasBin: true
+
   typical@4.0.0:
     resolution: {integrity: sha512-VAH4IvQ7BDFYglMd7BPRDfLgxZZX4O4TFcRDA6EN5X7erNJJq+McIEp8np9aVtxrCJ6qx4GTYVfOWNjcqwZgRw==}
     engines: {node: '>=8'}
@@ -13130,12 +13293,12 @@ packages:
     resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
     engines: {node: '>= 0.8'}
 
-  unplugin-dts@1.0.2:
-    resolution: {integrity: sha512-VbNiMD0LMl/t6nJueGtrCp79N7ZO1nquxj/FUybJDnKwZGsnW2wjdwBSzA3QEHujoxmxZIptsG43hL7LzXE96w==}
+  unplugin-dts@1.0.3:
+    resolution: {integrity: sha512-/GR887wfG4r1cWyt1UZsLRuMIjsmEbGkS9yJrz+0dsToHAYUD5CTyP3JMGVLv25j9K0mJcwAVvZno/aTuSUvNg==}
     peerDependencies:
       '@microsoft/api-extractor': '>=7'
       '@rspack/core': ^1
-      '@vue/language-core': ~3.1.5
+      '@vue/language-core': ^3.1.5
       esbuild: '*'
       rolldown: '*'
       rollup: '>=3'
@@ -13331,8 +13494,8 @@ packages:
       vue-tsc:
         optional: true
 
-  vite-plugin-dts@5.0.2:
-    resolution: {integrity: sha512-lNeHS+dwGju6eRmNvZQt8Shwv9j3m98hbHse/lIbLq9q3yE2DcIOBBYQEVUF6tS0kOmv+VA9Z5FqmzFnGe4U8g==}
+  vite-plugin-dts@5.0.3:
+    resolution: {integrity: sha512-gIth6NdCEHWPiiRMCK3N6C8WjvdsrtEQrmsiG8h6Ov+lFP+b07Y+wcs9H0H7n146l0PDTYK4cQN1vgeG1pMdRQ==}
     peerDependencies:
       '@microsoft/api-extractor': '>=7'
       rollup: '>=3'
@@ -13925,11 +14088,12 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.24.0':
+  '@alloy-js/cli@0.24.0(patch_hash=16b1ca4e03193bdf9924204c8266de074a41952ecf205743ff0c5e24631772a5)':
     dependencies:
       '@alloy-js/babel-preset': 0.3.0(@babel/core@7.29.7)
       '@babel/core': 7.29.7
       '@babel/preset-typescript': 7.29.7(@babel/core@7.29.7)
+      '@typescript/typescript6': 6.0.2
       pathe: 2.0.3
       picocolors: 1.1.1
     transitivePeerDependencies:
@@ -14023,12 +14187,13 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@astrojs/check@0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)':
+  '@astrojs/check@0.9.9(patch_hash=70bd6937feb1750545522946c9aa6c8d294a83c50888372c4fa5dca52085a243)(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@7.0.2)':
     dependencies:
-      '@astrojs/language-server': 2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+      '@astrojs/language-server': 2.16.10(patch_hash=766165acbf660da233fdaf4a5fab692b2f13b5f5d42f98e661bdb133727d579a)(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@7.0.2)
+      '@typescript/typescript6': 6.0.2
       chokidar: 4.0.3
       kleur: 4.1.5
-      typescript: 6.0.3
+      typescript: 7.0.2
       yargs: 17.7.3
     transitivePeerDependencies:
       - prettier
@@ -14101,12 +14266,13 @@ snapshots:
       smol-toml: 1.7.0
       unified: 11.0.5
 
-  '@astrojs/language-server@2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)':
+  '@astrojs/language-server@2.16.10(patch_hash=766165acbf660da233fdaf4a5fab692b2f13b5f5d42f98e661bdb133727d579a)(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@7.0.2)':
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.4
       '@jridgewell/sourcemap-codec': 1.5.5
-      '@volar/kit': 2.4.28(typescript@6.0.3)
+      '@typescript/typescript6': 6.0.2
+      '@volar/kit': 2.4.28(typescript@7.0.2)
       '@volar/language-core': 2.4.28
       '@volar/language-server': 2.4.28
       '@volar/language-service': 2.4.28
@@ -14212,7 +14378,7 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.4.3
 
-  '@astrojs/starlight@0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@6.0.3)':
+  '@astrojs/starlight@0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@7.0.2)':
     dependencies:
       '@astrojs/markdown-remark': 7.2.0
       '@astrojs/mdx': 6.0.3(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))
@@ -14228,7 +14394,7 @@ snapshots:
       hast-util-select: 6.0.4
       hast-util-to-string: 3.0.1
       hastscript: 9.0.1
-      i18next: 26.3.1(typescript@6.0.3)
+      i18next: 26.3.1(typescript@7.0.2)
       js-yaml: 4.2.0
       klona: 2.0.6
       magic-string: 0.30.21
@@ -16824,13 +16990,13 @@ snapshots:
 
   '@istanbuljs/schema@0.1.6': {}
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))':
     dependencies:
       glob: 13.0.6
-      react-docgen-typescript: 2.4.0(typescript@6.0.3)
+      react-docgen-typescript: 2.4.0(typescript@7.0.2)
       vite: 8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.0.2
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -19109,12 +19275,12 @@ snapshots:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
 
-  '@storybook/react-vite@10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))':
+  '@storybook/react-vite@10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.7.0(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.7.0(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
       '@rollup/pluginutils': 5.4.0(rollup@4.62.2)
       '@storybook/builder-vite': 10.4.6(esbuild@0.28.1)(rollup@4.62.2)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
-      '@storybook/react': 10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)
+      '@storybook/react': 10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@7.0.2)
       empathic: 2.0.1
       magic-string: 0.30.21
       react: 19.2.7
@@ -19133,19 +19299,19 @@ snapshots:
       - typescript
       - webpack
 
-  '@storybook/react@10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@6.0.3)':
+  '@storybook/react@10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(typescript@7.0.2)':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/react-dom-shim': 10.4.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(storybook@10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))
       react: 19.2.7
       react-docgen: 8.0.3
-      react-docgen-typescript: 2.4.0(typescript@6.0.3)
+      react-docgen-typescript: 2.4.0(typescript@7.0.2)
       react-dom: 19.2.7(react@19.2.7)
       storybook: 10.4.6(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.8.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     optionalDependencies:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
-      typescript: 6.0.3
+      typescript: 7.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -19604,6 +19770,70 @@ snapshots:
 
   '@types/yoga-layout@1.9.2': {}
 
+  '@typescript/typescript-aix-ppc64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-darwin-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-darwin-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-freebsd-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-freebsd-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-arm@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-loong64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-mips64el@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-ppc64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-riscv64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-s390x@7.0.2':
+    optional: true
+
+  '@typescript/typescript-linux-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-netbsd-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-netbsd-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-openbsd-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-openbsd-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-sunos-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-win32-arm64@7.0.2':
+    optional: true
+
+  '@typescript/typescript-win32-x64@7.0.2':
+    optional: true
+
+  '@typescript/typescript6@6.0.2':
+    dependencies:
+      '@typescript/old': typescript@6.0.3
+
   '@typespec/ts-http-runtime@0.3.6':
     dependencies:
       http-proxy-agent: 7.0.2
@@ -19724,12 +19954,12 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@volar/kit@2.4.28(typescript@6.0.3)':
+  '@volar/kit@2.4.28(typescript@7.0.2)':
     dependencies:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
       typesafe-path: 0.2.2
-      typescript: 6.0.3
+      typescript: 7.0.2
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.1.0
 
@@ -22841,9 +23071,9 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  i18next@26.3.1(typescript@6.0.3):
+  i18next@26.3.1(typescript@7.0.2):
     optionalDependencies:
-      typescript: 6.0.3
+      typescript: 7.0.2
 
   iconv-lite@0.6.3:
     dependencies:
@@ -24970,10 +25200,10 @@ snapshots:
       prettier: 3.8.4
       sass-formatter: 0.7.9
 
-  prettier-plugin-organize-imports@4.3.0(prettier@3.8.4)(typescript@6.0.3):
+  prettier-plugin-organize-imports@4.3.0(prettier@3.8.4)(typescript@7.0.2):
     dependencies:
       prettier: 3.8.4
-      typescript: 6.0.3
+      typescript: 7.0.2
 
   prettier-plugin-sh@0.18.1(prettier@3.8.4):
     dependencies:
@@ -25133,9 +25363,9 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  react-docgen-typescript@2.4.0(typescript@6.0.3):
+  react-docgen-typescript@2.4.0(typescript@7.0.2):
     dependencies:
-      typescript: 6.0.3
+      typescript: 7.0.2
 
   react-docgen@8.0.3:
     dependencies:
@@ -26556,17 +26786,18 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typedoc-plugin-markdown@4.12.0(typedoc@0.28.19(typescript@6.0.3)):
+  typedoc-plugin-markdown@4.12.0(typedoc@0.28.19(patch_hash=0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742)(typescript@7.0.2)):
     dependencies:
-      typedoc: 0.28.19(typescript@6.0.3)
+      typedoc: 0.28.19(patch_hash=0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742)(typescript@7.0.2)
 
-  typedoc@0.28.19(typescript@6.0.3):
+  typedoc@0.28.19(patch_hash=0b37da4878abfa9c1e23180f0a897237f033e5aac6dc121f635337620fd01742)(typescript@7.0.2):
     dependencies:
       '@gerrit0/mini-shiki': 3.23.0
+      '@typescript/typescript6': 6.0.2
       lunr: 2.3.9
       markdown-it: 14.2.0
       minimatch: 10.2.5
-      typescript: 6.0.3
+      typescript: 7.0.2
       yaml: 2.9.0
 
   typesafe-path@0.2.2: {}
@@ -26578,6 +26809,29 @@ snapshots:
   typescript@5.9.3: {}
 
   typescript@6.0.3: {}
+
+  typescript@7.0.2:
+    optionalDependencies:
+      '@typescript/typescript-aix-ppc64': 7.0.2
+      '@typescript/typescript-darwin-arm64': 7.0.2
+      '@typescript/typescript-darwin-x64': 7.0.2
+      '@typescript/typescript-freebsd-arm64': 7.0.2
+      '@typescript/typescript-freebsd-x64': 7.0.2
+      '@typescript/typescript-linux-arm': 7.0.2
+      '@typescript/typescript-linux-arm64': 7.0.2
+      '@typescript/typescript-linux-loong64': 7.0.2
+      '@typescript/typescript-linux-mips64el': 7.0.2
+      '@typescript/typescript-linux-ppc64': 7.0.2
+      '@typescript/typescript-linux-riscv64': 7.0.2
+      '@typescript/typescript-linux-s390x': 7.0.2
+      '@typescript/typescript-linux-x64': 7.0.2
+      '@typescript/typescript-netbsd-arm64': 7.0.2
+      '@typescript/typescript-netbsd-x64': 7.0.2
+      '@typescript/typescript-openbsd-arm64': 7.0.2
+      '@typescript/typescript-openbsd-x64': 7.0.2
+      '@typescript/typescript-sunos-x64': 7.0.2
+      '@typescript/typescript-win32-arm64': 7.0.2
+      '@typescript/typescript-win32-x64': 7.0.2
 
   typical@4.0.0: {}
 
@@ -26705,7 +26959,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-dts@1.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
+  unplugin-dts@1.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
     dependencies:
       '@rollup/pluginutils': 5.4.0(rollup@4.62.2)
       '@volar/typescript': 2.4.28
@@ -26714,7 +26968,7 @@ snapshots:
       kolorist: 1.8.0
       local-pkg: 1.2.1
       magic-string: 0.30.21
-      typescript: 6.0.3
+      typescript: 7.0.2
       unplugin: 2.3.11
     optionalDependencies:
       '@microsoft/api-extractor': 7.58.9(@types/node@26.0.0)
@@ -26817,7 +27071,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-checker@0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
+  vite-plugin-checker@0.14.4(eslint@10.5.0)(optionator@0.9.4)(oxlint@1.71.0(oxlint-tsgolint@0.23.0))(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
     dependencies:
       '@babel/code-frame': 7.29.7
       chokidar: 5.0.0
@@ -26831,11 +27085,11 @@ snapshots:
       eslint: 10.5.0
       optionator: 0.9.4
       oxlint: 1.71.0(oxlint-tsgolint@0.23.0)
-      typescript: 6.0.3
+      typescript: 7.0.2
 
-  vite-plugin-dts@5.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
+  vite-plugin-dts@5.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0)):
     dependencies:
-      unplugin-dts: 1.0.2(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+      unplugin-dts: 1.0.3(@microsoft/api-extractor@7.58.9(@types/node@26.0.0))(esbuild@0.28.1)(rolldown@1.0.3)(rollup@4.62.2)(typescript@7.0.2)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
     optionalDependencies:
       '@microsoft/api-extractor': 7.58.9(@types/node@26.0.0)
       rollup: 4.62.2

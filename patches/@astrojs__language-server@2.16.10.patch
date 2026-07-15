@@ -1,0 +1,13 @@
+diff --git a/dist/check.js b/dist/check.js
+index 1d1e33896a0e55251d167132f4f5943eb48103f3..e88063e87095b78d16a48b895965f77d6daa198a 100644
+--- a/dist/check.js
++++ b/dist/check.js
+@@ -118,7 +118,7 @@ class AstroCheck {
+         return result;
+     }
+     initialize() {
+-        this.ts = this.typescriptPath ? require(this.typescriptPath) : require('typescript');
++        this.ts = this.typescriptPath ? require(this.typescriptPath) : require('@typescript/typescript6');
+         const tsconfigPath = this.getTsconfig();
+         const languagePlugins = [
+             (0, index_js_1.getAstroLanguagePlugin)(),

@@ -144,11 +144,11 @@ function main() {
   connection.workspace.onDidRenameFiles(profile(s.renameFiles));
 
   const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
-  connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
+  connection.onRequest<boolean, unknown>(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
   const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
-  connection.onRequest(initProjectRequestName, profile(s.initProject));
+  connection.onRequest<boolean, unknown>(initProjectRequestName, profile(s.initProject));
   const compileProjectRequestName: CustomRequestName = "typespec/internalCompile";
   connection.onRequest(compileProjectRequestName, profile(s.internalCompile));
 

@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 03cac8a2130e8da60e0bb1588fcbea7c58b86f43..12a099ba1887279d46971c097716c9bfcaa453b7 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -18,7 +18,7 @@ export function parseArgsAsCheckConfig(args) {
+ export async function check(flags) {
+     const workspaceRoot = path.resolve(flags.root ?? process.cwd());
+     const require = createRequire(import.meta.url);
+-    const checker = new AstroCheck(workspaceRoot, require.resolve('typescript'), flags.tsconfig);
++    const checker = new AstroCheck(workspaceRoot, require.resolve('@typescript/typescript6'), flags.tsconfig);
+     let req = 0;
+     if (flags.watch) {
+         function createWatcher(rootPath, extensions) {
