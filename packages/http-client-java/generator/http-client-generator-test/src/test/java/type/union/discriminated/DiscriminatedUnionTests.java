@@ -31,8 +31,7 @@ public class DiscriminatedUnionTests {
 
     @Test
     public void testEnvelopeObjectDefaultPut() {
-        BinaryData input = BinaryData.fromString(
-            "{\"kind\":\"cat\",\"value\":{\"name\":\"Whiskers\",\"meow\":true}}");
+        BinaryData input = BinaryData.fromString("{\"kind\":\"cat\",\"value\":{\"name\":\"Whiskers\",\"meow\":true}}");
         BinaryData result = envelopeDefaultClient.put(input);
         Assertions.assertNotNull(result);
     }
@@ -48,8 +47,8 @@ public class DiscriminatedUnionTests {
 
     @Test
     public void testEnvelopeObjectCustomPropertiesPut() {
-        BinaryData input = BinaryData.fromString(
-            "{\"petType\":\"cat\",\"petData\":{\"name\":\"Whiskers\",\"meow\":true}}");
+        BinaryData input
+            = BinaryData.fromString("{\"petType\":\"cat\",\"petData\":{\"name\":\"Whiskers\",\"meow\":true}}");
         BinaryData result = envelopeCustomClient.put(input);
         Assertions.assertNotNull(result);
     }
@@ -65,8 +64,7 @@ public class DiscriminatedUnionTests {
 
     @Test
     public void testNoEnvelopeDefaultPut() {
-        BinaryData input
-            = BinaryData.fromString("{\"kind\":\"cat\",\"name\":\"Whiskers\",\"meow\":true}");
+        BinaryData input = BinaryData.fromString("{\"kind\":\"cat\",\"name\":\"Whiskers\",\"meow\":true}");
         BinaryData result = noEnvelopeDefaultClient.put(input);
         Assertions.assertNotNull(result);
     }
@@ -82,8 +80,7 @@ public class DiscriminatedUnionTests {
 
     @Test
     public void testNoEnvelopeCustomDiscriminatorPut() {
-        BinaryData input
-            = BinaryData.fromString("{\"type\":\"cat\",\"name\":\"Whiskers\",\"meow\":true}");
+        BinaryData input = BinaryData.fromString("{\"type\":\"cat\",\"name\":\"Whiskers\",\"meow\":true}");
         BinaryData result = noEnvelopeCustomClient.put(input);
         Assertions.assertNotNull(result);
     }
