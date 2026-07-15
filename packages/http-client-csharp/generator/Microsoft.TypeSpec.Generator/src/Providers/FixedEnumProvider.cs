@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -137,29 +138,54 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         .Where(v => !processedNames.Contains(v.Name))
                         .Take(2)
                         .ToArray();
-                    if (matches.Length != 1)
+                    if (matches.Length == 1)
                     {
-                        continue;
+                        existingMember = matches[0];
+                        preserveLastContractName = true;
                     }
-
-                    existingMember = matches[0];
-                    preserveLastContractName = true;
                 }
 
-                if (processedNames.Add(existingMember.Name))
+                if (existingMember != null && processedNames.Add(existingMember.Name))
                 {
                     var name = preserveLastContractName ? field.Name : existingMember.Name;
+                    // By default, preserve the last contract's explicit value for integer enums so
+                    // members keep their exact values. If the baseline accepts a value change for this
+                    // member (EnumValuesMustMatch), honor the current value instead of restoring the old.
+                    ValueExpression? initializationValue = existingMember.Field.InitializationValue;
+                    var memberValue = existingMember.Value;
+                    if (IsIntValueType
+                        && field.InitializationValue is LiteralExpression { Literal: { } lastContractValue }
+                        && CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, field.Name, 0) != true)
+                    {
+                        initializationValue = field.InitializationValue;
+                        memberValue = lastContractValue;
+                    }
+
                     var updatedField = new FieldProvider(
                         existingMember.Field.Modifiers,
                         existingMember.Field.Type,
                         name,
                         existingMember.Field.EnclosingType,
-                        existingMember.Field.Description);
-                    allMembers.Add(new EnumTypeMember(name, updatedField, existingMember.Value));
+                        existingMember.Field.Description,
+                        initializationValue);
+                    allMembers.Add(new EnumTypeMember(name, updatedField, memberValue));
+                }
+                else if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, field.Name, 0) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Skipping re-add of enum member '{Name}.{field.Name}'; the removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                }
+                else if (TryResurrectRemovedMember(field, out var resurrectedMember))
+                {
+                    allMembers.Add(resurrectedMember);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Re-added enum member '{field.Name}' to enum '{Name}' to preserve a member from the last contract.",
+                        BackCompatibilityChangeCategory.EnumMemberAddedFromLastContract);
                 }
             }
 
-            // Then, add new members that weren't in the last contract (in their original input order)
+            // Then, add new members that weren't in the last contract (in their original input order).
             foreach (var current in currentValues)
             {
                 if (!processedNames.Contains(current.Name))
@@ -168,9 +194,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            // Report a summary-level change only if the relative order of shared members
-            // was actually altered to match the last contract.
-            if (!EnumMemberOrderMatches(currentValues, allMembers))
+            // Report a reordering only when the relative order of members present in BOTH the
+            // current values and the resulting set was actually altered.
+            if (SharedMemberOrderChanged(currentValues, allMembers))
             {
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Reordered members of enum '{Name}' to match last contract.",
@@ -182,25 +208,74 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
-        private static bool EnumMemberOrderMatches(
-            IReadOnlyList<EnumTypeMember> left,
-            IReadOnlyList<EnumTypeMember> right)
+        private bool TryResurrectRemovedMember(FieldProvider lastContractField, [NotNullWhen(true)] out EnumTypeMember? member)
         {
-            if (left.Count != right.Count)
+            member = null;
+            if (!IsIntValueType || lastContractField.InitializationValue is not LiteralExpression { Literal: { } literalValue })
             {
                 return false;
             }
-            for (int i = 0; i < left.Count; i++)
+
+            var field = new FieldProvider(
+                FieldModifiers.Public | FieldModifiers.Static,
+                EnumUnderlyingType,
+                lastContractField.Name,
+                this,
+                lastContractField.Description,
+                Literal(literalValue));
+            member = new EnumTypeMember(lastContractField.Name, field, literalValue);
+            return true;
+        }
+
+        // Appends the members of <paramref name="currentValues"/> that were not present in the last
+        // contract (i.e. newly introduced by the current spec), preserving their original input order.
+        // Shared by the fixed-enum and API-version back-compatibility passes.
+        private protected static void AppendMembersNotInLastContract(
+            IReadOnlyList<EnumTypeMember> currentValues,
+            IReadOnlyList<FieldProvider> lastContractFields,
+            List<EnumTypeMember> allMembers)
+        {
+            var lastContractNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var current in currentValues)
             {
-                if (!string.Equals(
-                    RemoveUnderscores(left[i].Name),
-                    RemoveUnderscores(right[i].Name),
-                    StringComparison.OrdinalIgnoreCase))
+                if (!lastContractNames.Contains(current.Name))
                 {
-                    return false;
+                    allMembers.Add(current);
                 }
             }
-            return true;
+        }
+
+        private static bool SharedMemberOrderChanged(
+            IReadOnlyList<EnumTypeMember> currentValues,
+            IReadOnlyList<EnumTypeMember> result)
+        {
+            var currentNames = new HashSet<string>(currentValues.Count, StringComparer.Ordinal);
+            foreach (var member in currentValues)
+            {
+                currentNames.Add(RemoveUnderscores(member.Name));
+            }
+
+            var index = 0;
+            foreach (var member in result)
+            {
+                if (!currentNames.Contains(RemoveUnderscores(member.Name)))
+                {
+                    continue;
+                }
+
+                if (index >= currentValues.Count
+                    || !string.Equals(
+                        RemoveUnderscores(member.Name),
+                        RemoveUnderscores(currentValues[index].Name),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                index++;
+            }
+
+            return false;
         }
 
         protected internal override FieldProvider[] BuildFields()
