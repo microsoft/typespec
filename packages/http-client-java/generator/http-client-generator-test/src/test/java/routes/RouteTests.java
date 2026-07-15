@@ -7,6 +7,7 @@ import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import java.util.List;
 import java.util.Set;
+import routes.models.ExpandParameters;
 import org.junit.jupiter.api.Test;
 
 public class RouteTests {
@@ -56,6 +57,13 @@ public class RouteTests {
         client.primitive("a");
 
         client.array(List.of("a", "b"));
+    }
+
+    @Test
+    public void testQueryExpansionExplodeModel() {
+        var client = new RoutesClientBuilder().buildQueryParametersQueryExpansionExplodeClient();
+
+        client.model(new ExpandParameters("status", "active"));
     }
 
     @Test
