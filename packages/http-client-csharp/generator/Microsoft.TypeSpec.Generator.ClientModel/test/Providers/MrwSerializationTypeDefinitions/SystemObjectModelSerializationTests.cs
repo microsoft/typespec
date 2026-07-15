@@ -16,9 +16,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     /// <summary>
     /// Tests that serialization methods use correct modifiers when a model's base is
-    /// <see cref="SystemObjectModelProvider"/>. This validates behavior that would be
-    /// impossible with <see cref="SystemObjectTypeProvider"/> (which cannot serve as
-    /// <see cref="ModelProvider.BaseModelProvider"/>).
+    /// <see cref="SystemObjectModelProvider"/>.
     /// </summary>
     internal class SystemObjectModelSerializationTests
     {
@@ -358,7 +356,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             public ModelProvider? BaseModel { get; set; }
 
-            protected override ModelProvider? BuildBaseModelProvider() => BaseModel;
+            protected override TypeProvider? BuildBaseTypeProvider() => BaseModel;
 
             protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }

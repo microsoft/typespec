@@ -503,6 +503,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.IsNotNull(actualDerived);
             Assert.AreEqual(nonModelTypeProvider.Type, actualDerived!.BaseType);
+            Assert.AreSame(nonModelTypeProvider, actualDerived.BaseTypeProvider);
             Assert.IsNull(actualDerived.BaseModelProvider);
         }
 
@@ -565,7 +566,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             public ModelProvider? CyclicBase { get; set; }
 
-            protected override ModelProvider? BuildBaseModelProvider() => CyclicBase;
+            protected override TypeProvider? BuildBaseTypeProvider() => CyclicBase;
         }
 
         [Test]

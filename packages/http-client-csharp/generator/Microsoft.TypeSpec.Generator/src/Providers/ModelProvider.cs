@@ -62,7 +62,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool _buildingRawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
-        private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
@@ -127,54 +126,74 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
         private TypeProvider? _baseTypeProvider;
 
-        private TypeProvider? BuildBaseTypeProvider()
+        protected virtual TypeProvider? BuildBaseTypeProvider()
         {
-            // First check if there's a generated base model
-            if (BaseModelProvider != null)
+            var baseType = BaseType;
+            if (baseType is null)
             {
-                return BaseModelProvider;
+                return null;
             }
 
-            // If there's a custom base type that's not a generated model, create a provider for it
-            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(CustomCodeView.BaseType.Namespace))
+            var hasExistingProvider = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var existingProvider);
+            if (existingProvider is ModelProvider)
             {
-                var baseType = CustomCodeView.BaseType;
-
-                // Try to find it in the CSharpTypeMap first
-                if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var existingProvider))
-                {
-                    return existingProvider;
-                }
-
-                // Try to find the type in the customization compilation. Referenced assemblies are
-                // included so custom bases from framework or external packages are represented by
-                // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                    baseType.Namespace,
-                    baseType.Name,
-                    baseType.DeclaringType?.Name,
-                    includeReferencedAssemblies: true);
-
-                if (baseTypeProvider != null)
-                {
-                    // Cache it in CSharpTypeMap for future lookups
-                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = baseTypeProvider;
-                    return baseTypeProvider;
-                }
-
-                // If we couldn't find the type symbol, create a SystemObjectTypeProvider that
-                // represents the external type without member metadata.
-                var systemObjectTypeProvider = new SystemObjectTypeProvider(baseType);
-                // Cache it in CSharpTypeMap for future lookups
-                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = systemObjectTypeProvider;
-                return systemObjectTypeProvider;
+                return existingProvider;
             }
 
-            return null;
+            if (CustomCodeView?.BaseType is null)
+            {
+                return existingProvider;
+            }
+
+            // Prefer a mapped model over a symbol provider for a custom base that names a generated model.
+            var matchingModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap
+                .FirstOrDefault(entry =>
+                    entry.Value is ModelProvider &&
+                    entry.Key.Name == baseType.Name &&
+                    entry.Key.Namespace == baseType.Namespace)
+                .Value;
+            if (matchingModel is null)
+            {
+                // Ensure visitor-renamed input models have been registered before falling back to a symbol provider.
+                foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+                {
+                    CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
+                }
+
+                matchingModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap
+                    .FirstOrDefault(entry =>
+                        entry.Value is ModelProvider &&
+                        entry.Key.Name == baseType.Name &&
+                        entry.Key.Namespace == baseType.Namespace)
+                    .Value;
+            }
+
+            if (matchingModel is not null)
+            {
+                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = matchingModel;
+                return matchingModel;
+            }
+
+            if (hasExistingProvider || string.IsNullOrEmpty(baseType.Namespace))
+            {
+                return existingProvider;
+            }
+
+            var matchingProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                baseType.Namespace,
+                baseType.Name,
+                baseType.DeclaringType?.Name,
+                includeReferencedAssemblies: true);
+
+            if (matchingProvider is not null)
+            {
+                CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = matchingProvider;
+            }
+
+            return matchingProvider;
         }
 
-        public ModelProvider? BaseModelProvider
-            => _baseModelProvider ??= BuildBaseModelProvider();
+        public ModelProvider? BaseModelProvider => BaseTypeProvider as ModelProvider;
 
         /// <inheritdoc/>
         public override void Reset()
@@ -382,37 +401,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsDiscriminator(InputProperty property)
         {
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
-        }
-
-        protected virtual ModelProvider? BuildBaseModelProvider()
-        {
-            var baseType = BaseType;
-            if (baseType is null)
-            {
-                return null;
-            }
-
-            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var provider)
-                && provider is ModelProvider modelProvider)
-            {
-                return modelProvider;
-            }
-
-            if (CustomCodeView?.BaseType != null && !string.IsNullOrEmpty(baseType.Namespace))
-            {
-                foreach (var (mapKey, mapValue) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
-                {
-                    if (mapValue is ModelProvider model
-                        && mapKey.Name == baseType.Name
-                        && mapKey.Namespace == baseType.Namespace)
-                    {
-                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseType] = model;
-                        return model;
-                    }
-                }
-            }
-
-            return null;
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
