@@ -4,6 +4,7 @@
 // cspell:ignore readded
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -780,7 +781,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createCSharpTypeCore: (inputType) => typeof(int),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var enumValues = new List<InputEnumTypeValue>();
             var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, enumValues);
             enumValues.Add(InputFactory.EnumMember.Int32("ExistingValue", 0, input));
             enumValues.Add(InputFactory.EnumMember.Int32("Existing_Value", 1, input, isExactName: true));
