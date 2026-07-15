@@ -25,72 +25,71 @@ async function assertFormat({
   strictEqual(result.trim(), expected.trim());
 }
 
-describe("compiler: prettier formatter", () => {
-  it("throws error if there is a parsing issue", async () => {
-    const code = `namespace this is invalid`;
+it("throws error if there is a parsing issue", async () => {
+  const code = `namespace this is invalid`;
 
-    await rejects(() => format(code));
-  });
+  await rejects(() => format(code));
+});
 
-  it("format imports", async () => {
-    await assertFormat({
-      code: `
+it("format imports", async () => {
+  await assertFormat({
+    code: `
     import   "@scope/package1";
 import        "@scope/package2";
 import "@scope/package3"  ;
 `,
-      expected: `
+    expected: `
 import "@scope/package1";
 import "@scope/package2";
 import "@scope/package3";
 `,
-    });
   });
+});
 
-  it("formats returns of anonymous models", async () => {
-    await assertFormat({
-      code: `
+it("formats returns of anonymous models", async () => {
+  await assertFormat({
+    code: `
 op test(): { a: string; b: string; };
 `,
-      expected: `
+    expected: `
 op test(): {
   a: string;
   b: string;
 };
 `,
-    });
   });
+});
 
-  it("format using", async () => {
-    await assertFormat({
-      code: `
+it("format using", async () => {
+  await assertFormat({
+    code: `
 using       Some.Namespace  
 `,
-      expected: `
+    expected: `
 using Some.Namespace;
 `,
-    });
   });
+});
 
-  describe("model", () => {
-    it("format empty model on single line", async () => {
-      await assertFormat({
-        code: `
+describe("model", () => {
+  it("format empty model on single line", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   
 
   
 }
 `,
-        expected: `
+      expected: `
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format simple models", async () => {
-      await assertFormat({
-        code: `
+  it("format simple models", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   id: number;
     type: Bar;
@@ -99,7 +98,7 @@ model Foo {
   isArray:      string[]  ;
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   id: number;
   type: Bar;
@@ -107,18 +106,18 @@ model Foo {
   isArray: string[];
 }
 `,
-      });
     });
+  });
 
-    it("format nested models", async () => {
-      await assertFormat({
-        code: `
+  it("format nested models", async () => {
+    await assertFormat({
+      code: `
 model Foo {
       id: number;
   address: { street: string, country:   string}
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   id: number;
   address: {
@@ -127,62 +126,62 @@ model Foo {
   };
 }
 `,
-      });
     });
+  });
 
-    it("format models with default values", async () => {
-      await assertFormat({
-        code: `
+  it("format models with default values", async () => {
+    await assertFormat({
+      code: `
 model Foo {
 
     name?:    string    =      "foo";
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   name?: string = "foo";
 }
 `,
-      });
     });
+  });
 
-    it("format models with spread", async () => {
-      await assertFormat({
-        code: `
+  it("format models with spread", async () => {
+    await assertFormat({
+      code: `
 model Foo {
     id: number;
       ...Bar;
   name: string;
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   id: number;
   ...Bar;
   name: string;
 }
 `,
-      });
     });
+  });
 
-    it("format model with decorator", async () => {
-      await assertFormat({
-        code: `
+  it("format model with decorator", async () => {
+    await assertFormat({
+      code: `
       @some @decorator
 model   Foo {}
 `,
-        expected: `
+      expected: `
 @some
 @decorator
 model Foo {}
 `,
-      });
     });
+  });
 
-    describe("model `extends`", () => {
-      it("format inline", async () => {
-        await assertFormat({
-          code: `
+  describe("model `extends`", () => {
+    it("format inline", async () => {
+      await assertFormat({
+        code: `
 model   Foo extends Base {
 }
 
@@ -190,47 +189,47 @@ model   Bar extends Base<
   string    > {
 }
 `,
-          expected: `
+        expected: `
 model Foo extends Base {}
 
 model Bar extends Base<string> {}
 `,
-        });
       });
+    });
 
-      it("split and indent is when model declaration line is too long", async () => {
-        await assertFormat({
-          code: `
+    it("split and indent is when model declaration line is too long", async () => {
+      await assertFormat({
+        code: `
 model   Foo extends SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {
 }
 `,
-          expected: `
+        expected: `
 model Foo
   extends SuperExtremeAndVeryVeryVeryVeryVeryVeryLongModelThatWillBeTooLong {}
 `,
-        });
       });
+    });
 
-      it("keeps extends inline and breaks the template arguments when too long", async () => {
-        await assertFormat({
-          code: `
+    it("keeps extends inline and breaks the template arguments when too long", async () => {
+      await assertFormat({
+        code: `
 model Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName> {}
 `,
-          expected: `
+        expected: `
 model Foo extends Base<
   FirstArgumentTypeName,
   SecondArgumentTypeName,
   ThirdArgumentTypeName
 > {}
 `,
-        });
       });
     });
+  });
 
-    describe("model `is`", () => {
-      it("remove body if its empty", async () => {
-        await assertFormat({
-          code: `
+  describe("model `is`", () => {
+    it("remove body if its empty", async () => {
+      await assertFormat({
+        code: `
 model   Foo is Base {
 }
 
@@ -238,109 +237,109 @@ model   Bar is Base<
   string    > {
 }
 `,
-          expected: `
+        expected: `
 model Foo is Base;
 
 model Bar is Base<string>;
 `,
-        });
       });
+    });
 
-      it("keeps body if there is a comment inside", async () => {
-        await assertFormat({
-          code: `
+    it("keeps body if there is a comment inside", async () => {
+      await assertFormat({
+        code: `
 model   Foo is Base {
    // Some comment
 }
 `,
-          expected: `
+        expected: `
 model Foo is Base {
   // Some comment
 }
 `,
-        });
       });
+    });
 
-      it("split and indent is when model declaration line is too long", async () => {
-        await assertFormat({
-          code: `
+    it("split and indent is when model declaration line is too long", async () => {
+      await assertFormat({
+        code: `
 model   Foo is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong {
 }
 `,
-          expected: `
+        expected: `
 model Foo
   is SuperExtremeAndVeryVeryVeryVeryVeryVeryLongLongLongModelThatWillBeTooLong;
 `,
-        });
       });
+    });
 
-      it("keeps is inline and breaks the template arguments when too long", async () => {
-        await assertFormat({
-          code: `
+    it("keeps is inline and breaks the template arguments when too long", async () => {
+      await assertFormat({
+        code: `
 model Foo is Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
 `,
-          expected: `
+        expected: `
 model Foo is Base<
   FirstArgumentTypeName,
   SecondArgumentTypeName,
   ThirdArgumentTypeName
 >;
 `,
-        });
       });
     });
+  });
 
-    it("format model with generic", async () => {
-      await assertFormat({
-        code: `
+  it("format model with generic", async () => {
+    await assertFormat({
+      code: `
 model   Foo < T   >{
 }
 `,
-        expected: `
+      expected: `
 model Foo<T> {}
 `,
-      });
     });
+  });
 
-    it("format spread reference", async () => {
-      await assertFormat({
-        code: `
+  it("format spread reference", async () => {
+    await assertFormat({
+      code: `
 model Foo {
         ...       Bar
 
 
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   ...Bar;
 }
 `,
-      });
     });
+  });
 
-    it("remove unnecessary backticks", async () => {
-      await assertFormat({
-        code: `
+  it("remove unnecessary backticks", async () => {
+    await assertFormat({
+      code: `
 model \`Foo\` {
   \`abc\`: string;
   \`import\`: boolean;
   \`this-needs-backticks\`: int32;
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   abc: string;
   \`import\`: boolean;
   \`this-needs-backticks\`: int32;
 }
 `,
-      });
     });
+  });
 
-    it("format quoted string to identifier or backticked identifier when necessary", async () => {
-      await assertFormat({
-        code: `
+  it("format quoted string to identifier or backticked identifier when necessary", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   "abc": string;
   "this-needs-quotes": int32;
@@ -351,7 +350,7 @@ enum \`2Colors\` {
   "green-color",
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   abc: string;
   \`this-needs-quotes\`: int32;
@@ -362,36 +361,36 @@ enum \`2Colors\` {
   \`green-color\`,
 }
 `,
+    });
+  });
+
+  describe("in between property spacing", () => {
+    it("hug properties with no line decorators or comments ", async () => {
+      await assertFormat({
+        code: `
+model   Foo{
+  one: string;
+
+  two: string;
+
+
+
+  three: string
+}
+  `,
+        expected: `
+model Foo {
+  one: string;
+  two: string;
+  three: string;
+}
+  `,
       });
     });
 
-    describe("in between property spacing", () => {
-      it("hug properties with no line decorators or comments ", async () => {
-        await assertFormat({
-          code: `
-model   Foo{
-  one: string;
-
-  two: string;
-
-
-
-  three: string
-}
-  `,
-          expected: `
-model Foo {
-  one: string;
-  two: string;
-  three: string;
-}
-  `,
-        });
-      });
-
-      it("wrap in new lines properties with line decorators", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines properties with line decorators", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
   @foo
@@ -401,7 +400,7 @@ model   Foo{
   four: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
 
@@ -413,12 +412,12 @@ model Foo {
   four: string;
 }
   `,
-        });
       });
+    });
 
-      it("wrap only in single line when 2 properties have decorators next to each other", async () => {
-        await assertFormat({
-          code: `
+    it("wrap only in single line when 2 properties have decorators next to each other", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
   @foo
@@ -428,7 +427,7 @@ model   Foo{
   four: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
 
@@ -441,12 +440,12 @@ model Foo {
   four: string;
 }
   `,
-        });
       });
+    });
 
-      it("wrap in new lines properties with line comments", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines properties with line comments", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
   // comment
@@ -455,7 +454,7 @@ model   Foo{
   four: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
 
@@ -466,19 +465,19 @@ model Foo {
   four: string;
 }
   `,
-        });
       });
+    });
 
-      it("first property with decorators or comment should not have extra blank space before", async () => {
-        await assertFormat({
-          code: `
+    it("first property with decorators or comment should not have extra blank space before", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   @foo
   one: string;
   two: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   @foo
   one: string;
@@ -486,19 +485,19 @@ model Foo {
   two: string;
 }
   `,
-        });
       });
+    });
 
-      it("last property with decorators or comment should not have extra blank space after", async () => {
-        await assertFormat({
-          code: `
+    it("last property with decorators or comment should not have extra blank space after", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
   @foo
   two: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
 
@@ -506,12 +505,12 @@ model Foo {
   two: string;
 }
   `,
-        });
       });
+    });
 
-      it("hug properties if the comment is trailing the property end of line", async () => {
-        await assertFormat({
-          code: `
+    it("hug properties if the comment is trailing the property end of line", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
 
@@ -521,7 +520,7 @@ model   Foo{
   four: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
   two: string; // comment
@@ -529,12 +528,12 @@ model Foo {
   four: string;
 }
   `,
-        });
       });
+    });
 
-      it("wrap in new lines properties with block comments", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines properties with block comments", async () => {
+      await assertFormat({
+        code: `
 model   Foo{
   one: string;
   /** 
@@ -545,7 +544,7 @@ model   Foo{
   four: string;
 }
   `,
-          expected: `
+        expected: `
 model Foo {
   one: string;
 
@@ -558,15 +557,15 @@ model Foo {
   four: string;
 }
   `,
-        });
       });
     });
   });
+});
 
-  describe("op", () => {
-    it("keeps operation inline if it can", async () => {
-      await assertFormat({
-        code: `
+describe("op", () => {
+  it("keeps operation inline if it can", async () => {
+    await assertFormat({
+      code: `
 op foo(
 one: string;
 
@@ -577,30 +576,30 @@ two: string;
 three: string,
       ): void;
 `,
-        expected: `
+      expected: `
 op foo(one: string, two: string, three: string): void;
 `,
-      });
     });
+  });
 
-    it("doesn't add extra blank space in parameters list if operation split in new lines", async () => {
-      await assertFormat({
-        code: `
+  it("doesn't add extra blank space in parameters list if operation split in new lines", async () => {
+    await assertFormat({
+      code: `
 op foo(
 
       ): "very very very long text that will force this operation to split line"
 `,
-        expected: `
+      expected: `
 op foo(
 ): "very very very long text that will force this operation to split line";
 `,
-      });
     });
+  });
 
-    describe("in between parameter spacing", () => {
-      it("hug parameters with no line decorators or comments ", async () => {
-        await assertFormat({
-          code: `
+  describe("in between parameter spacing", () => {
+    it("hug parameters with no line decorators or comments ", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string;
 
@@ -612,7 +611,7 @@ op foo(
   five: string,
         ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
   two: string,
@@ -621,12 +620,12 @@ op foo(
   five: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("wrap in new lines parameters with line decorators", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines parameters with line decorators", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
   @foo
@@ -636,7 +635,7 @@ op foo(
   four: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
 
@@ -648,12 +647,12 @@ op foo(
   four: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("wrap only in single line when 2 parameters have decorators next to each other", async () => {
-        await assertFormat({
-          code: `
+    it("wrap only in single line when 2 parameters have decorators next to each other", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
   @foo
@@ -663,7 +662,7 @@ op foo(
   four: string
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
 
@@ -676,12 +675,12 @@ op foo(
   four: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("wrap in new lines parameters with line comments", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines parameters with line comments", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
   // comment
@@ -690,7 +689,7 @@ op foo(
   four: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
 
@@ -701,19 +700,19 @@ op foo(
   four: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("first property with decorators or comment should not have extra blank space before", async () => {
-        await assertFormat({
-          code: `
+    it("first property with decorators or comment should not have extra blank space before", async () => {
+      await assertFormat({
+        code: `
 op foo(
   @foo
   one: string,
   two: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   @foo
   one: string,
@@ -721,19 +720,19 @@ op foo(
   two: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("last property with decorators or comment should not have extra blank space after", async () => {
-        await assertFormat({
-          code: `
+    it("last property with decorators or comment should not have extra blank space after", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
   @foo
   two: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
 
@@ -741,12 +740,12 @@ op foo(
   two: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("hug parameters if the comment is trailing the property end of line", async () => {
-        await assertFormat({
-          code: `
+    it("hug parameters if the comment is trailing the property end of line", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
 
@@ -756,7 +755,7 @@ op foo(
   four: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
   two: string, // comment
@@ -764,27 +763,27 @@ op foo(
   four: string,
 ): void;
   `,
-        });
       });
+    });
 
-      it("keeps block comment in empty parameter list", async () => {
-        await assertFormat({
-          code: `
+    it("keeps block comment in empty parameter list", async () => {
+      await assertFormat({
+        code: `
 namespace MyApp;
 
 op find( /* conditions */) : unknown;
 `,
-          expected: `
+        expected: `
 namespace MyApp;
 
 op find(/* conditions */): unknown;
 `,
-        });
       });
+    });
 
-      it("wrap in new lines parameters with block comments", async () => {
-        await assertFormat({
-          code: `
+    it("wrap in new lines parameters with block comments", async () => {
+      await assertFormat({
+        code: `
 op foo(
   one: string,
   /** 
@@ -795,7 +794,7 @@ op foo(
   four: string,
 ): void;
   `,
-          expected: `
+        expected: `
 op foo(
   one: string,
 
@@ -808,145 +807,145 @@ op foo(
   four: string,
 ): void;
   `,
-        });
       });
     });
   });
+});
 
-  describe("scalar", () => {
-    it("format on single line", async () => {
-      await assertFormat({
-        code: `
+describe("scalar", () => {
+  it("format on single line", async () => {
+    await assertFormat({
+      code: `
 scalar
    Foo
 `,
-        expected: `
+      expected: `
 scalar Foo;
 `,
-      });
     });
+  });
 
-    it("format with extends", async () => {
-      await assertFormat({
-        code: `
+  it("format with extends", async () => {
+    await assertFormat({
+      code: `
 scalar
    Foo extends 
         string
 `,
-        expected: `
+      expected: `
 scalar Foo extends string;
 `,
-      });
     });
+  });
 
-    it("keeps extends inline and breaks the template arguments when too long", async () => {
-      await assertFormat({
-        code: `
+  it("keeps extends inline and breaks the template arguments when too long", async () => {
+    await assertFormat({
+      code: `
 scalar Foo extends Base<FirstArgumentTypeName, SecondArgumentTypeName, ThirdArgumentTypeName>;
 `,
-        expected: `
+      expected: `
 scalar Foo extends Base<
   FirstArgumentTypeName,
   SecondArgumentTypeName,
   ThirdArgumentTypeName
 >;
 `,
-      });
     });
+  });
 
-    it("format with template parameters", async () => {
-      await assertFormat({
-        code: `
+  it("format with template parameters", async () => {
+    await assertFormat({
+      code: `
 scalar
    Foo<K,
     V> 
 `,
-        expected: `
+      expected: `
 scalar Foo<K, V>;
 `,
-      });
     });
+  });
 
-    it("format with decorator", async () => {
-      await assertFormat({
-        code: `
+  it("format with decorator", async () => {
+    await assertFormat({
+      code: `
       @some @decorator
 scalar   Foo 
 `,
-        expected: `
+      expected: `
 @some
 @decorator
 scalar Foo;
 `,
-      });
     });
+  });
 
-    it("format with constructors", async () => {
-      await assertFormat({
-        code: `
+  it("format with constructors", async () => {
+    await assertFormat({
+      code: `
 scalar
    Foo { init fromFoo(
     value:      string)}
 `,
-        expected: `
+      expected: `
 scalar Foo {
   init fromFoo(value: string);
 }
 `,
-      });
     });
-    it("format with multiple constructors", async () => {
-      await assertFormat({
-        code: `
+  });
+  it("format with multiple constructors", async () => {
+    await assertFormat({
+      code: `
 scalar
    Foo { init fromFoo(
     value:      string);  init fromBar(
       value:      string, other: string)}
 `,
-        expected: `
+      expected: `
 scalar Foo {
   init fromFoo(value: string);
   init fromBar(value: string, other: string);
 }
 `,
-      });
     });
   });
+});
 
-  describe("scalar constructor call", () => {
-    it("call with no arguments", async () => {
-      await assertFormat({
-        code: `
+describe("scalar constructor call", () => {
+  it("call with no arguments", async () => {
+    await assertFormat({
+      code: `
 const foo     = utcDateTime.   now(
     );
 `,
-        expected: `
+      expected: `
 const foo = utcDateTime.now();
 `,
-      });
     });
+  });
 
-    it("call with arguments", async () => {
-      await assertFormat({
-        code: `
+  it("call with arguments", async () => {
+    await assertFormat({
+      code: `
 const foo     = utcDateTime.   fromISO(
   "abc"  );
 `,
-        expected: `
+      expected: `
 const foo = utcDateTime.fromISO("abc");
 `,
-      });
     });
+  });
 
-    it("hug object literal", async () => {
-      await assertFormat({
-        code: `
+  it("hug object literal", async () => {
+    await assertFormat({
+      code: `
 const foo     = utcDateTime.   fromFoo(#{ name: "abc",
         multiline1: "abc",
   multiline2: "abc",
     multiline3: "abc",  });
 `,
-        expected: `
+      expected: `
 const foo = utcDateTime.fromFoo(#{
   name: "abc",
   multiline1: "abc",
@@ -954,202 +953,202 @@ const foo = utcDateTime.fromFoo(#{
   multiline3: "abc",
 });
 `,
-      });
     });
+  });
 
-    it("hug array literal", async () => {
-      await assertFormat({
-        code: `
+  it("hug array literal", async () => {
+    await assertFormat({
+      code: `
 const foo     = utcDateTime.   fromFoo(#[
         "very very long array",
     "very very long array",
   "very very long array"
 ]);
 `,
-        expected: `
+      expected: `
 const foo = utcDateTime.fromFoo(#[
   "very very long array",
   "very very long array",
   "very very long array"
 ]);
 `,
-      });
     });
   });
+});
 
-  describe("comments", () => {
-    it("format comment at position 0", async () => {
-      await assertFormat({
-        code: `// This comment is at position 0.
+describe("comments", () => {
+  it("format comment at position 0", async () => {
+    await assertFormat({
+      code: `// This comment is at position 0.
 model Foo {}
 `,
-        expected: `
+      expected: `
 // This comment is at position 0.
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format single line comments", async () => {
-      await assertFormat({
-        code: `
+  it("format single line comments", async () => {
+    await assertFormat({
+      code: `
   // This is a comment.
 model Foo {}
 `,
-        expected: `
+      expected: `
 // This is a comment.
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format indentable multi line comments", async () => {
-      await assertFormat({
-        code: `
+  it("format indentable multi line comments", async () => {
+    await assertFormat({
+      code: `
   /**
  * This is a multiline comment
       * that has bad formatting.
     */
 model Foo {}
 `,
-        expected: `
+      expected: `
 /**
  * This is a multiline comment
  * that has bad formatting.
  */
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format regular multi line comments", async () => {
-      await assertFormat({
-        code: `
+  it("format regular multi line comments", async () => {
+    await assertFormat({
+      code: `
   /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
-        expected: `
+      expected: `
 /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format doc comment comments without * indent", async () => {
-      // Keep the indentation
-      await assertFormat({
-        code: `
+  it("format doc comment comments without * indent", async () => {
+    // Keep the indentation
+    await assertFormat({
+      code: `
   /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
-        expected: `
+      expected: `
 /*
   This is a multiline comment
        that has bad formatting.
     */
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format single line doc comment", async () => {
-      // Keep the indentation
-      await assertFormat({
-        code: `
+  it("format single line doc comment", async () => {
+    // Keep the indentation
+    await assertFormat({
+      code: `
   /**    This is a single line doc comment    */
 model Foo {}
 `,
-        expected: `
+      expected: `
 /** This is a single line doc comment */
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("print standalone doc comment", async () => {
-      // Keep the indentation
-      await assertFormat({
-        code: `
+  it("print standalone doc comment", async () => {
+    // Keep the indentation
+    await assertFormat({
+      code: `
   /**    
    * This is a multiline doc comment  
      */
 `,
-        expected: `
+      expected: `
 /**
  * This is a multiline doc comment
  */
 `,
-      });
     });
+  });
 
-    it("keeps block comment on same line", async () => {
-      await assertFormat({
-        code: `
+  it("keeps block comment on same line", async () => {
+    await assertFormat({
+      code: `
   alias foo = ""; /* one */ /* two */    /* three */ 
   `,
-        expected: `
+      expected: `
 alias foo = ""; /* one */ /* two */ /* three */
   `,
-      });
     });
+  });
 
-    it("format empty file with comment inside", async () => {
-      await assertFormat({
-        code: `
+  it("format empty file with comment inside", async () => {
+    await assertFormat({
+      code: `
 
 
   // empty file
 
 `,
-        expected: `
+      expected: `
 // empty file
 `,
-      });
     });
+  });
 
-    it("format empty file with comment inside starting first line", async () => {
-      await assertFormat({
-        code: `
+  it("format empty file with comment inside starting first line", async () => {
+    await assertFormat({
+      code: `
   // empty file
 
 
   // commented out things
 `,
-        expected: `
+      expected: `
 // empty file
 
 // commented out things
 `,
-      });
     });
+  });
 
-    it("format empty model with comment inside", async () => {
-      await assertFormat({
-        code: `
+  it("format empty model with comment inside", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   // empty model
 
   
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   // empty model
 }
 `,
-      });
+    });
 
-      await assertFormat({
-        code: `
+    await assertFormat({
+      code: `
 model Foo {
   // empty model 1
 
@@ -1159,33 +1158,33 @@ model Foo {
   
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   // empty model 1
   // empty model 2
 }
 `,
-      });
     });
+  });
 
-    it("format empty scalar with comment inside", async () => {
-      await assertFormat({
-        code: `
+  it("format empty scalar with comment inside", async () => {
+    await assertFormat({
+      code: `
 scalar foo {
   // empty scalar
 
   
 }
 `,
-        expected: `
+      expected: `
 scalar foo {
   // empty scalar
 }
 `,
-      });
+    });
 
-      await assertFormat({
-        code: `
+    await assertFormat({
+      code: `
 scalar foo {
   // empty scalar 1
 
@@ -1195,18 +1194,18 @@ scalar foo {
   
 }
 `,
-        expected: `
+      expected: `
 scalar foo {
   // empty scalar 1
   // empty scalar 2
 }
 `,
-      });
     });
+  });
 
-    it("format empty anonymous model with comment inside", async () => {
-      await assertFormat({
-        code: `
+  it("format empty anonymous model with comment inside", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   nested: {
   // empty model
@@ -1214,19 +1213,19 @@ model Foo {
   }
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   nested: {
     // empty model
   };
 }
 `,
-      });
     });
+  });
 
-    it("format single line comments after doc comment", async () => {
-      await assertFormat({
-        code: `
+  it("format single line comments after doc comment", async () => {
+    await assertFormat({
+      code: `
 model A {
   /**
    * block
@@ -1236,7 +1235,7 @@ model A {
 }
         
 `,
-        expected: `
+      expected: `
 model A {
   /**
    * block
@@ -1245,12 +1244,12 @@ model A {
   s: string;
 }
 `,
-      });
     });
+  });
 
-    it("format single line comments after directive", async () => {
-      await assertFormat({
-        code: `
+  it("format single line comments after directive", async () => {
+    await assertFormat({
+      code: `
 model A {
   #suppress "foo"
     // one line
@@ -1258,34 +1257,34 @@ model A {
 }
         
 `,
-        expected: `
+      expected: `
 model A {
   #suppress "foo"
   // one line
   s: string;
 }
 `,
-      });
     });
+  });
 
-    it("format empty interface with comment inside", async () => {
-      await assertFormat({
-        code: `
+  it("format empty interface with comment inside", async () => {
+    await assertFormat({
+      code: `
 interface Foo {
   // empty interface
 
   
 }
 `,
-        expected: `
+      expected: `
 interface Foo {
   // empty interface
 }
 `,
-      });
+    });
 
-      await assertFormat({
-        code: `
+    await assertFormat({
+      code: `
 interface Foo {
   // empty interface 1
 
@@ -1295,137 +1294,137 @@ interface Foo {
   
 }
 `,
-        expected: `
+      expected: `
 interface Foo {
   // empty interface 1
   // empty interface 2
 }
 `,
-      });
     });
+  });
 
-    const types = [
-      ["blockless namespace", "namespace Bar;"],
-      ["flattened blockless namespace", "namespace Foo.Bar;"],
-      ["block namespace", "namespace Bar {\n\n}"],
-      ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
-      ["model", "model Bar {}"],
-      ["op", "op test(foo: string): void;"],
-      ["scalar", "scalar foo;"],
-      ["interface", "interface Foo {}"],
-      ["union", "union Foo {}"],
-      ["enum", "enum Foo {}"],
-    ];
+  const types = [
+    ["blockless namespace", "namespace Bar;"],
+    ["flattened blockless namespace", "namespace Foo.Bar;"],
+    ["block namespace", "namespace Bar {\n\n}"],
+    ["flattened block namespace", "namespace Foo.Bar {\n\n}"],
+    ["model", "model Bar {}"],
+    ["op", "op test(foo: string): void;"],
+    ["scalar", "scalar foo;"],
+    ["interface", "interface Foo {}"],
+    ["union", "union Foo {}"],
+    ["enum", "enum Foo {}"],
+  ];
 
-    describe("format comment between decorator and node", () => {
-      types.forEach(([name, code]) => {
-        it(name, async () => {
-          await assertFormat({
-            code: `
+  describe("format comment between decorator and node", () => {
+    types.forEach(([name, code]) => {
+      it(name, async () => {
+        await assertFormat({
+          code: `
 @foo
     // comment
 ${code}
 `,
-            expected: `
+          expected: `
 @foo
 // comment
 ${code}
 `,
-          });
         });
       });
     });
+  });
 
-    describe("format comment between directive and node", () => {
-      types.forEach(([name, code]) => {
-        it(name, async () => {
-          await assertFormat({
-            code: `
+  describe("format comment between directive and node", () => {
+    types.forEach(([name, code]) => {
+      it(name, async () => {
+        await assertFormat({
+          code: `
 #suppress "foo"
     // comment
 ${code}
 `,
-            expected: `
+          expected: `
 #suppress "foo"
 // comment
 ${code}
 `,
-          });
         });
       });
     });
+  });
 
-    describe("format comment between doc comment and node", () => {
-      types.forEach(([name, code]) => {
-        it(name, async () => {
-          await assertFormat({
-            code: `
+  describe("format comment between doc comment and node", () => {
+    types.forEach(([name, code]) => {
+      it(name, async () => {
+        await assertFormat({
+          code: `
 /** doc */
     // comment
 ${code}
 `,
-            expected: `
+          expected: `
 /** doc */
 // comment
 ${code}
 `,
-          });
         });
       });
     });
+  });
 
-    it("keeps comment in between decorators", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment in between decorators", async () => {
+    await assertFormat({
+      code: `
 @foo
   // comment
   @bar
 model Bar {}
 `,
-        expected: `
+      expected: `
 @foo
 // comment
 @bar
 model Bar {}
 `,
-      });
     });
+  });
 
-    it("keeps comment at the end of line of a decorators", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment at the end of line of a decorators", async () => {
+    await assertFormat({
+      code: `
 @foo          // comment
   @bar
 model Bar {}
 `,
-        expected: `
+      expected: `
 @foo // comment
 @bar
 model Bar {}
 `,
-      });
     });
+  });
 
-    it("comment preceding decorators hug decorators", async () => {
-      await assertFormat({
-        code: `
+  it("comment preceding decorators hug decorators", async () => {
+    await assertFormat({
+      code: `
         // comment
 @foo          
   @bar
 model Bar {}
 `,
-        expected: `
+      expected: `
 // comment
 @foo
 @bar
 model Bar {}
 `,
-      });
     });
+  });
 
-    it("keeps comment in between decorators on model property", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment in between decorators on model property", async () => {
+    await assertFormat({
+      code: `
 model Bar {
       @foo
         // comment
@@ -1433,7 +1432,7 @@ model Bar {
   foo: string;
 }
 `,
-        expected: `
+      expected: `
 model Bar {
   @foo
   // comment
@@ -1441,31 +1440,31 @@ model Bar {
   foo: string;
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment between decorators and model property", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment between decorators and model property", async () => {
+    await assertFormat({
+      code: `
 model Bar {
       @foo
         // comment
   foo: string;
 }
 `,
-        expected: `
+      expected: `
 model Bar {
   @foo
   // comment
   foo: string;
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment in between decorators on enum member", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment in between decorators on enum member", async () => {
+    await assertFormat({
+      code: `
 enum Bar {
       @foo
         // comment
@@ -1473,7 +1472,7 @@ enum Bar {
   foo: "foo",
 }
 `,
-        expected: `
+      expected: `
         enum Bar {
   @foo
   // comment
@@ -1481,31 +1480,31 @@ enum Bar {
   foo: "foo",
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment between decorators and enum member", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment between decorators and enum member", async () => {
+    await assertFormat({
+      code: `
       enum Bar {
       @foo
         // comment
   foo: "foo",
 }
 `,
-        expected: `
+      expected: `
 enum Bar {
   @foo
   // comment
   foo: "foo",
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment in between decorators on union variant", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment in between decorators on union variant", async () => {
+    await assertFormat({
+      code: `
       union Bar {
       @foo
         // comment
@@ -1513,7 +1512,7 @@ enum Bar {
   foo: "foo",
 }
 `,
-        expected: `
+      expected: `
 union Bar {
   @foo
   // comment
@@ -1521,31 +1520,31 @@ union Bar {
   foo: "foo",
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment between decorators and union variant", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment between decorators and union variant", async () => {
+    await assertFormat({
+      code: `
       union Bar {
       @foo
         // comment
   foo: "foo",
 }
 `,
-        expected: `
+      expected: `
 union Bar {
   @foo
   // comment
   foo: "foo",
 }
 `,
-      });
     });
+  });
 
-    it("keeps comment between statements of a flattened namespace", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment between statements of a flattened namespace", async () => {
+    await assertFormat({
+      code: `
         namespace Foo.Bar {
 // one
 op one(): void;
@@ -1563,7 +1562,7 @@ interface IFace {}
 interface MyEnum {}
         }
 `,
-        expected: `
+      expected: `
 namespace Foo.Bar {
   // one
   op one(): void;
@@ -1581,111 +1580,111 @@ namespace Foo.Bar {
   interface MyEnum {}
 }
 `,
-      });
-    });
-
-    it("keeps comment after augment decorator", async () => {
-      await assertFormat({
-        code: `
-  @@doc(Foo.bar, "This");   // comment
-`,
-        expected: `
-@@doc(Foo.bar, "This"); // comment
-`,
-      });
-    });
-
-    it("formats doc comment before decorators and directives", async () => {
-      await assertFormat({
-        code: `
-#suppress "foo"
-@dec1
-/**
- * Doc comment
- */
-@dec2
-model Foo {}
-`,
-        expected: `
-/**
- * Doc comment
- */
-#suppress "foo"
-@dec1
-@dec2
-model Foo {}
-`,
-      });
-    });
-
-    it("formats multiple doc comment before decorators and directives", async () => {
-      await assertFormat({
-        code: `
-#suppress "foo"
-@dec1
-/**
- * Doc comment 1
- */
-@dec2
-/**
- * Doc comment 2
- */
-model Foo {}
-`,
-        expected: `
-/**
- * Doc comment 1
- */
-/**
- * Doc comment 2
- */
-#suppress "foo"
-@dec1
-@dec2
-model Foo {}
-`,
-      });
     });
   });
 
-  describe("alias union", () => {
-    it("format simple alias", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comment after augment decorator", async () => {
+    await assertFormat({
+      code: `
+  @@doc(Foo.bar, "This");   // comment
+`,
+      expected: `
+@@doc(Foo.bar, "This"); // comment
+`,
+    });
+  });
+
+  it("formats doc comment before decorators and directives", async () => {
+    await assertFormat({
+      code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment
+ */
+@dec2
+model Foo {}
+`,
+      expected: `
+/**
+ * Doc comment
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
+`,
+    });
+  });
+
+  it("formats multiple doc comment before decorators and directives", async () => {
+    await assertFormat({
+      code: `
+#suppress "foo"
+@dec1
+/**
+ * Doc comment 1
+ */
+@dec2
+/**
+ * Doc comment 2
+ */
+model Foo {}
+`,
+      expected: `
+/**
+ * Doc comment 1
+ */
+/**
+ * Doc comment 2
+ */
+#suppress "foo"
+@dec1
+@dec2
+model Foo {}
+`,
+    });
+  });
+});
+
+describe("alias union", () => {
+  it("format simple alias", async () => {
+    await assertFormat({
+      code: `
 alias     Foo   = "one"       | "two";
 alias     Bar   
       = "one"      
      | "two";
 `,
-        expected: `
+      expected: `
 alias Foo = "one" | "two";
 alias Bar = "one" | "two";
 `,
-      });
     });
+  });
 
-    it("format generic alias", async () => {
-      await assertFormat({
-        code: `
+  it("format generic alias", async () => {
+    await assertFormat({
+      code: `
 alias     Foo<   A,     B>   = A     |    B;
 alias     Bar<   
     A,     B>   = 
     A     |   
  B;
 `,
-        expected: `
+      expected: `
 alias Foo<A, B> = A | B;
 alias Bar<A, B> = A | B;
 `,
-      });
     });
+  });
 
-    it("format long alias", async () => {
-      await assertFormat({
-        code: `
+  it("format long alias", async () => {
+    await assertFormat({
+      code: `
 alias VeryLong =   "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "height" | "nine" | "ten";
 `,
-        expected: `
+      expected: `
 alias VeryLong =
   | "one"
   | "two"
@@ -1698,47 +1697,47 @@ alias VeryLong =
   | "nine"
   | "ten";
 `,
-      });
-    });
-
-    it("keeps parentheses if under an intersection expression", async () => {
-      await assertFormat({
-        code: `
-alias Foo = (A     | B    ) & C;
-`,
-        expected: `
-alias Foo = (A | B) & C;
-`,
-      });
     });
   });
 
-  describe("alias intersection", () => {
-    it("format intersection of types", async () => {
-      await assertFormat({
-        code: `
+  it("keeps parentheses if under an intersection expression", async () => {
+    await assertFormat({
+      code: `
+alias Foo = (A     | B    ) & C;
+`,
+      expected: `
+alias Foo = (A | B) & C;
+`,
+    });
+  });
+});
+
+describe("alias intersection", () => {
+  it("format intersection of types", async () => {
+    await assertFormat({
+      code: `
 alias     Foo   = One       &   Two;
 alias     Bar   
       = One &
     Two;
 `,
-        expected: `
+      expected: `
 alias Foo = One & Two;
 alias Bar = One & Two;
 `,
-      });
     });
+  });
 
-    it("format intersection of anonymous models", async () => {
-      await assertFormat({
-        code: `
+  it("format intersection of anonymous models", async () => {
+    await assertFormat({
+      code: `
 alias     Foo   = { foo: string }       &   {bar: string};
 alias     Bar   
       = { foo: string }  &
     {
       bar: string};
 `,
-        expected: `
+      expected: `
 alias Foo = {
   foo: string;
 } & {
@@ -1750,366 +1749,366 @@ alias Bar = {
   bar: string;
 };
 `,
-      });
-    });
-
-    it("keeps parentheses if under an union expression", async () => {
-      await assertFormat({
-        code: `
-alias Foo = A  |  (  B     & C);
-`,
-        expected: `
-alias Foo = A | (B & C);
-`,
-      });
     });
   });
 
-  describe("union of intersections", () => {
-    it("breaks long union of intersections onto multiple lines", async () => {
-      await assertFormat({
-        code: `
+  it("keeps parentheses if under an union expression", async () => {
+    await assertFormat({
+      code: `
+alias Foo = A  |  (  B     & C);
+`,
+      expected: `
+alias Foo = A | (B & C);
+`,
+    });
+  });
+});
+
+describe("union of intersections", () => {
+  it("breaks long union of intersections onto multiple lines", async () => {
+    await assertFormat({
+      code: `
 op create(@body body: CreateUserRequest): (CreatedResponse & Body<User>) | (BadRequestResponse & Body<ValidationError>);
 `,
-        expected: `
+      expected: `
 op create(@body body: CreateUserRequest):
   | (CreatedResponse & Body<User>)
   | (BadRequestResponse & Body<ValidationError>);
 `,
-      });
     });
+  });
 
-    it("keeps short union of intersections inline", async () => {
-      await assertFormat({
-        code: `
+  it("keeps short union of intersections inline", async () => {
+    await assertFormat({
+      code: `
 alias Foo = (A   &   B)  |  (C   &   D);
 `,
-        expected: `
+      expected: `
 alias Foo = (A & B) | (C & D);
 `,
-      });
     });
   });
+});
 
-  describe("declaration expressions", () => {
-    it("formats anonymous enum expression", async () => {
-      await assertFormat({
-        code: `alias E   =   enum {  a,   b  };`,
-        expected: `
+describe("declaration expressions", () => {
+  it("formats anonymous enum expression", async () => {
+    await assertFormat({
+      code: `alias E   =   enum {  a,   b  };`,
+      expected: `
 alias E = enum {
-  a,
-  b,
+a,
+b,
 };
 `,
-      });
-    });
-
-    it("formats anonymous union expression", async () => {
-      await assertFormat({
-        code: `alias U   =   union {  string,   int32  };`,
-        expected: `
-alias U = union {
-  string,
-  int32,
-};
-`,
-      });
-    });
-
-    it("formats anonymous model expression", async () => {
-      await assertFormat({
-        code: `alias M   =   model {  x:   string  };`,
-        expected: `
-alias M = model {
-  x: string;
-};
-`,
-      });
-    });
-
-    it("formats anonymous scalar expression without double semicolon", async () => {
-      await assertFormat({
-        code: `alias S   =   scalar   extends   string;`,
-        expected: `alias S = scalar extends string;`,
-      });
-    });
-
-    it("formats a model `is` expression without double semicolon", async () => {
-      await assertFormat({
-        code: `alias M   =   model   is   Base;`,
-        expected: `alias M = model is Base;`,
-      });
-    });
-
-    it("formats a model `is` expression with a body", async () => {
-      await assertFormat({
-        code: `alias M = model is Base {  x:  string  };`,
-        expected: `
-alias M = model is Base {
-  x: string;
-};
-`,
-      });
-    });
-
-    it("formats named declaration expression", async () => {
-      await assertFormat({
-        code: `model Foo { nested:   model Inner {  x:  string  }; }`,
-        expected: `
-model Foo {
-  nested: model Inner {
-    x: string;
-  };
-}
-`,
-      });
-    });
-
-    it("formats named enum expression", async () => {
-      await assertFormat({
-        code: `alias E = enum Color {red, green};`,
-        expected: `
-alias E = enum Color {
-  red,
-  green,
-};
-`,
-      });
-    });
-
-    it("formats named union expression", async () => {
-      await assertFormat({
-        code: `alias U = union Choice {string, int32};`,
-        expected: `
-alias U = union Choice {
-  string,
-  int32,
-};
-`,
-      });
-    });
-
-    it("formats named scalar expression", async () => {
-      await assertFormat({
-        code: `alias S = scalar Celsius extends int32;`,
-        expected: `alias S = scalar Celsius extends int32;`,
-      });
-    });
-
-    it("formats nested declaration expressions", async () => {
-      await assertFormat({
-        code: `alias N = model { inner: enum { a, b } };`,
-        expected: `
-alias N = model {
-  inner: enum {
-    a,
-    b,
-  };
-};
-`,
-      });
-    });
-
-    it("keeps a decorator inline on an enum expression", async () => {
-      await assertFormat({
-        code: `alias E = @doc("hi")enum {  a, b  };`,
-        expected: `
-alias E = @doc("hi") enum {
-  a,
-  b,
-};
-`,
-      });
-    });
-
-    it("keeps a decorator inline on a model expression property", async () => {
-      await assertFormat({
-        code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
-        expected: `
-model Foo {
-  status: @doc("the status") enum {
-    active,
-    inactive,
-  };
-}
-`,
-      });
-    });
-
-    it("keeps a decorator inline on a named model expression", async () => {
-      await assertFormat({
-        code: `alias M = @doc("d")model Inner {  x:  string  };`,
-        expected: `
-alias M = @doc("d") model Inner {
-  x: string;
-};
-`,
-      });
-    });
-
-    it("keeps a decorator inline on a union expression", async () => {
-      await assertFormat({
-        code: `alias U = @doc("d")union {  string, int32  };`,
-        expected: `
-alias U = @doc("d") union {
-  string,
-  int32,
-};
-`,
-      });
-    });
-
-    it("keeps a decorator inline on a scalar expression", async () => {
-      await assertFormat({
-        code: `alias S = @doc("d")scalar Celsius extends int32;`,
-        expected: `alias S = @doc("d") scalar Celsius extends int32;`,
-      });
-    });
-
-    it("keeps multiple decorators inline on an enum expression", async () => {
-      await assertFormat({
-        code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
-        expected: `
-alias E = @doc("hi") @example(1) @friendlyName("E") enum {
-  a,
-  b,
-};
-`,
-      });
-    });
-
-    it("keeps multiple decorators inline on a model expression property", async () => {
-      await assertFormat({
-        code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
-        expected: `
-model Foo {
-  status: @a @b @c enum {
-    active,
-    inactive,
-  };
-}
-`,
-      });
-    });
-
-    it("keeps a doc comment inline on an enum expression like a decorator", async () => {
-      await assertFormat({
-        code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
-        expected: `
-model Foo {
-  status: /** the status */ enum {
-    active,
-    inactive,
-  };
-}
-`,
-      });
-    });
-
-    it("keeps a doc comment inline before decorators on a declaration expression", async () => {
-      await assertFormat({
-        code: `alias E = /** doc */ @a @b enum {  x, y  };`,
-        expected: `
-alias E = /** doc */ @a @b enum {
-  x,
-  y,
-};
-`,
-      });
-    });
-
-    it("formats a declaration expression used as a decorator argument", async () => {
-      await assertFormat({
-        code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
-        expected: `
-@useType(
-  enum Versions {
-    v1,
-    v2,
-  }
-)
-model Foo {}
-`,
-      });
-    });
-
-    it("breaks and indents decorators on a model property when too wide", async () => {
-      await assertFormat({
-        code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
-        expected: `
-model Foo {
-  status:
-    @summary("a fairly long summary text here")
-    @example("some-default-example-value")
-    enum {
-      active,
-      inactive,
-    };
-}
-`,
-      });
-    });
-
-    it("breaks and indents decorators on an alias value when too wide", async () => {
-      await assertFormat({
-        code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
-        expected: `
-alias E =
-  @summary("a fairly long summary text goes here now")
-  @example("some-default-value")
-  enum {
-    a,
-    b,
-  };
-`,
-      });
-    });
-
-    it("breaks and indents a doc comment together with decorators when too wide", async () => {
-      await assertFormat({
-        code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
-        expected: `
-model Foo {
-  status:
-    /** the current lifecycle status of the entity */
-    @example("active")
-    enum {
-      active,
-      inactive,
-    };
-}
-`,
-      });
-    });
-
-    it("stacks decorators inside a decorator argument when too wide", async () => {
-      await assertFormat({
-        code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
-        expected: `
-@useType(
-  @summary("a long summary for the versions enum value here")
-  @example("v1")
-  enum Versions {
-    v1,
-    v2,
-  }
-)
-model Foo {}
-`,
-      });
     });
   });
 
-  describe("enum", () => {
-    it("format simple enum", async () => {
-      await assertFormat({
-        code: `
+  it("formats anonymous union expression", async () => {
+    await assertFormat({
+      code: `alias U   =   union {  string,   int32  };`,
+      expected: `
+alias U = union {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("formats anonymous model expression", async () => {
+    await assertFormat({
+      code: `alias M   =   model {  x:   string  };`,
+      expected: `
+alias M = model {
+x: string;
+};
+`,
+    });
+  });
+
+  it("formats anonymous scalar expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias S   =   scalar   extends   string;`,
+      expected: `alias S = scalar extends string;`,
+    });
+  });
+
+  it("formats a model `is` expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias M   =   model   is   Base;`,
+      expected: `alias M = model is Base;`,
+    });
+  });
+
+  it("formats a model `is` expression with a body", async () => {
+    await assertFormat({
+      code: `alias M = model is Base {  x:  string  };`,
+      expected: `
+alias M = model is Base {
+x: string;
+};
+`,
+    });
+  });
+
+  it("formats named declaration expression", async () => {
+    await assertFormat({
+      code: `model Foo { nested:   model Inner {  x:  string  }; }`,
+      expected: `
+model Foo {
+nested: model Inner {
+  x: string;
+};
+}
+`,
+    });
+  });
+
+  it("formats named enum expression", async () => {
+    await assertFormat({
+      code: `alias E = enum Color {red, green};`,
+      expected: `
+alias E = enum Color {
+red,
+green,
+};
+`,
+    });
+  });
+
+  it("formats named union expression", async () => {
+    await assertFormat({
+      code: `alias U = union Choice {string, int32};`,
+      expected: `
+alias U = union Choice {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("formats named scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = scalar Celsius extends int32;`,
+      expected: `alias S = scalar Celsius extends int32;`,
+    });
+  });
+
+  it("formats nested declaration expressions", async () => {
+    await assertFormat({
+      code: `alias N = model { inner: enum { a, b } };`,
+      expected: `
+alias N = model {
+inner: enum {
+  a,
+  b,
+};
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") enum {
+a,
+b,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: @doc("the status") enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a named model expression", async () => {
+    await assertFormat({
+      code: `alias M = @doc("d")model Inner {  x:  string  };`,
+      expected: `
+alias M = @doc("d") model Inner {
+x: string;
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a union expression", async () => {
+    await assertFormat({
+      code: `alias U = @doc("d")union {  string, int32  };`,
+      expected: `
+alias U = @doc("d") union {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = @doc("d")scalar Celsius extends int32;`,
+      expected: `alias S = @doc("d") scalar Celsius extends int32;`,
+    });
+  });
+
+  it("keeps multiple decorators inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") @example(1) @friendlyName("E") enum {
+a,
+b,
+};
+`,
+    });
+  });
+
+  it("keeps multiple decorators inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: @a @b @c enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline on an enum expression like a decorator", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: /** the status */ enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline before decorators on a declaration expression", async () => {
+    await assertFormat({
+      code: `alias E = /** doc */ @a @b enum {  x, y  };`,
+      expected: `
+alias E = /** doc */ @a @b enum {
+x,
+y,
+};
+`,
+    });
+  });
+
+  it("formats a declaration expression used as a decorator argument", async () => {
+    await assertFormat({
+      code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+enum Versions {
+  v1,
+  v2,
+}
+)
+model Foo {}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on a model property when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status:
+  @summary("a fairly long summary text here")
+  @example("some-default-example-value")
+  enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on an alias value when too wide", async () => {
+    await assertFormat({
+      code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
+      expected: `
+alias E =
+@summary("a fairly long summary text goes here now")
+@example("some-default-value")
+enum {
+  a,
+  b,
+};
+`,
+    });
+  });
+
+  it("breaks and indents a doc comment together with decorators when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status:
+  /** the current lifecycle status of the entity */
+  @example("active")
+  enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("stacks decorators inside a decorator argument when too wide", async () => {
+    await assertFormat({
+      code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+@summary("a long summary for the versions enum value here")
+@example("v1")
+enum Versions {
+  v1,
+  v2,
+}
+)
+model Foo {}
+`,
+    });
+  });
+});
+
+describe("enum", () => {
+  it("format simple enum", async () => {
+    await assertFormat({
+      code: `
 enum      Foo       {    A,        B}
 enum      Bar       
       {    A,    
             B}
 `,
-        expected: `
+      expected: `
 enum Foo {
   A,
   B,
@@ -2119,19 +2118,19 @@ enum Bar {
   B,
 }
 `,
-      });
     });
+  });
 
-    it("format named enum", async () => {
-      await assertFormat({
-        code: `
+  it("format named enum", async () => {
+    await assertFormat({
+      code: `
 enum      Foo       {    A:   "a",        B    : "b"}
 enum      Bar       
       {    A: "a",    
             B:      
             "b"}
 `,
-        expected: `
+      expected: `
 enum Foo {
   A: "a",
   B: "b",
@@ -2141,12 +2140,12 @@ enum Bar {
   B: "b",
 }
 `,
-      });
     });
+  });
 
-    it("separate members if there is decorators", async () => {
-      await assertFormat({
-        code: `
+  it("separate members if there is decorators", async () => {
+    await assertFormat({
+      code: `
 enum      Foo       {   
   @doc("foo") 
         A:   "a",    @doc("bar") 
@@ -2158,7 +2157,7 @@ enum      Foo       {
        C    : "c"}
 
 `,
-        expected: `
+      expected: `
 enum Foo {
   @doc("foo")
   A: "a",
@@ -2170,19 +2169,19 @@ enum Foo {
   C: "c",
 }
 `,
-      });
     });
+  });
 
-    it("format spread members", async () => {
-      await assertFormat({
-        code: `
+  it("format spread members", async () => {
+    await assertFormat({
+      code: `
 enum Foo {
         ...       Bar  , One: "1",
         ...Baz  ; Two: "2",
 
 }
 `,
-        expected: `
+      expected: `
 enum Foo {
   ...Bar,
   One: "1",
@@ -2190,45 +2189,45 @@ enum Foo {
   Two: "2",
 }
 `,
-      });
     });
+  });
 
-    it("does not escape modifier keywords used as enum member names", async () => {
-      await assertFormat({
-        code: `
+  it("does not escape modifier keywords used as enum member names", async () => {
+    await assertFormat({
+      code: `
 enum Foo { internal, extern }
         `,
-        expected: `
+      expected: `
 enum Foo {
   internal,
   extern,
 }
 `,
-      });
-    });
-
-    it("does not escape modifier keywords in member expressions", async () => {
-      await assertFormat({
-        code: `
-const   x  =    Foo.internal;
-`,
-        expected: `
-const x = Foo.internal;
-`,
-      });
     });
   });
 
-  describe("union", () => {
-    it("format simple union", async () => {
-      await assertFormat({
-        code: `
+  it("does not escape modifier keywords in member expressions", async () => {
+    await assertFormat({
+      code: `
+const   x  =    Foo.internal;
+`,
+      expected: `
+const x = Foo.internal;
+`,
+    });
+  });
+});
+
+describe("union", () => {
+  it("format simple union", async () => {
+    await assertFormat({
+      code: `
 union      Foo       {    A,        B}
 union      Bar       
       {    A,    
             B}
 `,
-        expected: `
+      expected: `
 union Foo {
   A,
   B,
@@ -2238,27 +2237,27 @@ union Bar {
   B,
 }
 `,
-      });
     });
+  });
 
-    it("format named union", async () => {
-      await assertFormat({
-        code: `
+  it("format named union", async () => {
+    await assertFormat({
+      code: `
         union      Foo       {    a: A,        b:       B}
 `,
-        expected: `
+      expected: `
 union Foo {
   a: A,
   b: B,
 }
 
 `,
-      });
     });
+  });
 
-    it("separate members if there is decorators", async () => {
-      await assertFormat({
-        code: `
+  it("separate members if there is decorators", async () => {
+    await assertFormat({
+      code: `
 union      Foo       {   
   @doc("foo") 
         a: A,    @doc("bar") 
@@ -2270,7 +2269,7 @@ union      Foo       {
        c    : C}
 
 `,
-        expected: `
+      expected: `
 union Foo {
   @doc("foo")
   a: A,
@@ -2282,16 +2281,16 @@ union Foo {
   c: C,
 }
 `,
-      });
     });
+  });
 
-    // Regression test for https://github.com/microsoft/typespec/issues/11009
-    it("does not add a blank line or extra indent for a union used as a template argument", async () => {
-      await assertFormat({
-        code: `
+  // Regression test for https://github.com/microsoft/typespec/issues/11009
+  it("does not add a blank line or extra indent for a union used as a template argument", async () => {
+    await assertFormat({
+      code: `
 model Picked is PickProperties<Sample, "alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
 `,
-        expected: `
+      expected: `
 model Picked is PickProperties<
   Sample,
   | "alpha"
@@ -2304,15 +2303,15 @@ model Picked is PickProperties<
   | "hotel"
 >;
 `,
-      });
     });
+  });
 
-    it("keeps leading | and indent for a union used as the only template argument", async () => {
-      await assertFormat({
-        code: `
+  it("keeps leading | and indent for a union used as the only template argument", async () => {
+    await assertFormat({
+      code: `
 model Picked is PickProperties<"alpha" | "bravo" | "charlie" | "delta" | "echo" | "foxtrot" | "golf" | "hotel">;
 `,
-        expected: `
+      expected: `
 model Picked
   is PickProperties<
     | "alpha"
@@ -2324,18 +2323,18 @@ model Picked
     | "golf"
     | "hotel">;
 `,
-      });
     });
+  });
 
-    // Regression test for https://github.com/microsoft/typespec/issues/11092
-    it("keeps leading | and indent for a union used as a named template argument", async () => {
-      await assertFormat({
-        code: `
+  // Regression test for https://github.com/microsoft/typespec/issues/11092
+  it("keeps leading | and indent for a union used as a named template argument", async () => {
+    await assertFormat({
+      code: `
 model Test<A, TakesALongUnion> {}
 
 alias Alias = Test<A = "Some long value", TakesALongUnion = string | int32 | int64 | "Some very long string that split line">;
 `,
-        expected: `
+      expected: `
 model Test<A, TakesALongUnion> {}
 
 alias Alias = Test<
@@ -2347,16 +2346,16 @@ alias Alias = Test<
     | "Some very long string that split line"
 >;
 `,
-      });
     });
+  });
 
-    // Regression test for https://github.com/microsoft/typespec/issues/11009
-    it("keeps the variant alignment so a nested template argument stays indented", async () => {
-      await assertFormat({
-        code: `
+  // Regression test for https://github.com/microsoft/typespec/issues/11009
+  it("keeps the variant alignment so a nested template argument stays indented", async () => {
+    await assertFormat({
+      code: `
 model Created is Operation<Request, Response | CreatedResponse<ResponseBodyModel, LroHeaders = AsyncOperationHeader<FinalResult = ResponseBodyModel>>, Error>;
 `,
-        expected: `
+      expected: `
 model Created is Operation<
   Request,
   | Response
@@ -2367,51 +2366,51 @@ model Created is Operation<
   Error
 >;
 `,
-      });
+    });
+  });
+});
+
+describe("namespaces", () => {
+  it("format global namespace", async () => {
+    await assertFormat({
+      code: `
+namespace     Foo;
+`,
+      expected: `
+namespace Foo;
+`,
     });
   });
 
-  describe("namespaces", () => {
-    it("format global namespace", async () => {
-      await assertFormat({
-        code: `
-namespace     Foo;
-`,
-        expected: `
-namespace Foo;
-`,
-      });
-    });
-
-    it("format global nested namespace", async () => {
-      await assertFormat({
-        code: `
+  it("format global nested namespace", async () => {
+    await assertFormat({
+      code: `
 namespace Foo     .   Bar;
 `,
-        expected: `
+      expected: `
 namespace Foo.Bar;
 `,
-      });
     });
+  });
 
-    it("format global namespace with decorators", async () => {
-      await assertFormat({
-        code: `
+  it("format global namespace with decorators", async () => {
+    await assertFormat({
+      code: `
   @service
     @other
 namespace Foo     .   Bar;
 `,
-        expected: `
+      expected: `
 @service
 @other
 namespace Foo.Bar;
 `,
-      });
     });
+  });
 
-    it("format namespace with body", async () => {
-      await assertFormat({
-        code: `
+  it("format namespace with body", async () => {
+    await assertFormat({
+      code: `
 namespace     Foo { 
   op some(): string;
 }
@@ -2421,7 +2420,7 @@ namespace Foo     .   Bar {
   op some(): string;
 }
 `,
-        expected: `
+      expected: `
 namespace Foo {
   op some(): string;
 }
@@ -2430,12 +2429,12 @@ namespace Foo.Bar {
   op some(): string;
 }
 `,
-      });
     });
+  });
 
-    it("format nested namespaces", async () => {
-      await assertFormat({
-        code: `
+  it("format nested namespaces", async () => {
+    await assertFormat({
+      code: `
 namespace     Foo { 
 namespace   Bar { 
 op some(): string;
@@ -2444,51 +2443,51 @@ op some(): string;
 
 
 `,
-        expected: `
+      expected: `
 namespace Foo {
   namespace Bar {
     op some(): string;
   }
 }
 `,
-      });
     });
   });
+});
 
-  describe("single line string literals", () => {
-    it("format single line string literal", async () => {
-      await assertFormat({
-        code: `
+describe("single line string literals", () => {
+  it("format single line string literal", async () => {
+    await assertFormat({
+      code: `
 @doc(   "this is a doc.  "
  )
 model Foo {}
 `,
-        expected: `
+      expected: `
 @doc("this is a doc.  ")
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("format single line with newline characters", async () => {
-      await assertFormat({
-        code: `
+  it("format single line with newline characters", async () => {
+    await assertFormat({
+      code: `
 @doc(   "foo\\nbar"
  )
 model Foo {}
 `,
-        expected: `
+      expected: `
 @doc("foo\\nbar")
 model Foo {}
 `,
-      });
     });
   });
+});
 
-  describe("multi line string literals", () => {
-    it("keeps trailing whitespaces", async () => {
-      await assertFormat({
-        code: `
+describe("multi line string literals", () => {
+  it("keeps trailing whitespaces", async () => {
+    await assertFormat({
+      code: `
 @doc(   """
 3 whitespaces   
 
@@ -2497,7 +2496,7 @@ and blank line above
  )
 model Foo {}
 `,
-        expected: `
+      expected: `
 @doc("""
   3 whitespaces   
   
@@ -2505,12 +2504,12 @@ model Foo {}
   """)
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("keeps indent relative to closing quotes", async () => {
-      await assertFormat({
-        code: `
+  it("keeps indent relative to closing quotes", async () => {
+    await assertFormat({
+      code: `
 @doc(   """
 this is a doc.
  that
@@ -2520,7 +2519,7 @@ this is a doc.
  )
 model Foo {}
 `,
-        expected: `
+      expected: `
 @doc("""
   this is a doc.
    that
@@ -2529,12 +2528,12 @@ model Foo {}
   """)
 model Foo {}
 `,
-      });
     });
+  });
 
-    it("keeps escaped charaters", async () => {
-      await assertFormat({
-        code: `
+  it("keeps escaped charaters", async () => {
+    await assertFormat({
+      code: `
 @doc(   """
 with \\n
 and \\t
@@ -2542,111 +2541,111 @@ and \\t
  )
 model Foo {}
 `,
-        expected: `
+      expected: `
 @doc("""
   with \\n
   and \\t
   """)
 model Foo {}
 `,
-      });
+    });
+  });
+});
+
+describe("number literals", () => {
+  it("format integer", async () => {
+    await assertFormat({
+      code: `
+alias MyNum =     123   ;
+`,
+      expected: `
+alias MyNum = 123;
+`,
     });
   });
 
-  describe("number literals", () => {
-    it("format integer", async () => {
-      await assertFormat({
-        code: `
-alias MyNum =     123   ;
-`,
-        expected: `
-alias MyNum = 123;
-`,
-      });
-    });
-
-    it("format float", async () => {
-      await assertFormat({
-        code: `
+  it("format float", async () => {
+    await assertFormat({
+      code: `
 alias MyFloat1 =     1.234   ;
 alias MyFloat2 =     0.123   ;
 `,
-        expected: `
+      expected: `
 alias MyFloat1 = 1.234;
 alias MyFloat2 = 0.123;
 `,
-      });
-    });
-
-    it("format e notation numbers", async () => {
-      await assertFormat({
-        code: `
-alias MyBigNumber =     1.0e8  ;
-`,
-        expected: `
-alias MyBigNumber = 1.0e8;
-`,
-      });
-    });
-
-    it("format big numbers", async () => {
-      await assertFormat({
-        code: `
-alias MyBigNumber =     1.0e999999999   ;
-`,
-        expected: `
-alias MyBigNumber = 1.0e999999999;
-`,
-      });
     });
   });
 
-  describe("recoverable error can be fixed", () => {
-    it("adds missing ;", async () => {
-      await assertFormat({
-        code: `
+  it("format e notation numbers", async () => {
+    await assertFormat({
+      code: `
+alias MyBigNumber =     1.0e8  ;
+`,
+      expected: `
+alias MyBigNumber = 1.0e8;
+`,
+    });
+  });
+
+  it("format big numbers", async () => {
+    await assertFormat({
+      code: `
+alias MyBigNumber =     1.0e999999999   ;
+`,
+      expected: `
+alias MyBigNumber = 1.0e999999999;
+`,
+    });
+  });
+});
+
+describe("recoverable error can be fixed", () => {
+  it("adds missing ;", async () => {
+    await assertFormat({
+      code: `
 alias Foo = string
 model Bar {}
 `,
-        expected: `
+      expected: `
 alias Foo = string;
 model Bar {}
 `,
-      });
     });
+  });
 
-    it("adds missing } at the end of the file", async () => {
-      await assertFormat({
-        code: `
+  it("adds missing } at the end of the file", async () => {
+    await assertFormat({
+      code: `
 namespace Bar {
 `,
-        expected: `
+      expected: `
 namespace Bar {
 
 }
 `,
-      });
     });
   });
+});
 
-  describe("directives", () => {
-    it("keeps directive before a model", async () => {
-      await assertFormat({
-        code: `
+describe("directives", () => {
+  it("keeps directive before a model", async () => {
+    await assertFormat({
+      code: `
   #suppress "some-error"    "because"
   
 model Bar {}
 `,
-        expected: `
+      expected: `
 #suppress "some-error" "because"
 model Bar {}
 `,
-      });
     });
+  });
 
-    it("keeps directive before a model property", async () => {
-      await assertFormat({
-        code: `
+  it("keeps directive before a model property", async () => {
+    await assertFormat({
+      code: `
         
         model Bar {
           
@@ -2654,18 +2653,18 @@ model Bar {}
   id: string;
 }
 `,
-        expected: `
+      expected: `
 model Bar {
   #suppress "some-error" "because"
   id: string;
 }
 `,
-      });
     });
+  });
 
-    it("keeps directive before a decorators", async () => {
-      await assertFormat({
-        code: `
+  it("keeps directive before a decorators", async () => {
+    await assertFormat({
+      code: `
   #suppress   "some-error"     "because"
     @decorate("args")
    @decorate()
@@ -2673,7 +2672,7 @@ model Bar {
 
 namespace MyNamespace {}
 `,
-        expected: `
+      expected: `
 #suppress "some-error" "because"
 @decorate("args")
 @decorate
@@ -2681,12 +2680,12 @@ namespace MyNamespace {
 
 }
 `,
-      });
     });
+  });
 
-    it("directive hugs decorators on model property", async () => {
-      await assertFormat({
-        code: `
+  it("directive hugs decorators on model property", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   prop1: string;
   #suppress   "some-error"     "because"
@@ -2695,7 +2694,7 @@ model Foo {
    prop2: string;
   }
 `,
-        expected: `
+      expected: `
 model Foo {
   prop1: string;
 
@@ -2705,73 +2704,73 @@ model Foo {
   prop2: string;
 }
 `,
-      });
     });
   });
+});
 
-  describe("decorator declaration", () => {
-    it("format simple decorator declaration inline", async () => {
-      await assertFormat({
-        code: `
+describe("decorator declaration", () => {
+  it("format simple decorator declaration inline", async () => {
+    await assertFormat({
+      code: `
 extern 
   dec 
     foo(target: Type, 
       arg1: StringLiteral);
       `,
-        expected: `
+      expected: `
 extern dec foo(target: Type, arg1: StringLiteral);
 `,
-      });
     });
+  });
 
-    it("format decorator without parameter types", async () => {
-      await assertFormat({
-        code: `
+  it("format decorator without parameter types", async () => {
+    await assertFormat({
+      code: `
 extern 
   dec 
     foo(target, 
       arg1);
       `,
-        expected: `
+      expected: `
 extern dec foo(target, arg1);
 `,
-      });
     });
+  });
 
-    it("format decorator with optional parameters", async () => {
-      await assertFormat({
-        code: `
+  it("format decorator with optional parameters", async () => {
+    await assertFormat({
+      code: `
 extern 
   dec 
     foo(target: Type, arg1: StringLiteral, 
       arg2?: StringLiteral);
       `,
-        expected: `
+      expected: `
 extern dec foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral);
 `,
-      });
     });
+  });
 
-    it("format decorator with rest parameters", async () => {
-      await assertFormat({
-        code: `
+  it("format decorator with rest parameters", async () => {
+    await assertFormat({
+      code: `
 extern 
   dec 
     foo(target: Type, arg1: StringLiteral,
       ...args: StringLiteral[]);
       `,
-        expected: `
+      expected: `
 extern dec foo(target: Type, arg1: StringLiteral, ...args: StringLiteral[]);
 `,
-      });
     });
+  });
 
-    it("split decorator argument into multiple lines if too long", async () => {
-      await assertFormat({
-        code: `
+  it("split decorator argument into multiple lines if too long", async () => {
+    await assertFormat({
+      code: `
 extern dec  foo(target: Type,   arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral);
       `,
-        expected: `
+      expected: `
 extern dec foo(
   target: Type,
   arg1: StringLiteral,
@@ -2780,73 +2779,73 @@ extern dec foo(
   arg4: StringLiteral
 );
 `,
-      });
     });
   });
+});
 
-  describe("function declaration", () => {
-    it("format simple function declaration inline", async () => {
-      await assertFormat({
-        code: `
+describe("function declaration", () => {
+  it("format simple function declaration inline", async () => {
+    await assertFormat({
+      code: `
 extern 
   fn 
     foo( 
       arg1: StringLiteral) :   void;
       `,
-        expected: `
+      expected: `
 extern fn foo(arg1: StringLiteral): void;
 `,
-      });
     });
+  });
 
-    it("format function without parameter types and return type", async () => {
-      await assertFormat({
-        code: `
+  it("format function without parameter types and return type", async () => {
+    await assertFormat({
+      code: `
 extern 
   fn 
     foo(target, 
       arg1);
       `,
-        expected: `
+      expected: `
 extern fn foo(target, arg1);
 `,
-      });
     });
+  });
 
-    it("format function with optional parameters", async () => {
-      await assertFormat({
-        code: `
+  it("format function with optional parameters", async () => {
+    await assertFormat({
+      code: `
 extern 
   fn 
     foo(target: Type, arg1: StringLiteral, 
       arg2?: StringLiteral): void;
       `,
-        expected: `
+      expected: `
 extern fn foo(target: Type, arg1: StringLiteral, arg2?: StringLiteral): void;
 `,
-      });
     });
+  });
 
-    it("format function with rest parameters", async () => {
-      await assertFormat({
-        code: `
+  it("format function with rest parameters", async () => {
+    await assertFormat({
+      code: `
 extern 
   fn 
     foo(target: Type, arg1: Type,
       ...args: Type[]): void;
       `,
-        expected: `
+      expected: `
 extern fn foo(target: Type, arg1: Type, ...args: Type[]): void;
 `,
-      });
     });
+  });
 
-    it("split decorator argument into multiple lines if too long", async () => {
-      await assertFormat({
-        code: `
+  it("split decorator argument into multiple lines if too long", async () => {
+    await assertFormat({
+      code: `
 extern fn  foo( arg1: StringLiteral,  arg2: StringLiteral,  arg3: StringLiteral,  arg4: StringLiteral) : void;
       `,
-        expected: `
+      expected: `
 extern fn foo(
   arg1: StringLiteral,
   arg2: StringLiteral,
@@ -2854,51 +2853,51 @@ extern fn foo(
   arg4: StringLiteral
 ): void;
 `,
-      });
     });
   });
+});
 
-  describe("decorators", () => {
-    it("keep simple decorators inline", async () => {
-      await assertFormat({
-        code: `
+describe("decorators", () => {
+  it("keep simple decorators inline", async () => {
+    await assertFormat({
+      code: `
 namespace Foo {
   @route("inline")  op       simple(): string;
 }
       `,
-        expected: `
+      expected: `
 namespace Foo {
   @route("inline") op simple(): string;
 }
       `,
-      });
     });
+  });
 
-    it("it preserve new line if provided", async () => {
-      await assertFormat({
-        code: `
+  it("it preserve new line if provided", async () => {
+    await assertFormat({
+      code: `
 namespace Foo {
   @route("inline")
          op  my(): string;
 }
       `,
-        expected: `
+      expected: `
 namespace Foo {
   @route("inline")
   op my(): string;
 }
       `,
-      });
     });
+  });
 
-    it("split by new line if there is more than 2 decorator", async () => {
-      await assertFormat({
-        code: `
+  it("split by new line if there is more than 2 decorator", async () => {
+    await assertFormat({
+      code: `
 namespace Foo {
   @route("inline") @mark @bar op       my(): string;
 }
       `,
-        expected: `
+      expected: `
 namespace Foo {
   @route("inline")
   @mark
@@ -2906,48 +2905,48 @@ namespace Foo {
   op my(): string;
 }
       `,
-      });
     });
+  });
 
-    it("split decorator first if line is long", async () => {
-      await assertFormat({
-        code: `
+  it("split decorator first if line is long", async () => {
+    await assertFormat({
+      code: `
 namespace Foo {
   @doc("this is a very long documentation that will for sure overflow the max line length") op my(parm: string): string;
 }
       `,
-        expected: `
+      expected: `
 namespace Foo {
   @doc("this is a very long documentation that will for sure overflow the max line length")
   op my(parm: string): string;
 }
       `,
-      });
     });
   });
+});
 
-  describe("augment decorators", () => {
-    it("format into a single line if possible", async () => {
-      await assertFormat({
-        code: `
+describe("augment decorators", () => {
+  it("format into a single line if possible", async () => {
+    await assertFormat({
+      code: `
 @@doc(Foo, 
   
         "This is some post doc"
         
         )
       `,
-        expected: `
+      expected: `
 @@doc(Foo, "This is some post doc");
       `,
-      });
     });
+  });
 
-    it("break arguments per lines if the decorator is too long", async () => {
-      await assertFormat({
-        code: `
+  it("break arguments per lines if the decorator is too long", async () => {
+    await assertFormat({
+      code: `
 @@doc(Foo,  "This is getting very very very long 1", "This is getting very very very long 2", "This is getting very very very long 3");
       `,
-        expected: `
+      expected: `
 @@doc(
   Foo,
   "This is getting very very very long 1",
@@ -2955,551 +2954,550 @@ namespace Foo {
   "This is getting very very very long 3"
 );
       `,
-      });
     });
+  });
 
-    it("break arguments per lines when decorator name is very long", async () => {
-      await assertFormat({
-        code: `
+  it("break arguments per lines when decorator name is very long", async () => {
+    await assertFormat({
+      code: `
 @@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(subscribe1);
       `,
-        expected: `
+      expected: `
 @@Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator.Some.Very.Long.Namespace.Decorator(
   subscribe1
 );
       `,
-      });
     });
   });
+});
 
-  describe("interfaces", () => {
-    it("removes op prefix", async () => {
-      await assertFormat({
-        code: `
+describe("interfaces", () => {
+  it("removes op prefix", async () => {
+    await assertFormat({
+      code: `
 interface Foo {
   op foo(): int32;
 }`,
-        expected: `
+      expected: `
 interface Foo {
   foo(): int32;
 }`,
-      });
     });
   });
+});
 
-  describe("templated types", () => {
-    it("format parameter declarations", async () => {
-      await assertFormat({
-        code: `
+describe("templated types", () => {
+  it("format parameter declarations", async () => {
+    await assertFormat({
+      code: `
 model Foo<   T  , K
 > {
 }`,
-        expected: `
+      expected: `
 model Foo<T, K> {}`,
-      });
     });
+  });
 
-    it("format parameter declarations with defaults", async () => {
-      await assertFormat({
-        code: `
+  it("format parameter declarations with defaults", async () => {
+    await assertFormat({
+      code: `
 model Foo<   T  ="abc",    K =        134
 > {
 }`,
-        expected: `
+      expected: `
 model Foo<T = "abc", K = 134> {}`,
-      });
     });
+  });
 
-    it("format parameter declarations with constraints", async () => {
-      await assertFormat({
-        code: `
+  it("format parameter declarations with constraints", async () => {
+    await assertFormat({
+      code: `
 model Foo<   T  extends      string, K      extends { 
         foo: int32   }
 > {
 }`,
-        expected: `
+      expected: `
 model Foo<T extends string, K extends {foo: int32}> {}`,
-      });
-    });
-
-    it("format parameter declarations with constraints and defaults", async () => {
-      await assertFormat({
-        code: `
-model Foo<T       extends    string =      
-    "abc"> {
-}`,
-        expected: `
-model Foo<T extends string = "abc"> {}`,
-      });
     });
   });
 
-  describe("template references", () => {
-    it("format simple template reference", async () => {
-      await assertFormat({
-        code: `
+  it("format parameter declarations with constraints and defaults", async () => {
+    await assertFormat({
+      code: `
+model Foo<T       extends    string =      
+    "abc"> {
+}`,
+      expected: `
+model Foo<T extends string = "abc"> {}`,
+    });
+  });
+});
+
+describe("template references", () => {
+  it("format simple template reference", async () => {
+    await assertFormat({
+      code: `
 alias Foo = Bar<        
   string
 >;
 `,
-        expected: `
+      expected: `
 alias Foo = Bar<string>;`,
-      });
     });
+  });
 
-    it("doesn't split if there is a single argument that is too long", async () => {
-      await assertFormat({
-        code: `
+  it("doesn't split if there is a single argument that is too long", async () => {
+    await assertFormat({
+      code: `
 alias Foo = Bar<
   "very very very very very very very very very very very verylong string that is overflowing the max column allowed">;
 `,
-        expected: `
+      expected: `
 alias Foo = Bar<"very very very very very very very very very very very verylong string that is overflowing the max column allowed">;`,
-      });
     });
+  });
 
-    it("doesn't split if there is multiple args but line is not too long", async () => {
-      await assertFormat({
-        code: `
+  it("doesn't split if there is multiple args but line is not too long", async () => {
+    await assertFormat({
+      code: `
 alias Foo = Bar<
   string,     int32, 
     boolean
 `,
-        expected: `
+      expected: `
 alias Foo = Bar<string, int32, boolean>;`,
-      });
     });
+  });
 
-    it("split and indent if there is multiple argument and line is overflowing the max column allowed", async () => {
-      await assertFormat({
-        code: `
+  it("split and indent if there is multiple argument and line is overflowing the max column allowed", async () => {
+    await assertFormat({
+      code: `
 alias Foo = Bar<
   "very long string that is overflowing the max column allowed",  "very long string that is overflowing the max column allowed">;
 `,
-        expected: `
+      expected: `
 alias Foo = Bar<
   "very long string that is overflowing the max column allowed",
   "very long string that is overflowing the max column allowed"
 >;`,
-      });
     });
+  });
 
-    it("handles nested named template args", async () => {
-      await assertFormat({
-        code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
-        expected: `
+  it("handles nested named template args", async () => {
+    await assertFormat({
+      code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
+      expected: `
 alias F = Foo<
   int32,
   V = Foo<V = unknown, T = null, U = "test">,
   U = Foo<string, T = int32, V = never>
 >;`,
-      });
     });
   });
+});
 
-  describe("array expression", () => {
-    it("format an array expression", async () => {
-      await assertFormat({
-        code: `
+describe("array expression", () => {
+  it("format an array expression", async () => {
+    await assertFormat({
+      code: `
 alias Foo = string       [];
 `,
-        expected: `
+      expected: `
 alias Foo = string[];
 `,
-      });
-    });
-
-    it("keeps parentheses for array type if necessary(for union)", async () => {
-      await assertFormat({
-        code: `
-alias Foo = (string     | int32    )  [];
-`,
-        expected: `
-alias Foo = (string | int32)[];
-`,
-      });
-    });
-
-    it("keeps parentheses for array type if necessary(for intersection)", async () => {
-      await assertFormat({
-        code: `
-alias Foo = (string     & int32    )  [];
-`,
-        expected: `
-alias Foo = (string & int32)[];
-`,
-      });
     });
   });
 
-  describe("tuple expression", () => {
-    it("format a single line tuple", async () => {
-      await assertFormat({
-        code: `
+  it("keeps parentheses for array type if necessary(for union)", async () => {
+    await assertFormat({
+      code: `
+alias Foo = (string     | int32    )  [];
+`,
+      expected: `
+alias Foo = (string | int32)[];
+`,
+    });
+  });
+
+  it("keeps parentheses for array type if necessary(for intersection)", async () => {
+    await assertFormat({
+      code: `
+alias Foo = (string     & int32    )  [];
+`,
+      expected: `
+alias Foo = (string & int32)[];
+`,
+    });
+  });
+});
+
+describe("tuple expression", () => {
+  it("format a single line tuple", async () => {
+    await assertFormat({
+      code: `
 alias Foo = [string, 
   "abc",           134];
 `,
-        expected: `
+      expected: `
 alias Foo = [string, "abc", 134];
 `,
-      });
     });
-    it("format a long tuple over multi line", async () => {
-      await assertFormat({
-        code: `
+  });
+  it("format a long tuple over multi line", async () => {
+    await assertFormat({
+      code: `
 alias Foo = ["very long text that will overflow 1","very long text that will overflow 2", "very long text that will overflow 3" ];
 `,
-        expected: `
+      expected: `
 alias Foo = [
   "very long text that will overflow 1",
   "very long text that will overflow 2",
   "very long text that will overflow 3"
 ];
 `,
-      });
     });
   });
+});
 
-  describe("empty statements", () => {
-    it("remove empty statements", async () => {
-      await assertFormat({
-        code: `
+describe("empty statements", () => {
+  it("remove empty statements", async () => {
+    await assertFormat({
+      code: `
   alias foo = "";;;;
   `,
-        expected: `
+      expected: `
 alias foo = "";
   `,
-      });
-    });
-
-    it("keeps comments inside empty statements", async () => {
-      await assertFormat({
-        code: `
-  alias foo = "";; /* one */ ;; /* two */ ;;; /* three */ ;;
-  `,
-        expected: `
-alias foo = ""; /* one */ /* two */ /* three */
-  `,
-      });
     });
   });
 
-  describe("member expression", () => {
-    it("a simple member expression", async () => {
-      await assertFormat({
-        code: `
+  it("keeps comments inside empty statements", async () => {
+    await assertFormat({
+      code: `
+  alias foo = "";; /* one */ ;; /* two */ ;;; /* three */ ;;
+  `,
+      expected: `
+alias foo = ""; /* one */ /* two */ /* three */
+  `,
+    });
+  });
+});
+
+describe("member expression", () => {
+  it("a simple member expression", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   p: Some .     bar;
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   p: Some.bar;
 }
 `,
-      });
     });
-    it("nested member expression", async () => {
-      await assertFormat({
-        code: `
+  });
+  it("nested member expression", async () => {
+    await assertFormat({
+      code: `
 model Foo {
   p: Some . 
   Nested.     bar;
 }
 `,
-        expected: `
+      expected: `
 model Foo {
   p: Some.Nested.bar;
 }
 `,
-      });
     });
   });
+});
 
-  describe("meta type accessor", () => {
-    it("format with ::", async () => {
-      await assertFormat({
-        code: `
+describe("meta type accessor", () => {
+  it("format with ::", async () => {
+    await assertFormat({
+      code: `
 @@doc(myOp ::  parameters.foo, "")
 `,
-        expected: `
+      expected: `
 @@doc(myOp::parameters.foo, "");
 `,
-      });
     });
   });
+});
 
-  describe("valueof", () => {
-    it("format simple valueof", async () => {
-      await assertFormat({
-        code: `
+describe("valueof", () => {
+  it("format simple valueof", async () => {
+    await assertFormat({
+      code: `
 model Foo<T extends      valueof        string>{}
 `,
-        expected: `
+      expected: `
 model Foo<T extends valueof string> {}
 `,
-      });
     });
+  });
 
-    it("keeps parentheses around valueof inside a union", async () => {
-      await assertFormat({
-        code: `
+  it("keeps parentheses around valueof inside a union", async () => {
+    await assertFormat({
+      code: `
 model Foo<T extends      (valueof        string) | Model   >{}
 `,
-        expected: `
+      expected: `
 model Foo<T extends (valueof string) | Model> {}
 `,
-      });
     });
   });
+});
 
-  describe("when embedded", () => {
-    it("doesn't include blank line at the end (in markdown)", async () => {
+describe("when embedded", () => {
+  it("doesn't include blank line at the end (in markdown)", async () => {
+    await assertFormat({
+      parser: "markdown",
+      code: `
+This is markdown
+\`\`\`typespec
+
+op test(): string;
+
+
+\`\`\`
+`,
+      expected: `
+This is markdown
+
+\`\`\`typespec
+op test(): string;
+\`\`\`
+`,
+    });
+  });
+});
+
+describe("string templates", () => {
+  describe("single line", () => {
+    it("format simple single line string template", async () => {
       await assertFormat({
-        parser: "markdown",
-        code: `
-This is markdown
-\`\`\`typespec
-
-op test(): string;
-
-
-\`\`\`
-`,
-        expected: `
-This is markdown
-
-\`\`\`typespec
-op test(): string;
-\`\`\`
-`,
+        code: `alias T = "foo \${     "def" } baz";`,
+        expected: `alias T = "foo \${"def"} baz";`,
       });
     });
-  });
 
-  describe("string templates", () => {
-    describe("single line", () => {
-      it("format simple single line string template", async () => {
-        await assertFormat({
-          code: `alias T = "foo \${     "def" } baz";`,
-          expected: `alias T = "foo \${"def"} baz";`,
-        });
+    it("format simple single line string template with multiple interpolation", async () => {
+      await assertFormat({
+        code: `alias T = "foo \${     "one" } bar \${"two" } baz";`,
+        expected: `alias T = "foo \${"one"} bar \${"two"} baz";`,
       });
+    });
 
-      it("format simple single line string template with multiple interpolation", async () => {
-        await assertFormat({
-          code: `alias T = "foo \${     "one" } bar \${"two" } baz";`,
-          expected: `alias T = "foo \${"one"} bar \${"two"} baz";`,
-        });
-      });
-
-      it("format model expression in single line string template", async () => {
-        await assertFormat({
-          code: `alias T = "foo \${     {foo: 1, bar: 2} } baz";`,
-          expected: `
+    it("format model expression in single line string template", async () => {
+      await assertFormat({
+        code: `alias T = "foo \${     {foo: 1, bar: 2} } baz";`,
+        expected: `
 alias T = "foo \${{
   foo: 1;
   bar: 2;
 }} baz";
           `,
-        });
       });
     });
-    describe("triple quoted", () => {
-      it("format simple single line string template", async () => {
-        await assertFormat({
-          code: `
+  });
+  describe("triple quoted", () => {
+    it("format simple single line string template", async () => {
+      await assertFormat({
+        code: `
 alias T = """
     This \${     "one" } goes over
     multiple
     \${     "two" }
     lines
     """;`,
-          expected: `
+        expected: `
 alias T = """
   This \${"one"} goes over
   multiple
   \${"two"}
   lines
   """;`,
-        });
       });
     });
   });
+});
 
-  describe("const", () => {
-    it("format const without type annotations", async () => {
-      await assertFormat({
-        code: `
+describe("const", () => {
+  it("format const without type annotations", async () => {
+    await assertFormat({
+      code: `
 const     a  =   123;
 `,
-        expected: `
+      expected: `
 const a = 123;
 `,
-      });
-    });
-
-    it("format const with type annotations", async () => {
-      await assertFormat({
-        code: `
-const     a  : in32=   123;
-`,
-        expected: `
-const a: in32 = 123;
-`,
-      });
     });
   });
 
-  describe("internal modifier", () => {
-    it("format internal model", async () => {
-      await assertFormat({
-        code: `
+  it("format const with type annotations", async () => {
+    await assertFormat({
+      code: `
+const     a  : in32=   123;
+`,
+      expected: `
+const a: in32 = 123;
+`,
+    });
+  });
+});
+
+describe("internal modifier", () => {
+  it("format internal model", async () => {
+    await assertFormat({
+      code: `
 internal    model   Foo { }
 `,
-        expected: `
+      expected: `
 internal model Foo {}
 `,
-      });
     });
+  });
 
-    it("format internal model with decorators", async () => {
-      await assertFormat({
-        code: `
+  it("format internal model with decorators", async () => {
+    await assertFormat({
+      code: `
 @doc("A model")
 internal    model   Foo { x: string; }
 `,
-        expected: `
+      expected: `
 @doc("A model")
 internal model Foo {
   x: string;
 }
 `,
-      });
     });
+  });
 
-    it("format internal op", async () => {
-      await assertFormat({
-        code: `
+  it("format internal op", async () => {
+    await assertFormat({
+      code: `
 internal    op   foo(): void;
 `,
-        expected: `
+      expected: `
 internal op foo(): void;
 `,
-      });
     });
+  });
 
-    it("format internal scalar", async () => {
-      await assertFormat({
-        code: `
+  it("format internal scalar", async () => {
+    await assertFormat({
+      code: `
 internal    scalar   foo;
 `,
-        expected: `
+      expected: `
 internal scalar foo;
 `,
-      });
     });
+  });
 
-    it("format internal interface", async () => {
-      await assertFormat({
-        code: `
+  it("format internal interface", async () => {
+    await assertFormat({
+      code: `
 internal    interface   Foo { }
 `,
-        expected: `
+      expected: `
 internal interface Foo {}
 `,
-      });
     });
+  });
 
-    it("format internal union", async () => {
-      await assertFormat({
-        code: `
+  it("format internal union", async () => {
+    await assertFormat({
+      code: `
 internal    union   Foo { }
 `,
-        expected: `
+      expected: `
 internal union Foo {}
 `,
-      });
     });
+  });
 
-    it("format internal enum", async () => {
-      await assertFormat({
-        code: `
+  it("format internal enum", async () => {
+    await assertFormat({
+      code: `
 internal    enum   Foo { a, b }
 `,
-        expected: `
+      expected: `
 internal enum Foo {
   a,
   b,
 }
 `,
-      });
     });
+  });
 
-    it("format internal alias", async () => {
-      await assertFormat({
-        code: `
+  it("format internal alias", async () => {
+    await assertFormat({
+      code: `
 internal    alias   Foo  =  string;
 `,
-        expected: `
+      expected: `
 internal alias Foo = string;
 `,
-      });
     });
+  });
 
-    it("format internal const", async () => {
-      await assertFormat({
-        code: `
+  it("format internal const", async () => {
+    await assertFormat({
+      code: `
 internal    const   x  =   123;
 `,
-        expected: `
+      expected: `
 internal const x = 123;
 `,
-      });
     });
+  });
 
-    it("format internal extern dec", async () => {
-      await assertFormat({
-        code: `
+  it("format internal extern dec", async () => {
+    await assertFormat({
+      code: `
 internal   extern    dec   foo(target: Type,    arg1: StringLiteral);
 `,
-        expected: `
+      expected: `
 internal extern dec foo(target: Type, arg1: StringLiteral);
 `,
-      });
     });
+  });
 
-    it("format auto dec", async () => {
-      await assertFormat({
-        code: `
+  it("format auto dec", async () => {
+    await assertFormat({
+      code: `
 auto    dec   foo(target: Type,    arg1: StringLiteral);
 `,
-        expected: `
+      expected: `
 auto dec foo(target: Type, arg1: StringLiteral);
 `,
-      });
     });
+  });
 
-    it("format internal auto dec", async () => {
-      await assertFormat({
-        code: `
+  it("format internal auto dec", async () => {
+    await assertFormat({
+      code: `
 internal   auto    dec   foo(target: Type,    arg1: StringLiteral);
 `,
-        expected: `
+      expected: `
 internal auto dec foo(target: Type, arg1: StringLiteral);
 `,
-      });
     });
+  });
 
-    it("format internal extern fn", async () => {
-      await assertFormat({
-        code: `
+  it("format internal extern fn", async () => {
+    await assertFormat({
+      code: `
 internal   extern    fn   foo(arg1: StringLiteral): void;
 `,
-        expected: `
+      expected: `
 internal extern fn foo(arg1: StringLiteral): void;
 `,
-      });
     });
   });
 });

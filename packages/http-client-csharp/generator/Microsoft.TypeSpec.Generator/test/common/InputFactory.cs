@@ -731,7 +731,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string httpMethod = "GET",
             bool generateConvenienceMethod = true,
             string? ns = null,
-            bool isExactName = false)
+            bool isExactName = false,
+            bool generateProtocolMethod = true)
         {
             var operation = new InputOperation(
                 name,
@@ -748,7 +749,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 requestMediaTypes is null ? null : [.. requestMediaTypes],
                 false,
-                true,
+                generateProtocolMethod,
                 generateConvenienceMethod,
                 name,
                 ns);

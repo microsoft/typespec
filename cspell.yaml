@@ -200,6 +200,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - oxlint
   - openapiv
   - Packument
   - Perfolizer
@@ -217,6 +218,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments
@@ -278,6 +280,7 @@ words:
   - tsconfigs
   - tsdoc
   - TSES
+  - tsgolint
   - tspd
   - tspwebsitepr
   - tsvs
@@ -314,7 +317,9 @@ words:
   - vnet
   - VNEXT
   - vsix
+  - vsextensions
   - vsmarketplace
+  - vspackage
   - VSSDK
   - Vsts
   - vswhere

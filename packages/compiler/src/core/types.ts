@@ -2209,6 +2209,13 @@ export interface LibraryLocationContext {
 
   /** Module definition */
   readonly flags?: PackageFlags;
+
+  /**
+   * Compiler features enabled for this library, as declared in the library's own
+   * `tspconfig.yaml` `features`. Used to gate experimental features (e.g. `auto-decorators`)
+   * for the library's own source files, independently of the consuming project's config.
+   */
+  readonly features?: readonly string[];
 }
 
 export interface LibraryInstance {

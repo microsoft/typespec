@@ -42,7 +42,7 @@ namespace Sample
                 if (!Patch.IsRemoved("$.cats"u8))
                 {
                     writer.WritePropertyName("cats"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.cats"u8));
+                    Patch.WriteTo(writer, "$.cats"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(Cats))
@@ -65,7 +65,7 @@ namespace Sample
                 if (!Patch.IsRemoved("$.names"u8))
                 {
                     writer.WritePropertyName("names"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.names"u8));
+                    Patch.WriteTo(writer, "$.names"u8);
                 }
             }
             else
@@ -93,7 +93,7 @@ namespace Sample
                 if (!Patch.IsRemoved("$.optionalNames"u8))
                 {
                     writer.WritePropertyName("optionalNames"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.optionalNames"u8));
+                    Patch.WriteTo(writer, "$.optionalNames"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(OptionalNames))

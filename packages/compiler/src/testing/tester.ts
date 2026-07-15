@@ -141,6 +141,16 @@ async function createTesterFs(base: string, options: TesterOptions) {
         resolvePath("node_modules", lib, "package.json"),
         (resolved.manifest as any).file.text,
       );
+
+      // Mount the library's own `tspconfig.yaml` (if any) so that features it opts into
+      // (e.g. `auto-decorators`) are honored when compiling against the virtual file system.
+      const tspconfigPath = resolvePath(resolved.path, "tspconfig.yaml");
+      try {
+        const tspconfig = await host.readFile(tspconfigPath);
+        fs.add(resolvePath("node_modules", lib, "tspconfig.yaml"), tspconfig.text);
+      } catch {
+        // No library tspconfig.yaml; nothing to mount.
+      }
     }
   }
 

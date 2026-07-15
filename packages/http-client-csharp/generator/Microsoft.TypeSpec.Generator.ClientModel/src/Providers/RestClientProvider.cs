@@ -549,6 +549,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (paramType?.IsCollection != true)
             {
+                // A model-typed query parameter marked with `explode` must be expanded into one query
+                // entry per property (RFC 6570 form explode, e.g. `?field=status&value=active`) rather
+                // than serialized via the object's ToString (which previously produced the type name).
+                if (inputQueryParameter.Explode && inputQueryParameter.Type is InputModelType inputModel)
+                {
+                    var explodeStatement = BuildExplodeModelQueryStatement(uri, inputModel, valueExpression);
+                    if (explodeStatement != null)
+                    {
+                        return explodeStatement;
+                    }
+                }
+
                 var toStringExpression = GetQueryParameterStringExpression(paramType, valueExpression, serializationFormat);
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
@@ -603,6 +615,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
                 return forEachStatement;
             }
+        }
+
+        /// <summary>
+        /// Builds the statements for a model-typed query parameter that uses form-style `explode`.
+        /// Each (simple) property of the model is emitted as its own query entry using the property's
+        /// wire name (RFC 6570 form explode, e.g. <c>?field=status&amp;value=active</c>).
+        /// Returns <c>null</c> when the model contains a property that is not a simple scalar/enum
+        /// (e.g. a nested object or a collection), in which case the caller falls back to the default
+        /// handling. Nested/complex expansion is tracked separately (see issue #11123).
+        /// </summary>
+        private static MethodBodyStatement? BuildExplodeModelQueryStatement(
+            ScopedApi uri,
+            InputModelType inputModel,
+            ValueExpression valueExpression)
+        {
+            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+            if (modelProvider is null)
+            {
+                return null;
+            }
+
+            var properties = modelProvider.CanonicalView.Properties;
+            if (properties.Count == 0)
+            {
+                return null;
+            }
+
+            // Only expand when every property is a simple scalar or enum. Nested objects and
+            // collections are not defined by RFC 6570 form explode and require a separate design
+            // decision, so we fall back to the default handling for those.
+            foreach (var property in properties)
+            {
+                if (property.WireInfo is null ||
+                    property.Type.IsCollection ||
+                    (!property.Type.IsFrameworkType && !property.Type.IsEnum))
+                {
+                    return null;
+                }
+            }
+
+            var statements = new List<MethodBodyStatement>();
+            foreach (var property in properties)
+            {
+                var propertyAccess = valueExpression.Property(property.Name);
+                var propertyType = property.Type;
+
+                ValueExpression convertedValue = propertyType.IsEnum
+                    ? propertyType.ToSerial(propertyAccess).ConvertToString()
+                    : GetQueryParameterStringExpression(propertyType, propertyAccess, property.SerializationFormat);
+
+                MethodBodyStatement appendStatement =
+                    uri.AppendQuery(Literal(property.WireInfo!.SerializedName), convertedValue, true).Terminate();
+
+                if (!property.WireInfo.IsRequired ||
+                    propertyType.IsNullable ||
+                    (propertyType is { IsValueType: false, IsFrameworkType: true } && propertyType.FrameworkType != typeof(string)))
+                {
+                    appendStatement = BuildQueryOrHeaderOrPathParameterNullCheck(propertyType, propertyAccess, appendStatement);
+                }
+
+                statements.Add(appendStatement);
+            }
+
+            return statements;
         }
 
         private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(

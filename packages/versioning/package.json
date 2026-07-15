@@ -1,6 +1,6 @@
 {
   "name": "@typespec/versioning",
-  "version": "0.83.0",
+  "version": "0.84.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for declaring and emitting versioned APIs",
   "homepage": "https://typespec.io",
@@ -42,8 +42,8 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/libraries/versioning/reference"
   },
   "files": [

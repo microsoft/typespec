@@ -1,6 +1,6 @@
 import assert from "assert";
 import path from "path";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 
 import micromatch from "micromatch";
 
@@ -20,90 +20,88 @@ const ProtobufTester = createTester(resolvePath(pkgRoot), {
   libraries: ["@typespec/protobuf"],
 });
 
-describe("protobuf scenarios", function () {
-  const scenarios = readdirSync(SCENARIOS_DIRECTORY)
-    .map((dn) => path.join(SCENARIOS_DIRECTORY, dn))
-    .filter((dn) => statSync(dn).isDirectory());
+const scenarios = readdirSync(SCENARIOS_DIRECTORY)
+  .map((dn) => path.join(SCENARIOS_DIRECTORY, dn))
+  .filter((dn) => statSync(dn).isDirectory());
 
-  for (const scenario of scenarios) {
-    const scenarioName = path.basename(scenario);
+for (const scenario of scenarios) {
+  const scenarioName = path.basename(scenario);
 
-    const shouldRun = micromatch.isMatch(scenarioName, patternsToRun);
+  const shouldRun = micromatch.isMatch(scenarioName, patternsToRun);
 
-    shouldRun &&
-      it(scenarioName, async function () {
-        const inputFiles = await readdirRecursive(path.join(scenario, "input"));
-        const options = await readFile(path.join(scenario, "options.json"), "utf-8")
-          .then((s) => JSON.parse(s) as ProtobufEmitterOptions)
-          .catch((e) => {
-            return {} as ProtobufEmitterOptions;
-          });
+  shouldRun &&
+    it(scenarioName, async function () {
+      const inputFiles = await readdirRecursive(path.join(scenario, "input"));
+      const options = await readFile(path.join(scenario, "options.json"), "utf-8")
+        .then((s) => JSON.parse(s) as ProtobufEmitterOptions)
+        .catch((e) => {
+          return {} as ProtobufEmitterOptions;
+        });
 
-        const emitResult = await doEmit(inputFiles, options);
+      const emitResult = await doEmit(inputFiles, options);
 
-        const expectationDirectory = path.resolve(scenario, "output");
-        const diagnosticsExpectationPath = path.resolve(scenario, "diagnostics.txt");
+      const expectationDirectory = path.resolve(scenario, "output");
+      const diagnosticsExpectationPath = path.resolve(scenario, "diagnostics.txt");
 
-        if (shouldRecord) {
-          // Write new output to the scenario's output folder.
+      if (shouldRecord) {
+        // Write new output to the scenario's output folder.
 
-          await writeExpectationDirectory(expectationDirectory, emitResult.files);
+        await writeExpectationDirectory(expectationDirectory, emitResult.files);
 
-          await rm(diagnosticsExpectationPath, { force: true });
+        await rm(diagnosticsExpectationPath, { force: true });
 
-          if (emitResult.diagnostics.length > 0) {
-            const diagnostics = removeCoreDiagnostics(emitResult.diagnostics).join("\n") + "\n";
+        if (emitResult.diagnostics.length > 0) {
+          const diagnostics = removeCoreDiagnostics(emitResult.diagnostics).join("\n") + "\n";
 
-            await writeFile(diagnosticsExpectationPath, diagnostics);
-          }
-        } else {
-          // It's an error if any file in the expected files is missing, if any file in the output files doesn't have a
-          // corresponding expectation, or if any file in the output files doesn't match its corresponding output file
-          // character for character.
-
-          let err: Error | undefined = undefined;
-
-          // `throwIfNoEntry` is not supported with promisified fs.promises.stat.
-          if (!statSync(expectationDirectory, { throwIfNoEntry: false })) {
-            assert.strictEqual(
-              Object.entries(emitResult.files).length,
-              0,
-              "no expectations exist, but output files were generated",
-            );
-          } else {
-            const expectedFiles = await readdirRecursive(expectationDirectory);
-
-            // Need to defer this error until we've checked for diagnostics below. If diagnostics were unexpectedly
-            // raised and inhibited emit, that should be the primary error, not this one.
-            try {
-              assertFilesAsExpected(emitResult.files, expectedFiles);
-            } catch (e: unknown) {
-              err = e as Error;
-            }
-          }
-
-          let expectedDiagnostics: string;
-          try {
-            expectedDiagnostics = (await readFile(diagnosticsExpectationPath)).toString("utf-8");
-          } catch {
-            expectedDiagnostics = "\n";
-          }
-
-          // Fix the start of lines on Windows
-          const processedDiagnostics =
-            process.platform === "win32"
-              ? emitResult.diagnostics.map((d) => d.replaceAll(/^(\s*)Z:/gm, "$1"))
-              : emitResult.diagnostics;
-
-          const diagnostics = removeCoreDiagnostics(processedDiagnostics).join("\n") + "\n";
-
-          assert.strictEqual(diagnostics, expectedDiagnostics, "expected equivalent diagnostics");
-
-          if (err) throw err;
+          await writeFile(diagnosticsExpectationPath, diagnostics);
         }
-      });
-  }
-});
+      } else {
+        // It's an error if any file in the expected files is missing, if any file in the output files doesn't have a
+        // corresponding expectation, or if any file in the output files doesn't match its corresponding output file
+        // character for character.
+
+        let err: Error | undefined = undefined;
+
+        // `throwIfNoEntry` is not supported with promisified fs.promises.stat.
+        if (!statSync(expectationDirectory, { throwIfNoEntry: false })) {
+          assert.strictEqual(
+            Object.entries(emitResult.files).length,
+            0,
+            "no expectations exist, but output files were generated",
+          );
+        } else {
+          const expectedFiles = await readdirRecursive(expectationDirectory);
+
+          // Need to defer this error until we've checked for diagnostics below. If diagnostics were unexpectedly
+          // raised and inhibited emit, that should be the primary error, not this one.
+          try {
+            assertFilesAsExpected(emitResult.files, expectedFiles);
+          } catch (e: unknown) {
+            err = e as Error;
+          }
+        }
+
+        let expectedDiagnostics: string;
+        try {
+          expectedDiagnostics = (await readFile(diagnosticsExpectationPath)).toString("utf-8");
+        } catch {
+          expectedDiagnostics = "\n";
+        }
+
+        // Fix the start of lines on Windows
+        const processedDiagnostics =
+          process.platform === "win32"
+            ? emitResult.diagnostics.map((d) => d.replaceAll(/^(\s*)Z:/gm, "$1"))
+            : emitResult.diagnostics;
+
+        const diagnostics = removeCoreDiagnostics(processedDiagnostics).join("\n") + "\n";
+
+        assert.strictEqual(diagnostics, expectedDiagnostics, "expected equivalent diagnostics");
+
+        if (err) throw err;
+      }
+    });
+}
 
 /**
  * Removes line number references from core diagnostics and replaces them with

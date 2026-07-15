@@ -47,7 +47,7 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
 
     /**
      * Initializes an instance of LargeHeadersClientImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     LargeHeadersClientImpl(LargeHeaderClientImpl client) {
@@ -85,8 +85,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -104,8 +104,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -121,8 +121,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @param context The context to associate with this operation.
@@ -139,8 +139,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -157,8 +157,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -175,8 +175,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @param context The context to associate with this operation.
@@ -194,8 +194,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -210,8 +210,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -225,8 +225,8 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @param context The context to associate with this operation.
