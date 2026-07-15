@@ -15,14 +15,13 @@ import {
   UnionMutationNode,
   UnionVariantMutationNode,
 } from "@typespec/mutator-framework";
+import { setNullable, setOneOf } from "../../../generated-defs/TypeSpec.GraphQL.js";
 import { reportDiagnostic } from "../../lib.js";
 import {
   applyBaseNamePipeline,
   applyFieldNamePipeline,
   applyTypeNamePipeline,
 } from "../../lib/naming.js";
-import { setNullable } from "../../lib/nullable.js";
-import { setOneOf } from "../../lib/one-of.js";
 import { getUnionName, stripNullVariants, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { GraphQLMutationOptions, GraphQLTypeContext } from "../options.js";
 
@@ -133,7 +132,10 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     const rawName = getUnionName(this.sourceType, program);
     const unionName = applyTypeNamePipeline(rawName, { isInput: false, isInterface: false });
 
-    const { variants: sourceVariants, isNullable: hasNull } = stripNullVariants(this.sourceType);
+    const { variants: sourceVariants, isNullable: hasNullVariant } = stripNullVariants(
+      this.sourceType,
+    );
+    const hasNull = hasNullVariant;
 
     const flattenedVariants = this.deduplicateVariants(this.flattenVariants(sourceVariants));
 
@@ -146,7 +148,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       const innerMutation = this.engine.mutate(flattenedVariants[0].type, this.options);
       this.#mutationNode.replace(resolveType(innerMutation));
       if (hasNull) {
-        setNullable(this.mutatedType);
+        setNullable(program, this.mutatedType);
       }
       return;
     }
@@ -210,7 +212,7 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     }
 
     if (hasNull) {
-      setNullable(this.mutatedType);
+      setNullable(program, this.mutatedType);
     }
   }
 
@@ -222,7 +224,10 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
     const tk = this.engine.$;
     const program = tk.program;
 
-    const { variants: sourceVariants, isNullable: hasNull } = stripNullVariants(this.sourceType);
+    const { variants: sourceVariants, isNullable: hasNullVariant } = stripNullVariants(
+      this.sourceType,
+    );
+    const hasNull = hasNullVariant;
 
     const flattenedVariants = this.deduplicateVariants(this.flattenVariants(sourceVariants));
 
@@ -250,10 +255,10 @@ export class GraphQLUnionMutation extends UnionMutation<MutationOptions, any, Mu
       properties,
     });
 
-    setOneOf(oneOfModel);
+    setOneOf(program, oneOfModel);
 
     if (hasNull) {
-      setNullable(oneOfModel);
+      setNullable(program, oneOfModel);
     }
 
     this.#mutationNode.replace(oneOfModel);

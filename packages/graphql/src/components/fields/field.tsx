@@ -1,8 +1,8 @@
 import * as gql from "@pinterest/alloy-graphql";
 import { type ModelProperty, getDeprecationDetails, isArrayModelType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { isNullable, isNullableElements } from "../../../generated-defs/TypeSpec.GraphQL.js";
 import { resolveGraphQLTypeName } from "../../lib/graphql-type-name.js";
-import { hasNullableElements, isNullable } from "../../lib/nullable.js";
 
 export interface FieldProps {
   property: ModelProperty;
@@ -14,11 +14,11 @@ export function Field(props: FieldProps) {
 
   const doc = $.type.getDoc(props.property);
   const deprecation = getDeprecationDetails(program, props.property);
-  const nullable = isNullable(props.property) || props.property.optional;
+  const nullable = isNullable(program, props.property) || props.property.optional;
   const type = props.property.type;
 
   if (type.kind === "Model" && isArrayModelType(type)) {
-    const elemNullable = hasNullableElements(props.property);
+    const elemNullable = isNullableElements(program, props.property);
     const typeName = resolveGraphQLTypeName(type.indexer.value, program);
 
     if (props.isInput) {

@@ -6,8 +6,8 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
+import { setNullable, setNullableElements } from "../../../generated-defs/TypeSpec.GraphQL.js";
 import { applyFieldNamePipeline } from "../../lib/naming.js";
-import { setNullable, setNullableElements } from "../../lib/nullable.js";
 import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 
 /** GraphQL-specific ModelProperty mutation. */
@@ -29,8 +29,12 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
   }
 
   mutate() {
+    const program = this.engine.$.program;
+
     // Snapshot nullability from the original type BEFORE mutation replaces it.
     // We mark the property (not the inner type) to avoid poisoning shared singletons.
+    // A `@nullable` / `@nullableElements` applied directly to the source is re-applied
+    // on the mutated clone during `finishType`, so it needs no explicit propagation here.
     const originalType = this.sourceType.type;
 
     const isInlineNullable = isNullableUnion(originalType);
@@ -51,10 +55,10 @@ export class GraphQLModelPropertyMutation extends SimpleModelPropertyMutation<Si
     super.mutate();
 
     if (isInlineNullable) {
-      setNullable(this.mutatedType);
+      setNullable(program, this.mutatedType);
     }
     if (isArrayWithNullableElements) {
-      setNullableElements(this.mutatedType);
+      setNullableElements(program, this.mutatedType);
     }
   }
 }

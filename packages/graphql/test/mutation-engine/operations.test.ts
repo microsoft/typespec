@@ -1,6 +1,6 @@
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { isNullable } from "../../src/lib/nullable.js";
+import { isNullable } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { createGraphQLMutationEngine } from "../../src/mutation-engine/index.js";
 import { Tester } from "../test-host.js";
 
@@ -57,7 +57,7 @@ describe("GraphQL Mutation Engine - Operations", () => {
     // The return type should be unwrapped to the inner type
     expect(mutation.mutatedType.returnType.kind).toBe("Model");
     // The operation itself should be marked nullable
-    expect(isNullable(mutation.mutatedType)).toBe(true);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(true);
   });
 
   it("does not mark operation as nullable when return type is non-null", async () => {
@@ -72,6 +72,6 @@ describe("GraphQL Mutation Engine - Operations", () => {
     const mutation = engine.mutateOperation(getUser);
 
     expect(mutation.mutatedType.returnType.kind).toBe("Model");
-    expect(isNullable(mutation.mutatedType)).toBe(false);
+    expect(isNullable(tester.program, mutation.mutatedType)).toBe(false);
   });
 });

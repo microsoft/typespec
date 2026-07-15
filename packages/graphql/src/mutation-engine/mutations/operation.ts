@@ -6,8 +6,8 @@ import {
   type SimpleMutationOptions,
   type SimpleMutations,
 } from "@typespec/mutator-framework";
+import { setNullable, setNullableElements } from "../../../generated-defs/TypeSpec.GraphQL.js";
 import { applyFieldNamePipeline } from "../../lib/naming.js";
-import { setNullable, setNullableElements } from "../../lib/nullable.js";
 import { getOperationKind } from "../../lib/operation-kind.js";
 import { isNullableUnion, unwrapNullableUnion } from "../../lib/type-utils.js";
 import { createVisibilityFilters } from "../../lib/visibility.js";
@@ -58,7 +58,11 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
   }
 
   mutate() {
+    const program = this.engine.$.program;
+
     // Snapshot return-type nullability before mutation replaces it.
+    // A `@nullable` / `@nullableElements` applied directly to the source operation is
+    // re-applied on the mutated clone during `finishType`; no explicit propagation needed.
     const returnType = this.sourceType.returnType;
     const hasNullableReturn = isNullableUnion(returnType);
 
@@ -91,10 +95,10 @@ export class GraphQLOperationMutation extends SimpleOperationMutation<SimpleMuta
     }
 
     if (hasNullableReturn) {
-      setNullable(this.mutatedType);
+      setNullable(program, this.mutatedType);
     }
     if (hasNullableElements) {
-      setNullableElements(this.mutatedType);
+      setNullableElements(program, this.mutatedType);
     }
   }
 }

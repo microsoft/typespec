@@ -11,4 +11,4 @@ namespace TypeSpec.GraphQL;
  *
  * @see https://spec.graphql.org/September2025/#sec-OneOf-Input-Objects
  */
-internal extern dec oneOf(target: Model);
+internal auto dec oneOf(target: Model);

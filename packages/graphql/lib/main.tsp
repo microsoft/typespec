@@ -1,5 +1,6 @@
 import "../dist/src/tsp-index.js";
 import "./interface.tsp";
+import "./input-type.tsp";
 import "./nullable.tsp";
 import "./one-of.tsp";
 import "./operation-fields.tsp";

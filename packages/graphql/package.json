@@ -38,8 +38,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "alloy build",
+    "build": "pnpm gen-extern-signature && alloy build",
     "watch": "alloy build --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "lint": "oxlint . --deny-warnings",
@@ -48,6 +49,7 @@
   },
   "files": [
     "lib/*.tsp",
+    "tspconfig.yaml",
     "dist/**",
     "!dist/test/**"
   ],

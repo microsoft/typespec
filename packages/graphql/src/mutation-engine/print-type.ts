@@ -1,10 +1,10 @@
-import { isArrayModelType, type ModelProperty } from "@typespec/compiler";
+import { isArrayModelType, type ModelProperty, type Program } from "@typespec/compiler";
+import { isNullable, isNullableElements } from "../../generated-defs/TypeSpec.GraphQL.js";
 import { resolveGraphQLTypeName } from "../lib/graphql-type-name.js";
-import { hasNullableElements, isNullable } from "../lib/nullable.js";
 
 /**
  * Print a mutated type as its GraphQL type string representation.
- * Reads the mutation engine's metadata (nullable, hasNullableElements)
+ * Reads the mutation engine's metadata (nullable, nullableElements)
  * to produce the correct nullability wrapping.
  *
  * Examples:
@@ -13,9 +13,9 @@ import { hasNullableElements, isNullable } from "../lib/nullable.js";
  *   required string[] property   → "[String!]!"
  *   optional (string | null)[]   → "[String]"
  */
-export function printMutatedType(prop: ModelProperty): string {
-  const propNullable = isNullable(prop) || prop.optional;
-  const elementsNullable = hasNullableElements(prop);
+export function printMutatedType(program: Program, prop: ModelProperty): string {
+  const propNullable = isNullable(program, prop) || prop.optional;
+  const elementsNullable = isNullableElements(program, prop);
 
   const type = prop.type;
 
