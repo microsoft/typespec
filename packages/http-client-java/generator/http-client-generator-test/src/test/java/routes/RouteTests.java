@@ -6,8 +6,10 @@ package routes;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import routes.models.ExpandParameters;
 
 public class RouteTests {
 
@@ -56,6 +58,8 @@ public class RouteTests {
         client.primitive("a");
 
         client.array(List.of("a", "b"));
+
+        client.record(Map.of("a", 1, "b", 2));
     }
 
     @Test
@@ -65,6 +69,8 @@ public class RouteTests {
         client.primitive("a");
 
         client.array(List.of("a", "b"));
+
+        client.record(Map.of("a", 1, "b", 2));
     }
 
     @Test
@@ -74,6 +80,10 @@ public class RouteTests {
         client.primitive("a");
 
         client.array(List.of("a", "b"));
+
+        client.record(Map.of("a", 1, "b", 2));
+
+        client.model(new ExpandParameters("status", "active"));
     }
 
     @Test
@@ -86,5 +96,7 @@ public class RouteTests {
         client.primitive("a");
 
         client.array(List.of("a", "b"));
+
+        client.record(Map.of("a", 1, "b", 2));
     }
 }

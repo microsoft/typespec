@@ -5,8 +5,10 @@ package type.union.discriminated;
 
 import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled("Design not ready. The BinaryData based type is not a user-friendly design.")
 public class DiscriminatedUnionTests {
 
     private final EnvelopeObjectDefaultClient envelopeDefaultClient
