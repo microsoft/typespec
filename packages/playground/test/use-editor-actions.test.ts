@@ -23,159 +23,157 @@ function createMockEditorRef(hasFormatAction = true) {
   return { ref, runMock };
 }
 
-describe("useEditorActions", () => {
-  const baseProps = {
-    selectedEmitter: "openapi3",
-    compilerOptions: {},
-    selectedSampleName: "basic",
-    isSampleUntouched: true,
-    selectedViewer: "openapi",
-    viewerState: {},
-  };
+const baseProps = {
+  selectedEmitter: "openapi3",
+  compilerOptions: {},
+  selectedSampleName: "basic",
+  isSampleUntouched: true,
+  selectedViewer: "openapi",
+  viewerState: {},
+};
 
-  describe("saveCode", () => {
-    it("calls onSave with current model content and state", () => {
-      const model = createMockModel("my content");
-      const { ref } = createMockEditorRef();
-      const onSave = vi.fn();
+describe("saveCode", () => {
+  it("calls onSave with current model content and state", () => {
+    const model = createMockModel("my content");
+    const { ref } = createMockEditorRef();
+    const onSave = vi.fn();
 
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-          onSave,
-        }),
-      );
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+        onSave,
+      }),
+    );
 
-      result.current.saveCode();
+    result.current.saveCode();
 
-      expect(onSave).toHaveBeenCalledWith({
-        content: "my content",
-        emitter: "openapi3",
-        compilerOptions: {},
-        sampleName: "basic",
-        selectedViewer: "openapi",
-        viewerState: {},
-      });
-    });
-
-    it("does not include sampleName when sample is modified", () => {
-      const model = createMockModel("modified");
-      const { ref } = createMockEditorRef();
-      const onSave = vi.fn();
-
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-          isSampleUntouched: false,
-          onSave,
-        }),
-      );
-
-      result.current.saveCode();
-
-      expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ sampleName: undefined }));
-    });
-
-    it("does nothing when onSave is not provided", () => {
-      const model = createMockModel();
-      const { ref } = createMockEditorRef();
-
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-        }),
-      );
-
-      // Should not throw
-      expect(() => result.current.saveCode()).not.toThrow();
+    expect(onSave).toHaveBeenCalledWith({
+      content: "my content",
+      emitter: "openapi3",
+      compilerOptions: {},
+      sampleName: "basic",
+      selectedViewer: "openapi",
+      viewerState: {},
     });
   });
 
-  describe("formatCode", () => {
-    it("runs the format document action", () => {
-      const model = createMockModel();
-      const { ref, runMock } = createMockEditorRef();
+  it("does not include sampleName when sample is modified", () => {
+    const model = createMockModel("modified");
+    const { ref } = createMockEditorRef();
+    const onSave = vi.fn();
 
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-        }),
-      );
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+        isSampleUntouched: false,
+        onSave,
+      }),
+    );
 
-      result.current.formatCode();
+    result.current.saveCode();
 
-      expect(ref.current.getAction).toHaveBeenCalledWith("editor.action.formatDocument");
-      expect(runMock).toHaveBeenCalled();
-    });
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ sampleName: undefined }));
   });
 
-  describe("fileBug", () => {
-    it("calls saveCode then onFileBug", async () => {
-      const model = createMockModel();
-      const { ref } = createMockEditorRef();
-      const onSave = vi.fn();
-      const onFileBug = vi.fn();
+  it("does nothing when onSave is not provided", () => {
+    const model = createMockModel();
+    const { ref } = createMockEditorRef();
 
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-          onSave,
-          onFileBug,
-        }),
-      );
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+      }),
+    );
 
-      await result.current.fileBug();
+    // Should not throw
+    expect(() => result.current.saveCode()).not.toThrow();
+  });
+});
 
-      expect(onSave).toHaveBeenCalled();
-      expect(onFileBug).toHaveBeenCalled();
-    });
+describe("formatCode", () => {
+  it("runs the format document action", () => {
+    const model = createMockModel();
+    const { ref, runMock } = createMockEditorRef();
 
-    it("does nothing when onFileBug is not provided", async () => {
-      const model = createMockModel();
-      const { ref } = createMockEditorRef();
-      const onSave = vi.fn();
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+      }),
+    );
 
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-          onSave,
-        }),
-      );
+    result.current.formatCode();
 
-      await result.current.fileBug();
-      expect(onSave).not.toHaveBeenCalled();
-    });
+    expect(ref.current.getAction).toHaveBeenCalledWith("editor.action.formatDocument");
+    expect(runMock).toHaveBeenCalled();
+  });
+});
+
+describe("fileBug", () => {
+  it("calls saveCode then onFileBug", async () => {
+    const model = createMockModel();
+    const { ref } = createMockEditorRef();
+    const onSave = vi.fn();
+    const onFileBug = vi.fn();
+
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+        onSave,
+        onFileBug,
+      }),
+    );
+
+    await result.current.fileBug();
+
+    expect(onSave).toHaveBeenCalled();
+    expect(onFileBug).toHaveBeenCalled();
   });
 
-  describe("editorActions", () => {
-    it("returns a save action with Ctrl+S keybinding", () => {
-      const model = createMockModel();
-      const { ref } = createMockEditorRef();
+  it("does nothing when onFileBug is not provided", async () => {
+    const model = createMockModel();
+    const { ref } = createMockEditorRef();
+    const onSave = vi.fn();
 
-      const { result } = renderHook(() =>
-        useEditorActions({
-          ...baseProps,
-          typespecModel: model as any,
-          editorRef: ref as any,
-        }),
-      );
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+        onSave,
+      }),
+    );
 
-      expect(result.current.editorActions).toHaveLength(1);
-      expect(result.current.editorActions[0].id).toBe("save");
-      expect(result.current.editorActions[0].label).toBe("Save");
-      expect(result.current.editorActions[0].keybindings).toBeDefined();
-    });
+    await result.current.fileBug();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+});
+
+describe("editorActions", () => {
+  it("returns a save action with Ctrl+S keybinding", () => {
+    const model = createMockModel();
+    const { ref } = createMockEditorRef();
+
+    const { result } = renderHook(() =>
+      useEditorActions({
+        ...baseProps,
+        typespecModel: model as any,
+        editorRef: ref as any,
+      }),
+    );
+
+    expect(result.current.editorActions).toHaveLength(1);
+    expect(result.current.editorActions[0].id).toBe("save");
+    expect(result.current.editorActions[0].label).toBe("Save");
+    expect(result.current.editorActions[0].keybindings).toBeDefined();
   });
 });

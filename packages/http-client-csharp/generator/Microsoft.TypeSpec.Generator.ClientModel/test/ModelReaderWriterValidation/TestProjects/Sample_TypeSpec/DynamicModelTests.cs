@@ -53,6 +53,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(listFoo[0].GetProperty("bar").GetString(), Is.EqualTo("patched"));
         }
 
+        [Test]
+        public void ModelReaderWriterWrite_NestedDotNotationPatchOnPopulatedSubModelMergesWithTypedProperties()
+        {
+            var model = SampleTypeSpecModelFactory.DynamicModel(
+                name: "dynamic-model",
+                foo: new AnotherDynamicModel("bar"));
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            model.Patch.Set("$.foo.baz"u8, "\"patched\""u8);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+            var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
+            var json = data.ToString();
+
+            using var document = JsonDocument.Parse(json);
+            Assert.That(GetRootPropertyCount(document.RootElement, "foo"), Is.EqualTo(1));
+            var foo = document.RootElement.GetProperty("foo");
+            Assert.That(foo.GetProperty("bar").GetString(), Is.EqualTo("bar"));
+            Assert.That(foo.GetProperty("baz").GetString(), Is.EqualTo("patched"));
+        }
+
+        [Test]
+        public void ModelReaderWriterWrite_NestedBracketPatchOnPopulatedSubModelMergesWithTypedProperties()
+        {
+            var model = SampleTypeSpecModelFactory.DynamicModel(
+                name: "dynamic-model",
+                foo: new AnotherDynamicModel("bar"));
+
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            model.Patch.Set("$['foo']['baz']"u8, "\"patched\""u8);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+            var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
+            var json = data.ToString();
+
+            using var document = JsonDocument.Parse(json);
+            Assert.That(GetRootPropertyCount(document.RootElement, "foo"), Is.EqualTo(1));
+            var foo = document.RootElement.GetProperty("foo");
+            Assert.That(foo.GetProperty("bar").GetString(), Is.EqualTo("bar"));
+            Assert.That(foo.GetProperty("baz").GetString(), Is.EqualTo("patched"));
+        }
+
         private static int GetRootPropertyCount(JsonElement root, string propertyName) => root.EnumerateObject().Count(property => property.NameEquals(propertyName));
     }
 }

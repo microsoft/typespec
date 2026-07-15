@@ -40,6 +40,10 @@ class EnumValue(BaseType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         """The python type used for type annotation"""
+        if self.code_model.options["models-mode"] == "typeddict":
+            # A single constant enum value must be
+            # annotated with its literal value directly (e.g. ``Literal["red"]``).
+            return f"Literal[{self.value_type.get_declaration(self.value)}]"
         return f"Literal[{self.enum_type.name}.{self.name}]"
 
     def get_declaration(self, value=None):
@@ -79,6 +83,9 @@ class EnumValue(BaseType):
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
         file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
+        if self.code_model.options["models-mode"] == "typeddict":
+            # In typeddict mode the enums module (``_enums.py``) is never generated
+            return file_import
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
             self.code_model.get_relative_import_path(

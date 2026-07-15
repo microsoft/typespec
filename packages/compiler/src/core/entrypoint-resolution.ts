@@ -33,13 +33,14 @@ export async function resolveTypeSpecEntrypointForDir(
   dir: string,
   reportDiagnostic: DiagnosticHandler,
 ): Promise<string> {
-  // Check for project tspconfig first
+  // An explicit entrypoint in the project config takes precedence.
   const config = await loadTypeSpecConfigForPath(host, dir, false, false);
-  if (config.kind === "project") {
-    const entrypoint = config.entrypoint ?? "main.tsp";
-    return resolvePath(dir, entrypoint);
+  if (config.kind === "project" && config.entrypoint !== undefined) {
+    return resolvePath(dir, config.entrypoint);
   }
 
+  // Otherwise fall back to the `tspMain` declared in package.json. A `tspconfig.yaml`
+  // without an explicit `entrypoint` must not override `tspMain`.
   const pkgJsonPath = resolvePath(dir, "package.json");
   const [pkg] = await loadFile(host, pkgJsonPath, JSON.parse, reportDiagnostic, {
     allowFileNotFound: true,
