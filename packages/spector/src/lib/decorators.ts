@@ -263,7 +263,8 @@ export function getScenarioName(
 /**
  * The element `@surfaceDoc` is applied to. To keep surface checks grounded in a
  * real scenario, this must be a `@scenario`/`@scenarioDoc` element (enforced in
- * `$onValidate`), so the union matches `@scenarioDoc`'s target.
+ * `loadSurfaceDocs` while the manifest is built), so the union matches
+ * `@scenarioDoc`'s target.
  */
 export type SurfaceDocTarget = Namespace | Interface | Operation;
 
@@ -301,11 +302,13 @@ export interface SurfaceDetails {
 /** A resolved `@surfaceDoc` annotation. */
 export interface SurfaceDoc {
   /**
-   * Scenario-style name resolved from the **subject**'s position in the spec
-   * tree (e.g. `Type_Model_Enum_Extensible`), named the way `@scenario`s are.
+   * The resolved name of the enclosing `@scenario` this check belongs to (named
+   * the way `@scenario`s are, e.g. `Payload_Pageable_PageSize_listWithPageSize`).
+   * Every surface check is grounded in — and identified by — its scenario, so
+   * multiple checks on one scenario share this name. `undefined` only if the
+   * annotated element has no enclosing `@scenario` (which `loadSurfaceDocs`
+   * rejects, since `@surfaceDoc` requires `@scenarioDoc`).
    */
-  name: string;
-  /** The name of the enclosing `@scenario` the annotated element belongs to. */
   scenario: string | undefined;
   /** The annotated element (a scenario namespace/interface/operation). */
   target: SurfaceDocTarget;
@@ -353,26 +356,10 @@ function getSurfaceParent(target: SurfaceSubject): SurfaceSubject | undefined {
 }
 
 /**
- * Build a scenario-style name for a surface subject by walking up its
- * containers and joining their names, stopping at the (unnamed) global or the
- * `_Specs_` root — the same convention `@scenario` uses.
+ * Build a scenario-style name by walking up an element's containers and joining
+ * their names, stopping at the (unnamed) global or the `_Specs_` root — the same
+ * convention `@scenario` uses.
  */
-function resolveSurfaceName(target: SurfaceSubject): string {
-  const names: string[] = [];
-  let current: SurfaceSubject | undefined = target;
-  while (current) {
-    if (current.kind === "Namespace" && (current.name === "" || current.name === "_Specs_")) {
-      break;
-    }
-    const name = typeof current.name === "string" ? current.name : undefined;
-    if (name) {
-      names.unshift(name);
-    }
-    current = getSurfaceParent(current);
-  }
-  return names.join("_");
-}
-
 function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): string | undefined {
   let current: SurfaceSubject | undefined = target;
   while (current) {
@@ -403,11 +390,9 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
   const result: SurfaceDoc[] = [];
   for (const [target, storedList] of map as Map<SurfaceDocTarget, StoredSurfaceDoc[]>) {
     for (const stored of storedList) {
-      const subjectName = resolveSurfaceName(stored.subject);
       const scenario = getEnclosingScenarioName(program, target);
       for (const { expected, scope } of expandExpected(stored.expected)) {
         result.push({
-          name: subjectName,
           scenario,
           target,
           subject: stored.subject,
@@ -420,7 +405,10 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
     }
   }
   return result.sort(
-    (a, b) => a.name.localeCompare(b.name) || (a.scope ?? "").localeCompare(b.scope ?? ""),
+    (a, b) =>
+      (a.scenario ?? "").localeCompare(b.scenario ?? "") ||
+      a.category.localeCompare(b.category) ||
+      (a.scope ?? "").localeCompare(b.scope ?? ""),
   );
 }
 

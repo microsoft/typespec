@@ -12,7 +12,10 @@ import { getCommit, getPackageJson } from "../utils/misc-utils.js";
 
 /** One language-neutral entry of the surface-checks doc — what to check, for every emitter. */
 export interface SurfaceCheckItem {
-  /** Stable id, e.g. `Widget_naming`. */
+  /**
+   * Stable id, `<scenario>_<category>` (with a `_n` suffix to disambiguate
+   * several same-category checks on one scenario), e.g. `listWithPageSize_paging`.
+   */
   id: string;
   /** The enclosing `@scenario` name this surface check belongs to. */
   scenario: string | undefined;
@@ -71,8 +74,12 @@ export function createSurfaceChecksManifest(
     const target = getSubjectName(surfaceDoc.subject);
     const details = buildSurfaceDetails(surfaceDoc);
     const scopeSuffix = surfaceDoc.scope ? `_${surfaceDoc.scope.replace(/[^\w]+/g, "-")}` : "";
+    // Every check is identified by its resolved scenario name, so all checks on
+    // one surface scenario share a stable prefix; `uniqueId` disambiguates when
+    // a scenario carries several checks of the same category.
+    const idBase = surfaceDoc.scenario ?? target;
     items.push({
-      id: uniqueId(usedIds, `${surfaceDoc.name}_${surfaceDoc.category}${scopeSuffix}`),
+      id: uniqueId(usedIds, `${idBase}_${surfaceDoc.category}${scopeSuffix}`),
       scenario: surfaceDoc.scenario,
       category: surfaceDoc.category,
       target,

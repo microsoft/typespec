@@ -54,7 +54,7 @@ describe("@surfaceDoc", () => {
     expect(doc.doc).toBe("Exposed to clients as ClientExtensibleEnum.");
   });
 
-  it("names the check from the subject, not the annotated operation", async () => {
+  it("resolves the scenario name from the annotated element, shared by all its checks", async () => {
     const doc = await docOf(`
       enum ServerExtensibleEnum {
         value1,
@@ -66,7 +66,7 @@ describe("@surfaceDoc", () => {
       @surfaceDoc("naming", ServerExtensibleEnum, "ClientExtensibleEnum")
       op getKind(): ServerExtensibleEnum;
     `);
-    expect(doc.name).toBe("ServerExtensibleEnum");
+    expect(doc.scenario).toBe("getKind");
   });
 
   it("synthesizes prose when `doc` is omitted (so the AI fallback always has one)", async () => {
@@ -143,8 +143,8 @@ describe("@surfaceDoc", () => {
       @surfaceDoc("naming", ServerExtensibleEnum, "ClientExtensibleEnum", "Exposed as ClientExtensibleEnum.")
       op getKind(): ServerExtensibleEnum;
     `);
-    const item = items["ServerExtensibleEnum_naming"];
-    expect(item.id).toBe("ServerExtensibleEnum_naming");
+    const item = items["getKind_naming"];
+    expect(item.id).toBe("getKind_naming");
     expect(item.category).toBe("naming");
     expect(item.target).toBe("ServerExtensibleEnum");
     expect(item.doc).toContain("Exposed as ClientExtensibleEnum");
@@ -166,7 +166,7 @@ describe("@surfaceDoc", () => {
       @surfaceDoc("naming", Widget.id, "identifier", "Renamed to identifier.")
       op get(): Widget;
     `);
-    const item = items["Widget_id_naming"];
+    const item = items["get_naming"];
     expect(item.category).toBe("naming");
     expect(item.target).toBe("id");
     expect(item.details).toEqual({ expected: "identifier", kind: "property", origin: "Widget" });
@@ -195,7 +195,7 @@ describe("@surfaceDoc", () => {
       @surfaceDoc("other", Widget, "strongly typed", "The response body is a strongly typed model.")
       op get(): Widget;
     `);
-    const item = items["Widget_other"];
+    const item = items["get_other"];
     expect(item.category).toBe("other");
     expect(item.doc).toContain("strongly typed model");
   });
@@ -278,7 +278,7 @@ describe("@surfaceDoc", () => {
       op get(): IOThing;
     `);
     const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
-    const item = manifest.items.find((i) => i.id === "IOThing_naming_python");
+    const item = manifest.items.find((i) => i.id === "get_naming_python");
     expect(item).toBeDefined();
     expect(item!.scope).toBe("python");
     expect(item!.details).toEqual({ expected: "io_thing", kind: "model" });
@@ -287,7 +287,7 @@ describe("@surfaceDoc", () => {
     expect(md).toContain("python");
   });
 
-  it("records multiple @surfaceDocs on the same target (different categories)", async () => {
+  it("records multiple @surfaceDocs on one scenario, sharing its name with distinct ids", async () => {
     const { program } = await Tester.compile(`
       model Widget {
         id: string;
@@ -302,5 +302,22 @@ describe("@surfaceDoc", () => {
     const docs = listSurfaceDocs(program);
     expect(docs).toHaveLength(2);
     expect(docs.map((d) => d.category).sort()).toEqual(["access", "naming"]);
+    // Every check on the scenario shares its resolved scenario name...
+    expect(docs.map((d) => d.scenario)).toEqual(["get", "get"]);
+
+    // ...and each surfaces as its own check, keyed `<scenario>_<category>`.
+    const items = await manifestItems(`
+      model Widget {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get a widget.")
+      @surfaceDoc("naming", Widget, "WidgetClient")
+      @surfaceDoc("access", Widget, "internal")
+      op get(): Widget;
+    `);
+    expect(items["get_naming"].scenario).toBe("get");
+    expect(items["get_access"].scenario).toBe("get");
   });
 });
