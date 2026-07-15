@@ -109,12 +109,10 @@ def parse_args(
 
 
 def get_body_type_for_description(body_parameter: dict[str, Any]) -> str:
-    if body_parameter["type"]["type"] == "binary":
+    if body_parameter["type"]["type"] in ("binary", "bytes"):
         return "binary"
     if body_parameter["type"]["type"] == "string":
         return "string"
-    if body_parameter["type"]["type"] == "bytes":
-        return "binary"
     return "JSON"
 
 
