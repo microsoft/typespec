@@ -72,11 +72,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCustomization(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
-        internal TypeProvider? FindForTypeInLastContractIncludingInternal(string ns, string name, string? declaringTypeName = null)
-        {
-            return FindTypeInCustomization(LastContract, ns, name, true, declaringTypeName);
-        }
-
         private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()
         {
             var providers = new List<TypeProvider>();

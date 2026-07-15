@@ -18,7 +18,6 @@ namespace Microsoft.TypeSpec.Generator
             bool includeModelFactory,
             bool includeAdditionalRoots,
             bool includeUnionVariantRoots,
-            bool includeModelFactorySignatureRoots,
             bool publicClientRootsOnly)
         {
             var generator = CodeModelGenerator.Instance;
@@ -37,11 +36,6 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            if (includeModelFactorySignatureRoots)
-            {
-                AddLastContractModelFactorySignatureRoots(providers, roots, nodes);
-            }
-
             if (!includeUnionVariantRoots)
             {
                 return roots;
@@ -50,32 +44,6 @@ namespace Microsoft.TypeSpec.Generator
             AddUnionVariantRoots(roots, providers, nodes);
 
             return roots;
-        }
-
-        private static void AddLastContractModelFactorySignatureRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> roots, HashSet<string> nodes)
-        {
-            foreach (var provider in providers)
-            {
-                if (!IsModelFactoryProvider(provider))
-                {
-                    continue;
-                }
-
-                foreach (var method in provider.LastContractView?.Methods ?? [])
-                {
-                    if (!method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                        method.Signature.ReturnType == null)
-                    {
-                        continue;
-                    }
-
-                    AddTypeReference(roots, method.Signature.ReturnType, nodes);
-                    foreach (var parameter in method.Signature.Parameters)
-                    {
-                        AddTypeReference(roots, parameter.Type, nodes);
-                    }
-                }
-            }
         }
 
         private static void AddUnionVariantRoots(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
@@ -92,9 +60,6 @@ namespace Microsoft.TypeSpec.Generator
                 AddMatchingName(roots, GetProviderTypeName(provider.Type), nodes);
             }
         }
-
-        private static bool ShouldUseUnionVariantFallbackRoots() =>
-            CodeModelGenerator.Instance.SourceInputModel.LastContract == null;
 
         private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove, HashSet<string> nodes)
         {

@@ -303,7 +303,6 @@ namespace Microsoft.TypeSpec.Generator
                 includeModelFactory: true,
                 includeAdditionalRoots: true,
                 includeUnionVariantRoots: true,
-                includeModelFactorySignatureRoots: true,
                 publicClientRootsOnly: false);
 
             removeRoots.UnionWith(customRemovalRoots);

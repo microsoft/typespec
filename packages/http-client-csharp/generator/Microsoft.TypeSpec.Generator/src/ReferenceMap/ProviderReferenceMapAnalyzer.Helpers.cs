@@ -55,9 +55,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
             IsClientProvider(provider) &&
-            (!publicOnly ||
-                CodeModelGenerator.Instance.SourceInputModel.LastContract == null &&
-                provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            (!publicOnly || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
         private static bool IsClientProvider(TypeProvider provider)
         {

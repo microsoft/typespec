@@ -207,11 +207,8 @@ namespace Microsoft.TypeSpec.Generator
             var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
 
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
-            var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarationsFromLastContract(generatedProviders, graph.Nodes);
-            customPublicRoots.UnionWith(generatedPublicDeclarations);
             var customCodeRemovalRoots = GetCustomCodeGeneratedTypeRoots(generatedProviders, graph.Nodes);
             var customRemovalRoots = new HashSet<string>(customCodeRemovalRoots, StringComparer.Ordinal);
-            customRemovalRoots.UnionWith(generatedPublicDeclarations);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
 
@@ -259,8 +256,6 @@ namespace Microsoft.TypeSpec.Generator
             var graph = BuildGraph(generatedProviders);
             var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
             var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
-            var generatedPublicDeclarations = GetGeneratedPublicTypeDeclarationsFromLastContract(generatedProviders, graph.Nodes);
-            customPublicRoots.UnionWith(generatedPublicDeclarations);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
@@ -301,13 +296,8 @@ namespace Microsoft.TypeSpec.Generator
                 helperRoots: [],
                 includeModelFactory: false,
                 includeAdditionalRoots: true,
-                includeUnionVariantRoots: false,
-                includeModelFactorySignatureRoots: true,
+                includeUnionVariantRoots: true,
                 publicClientRootsOnly: true);
-            if (ShouldUseUnionVariantFallbackRoots())
-            {
-                AddUnionVariantRoots(internalizeRoots, providers, graph.Nodes);
-            }
 
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);
@@ -369,7 +359,6 @@ namespace Microsoft.TypeSpec.Generator
                 includeModelFactory: true,
                 includeAdditionalRoots: true,
                 includeUnionVariantRoots: true,
-                includeModelFactorySignatureRoots: false,
                 publicClientRootsOnly: true);
             var publicCandidates = GetPublicCandidates(
                 publicDeclaredNodes,

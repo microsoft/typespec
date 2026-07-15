@@ -310,30 +310,14 @@ namespace Microsoft.TypeSpec.Generator
             return proxyTypes;
         }
 
-        private static HashSet<string> GetGeneratedInternalTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
-            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, TypeSignatureModifiers.Internal);
-
-        private static HashSet<string> GetGeneratedPublicTypeDeclarations(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
-            => GetGeneratedTypeDeclarationsByLastContractAccessibility(providers, generatedTypeNames, TypeSignatureModifiers.Public);
-
-        private static HashSet<string> GetGeneratedPublicTypeDeclarationsFromLastContract(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
-            => GetGeneratedPublicTypeDeclarations(providers, generatedTypeNames);
-
-        private static HashSet<string> GetGeneratedTypeDeclarationsByLastContractAccessibility(
+        private static HashSet<string> GetGeneratedInternalTypeDeclarations(
             IReadOnlyList<TypeProvider> providers,
-            HashSet<string> generatedTypeNames,
-            TypeSignatureModifiers accessibility)
+            HashSet<string> generatedTypeNames)
         {
             var declarations = new HashSet<string>(StringComparer.Ordinal);
             foreach (var provider in GetGeneratedProviders(providers))
             {
-                var lastContractView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContractIncludingInternal(
-                    provider.Type.Namespace,
-                    GetSimpleName(GetProviderTypeName(provider.Type)),
-                    provider.DeclaringTypeProvider is { } declaringTypeProvider
-                        ? GetSimpleName(GetProviderTypeName(declaringTypeProvider.Type))
-                        : null);
-                if (lastContractView?.DeclarationModifiers.HasFlag(accessibility) != true)
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 {
                     continue;
                 }

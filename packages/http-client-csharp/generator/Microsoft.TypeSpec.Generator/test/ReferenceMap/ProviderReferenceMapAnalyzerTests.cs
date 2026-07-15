@@ -585,7 +585,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task LastContractGenericDeclarationKeepsOnlyMatchingGeneratedGenericTypePublic()
+        public async Task LastContractGenericDeclarationDoesNotRootGeneratedType()
         {
             var lastContractCompilation = CSharpCompilation.Create(
                 "LastContract",
@@ -609,14 +609,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([genericPageResult, nonGenericPageResult]);
 
-            Assert.IsTrue(genericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-            Assert.IsFalse(genericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(genericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(genericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsTrue(nonGenericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(nonGenericPageResult.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]
-        public async Task LastContractNestedPublicDeclarationKeepsGeneratedNestedTypePublic()
+        public async Task LastContractNestedPublicDeclarationDoesNotRootGeneratedType()
         {
             var lastContractCompilation = CSharpCompilation.Create(
                 "LastContract",
@@ -643,10 +643,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([outerModel]);
 
-            Assert.IsTrue(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-            Assert.IsFalse(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
-            Assert.IsTrue(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-            Assert.IsFalse(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]
@@ -690,7 +690,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task GeneratedTypeInternalInLastContractIsInternalized()
+        public async Task LastContractInternalDeclarationsDoNotChangeProviderAccessibility()
         {
             var lastContractCompilation = CSharpCompilation.Create(
                 "LastContract",
@@ -723,16 +723,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, clientOptions]);
 
-            Assert.IsTrue(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
-            Assert.IsFalse(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-            Assert.IsTrue(clientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
-            Assert.IsFalse(clientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(clientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(clientOptions.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsTrue(clientOptions.NestedTypes[0].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(clientOptions.NestedTypes[0].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]
-        public async Task PublicCustomPartialKeepsGeneratedTypePublicWhenLastContractGeneratedDeclarationIsInternal()
+        public async Task LastContractInternalDeclarationDoesNotOverridePublicCustomPartial()
         {
             var lastContractCompilation = CSharpCompilation.Create(
                 "LastContract",
@@ -859,7 +859,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task ModelFactorySignatureRootsDoNotDependOnModelName()
+        public async Task LastContractModelFactorySignaturesDoNotRootGeneratedModels()
         {
             MockHelpers.LoadMockGenerator();
             var lastContract = await Helpers.GetCompilationFromDirectoryAsync();
@@ -874,8 +874,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.Analyze([pagedModel, requestModel, modelFactory]);
 
-            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(pagedModel));
-            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(requestModel));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(pagedModel));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(requestModel));
         }
 
         [Test]
@@ -909,37 +909,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task InternalizedGeneratedPredecessorDoesNotPublicizeItsInternalDependency()
+        public void InternalGeneratedPredecessorDoesNotPublicizeItsInternalDependency()
         {
-            var lastContractCompilation = CSharpCompilation.Create(
-                "LastContract",
-                [CSharpSyntaxTree.ParseText("""
-                namespace Sample.Models
-                {
-                    internal partial class InternalModel
-                    {
-                    }
-
-                    internal partial class InternalDependency
-                    {
-                    }
-                }
-                """)],
-                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
-
-            var dependency = new GeneratedModelTestTypeProvider("InternalDependency", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            var dependency = new GeneratedModelTestTypeProvider("InternalDependency", TypeSignatureModifiers.Internal, ns: "Sample.Models");
             var internalModel = new GeneratedModelTestTypeProvider(
                 "InternalModel",
-                TypeSignatureModifiers.Public,
+                TypeSignatureModifiers.Internal,
                 ns: "Sample.Models");
             var publicRoot = new GeneratedModelTestTypeProvider(
                 "PublicRoot",
                 TypeSignatureModifiers.Public,
                 ns: "Sample.Models");
-            await MockHelpers.LoadMockGeneratorAsync(
+            MockHelpers.LoadMockGenerator(
                 createOutputLibrary: () => new TestOutputLibrary(publicRoot, internalModel, dependency),
-                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
-                lastContractCompilation: () => Task.FromResult<Compilation>(lastContractCompilation));
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
             CodeModelGenerator.Instance.AddTypeToKeep(publicRoot.Type.FullyQualifiedName);
             CodeModelGenerator.Instance.AddTypeToKeep(internalModel.Type.FullyQualifiedName);
             CodeModelGenerator.Instance.AddTypeToKeep(dependency.Type.FullyQualifiedName);
@@ -951,7 +934,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                 new PropertyProvider($"", MethodSignatureModifiers.Public, dependency.Type, "Dependency", new AutoPropertyBody(false), internalModel)
             ]);
 
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([internalModel, dependency]);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([publicRoot, internalModel, dependency]);
 
             Assert.IsTrue(internalModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(internalModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
@@ -1027,7 +1010,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public void GeneratedTypePreservesLastContractTypeAttributes()
+        public void GeneratedTypeDoesNotPreserveLastContractTypeAttributes()
         {
             var lastContractView = new AttributedTestTypeProvider(
                 "GeneratedModel",
@@ -1048,7 +1031,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             Assert.IsTrue(generatedModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             var codeFile = new TypeProviderWriter(generatedModel).Write();
-            StringAssert.Contains("[global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute(\"TEST001\")]", codeFile.Content);
+            StringAssert.DoesNotContain("[global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute(\"TEST001\")]", codeFile.Content);
             StringAssert.Contains("internal partial class GeneratedModel", codeFile.Content);
         }
 
