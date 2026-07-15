@@ -25,7 +25,7 @@ import tsptest.armresourceprovider.models.ChildResourceUpdate;
 public interface ChildResourcesInterfacesClient {
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -40,7 +40,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -55,7 +55,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -71,7 +71,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -85,7 +85,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -102,7 +102,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -118,7 +118,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -134,7 +134,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -151,7 +151,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -167,7 +167,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -183,7 +183,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Create a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -200,7 +200,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Update a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -217,7 +217,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Update a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -233,7 +233,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Update a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -250,7 +250,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Update a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -266,7 +266,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -281,7 +281,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -296,7 +296,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -311,7 +311,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -327,7 +327,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -341,7 +341,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -354,7 +354,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -368,7 +368,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * List ChildResource resources by TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -382,7 +382,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * List ChildResource resources by TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -396,7 +396,7 @@ public interface ChildResourcesInterfacesClient {
 
     /**
      * List ChildResource resources by TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -410,8 +410,8 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -425,8 +425,8 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -440,8 +440,8 @@ public interface ChildResourcesInterfacesClient {
         String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -455,8 +455,8 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -471,8 +471,8 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName, Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -486,8 +486,8 @@ public interface ChildResourcesInterfacesClient {
         String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -499,8 +499,8 @@ public interface ChildResourcesInterfacesClient {
     void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.

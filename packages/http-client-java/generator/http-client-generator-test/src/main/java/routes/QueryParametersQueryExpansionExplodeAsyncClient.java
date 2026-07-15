@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import reactor.core.publisher.Mono;
 import routes.implementation.QueryParametersQueryExpansionExplodesImpl;
+import routes.models.ExpandParameters;
 
 /**
  * Initializes a new instance of the asynchronous RoutesClient type.
@@ -30,7 +31,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeAsyncClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -40,7 +41,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -57,7 +58,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -74,7 +75,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -90,8 +91,25 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
     }
 
     /**
+     * The model operation.
+     *
+     * @param param The param parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> modelWithResponse(ExpandParameters param, RequestOptions requestOptions) {
+        return this.serviceClient.modelWithResponseAsync(param, requestOptions);
+    }
+
+    /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -111,7 +129,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -131,7 +149,7 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -147,5 +165,25 @@ public final class QueryParametersQueryExpansionExplodeAsyncClient {
         // Generated convenience method for recordWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return recordWithResponse(param, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The model operation.
+     *
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> model(ExpandParameters param) {
+        // Generated convenience method for modelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return modelWithResponse(param, requestOptions).flatMap(FluxUtil::toMono);
     }
 }
