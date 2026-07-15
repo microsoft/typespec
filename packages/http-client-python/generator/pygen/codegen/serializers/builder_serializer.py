@@ -817,9 +817,42 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             all_dpg_model_overloads = all(
                 _is_dpg_or_typeddict_body(o.parameters.body_parameter) for o in builder.overloads
             )
-        if not all_dpg_model_overloads:
+        # A binary `bytes` body pairs a `bytes` overload (binary content type) with the added
+        # `IO[bytes]` overload. Both serialize to raw content on the same content kwarg, so we
+        # emit a single unconditional assignment instead of an `isinstance` branch (which would be
+        # redundant and confuse mypy's type narrowing). Since the assignment is unconditional, the
+        # `_<body> = None` pre-init below is skipped for this case as well.
+        collapsed_binary_bytes_overload: Optional[OperationType] = None
+        if builder.overloads:
+            binary_bytes_binary_ov = next(
+                (o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType)), None
+            )
+            binary_bytes_other_ov = next(
+                (o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType)), None
+            )
+            if (
+                binary_bytes_binary_ov is not None
+                and binary_bytes_other_ov is not None
+                and isinstance(binary_bytes_other_ov.parameters.body_parameter.type, ByteArraySchema)
+                and binary_bytes_other_ov.parameters.body_parameter.default_content_type != "application/json"
+                and binary_bytes_binary_ov.request_builder.parameters.body_parameter.client_name
+                == binary_bytes_other_ov.request_builder.parameters.body_parameter.client_name
+            ):
+                collapsed_binary_bytes_overload = cast(OperationType, binary_bytes_binary_ov)
+
+        if not all_dpg_model_overloads and collapsed_binary_bytes_overload is None:
             for v in sorted(set(client_names), key=client_names.index):
                 retval.append(f"_{v} = None")
+
+        if collapsed_binary_bytes_overload is not None:
+            collapsed_body_param = collapsed_binary_bytes_overload.parameters.body_parameter
+            if collapsed_body_param.default_content_type and not same_content_type:
+                retval.append(
+                    f'content_type = content_type or "{collapsed_body_param.default_content_type}"{check_body_suffix}'
+                )
+            retval.extend(self._create_body_parameter(collapsed_binary_bytes_overload))
+            return retval
+
         try:
             # if there is a binary overload, we do a binary check first.
             binary_overload = cast(
@@ -831,23 +864,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 OperationType,
                 next((o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType))),
             )
-            other_body_param = other_overload.parameters.body_parameter
-            # When the non-binary overload also serializes to raw content (e.g. a `bytes` body
-            # with a binary content type), both branches assign the same value to the same
-            # content kwarg. Emitting the isinstance branch would be redundant and confuses
-            # mypy's type narrowing, so collapse it to a single assignment.
-            if (
-                isinstance(other_body_param.type, ByteArraySchema)
-                and other_body_param.default_content_type != "application/json"
-                and binary_overload.request_builder.parameters.body_parameter.client_name
-                == other_overload.request_builder.parameters.body_parameter.client_name
-            ):
-                if binary_body_param.default_content_type and not same_content_type:
-                    retval.append(
-                        f'content_type = content_type or "{binary_body_param.default_content_type}"{check_body_suffix}'
-                    )
-                retval.extend(self._create_body_parameter(binary_overload))
-                return retval
             retval.append(f"if {binary_body_param.type.instance_check_template.format(binary_body_param.client_name)}:")
             if binary_body_param.default_content_type and not same_content_type:
                 retval.append(
