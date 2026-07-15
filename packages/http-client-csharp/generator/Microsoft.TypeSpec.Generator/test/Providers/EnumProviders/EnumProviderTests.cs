@@ -499,6 +499,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Default", fields[1].Name);
         }
 
+        [Test]
+        public async Task BackCompat_FixedEnumUnderscoresPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("ExistingValue", 0),
+                ("Other", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("Existing_Value", fields[0].Name);
+            Assert.AreEqual("Other", fields[1].Name);
+        }
+
+        [Test]
+        public async Task BackCompat_FixedEnumAmbiguousUnderscoreMatchNotApplied()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumValues = new System.Collections.Generic.List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, enumValues);
+            enumValues.Add(InputFactory.EnumMember.Int32("ExistingValue", 0, input));
+            enumValues.Add(InputFactory.EnumMember.Int32("Existing_Value", 1, input, isExactName: true));
+
+            var enumType = EnumProvider.Create(input);
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("ExistingValue", fields[0].Name);
+            Assert.AreEqual("Existing_Value", fields[1].Name);
+        }
+
         // Verifies that back-compat does NOT re-introduce enum values that have been suppressed
         // via [CodeGenSuppress] or that already exist in user-provided custom code. Without
         // filtering in ProcessTypeForBackCompatibility, the back-compat code would rebuild the

@@ -122,24 +122,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
+            var currentLookupWithoutUnderscores = currentValues.ToLookup(
+                v => RemoveUnderscores(v.Name),
+                StringComparer.OrdinalIgnoreCase);
             var allMembers = new List<EnumTypeMember>(currentValues.Count);
+            var processedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var field in lastContractFields)
             {
-                if (currentLookup.TryGetValue(field.Name, out var existingMember))
+                var preserveLastContractName = false;
+                if (!currentLookup.TryGetValue(field.Name, out var existingMember))
                 {
+                    var matches = currentLookupWithoutUnderscores[RemoveUnderscores(field.Name)]
+                        .Where(v => !processedNames.Contains(v.Name))
+                        .Take(2)
+                        .ToArray();
+                    if (matches.Length != 1)
+                    {
+                        continue;
+                    }
+
+                    existingMember = matches[0];
+                    preserveLastContractName = true;
+                }
+
+                if (processedNames.Add(existingMember.Name))
+                {
+                    var name = preserveLastContractName ? field.Name : existingMember.Name;
                     var updatedField = new FieldProvider(
                         existingMember.Field.Modifiers,
                         existingMember.Field.Type,
-                        existingMember.Name,
+                        name,
                         existingMember.Field.EnclosingType,
                         existingMember.Field.Description);
-                    allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, existingMember.Value));
+                    allMembers.Add(new EnumTypeMember(name, updatedField, existingMember.Value));
                 }
             }
 
             // Then, add new members that weren't in the last contract (in their original input order)
-            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
             foreach (var current in currentValues)
             {
                 if (!processedNames.Contains(current.Name))
@@ -160,6 +180,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return allMembers;
         }
 
+        private static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
+
         private static bool EnumMemberOrderMatches(
             IReadOnlyList<EnumTypeMember> left,
             IReadOnlyList<EnumTypeMember> right)
@@ -170,7 +192,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             for (int i = 0; i < left.Count; i++)
             {
-                if (!string.Equals(left[i].Name, right[i].Name, StringComparison.Ordinal))
+                if (!string.Equals(
+                    RemoveUnderscores(left[i].Name),
+                    RemoveUnderscores(right[i].Name),
+                    StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }
