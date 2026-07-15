@@ -2537,7 +2537,15 @@ export interface FunctionImplementations {
   };
 }
 
-export interface PackageFlags {}
+export interface PackageFlags {
+  /**
+   * Opt into validating user-provided emitter options against the `EmitterOptions` TypeSpec
+   * model exported by this emitter (via the `./options` package export). This is an
+   * experimental, per-emitter opt-in: when omitted (the default) the emitter's TypeSpec
+   * options model is not used for runtime validation.
+   */
+  readonly experimentalEmitterOptions?: boolean;
+}
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages, any>[];

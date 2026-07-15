@@ -31,6 +31,9 @@
     "./testing": {
       "types": "./dist/src/testing/index.d.ts",
       "default": "./dist/src/testing/index.js"
+    },
+    "./options": {
+      "typespec": "./options/main.tsp"
     }
   },
   "imports": {
@@ -41,10 +44,11 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
+    "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm gen-emitter-options-types && pnpm quickbuild && pnpm lint-typespec-library",
     "quickbuild": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "gen-emitter-options-types": "tspd --enable-experimental gen-emitter-options-types options/main.tsp --interface-name EmitterOptions --output-dir generated-defs",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:watch": "vitest -w",
@@ -59,6 +63,7 @@
   },
   "files": [
     "lib/*.tsp",
+    "options/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],

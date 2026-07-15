@@ -1,0 +1,126 @@
+import "@typespec/compiler/emitter";
+
+model EmitterOptions {
+  /**
+   * If the content should be serialized as YAML or JSON.
+   * Can be a single value or an array to emit multiple formats.
+   * Default `yaml`, if not specified infer from the `output-file` extension.
+   */
+  `file-type`?: FileType | FileType[];
+
+  /**
+   * Name of the output file.
+   * Output file will interpolate the following values:
+   *  - service-name: Name of the service
+   *  - service-name-if-multiple: Name of the service if multiple
+   *  - version: Version of the service if multiple
+   *  - file-type: The file type being emitted (json or yaml). Useful when `file-type` is an array.
+   *
+   * Default: `{service-name-if-multiple}.{version}.openapi.yaml` or `.json` if `file-type` is `"json"`.
+   * When `file-type` is an array: `{service-name-if-multiple}.{version}.openapi.{file-type}`.
+   *
+   * @example Single service no versioning
+   *  - `openapi.yaml`
+   *
+   * @example Multiple services no versioning
+   *  - `openapi.Org1.Service1.yaml`
+   *  - `openapi.Org1.Service2.yaml`
+   *
+   * @example Single service with versioning
+   *  - `openapi.v1.yaml`
+   *  - `openapi.v2.yaml`
+   *
+   * @example Multiple service with versioning
+   *  - `openapi.Org1.Service1.v1.yaml`
+   *  - `openapi.Org1.Service1.v2.yaml`
+   *  - `openapi.Org1.Service2.v1.0.yaml`
+   *  - `openapi.Org1.Service2.v1.1.yaml`
+   */
+  `output-file`?: string;
+
+  /**
+   * The Open API specification versions to emit.
+   * If more than one version is specified, then the output file
+   * will be created inside a directory matching each specification version.
+   *
+   * @default ["3.0.0"]
+   * @internal
+   */
+  `openapi-versions`?: OpenAPIVersion[];
+
+  /**
+   * Set the newline character for emitting files.
+   * @default "lf"
+   */
+  `new-line`?: "crlf" | "lf";
+
+  /**
+   * Omit unreachable types.
+   * By default all types declared under the service namespace will be included. With this flag on only types references in an operation will be emitted.
+   */
+  `omit-unreachable-types`?: boolean;
+
+  /**
+   * If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
+   * This extension is meant for debugging and should not be depended on.
+   * @default "never"
+   */
+  `include-x-typespec-name`?: "inline-only" | "never";
+
+  /**
+   * How to handle safeint type. Options are:
+   *  - `double-int`: Will produce `type: integer, format: double-int`
+   *  - `int64`: Will produce `type: integer, format: int64`
+   * @default "int64"
+   */
+  `safeint-strategy`?: "double-int" | "int64";
+
+  /**
+   * If true, then for models emitted as object schemas we default `additionalProperties` to false for
+   * OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+   * @default false
+   */
+  `seal-object-schemas`?: boolean;
+
+  /**
+   * Determines how to emit examples on parameters.
+   *
+   * Note: This is an experimental feature and may change in future versions.
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules.
+   * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
+   */
+  `experimental-parameter-examples`?: ExperimentalParameterExamplesStrategy;
+
+  /**
+   * How should operation ID be generated when `@operationId` is not used.
+   * Available options are
+   * - `parent-container`: Uses the parent namespace/interface and operation name to generate the ID.
+   * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
+   * - `explicit-only`: Only use explicitly defined operation IDs.
+   * @default "parent-container"
+   */
+  `operation-id-strategy`?:
+    | OperationIdStrategy
+    | {
+        /** Strategy used to generate the operation ID. */
+        kind: OperationIdStrategy;
+
+        /** Separator used to join segment in the operation name. */
+        separator?: string;
+      };
+
+  /**
+   * How to emit TypeSpec enums. Options are:
+   * - `default`: Emit as a single schema using the `enum` keyword.
+   * - `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`
+   *   from each member's `@summary` and `@doc`. Only supported by OpenAPI 3.1.0 and above.
+   * @default "default"
+   */
+  `enum-strategy`?: EnumStrategy;
+}
+
+alias FileType = "yaml" | "json";
+alias OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
+alias ExperimentalParameterExamplesStrategy = "data" | "serialized";
+alias OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
+alias EnumStrategy = "default" | "annotated";

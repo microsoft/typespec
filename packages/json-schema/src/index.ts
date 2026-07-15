@@ -19,7 +19,7 @@ export type {
 
 /** @internal */
 export { JsonSchemaEmitter } from "./json-schema-emitter.js";
-export { $flags, $lib, EmitterOptionsSchema } from "./lib.js";
+export { $flags, $lib } from "./lib.js";
 export type { JSONSchemaEmitterOptions } from "./lib.js";
 
 /** @internal */
