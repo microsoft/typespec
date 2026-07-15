@@ -20,119 +20,119 @@ import tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner;
 public interface TopLevelArmResource {
     /**
      * Gets the id property: Fully qualified resource Id for the resource.
-     * 
+     *
      * @return the id value.
      */
     String id();
 
     /**
      * Gets the name property: The name of the resource.
-     * 
+     *
      * @return the name value.
      */
     String name();
 
     /**
      * Gets the type property: The type of the resource.
-     * 
+     *
      * @return the type value.
      */
     String type();
 
     /**
      * Gets the location property: The geo-location where the resource lives.
-     * 
+     *
      * @return the location value.
      */
     String location();
 
     /**
      * Gets the tags property: Resource tags.
-     * 
+     *
      * @return the tags value.
      */
     Map<String, String> tags();
 
     /**
      * Gets the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-     * 
+     *
      * @return the systemData value.
      */
     SystemData systemData();
 
     /**
      * Gets the configurationEndpoints property: Configuration Endpoints.
-     * 
+     *
      * @return the configurationEndpoints value.
      */
     List<String> configurationEndpoints();
 
     /**
      * Gets the userName property: The userName property.
-     * 
+     *
      * @return the userName value.
      */
     String userName();
 
     /**
      * Gets the userNames property: The userNames property.
-     * 
+     *
      * @return the userNames value.
      */
     String userNames();
 
     /**
      * Gets the accuserName property: The accuserName property.
-     * 
+     *
      * @return the accuserName value.
      */
     String accuserName();
 
     /**
      * Gets the startTimeStamp property: The startTimeStamp property.
-     * 
+     *
      * @return the startTimeStamp value.
      */
     OffsetDateTime startTimeStamp();
 
     /**
      * Gets the size property: The size property.
-     * 
+     *
      * @return the size value.
      */
     Float size();
 
     /**
      * Gets the provisioningState property: The status of the last operation.
-     * 
+     *
      * @return the provisioningState value.
      */
     ProvisioningState provisioningState();
 
     /**
      * Gets the region of the resource.
-     * 
+     *
      * @return the region of the resource.
      */
     Region region();
 
     /**
      * Gets the name of the resource region.
-     * 
+     *
      * @return the name of the resource region.
      */
     String regionName();
 
     /**
      * Gets the name of the resource group.
-     * 
+     *
      * @return the name of the resource group.
      */
     String resourceGroupName();
 
     /**
      * Gets the inner tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner object.
-     * 
+     *
      * @return the inner object.
      */
     TopLevelArmResourceInner innerModel();
@@ -160,7 +160,7 @@ public interface TopLevelArmResource {
         interface WithLocation {
             /**
              * Specifies the region for the resource.
-             * 
+             *
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -168,7 +168,7 @@ public interface TopLevelArmResource {
 
             /**
              * Specifies the region for the resource.
-             * 
+             *
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -181,7 +181,7 @@ public interface TopLevelArmResource {
         interface WithResourceGroup {
             /**
              * Specifies resourceGroupName.
-             * 
+             *
              * @param resourceGroupName The name of the resource group. The name is case insensitive.
              * @return the next definition stage.
              */
@@ -196,14 +196,14 @@ public interface TopLevelArmResource {
             DefinitionStages.WithUserNames, DefinitionStages.WithAccuserName, DefinitionStages.WithStartTimeStamp {
             /**
              * Executes the create request.
-             * 
+             *
              * @return the created resource.
              */
             TopLevelArmResource create();
 
             /**
              * Executes the create request.
-             * 
+             *
              * @param context The context to associate with this operation.
              * @return the created resource.
              */
@@ -216,7 +216,7 @@ public interface TopLevelArmResource {
         interface WithTags {
             /**
              * Specifies the tags property: Resource tags..
-             * 
+             *
              * @param tags Resource tags.
              * @return the next definition stage.
              */
@@ -229,7 +229,7 @@ public interface TopLevelArmResource {
         interface WithUserName {
             /**
              * Specifies the userName property: The userName property..
-             * 
+             *
              * @param userName The userName property.
              * @return the next definition stage.
              */
@@ -242,7 +242,7 @@ public interface TopLevelArmResource {
         interface WithUserNames {
             /**
              * Specifies the userNames property: The userNames property..
-             * 
+             *
              * @param userNames The userNames property.
              * @return the next definition stage.
              */
@@ -255,7 +255,7 @@ public interface TopLevelArmResource {
         interface WithAccuserName {
             /**
              * Specifies the accuserName property: The accuserName property..
-             * 
+             *
              * @param accuserName The accuserName property.
              * @return the next definition stage.
              */
@@ -268,7 +268,7 @@ public interface TopLevelArmResource {
         interface WithStartTimeStamp {
             /**
              * Specifies the startTimeStamp property: The startTimeStamp property..
-             * 
+             *
              * @param startTimeStamp The startTimeStamp property.
              * @return the next definition stage.
              */
@@ -278,7 +278,7 @@ public interface TopLevelArmResource {
 
     /**
      * Begins update for the TopLevelArmResource resource.
-     * 
+     *
      * @return the stage of resource update.
      */
     TopLevelArmResource.Update update();
@@ -290,14 +290,14 @@ public interface TopLevelArmResource {
         UpdateStages.WithAccuserName {
         /**
          * Executes the update request.
-         * 
+         *
          * @return the updated resource.
          */
         TopLevelArmResource apply();
 
         /**
          * Executes the update request.
-         * 
+         *
          * @param context The context to associate with this operation.
          * @return the updated resource.
          */
@@ -314,7 +314,7 @@ public interface TopLevelArmResource {
         interface WithTags {
             /**
              * Specifies the tags property: Resource tags..
-             * 
+             *
              * @param tags Resource tags.
              * @return the next definition stage.
              */
@@ -327,7 +327,7 @@ public interface TopLevelArmResource {
         interface WithUserName {
             /**
              * Specifies the userName property: The userName property..
-             * 
+             *
              * @param userName The userName property.
              * @return the next definition stage.
              */
@@ -340,7 +340,7 @@ public interface TopLevelArmResource {
         interface WithUserNames {
             /**
              * Specifies the userNames property: The userNames property..
-             * 
+             *
              * @param userNames The userNames property.
              * @return the next definition stage.
              */
@@ -353,7 +353,7 @@ public interface TopLevelArmResource {
         interface WithAccuserName {
             /**
              * Specifies the accuserName property: The accuserName property..
-             * 
+             *
              * @param accuserName The accuserName property.
              * @return the next definition stage.
              */
@@ -363,22 +363,22 @@ public interface TopLevelArmResource {
 
     /**
      * Refreshes the resource to sync with Azure.
-     * 
+     *
      * @return the refreshed resource.
      */
     TopLevelArmResource refresh();
 
     /**
      * Refreshes the resource to sync with Azure.
-     * 
+     *
      * @param context The context to associate with this operation.
      * @return the refreshed resource.
      */
     TopLevelArmResource refresh(Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -386,8 +386,8 @@ public interface TopLevelArmResource {
     Result action();
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -398,7 +398,7 @@ public interface TopLevelArmResource {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -409,7 +409,7 @@ public interface TopLevelArmResource {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
