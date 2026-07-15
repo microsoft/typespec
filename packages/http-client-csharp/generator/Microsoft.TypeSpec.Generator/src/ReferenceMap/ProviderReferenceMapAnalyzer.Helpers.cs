@@ -56,21 +56,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsClientProviderRoot(TypeProvider provider, bool publicOnly) =>
-            IsClientProvider(provider) &&
+            provider.IsClientProvider &&
             (!publicOnly || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-
-        private static bool IsClientProvider(TypeProvider provider)
-        {
-            for (var type = provider.GetType(); type != null && type != typeof(TypeProvider); type = type.BaseType)
-            {
-                if (string.Equals(type.Name, "ClientProvider", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         private static bool IsAdditionalRootProvider(TypeProvider provider, HashSet<string> roots, HashSet<string> nodes)
         {
@@ -95,13 +82,8 @@ namespace Microsoft.TypeSpec.Generator
             return !string.Equals(provider.RelativeFilePath, Path.Combine("src", "Generated", "Models", $"{provider.Name}.cs"), StringComparison.Ordinal);
         }
 
-        private static bool IsModelSerializationProviderDeclaration(TypeProvider provider)
-        {
-            var modelsDirectory = Path.Combine("src", "Generated", "Models");
-            var relativeFilePath = provider.RelativeFilePath;
-            return relativeFilePath.StartsWith(modelsDirectory + Path.DirectorySeparatorChar, StringComparison.Ordinal) &&
-                Path.GetFileNameWithoutExtension(relativeFilePath).Contains(".Serialization", StringComparison.Ordinal);
-        }
+        private static bool IsModelSerializationProviderDeclaration(TypeProvider provider) =>
+            provider.SerializationProviderOwner != null;
 
         private static HashSet<string> GetHelperRootNames(
             IReadOnlyList<TypeProvider> providers,
@@ -473,7 +455,6 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> helperRoots,
             bool includeModelFactory,
             bool includeAdditionalRoots,
-            bool includeUnionVariantRoots,
             bool publicClientRootsOnly)
         {
             var generator = CodeModelGenerator.Instance;
@@ -492,50 +473,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            if (!includeUnionVariantRoots)
-            {
-                return roots;
-            }
-
-            AddUnionVariantRoots(roots, providers, nodes);
-            AddKnownDiscriminatorVariantRoots(roots, providers, nodes);
-
             return roots;
-        }
-
-        private static void AddUnionVariantRoots(HashSet<string> roots, IReadOnlyList<TypeProvider> providers, HashSet<string> nodes)
-        {
-            var unionVariantTypesToKeep = CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep;
-            foreach (var provider in GetGeneratedProviders(providers))
-            {
-                if (!unionVariantTypesToKeep.Contains(provider.Type.FullyQualifiedName))
-                {
-                    continue;
-                }
-
-                AddMatchingName(roots, GetProviderTypeName(provider.Type), nodes);
-            }
-        }
-
-        private static void AddKnownDiscriminatorVariantRoots(
-            HashSet<string> roots,
-            IReadOnlyList<TypeProvider> providers,
-            HashSet<string> nodes)
-        {
-            foreach (var provider in GetGeneratedProviders(providers))
-            {
-                if (provider is not ModelProvider
-                    {
-                        IsUnknownDiscriminatorModel: false,
-                        DiscriminatorValue: not null
-                    } modelProvider ||
-                    !modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                {
-                    continue;
-                }
-
-                AddTypeReference(roots, modelProvider.Type, nodes);
-            }
         }
 
         private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove, HashSet<string> nodes)

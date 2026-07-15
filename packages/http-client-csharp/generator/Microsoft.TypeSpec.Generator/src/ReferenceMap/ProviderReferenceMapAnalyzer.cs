@@ -296,7 +296,6 @@ namespace Microsoft.TypeSpec.Generator
                 helperRoots: [],
                 includeModelFactory: false,
                 includeAdditionalRoots: true,
-                includeUnionVariantRoots: true,
                 publicClientRootsOnly: true);
 
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
@@ -358,7 +357,6 @@ namespace Microsoft.TypeSpec.Generator
                 helperRoots: [],
                 includeModelFactory: true,
                 includeAdditionalRoots: true,
-                includeUnionVariantRoots: true,
                 publicClientRootsOnly: true);
             var publicCandidates = GetPublicCandidates(
                 publicDeclaredNodes,

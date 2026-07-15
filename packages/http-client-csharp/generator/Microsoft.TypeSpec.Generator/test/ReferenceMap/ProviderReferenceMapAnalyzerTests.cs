@@ -65,6 +65,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void ProviderNamedClientProviderIsNotTreatedAsClientWithoutCapability()
+        {
+            var sameNamedProvider = new ClientProvider();
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(sameNamedProvider));
+
+            ProviderReferenceMapAnalyzer.Analyze([sameNamedProvider]);
+
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(sameNamedProvider));
+        }
+
+        [Test]
         public void RootedTypeWithInternalPartialDeclarationRemainsPublic()
         {
             var model = new ModelProvider(InputFactory.Model("PublicModel", "Sample.Models", access: "public"));
@@ -159,21 +170,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public void UnionVariantFallbackRootsOnlyMatchFullyQualifiedModelName()
+        public void UnionVariantPropertyReferenceOnlyMatchesFullyQualifiedModelName()
         {
             var keptVariant = new ModelProvider(InputFactory.Model("Variant", "Sample"));
             var collidingVariant = new ModelProvider(InputFactory.Model("Variant", "Other"));
-            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(keptVariant, collidingVariant));
-            CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep.Add(keptVariant.Type.FullyQualifiedName);
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(client, keptVariant, collidingVariant));
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    CSharpType.FromUnion([keptVariant.Type, typeof(string)]),
+                    "Value",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
 
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([keptVariant, collidingVariant]);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, keptVariant, collidingVariant]);
 
             Assert.IsTrue(keptVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsFalse(collidingVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         [Test]
-        public void UnionVariantEnumRemainsPublic()
+        public void UnionVariantEnumRemainsPublicWhenReferencedByPublicProperty()
         {
             var inputEnum = InputFactory.StringEnum(
                 "Variant",
@@ -184,16 +205,73 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
             var variant = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<EnumProvider>()
                 .Single(provider => provider.Name == "Variant");
-            CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep.Add(variant.Type.FullyQualifiedName);
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    CSharpType.FromUnion([variant.Type, typeof(string)]),
+                    "Value",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
 
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([variant]);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, variant]);
 
             Assert.IsTrue(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsFalse(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
         }
 
         [Test]
-        public void KnownDiscriminatorVariantRemainsPublic()
+        public void DisconnectedUnionVariantIsNotPublicRoot()
+        {
+            var inputVariant = InputFactory.Model("Variant", "Sample", access: null!);
+            var variant = new ModelProvider(inputVariant);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(variant));
+            CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(
+                InputFactory.Union([inputVariant, InputPrimitiveType.String]));
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([variant]);
+
+            Assert.IsTrue(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
+        public void KnownDiscriminatorVariantRemainsPublicWhenBaseIsRooted()
+        {
+            var discriminator = InputFactory.Property(
+                "kind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var derivedInput = InputFactory.Model(
+                "KnownVariant",
+                "Sample",
+                access: null!,
+                discriminatedKind: "known");
+            var baseInput = InputFactory.Model(
+                "BaseModel",
+                "Sample",
+                access: null!,
+                properties: [discriminator],
+                derivedModels: [derivedInput],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInput, derivedInput]);
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var baseProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "BaseModel");
+            var derivedProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "KnownVariant");
+            CodeModelGenerator.Instance.AddTypeToKeep(baseProvider);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
+
+            Assert.IsTrue(baseProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(derivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
+        public void DisconnectedKnownDiscriminatorVariantIsNotPublicRoot()
         {
             var discriminator = InputFactory.Property(
                 "kind",
@@ -219,20 +297,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
 
-            Assert.IsTrue(baseProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
-            Assert.IsTrue(derivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(baseProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(derivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
         }
 
         [Test]
-        public void CollectionUnionVariantFallbackRootsOnlyMatchFullyQualifiedModelName()
+        public void CollectionUnionVariantPropertyReferenceOnlyMatchesFullyQualifiedModelName()
         {
-            var keptInput = InputFactory.Model("Variant", "Sample");
-            var keptVariant = new ModelProvider(keptInput);
+            var keptVariant = new ModelProvider(InputFactory.Model("Variant", "Sample"));
             var collidingVariant = new ModelProvider(InputFactory.Model("Variant", "Other"));
-            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(keptVariant, collidingVariant));
-            CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(InputFactory.Union([InputFactory.Array(keptInput)]));
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(client, keptVariant, collidingVariant));
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    new CSharpType(typeof(IList<>), CSharpType.FromUnion([keptVariant.Type, typeof(string)])),
+                    "Values",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
 
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([keptVariant, collidingVariant]);
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, keptVariant, collidingVariant]);
 
             Assert.IsTrue(keptVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsFalse(collidingVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
@@ -436,7 +523,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         {
             var requestContextType = CreateNamedType("RequestContext", "Azure");
             var otherContextType = CreateNamedType("OtherContext", "Azure");
-            var client = new ClientProvider("SampleClient", "Sample");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
             client.Update(methods:
             [
                 new MethodProvider(
@@ -469,7 +556,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                     }
                     """)],
                 [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
-            var client = new ClientProvider("SampleClient", "Sample");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
             var widgetExtensions = new TestTypeProvider("WidgetExtensions", TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static, ns: "Sample");
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(client, widgetExtensions),
@@ -527,7 +614,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                 ns: null,
                 optional.Type,
                 modelSerializationExtensions.Type);
-            var model = new ClientProvider("SampleModel", serializationProvider);
+            var model = new ClientTestTypeProvider("SampleModel", serializationProvider);
             MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(
                 model,
                 serializationProvider,
@@ -611,7 +698,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         [Test]
         public void PublicProviderSignatureDependencyKeepsNonRootTypePublic()
         {
-            var client = new ClientProvider(
+            var client = new ClientTestTypeProvider(
                 "SampleClient",
                 "Sample",
                 signatureDependencyTypes: CreateNamedType("GeneratedModel", "Sample.Models"));
@@ -628,7 +715,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         [Test]
         public void PublicProviderMethodWithNamespaceLessSignatureKeepsNonRootTypePublic()
         {
-            var client = new ClientProvider("SampleClient", "Sample");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
             var generatedModel = new GeneratedModelTestTypeProvider("GeneratedModel", TypeSignatureModifiers.Public, ns: "Sample");
             client.Update(methods:
             [
@@ -721,7 +808,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         public void DependenciesOfInternalizedClientAreNotPublicizedFromClientRootTraversal()
         {
             var clientOptions = new TestTypeProvider("SampleClientOptions", TypeSignatureModifiers.Public, ns: "Sample");
-            var client = new ClientProvider(
+            var client = new ClientTestTypeProvider(
                 "SampleClient",
                 "Sample",
                 new SignatureDependencyTestTypeProvider("SampleClient", TypeSignatureModifiers.Internal, ns: "Sample"),
@@ -784,7 +871,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
             [
                 new NestedTestTypeProvider("ServiceVersion", TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum, clientOptions, ns: "Sample")
             ];
-            var client = new ClientProvider("SampleClient", "Sample", signatureDependencyTypes: CreateNamedType("SampleClientOptions", "Sample"));
+            var client = new ClientTestTypeProvider("SampleClient", "Sample", signatureDependencyTypes: CreateNamedType("SampleClientOptions", "Sample"));
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(client, clientOptions),
                 lastContractCompilation: () => Task.FromResult<Compilation>(lastContractCompilation));
@@ -911,7 +998,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
             [
                 new NestedTestTypeProvider("ServiceVersion", TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum, clientOptions, ns: "Sample")
             ];
-            var client = new ClientProvider("SampleClient", "Sample", signatureDependencyTypes: CreateNamedType("SampleClientOptions", "Sample"));
+            var client = new ClientTestTypeProvider("SampleClient", "Sample", signatureDependencyTypes: CreateNamedType("SampleClientOptions", "Sample"));
             await MockHelpers.LoadMockGeneratorAsync(
                 createOutputLibrary: () => new TestOutputLibrary(client, clientOptions),
                 configuration: "{}",
@@ -955,7 +1042,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                 configuration: "{}",
                 outputPath: Path.Combine(outputPath, "src"));
             var options = new TestTypeProvider("SampleClientOptions", TypeSignatureModifiers.Public, ns: "Sample");
-            var client = new ClientProvider("SampleClient", "Sample", signatureDependencyTypes: options.Type);
+            var client = new ClientTestTypeProvider("SampleClient", "Sample", signatureDependencyTypes: options.Type);
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, options]);
 
@@ -1330,18 +1417,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
             protected override CSharpType[] GetTypeArguments() => _typeArguments;
         }
 
-        private sealed class ClientProvider : TestTypeProvider
+        private sealed class ClientTestTypeProvider : TestTypeProvider
         {
             private readonly TypeProvider[] _serializationProviders;
             private readonly TypeProvider? _customCodeView;
             private readonly CSharpType[] _signatureDependencyTypes;
 
-            public ClientProvider(string name, params TypeProvider[] serializationProviders)
+            public ClientTestTypeProvider(string name, params TypeProvider[] serializationProviders)
                 : this(name, ns: null, customCodeView: null, serializationProviders: serializationProviders)
             {
             }
 
-            public ClientProvider(string name, string? ns, TypeProvider? customCodeView = null, TypeProvider[]? serializationProviders = null, params CSharpType[] signatureDependencyTypes)
+            public ClientTestTypeProvider(string name, string? ns, TypeProvider? customCodeView = null, TypeProvider[]? serializationProviders = null, params CSharpType[] signatureDependencyTypes)
                 : base(name, TypeSignatureModifiers.Public, ns: ns)
             {
                 _serializationProviders = serializationProviders ?? [];
@@ -1349,9 +1436,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                 _signatureDependencyTypes = signatureDependencyTypes;
             }
 
+            protected internal override bool IsClientProvider => true;
             protected override TypeProvider[] BuildSerializationProviders() => _serializationProviders;
             private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => _customCodeView;
             protected internal override IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => _signatureDependencyTypes;
+        }
+
+        private sealed class ClientProvider : TestTypeProvider
+        {
+            public ClientProvider()
+                : base("SameNamedProvider", TypeSignatureModifiers.Public, ns: "Sample")
+            {
+            }
         }
 
         private static CSharpType CreateNamedType(string name, string ns, params CSharpType[] arguments)

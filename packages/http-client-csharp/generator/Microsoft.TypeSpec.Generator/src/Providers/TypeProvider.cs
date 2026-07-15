@@ -159,6 +159,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual bool ShouldWriteTypeXmlDocs => false;
 
+        protected internal virtual bool IsClientProvider => false;
+
         internal void PreserveXmlDocs()
         {
             PreserveTypeXmlDocs = true;

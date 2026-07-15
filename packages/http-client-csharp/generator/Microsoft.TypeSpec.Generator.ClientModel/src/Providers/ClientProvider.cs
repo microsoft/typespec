@@ -25,6 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientProvider : TypeProvider
     {
+        protected override bool IsClientProvider => true;
+
         private record AuthFields(FieldProvider AuthField);
         private record ApiKeyFields(FieldProvider AuthField, FieldProvider AuthorizationHeaderField, FieldProvider? AuthorizationApiKeyPrefixField) : AuthFields(AuthField);
         private record OAuth2Fields(FieldProvider AuthField, FieldProvider AuthorizationScopesField) : AuthFields(AuthField);

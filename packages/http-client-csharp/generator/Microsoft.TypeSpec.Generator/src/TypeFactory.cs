@@ -41,8 +41,6 @@ namespace Microsoft.TypeSpec.Generator
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
-        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
-
         protected internal TypeFactory()
         {
         }
@@ -100,7 +98,6 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            AddUnionVariantTypesToKeep(unionInput);
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -128,24 +125,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return type;
-        }
-
-        private void AddUnionVariantTypesToKeep(CSharpType type)
-        {
-            if (!type.IsFrameworkType && !type.IsLiteral)
-            {
-                UnionVariantTypesToKeep.Add(type.FullyQualifiedName);
-            }
-
-            if (type.IsArray && type.ElementType is { } elementType)
-            {
-                AddUnionVariantTypesToKeep(elementType);
-            }
-
-            foreach (var argument in type.Arguments)
-            {
-                AddUnionVariantTypesToKeep(argument);
-            }
         }
 
         /// <summary>

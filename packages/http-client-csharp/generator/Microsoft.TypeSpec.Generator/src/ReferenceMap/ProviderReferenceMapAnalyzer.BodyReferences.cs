@@ -390,7 +390,7 @@ namespace Microsoft.TypeSpec.Generator
         private static bool IsGeneratedImplementationBodyReferenceCandidate(TypeProvider provider, bool isSerializationProvider)
         {
             if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static) ||
-                IsClientProvider(provider) ||
+                provider.IsClientProvider ||
                 isSerializationProvider)
             {
                 return true;
@@ -556,6 +556,13 @@ namespace Microsoft.TypeSpec.Generator
 
             AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
             AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+            if (type.IsUnion)
+            {
+                foreach (var unionItemType in type.UnionItemTypes)
+                {
+                    AddTypeReference(references, unionItemType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+                }
+            }
             foreach (var argument in type.Arguments)
             {
                 AddTypeReference(references, argument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
