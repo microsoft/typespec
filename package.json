@@ -2,7 +2,7 @@
   "name": "@typespec/monorepo",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@11.10.0",
   "type": "module",
   "scripts": {
     "build": "turbo build && pnpm check:eng && pnpm gen-compiler-extern-signature",
