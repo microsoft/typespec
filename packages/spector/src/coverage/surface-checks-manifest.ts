@@ -133,7 +133,7 @@ function renderDetails(details: SurfaceDetails | undefined): string {
 
 /** Escape characters that would break a Markdown table cell. */
 function escapeCell(text: string): string {
-  return text.replace(/\|/g, "\\|").replace(/\n/g, " ");
+  return text.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
 
 function uniqueId(used: Map<string, number>, base: string): string {
@@ -188,6 +188,24 @@ export async function loadSurfaceDocs(
         const sourceLocation = typespecCompiler.getSourceLocation(item.target);
         diagnostics.reportDiagnostic({
           message: `${item.message}: ${sourceLocation && getSourceLocationStr(sourceLocation)}`,
+        });
+      }
+      diagnostics.reportDiagnostic({
+        message: `${pc.red("✘")} Scenario ${name} is invalid.`,
+      });
+      continue;
+    }
+
+    // `@surfaceDoc` must sit on an element that also carries `@scenarioDoc`, so
+    // every surface check is grounded in a documented scenario. Enforced here
+    // (not via a compiler `$onValidate` hook) so plain spec compilation does not
+    // trigger spector's other, currently-dormant scenario validations.
+    const missingScenarioDoc = specExpect.listSurfaceDocsMissingScenarioDoc(program);
+    if (missingScenarioDoc.length > 0) {
+      for (const target of missingScenarioDoc) {
+        const sourceLocation = typespecCompiler.getSourceLocation(target);
+        diagnostics.reportDiagnostic({
+          message: `@surfaceDoc may only be applied to an element that also has @scenarioDoc, so every surface check is grounded in a documented scenario.: ${sourceLocation && getSourceLocationStr(sourceLocation)}`,
         });
       }
       diagnostics.reportDiagnostic({

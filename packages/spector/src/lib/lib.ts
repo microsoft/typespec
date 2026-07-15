@@ -22,12 +22,6 @@ export const $lib = createTypeSpecLibrary({
         default: `Operation is missing a scenario doc. Use @scenarioDoc to provide the name of the scenario. See https://github.com/Azure/cadl-ranch/blob/main/docs/decorators.md#scenariodoc`,
       },
     },
-    "surface-doc-requires-scenario-doc": {
-      severity: "error",
-      messages: {
-        default: `@surfaceDoc may only be applied to an element that also has @scenarioDoc, so every surface check is grounded in a documented scenario.`,
-      },
-    },
   },
   state: {
     Scenario: { description: "Mark a scenario to be executed" },

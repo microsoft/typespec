@@ -173,7 +173,7 @@ function isNaVerifier(v: Verifier): v is NaVerifier {
 }
 
 // ---------------------------------------------------------------------------
-// Casing (language-idiomatic recasing, driven by verifiers.json)
+// Casing (language-idiomatic recasting, driven by verifiers.json)
 // ---------------------------------------------------------------------------
 
 function splitWords(name: string): string[] {

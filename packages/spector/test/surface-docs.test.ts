@@ -1,12 +1,16 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTester, expectDiagnostics } from "@typespec/compiler/testing";
+import { createTester } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import {
   createSurfaceChecksManifest,
   createSurfaceChecksSummary,
   type SurfaceCheckItem,
 } from "../src/coverage/surface-checks-manifest.js";
-import { listSurfaceDocs, type SurfaceDoc } from "../src/lib/decorators.js";
+import {
+  listSurfaceDocs,
+  listSurfaceDocsMissingScenarioDoc,
+  type SurfaceDoc,
+} from "../src/lib/decorators.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/spector"],
@@ -97,8 +101,8 @@ describe("@surfaceDoc", () => {
 
   // --- validation: must be grounded in a scenario doc ---------------------
 
-  it("errors when applied to an element without @scenarioDoc", async () => {
-    const diagnostics = await Tester.diagnose(`
+  it("flags a surface doc whose target has no @scenarioDoc", async () => {
+    const { program } = await Tester.compile(`
       model Widget {
         id: string;
       }
@@ -107,9 +111,22 @@ describe("@surfaceDoc", () => {
       @surfaceDoc("access", Widget, "internal")
       op get(): Widget;
     `);
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/spector/surface-doc-requires-scenario-doc",
-    });
+    const missing = listSurfaceDocsMissingScenarioDoc(program);
+    expect(missing).toHaveLength(1);
+  });
+
+  it("does not flag a surface doc whose target also has @scenarioDoc", async () => {
+    const { program } = await Tester.compile(`
+      model Widget {
+        id: string;
+      }
+
+      @scenario
+      @scenarioDoc("Get a widget.")
+      @surfaceDoc("access", Widget, "internal")
+      op get(): Widget;
+    `);
+    expect(listSurfaceDocsMissingScenarioDoc(program)).toHaveLength(0);
   });
 
   // --- manifest: generic, category-agnostic details -----------------------

@@ -8,8 +8,8 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
-import { getScenarioDoc, getScenarioName, SurfaceDocTarget } from "./decorators.js";
-import { reportDiagnostic, SpectorStateKeys } from "./lib.js";
+import { getScenarioDoc, getScenarioName } from "./decorators.js";
+import { reportDiagnostic } from "./lib.js";
 
 export function $onValidate(program: Program) {
   const services = listServices(program);
@@ -36,23 +36,6 @@ export function $onValidate(program: Program) {
       }
     },
   });
-
-  validateSurfaceDocs(program);
-}
-
-/**
- * A `@surfaceDoc` must sit on an element that also carries `@scenarioDoc`, so
- * every surface check is grounded in a real, documented scenario. `getScenarioDoc`
- * is used (not `@scenario` alone) because the doc is what ties the check to
- * described behavior.
- */
-function validateSurfaceDocs(program: Program) {
-  const surfaceDocs = program.stateMap(SpectorStateKeys.SurfaceDoc);
-  for (const target of surfaceDocs.keys() as Iterable<SurfaceDocTarget>) {
-    if (getScenarioDoc(program, target) === undefined) {
-      reportDiagnostic(program, { code: "surface-doc-requires-scenario-doc", target });
-    }
-  }
 }
 
 function checkIsInScenario(

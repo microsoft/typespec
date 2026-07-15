@@ -17,6 +17,7 @@ export {
   listScenarioIn,
   listScenarios,
   listSurfaceDocs,
+  listSurfaceDocsMissingScenarioDoc,
 } from "./decorators.js";
 export { $lib, reportDiagnostic } from "./lib.js";
 export { $onValidate } from "./validate.js";

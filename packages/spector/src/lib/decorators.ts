@@ -425,6 +425,26 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
 }
 
 /**
+ * Surface docs whose annotated target does not also carry `@scenarioDoc`.
+ *
+ * `@surfaceDoc` must sit on an element that also has `@scenarioDoc` so every
+ * surface check is grounded in a documented scenario. This is enforced while
+ * the surface-checks manifest is built (see `loadSurfaceDocs`) rather than as a
+ * compiler `$onValidate` hook, so it never activates spector's other,
+ * currently-dormant scenario validations for consumers that only compile specs.
+ */
+export function listSurfaceDocsMissingScenarioDoc(program: Program): SurfaceDocTarget[] {
+  const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
+  const result: SurfaceDocTarget[] = [];
+  for (const target of map.keys() as Iterable<SurfaceDocTarget>) {
+    if (getScenarioDoc(program, target) === undefined) {
+      result.push(target);
+    }
+  }
+  return result;
+}
+
+/**
  * Normalize an author's `expected` into one entry per check. A bare string is a
  * single, unscoped (idiomatically recast) check; a `scope → value` dict yields
  * one verbatim check per scope key.
