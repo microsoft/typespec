@@ -793,6 +793,34 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.extend(self._serialize_body_parameter(builder))
         return retval
 
+    @staticmethod
+    def _collapsed_binary_bytes_overload(builder: OperationType) -> Optional[OperationType]:
+        """Return the binary overload of a binary ``bytes`` body, or ``None``.
+
+        A binary ``bytes`` body pairs a ``bytes`` overload (binary content type) with the added
+        ``IO[bytes]`` overload. Both serialize to raw content on the same content kwarg, so body
+        serialization collapses to a single unconditional assignment. This returns the binary
+        overload to serialize in that case, or ``None`` when the isinstance branch is needed.
+        """
+        if not builder.overloads:
+            return None
+        binary_ov = next(
+            (o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType)), None
+        )
+        other_ov = next(
+            (o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType)), None
+        )
+        if (
+            binary_ov is not None
+            and other_ov is not None
+            and isinstance(other_ov.parameters.body_parameter.type, ByteArraySchema)
+            and other_ov.parameters.body_parameter.default_content_type != "application/json"
+            and binary_ov.request_builder.parameters.body_parameter.client_name
+            == other_ov.request_builder.parameters.body_parameter.client_name
+        ):
+            return cast(OperationType, binary_ov)
+        return None
+
     def _initialize_overloads(self, builder: OperationType, is_paging: bool = False) -> list[str]:
         retval: list[str] = []
         # For paging, we put body parameter in local place outside `prepare_request`
@@ -822,23 +850,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         # emit a single unconditional assignment instead of an `isinstance` branch (which would be
         # redundant and confuse mypy's type narrowing). Since the assignment is unconditional, the
         # `_<body> = None` pre-init below is skipped for this case as well.
-        collapsed_binary_bytes_overload: Optional[OperationType] = None
-        if builder.overloads:
-            binary_bytes_binary_ov = next(
-                (o for o in builder.overloads if isinstance(o.parameters.body_parameter.type, BinaryType)), None
-            )
-            binary_bytes_other_ov = next(
-                (o for o in builder.overloads if not isinstance(o.parameters.body_parameter.type, BinaryType)), None
-            )
-            if (
-                binary_bytes_binary_ov is not None
-                and binary_bytes_other_ov is not None
-                and isinstance(binary_bytes_other_ov.parameters.body_parameter.type, ByteArraySchema)
-                and binary_bytes_other_ov.parameters.body_parameter.default_content_type != "application/json"
-                and binary_bytes_binary_ov.request_builder.parameters.body_parameter.client_name
-                == binary_bytes_other_ov.request_builder.parameters.body_parameter.client_name
-            ):
-                collapsed_binary_bytes_overload = cast(OperationType, binary_bytes_binary_ov)
+        collapsed_binary_bytes_overload = self._collapsed_binary_bytes_overload(builder)
 
         if not all_dpg_model_overloads and collapsed_binary_bytes_overload is None:
             for v in sorted(set(client_names), key=client_names.index):
