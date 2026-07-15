@@ -3,6 +3,7 @@
 
 package encode.duration;
 
+import com.azure.core.http.rest.Response;
 import encode.duration.property.models.DefaultDurationProperty;
 import encode.duration.property.models.Float64MillisecondsDurationProperty;
 import encode.duration.property.models.Float64SecondsDurationProperty;
@@ -156,7 +157,12 @@ public class EncodeDurationTests {
 
     @Test
     public void testLossy() {
-        lossyClient.intSeconds(Duration.ofSeconds(36, 250_000_000));
-        lossyClient.intMilliseconds(Duration.ofMillis(36250).plusNanos(250_000));
+        Response<Void> secondsResponse
+            = lossyClient.intSecondsWithResponse(Duration.ofSeconds(36, 250_000_000), null);
+        Assertions.assertEquals(204, secondsResponse.getStatusCode());
+
+        Response<Void> millisecondsResponse
+            = lossyClient.intMillisecondsWithResponse(Duration.ofMillis(36250).plusNanos(250_000), null);
+        Assertions.assertEquals(204, millisecondsResponse.getStatusCode());
     }
 }
