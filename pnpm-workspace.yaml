@@ -41,8 +41,8 @@ catalog:
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
   "@playwright/test": ^1.60.0
   "@pnpm/workspace.find-packages": ^1000.0.65
-  "@scalar/json-magic": ^0.12.15
-  "@scalar/openapi-parser": ^0.28.6
+  "@scalar/json-magic": ^0.12.17
+  "@scalar/openapi-parser": ^0.28.8
   "@scalar/openapi-types": ^0.9.1
   "@storybook/cli": ^10.3.5
   "@storybook/react-vite": ^10.3.5
