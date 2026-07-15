@@ -1,7 +1,6 @@
 # Change Log - @typespec/http-client-python
 
 ## 0.34.2
-
 ### Bug Fixes
 
 - [#11216](https://github.com/microsoft/typespec/pull/11216) Clarify docstrings in the generated `_MyMutableMapping` base class in `_model_base.py` so they no longer use the ambiguous `D` placeholder (e.g. `Remove all items from D.` is now `Remove all items from the dictionary.`)
