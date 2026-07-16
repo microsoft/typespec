@@ -11,7 +11,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public class OptionalDefinition : TypeProvider
+    public class OptionalDefinition : InternalHelperProvider
     {
         private class ListTemplate<T> { }
 
@@ -29,10 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
+        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

@@ -16,7 +16,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class Utf8JsonBinaryContentDefinition : TypeProvider
+    public class Utf8JsonBinaryContentDefinition : InternalHelperProvider
     {
         private const string _jsonWriterName = "JsonWriter";
 
@@ -49,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => $"Utf8Json{BuildBaseType().Name}";
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
+        protected override TypeSignatureModifiers BuildTypeModifiers()
+            => TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

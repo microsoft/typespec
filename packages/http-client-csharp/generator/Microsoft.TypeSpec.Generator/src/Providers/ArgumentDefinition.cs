@@ -15,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.StringSnippets;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class ArgumentDefinition : TypeProvider
+    internal class ArgumentDefinition : InternalHelperProvider
     {
         private class Template<T> { }
 
@@ -34,10 +34,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _nullableT = _t.WithNullable(true);
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
+        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
 
         private MethodSignature GetSignature(
             string name,

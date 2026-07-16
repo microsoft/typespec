@@ -16,7 +16,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class TypeFormattersDefinition : TypeProvider
+    internal sealed class TypeFormattersDefinition : InternalHelperProvider
     {
         private readonly ValueExpression _invariantCultureExpression = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
         private const string ToStringMethodName = "ToString";
@@ -33,10 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", this, initializationValue: Literal("G"));
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
+        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

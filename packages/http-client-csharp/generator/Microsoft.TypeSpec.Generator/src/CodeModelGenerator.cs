@@ -268,6 +268,38 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        internal void AddInternalHelperTypesToKeep(IEnumerable<TypeProvider> types)
+        {
+            var visited = new HashSet<TypeProvider>();
+            foreach (var type in types)
+            {
+                AddInternalHelperTypesToKeep(type, visited);
+            }
+        }
+
+        private void AddInternalHelperTypesToKeep(TypeProvider type, HashSet<TypeProvider> visited)
+        {
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            if (type is InternalHelperProvider)
+            {
+                AddTypeToKeep(type);
+            }
+
+            foreach (var serializationProvider in type.SerializationProviders)
+            {
+                AddInternalHelperTypesToKeep(serializationProvider, visited);
+            }
+
+            foreach (var nestedType in type.NestedTypes)
+            {
+                AddInternalHelperTypesToKeep(nestedType, visited);
+            }
+        }
+
         /// <summary>
         /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.
         /// Override this method to generate non-C# output files.

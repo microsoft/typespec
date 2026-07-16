@@ -553,6 +553,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void InternalHelperProviderIsKeptAsRoot()
+        {
+            var typeProvider = new TestInternalHelperProvider();
+            CodeModelGenerator.Instance.AddInternalHelperTypesToKeep([typeProvider]);
+
+            Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static));
+            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
+            Assert.IsFalse(CodeModelGenerator.Instance.NonRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
+        }
+
+        [Test]
         public void TestSpecViewDelegatesCorrectly()
         {
             // Create a type provider with properties and methods
@@ -616,6 +628,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, operatorMethods.Count(m =>
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Implicit)
                 && !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit)));
+        }
+
+        private sealed class TestInternalHelperProvider : InternalHelperProvider
+        {
+            protected override string BuildName() => nameof(TestInternalHelperProvider);
+
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+
+            protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
         }
     }
 }

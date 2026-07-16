@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ChangeTrackingDictionaryDefinition : TypeProvider
+    internal sealed class ChangeTrackingDictionaryDefinition : InternalHelperProvider
     {
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
@@ -47,11 +47,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         protected override WhereExpression BuildWhereClause() => Where.NotNull(_tKey);
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal;
-        }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

@@ -17,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class BinaryContentHelperDefinition : TypeProvider
+    public class BinaryContentHelperDefinition : InternalHelperProvider
     {
         private const string _fromEnumerableName = "FromEnumerable";
         private const string _fromDictionaryName = "FromDictionary";
@@ -30,8 +30,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => "BinaryContentHelper";
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
+        protected override TypeSignatureModifiers BuildTypeModifiers()
+            => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
