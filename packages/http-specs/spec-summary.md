@@ -5332,11 +5332,11 @@ Basic jsonl streaming for response.
 
 Basic jsonl streaming for request.
 
-### Streaming_Sse_Basic_receive
+### Streaming_Sse_Unnamed_receive
 
-- Endpoint: `get /streaming/sse/basic/receive`
+- Endpoint: `get /streaming/sse/unnamed/receive`
 
-Basic SSE streaming for response. The server streams a sequence of unnamed
+SSE streaming with unnamed events. The server streams a sequence of unnamed
 `message` events, each carrying a JSON `Info` payload, then closes the
 connection. Since the union variant is unnamed, no `event:` field is emitted
 and each event defaults to the `message` type.

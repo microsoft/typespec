@@ -12,21 +12,21 @@ using Spector;
 @scenarioService("/streaming/sse")
 namespace Streaming.Sse;
 
-@route("basic")
-namespace Basic {
+@route("unnamed")
+namespace Unnamed {
   model Info {
     desc: string;
   }
 
   @events
-  union BasicEvents {
+  union UnnamedEvents {
     @Events.contentType("application/json")
     Info,
   }
 
   @scenario
   @scenarioDoc("""
-    Basic SSE streaming for response. The server streams a sequence of unnamed
+    SSE streaming with unnamed events. The server streams a sequence of unnamed
     `message` events, each carrying a JSON `Info` payload, then closes the
     connection. Since the union variant is unnamed, no `event:` field is emitted
     and each event defaults to the `message` type.
@@ -42,7 +42,7 @@ namespace Basic {
     ```
     """)
   @route("receive")
-  op receive(): SSEStream<BasicEvents>;
+  op receive(): SSEStream<UnnamedEvents>;
 }
 
 @route("named")

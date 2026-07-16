@@ -2,32 +2,30 @@ import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const basicStream = ['data: {"desc": "one"}', 'data: {"desc": "two"}', 'data: {"desc": "three"}']
+const unnamedStream = ['data: {"desc": "one"}', 'data: {"desc": "two"}', 'data: {"desc": "three"}']
   .map((event) => `${event}\n\n`)
   .join("");
 
-Scenarios.Streaming_Sse_Basic_receive = passOnSuccess({
-  uri: "/streaming/sse/basic/receive",
+Scenarios.Streaming_Sse_Unnamed_receive = passOnSuccess({
+  uri: "/streaming/sse/unnamed/receive",
   method: "get",
   request: {},
   response: {
     status: 200,
     body: {
-      rawContent: Buffer.from(basicStream),
+      rawContent: Buffer.from(unnamedStream),
       contentType: "text/event-stream",
     },
   },
   kind: "MockApiDefinition",
 });
 
-const namedStream = [
-  'event: responseCreated\ndata: {"id": "resp_1"}',
-  'event: responseDelta\ndata: {"delta": "Hello"}',
-  'event: responseDelta\ndata: {"delta": " world"}',
-  "data: [DONE]",
-]
-  .map((event) => `${event}\n\n`)
-  .join("");
+const namedChunks = [
+  'event: responseCreated\ndata: {"id": "resp_1"}\n\n',
+  'event: responseDelta\ndata: {"delta": "Hello"}\n\n',
+  'event: responseDelta\ndata: {"delta": " world"}\n\n',
+  "data: [DONE]\n\n",
+].map((event) => Buffer.from(event));
 
 Scenarios.Streaming_Sse_Named_receive = passOnSuccess({
   uri: "/streaming/sse/named/receive",
@@ -36,8 +34,9 @@ Scenarios.Streaming_Sse_Named_receive = passOnSuccess({
   response: {
     status: 200,
     body: {
-      rawContent: Buffer.from(namedStream),
+      streamChunks: namedChunks,
       contentType: "text/event-stream",
+      rawContent: Buffer.from(namedChunks.map((c) => c.toString()).join("")),
     },
   },
   kind: "MockApiDefinition",
