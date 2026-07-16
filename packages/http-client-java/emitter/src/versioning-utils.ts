@@ -2,6 +2,7 @@ import { isPreviewVersion } from "@azure-tools/typespec-azure-core";
 import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
 import { Namespace, Program } from "@typespec/compiler";
 import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
+import { getNonNullSdkType } from "./type-utils.js";
 
 /**
  * Sentinel values that describe a client that not have consistent api-versions.
@@ -111,7 +112,7 @@ export function getClientApiVersionInitializationKind(
 
   let apiVersionType = apiVersionParameter.type;
   if (apiVersionType.kind === "nullable") {
-    apiVersionType = apiVersionType.type;
+    apiVersionType = getNonNullSdkType(apiVersionType);
   }
   if (apiVersionType.kind === "string") {
     return { kind: "string" };
