@@ -108,6 +108,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => "ModelSerializationExtensions";
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type];
+
         protected override FieldProvider[] BuildFields()
         {
             return [WireOptionsField, _jsonDocumentOptionsField, .. BuildXmlFields()];

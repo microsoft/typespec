@@ -8,33 +8,32 @@ import {
 } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
-describe("compiler: checker: deprecation", () => {
-  async function expectDeprecations(
-    source: string,
-    deprecations: string[],
-    tester: typeof Tester = Tester,
-  ) {
-    const expectedDiagnostics: DiagnosticMatch[] = [];
-    for (const deprecation of deprecations) {
-      const { source: newSource, pos } = extractCursor(source);
-      expectedDiagnostics.push({
-        code: "deprecated",
-        message: `Deprecated: ${deprecation}`,
-        severity: "warning",
-        pos,
-      });
+async function expectDeprecations(
+  source: string,
+  deprecations: string[],
+  tester: typeof Tester = Tester,
+) {
+  const expectedDiagnostics: DiagnosticMatch[] = [];
+  for (const deprecation of deprecations) {
+    const { source: newSource, pos } = extractCursor(source);
+    expectedDiagnostics.push({
+      code: "deprecated",
+      message: `Deprecated: ${deprecation}`,
+      severity: "warning",
+      pos,
+    });
 
-      // Continue with the updated source
-      source = newSource;
-    }
-
-    expectDiagnostics(await tester.diagnose(source), expectedDiagnostics);
+    // Continue with the updated source
+    source = newSource;
   }
 
-  describe("#deprecated directive", () => {
-    it("emits deprecation for use of deprecated model types", async () => {
-      await expectDeprecations(
-        `
+  expectDiagnostics(await tester.diagnose(source), expectedDiagnostics);
+}
+
+describe("#deprecated directive", () => {
+  it("emits deprecation for use of deprecated model types", async () => {
+    await expectDeprecations(
+      `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
 
@@ -44,13 +43,13 @@ describe("compiler: checker: deprecation", () => {
             foo: string | ┆OldFoo;
           }
         `,
-        ["OldFoo is deprecated", "OldFoo is deprecated"],
-      );
-    });
+      ["OldFoo is deprecated", "OldFoo is deprecated"],
+    );
+  });
 
-    it("emits deprecation for use of model that extends deprecated parent", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of model that extends deprecated parent", async () => {
+    await expectDeprecations(
+      `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
 
@@ -58,13 +57,13 @@ describe("compiler: checker: deprecation", () => {
           model IsFoo is ┆NewFoo {}
           model NewIsFoo is IsFoo {}
           `,
-        ["OldFoo is deprecated", "OldFoo is deprecated"],
-      );
-    });
+      ["OldFoo is deprecated", "OldFoo is deprecated"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated model properties", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of deprecated model properties", async () => {
+    await expectDeprecations(
+      `
           model Foo {
             #deprecated "Use id instead"
             name: string;
@@ -76,13 +75,13 @@ describe("compiler: checker: deprecation", () => {
 
           op get(name: ┆Foo.name): string;
         `,
-        ["Use id instead", "Use id instead"],
-      );
-    });
+      ["Use id instead", "Use id instead"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated model properties from extended models", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of deprecated model properties from extended models", async () => {
+    await expectDeprecations(
+      `
           model Foo {
             #deprecated "Use id instead"
             name: string;
@@ -96,13 +95,13 @@ describe("compiler: checker: deprecation", () => {
           op put(name: ┆Baz.name): string;
           op delete(name: ┆Buz.name): string;
         `,
-        ["Use id instead", "Use id instead", "Use id instead"],
-      );
-    });
+      ["Use id instead", "Use id instead", "Use id instead"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated templated model", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of deprecated templated model", async () => {
+    await expectDeprecations(
+      `
         #deprecated "Foo is deprecated"
         model Foo<T> {}
 
@@ -110,13 +109,13 @@ describe("compiler: checker: deprecation", () => {
           foo: ┆Foo<string>;
         }
         `,
-        ["Foo is deprecated"],
-      );
-    });
+      ["Foo is deprecated"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated scalar", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of deprecated scalar", async () => {
+    await expectDeprecations(
+      `
           #deprecated "Name is deprecated"
           scalar Name extends string;
           scalar OtherName extends ┆Name;
@@ -126,26 +125,26 @@ describe("compiler: checker: deprecation", () => {
             otherName: ┆OtherName;
           }
           `,
-        ["Name is deprecated", "Name is deprecated", "Name is deprecated"],
-      );
-    });
+      ["Name is deprecated", "Name is deprecated", "Name is deprecated"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated operation type", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for use of deprecated operation type", async () => {
+    await expectDeprecations(
+      `
           #deprecated "oldGet is deprecated"
           op oldGet(): string;
 
           op someGet is ┆oldGet;
           op newGet is someGet; // No diagnostic here
          `,
-        ["oldGet is deprecated"],
-      );
-    });
+      ["oldGet is deprecated"],
+    );
+  });
 
-    it("emits deprecation for references of deprecated operations from extended interfaces", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for references of deprecated operations from extended interfaces", async () => {
+    await expectDeprecations(
+      `
           interface Foo {
             #deprecated "Foo is deprecated"
             foo(): void;
@@ -155,13 +154,13 @@ describe("compiler: checker: deprecation", () => {
 
           op baz is ┆Bar.foo;
         `,
-        ["Foo is deprecated"],
-      );
-    });
+      ["Foo is deprecated"],
+    );
+  });
 
-    it("emits deprecation for usage on alias types", async () => {
-      await expectDeprecations(
-        `
+  it("emits deprecation for usage on alias types", async () => {
+    await expectDeprecations(
+      `
           model Foo<T> { val: T; }
           model Bar {}
 
@@ -176,15 +175,15 @@ describe("compiler: checker: deprecation", () => {
             foo: ┆StringFoo;
           }
         `,
-        ["StringFoo is deprecated", "StringFoo is deprecated", "StringFoo is deprecated"],
-      );
-    });
+      ["StringFoo is deprecated", "StringFoo is deprecated", "StringFoo is deprecated"],
+    );
+  });
 
-    it("emits deprecation for use of deprecated decorator signatures", async () => {
-      const tester = Tester.files({ "test.js": mockFile.js({ $testDec: () => {} }) });
+  it("emits deprecation for use of deprecated decorator signatures", async () => {
+    const tester = Tester.files({ "test.js": mockFile.js({ $testDec: () => {} }) });
 
-      await expectDeprecations(
-        `
+    await expectDeprecations(
+      `
         import "./test.js";
         using TypeSpec.Reflection;
 
@@ -194,37 +193,37 @@ describe("compiler: checker: deprecation", () => {
         ┆@testDec
         model Foo {}
         `,
-        ["testDec is deprecated"],
-        tester,
-      );
-    });
+      ["testDec is deprecated"],
+      tester,
+    );
+  });
 
-    it("emits diagnostic when multiple #deprecated directives are used on a node", async () => {
-      const diagnostics = await Tester.diagnose(`
+  it("emits diagnostic when multiple #deprecated directives are used on a node", async () => {
+    const diagnostics = await Tester.diagnose(`
           #deprecated "Foo is deprecated"
           #deprecated "Foo is deprecated again"
           model Foo {}
           `);
 
-      expectDiagnostics(diagnostics, [{ code: "duplicate-deprecation" }]);
-    });
+    expectDiagnostics(diagnostics, [{ code: "duplicate-deprecation" }]);
+  });
 
-    describe("referencing in template constraint", () => {
-      it("emits diagnostic when template is not instantiated", async () => {
-        await expectDeprecations(
-          `
+  describe("referencing in template constraint", () => {
+    it("emits diagnostic when template is not instantiated", async () => {
+      await expectDeprecations(
+        `
             #deprecated "OldFoo is deprecated"
             model OldFoo {}
             
             model Bar<T extends ┆OldFoo> {}
           `,
-          ["OldFoo is deprecated"],
-        );
-      });
+        ["OldFoo is deprecated"],
+      );
+    });
 
-      it("doesn't emit more diagnostic if instantiating template", async () => {
-        await expectDeprecations(
-          `
+    it("doesn't emit more diagnostic if instantiating template", async () => {
+      await expectDeprecations(
+        `
             #deprecated "OldFoo is deprecated"
             model OldFoo {}
             
@@ -233,12 +232,12 @@ describe("compiler: checker: deprecation", () => {
             alias T1 = Bar<{one: string}>;
             alias T2 = Bar<{two: string}>;
           `,
-          ["OldFoo is deprecated"],
-        );
-      });
+        ["OldFoo is deprecated"],
+      );
+    });
 
-      it("can suppress", async () => {
-        const diagnostics = await Tester.diagnose(`
+    it("can suppress", async () => {
+      const diagnostics = await Tester.diagnose(`
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
           
@@ -246,14 +245,14 @@ describe("compiler: checker: deprecation", () => {
           model Bar<T extends OldFoo> {}
         `);
 
-        expectDiagnosticEmpty(diagnostics);
-      });
+      expectDiagnosticEmpty(diagnostics);
     });
+  });
 
-    describe("referencing in template argument", () => {
-      it("emits diagnostic", async () => {
-        await expectDeprecations(
-          `
+  describe("referencing in template argument", () => {
+    it("emits diagnostic", async () => {
+      await expectDeprecations(
+        `
             #deprecated "OldFoo is deprecated"
             model OldFoo {}
             
@@ -261,12 +260,12 @@ describe("compiler: checker: deprecation", () => {
 
             alias T1 = Bar<┆OldFoo>;
           `,
-          ["OldFoo is deprecated"],
-        );
-      });
+        ["OldFoo is deprecated"],
+      );
+    });
 
-      it("can suppress", async () => {
-        const diagnostics = await Tester.diagnose(`
+    it("can suppress", async () => {
+      const diagnostics = await Tester.diagnose(`
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
           
@@ -276,13 +275,13 @@ describe("compiler: checker: deprecation", () => {
           alias T1 = Bar<OldFoo>;
         `);
 
-        expectDiagnosticEmpty(diagnostics);
-      });
+      expectDiagnosticEmpty(diagnostics);
     });
+  });
 
-    it("can have its diagnostics suppressed", async () => {
-      // cspell:ignore Morp
-      const diagnostics = await Tester.diagnose(`
+  it("can have its diagnostics suppressed", async () => {
+    // cspell:ignore Morp
+    const diagnostics = await Tester.diagnose(`
         #deprecated "Foo is deprecated"
         model Foo {
           #deprecated "Name is deprecated"
@@ -310,13 +309,13 @@ describe("compiler: checker: deprecation", () => {
         }
         `);
 
-      expectDiagnosticEmpty(diagnostics);
-    });
+    expectDiagnosticEmpty(diagnostics);
+  });
 
-    describe("skips type deprecation warning when referenced in a deprecated parent context", () => {
-      it("deprecated model used in deprecated types", async () => {
-        await expectDeprecations(
-          `
+  describe("skips type deprecation warning when referenced in a deprecated parent context", () => {
+    it("deprecated model used in deprecated types", async () => {
+      await expectDeprecations(
+        `
             #deprecated "OldFoo is deprecated"
             model OldFoo {
               foo: string;
@@ -348,13 +347,13 @@ describe("compiler: checker: deprecation", () => {
               op oldBazThree(): OldFoo & { bar: string };
             }
           `,
-          [],
-        );
-      });
+        [],
+      );
+    });
 
-      it("deprecated operation used in deprecated types", async () => {
-        await expectDeprecations(
-          `
+    it("deprecated operation used in deprecated types", async () => {
+      await expectDeprecations(
+        `
             #deprecated "oldFoo is deprecated"
             op oldFoo(): string;
 
@@ -366,16 +365,16 @@ describe("compiler: checker: deprecation", () => {
               op oldBaz is oldBar;
             }
           `,
-          [],
-        );
-      });
+        [],
+      );
     });
   });
+});
 
-  describe("--ignore-deprecated flag", () => {
-    it("suppresses deprecation warnings", async () => {
-      const diagnostics = await Tester.diagnose(
-        `
+describe("--ignore-deprecated flag", () => {
+  it("suppresses deprecation warnings", async () => {
+    const diagnostics = await Tester.diagnose(
+      `
           #deprecated "OldFoo is deprecated"
           model OldFoo {}
 
@@ -385,14 +384,13 @@ describe("compiler: checker: deprecation", () => {
             foo: string | OldFoo;
           }
       `,
-        {
-          compilerOptions: {
-            ignoreDeprecated: true,
-          },
+      {
+        compilerOptions: {
+          ignoreDeprecated: true,
         },
-      );
+      },
+    );
 
-      expectDiagnosticEmpty(diagnostics);
-    });
+    expectDiagnosticEmpty(diagnostics);
   });
 });

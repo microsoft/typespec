@@ -2686,7 +2686,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
 
     const elementSchema = this.processSchema(elementType, name);
@@ -2712,7 +2712,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
     const elementSchema = this.processSchema(elementType, name);
     dictSchema.elementType = elementSchema;
@@ -3005,7 +3005,7 @@ export class CodeModelBuilder {
     let nonNullType = modelProperty.type;
     if (nonNullType.kind === "nullable") {
       nullable = true;
-      nonNullType = nonNullType.type;
+      nonNullType = getNonNullSdkType(nonNullType);
     }
     let schema;
 

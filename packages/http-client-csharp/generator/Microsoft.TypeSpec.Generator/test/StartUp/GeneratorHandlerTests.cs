@@ -211,12 +211,14 @@ namespace TestPlugin
                 using var emitter = new Emitter(Stream.Null);
                 var result = GeneratorHandler.BuildPlugin(
                     Path.Combine(testDir, "TestPlugin.csproj"),
-                    testDir,
                     emitter);
 
                 Assert.IsNotNull(result, "BuildPlugin should return a DLL path");
                 Assert.IsTrue(result!.EndsWith("TestPlugin.dll", StringComparison.OrdinalIgnoreCase));
                 Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
+                // The plugin is built into a process-isolated directory, not under the project.
+                StringAssert.DoesNotContain(testDir, result,
+                    "Plugin output should be redirected to an isolated directory, not the project directory");
             }
             finally
             {
@@ -241,7 +243,6 @@ namespace TestPlugin
                 // generation is not aborted (e.g. when the plugin is built in parallel across projects).
                 var result = GeneratorHandler.BuildPlugin(
                     Path.Combine(testDir, "Bad.csproj"),
-                    testDir,
                     emitter);
 
                 Assert.IsNull(result);
@@ -253,30 +254,28 @@ namespace TestPlugin
         }
 
         [Test]
-        public void BuildPlugin_ReusesExistingArtifactWhenBuildFails()
+        public void BuildPlugin_ReturnsNullWhenBuildFails()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                // Create an invalid .csproj so the build fails. GetAssemblyName falls back to the
-                // project file name ("Bad"), so an existing "Bad.dll" simulates an artifact that was
-                // already produced by a parallel build for another project in the solution.
+                // Create an invalid .csproj so the build fails. Because each generation builds the
+                // plugin into its own isolated output directory, there is no shared artifact from a
+                // parallel build to fall back to: a failed build yields no plugin (null) instead of
+                // silently reusing a possibly-stale assembly.
                 File.WriteAllText(Path.Combine(testDir, "Bad.csproj"), "not valid xml");
                 var existingDll = Path.Combine(testDir, "Bad.dll");
                 File.Copy(typeof(GeneratorHandlerTests).Assembly.Location, existingDll);
 
                 using var emitter = new Emitter(Stream.Null);
 
-                // Even though the build fails, the existing artifact should be reused rather than
-                // aborting generation.
                 var result = GeneratorHandler.BuildPlugin(
                     Path.Combine(testDir, "Bad.csproj"),
-                    testDir,
                     emitter);
 
-                Assert.AreEqual(existingDll, result);
+                Assert.IsNull(result, "A failed build should not reuse an unrelated assembly next to the project");
             }
             finally
             {
@@ -354,7 +353,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
 
                 using var emitter = new Emitter(Stream.Null);
                 var dllPath = GeneratorHandler.BuildPlugin(
-                    Path.Combine(testDir, "TypedPlugin.csproj"), testDir, emitter);
+                    Path.Combine(testDir, "TypedPlugin.csproj"), emitter);
 
                 Assert.IsNotNull(dllPath);
                 var asm = System.Reflection.Assembly.LoadFrom(dllPath!);
@@ -461,6 +460,31 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
             Assert.AreEqual(aProject, result);
             // Selection is stable across repeated calls.
             Assert.AreEqual(aProject, GeneratorHandler.FindPluginProject(testDir.Path));
+        }
+
+        [Test]
+        public void GetPackageDirectory_ScopedPackageSplitsOnSlash()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "@azure-typespec/http-client-csharp-mgmt");
+
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}@azure-typespec{sep}http-client-csharp-mgmt";
+            Assert.AreEqual(expected, result);
+            // The scoped package separator must be normalized to the platform separator so that
+            // long paths don't fail when the runtime applies the extended-length path prefix.
+            Assert.IsFalse(result.Contains('/') && sep != '/');
+        }
+
+        [Test]
+        public void GetPackageDirectory_UnscopedPackage()
+        {
+            var root = Path.Combine("root", "project");
+            var result = GeneratorHandler.GetPackageDirectory(root, "some-package");
+
+            var sep = Path.DirectorySeparatorChar;
+            var expected = $"root{sep}project{sep}node_modules{sep}some-package";
+            Assert.AreEqual(expected, result);
         }
 
         [Test]
@@ -720,16 +744,16 @@ namespace Plugin2 { public class Dummy { } }");
         }
 
         [Test]
-        public void BuildPlugin_FindsOutputWhenRedirectedToCustomLocation()
+        public void BuildPlugin_IsolatesOutputEvenWhenProjectRedirectsIt()
         {
             var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
             try
             {
                 Directory.CreateDirectory(testDir);
 
-                // Use <TargetFrameworks> (plural) and redirect build output to a custom
-                // folder, mirroring repositories that send output to an 'artifacts'-style
-                // location. The previous path-computation logic failed in this scenario.
+                // The project tries to redirect its build output to a custom folder. The plugin
+                // build must override this and write to its own process-isolated directory so that
+                // concurrent builds of the same plugin never share output.
                 File.WriteAllText(Path.Combine(testDir, "Redirected.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFrameworks>net10.0</TargetFrameworks>
@@ -742,13 +766,16 @@ namespace Redirected { public class Dummy { } }");
 
                 using var emitter = new Emitter(Stream.Null);
                 var result = GeneratorHandler.BuildPlugin(
-                    Path.Combine(testDir, "Redirected.csproj"), testDir, emitter);
+                    Path.Combine(testDir, "Redirected.csproj"), emitter);
 
-                Assert.IsNotNull(result, "Should locate the DLL even when output is redirected");
+                Assert.IsNotNull(result, "Should locate the built DLL");
                 Assert.IsTrue(result!.EndsWith("Redirected.dll", StringComparison.OrdinalIgnoreCase));
                 Assert.IsTrue(File.Exists(result), $"Built DLL should exist at {result}");
-                StringAssert.Contains("artifacts-bin", result,
-                    "DLL should be located in the redirected output folder");
+                // The project's own output redirection is overridden by the isolated build.
+                StringAssert.DoesNotContain("artifacts-bin", result,
+                    "The project's output redirection should be overridden by the isolated build");
+                StringAssert.DoesNotContain(testDir, result,
+                    "Plugin output should be redirected outside the project directory");
             }
             finally
             {
@@ -778,7 +805,7 @@ namespace MultiTarget { public class Dummy { } }");
 
                 using var emitter = new Emitter(Stream.Null);
                 var result = GeneratorHandler.BuildPlugin(
-                    Path.Combine(testDir, "MultiTarget.csproj"), testDir, emitter);
+                    Path.Combine(testDir, "MultiTarget.csproj"), emitter);
 
                 Assert.IsNotNull(result, "Should locate the DLL for a multi-targeted project");
                 Assert.IsTrue(result!.EndsWith("MultiTarget.dll", StringComparison.OrdinalIgnoreCase));
@@ -788,6 +815,45 @@ namespace MultiTarget { public class Dummy { } }");
                     result.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
                         .Contains("obj", StringComparer.OrdinalIgnoreCase),
                     $"Should not return a metadata-only reference assembly under obj: {result}");
+            }
+            finally
+            {
+                try { Directory.Delete(testDir, true); } catch { }
+            }
+        }
+
+        [Test]
+        public void BuildPlugin_UsesADistinctOutputDirectoryPerCall()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N")[..8]);
+            try
+            {
+                Directory.CreateDirectory(testDir);
+
+                // Building the *same* project twice must produce assemblies in different
+                // directories. This is what allows concurrent generations to build a shared
+                // plugin without racing on the same 'bin'/'obj' output.
+                File.WriteAllText(Path.Combine(testDir, "Isolated.csproj"), @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+                File.WriteAllText(Path.Combine(testDir, "Plugin.cs"), @"
+namespace Isolated { public class Dummy { } }");
+
+                using var emitter = new Emitter(Stream.Null);
+                var csproj = Path.Combine(testDir, "Isolated.csproj");
+
+                var first = GeneratorHandler.BuildPlugin(csproj, emitter);
+                var second = GeneratorHandler.BuildPlugin(csproj, emitter);
+
+                Assert.IsNotNull(first);
+                Assert.IsNotNull(second);
+                Assert.AreNotEqual(
+                    Path.GetDirectoryName(first),
+                    Path.GetDirectoryName(second),
+                    "Each build should write to its own isolated output directory");
             }
             finally
             {

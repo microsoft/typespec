@@ -118,6 +118,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void ProtocolMethodIsInternalWhenGenerateProtocolMethodIsFalse()
+        {
+            var operation = InputFactory.Operation(
+                "CreateMessage",
+                generateProtocolMethod: false,
+                parameters:
+                [
+                    InputFactory.BodyParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("message", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            // Protocol methods (the RequestContent-based overloads) should be generated as internal, not omitted.
+            var protocolMethods = methodCollection.Where(m
+                => m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+            foreach (var protocolMethod in protocolMethods)
+            {
+                Assert.IsTrue(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should be internal when generateProtocolMethod is false.");
+                Assert.IsFalse(protocolMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Protocol method '{protocolMethod.Signature.Name}' should not be public when generateProtocolMethod is false.");
+            }
+
+            // Convenience methods should remain public.
+            var convenienceMethods = methodCollection.Where(m
+                => !m.Signature.Parameters.Any(p => p.Name == "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var convenienceMethod in convenienceMethods)
+            {
+                Assert.IsTrue(convenienceMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
+                    $"Convenience method '{convenienceMethod.Signature.Name}' should remain public.");
+            }
+        }
+
+        [Test]
         public async Task SpreadModelCanonicalViewIsUsedToFindConstructor()
         {
             var serviceMethod = InputFactory.BasicServiceMethod(
@@ -1569,6 +1619,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(2, p2Param.MethodParameterSegments!.Count, "p2 should have 2 segments");
             Assert.AreEqual("wrapper", p2Param.MethodParameterSegments[0].Name);
             Assert.AreEqual("p2", p2Param.MethodParameterSegments[1].Name);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_RenamedGroupedQueryParam_MapsByClientName()
+        {
+            // Options-bag override where a grouped query property has a client name ("bandIndex")
+            // that differs from its wire name ("band_index"), e.g. @query("band_index") bandIndex.
+            // The convenience body must still resolve the property; otherwise the emitter throws
+            // "Property with name 'bandIndex' not found in model 'GetPointOptions'".
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "bandIndex",
+                        InputPrimitiveType.String,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "band_index"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            var bandIndexParam = InputFactory.QueryParameter("bandIndex", InputPrimitiveType.String, isRequired: false, serializedName: "band_index");
+            bandIndexParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                // Segments carry the client name ("bandIndex"); the property's wire name is "band_index".
+                InputFactory.MethodParameter("bandIndex", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, bandIndexParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            // Before the fix, building the body threw because the grouped query property was
+            // looked up only by wire name ("band_index") while the segment carried the client
+            // name ("bandIndex").
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }
 
         [Test]

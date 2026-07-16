@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// cspell:ignore readded
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -331,7 +333,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicEnumsAreIncludedInAdditionalRootTypes()
         {
             var inputEnum = InputFactory.StringEnum(
                 "StringEnum",
@@ -346,6 +348,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToList());
+            Assert.IsTrue(enumProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(enumProvider));
         }
 
         [Test]
@@ -394,9 +401,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Recover", fields[0].Name);
             Assert.AreEqual("Default", fields[1].Name);
 
-            // No explicit initialization values - compiler auto-assigns based on order
-            Assert.IsNull(fields[0].InitializationValue);
-            Assert.IsNull(fields[1].InitializationValue);
+            // Shared members keep their explicit values from the last contract (Recover = 0, Default = 1).
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(1, (fields[1].InitializationValue as LiteralExpression)?.Literal);
         }
 
         // Validates that int enum member order is preserved and new values are appended
@@ -429,18 +436,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Default", fields[1].Name);
             Assert.AreEqual("Third", fields[2].Name);
 
-            // No explicit initialization values for reordered members - compiler auto-assigns based on order
-            Assert.IsNull(fields[0].InitializationValue);
-            Assert.IsNull(fields[1].InitializationValue);
+            // Shared members keep their explicit values from the last contract (Recover = 0, Default = 1).
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(1, (fields[1].InitializationValue as LiteralExpression)?.Literal);
             // New value keeps its initialization value from the input
             var value3 = fields[2].InitializationValue as LiteralExpression;
             Assert.IsNotNull(value3);
             Assert.AreEqual(2, value3?.Literal);
         }
 
-        // Validates that removed enum values from last contract are not included
+        // Verifies that the last contract (reconstructed from Roslyn) exposes each enum member's
+        // explicit numeric value, so back-compat can preserve non-contiguous values (e.g. 100, 200,
+        // 500) rather than reassigning positional ordinals.
         [Test]
-        public async Task BackCompat_IntEnumValueRemoved()
+        public async Task BackCompat_LastContractExposesEnumMemberValues()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("OneHundred", 100),
+                ("TwoHundred", 200),
+                ("FiveHundred", 500),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            enumType.EnsureBuilt();
+
+            var lastContractFields = enumType.LastContractView?.Fields;
+            Assert.IsNotNull(lastContractFields);
+            Assert.AreEqual(3, lastContractFields!.Count);
+
+            var values = lastContractFields.Select(f => (f.InitializationValue as LiteralExpression)?.Literal).ToArray();
+            CollectionAssert.AreEqual(new object[] { 100, 200, 500 }, values);
+        }
+
+        [Test]
+        public async Task BackCompat_IntEnumNonContiguousValuesPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("OneHundred", 100),
+                ("TwoHundred", 200),
+                ("FiveHundred", 500),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+            Assert.AreEqual("OneHundred", fields[0].Name);
+            Assert.AreEqual("TwoHundred", fields[1].Name);
+            Assert.AreEqual("FiveHundred", fields[2].Name);
+
+            // Each member keeps its exact explicit value from the last contract.
+            Assert.AreEqual(100, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(200, (fields[1].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(500, (fields[2].InitializationValue as LiteralExpression)?.Literal);
+        }
+
+        // Validates that an integer enum value removed from the current spec is re-added from the
+        // last contract (preserving its explicit numeric value) to keep the previously shipped API.
+        [Test]
+        public async Task BackCompat_IntEnumRemovedValueReadded()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: (inputType) => typeof(int),
@@ -460,15 +524,208 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             enumType.ProcessTypeForBackCompatibility();
 
             var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+
+            // Order preserved from last contract, and the removed "Third" is re-added at its
+            // original position.
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+            Assert.AreEqual("Third", fields[2].Name);
+
+            // Shared members keep their explicit values from the last contract (Recover = 0, Default = 1).
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(1, (fields[1].InitializationValue as LiteralExpression)?.Literal);
+
+            // The re-added member keeps its explicit numeric value from the last contract.
+            var readdedValue = fields[2].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(readdedValue);
+            Assert.AreEqual(2, readdedValue?.Literal);
+        }
+
+        // Validates that a value removed from the MIDDLE of an integer enum is re-added at its
+        // original position, preserving both surrounding order and its explicit numeric value.
+        [Test]
+        public async Task BackCompat_IntEnumRemovedMiddleValueReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Alpha = 0, Beta = 1, Gamma = 2. Current input removes the middle "Beta".
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Alpha", 0),
+                ("Gamma", 2),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(3, fields.Count);
+
+            // "Beta" is re-added at its original middle position.
+            Assert.AreEqual("Alpha", fields[0].Name);
+            Assert.AreEqual("Beta", fields[1].Name);
+            Assert.AreEqual("Gamma", fields[2].Name);
+
+            // All members keep their explicit last-contract values (Alpha = 0, Beta = 1, Gamma = 2).
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            var betaValue = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(betaValue);
+            Assert.AreEqual(1, betaValue?.Literal);
+            Assert.AreEqual(2, (fields[2].InitializationValue as LiteralExpression)?.Literal);
+        }
+
+        // Validates that a value removed from a long-backed integer enum is re-added with its exact
+        // (potentially > int.MaxValue) numeric value preserved from the last contract.
+        [Test]
+        public async Task BackCompat_LongEnumRemovedValueReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(long),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Small = 0, Large = 5000000000 (> int.MaxValue). Current removes "Large".
+            var input = InputFactory.Int64Enum("mockInputEnum", [
+                ("Small", 0),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
             Assert.AreEqual(2, fields.Count);
 
-            // Order should be preserved from last contract for members that still exist
+            Assert.AreEqual("Small", fields[0].Name);
+            Assert.AreEqual("Large", fields[1].Name);
+
+            // The shared member keeps its explicit last-contract value (Small = 0, as a long).
+            Assert.AreEqual(0L, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+
+            // The re-added member preserves its long value exactly (not truncated to int).
+            var largeValue = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(largeValue);
+            Assert.AreEqual(5000000000L, largeValue?.Literal);
+            Assert.IsInstanceOf<long>(largeValue?.Literal);
+        }
+
+        // Validates that removed members are NOT re-added for string-backed enums, because the
+        // serialized wire value is not recoverable from the last contract (only the C# ordinal is).
+        [Test]
+        public async Task BackCompat_StringEnumRemovedValueNotReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Recover, Default, Third. Current input removes "Third".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+
+            // "Third" must NOT be re-added for a string-based enum; only the two current members remain.
+            Assert.AreEqual(2, fields.Count);
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+            Assert.IsFalse(fields.Any(f => f.Name == "Third"));
+
+            // String-based enum members never carry an explicit initialization value.
+            Assert.IsNull(fields[0].InitializationValue);
+            Assert.IsNull(fields[1].InitializationValue);
+        }
+
+        // Validates that a removed integer enum member is NOT re-added when its removal is accepted
+        // in the ApiCompat baseline (here recorded as an EnumValuesMustMatch suppression), so the
+        // generator honors the intentional removal instead of resurrecting it.
+        [Test]
+        public async Task BackCompat_IntEnumRemovedValueNotReaddedWhenBaselineAccepts()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Last contract: Recover, Default, Third. Current input removes "Third", but the baseline
+            // accepts that removal, so it must NOT be re-added.
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 0),
+                ("Recover", 1),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+            Assert.IsFalse(fields.Any(f => f.Name == "Third"));
             Assert.AreEqual("Recover", fields[0].Name);
             Assert.AreEqual("Default", fields[1].Name);
 
-            // No explicit initialization values - compiler auto-assigns based on order
-            Assert.IsNull(fields[0].InitializationValue);
-            Assert.IsNull(fields[1].InitializationValue);
+            // The surviving shared members keep their explicit last-contract values (Recover = 0, Default = 1).
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+            Assert.AreEqual(1, (fields[1].InitializationValue as LiteralExpression)?.Literal);
+        }
+
+        // Validates that when a shared integer enum member's value was intentionally changed and the
+        // baseline accepts it (recorded as an EnumValuesMustMatch suppression), back-compat honors the
+        // CURRENT value instead of restoring the old last-contract value.
+        [Test]
+        public async Task BackCompat_IntEnumChangedValueHonoredWhenBaselineAccepts()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Last contract: Recover = 0, Default = 5. Current changes Default to 1; the baseline accepts
+            // the value change, so back-compat must keep the current value (1) rather than restoring 5.
+            var input = InputFactory.Int32Enum("mockInputEnum", [
+                ("Default", 1),
+                ("Recover", 0),
+            ]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var fields = enumType.Fields;
+            Assert.AreEqual(2, fields.Count);
+
+            // Order is preserved from the last contract: Recover first, Default second.
+            Assert.AreEqual("Recover", fields[0].Name);
+            Assert.AreEqual("Default", fields[1].Name);
+
+            // Recover was unchanged, so it keeps its (identical) value of 0.
+            Assert.AreEqual(0, (fields[0].InitializationValue as LiteralExpression)?.Literal);
+
+            // Default's accepted value change is honored: the CURRENT value (1) is kept, not the old (5).
+            var defaultValue = fields[1].InitializationValue as LiteralExpression;
+            Assert.IsNotNull(defaultValue);
+            Assert.AreEqual(1, defaultValue?.Literal);
         }
 
         // Validates that string enum order is also preserved from last contract

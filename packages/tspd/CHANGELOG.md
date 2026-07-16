@@ -1,5 +1,13 @@
 # Changelog - @typespec/tspd
 
+## 0.76.0
+
+### Features
+
+- [#10197](https://github.com/microsoft/typespec/pull/10197) `tspd gen-extern-signature` now generates typed accessor functions for `auto` decorators (e.g., `isMyFlag`, `getMyLabel`).
+- [#11247](https://github.com/microsoft/typespec/pull/11247) `tspd gen-extern-signature` now also generates a typed setter (e.g. `setMyFlag`, `setMyLabel`) for each `auto` decorator, alongside the existing `is*`/`get*` readers.
+
+
 ## 0.75.0
 
 ### Features

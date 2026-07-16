@@ -29,7 +29,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
         private readonly MethodProvider _createRequestMethod;
-        private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
@@ -180,7 +179,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 convenienceBodyParameters = bodyParams;
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, renamedSignatureParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    renamedSignatureParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
             }
             else
             {
@@ -256,6 +260,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            // The convenience method's public/internal accessibility follows the service method's
+            // accessibility, independent of the protocol method. The protocol method may be internal
+            // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
+            // convenience method should still be public.
+            if (ServiceMethod.Accessibility == "public")
+            {
+                modifiers &= ~MethodSignatureModifiers.Internal;
+                modifiers |= MethodSignatureModifiers.Public;
+            }
+
             var enclosingTypeModifiers = EnclosingType.DeclarationModifiers;
             if (modifiers.HasFlag(MethodSignatureModifiers.Public) &&
                 !enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Internal) &&
@@ -1040,7 +1054,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
 
-            var methodModifiers = ServiceMethod.Accessibility == "public" ?
+            var methodModifiers = ServiceMethod.Accessibility == "public" && ServiceMethod.Operation.GenerateProtocolMethod ?
                 MethodSignatureModifiers.Public :
                 MethodSignatureModifiers.Internal;
 
@@ -1097,7 +1111,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
-                methodSignature = PartialMethodCustomization.BuildPartialSignature(customSignature, requiredCustomParameters);
+                methodSignature = PartialMethodCustomization.BuildPartialSignature(
+                    customSignature,
+                    requiredCustomParameters,
+                    additionalModifiers: isAsync && _pagingServiceMethod == null
+                        ? MethodSignatureModifiers.Async
+                        : MethodSignatureModifiers.None);
 
                 bodyParameters = requiredCustomParameters;
                 // Re-resolve the request options parameter from the customized parameter list so the
@@ -1132,7 +1151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         This.Invoke(createRequestMethod.Signature,
                             BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
+                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
                 ];
             }
 

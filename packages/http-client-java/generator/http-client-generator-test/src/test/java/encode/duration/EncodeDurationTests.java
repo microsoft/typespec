@@ -28,6 +28,7 @@ public class EncodeDurationTests {
     private final QueryClient queryClient = new DurationClientBuilder().buildQueryClient();
     private final HeaderClient headerClient = new DurationClientBuilder().buildHeaderClient();
     private final PropertyClient propertyClient = new DurationClientBuilder().buildPropertyClient();
+    private final LossyClient lossyClient = new DurationClientBuilder().buildLossyClient();
 
     private static final Duration DAY40 = Duration.ofDays(40);
     private static final Duration SECOND35 = Duration.ofSeconds(35, 625_000_000);
@@ -151,5 +152,14 @@ public class EncodeDurationTests {
         FloatMillisecondsDurationArrayProperty millisArrayRet
             = propertyClient.floatMillisecondsArray(new FloatMillisecondsDurationArrayProperty(millisArray));
         Assertions.assertEquals(millisArray, millisArrayRet.getValue());
+    }
+
+    @Test
+    public void testLossy() {
+        // 36.25s has more precision than int32-seconds; floor/round/ceil are all acceptable (36 or 37)
+        lossyClient.intSeconds(Duration.ofMillis(36250));
+
+        // 36250.5ms has more precision than int32-milliseconds; floor/round/ceil are all acceptable (36250 or 36251)
+        lossyClient.intMilliseconds(Duration.ofNanos(36_250_500_000L));
     }
 }
