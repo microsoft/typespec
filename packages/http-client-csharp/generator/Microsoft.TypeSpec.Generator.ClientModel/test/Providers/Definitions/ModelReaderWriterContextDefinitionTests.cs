@@ -1856,6 +1856,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "ModelWithCustomSerialization should be included because it has a serialization provider implementing IJsonModel");
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDoesNotRestoreBuildableAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new TestableModelReaderWriterContextDefinition();
+
+            // The last contract declares a ModelReaderWriterBuildable attribute (owned by generation and
+            // rebuilt at write time) alongside an Obsolete attribute. Only the non-buildable Obsolete
+            // attribute should be restored.
+            var result = contextDefinition.BuildAttributesForBackCompatibilityPublic([]);
+
+            Assert.IsFalse(
+                result.Any(a => a.Type.Equals(typeof(ModelReaderWriterBuildableAttribute))),
+                "ModelReaderWriterBuildable attributes must not be restored from the last contract.");
+            Assert.IsTrue(
+                result.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
+                "Non-buildable back-compat attributes should still be restored.");
+        }
+
+        private class TestableModelReaderWriterContextDefinition : ModelReaderWriterContextDefinition
+        {
+            public IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibilityPublic(IEnumerable<AttributeStatement> originalAttributes)
+                => BuildAttributesForBackCompatibility(originalAttributes);
+        }
+
         private class CustomSerializationProvider : TypeProvider
         {
             private readonly bool _usePersistableModel;

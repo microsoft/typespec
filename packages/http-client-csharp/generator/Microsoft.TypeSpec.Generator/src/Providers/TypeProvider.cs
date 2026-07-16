@@ -1032,11 +1032,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
+        // Attributes that should never be restored from the last contract. These are either CodeGen
+        // customization markers or attributes that generation (re)applies based on the current inputs,
+        // so restoring a stale copy from the last contract would be incorrect.
+        private static readonly HashSet<string> s_attributesNotToRestore = new(StringComparer.Ordinal)
+        {
+            CodeGenAttributes.CodeGenSuppressAttributeName,
+            CodeGenAttributes.CodeGenMemberAttributeName,
+            CodeGenAttributes.CodeGenTypeAttributeName,
+            CodeGenAttributes.CodeGenSerializationAttributeName,
+            nameof(System.ComponentModel.EditorBrowsableAttribute),
+            nameof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
+        };
+
         /// <summary>
         /// Adds any back-compatibility attributes from the last contract that are not already present in
-        /// <paramref name="originalAttributes"/> (or the custom-code attributes). CodeGen-specific
-        /// attributes are never restored. The original attributes are returned unchanged when there is
-        /// nothing new to add.
+        /// <paramref name="originalAttributes"/> (or the custom-code attributes). Attributes that
+        /// generation owns (see <see cref="s_attributesNotToRestore"/>) are never restored. The original
+        /// attributes are returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
@@ -1075,11 +1088,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
         {
             var attributeName = attribute.Data?.AttributeClass?.Name;
-            return attributeName is not
-                (CodeGenAttributes.CodeGenSuppressAttributeName or
-                CodeGenAttributes.CodeGenMemberAttributeName or
-                CodeGenAttributes.CodeGenTypeAttributeName or
-                CodeGenAttributes.CodeGenSerializationAttributeName);
+            return attributeName is null || !s_attributesNotToRestore.Contains(attributeName);
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;

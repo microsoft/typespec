@@ -91,6 +91,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsEditorBrowsableAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract only declares an EditorBrowsable attribute, which generation owns and is
+            // never restored, so the original (empty) list is returned unchanged.
+            var original = Array.Empty<AttributeStatement>();
+            var attributes = provider.GetBackCompatibilityAttributes(original);
+
+            Assert.AreSame(original, attributes);
+
+            provider.Update(attributes: attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsExperimentalAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract only declares an Experimental attribute, which generation owns and is never
+            // restored, so the original (empty) list is returned unchanged.
+            var original = Array.Empty<AttributeStatement>();
+            var attributes = provider.GetBackCompatibilityAttributes(original);
+
+            Assert.AreSame(original, attributes);
+
+            provider.Update(attributes: attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 
