@@ -79,7 +79,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var normalizedName = RemoveUnderscores(generatedName);
-            // Only two matches are needed to distinguish a unique match from an ambiguous one.
+            // A normalized match ignores underscores and casing. Preserve the last-contract name only
+            // when exactly one current member and one last-contract member have the same normalized name;
+            // multiple matches are ambiguous. Only two matches are needed to distinguish those cases.
             var matchingCurrentNames = generatedNames
                 .Where(n => RemoveUnderscores(n).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
                 .Take(2)
