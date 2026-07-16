@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -107,7 +108,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // change between the previous and current contract is a parameter rename. This
             // avoids source-breaking changes for callers using named arguments (e.g. when a
             // property is renamed via @@clientName, spec rename, or naming-rule change).
-            PreservePreviousParameterNames(factoryMethods);
+            BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
 
             HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
                .Select(m => m.Signature)
@@ -122,14 +123,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // If the removal of this factory method has already been accepted in the ApiCompat
                 // baseline, honor that decision and do not resurrect a compatibility shim for it.
-                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(
-                        Type.FullyQualifiedName,
-                        previousMethod.Signature.Name,
-                        previousMethod.Signature.Parameters.Count) == true)
+                if (BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
-                    CodeModelGenerator.Instance.Emitter.Info(
-                        $"Skipping back-compat shim for '{Type.FullyQualifiedName}.{previousMethod.Signature.Name}'; removal is accepted in the ApiCompat baseline.",
-                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
                     continue;
                 }
 
@@ -212,85 +207,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
-        }
-
-        // Preserve original parameter names from the previous contract when a current factory
-        // method matches a previous one by name + parameter types/order but differs only in
-        // parameter names. The rename is applied in-place via ParameterProvider.Update which
-        // also updates the cached variable/argument expressions used by the method body and
-        // XML docs, so the body and docs serialize with the preserved names automatically.
-        private void PreservePreviousParameterNames(List<MethodProvider> currentFactoryMethods)
-        {
-            if (LastContractView?.Methods == null)
-            {
-                return;
-            }
-
-            foreach (var previousMethod in LastContractView.Methods)
-            {
-                MethodProvider? matchingCurrent = null;
-                foreach (var current in currentFactoryMethods)
-                {
-                    // MethodSignatureComparer matches on method name + parameter count + parameter
-                    // types (positional); it does not consider parameter names. So a previous
-                    // method whose only difference from a current method is parameter names will
-                    // still match here.
-                    if (MethodSignature.MethodSignatureComparer.Equals(current.Signature, previousMethod.Signature))
-                    {
-                        matchingCurrent = current;
-                        break;
-                    }
-                }
-
-                if (matchingCurrent is null)
-                {
-                    continue;
-                }
-
-                var previousParameters = previousMethod.Signature.Parameters;
-                var currentParameters = matchingCurrent.Signature.Parameters;
-                if (previousParameters.Count != currentParameters.Count)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < previousParameters.Count; i++)
-                {
-                    var previousName = previousParameters[i].Name;
-                    var currentParam = currentParameters[i];
-                    if (string.IsNullOrEmpty(previousName) || currentParam.Name == previousName)
-                    {
-                        continue;
-                    }
-
-                    // Skip the rename when applying it would create a name collision with another
-                    // current parameter (e.g. two same-typed parameters in swapped order between
-                    // the previous and current contracts). A positional rename in that case would
-                    // silently swap which parameter feeds which constructor field via name-based
-                    // lookup in GetCtorArgs, producing semantically wrong (and source-breaking) code.
-                    var previousNameToApply = previousName;
-                    bool wouldCollide = false;
-                    for (int j = 0; j < currentParameters.Count; j++)
-                    {
-                        if (j != i && string.Equals(currentParameters[j].Name, previousNameToApply, StringComparison.Ordinal))
-                        {
-                            wouldCollide = true;
-                            break;
-                        }
-                    }
-
-                    if (wouldCollide)
-                    {
-                        continue;
-                    }
-
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Preserved parameter name '{previousName}' on '{Name}.{matchingCurrent.Signature.Name}' from last contract (instead of '{currentParam.Name}').",
-                        BackCompatibilityChangeCategory.ParameterNamePreserved);
-
-                    currentParam.Update(name: previousName);
-                }
-            }
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(

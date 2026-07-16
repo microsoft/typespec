@@ -108,6 +108,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 

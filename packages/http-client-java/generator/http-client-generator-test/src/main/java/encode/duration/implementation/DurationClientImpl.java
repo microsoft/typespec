@@ -22,7 +22,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -36,7 +36,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -50,7 +50,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets The serializer to serialize an object into a string.
-     * 
+     *
      * @return the serializerAdapter value.
      */
     public SerializerAdapter getSerializerAdapter() {
@@ -64,7 +64,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets the QueriesImpl object to access its operations.
-     * 
+     *
      * @return the QueriesImpl object.
      */
     public QueriesImpl getQueries() {
@@ -78,7 +78,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets the PropertiesImpl object to access its operations.
-     * 
+     *
      * @return the PropertiesImpl object.
      */
     public PropertiesImpl getProperties() {
@@ -92,7 +92,7 @@ public final class DurationClientImpl {
 
     /**
      * Gets the HeadersImpl object to access its operations.
-     * 
+     *
      * @return the HeadersImpl object.
      */
     public HeadersImpl getHeaders() {
@@ -100,8 +100,22 @@ public final class DurationClientImpl {
     }
 
     /**
+     * The LossiesImpl object to access its operations.
+     */
+    private final LossiesImpl lossies;
+
+    /**
+     * Gets the LossiesImpl object to access its operations.
+     *
+     * @return the LossiesImpl object.
+     */
+    public LossiesImpl getLossies() {
+        return this.lossies;
+    }
+
+    /**
      * Initializes an instance of DurationClient client.
-     * 
+     *
      * @param endpoint Service host.
      */
     public DurationClientImpl(String endpoint) {
@@ -111,7 +125,7 @@ public final class DurationClientImpl {
 
     /**
      * Initializes an instance of DurationClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
      */
@@ -121,7 +135,7 @@ public final class DurationClientImpl {
 
     /**
      * Initializes an instance of DurationClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
@@ -133,5 +147,6 @@ public final class DurationClientImpl {
         this.queries = new QueriesImpl(this);
         this.properties = new PropertiesImpl(this);
         this.headers = new HeadersImpl(this);
+        this.lossies = new LossiesImpl(this);
     }
 }

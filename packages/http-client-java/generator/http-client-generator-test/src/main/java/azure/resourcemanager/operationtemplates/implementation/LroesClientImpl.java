@@ -54,7 +54,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Initializes an instance of LroesClientImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     LroesClientImpl(OperationTemplatesClientImpl client) {
@@ -142,7 +142,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -165,7 +165,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -186,7 +186,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -208,7 +208,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -229,7 +229,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -249,7 +249,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -269,7 +269,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -287,7 +287,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -303,7 +303,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Create a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -320,8 +320,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -342,8 +342,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -361,8 +361,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -382,8 +382,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -401,8 +401,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -420,8 +420,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -440,8 +440,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -457,8 +457,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -473,8 +473,8 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -491,7 +491,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -509,7 +509,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -525,7 +525,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -542,7 +542,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -559,7 +559,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -575,7 +575,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -592,7 +592,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -607,7 +607,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -621,7 +621,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -636,7 +636,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -655,7 +655,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -672,7 +672,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -690,7 +690,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -709,7 +709,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -728,7 +728,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -748,7 +748,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -762,7 +762,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -776,7 +776,7 @@ public final class LroesClientImpl implements LroesClient {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

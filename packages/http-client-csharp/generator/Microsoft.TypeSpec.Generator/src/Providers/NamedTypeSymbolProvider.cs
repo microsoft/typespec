@@ -787,6 +787,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 modifiers |= MethodSignatureModifiers.Static;
             }
+            if (methodSymbol.IsExtensionMethod)
+            {
+                modifiers |= MethodSignatureModifiers.Extension;
+            }
             // Handle conversion operators (explicit and implicit)
             if (methodSymbol.MethodKind == MethodKind.Conversion)
             {
