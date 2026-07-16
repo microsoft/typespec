@@ -34,10 +34,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new AttributeStatement(typeof(SerializableAttribute)),
             ]);
 
-            // With no last contract to restore attributes from, the method returns the generated
+            // With no last contract to restore attributes from, back-compat processing leaves the generated
             // attributes unchanged.
-            var attributes = provider.GetBackCompatibilityAttributes();
-            provider.Update(attributes: attributes);
+            provider.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
@@ -48,10 +47,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
-            // The last contract declares [CLSCompliant(true)] which is not present in the original set, so it
-            // should be appended to the result.
-            var attributes = provider.GetBackCompatibilityAttributes([]);
-            provider.Update(attributes: attributes);
+            // The last contract declares [CLSCompliant(true)] which is not present in the generated set, so it
+            // should be appended by back-compat processing.
+            provider.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
@@ -60,20 +58,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilityDoesNotDuplicateExistingAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
-            // The original set already contains the same [CLSCompliant(true)] attribute that the last
-            // contract declares, so nothing new is added and the original list is returned unchanged.
-            IReadOnlyList<AttributeStatement> original =
+            // The generated set already contains the same [CLSCompliant(true)] attribute that the last
+            // contract declares, so nothing new is added.
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType", attributes:
             [
                 new AttributeStatement(typeof(CLSCompliantAttribute), Snippet.Literal(true)),
-            ];
-            var attributes = provider.GetBackCompatibilityAttributes(original);
+            ]);
 
-            // No new attribute is added, so the original list is returned by reference (no allocation).
-            Assert.AreSame(original, attributes);
+            provider.ProcessTypeForBackCompatibility();
 
-            provider.Update(attributes: attributes);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
@@ -88,8 +82,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The last contract declares a mix of attributes: [CLSCompliant(true)] which is also present in
             // the custom code, and [Restorable] which is new. Only the [Restorable] attribute should be
             // restored because the [CLSCompliant(true)] attribute already exists in the custom code.
-            var attributes = provider.GetBackCompatibilityAttributes([]);
-            provider.Update(attributes: attributes);
+            provider.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
@@ -101,14 +94,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares a CodeGen-specific attribute, which is never restored, so the
-            // original (empty) list is returned unchanged.
-            var original = Array.Empty<AttributeStatement>();
-            var attributes = provider.GetBackCompatibilityAttributes(original);
+            // generated (empty) set is left unchanged.
+            provider.ProcessTypeForBackCompatibility();
 
-            // Nothing is restored, so the original list is returned by reference (no allocation).
-            Assert.AreSame(original, attributes);
-
-            provider.Update(attributes: attributes);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
@@ -119,13 +107,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares an EditorBrowsable attribute, which generation owns and is
-            // never restored, so the original (empty) list is returned unchanged.
-            var original = Array.Empty<AttributeStatement>();
-            var attributes = provider.GetBackCompatibilityAttributes(original);
+            // never restored, so the generated (empty) set is left unchanged.
+            provider.ProcessTypeForBackCompatibility();
 
-            Assert.AreSame(original, attributes);
-
-            provider.Update(attributes: attributes);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
@@ -136,13 +120,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares an Experimental attribute, which generation owns and is never
-            // restored, so the original (empty) list is returned unchanged.
-            var original = Array.Empty<AttributeStatement>();
-            var attributes = provider.GetBackCompatibilityAttributes(original);
+            // restored, so the generated (empty) set is left unchanged.
+            provider.ProcessTypeForBackCompatibility();
 
-            Assert.AreSame(original, attributes);
-
-            provider.Update(attributes: attributes);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 

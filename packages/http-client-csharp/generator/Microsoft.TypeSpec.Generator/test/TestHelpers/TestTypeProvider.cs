@@ -56,9 +56,5 @@ namespace Microsoft.TypeSpec.Generator.Tests
         internal TypeProvider[]? NestedTypesInternal { get; set; }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _declarationModifiers ?? base.BuildDeclarationModifiers();
-
-        internal IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility(Attributes);
-
-        internal IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes(IEnumerable<AttributeStatement> original) => BuildAttributesForBackCompatibility(original);
     }
 }
