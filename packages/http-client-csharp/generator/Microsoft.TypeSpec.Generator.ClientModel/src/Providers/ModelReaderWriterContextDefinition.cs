@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -106,34 +107,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
             var merged = base.BuildAttributesForBackCompatibility(original);
-
-            // base returns the original list unchanged when nothing was restored.
-            if (ReferenceEquals(merged, original))
-            {
-                return merged;
-            }
-
-            // base only appends attributes that are new relative to the original set, so keep the
-            // originally-generated attributes while dropping any restored attributes that generation owns.
-            var originalDisplayStrings = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var attribute in original)
-            {
-                originalDisplayStrings.Add(attribute.ToDisplayString());
-            }
-
-            var result = new List<AttributeStatement>(merged.Count);
-            foreach (var attribute in merged)
-            {
-                if (s_attributesToIgnore.Value.Contains(attribute.Type.Name)
-                    && !originalDisplayStrings.Contains(attribute.ToDisplayString()))
-                {
-                    continue;
-                }
-
-                result.Add(attribute);
-            }
-
-            return result;
+            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore.Value);
         }
 
         private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)

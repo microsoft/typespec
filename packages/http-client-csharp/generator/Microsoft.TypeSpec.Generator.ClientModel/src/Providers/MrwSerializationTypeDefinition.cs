@@ -150,6 +150,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [];
         }
 
+        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
+        {
+            nameof(PersistableModelProxyAttribute),
+        });
+
+        /// <summary>
+        /// Restores back-compatibility attributes from the last contract, then drops any restored
+        /// <see cref="PersistableModelProxyAttribute"/> since those are recomputed at generation time.
+        /// </summary>
+        protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
+        {
+            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
+            var merged = base.BuildAttributesForBackCompatibility(original);
+            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore.Value);
+        }
+
         private CSharpType GetRootModelType()
         {
             // We need to explicitly use the BaseModelProvider when looking up the root type
