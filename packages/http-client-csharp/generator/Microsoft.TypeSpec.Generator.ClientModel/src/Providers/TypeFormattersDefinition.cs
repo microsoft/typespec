@@ -33,8 +33,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", this, initializationValue: Literal("G"));
         }
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "TypeFormatters";

@@ -30,9 +30,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildNamespace() => _enumProvider.Type.Namespace;
-        protected override TypeSignatureModifiers BuildTypeModifiers()
-            => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
-
         protected override string BuildRelativeFilePath()
         {
             return Path.Combine("src", "Generated", "Models", $"{_enumProvider.Name}.Serialization.cs");

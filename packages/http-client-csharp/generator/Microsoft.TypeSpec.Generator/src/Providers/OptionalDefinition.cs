@@ -29,8 +29,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "Optional";

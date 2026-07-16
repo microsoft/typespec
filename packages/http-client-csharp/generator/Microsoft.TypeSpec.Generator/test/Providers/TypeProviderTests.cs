@@ -553,15 +553,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void InternalHelperProviderIsKeptAsRoot()
+        public void InternalHelperProviderIsKeptAsNonRoot()
         {
             var typeProvider = new TestInternalHelperProvider();
-            CodeModelGenerator.Instance.AddInternalHelperTypesToKeep([typeProvider]);
 
             Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static));
-            Assert.IsTrue(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
-            Assert.IsFalse(CodeModelGenerator.Instance.NonRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
+            Assert.IsFalse(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
+            Assert.IsTrue(CodeModelGenerator.Instance.NonRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
         }
 
         [Test]
@@ -635,8 +634,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             protected override string BuildName() => nameof(TestInternalHelperProvider);
 
             protected override string BuildRelativeFilePath() => $"{Name}.cs";
-
-            protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
         }
     }
 }

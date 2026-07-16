@@ -21,8 +21,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _cancellationTokenParam = new ParameterProvider("cancellationToken", FormattableStringHelpers.Empty, typeof(CancellationToken));
         }
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "CancellationTokenExtensions";

@@ -11,11 +11,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     public abstract class InternalHelperProvider : TypeProvider
     {
-        protected InternalHelperProvider(InputType? inputType = default) : base(inputType) { }
+        protected InternalHelperProvider(InputType? inputType = default) : base(inputType)
+        {
+            CodeModelGenerator.Instance.AddTypeToKeep(this, isRoot: false);
+        }
 
-        protected sealed override TypeSignatureModifiers BuildDeclarationModifiers()
-            => TypeSignatureModifiers.Internal | BuildTypeModifiers();
-
-        protected virtual TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.None;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
     }
 }

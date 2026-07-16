@@ -24,9 +24,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => "MultipartFormDataHelper";
 
-        protected override TypeSignatureModifiers BuildTypeModifiers()
-            => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override MethodProvider[] BuildMethods()

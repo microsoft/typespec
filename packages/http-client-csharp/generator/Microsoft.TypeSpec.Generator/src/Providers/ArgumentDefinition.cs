@@ -34,8 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _nullableT = _t.WithNullable(true);
         }
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
-
         private MethodSignature GetSignature(
             string name,
             IReadOnlyList<ParameterProvider> parameters,

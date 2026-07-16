@@ -48,6 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override WhereExpression BuildWhereClause() => Where.NotNull(_tKey);
 
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "ChangeTrackingDictionary";

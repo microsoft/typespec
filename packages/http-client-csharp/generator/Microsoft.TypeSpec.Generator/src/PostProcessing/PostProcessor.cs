@@ -91,8 +91,7 @@ namespace Microsoft.TypeSpec.Generator
                         // we do not add the model factory and additionalNonRootTypeSymbols to the declared symbol list
                         // so that it will never be included in any process of internalization or removal
                         if (SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
-                            || _additionalNonRootTypeNames.Contains(symbol.Name)
-                            || _additionalNonRootTypeNames.Contains(symbol.GetFullyQualifiedName()))
+                            || IsAdditionalNonRootType(symbol))
                         {
                             continue;
                         }
@@ -108,6 +107,20 @@ namespace Microsoft.TypeSpec.Generator
                     (IEqualityComparer<INamedTypeSymbol>)SymbolEqualityComparer.Default),
                 documentCache.ToDictionary(kv => kv.Key,
                     kv => kv.Value.ToHashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default)));
+        }
+
+        private bool IsAdditionalNonRootType(INamedTypeSymbol symbol)
+        {
+            var fullyQualifiedName = symbol.GetFullyQualifiedName();
+            if (_additionalNonRootTypeNames.Contains(symbol.Name)
+                || _additionalNonRootTypeNames.Contains(fullyQualifiedName))
+            {
+                return true;
+            }
+
+            var genericArityIndex = fullyQualifiedName.IndexOf('`');
+            return genericArityIndex > 0
+                && _additionalNonRootTypeNames.Contains(fullyQualifiedName[..genericArityIndex]);
         }
 
         protected virtual bool ShouldIncludeDocument(Document document) =>

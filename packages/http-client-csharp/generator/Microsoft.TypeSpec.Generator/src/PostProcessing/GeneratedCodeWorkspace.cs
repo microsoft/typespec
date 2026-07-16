@@ -266,14 +266,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var generator = CodeModelGenerator.Instance;
-            var outputLibrary = generator.OutputLibrary;
-            generator.AddInternalHelperTypesToKeep(outputLibrary.TypeProviders);
-
-            var modelFactory = outputLibrary.ModelFactory.Value;
-            var nonRootTypes = generator.NonRootTypes;
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
             var postProcessor = new PostProcessor(
-                [.. generator.TypeFactory.UnionVariantTypesToKeep, .. generator.AdditionalRootTypes],
+                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
                 modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
                 additionalNonRootTypeNames: nonRootTypes);
 

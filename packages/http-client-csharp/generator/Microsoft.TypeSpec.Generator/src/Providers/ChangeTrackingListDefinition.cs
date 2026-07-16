@@ -46,6 +46,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnsureList = new(This.Invoke(_ensureListSignature));
         }
 
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "ChangeTrackingList";

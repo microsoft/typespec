@@ -49,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => $"Utf8Json{BuildBaseType().Name}";
 
-        protected override TypeSignatureModifiers BuildTypeModifiers()
-            => TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 

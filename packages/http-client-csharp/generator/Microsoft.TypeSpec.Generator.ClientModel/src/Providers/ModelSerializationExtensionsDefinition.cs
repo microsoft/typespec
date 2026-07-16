@@ -96,8 +96,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Static;
-
         internal FieldProvider WireOptionsField { get; }
         private readonly FieldProvider _jsonDocumentOptionsField;
 

@@ -63,6 +63,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pathLengthField = new(FieldModifiers.Private, typeof(int), "_pathLength", this);
         }
 
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "ClientUriBuilder";

@@ -77,7 +77,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => $"MultiPartFormData{_requestContentType.Name}";
 
-        protected override TypeSignatureModifiers BuildTypeModifiers() => TypeSignatureModifiers.Class;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
         protected override CSharpType BuildBaseType() => _requestContentType;
 
