@@ -21,8 +21,6 @@ When specified, builds the management plane emitter locally and regenerates mgmt
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 .PARAMETER PipelineRunUrl
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
-.PARAMETER PublishGeneratorPackages
-When specified (together with RegenerateAzureLibraries or RegenerateMgmtLibraries), the locally built Azure/mgmt generator packages are published to the npm registry configured in the .npmrc, and the regenerated emitter-package.json artifacts reference the published version instead of a host-only "file:" path. This allows CI to restore the emitter dependencies in the resulting azure-sdk-for-net PR.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -57,9 +55,6 @@ param(
   [string]$PipelineRunUrl,
 
   [Parameter(Mandatory = $false)]
-  [switch]$PublishGeneratorPackages,
-
-  [Parameter(Mandatory = $false)]
   [switch]$UseTypeSpecNext
 )
 
@@ -68,12 +63,13 @@ Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -
 # Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
 Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking -Force
 
-# When publishing generator packages, resolve the registry and authenticated .npmrc used for publishing.
-# The emitter artifacts will then reference the published version instead of a host-only "file:" path,
-# allowing CI to restore the emitter dependencies in the resulting azure-sdk-for-net PR.
+# Publishing the locally built generator packages happens by default whenever a regeneration is
+# requested, so the regenerated emitter-package.json artifacts reference a published version instead
+# of a host-only "file:" path. That way CI can restore the emitter dependencies in the resulting
+# azure-sdk-for-net PR. Resolve the registry and authenticated .npmrc used for publishing.
 $PublishRegistry = $null
 $PublishNpmrcPath = $null
-if ($PublishGeneratorPackages) {
+if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
     $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"
     if (Test-Path $resolvedPublishNpmrc) {

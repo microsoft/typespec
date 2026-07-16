@@ -24,11 +24,6 @@ parameters:
     type: boolean
     default: false
 
-  - name: PublishGeneratorPackages
-    displayName: Publish locally built generator packages so the azure-sdk-for-net PR references published versions (enables CI)
-    type: boolean
-    default: false
-
   - name: RunTests
     displayName: Run unit tests
     type: boolean
@@ -253,7 +248,6 @@ extends:
                     ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                    ${{ replace(replace('True', eq(parameters.PublishGeneratorPackages, false), ''), 'True', '-PublishGeneratorPackages') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
 
