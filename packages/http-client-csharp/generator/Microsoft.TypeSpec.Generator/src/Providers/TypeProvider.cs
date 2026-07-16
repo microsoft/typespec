@@ -30,10 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static readonly Lazy<HashSet<string>> s_nonRestorableAttributeNames = new(() => new(StringComparer.Ordinal)
         {
-            CodeGenAttributes.CodeGenSuppressAttributeName,
-            CodeGenAttributes.CodeGenMemberAttributeName,
-            CodeGenAttributes.CodeGenTypeAttributeName,
-            CodeGenAttributes.CodeGenSerializationAttributeName,
             nameof(EditorBrowsableAttribute),
             nameof(ExperimentalAttribute),
             nameof(ObsoleteAttribute),
@@ -1066,8 +1062,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <summary>
         /// Adds any back-compatibility attributes from the last contract that are not already present in
         /// <paramref name="originalAttributes"/> (or the custom-code attributes). Attributes that
-        /// generation owns (see <see cref="s_nonRestorableAttributeNames"/>) are never restored. The
-        /// original attributes are returned unchanged when there is nothing new to add.
+        /// generation owns (any <c>CodeGen</c>-prefixed attribute or one listed in
+        /// <see cref="s_nonRestorableAttributeNames"/>) are never restored. The original attributes are
+        /// returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
@@ -1093,7 +1090,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name))
+                if (attribute.Type.Name.Contains(CodeGenAttributes.CodeGenAttributePrefix, StringComparison.Ordinal)
+                    || s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name))
                 {
                     continue;
                 }
