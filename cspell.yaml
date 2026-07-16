@@ -218,6 +218,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments
@@ -316,7 +317,9 @@ words:
   - vnet
   - VNEXT
   - vsix
+  - vsextensions
   - vsmarketplace
+  - vspackage
   - VSSDK
   - Vsts
   - vswhere
