@@ -217,8 +217,6 @@ namespace Microsoft.TypeSpec.Generator.Statements
             "</see>",
             "<b>",
             "</b>",
-            "<c>",
-            "</c>",
             "<i>",
             "</i>",
             "<list ",

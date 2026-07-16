@@ -25,8 +25,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientProvider : TypeProvider
     {
-        protected override bool IsClientProvider => true;
-
         private record AuthFields(FieldProvider AuthField);
         private record ApiKeyFields(FieldProvider AuthField, FieldProvider AuthorizationHeaderField, FieldProvider? AuthorizationApiKeyPrefixField) : AuthFields(AuthField);
         private record OAuth2Fields(FieldProvider AuthField, FieldProvider AuthorizationScopesField) : AuthFields(AuthField);
@@ -74,9 +72,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal TypeProvider BackCompatProvider => _backCompatProvider ?? this;
 
-        private ParameterProvider? _clientOptionsParameter;
-        public ParameterProvider? ClientOptionsParameter
-            => ClientOptions is null ? null : _clientOptionsParameter ??= ScmKnownParameters.ClientOptions(ClientOptions.Type);
+        public ParameterProvider? ClientOptionsParameter { get; }
 
         protected override FormattableString BuildDescription()
         {
@@ -112,6 +108,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
+            ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
@@ -428,42 +425,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
-
-        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
-        {
-            foreach (var method in Methods.OfType<ScmMethodProvider>())
-            {
-                if (method.BodyStatements != null)
-                {
-                    return [ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type];
-                }
-            }
-
-            return [];
-        }
-
-        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
-        {
-            var dependencies = new List<CSharpType>();
-            foreach (var method in Methods.OfType<ScmMethodProvider>())
-            {
-                if (method.BodyStatements == null)
-                {
-                    continue;
-                }
-
-                if (method.CollectionDefinition != null)
-                {
-                    dependencies.Add(method.CollectionDefinition.Type);
-                }
-
-                // Service method metadata can mention wire-only request/response models that are not
-                // emitted in the generated method signature or body. The graph builder and structured
-                // body scanner capture the generated types that are actually referenced.
-            }
-
-            return dependencies;
-        }
 
         protected override FieldProvider[] BuildFields()
         {
