@@ -2,8 +2,12 @@ using System;
 
 namespace Test
 {
+    public class RestorableAttribute : Attribute
+    {
+    }
+
     [CLSCompliant(true)]
-    [Serializable]
+    [Restorable]
     public class BackCompatAttributeType
     {
     }

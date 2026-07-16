@@ -114,8 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // base only appends attributes that are new relative to the original set, so keep the
-            // originally-generated attributes while dropping any buildable ones restored from the last
-            // contract.
+            // originally-generated attributes while dropping any restored attributes that generation owns.
             var originalDisplayStrings = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attribute in original)
             {
@@ -125,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var result = new List<AttributeStatement>(merged.Count);
             foreach (var attribute in merged)
             {
-                if (attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute))
+                if (s_attributesToIgnore.Value.Contains(attribute.Type.Name)
                     && !originalDisplayStrings.Contains(attribute.ToDisplayString()))
                 {
                     continue;
@@ -136,6 +135,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return result;
         }
+
+        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
+        {
+            nameof(ModelReaderWriterBuildableAttribute),
+        });
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
         {

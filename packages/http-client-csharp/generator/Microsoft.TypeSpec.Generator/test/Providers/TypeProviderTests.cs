@@ -28,7 +28,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWhenNoLastContract()
         {
-            var provider = new AttributeTestProvider();
+            var provider = CreateAttributeTestProvider(attributes:
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+                new AttributeStatement(typeof(SerializableAttribute)),
+            ]);
 
             // With no last contract to restore attributes from, the method returns the generated
             // attributes unchanged.
@@ -42,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilityAddsAttributeFromLastContract()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract declares [CLSCompliant(true)] which is not present in the original set, so it
             // should be appended to the result.
@@ -56,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilityDoesNotDuplicateExistingAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The original set already contains the same [CLSCompliant(true)] attribute that the last
             // contract declares, so nothing new is added and the original list is returned unchanged.
@@ -79,10 +83,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract declares a mix of attributes: [CLSCompliant(true)] which is also present in
-            // the custom code, and [Serializable] which is new. Only the [Serializable] attribute should be
+            // the custom code, and [Restorable] which is new. Only the [Restorable] attribute should be
             // restored because the [CLSCompliant(true)] attribute already exists in the custom code.
             var attributes = provider.GetBackCompatibilityAttributes([]);
             provider.Update(attributes: attributes);
@@ -94,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilitySkipsCodeGenAttributes()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares a CodeGen-specific attribute, which is never restored, so the
             // original (empty) list is returned unchanged.
@@ -112,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilitySkipsEditorBrowsableAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares an EditorBrowsable attribute, which generation owns and is
             // never restored, so the original (empty) list is returned unchanged.
@@ -129,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public async Task BuildAttributesForBackCompatibilitySkipsExperimentalAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
             // The last contract only declares an Experimental attribute, which generation owns and is never
             // restored, so the original (empty) list is returned unchanged.
@@ -145,26 +149,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 
-        private class AttributeTestProvider : TestTypeProvider
-        {
-            public AttributeTestProvider(string? name = null)
-                : base(name: name)
-            {
-            }
-
-            protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
-                TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
-
-            protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
-            [
-                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
-                new AttributeStatement(typeof(SerializableAttribute)),
-            ];
-
-            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility(Attributes);
-
-            public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes(IEnumerable<AttributeStatement> original) => BuildAttributesForBackCompatibility(original);
-        }
+        private static TestTypeProvider CreateAttributeTestProvider(
+            string? name = null,
+            IEnumerable<MethodBodyStatement>? attributes = null) =>
+            new TestTypeProvider(
+                name: name ?? "TestName",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                attributes: attributes);
 
         [Test]
         public void TestUpdateCanonicalView()

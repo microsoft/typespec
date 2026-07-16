@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -1043,6 +1044,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             nameof(EditorBrowsableAttribute),
             nameof(ExperimentalAttribute),
             nameof(ObsoleteAttribute),
+            nameof(SerializableAttribute),
+            nameof(JsonConstructorAttribute),
+            nameof(JsonConverterAttribute),
+            nameof(JsonDerivedTypeAttribute),
+            nameof(JsonExtensionDataAttribute),
+            nameof(JsonIgnoreAttribute),
+            nameof(JsonIncludeAttribute),
+            nameof(JsonNumberHandlingAttribute),
+            nameof(JsonObjectCreationHandlingAttribute),
+            nameof(JsonPolymorphicAttribute),
+            nameof(JsonPropertyNameAttribute),
+            nameof(JsonPropertyOrderAttribute),
+            nameof(JsonRequiredAttribute),
+            nameof(JsonSerializableAttribute),
+            nameof(JsonSourceGenerationOptionsAttribute),
+            nameof(JsonStringEnumMemberNameAttribute),
+            nameof(JsonUnmappedMemberHandlingAttribute),
         });
 
         /// <summary>

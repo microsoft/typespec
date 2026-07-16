@@ -2,11 +2,9 @@
 
 #nullable disable
 
-using System;
-
 namespace Test
 {
-    [global::System.SerializableAttribute]
+    [global::Test.RestorableAttribute]
     public partial class BackCompatAttributeType
     {
     }
