@@ -333,7 +333,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicEnumsAreIncludedInAdditionalRootTypes()
         {
             var inputEnum = InputFactory.StringEnum(
                 "StringEnum",
@@ -348,6 +348,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToList());
+            Assert.IsTrue(enumProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(enumProvider));
         }
 
         [Test]
