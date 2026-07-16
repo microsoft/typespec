@@ -10,6 +10,7 @@ import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
 import { logger } from "../logger.js";
+import { DEFAULT_HOST } from "../server/server.js";
 import { getCommit } from "../utils/misc-utils.js";
 
 export const DEFAULT_PORT = 3000;
@@ -108,6 +109,12 @@ async function main() {
                 description: "Port where to host the server",
                 default: DEFAULT_PORT,
               })
+              .option("host", {
+                type: "string",
+                description:
+                  "Host/interface to bind to. Defaults to loopback (127.0.0.1) only. Use 0.0.0.0 to listen on all interfaces.",
+                default: DEFAULT_HOST,
+              })
               .option("coverageFile", {
                 type: "string",
                 description: "Path to the coverage file.",
@@ -118,6 +125,7 @@ async function main() {
             startInBackground({
               scenariosPath: args.scenariosPaths,
               port: args.port,
+              host: args.host,
               coverageFile: args.coverageFile,
             }),
         )
@@ -152,6 +160,12 @@ async function main() {
             description: "Port where to host the server",
             default: DEFAULT_PORT,
           })
+          .option("host", {
+            type: "string",
+            description:
+              "Host/interface to bind to. Defaults to loopback (127.0.0.1) only. Use 0.0.0.0 to listen on all interfaces.",
+            default: DEFAULT_HOST,
+          })
           .option("coverageFile", {
             type: "string",
             description: "Path to the coverage file.",
@@ -162,6 +176,7 @@ async function main() {
         await serve({
           scenariosPath: args.scenariosPaths,
           port: args.port,
+          host: args.host,
           coverageFile: args.coverageFile,
         });
       },

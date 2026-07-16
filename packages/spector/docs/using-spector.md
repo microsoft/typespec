@@ -34,6 +34,13 @@ tsp-spector serve ./path/to/scenarios --port 1234
 tsp-spector serve ./path/to/scenarios --coverageFile ./path/to/spector-coverage.json
 ```
 
+> [!NOTE]
+> By default the server only binds to the loopback interface (`127.0.0.1`), so it is not reachable from other hosts on the network. If you need to reach the server from another machine or container, opt in explicitly with `--host 0.0.0.0`. Note that the mock server exposes an unauthenticated stop endpoint; even when bound to a public interface, that endpoint only accepts requests from the local host.
+>
+> ```bash
+> tsp-spector serve ./path/to/scenarios --host 0.0.0.0
+> ```
+
 Alternative to start in background
 
 ```bash

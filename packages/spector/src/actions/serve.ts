@@ -9,6 +9,7 @@ export interface ServeConfig {
   scenariosPath: string | string[];
   coverageFile: string;
   port: number;
+  host?: string;
 }
 
 export interface StopConfig {
@@ -27,6 +28,7 @@ export async function serve(config: ServeConfig) {
 
   const server = new MockApiApp({
     port: config.port,
+    host: config.host,
     scenarioPath: config.scenariosPath,
     coverageFile: config.coverageFile,
   });
@@ -48,6 +50,7 @@ export async function startInBackground(config: ServeConfig) {
         ...scenariosPath,
         "--port",
         config.port.toString(),
+        ...(config.host ? ["--host", config.host] : []),
         "--coverageFile",
         config.coverageFile,
       ],
