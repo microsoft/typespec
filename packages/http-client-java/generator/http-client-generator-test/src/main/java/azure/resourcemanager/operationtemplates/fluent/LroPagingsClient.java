@@ -15,8 +15,8 @@ import com.azure.core.util.Context;
  */
 public interface LroPagingsClient {
     /**
-     * A long-running resource action.
-     * 
+     * The postPagingLro operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -28,8 +28,8 @@ public interface LroPagingsClient {
     PagedIterable<ProductInner> postPagingLro(String resourceGroupName, String productName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The postPagingLro operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
      * @param context The context to associate with this operation.

@@ -652,16 +652,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return FullyQualifiedName == other.FullyQualifiedName;
         }
 
-        // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198
-        // internal static CSharpType FromSystemType(Type type, string defaultNamespace, SourceInputModel? sourceInputModel, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        // {
-        //     var systemObjectType = SystemObjectType.Create(type, defaultNamespace, sourceInputModel, backingProperties);
-        //     return systemObjectType.Type;
-        // }
-
-        // internal static CSharpType FromSystemType(BuildContext context, Type type, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        //     => FromSystemType(type, context.DefaultNamespace, context.SourceInputModel, backingProperties);
-
         /// <summary>
         /// This function is used to create a new CSharpType instance with a literal value.
         /// If the type is a framework type, the CSharpType will be created with the literal value Constant

@@ -33,7 +33,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Set), arguments).Terminate();
 
         public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
-            => Original.Property(nameof(PipelineRequest.Headers)).Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers]).Terminate();
+            => Original.Property(nameof(PipelineRequest.Headers))
+                .Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers], typeArguments: null, callAsAsync: false, extensionType: ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type)
+                .Terminate();
 
         public override HttpRequestApi ToExpression() => this;
     }

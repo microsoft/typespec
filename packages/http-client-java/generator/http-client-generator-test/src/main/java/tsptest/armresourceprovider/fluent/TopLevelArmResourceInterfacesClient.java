@@ -27,7 +27,7 @@ import tsptest.armresourceprovider.models.TopLevelArmResourceUpdate;
 public interface TopLevelArmResourceInterfacesClient {
     /**
      * Get a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -41,7 +41,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Get a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +54,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Get a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -69,7 +69,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Get a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +82,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -98,7 +98,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -114,7 +114,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -130,7 +130,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -147,7 +147,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -163,7 +163,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -178,7 +178,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Create a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param resource Resource create parameters.
@@ -194,7 +194,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Update a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param properties The resource properties to be updated.
@@ -210,7 +210,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Update a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param properties The resource properties to be updated.
@@ -226,7 +226,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Update a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param properties The resource properties to be updated.
@@ -243,7 +243,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Update a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param properties The resource properties to be updated.
@@ -258,7 +258,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -271,7 +271,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -284,7 +284,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -297,7 +297,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -312,7 +312,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -325,7 +325,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -337,7 +337,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * Delete a TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -350,7 +350,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by resource group.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -362,7 +362,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by resource group.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -374,7 +374,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by resource group.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -387,7 +387,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by subscription ID.
-     * 
+     *
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedFlux}.
@@ -397,7 +397,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by subscription ID.
-     * 
+     *
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
@@ -407,7 +407,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * List TopLevelArmResource resources by subscription ID.
-     * 
+     *
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -418,8 +418,8 @@ public interface TopLevelArmResourceInterfacesClient {
     PagedIterable<TopLevelArmResourceInner> list(Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -431,8 +431,8 @@ public interface TopLevelArmResourceInterfacesClient {
     Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -445,8 +445,8 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -459,8 +459,8 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -474,8 +474,8 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName, Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -487,8 +487,8 @@ public interface TopLevelArmResourceInterfacesClient {
     Mono<ResultInner> actionAsync(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -500,8 +500,8 @@ public interface TopLevelArmResourceInterfacesClient {
     ResultInner action(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -515,7 +515,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -528,7 +528,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -541,7 +541,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -556,7 +556,7 @@ public interface TopLevelArmResourceInterfacesClient {
 
     /**
      * A synchronous resource action.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

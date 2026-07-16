@@ -25,6 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public class ClientProvider : TypeProvider
     {
+        protected override bool IsClientProvider => true;
+
         private record AuthFields(FieldProvider AuthField);
         private record ApiKeyFields(FieldProvider AuthField, FieldProvider AuthorizationHeaderField, FieldProvider? AuthorizationApiKeyPrefixField) : AuthFields(AuthField);
         private record OAuth2Fields(FieldProvider AuthField, FieldProvider AuthorizationScopesField) : AuthFields(AuthField);
@@ -72,7 +74,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         internal TypeProvider BackCompatProvider => _backCompatProvider ?? this;
 
-        public ParameterProvider? ClientOptionsParameter { get; }
+        private ParameterProvider? _clientOptionsParameter;
+        public ParameterProvider? ClientOptionsParameter
+            => ClientOptions is null ? null : _clientOptionsParameter ??= ScmKnownParameters.ClientOptions(ClientOptions.Type);
 
         protected override FormattableString BuildDescription()
         {
@@ -108,7 +112,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
-            ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
@@ -425,6 +428,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
         protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
+
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
+        {
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.BodyStatements != null)
+                {
+                    return [ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type];
+                }
+            }
+
+            return [];
+        }
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType>();
+            foreach (var method in Methods.OfType<ScmMethodProvider>())
+            {
+                if (method.BodyStatements == null)
+                {
+                    continue;
+                }
+
+                if (method.CollectionDefinition != null)
+                {
+                    dependencies.Add(method.CollectionDefinition.Type);
+                }
+
+                // Service method metadata can mention wire-only request/response models that are not
+                // emitted in the generated method signature or body. The graph builder and structured
+                // body scanner capture the generated types that are actually referenced.
+            }
+
+            return dependencies;
+        }
 
         protected override FieldProvider[] BuildFields()
         {
@@ -1263,149 +1302,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
-            List<MethodProvider> materializedMethods = [.. originalMethods];
-
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
-                return materializedMethods;
+                return [.. originalMethods];
             }
 
-            var currentMethodSignatures = BuildCurrentMethodSignatures(materializedMethods);
+            // Snapshot the current signatures before the base reorders any of them in place, so we
+            // can fix up convenience method bodies that call reordered protocol methods afterwards.
+            var originalSignatures = new Dictionary<MethodProvider, MethodSignature>(ReferenceEqualityComparer.Instance);
+            foreach (var method in originalMethods)
+            {
+                originalSignatures.TryAdd(method, method.Signature);
+            }
 
-            ProcessBackCompatForParameterReordering(materializedMethods, currentMethodSignatures);
-            ProcessBackCompatForNewOptionalParameters(materializedMethods, currentMethodSignatures);
+            List<MethodProvider> result = [.. base.BuildMethodsForBackCompatibility(originalMethods)];
 
-            return materializedMethods;
-        }
-
-        private void ProcessBackCompatForParameterReordering(
-            IList<MethodProvider> materializedMethods,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
+            // Determine which existing methods had their parameters reordered by the base and fix up
+            // convenience method bodies that call the reordered protocol methods.
             var updatedSignatureToOriginal = new Dictionary<MethodSignature, MethodSignature>(MethodSignature.MethodSignatureComparer);
             var methodsWithReorderedParams = new List<MethodProvider>();
-
-            foreach (var previousMethod in LastContractView!.Methods)
+            foreach (var (method, originalSignature) in originalSignatures)
             {
-                if (!ShouldProcessMethodForBackCompat(previousMethod.Signature, currentMethodSignatures))
+                if (method.Signature.Name.Equals(originalSignature.Name)
+                    && !MethodSignatureHelper.HaveSameParametersInSameOrder(method.Signature, originalSignature))
                 {
-                    continue;
-                }
-
-                var methodToUpdate = FindMethodWithSameParametersButDifferentOrder(
-                    previousMethod.Signature,
-                    currentMethodSignatures);
-
-                if (methodToUpdate != null && TryReorderCurrentMethodParameters(
-                    methodToUpdate,
-                    previousMethod.Signature,
-                    updatedSignatureToOriginal))
-                {
-                    methodsWithReorderedParams.Add(methodToUpdate);
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Reordered parameters of '{Name}.{methodToUpdate.Signature.Name}' to match last contract.",
-                        BackCompatibilityChangeCategory.MethodParameterReordering);
+                    updatedSignatureToOriginal.TryAdd(method.Signature, originalSignature);
+                    methodsWithReorderedParams.Add(method);
                 }
             }
 
             if (methodsWithReorderedParams.Count > 0)
             {
-                UpdateConvenienceMethodsForBackCompat(materializedMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
+                UpdateConvenienceMethodsForBackCompat(result, methodsWithReorderedParams, updatedSignatureToOriginal);
             }
-        }
 
-        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatures(IEnumerable<MethodProvider> originalMethods)
-        {
-            var allMethods = CustomCodeView?.Methods != null
-                ? originalMethods.Concat(CustomCodeView.Methods)
-                : originalMethods;
-
-            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
-            foreach (var method in allMethods)
+            // The base adds hidden overloads for methods that gained new optional non-body parameters.
+            // Where such an overload preserves a previous signature whose trailing parameter was a
+            // CancellationToken, suppress AZC0002: making that parameter optional would create an
+            // ambiguous call with the current method.
+            foreach (var method in result)
             {
-                result.TryAdd(method.Signature, method);
+                if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
+                {
+                    method.Update(suppressions:
+                    [
+                        new SuppressionStatement(
+                            inner: null,
+                            code: Literal("AZC0002"),
+                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
+                    ]);
+                }
             }
+
             return result;
-        }
-
-        private static bool ShouldProcessMethodForBackCompat(
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            if (currentMethodSignatures.ContainsKey(previousSignature))
-            {
-                return false;
-            }
-
-            var modifiers = previousSignature.Modifiers;
-            return modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                   modifiers.HasFlag(MethodSignatureModifiers.Protected);
-        }
-
-        private static MethodProvider? FindMethodWithSameParametersButDifferentOrder(
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            foreach (var kvp in currentMethodSignatures)
-            {
-                var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name)
-                    && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
-                    && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
-                {
-                    return kvp.Value;
-                }
-            }
-
-            return null;
-        }
-
-        private bool TryReorderCurrentMethodParameters(
-            MethodProvider methodToUpdate,
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal)
-        {
-            var currentSignature = methodToUpdate.Signature;
-            // Early exit: Check if parameters are already in the same order
-            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
-            {
-                return false;
-            }
-
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
-            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
-
-            foreach (var previousParam in previousSignature.Parameters)
-            {
-                if (parametersByName.TryGetValue(previousParam.Name, out var matchingParam))
-                {
-                    reorderedParameters.Add(matchingParam);
-                }
-            }
-
-            if (reorderedParameters.Count != currentSignature.Parameters.Count)
-            {
-                return false;
-            }
-
-            var updatedSignature = new MethodSignature(
-                currentSignature.Name,
-                currentSignature.Description,
-                currentSignature.Modifiers,
-                currentSignature.ReturnType,
-                currentSignature.ReturnDescription,
-                reorderedParameters,
-                currentSignature.Attributes,
-                currentSignature.GenericArguments,
-                currentSignature.GenericParameterConstraints,
-                currentSignature.ExplicitInterface,
-                currentSignature.NonDocumentComment);
-            updatedSignatureToOriginal.TryAdd(updatedSignature, currentSignature);
-
-            UpdateXmlDocProviderForParamReorder(methodToUpdate.XmlDocs, updatedSignature);
-            methodToUpdate.Update(signature: updatedSignature, xmlDocProvider: methodToUpdate.XmlDocs);
-
-            return true;
         }
 
         private ParameterProvider BuildClientEndpointParameter()
@@ -1773,104 +1722,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void UpdateXmlDocProviderForParamReorder(
-            XmlDocProvider xmlDocs,
-            MethodSignature updatedSignature)
-        {
-            var paramDocsByName = xmlDocs.Parameters.ToDictionary(s => s.Parameter.Name);
-            var reorderedParamDocs = new List<XmlDocParamStatement>(updatedSignature.Parameters.Count);
-
-            foreach (var param in updatedSignature.Parameters)
-            {
-                if (paramDocsByName.TryGetValue(param.Name, out var paramDoc))
-                {
-                    reorderedParamDocs.Add(paramDoc);
-                }
-            }
-
-            if (reorderedParamDocs.Count == xmlDocs.Parameters.Count &&
-                !reorderedParamDocs.SequenceEqual(xmlDocs.Parameters))
-            {
-                xmlDocs.Update(parameters: reorderedParamDocs);
-            }
-        }
-
-        private void ProcessBackCompatForNewOptionalParameters(
-            List<MethodProvider> methods,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            var currentMethodsByName = new Dictionary<string, List<MethodProvider>>();
-            foreach (var method in currentMethodSignatures.Values)
-            {
-                if (method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest })
-                {
-                    continue;
-                }
-
-                if (!currentMethodsByName.TryGetValue(method.Signature.Name, out var list))
-                {
-                    list = [];
-                    currentMethodsByName[method.Signature.Name] = list;
-                }
-                list.Add(method);
-            }
-
-            foreach (var previousMethod in LastContractView!.Methods)
-            {
-                var previousSignature = previousMethod.Signature;
-
-                if (!previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
-                    !previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                {
-                    continue;
-                }
-
-                if (currentMethodSignatures.ContainsKey(previousSignature) ||
-                    !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
-                {
-                    continue;
-                }
-
-                ScmMethodProvider? matchedCurrent = null;
-                foreach (var candidate in candidates)
-                {
-                    if (candidate is ScmMethodProvider { Kind: ScmMethodKind.Convenience or ScmMethodKind.Protocol } scmCandidate &&
-                        HasNewOptionalNonBodyParametersOnly(previousSignature, scmCandidate.Signature))
-                    {
-                        matchedCurrent = scmCandidate;
-                        break;
-                    }
-                }
-
-                if (matchedCurrent is null)
-                {
-                    continue;
-                }
-
-                var overload = BuildBackCompatOverloadForNewOptionalParameters(previousMethod, matchedCurrent);
-                if (overload == null || !currentMethodSignatures.TryAdd(overload.Signature, overload))
-                {
-                    continue;
-                }
-
-                if (PreviousSignatureEndsWithCancellationToken(previousSignature))
-                {
-                    overload.Update(suppressions:
-                    [
-                        new SuppressionStatement(
-                            inner: null,
-                            code: Literal("AZC0002"),
-                            justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
-                    ]);
-                }
-
-                methods.Add(overload);
-                CodeModelGenerator.Instance.Emitter.Debug(
-                    $"Added back-compat overload for '{Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
-                    BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
-            }
-        }
-
         private static bool PreviousSignatureEndsWithCancellationToken(MethodSignature previousSignature)
         {
             if (previousSignature.Parameters.Count == 0)
@@ -1880,88 +1731,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var lastParam = previousSignature.Parameters[previousSignature.Parameters.Count - 1];
             return new CSharpType.CSharpTypeIgnoreNullableComparer().Equals(lastParam.Type, new CSharpType(typeof(CancellationToken)));
-        }
-
-        // Returns true when currentSignature contains all parameters of previousSignature in the same
-        // relative order, every "extra" parameter is optional, and none of the extras are body parameters.
-        private static bool HasNewOptionalNonBodyParametersOnly(
-            MethodSignature previousSignature,
-            MethodSignature currentSignature)
-        {
-            if (currentSignature.Parameters.Count <= previousSignature.Parameters.Count)
-            {
-                return false;
-            }
-
-            if (previousSignature.ReturnType is null
-                ? currentSignature.ReturnType is not null
-                : !previousSignature.ReturnType.AreNamesEqual(currentSignature.ReturnType))
-            {
-                return false;
-            }
-
-            // Walk current parameters and ensure previous parameters appear in the same relative order
-            // (matched by variable name and type), with every "extra" parameter being optional and non-body.
-            int previousIndex = 0;
-            for (int currentIndex = 0; currentIndex < currentSignature.Parameters.Count; currentIndex++)
-            {
-                var currentParam = currentSignature.Parameters[currentIndex];
-
-                if (previousIndex < previousSignature.Parameters.Count)
-                {
-                    var previousParam = previousSignature.Parameters[previousIndex];
-                    if (currentParam.Name.ToVariableName() == previousParam.Name.ToVariableName() &&
-                        currentParam.Type.AreNamesEqual(previousParam.Type))
-                    {
-                        previousIndex++;
-                        continue;
-                    }
-                }
-
-                if (currentParam.DefaultValue is null)
-                {
-                    return false;
-                }
-
-                if (currentParam.Location == ParameterLocation.Body)
-                {
-                    return false;
-                }
-            }
-
-            return previousIndex == previousSignature.Parameters.Count;
-        }
-
-        private ScmMethodProvider? BuildBackCompatOverloadForNewOptionalParameters(
-            MethodProvider previousMethod,
-            ScmMethodProvider currentMethod)
-        {
-            var previousSignature = previousMethod.Signature;
-            var currentSignature = currentMethod.Signature;
-
-            var previousParamsByName = new Dictionary<string, ParameterProvider>();
-            foreach (var p in previousSignature.Parameters)
-            {
-                previousParamsByName.TryAdd(p.Name.ToVariableName(), p);
-            }
-
-            var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
-            foreach (var currentParam in currentSignature.Parameters)
-            {
-                var currentParamVariableName = currentParam.Name.ToVariableName();
-                ValueExpression value = previousParamsByName.TryGetValue(currentParamVariableName, out var prevParam)
-                    ? prevParam
-                    : (currentParam.DefaultValue ?? Default);
-                arguments.Add(PositionalReference(currentParamVariableName, value));
-            }
-
-            return new ScmMethodProvider(
-                signature: MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true),
-                bodyStatements: Return(This.Invoke(currentSignature.Name, arguments)),
-                enclosingType: this,
-                methodKind: currentMethod.Kind,
-                xmlDocProvider: previousMethod.XmlDocs,
-                serviceMethod: currentMethod.ServiceMethod);
         }
     }
 }

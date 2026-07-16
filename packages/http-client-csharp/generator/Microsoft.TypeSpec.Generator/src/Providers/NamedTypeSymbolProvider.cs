@@ -22,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
+        private string? _metadataName;
+        private string? _metadataSimpleName;
         private TypeProvider? _baseTypeProvider;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
@@ -30,8 +32,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _compilation = compilation;
         }
 
+        internal string MetadataName
+        {
+            get
+            {
+                if (_metadataName != null)
+                {
+                    return _metadataName;
+                }
+
+                var ns = _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+                var typeName = GetMetadataName(_namedTypeSymbol);
+                _metadataName = string.IsNullOrEmpty(ns) ? typeName : $"{ns}.{typeName}";
+                return _metadataName;
+            }
+        }
+
+        internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
+
+        protected override CSharpType[] GetTypeArguments() =>
+            [.. _namedTypeSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())];
+
+        private static string GetMetadataName(INamedTypeSymbol symbol)
+        {
+            if (symbol.ContainingType is null)
+            {
+                return symbol.MetadataName;
+            }
+
+            return $"{GetMetadataName(symbol.ContainingType)}+{symbol.MetadataName}";
+        }
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
@@ -314,12 +347,393 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    GenericArguments: methodSymbol.TypeParameters.IsEmpty
+                        ? null
+                        : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
                     ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
 
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
             return [.. methods];
         }
+
+        protected internal override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new HashSet<CSharpType>();
+            foreach (var syntaxReference in _namedTypeSymbol.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxReference.GetSyntax();
+                if (IsGeneratedSourceFile(syntax.SyntaxTree.FilePath))
+                {
+                    continue;
+                }
+
+                AddBodyDependencyTypes(syntax, dependencies);
+            }
+
+            return [.. dependencies];
+        }
+
+        protected internal override IReadOnlyList<CSharpType> BuildSignatureDependencyTypes()
+        {
+            var dependencies = new HashSet<CSharpType>();
+            foreach (var syntaxReference in _namedTypeSymbol.DeclaringSyntaxReferences)
+            {
+                var syntax = syntaxReference.GetSyntax();
+                if (IsGeneratedSourceFile(syntax.SyntaxTree.FilePath) ||
+                    syntax is not TypeDeclarationSyntax typeDeclaration ||
+                    !IsPublic(typeDeclaration.Modifiers))
+                {
+                    continue;
+                }
+
+                var semanticModel = _compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
+                var namespaceCandidates = GetNamespaceCandidates(typeDeclaration);
+                AddPublicTypeSignatureDependencyTypes(typeDeclaration, dependencies, semanticModel, namespaceCandidates);
+            }
+
+            return [.. dependencies];
+        }
+
+        private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
+        {
+            var semanticModel = _compilation.GetSemanticModel(syntax.SyntaxTree);
+            AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax));
+
+            foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                var invocationName = GetInvocationName(invocation);
+                if (invocationName == null)
+                {
+                    continue;
+                }
+
+                foreach (var provider in CodeModelGenerator.Instance.GetCustomCodeMethodDependencies(invocationName))
+                {
+                    dependencies.Add(provider.Type);
+                }
+            }
+        }
+
+        private void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
+        {
+            var semanticModel = _compilation.GetSemanticModel(member.SyntaxTree);
+            var namespaceCandidates = GetNamespaceCandidates(member);
+            switch (member)
+            {
+                case MethodDeclarationSyntax method:
+                    AddSyntaxTypeReferences(method.ReturnType, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(method.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(method.ConstraintClauses, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case ConstructorDeclarationSyntax constructor:
+                    AddSyntaxTypeReferences(constructor.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case ConversionOperatorDeclarationSyntax conversion:
+                    AddSyntaxTypeReferences(conversion.Type, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(conversion.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case OperatorDeclarationSyntax @operator:
+                    AddSyntaxTypeReferences(@operator.ReturnType, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(@operator.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case PropertyDeclarationSyntax property:
+                    AddSyntaxTypeReferences(property.Type, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case IndexerDeclarationSyntax indexer:
+                    AddSyntaxTypeReferences(indexer.Type, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(indexer.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case FieldDeclarationSyntax field:
+                    AddSyntaxTypeReferences(field.Declaration.Type, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case EventFieldDeclarationSyntax eventField:
+                    AddSyntaxTypeReferences(eventField.Declaration.Type, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case EventDeclarationSyntax @event:
+                    AddSyntaxTypeReferences(@event.Type, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case DelegateDeclarationSyntax @delegate:
+                    AddSyntaxTypeReferences(@delegate.ReturnType, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(@delegate.ParameterList, dependencies, semanticModel, namespaceCandidates);
+                    AddSyntaxTypeReferences(@delegate.ConstraintClauses, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case TypeDeclarationSyntax type:
+                    AddPublicTypeSignatureDependencyTypes(type, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case BaseTypeDeclarationSyntax type:
+                    AddSyntaxTypeReferences(type.BaseList, dependencies, semanticModel, namespaceCandidates);
+                    break;
+            }
+        }
+
+        private void AddPublicTypeSignatureDependencyTypes(
+            TypeDeclarationSyntax typeDeclaration,
+            HashSet<CSharpType> dependencies,
+            SemanticModel semanticModel,
+            IReadOnlyList<string> namespaceCandidates)
+        {
+            AddSyntaxTypeReferences(typeDeclaration.BaseList, dependencies, semanticModel, namespaceCandidates);
+            AddSyntaxTypeReferences(typeDeclaration.ConstraintClauses, dependencies, semanticModel, namespaceCandidates);
+            foreach (var member in typeDeclaration.Members)
+            {
+                if (IsPublicApiMember(member))
+                {
+                    AddPublicSignatureDependencyTypes(member, dependencies);
+                }
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(SyntaxNode? node, HashSet<CSharpType> dependencies, SemanticModel semanticModel, IReadOnlyList<string> namespaceCandidates)
+        {
+            if (node == null)
+            {
+                return;
+            }
+
+            foreach (var type in node.DescendantNodesAndSelf().OfType<TypeSyntax>())
+            {
+                if (type.IsPartOfStructuredTrivia())
+                {
+                    continue;
+                }
+
+                AddSyntaxTypeReference(type, dependencies, semanticModel, namespaceCandidates);
+            }
+        }
+
+        private static void AddSyntaxTypeReferences(IEnumerable<SyntaxNode> nodes, HashSet<CSharpType> dependencies, SemanticModel semanticModel, IReadOnlyList<string> namespaceCandidates)
+        {
+            foreach (var node in nodes)
+            {
+                AddSyntaxTypeReferences(node, dependencies, semanticModel, namespaceCandidates);
+            }
+        }
+
+        private static bool IsPublicApiMember(MemberDeclarationSyntax member)
+            => member switch
+            {
+                EventDeclarationSyntax @event => IsPublic(@event.Modifiers) || IsImplicitPublicInterfaceMember(@event),
+                EventFieldDeclarationSyntax @event => IsPublic(@event.Modifiers) || IsImplicitPublicInterfaceMember(@event),
+                BaseFieldDeclarationSyntax field => IsPublic(field.Modifiers) || IsImplicitPublicInterfaceMember(field),
+                BaseMethodDeclarationSyntax method => IsPublic(method.Modifiers) || IsImplicitPublicInterfaceMember(method),
+                BasePropertyDeclarationSyntax property => IsPublic(property.Modifiers) || IsImplicitPublicInterfaceMember(property),
+                DelegateDeclarationSyntax @delegate => IsPublic(@delegate.Modifiers) || IsImplicitPublicInterfaceMember(@delegate),
+                BaseTypeDeclarationSyntax type => IsPublic(type.Modifiers) || IsImplicitPublicInterfaceMember(type),
+                _ => false
+            };
+
+        private static bool IsPublic(SyntaxTokenList modifiers)
+            => modifiers.Any(static modifier =>
+                modifier.IsKind(SyntaxKind.PublicKeyword) ||
+                modifier.IsKind(SyntaxKind.ProtectedKeyword));
+
+        private static bool IsImplicitPublicInterfaceMember(MemberDeclarationSyntax member)
+            => member.Parent is InterfaceDeclarationSyntax &&
+                !member.Modifiers.Any(static modifier =>
+                    modifier.IsKind(SyntaxKind.PrivateKeyword) ||
+                    modifier.IsKind(SyntaxKind.InternalKeyword));
+
+        private static bool IsGeneratedSourceFile(string filePath) =>
+            filePath.Contains("/Generated/", StringComparison.Ordinal) ||
+            filePath.Contains("\\Generated\\", StringComparison.Ordinal);
+
+        private static CSharpType CreateUnresolvedDependencyType(string name, int genericArgumentCount = 0)
+            => new(
+                name,
+                string.Empty,
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [.. Enumerable.Range(0, genericArgumentCount).Select(static _ => CreateUnresolvedDependencyType(string.Empty))],
+                isPublic: false,
+                isStruct: false);
+
+        private static void AddSyntaxTypeReference(TypeSyntax type, HashSet<CSharpType> dependencies, SemanticModel semanticModel, IReadOnlyList<string> namespaceCandidates)
+        {
+            if (TryAddSemanticTypeReference(type, dependencies, semanticModel))
+            {
+                return;
+            }
+
+            if (!IsSyntacticTypeReference(type))
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case IdentifierNameSyntax identifier:
+                    AddUnresolvedDependencyType(dependencies, identifier.Identifier.ValueText, namespaceCandidates);
+                    break;
+                case GenericNameSyntax genericName:
+                    AddUnresolvedDependencyType(dependencies, genericName.Identifier.ValueText, namespaceCandidates, genericName.TypeArgumentList.Arguments.Count);
+                    foreach (var argument in genericName.TypeArgumentList.Arguments)
+                    {
+                        AddSyntaxTypeReference(argument, dependencies, semanticModel, namespaceCandidates);
+                    }
+                    break;
+                case QualifiedNameSyntax qualifiedName:
+                    AddQualifiedUnresolvedDependencyType(dependencies, qualifiedName);
+                    AddSyntaxTypeReference(qualifiedName.Right, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case AliasQualifiedNameSyntax aliasQualifiedName:
+                    AddSyntaxTypeReference(aliasQualifiedName.Name, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case ArrayTypeSyntax arrayType:
+                    AddSyntaxTypeReference(arrayType.ElementType, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case NullableTypeSyntax nullableType:
+                    AddSyntaxTypeReference(nullableType.ElementType, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case PointerTypeSyntax pointerType:
+                    AddSyntaxTypeReference(pointerType.ElementType, dependencies, semanticModel, namespaceCandidates);
+                    break;
+                case TupleTypeSyntax tupleType:
+                    foreach (var element in tupleType.Elements)
+                    {
+                        AddSyntaxTypeReference(element.Type, dependencies, semanticModel, namespaceCandidates);
+                    }
+                    break;
+            }
+        }
+
+        private static bool TryAddSemanticTypeReference(TypeSyntax type, HashSet<CSharpType> dependencies, SemanticModel semanticModel)
+        {
+            var typeSymbol = semanticModel.GetTypeInfo(type).Type ??
+                semanticModel.GetTypeInfo(type).ConvertedType ??
+                (semanticModel.GetSymbolInfo(type).Symbol as INamedTypeSymbol);
+            if (typeSymbol is not INamedTypeSymbol namedTypeSymbol ||
+                namedTypeSymbol.TypeKind == TypeKind.Error ||
+                namedTypeSymbol.SpecialType == SpecialType.System_Void)
+            {
+                return false;
+            }
+
+            dependencies.Add(namedTypeSymbol.GetCSharpType());
+            return true;
+        }
+
+        private static void AddUnresolvedDependencyType(HashSet<CSharpType> dependencies, string name, IReadOnlyList<string> namespaceCandidates, int genericArgumentCount = 0)
+        {
+            if (string.Equals(name, "var", StringComparison.Ordinal) ||
+                string.Equals(name, "dynamic", StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            dependencies.Add(CreateUnresolvedDependencyType(name, genericArgumentCount));
+            foreach (var ns in namespaceCandidates)
+            {
+                dependencies.Add(CreateDependencyType(name, ns, genericArgumentCount));
+            }
+        }
+
+        private static void AddQualifiedUnresolvedDependencyType(HashSet<CSharpType> dependencies, QualifiedNameSyntax qualifiedName)
+        {
+            var fullName = qualifiedName.ToString();
+            var lastDot = fullName.LastIndexOf('.');
+            if (lastDot <= 0 || lastDot == fullName.Length - 1)
+            {
+                return;
+            }
+
+            dependencies.Add(CreateDependencyType(fullName.Substring(lastDot + 1), fullName.Substring(0, lastDot)));
+        }
+
+        private static CSharpType CreateDependencyType(string name, string ns, int genericArgumentCount = 0)
+            => new(
+                name,
+                ns,
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [.. Enumerable.Range(0, genericArgumentCount).Select(static _ => CreateUnresolvedDependencyType(string.Empty))],
+                isPublic: false,
+                isStruct: false);
+
+        private static IReadOnlyList<string> GetNamespaceCandidates(SyntaxNode node)
+        {
+            var namespaces = new HashSet<string>(StringComparer.Ordinal);
+            for (var current = node; current != null; current = current.Parent)
+            {
+                switch (current)
+                {
+                    case BaseNamespaceDeclarationSyntax namespaceDeclaration:
+                        namespaces.Add(namespaceDeclaration.Name.ToString());
+                        break;
+                }
+            }
+
+            if (node.SyntaxTree.GetRoot() is CompilationUnitSyntax compilationUnit)
+            {
+                foreach (var usingDirective in compilationUnit.Usings)
+                {
+                    if (usingDirective.Alias == null && !usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) && usingDirective.Name != null)
+                    {
+                        namespaces.Add(usingDirective.Name.ToString());
+                    }
+                }
+            }
+
+            return [.. namespaces];
+        }
+
+        private static bool IsSyntacticTypeReference(TypeSyntax type)
+        {
+            var parent = type.Parent;
+            return parent switch
+            {
+                ArrayTypeSyntax arrayType => arrayType.ElementType == type && IsSyntacticTypeReference(arrayType),
+                NullableTypeSyntax nullableType => nullableType.ElementType == type && IsSyntacticTypeReference(nullableType),
+                PointerTypeSyntax pointerType => pointerType.ElementType == type && IsSyntacticTypeReference(pointerType),
+                TupleElementSyntax tupleElement => tupleElement.Type == type,
+                TypeArgumentListSyntax typeArgumentList => typeArgumentList.Arguments.Contains(type),
+                QualifiedNameSyntax qualifiedName => qualifiedName.Right == type && IsSyntacticTypeReference(qualifiedName),
+                AliasQualifiedNameSyntax aliasQualifiedName => aliasQualifiedName.Name == type && IsSyntacticTypeReference(aliasQualifiedName),
+                SimpleBaseTypeSyntax simpleBaseType => simpleBaseType.Type == type,
+                ParameterSyntax parameter => parameter.Type == type,
+                VariableDeclarationSyntax variableDeclaration => variableDeclaration.Type == type,
+                PropertyDeclarationSyntax property => property.Type == type,
+                IndexerDeclarationSyntax indexer => indexer.Type == type,
+                MethodDeclarationSyntax method => method.ReturnType == type,
+                LocalFunctionStatementSyntax localFunction => localFunction.ReturnType == type,
+                DelegateDeclarationSyntax @delegate => @delegate.ReturnType == type,
+                OperatorDeclarationSyntax @operator => @operator.ReturnType == type,
+                ConversionOperatorDeclarationSyntax conversion => conversion.Type == type,
+                TypeConstraintSyntax typeConstraint => typeConstraint.Type == type,
+                ObjectCreationExpressionSyntax objectCreation => objectCreation.Type == type,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Expression == type && LooksLikeTypeName(type),
+                CastExpressionSyntax cast => cast.Type == type,
+                DefaultExpressionSyntax @default => @default.Type == type,
+                SizeOfExpressionSyntax sizeOf => sizeOf.Type == type,
+                TypeOfExpressionSyntax typeOf => typeOf.Type == type,
+                DeclarationExpressionSyntax declaration => declaration.Type == type,
+                _ => false
+            };
+        }
+
+        private static bool LooksLikeTypeName(TypeSyntax type)
+            => type switch
+            {
+                IdentifierNameSyntax identifier => IsUppercaseIdentifier(identifier.Identifier.ValueText),
+                GenericNameSyntax genericName => IsUppercaseIdentifier(genericName.Identifier.ValueText),
+                QualifiedNameSyntax qualifiedName => LooksLikeTypeName(qualifiedName.Right),
+                AliasQualifiedNameSyntax aliasQualifiedName => LooksLikeTypeName(aliasQualifiedName.Name),
+                _ => false
+            };
+
+        private static bool IsUppercaseIdentifier(string name)
+            => name.Length > 0 && char.IsUpper(name[0]);
+
+        private static string? GetInvocationName(InvocationExpressionSyntax invocation)
+            => invocation.Expression switch
+            {
+                IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+                MemberAccessExpressionSyntax memberAccess => memberAccess.Name.Identifier.ValueText,
+                GenericNameSyntax genericName => genericName.Identifier.ValueText,
+                _ => null
+            };
 
         private static bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
         {
@@ -372,6 +786,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsStatic)
             {
                 modifiers |= MethodSignatureModifiers.Static;
+            }
+            if (methodSymbol.IsExtensionMethod)
+            {
+                modifiers |= MethodSignatureModifiers.Extension;
             }
             // Handle conversion operators (explicit and implicit)
             if (methodSymbol.MethodKind == MethodKind.Conversion)
