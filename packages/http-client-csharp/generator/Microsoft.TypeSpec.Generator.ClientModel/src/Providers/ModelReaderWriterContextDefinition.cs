@@ -105,11 +105,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Restores back-compatibility attributes from the last contract, excluding any
-        /// <see cref="ModelReaderWriterBuildableAttribute"/>.
+        /// <see cref="ModelReaderWriterBuildableAttribute"/> since those are recomputed at write time.
         /// </summary>
-        protected override bool ShouldRestoreLastContractAttribute(AttributeStatement attribute)
-            => base.ShouldRestoreLastContractAttribute(attribute)
-                && !s_attributesToIgnore.Value.Contains(attribute.Type.Name);
+        protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
+            => BuildAttributesForBackCompatibility(originalAttributes, s_attributesToIgnore.Value);
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
         {

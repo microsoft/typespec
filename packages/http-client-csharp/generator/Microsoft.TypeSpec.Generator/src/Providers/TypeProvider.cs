@@ -1052,6 +1052,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// original attributes are returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
+            => BuildAttributesForBackCompatibility(originalAttributes, additionalNonRestorableAttributeNames: null);
+
+        /// <summary>
+        /// Adds any back-compatibility attributes from the last contract that are not already present in
+        /// <paramref name="originalAttributes"/> (or the custom-code attributes), skipping the attributes
+        /// that generation owns (see <see cref="s_nonRestorableAttributeNames"/>) plus any listed in
+        /// <paramref name="additionalNonRestorableAttributeNames"/>. Derived types call this overload to
+        /// exclude additional attributes without re-implementing the merge/dedup logic. The original
+        /// attributes are returned unchanged when there is nothing new to add.
+        /// </summary>
+        protected IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(
+            IEnumerable<AttributeStatement> originalAttributes,
+            IReadOnlyCollection<string>? additionalNonRestorableAttributeNames)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
 
@@ -1075,7 +1088,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (ShouldRestoreLastContractAttribute(attribute) && seen.Add(attribute.ToDisplayString()))
+                var attributeName = attribute.Type.Name;
+                if (s_nonRestorableAttributeNames.Value.Contains(attributeName)
+                    || additionalNonRestorableAttributeNames?.Contains(attributeName) == true)
+                {
+                    continue;
+                }
+
+                if (seen.Add(attribute.ToDisplayString()))
                 {
                     merged ??= [.. original];
                     merged.Add(attribute);
@@ -1083,17 +1103,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return merged ?? original;
-        }
-
-        /// <summary>
-        /// Determines whether an attribute declared on the last contract should be restored onto the
-        /// current generation. Attributes that generation owns (see <see cref="s_nonRestorableAttributeNames"/>)
-        /// are never restored. Derived types can override this to exclude additional attributes.
-        /// </summary>
-        protected virtual bool ShouldRestoreLastContractAttribute(AttributeStatement attribute)
-        {
-            var attributeName = attribute.Data?.AttributeClass?.Name;
-            return attributeName is null || !s_nonRestorableAttributeNames.Value.Contains(attributeName);
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
