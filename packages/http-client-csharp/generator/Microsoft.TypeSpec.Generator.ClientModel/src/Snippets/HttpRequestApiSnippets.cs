@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         {
             ValueExpression[] parameters = format != null ? [Literal(name), value, delimiter, format] : [Literal(name), value, delimiter];
             return pipelineRequest.Property(nameof(PipelineRequest.Headers))
-                .Invoke("SetDelimited", parameters, typeArguments: null, callAsAsync: false, extensionType: new PipelineRequestHeadersExtensionsDefinition().Type)
+                .Invoke(PipelineRequestHeadersExtensionsDefinition.SetDelimitedMethodName, parameters, typeArguments: null, callAsAsync: false, extensionType: ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type)
                 .Terminate();
         }
     }

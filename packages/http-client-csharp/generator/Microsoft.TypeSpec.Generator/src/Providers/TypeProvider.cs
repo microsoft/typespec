@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
+        private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -30,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
             _specView = new(BuildSpecView);
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _inputType = inputType;
         }
 
@@ -44,13 +46,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                 generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
-                GetDeclaringTypeName(DeclaringTypeProvider));
+                _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
                 generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
-                GetDeclaringTypeName(DeclaringTypeProvider));
+                _declaringTypeName.Value);
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
         {
@@ -617,6 +619,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
@@ -728,6 +731,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;

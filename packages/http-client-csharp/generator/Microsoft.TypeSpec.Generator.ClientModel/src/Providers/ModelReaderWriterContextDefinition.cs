@@ -33,6 +33,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType BuildBaseType() => typeof(ModelReaderWriterContext);
 
+        // Buildable attributes depend on the final set of providers selected by the reference map.
+        // They are rebuilt at write time while non-buildable attributes, including visitor updates, are preserved.
         protected override bool ShouldAnalyzeAttributesInReferenceMap => false;
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
@@ -502,12 +504,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private static bool ShouldAddStandaloneBuildableProvider(TypeProvider provider)
-        {
-            var isResolvable = IsResolvableBuildableType(provider.Type);
-            var implementsMrw = ImplementsModelReaderWriter(provider);
-            var hasWritableSerialization = HasWritableModelReaderWriterSerialization(provider);
-            return isResolvable && implementsMrw && hasWritableSerialization;
-        }
+            => IsResolvableBuildableType(provider.Type)
+                && ImplementsModelReaderWriter(provider)
+                && HasWritableModelReaderWriterSerialization(provider);
 
         private static bool HasWritableModelReaderWriterSerialization(TypeProvider provider)
         {

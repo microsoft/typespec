@@ -34,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
             => Original.Property(nameof(PipelineRequest.Headers))
-                .Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers], typeArguments: null, callAsAsync: false, extensionType: new PipelineRequestHeadersExtensionsDefinition().Type)
+                .Invoke(nameof(PipelineRequestHeaders.Add), [prefix, headers], typeArguments: null, callAsAsync: false, extensionType: ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type)
                 .Terminate();
 
         public override HttpRequestApi ToExpression() => this;

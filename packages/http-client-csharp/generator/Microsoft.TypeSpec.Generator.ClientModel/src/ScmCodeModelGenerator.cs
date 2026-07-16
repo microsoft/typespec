@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
-            AddCustomCodeMethodDependency("SetDelimited", PipelineRequestHeadersExtensionsDefinition);
+            AddCustomCodeMethodDependency(PipelineRequestHeadersExtensionsDefinition.SetDelimitedMethodName, PipelineRequestHeadersExtensionsDefinition);
             AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
         }
 

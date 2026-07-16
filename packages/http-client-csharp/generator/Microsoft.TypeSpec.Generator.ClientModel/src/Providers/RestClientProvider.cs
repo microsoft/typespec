@@ -106,7 +106,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (parameter is InputHeaderParameter headerParameter &&
                             !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix))
                         {
-                            TryAddDependency(dependencies, dependencyNames, new PipelineRequestHeadersExtensionsDefinition().Type);
+                            TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type);
                         }
                     }
                     else if (type?.IsCollection == true)
