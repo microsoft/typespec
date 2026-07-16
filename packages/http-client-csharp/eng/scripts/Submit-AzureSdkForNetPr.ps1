@@ -21,6 +21,8 @@ When specified, builds the management plane emitter locally and regenerates mgmt
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 .PARAMETER PipelineRunUrl
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
+.PARAMETER PublishGeneratorPackages
+When specified (together with RegenerateAzureLibraries or RegenerateMgmtLibraries), the locally built Azure/mgmt generator packages are published to the npm registry configured in the .npmrc, and the regenerated emitter-package.json artifacts reference the published version instead of a host-only "file:" path. This allows CI to restore the emitter dependencies in the resulting azure-sdk-for-net PR.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -55,6 +57,9 @@ param(
   [string]$PipelineRunUrl,
 
   [Parameter(Mandatory = $false)]
+  [switch]$PublishGeneratorPackages,
+
+  [Parameter(Mandatory = $false)]
   [switch]$UseTypeSpecNext
 )
 
@@ -62,6 +67,22 @@ param(
 Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 # Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
 Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking -Force
+
+# When publishing generator packages, resolve the registry and authenticated .npmrc used for publishing.
+# The emitter artifacts will then reference the published version instead of a host-only "file:" path,
+# allowing CI to restore the emitter dependencies in the resulting azure-sdk-for-net PR.
+$PublishRegistry = $null
+$PublishNpmrcPath = $null
+if ($PublishGeneratorPackages) {
+    $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+    $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"
+    if (Test-Path $resolvedPublishNpmrc) {
+        $PublishNpmrcPath = (Resolve-Path $resolvedPublishNpmrc).Path
+        Write-Host "Generator packages will be published to $PublishRegistry using .npmrc at $PublishNpmrcPath"
+    } else {
+        Write-Host "Generator packages will be published to $PublishRegistry using ambient npm configuration"
+    }
+}
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
@@ -483,38 +504,30 @@ try {
                         -UnbrandedPackagePath $unbrandedPackagePath `
                         -DebugFolder $debugFolder `
                         -PackagesDataPropsPath $packagesDataPropsPath `
-                        -LocalVersion $PackageVersion
+                        -LocalVersion $PackageVersion `
+                        -PublishRegistry $PublishRegistry `
+                        -NpmrcPath $PublishNpmrcPath
                     Write-Host "Azure generator built successfully"
                     
-                    # Update Azure emitter package artifacts
+                    # Update Azure emitter package artifacts. When publishing, reference the published
+                    # version so CI can restore it; otherwise pin to the local tgz via a "file:" path.
                     Write-Host "Updating Azure emitter package artifacts..."
                     $engFolder = Join-Path $tempDir "eng"
-                    $azureTempDir = Join-Path $engFolder "temp-azure-package-update"
-                    New-Item -ItemType Directory -Path $azureTempDir -Force | Out-Null
-                    
-                    try {
-                        $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
-                        $tempPackageJson = Join-Path $azureTempDir "package.json"
-                        
-                        Copy-Item $azureEmitterJson $tempPackageJson -Force
-                        
-                        Push-Location $azureTempDir
-                        try {
-                            Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $azureTempDir
-                            
-                            Copy-Item $tempPackageJson $azureEmitterJson -Force
-                            $lockFile = Join-Path $azureTempDir "package-lock.json"
-                            if (Test-Path $lockFile) {
-                                $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
-                                Copy-Item $lockFile $azureLockJson -Force
-                            }
-                        } finally {
-                            Pop-Location
-                        }
-                    } finally {
-                        Remove-Item $azureTempDir -Recurse -Force -ErrorAction SilentlyContinue
+                    $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
+                    $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
+
+                    $updateAzureEmitterArgs = @{
+                        EmitterJsonPath = $azureEmitterJson
+                        LockJsonPath    = $azureLockJson
+                        PackagePath     = $azurePackagePath
                     }
-                    
+                    if ($PublishRegistry) {
+                        $updateAzureEmitterArgs.PackageName = '@azure-typespec/http-client-csharp'
+                        $updateAzureEmitterArgs.PublishVersion = $PackageVersion
+                        $updateAzureEmitterArgs.Registry = $PublishRegistry
+                    }
+                    Update-EmitterPackageArtifact @updateAzureEmitterArgs
+
                     if ($RegenerateAzureLibraries) {
                         $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
                     }
@@ -543,7 +556,9 @@ try {
                             Update-MgmtGenerator `
                                 -EngFolder $engFolder `
                                 -DebugFolder $debugFolder `
-                                -LocalVersion $PackageVersion
+                                -LocalVersion $PackageVersion `
+                                -PublishRegistry $PublishRegistry `
+                                -NpmrcPath $PublishNpmrcPath
                             Write-Host "Management plane generator built successfully"
                             
                             $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"

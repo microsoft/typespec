@@ -1,5 +1,168 @@
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Global
 
+# Default npm registry used for resolving and publishing generator preview packages.
+# This is the public azure-sdk-for-js Azure Artifacts feed.
+$script:DefaultGeneratorRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+
+function Publish-GeneratorPackage {
+    <#
+    .SYNOPSIS
+        Publishes a locally built generator package (.tgz) to an npm registry.
+
+    .DESCRIPTION
+        Publishing the locally built generator packages to the configured registry allows the
+        regenerated emitter-package.json artifacts to reference a published version instead of a
+        host-only "file:" path. That way the resulting azure-sdk-for-net PR can restore the emitter
+        dependencies in CI.
+
+        Re-publishing a version that already exists on the feed is treated as success so the operation
+        is idempotent across pipeline re-runs.
+
+    .PARAMETER PackagePath
+        Path to the packed .tgz file to publish.
+
+    .PARAMETER Registry
+        The npm registry to publish to.
+
+    .PARAMETER NpmrcPath
+        Optional path to an .npmrc file (with authentication) to use for the publish operation.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$PackagePath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$Registry,
+
+        [Parameter(Mandatory=$false)]
+        [string]$NpmrcPath
+    )
+
+    if (-not (Test-Path $PackagePath)) {
+        throw "Package not found for publishing: $PackagePath"
+    }
+
+    Write-Host "Publishing $(Split-Path $PackagePath -Leaf) to $Registry..." -ForegroundColor Gray
+
+    $publishArgs = @("publish", $PackagePath, "--registry", $Registry)
+    if ($NpmrcPath -and (Test-Path $NpmrcPath)) {
+        $publishArgs += @("--userconfig", $NpmrcPath)
+    }
+
+    $publishOutput = & npm @publishArgs 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        $outputText = ($publishOutput | Out-String)
+        # Treat an already-published version as success so re-runs remain idempotent.
+        if ($outputText -match "EPUBLISHCONFLICT" -or
+            $outputText -match "cannot publish over" -or
+            $outputText -match "previously published" -or
+            $outputText -match "409 Conflict") {
+            Write-Host "  Package version already published; continuing." -ForegroundColor Yellow
+            return
+        }
+        Write-Host $outputText -ForegroundColor Red
+        throw "Failed to publish package: $PackagePath"
+    }
+
+    Write-Host "  Published $(Split-Path $PackagePath -Leaf)" -ForegroundColor Green
+}
+
+function Update-EmitterPackageArtifact {
+    <#
+    .SYNOPSIS
+        Updates an eng-folder emitter-package.json (and its lock file) to reference a generator package.
+
+    .DESCRIPTION
+        By default the emitter dependency is pinned to the locally built .tgz using a "file:" path (used
+        for local validation loops that clean up afterwards). When a publish registry and version are
+        provided, the dependency is instead pinned to the published version resolved from the registry, so
+        the committed artifacts can be restored by CI in the resulting azure-sdk-for-net PR.
+
+    .PARAMETER EmitterJsonPath
+        Path to the emitter-package.json file to update.
+
+    .PARAMETER LockJsonPath
+        Path to the emitter-package-lock.json file to update.
+
+    .PARAMETER PackagePath
+        Path to the locally built .tgz package (used for the default "file:" mode).
+
+    .PARAMETER PackageName
+        The npm package name to reference (required for published mode).
+
+    .PARAMETER PublishVersion
+        The published version to pin to (when publishing).
+
+    .PARAMETER Registry
+        The npm registry to resolve the published package from.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$EmitterJsonPath,
+
+        [Parameter(Mandatory=$true)]
+        [string]$LockJsonPath,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PackagePath,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PackageName,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PublishVersion,
+
+        [Parameter(Mandatory=$false)]
+        [string]$Registry = $script:DefaultGeneratorRegistry
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    $usePublishedVersion = [bool]$PublishVersion
+    if ($usePublishedVersion -and -not $PackageName) {
+        throw "PackageName is required when PublishVersion is specified."
+    }
+    if (-not $usePublishedVersion -and -not $PackagePath) {
+        throw "PackagePath is required when PublishVersion is not specified."
+    }
+
+    $tempDir = Join-Path ([System.IO.Path]::GetDirectoryName($EmitterJsonPath)) "temp-emitter-package-update-$([System.Guid]::NewGuid().ToString('N'))"
+    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+
+    # Point the default registry at the public feed so dependency resolution does not fall back to
+    # the authenticated machine-global proxy, which fails with E401 for @typespec/@azure-tools packages.
+    Set-Content (Join-Path $tempDir ".npmrc") "registry=$Registry`n" -Encoding utf8
+
+    try {
+        $tempPackageJson = Join-Path $tempDir "package.json"
+        Copy-Item $EmitterJsonPath $tempPackageJson -Force
+
+        Push-Location $tempDir
+        try {
+            if ($usePublishedVersion) {
+                Invoke "npm install $PackageName@$PublishVersion --save-exact --package-lock-only --registry $Registry" $tempDir
+            } else {
+                Invoke "npm install `"`"file:$PackagePath`"`" --package-lock-only" $tempDir
+            }
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to update emitter package artifacts for $EmitterJsonPath"
+            }
+
+            Copy-Item $tempPackageJson $EmitterJsonPath -Force
+            $lockFile = Join-Path $tempDir "package-lock.json"
+            if (Test-Path $lockFile) {
+                Copy-Item $lockFile $LockJsonPath -Force
+            }
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    finally {
+        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Update-GeneratorPackage {
     <#
     .SYNOPSIS
@@ -33,6 +196,14 @@ function Update-GeneratorPackage {
 
     .PARAMETER UseNpmCi
         If true, runs 'npm install --package-lock-only && npm ci' instead of 'npm install'.
+
+    .PARAMETER PublishRegistry
+        When provided, dependencies are pinned to the published version ($PublishVersion) instead of a
+        local "file:" path, and the packed .tgz is published to this registry so the resulting emitter
+        artifacts reference a version that CI can restore.
+
+    .PARAMETER NpmrcPath
+        Optional path to an authenticated .npmrc file used when publishing to $PublishRegistry.
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -51,10 +222,20 @@ function Update-GeneratorPackage {
         [string]$DebugFolder,
         
         [Parameter(Mandatory=$false)]
-        [bool]$UseNpmCi = $false
+        [bool]$UseNpmCi = $false,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PublishRegistry,
+
+        [Parameter(Mandatory=$false)]
+        [string]$NpmrcPath
     )
 
     $ErrorActionPreference = 'Stop'
+
+    # When publishing, dependencies must reference the published version so the packed (and published)
+    # package does not carry host-only "file:" references that consumers cannot restore.
+    $usePublishedDependencies = [bool]$PublishRegistry
 
     $packageJsonPath = Join-Path $GeneratorPath "package.json"
     $originalPackageJson = Get-Content $packageJsonPath -Raw
@@ -67,18 +248,30 @@ function Update-GeneratorPackage {
             
             foreach ($dep in $Dependencies.GetEnumerator()) {
                 if ($packageJson.dependencies -and $packageJson.dependencies.PSObject.Properties[$dep.Key]) {
-                    $packageJson.dependencies.($dep.Key) = "file:$($dep.Value)"
+                    if ($usePublishedDependencies) {
+                        $packageJson.dependencies.($dep.Key) = $LocalVersion
+                    } else {
+                        $packageJson.dependencies.($dep.Key) = "file:$($dep.Value)"
+                    }
                 }
             }
             
             foreach ($dep in $DevDependencies.GetEnumerator()) {
                 if ($packageJson.devDependencies -and $packageJson.devDependencies.PSObject.Properties[$dep.Key]) {
-                    $packageJson.devDependencies.($dep.Key) = "file:$($dep.Value)"
+                    if ($usePublishedDependencies) {
+                        $packageJson.devDependencies.($dep.Key) = $LocalVersion
+                    } else {
+                        $packageJson.devDependencies.($dep.Key) = "file:$($dep.Value)"
+                    }
                 }
             }
             
             $packageJson | ConvertTo-Json -Depth 100 | Set-Content $packageJsonPath -Encoding UTF8
-            Write-Host "  Updated dependencies to local packages" -ForegroundColor Green
+            if ($usePublishedDependencies) {
+                Write-Host "  Updated dependencies to published version $LocalVersion" -ForegroundColor Green
+            } else {
+                Write-Host "  Updated dependencies to local packages" -ForegroundColor Green
+            }
         }
 
         # Step 2: Install dependencies, clean, and build.
@@ -156,7 +349,13 @@ function Update-GeneratorPackage {
             Move-Item $sourcePath $destPath -Force
             
             Write-Host "  Package created: $packageFile" -ForegroundColor Green
-            
+
+            # Step 4 (optional): Publish the package so downstream emitter artifacts can reference a
+            # restorable published version instead of a host-only "file:" path.
+            if ($PublishRegistry) {
+                Publish-GeneratorPackage -PackagePath $destPath -Registry $PublishRegistry -NpmrcPath $NpmrcPath
+            }
+
             return $destPath
         }
         finally {
@@ -198,6 +397,14 @@ function Update-MgmtGenerator {
 
     .PARAMETER LocalVersion
         The version string to use for the local package (e.g., "1.0.0-alpha.20250127.abc123").
+
+    .PARAMETER PublishRegistry
+        When provided, the mgmt (and its local dependencies) are pinned to the published version and the
+        packed mgmt package is published to this registry. The emitter-package.json artifact then
+        references the published version instead of a host-only "file:" path so CI can restore it.
+
+    .PARAMETER NpmrcPath
+        Optional path to an authenticated .npmrc file used when publishing to $PublishRegistry.
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -207,7 +414,13 @@ function Update-MgmtGenerator {
         [string]$DebugFolder,
         
         [Parameter(Mandatory=$true)]
-        [string]$LocalVersion
+        [string]$LocalVersion,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PublishRegistry,
+
+        [Parameter(Mandatory=$false)]
+        [string]$NpmrcPath
     )
 
     $ErrorActionPreference = 'Stop'
@@ -247,52 +460,32 @@ function Update-MgmtGenerator {
         } `
         -LocalVersion $LocalVersion `
         -DebugFolder $DebugFolder `
-        -UseNpmCi $false
+        -UseNpmCi $false `
+        -PublishRegistry $PublishRegistry `
+        -NpmrcPath $NpmrcPath
 
     # Update eng folder mgmt emitter package artifacts.
     # The emitter package only declares @azure-typespec/http-client-csharp-mgmt directly;
-    # the Azure + unbranded packages are pulled in transitively from the mgmt tgz, which
-    # now points at the local file: packages. Installing the local mgmt tgz regenerates
-    # the lock file with the full local dependency graph.
+    # the Azure + unbranded packages are pulled in transitively from the mgmt package. When
+    # publishing, the emitter references the published mgmt version so CI can restore it;
+    # otherwise it points at the local mgmt tgz for host-only validation loops.
     Write-Host "Updating mgmt emitter package artifacts..." -ForegroundColor Gray
-    
+
     $mgmtEmitterJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-    
-    # Regenerate the package-lock.json with the full (local) dependency graph
-    $tempDir = Join-Path $EngFolder "temp-mgmt-package-update"
-    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    
-    # Point the default registry at the public azure-sdk-for-js feed so dependency
-    # resolution doesn't fall back to the authenticated machine-global proxy
-    # (packagefeedproxy), which fails with E401 for @typespec/@azure-tools packages.
-    Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
-    
-    try {
-        $tempPackageJson = Join-Path $tempDir "package.json"
-        
-        Copy-Item $mgmtEmitterJson $tempPackageJson -Force
-        
-        Push-Location $tempDir
-        try {
-            # Install the mgmt package and regenerate lock file with both dependencies
-            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only" $tempDir
-            
-            Copy-Item $tempPackageJson $mgmtEmitterJson -Force
-            $lockFile = Join-Path $tempDir "package-lock.json"
-            if (Test-Path $lockFile) {
-                $mgmtLockJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
-                Copy-Item $lockFile $mgmtLockJson -Force
-            }
-            
-            Write-Host "  Mgmt emitter package artifacts updated" -ForegroundColor Green
-        }
-        finally {
-            Pop-Location
-        }
+    $mgmtLockJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+
+    $updateEmitterArgs = @{
+        EmitterJsonPath = $mgmtEmitterJson
+        LockJsonPath    = $mgmtLockJson
+        PackagePath     = $mgmtPackagePath
     }
-    finally {
-        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    if ($PublishRegistry) {
+        $updateEmitterArgs.PackageName = '@azure-typespec/http-client-csharp-mgmt'
+        $updateEmitterArgs.PublishVersion = $LocalVersion
+        $updateEmitterArgs.Registry = $PublishRegistry
     }
+    Update-EmitterPackageArtifact @updateEmitterArgs
+    Write-Host "  Mgmt emitter package artifacts updated" -ForegroundColor Green
 
     Write-Host ""
 
@@ -329,6 +522,14 @@ function Update-AzureGenerator {
 
     .PARAMETER LocalVersion
         The version string to use for the local package (e.g., "1.0.0-alpha.20250127.abc123").
+
+    .PARAMETER PublishRegistry
+        When provided, the Azure generator is pinned to the published unbranded version and the packed
+        Azure package is published to this registry so downstream emitter artifacts can reference a
+        restorable published version instead of a host-only "file:" path.
+
+    .PARAMETER NpmrcPath
+        Optional path to an authenticated .npmrc file used when publishing to $PublishRegistry.
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -344,7 +545,13 @@ function Update-AzureGenerator {
         [string]$PackagesDataPropsPath,
         
         [Parameter(Mandatory=$true)]
-        [string]$LocalVersion
+        [string]$LocalVersion,
+
+        [Parameter(Mandatory=$false)]
+        [string]$PublishRegistry,
+
+        [Parameter(Mandatory=$false)]
+        [string]$NpmrcPath
     )
 
     $ErrorActionPreference = 'Stop'
@@ -360,7 +567,9 @@ function Update-AzureGenerator {
         -Dependencies @{ '@typespec/http-client-csharp' = $UnbrandedPackagePath } `
         -LocalVersion $LocalVersion `
         -DebugFolder $DebugFolder `
-        -UseNpmCi $true
+        -UseNpmCi $true `
+        -PublishRegistry $PublishRegistry `
+        -NpmrcPath $NpmrcPath
 
     # Build and package Azure.Generator NuGet package
     Write-Host "Packing Azure.Generator NuGet package..." -ForegroundColor Gray
@@ -978,4 +1187,4 @@ function Update-AzureSpectorScenarios {
     return $generationOutput
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios"
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Publish-GeneratorPackage", "Update-EmitterPackageArtifact"
