@@ -18,6 +18,24 @@ export enum InconsistentVersions {
   MixedVersions,
 }
 
+export interface FilteredClientApiVersionsResult {
+  filteredApiVersions: string[];
+  selectedApiVersion: string | undefined;
+  isApiVersionOptionInvalid: boolean;
+}
+
+export type ClientApiVersionInitializationKind =
+  | {
+      kind: "enum";
+      apiVersions: string[];
+    }
+  | {
+      kind: "string";
+    }
+  | {
+      kind: "none";
+    };
+
 /**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
  * Returns {@link InconsistentVersions.NotVersioned} when the service is not versioned and
@@ -62,6 +80,83 @@ export function getServiceApiVersions(
     apiVersions = InconsistentVersions.NotVersioned;
   }
   return apiVersions;
+}
+
+/**
+ * Gets api-versions from the client's initialization parameter marked as api-version,
+ * only when the parameter type is enum.
+ */
+export function getClientApiVersionsFromInitialization(
+  client: SdkClientType<SdkHttpOperation>,
+): string[] | undefined {
+  const info = getClientApiVersionInitializationKind(client);
+  return info.kind === "enum" ? info.apiVersions : undefined;
+}
+
+/**
+ * Gets api-version initialization shape from client initialization.
+ * - enum: consistent api-versions
+ * - string: mixed api-versions
+ * - none: no api-version parameter
+ */
+export function getClientApiVersionInitializationKind(
+  client: SdkClientType<SdkHttpOperation>,
+): ClientApiVersionInitializationKind {
+  const apiVersionParameter = client.clientInitialization.parameters.find(
+    (parameter) => parameter.kind === "method" && parameter.isApiVersionParam,
+  );
+  if (!apiVersionParameter) {
+    return { kind: "none" };
+  }
+
+  let apiVersionType = apiVersionParameter.type;
+  if (apiVersionType.kind === "nullable") {
+    apiVersionType = apiVersionType.type;
+  }
+  if (apiVersionType.kind === "string") {
+    return { kind: "string" };
+  }
+  if (apiVersionType.kind !== "enum") {
+    return { kind: "none" };
+  }
+
+  const apiVersions = apiVersionType.values
+    .map((value) => (typeof value.value === "string" ? value.value : undefined))
+    .filter((value): value is string => !!value);
+  return apiVersions.length > 0 ? { kind: "enum", apiVersions } : { kind: "none" };
+}
+
+/**
+ * Filters client api-versions using the same semantic as ServiceVersion filtering.
+ */
+export function getFilteredClientApiVersions(
+  apiVersions: string[],
+  apiVersionOption: string | undefined,
+  excludePreview: boolean = true,
+): FilteredClientApiVersionsResult {
+  let selectedApiVersion: string | undefined;
+  let isApiVersionOptionInvalid = false;
+
+  if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
+    selectedApiVersion = apiVersions[apiVersions.length - 1];
+  } else {
+    selectedApiVersion = apiVersions.find((version) => version === apiVersionOption);
+    isApiVersionOptionInvalid = !selectedApiVersion;
+  }
+
+  const filteredByTarget = selectedApiVersion
+    ? apiVersions.slice(0, apiVersions.findIndex((version) => version === selectedApiVersion) + 1)
+    : apiVersions;
+  const filterPreviewApiVersions =
+    excludePreview && !!selectedApiVersion && isStableApiVersionString(selectedApiVersion);
+
+  return {
+    filteredApiVersions: filteredByTarget.filter(
+      (version) => !filterPreviewApiVersions || isStableApiVersionString(version),
+    ),
+    selectedApiVersion,
+    isApiVersionOptionInvalid,
+  };
 }
 
 /**
@@ -187,30 +282,9 @@ export function isVersionEarlierThan(version: string, compareTo: string): boolea
   return false;
 }
 
-/**
- * Resolves the emitter "api-version" option to a single string.
- *
- * TCGC supports a per-service api-version map (`Record<string, string>`), but the Java
- * emitter currently only supports a single api-version, "latest", or "all". A map value
- * is therefore treated as undefined.
- *
- * TODO(xiaofei): support the per-service api-version map in a future PR.
- *
- * @param apiVersion the api-version option from TCGC, a string, a per-service map, or undefined
- * @returns the api-version string, or undefined when not set or a per-service map
- */
-export function resolveApiVersionOption(
-  apiVersion: string | Record<string, string> | undefined,
-): string | undefined {
-  if (apiVersion !== undefined && typeof apiVersion !== "string") {
-    // There is a possibility that the overall package contains multiple api-versions, but this
-    // specific client only includes a single api-version. For this case we will need refinement.
-    return undefined;
-  }
-  return apiVersion;
-}
-
 function isSdkClientVersioned(client: SdkClientType<SdkHttpOperation>): boolean {
-  // on TCGC, the difference of versioned client and not versioned client is on the existence of "apiVersion" parameter in clientInitialization
-  return client.clientInitialization.parameters.some((p) => p.name === "apiVersion");
+  // Versioned client is identified by a client initialization method parameter marked as api-version.
+  return client.clientInitialization.parameters.some(
+    (parameter) => parameter.kind === "method" && parameter.isApiVersionParam,
+  );
 }
