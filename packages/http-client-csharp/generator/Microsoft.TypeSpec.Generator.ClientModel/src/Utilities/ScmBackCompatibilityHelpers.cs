@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         public static IReadOnlyList<AttributeStatement> FilterRestoredAttributes(
             IReadOnlyList<AttributeStatement> originalAttributes,
             IReadOnlyList<AttributeStatement> restoredAttributes,
-            HashSet<string> generatorOwnedAttributeNames)
+            IReadOnlySet<string> generatorOwnedAttributeNames)
         {
             // The base returns the original list unchanged when nothing was restored.
             if (ReferenceEquals(restoredAttributes, originalAttributes))
