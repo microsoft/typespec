@@ -172,9 +172,9 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 
 **Default:** `"default"`
 
-How to emit TypeSpec enums. Options are:
+How to emit TypeSpec enums and unions of literals. Options are:
 
 - `default`: Emit as a single schema using the `enum` keyword.
 - `annotated`: Emit as a `oneOf` of `const` subschemas annotated with `title` and `description`
-  from each member's `@summary` and `@doc`. Follows the OpenAPI 3.1.1 annotated enumerations pattern.
+  from each member's/variant's `@summary` and `@doc`. Follows the OpenAPI 3.1.1 annotated enumerations pattern.
   Only supported by OpenAPI 3.1.0 and above; on 3.0.0 the `default` style is used and a warning is reported.
