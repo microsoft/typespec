@@ -98,17 +98,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
-        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
-        {
-            nameof(ModelReaderWriterBuildableAttribute),
-        });
-
         /// <summary>
-        /// Restores back-compatibility attributes from the last contract, excluding any
+        /// Restores back-compatibility attributes from the last contract, then drops any restored
         /// <see cref="ModelReaderWriterBuildableAttribute"/> since those are recomputed at write time.
         /// </summary>
         protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
-            => BuildAttributesForBackCompatibility(originalAttributes, s_attributesToIgnore.Value);
+        {
+            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
+            var merged = base.BuildAttributesForBackCompatibility(original);
+
+            // base returns the original list unchanged when nothing was restored.
+            if (ReferenceEquals(merged, original))
+            {
+                return merged;
+            }
+
+            // base only appends attributes that are new relative to the original set, so keep the
+            // originally-generated attributes while dropping any buildable ones restored from the last
+            // contract.
+            var originalDisplayStrings = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var attribute in original)
+            {
+                originalDisplayStrings.Add(attribute.ToDisplayString());
+            }
+
+            var result = new List<AttributeStatement>(merged.Count);
+            foreach (var attribute in merged)
+            {
+                if (attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute))
+                    && !originalDisplayStrings.Contains(attribute.ToDisplayString()))
+                {
+                    continue;
+                }
+
+                result.Add(attribute);
+            }
+
+            return result;
+        }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
         {

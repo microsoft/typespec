@@ -1052,19 +1052,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// original attributes are returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
-            => BuildAttributesForBackCompatibility(originalAttributes, additionalNonRestorableAttributeNames: null);
-
-        /// <summary>
-        /// Adds any back-compatibility attributes from the last contract that are not already present in
-        /// <paramref name="originalAttributes"/> (or the custom-code attributes), skipping the attributes
-        /// that generation owns (see <see cref="s_nonRestorableAttributeNames"/>) plus any listed in
-        /// <paramref name="additionalNonRestorableAttributeNames"/>. Derived types call this overload to
-        /// exclude additional attributes without re-implementing the merge/dedup logic. The original
-        /// attributes are returned unchanged when there is nothing new to add.
-        /// </summary>
-        protected IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(
-            IEnumerable<AttributeStatement> originalAttributes,
-            IReadOnlyCollection<string>? additionalNonRestorableAttributeNames)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
 
@@ -1088,9 +1075,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                var attributeName = attribute.Type.Name;
-                if (s_nonRestorableAttributeNames.Value.Contains(attributeName)
-                    || additionalNonRestorableAttributeNames?.Contains(attributeName) == true)
+                if (s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name))
                 {
                     continue;
                 }
