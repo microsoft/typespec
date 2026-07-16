@@ -16,70 +16,70 @@ import java.util.Map;
 public interface Order {
     /**
      * Gets the id property: Fully qualified resource Id for the resource.
-     * 
+     *
      * @return the id value.
      */
     String id();
 
     /**
      * Gets the name property: The name of the resource.
-     * 
+     *
      * @return the name value.
      */
     String name();
 
     /**
      * Gets the type property: The type of the resource.
-     * 
+     *
      * @return the type value.
      */
     String type();
 
     /**
      * Gets the location property: The geo-location where the resource lives.
-     * 
+     *
      * @return the location value.
      */
     String location();
 
     /**
      * Gets the tags property: Resource tags.
-     * 
+     *
      * @return the tags value.
      */
     Map<String, String> tags();
 
     /**
      * Gets the properties property: The resource-specific properties for this resource.
-     * 
+     *
      * @return the properties value.
      */
     OrderProperties properties();
 
     /**
      * Gets the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-     * 
+     *
      * @return the systemData value.
      */
     SystemData systemData();
 
     /**
      * Gets the region of the resource.
-     * 
+     *
      * @return the region of the resource.
      */
     Region region();
 
     /**
      * Gets the name of the resource region.
-     * 
+     *
      * @return the name of the resource region.
      */
     String regionName();
 
     /**
      * Gets the inner azure.resourcemanager.operationtemplates.fluent.models.OrderInner object.
-     * 
+     *
      * @return the inner object.
      */
     OrderInner innerModel();
@@ -107,7 +107,7 @@ public interface Order {
         interface WithLocation {
             /**
              * Specifies the region for the resource.
-             * 
+             *
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -115,7 +115,7 @@ public interface Order {
 
             /**
              * Specifies the region for the resource.
-             * 
+             *
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -128,7 +128,7 @@ public interface Order {
         interface WithResourceGroup {
             /**
              * Specifies resourceGroupName.
-             * 
+             *
              * @param resourceGroupName The name of the resource group. The name is case insensitive.
              * @return the next definition stage.
              */
@@ -142,14 +142,14 @@ public interface Order {
         interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties {
             /**
              * Executes the create request.
-             * 
+             *
              * @return the created resource.
              */
             Order create();
 
             /**
              * Executes the create request.
-             * 
+             *
              * @param context The context to associate with this operation.
              * @return the created resource.
              */
@@ -162,7 +162,7 @@ public interface Order {
         interface WithTags {
             /**
              * Specifies the tags property: Resource tags..
-             * 
+             *
              * @param tags Resource tags.
              * @return the next definition stage.
              */
@@ -175,7 +175,7 @@ public interface Order {
         interface WithProperties {
             /**
              * Specifies the properties property: The resource-specific properties for this resource..
-             * 
+             *
              * @param properties The resource-specific properties for this resource.
              * @return the next definition stage.
              */
@@ -184,8 +184,8 @@ public interface Order {
     }
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param body The content of the action request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -195,8 +195,8 @@ public interface Order {
     ExportResult export(ExportRequest body);
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param body The content of the action request.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

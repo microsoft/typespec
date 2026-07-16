@@ -23,7 +23,7 @@ import tsptest.armresourceprovider.models.ResourceLroNoBody;
 public interface LroNoBodiesClient {
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -38,7 +38,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -53,7 +53,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -68,7 +68,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -84,7 +84,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -99,7 +99,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -114,7 +114,7 @@ public interface LroNoBodiesClient {
 
     /**
      * Create a ResourceLroNoBody.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param resource Resource create parameters.
@@ -129,8 +129,8 @@ public interface LroNoBodiesClient {
         Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -142,8 +142,8 @@ public interface LroNoBodiesClient {
     Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -156,8 +156,8 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -170,8 +170,8 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param context The context to associate with this operation.
@@ -185,8 +185,8 @@ public interface LroNoBodiesClient {
         String resourceLroNoBodyName, Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -198,8 +198,8 @@ public interface LroNoBodiesClient {
     Mono<ActionFinalResult> actionAsync(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -211,8 +211,8 @@ public interface LroNoBodiesClient {
     ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The action operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
      * @param context The context to associate with this operation.

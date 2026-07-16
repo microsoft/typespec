@@ -16,8 +16,8 @@ import com.azure.core.util.polling.SyncPoller;
  */
 public interface LargeHeadersClient {
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -30,8 +30,8 @@ public interface LargeHeadersClient {
         String largeHeaderName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @param context The context to associate with this operation.
@@ -45,8 +45,8 @@ public interface LargeHeadersClient {
         String largeHeaderName, Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -58,8 +58,8 @@ public interface LargeHeadersClient {
     CancelResultInner two6k(String resourceGroupName, String largeHeaderName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The two6k operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param largeHeaderName The name of the LargeHeader.
      * @param context The context to associate with this operation.
