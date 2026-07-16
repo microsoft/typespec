@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var generatedNames = _allowedValues
                 .Select(v => v.IsExactName ? v.Name : v.Name.ToIdentifierName())
                 .ToArray();
-            var lastContractProperties = LastContractView?.Properties ?? [];
+            var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractProperties, p => p.Name);
+                var valueName = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames);
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);

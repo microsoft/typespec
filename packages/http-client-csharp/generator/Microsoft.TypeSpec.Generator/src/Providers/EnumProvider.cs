@@ -67,13 +67,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
-        protected static string GetBackCompatibleName<T>(
+        private protected static string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<T> lastContractMembers,
-            Func<T, string> getName)
+            IReadOnlyList<string> lastContractNames)
         {
-            if (lastContractMembers.Any(m => getName(m).Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
+            if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
             {
                 return generatedName;
             }
@@ -86,13 +85,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(n => RemoveUnderscores(n).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
                 .Take(2)
                 .ToArray();
-            var matchingLastContractMembers = lastContractMembers
-                .Where(m => RemoveUnderscores(getName(m)).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
+            var matchingLastContractNames = lastContractNames
+                .Where(n => RemoveUnderscores(n).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
                 .Take(2)
                 .ToArray();
 
-            return matchingCurrentNames.Length == 1 && matchingLastContractMembers.Length == 1
-                ? getName(matchingLastContractMembers[0])
+            return matchingCurrentNames.Length == 1 && matchingLastContractNames.Length == 1
+                ? matchingLastContractNames[0]
                 : generatedName;
         }
 
