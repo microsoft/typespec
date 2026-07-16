@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -62,6 +64,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // TODO - this should not be necessary as every enum should have a namespace https://github.com/Azure/typespec-azure/issues/2210
             CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace : // we default to this model namespace when the namespace is empty
             CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputType.Namespace);
+
+        protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
+
+        protected static string GetBackCompatibleName<T>(
+            string generatedName,
+            IReadOnlyList<string> generatedNames,
+            IReadOnlyList<T> lastContractMembers,
+            Func<T, string> getName)
+        {
+            if (lastContractMembers.Any(m => getName(m).Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
+            {
+                return generatedName;
+            }
+
+            var normalizedName = RemoveUnderscores(generatedName);
+            // Only two matches are needed to distinguish a unique match from an ambiguous one.
+            var matchingCurrentNames = generatedNames
+                .Where(n => RemoveUnderscores(n).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
+                .Take(2)
+                .ToArray();
+            var matchingLastContractMembers = lastContractMembers
+                .Where(m => RemoveUnderscores(getName(m)).Equals(normalizedName, StringComparison.OrdinalIgnoreCase))
+                .Take(2)
+                .ToArray();
+
+            return matchingCurrentNames.Length == 1 && matchingLastContractMembers.Length == 1
+                ? getName(matchingLastContractMembers[0])
+                : generatedName;
+        }
 
         protected override bool GetIsEnum() => true;
         protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputType!.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");

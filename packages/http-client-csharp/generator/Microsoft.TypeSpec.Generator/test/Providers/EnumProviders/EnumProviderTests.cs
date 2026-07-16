@@ -775,6 +775,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task BackCompat_FixedEnumCustomizationTakesPrecedenceOverPreservedUnderscores()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var input = InputFactory.Int32Enum("mockInputEnum", [("ExistingValue", 0)]);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsNotNull(enumType.CustomCodeView);
+            Assert.AreEqual("ExistingValue", enumType.CustomCodeView!.Fields.Single().OriginalName);
+            Assert.AreEqual("Customized", enumType.CustomCodeView.Fields.Single().Name);
+            enumType.EnsureBuilt();
+            enumType.Update(
+                enumType.Methods,
+                enumType.Constructors,
+                enumType.Properties,
+                enumType.Fields);
+            enumType.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(0, enumType.Fields.Count);
+        }
+
+        [Test]
         public async Task BackCompat_FixedEnumAmbiguousUnderscoreMatchNotApplied()
         {
             await MockHelpers.LoadMockGeneratorAsync(
@@ -795,6 +820,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Existing__Value", fields[0].Name);
             Assert.AreEqual("ExistingValue", fields[1].Name);
             Assert.AreEqual("Existing_Value", fields[2].Name);
+        }
+
+        [Test]
+        public async Task BackCompat_ExtensibleEnumUnderscoresPreserved()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("ExistingValue", "existing"),
+                ("Other", "other"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+
+            Assert.AreEqual("_value", enumType.Fields[0].Name);
+            Assert.AreEqual("Existing_ValueValue", enumType.Fields[1].Name);
+            Assert.AreEqual("OtherValue", enumType.Fields[2].Name);
+            Assert.AreEqual("Existing_Value", enumType.Properties[0].Name);
+            Assert.AreEqual("Other", enumType.Properties[1].Name);
         }
 
         // Verifies that back-compat does NOT re-introduce enum values that have been suppressed
