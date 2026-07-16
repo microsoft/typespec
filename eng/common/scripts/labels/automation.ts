@@ -4,6 +4,7 @@ import { CheckOptions, syncFile } from "../utils/common.js";
 import { expandFolder } from "../utils/find-area-changed.js";
 import {
   PolicyServiceConfig,
+  addLabel,
   addReply,
   and,
   eventResponderTask,
@@ -167,16 +168,17 @@ function createExternalReviewersConfig(config: RepoConfig): PolicyServiceConfig 
             then: entries.map(([area, owners]) => {
               const globs = (config.areaPaths[area] ?? []).map(expandFolder);
               const mentions = owners.map((owner) => `@${owner}`).join(" ");
-              // The area label (added by the prs.triage policy when these paths are
-              // modified) persists across events, so it doubles as the "already notified"
-              // guard: owners are pinged the first time the paths match and not on every
-              // subsequent push.
+              // The area label doubles as the "already notified" guard: it is added
+              // below the first time the paths match so owners are pinged once and not
+              // on every subsequent push (the prs.triage policy also adds it, but adding
+              // it here guarantees the guard is set even if that policy hasn't run yet).
               return {
                 if: [includesModifiedFiles(globs), not(hasLabel(area))],
                 then: [
                   addReply(
                     `${mentions} — this PR modifies files in the \`${area}\` area, which your team owns. Please take a look. (You can't be added as a formal reviewer because you're not a repository collaborator, so this is a heads-up instead.)`,
                   ),
+                  addLabel(area),
                 ],
               };
             }),

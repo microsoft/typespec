@@ -42,8 +42,8 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
  * Keyed by the same area names as {@link AreaPaths}; the paths are reused from there.
  */
 export const ExternalOwners: Partial<Record<keyof typeof AreaLabels, string[]>> = {
-  // cspell:ignore swatkatz
-  "emitter:graphql": ["steverice", "swatkatz"],
+  // cspell:ignore swatkatz fionabronwen
+  "emitter:graphql": ["fionabronwen", "swatkatz", "steverice"],
 };
 
 /**
