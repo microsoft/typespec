@@ -28,6 +28,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
 
+        private static readonly Lazy<HashSet<string>> s_nonRestorableAttributeNames = new(() => new(StringComparer.Ordinal)
+        {
+            CodeGenAttributes.CodeGenSuppressAttributeName,
+            CodeGenAttributes.CodeGenMemberAttributeName,
+            CodeGenAttributes.CodeGenTypeAttributeName,
+            CodeGenAttributes.CodeGenSerializationAttributeName,
+            nameof(EditorBrowsableAttribute),
+            nameof(ExperimentalAttribute),
+            nameof(ObsoleteAttribute),
+            nameof(SerializableAttribute),
+            nameof(JsonConstructorAttribute),
+            nameof(JsonConverterAttribute),
+            nameof(JsonDerivedTypeAttribute),
+            nameof(JsonExtensionDataAttribute),
+            nameof(JsonIgnoreAttribute),
+            nameof(JsonIncludeAttribute),
+            nameof(JsonNumberHandlingAttribute),
+            nameof(JsonObjectCreationHandlingAttribute),
+            nameof(JsonPolymorphicAttribute),
+            nameof(JsonPropertyNameAttribute),
+            nameof(JsonPropertyOrderAttribute),
+            nameof(JsonRequiredAttribute),
+            nameof(JsonSerializableAttribute),
+            nameof(JsonSourceGenerationOptionsAttribute),
+            nameof(JsonStringEnumMemberNameAttribute),
+            nameof(JsonUnmappedMemberHandlingAttribute),
+        });
+
         protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(() => BuildCustomCodeView());
@@ -1034,34 +1062,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. constructors];
         }
-
-        private static readonly Lazy<HashSet<string>> s_nonRestorableAttributeNames = new(() => new(StringComparer.Ordinal)
-        {
-            CodeGenAttributes.CodeGenSuppressAttributeName,
-            CodeGenAttributes.CodeGenMemberAttributeName,
-            CodeGenAttributes.CodeGenTypeAttributeName,
-            CodeGenAttributes.CodeGenSerializationAttributeName,
-            nameof(EditorBrowsableAttribute),
-            nameof(ExperimentalAttribute),
-            nameof(ObsoleteAttribute),
-            nameof(SerializableAttribute),
-            nameof(JsonConstructorAttribute),
-            nameof(JsonConverterAttribute),
-            nameof(JsonDerivedTypeAttribute),
-            nameof(JsonExtensionDataAttribute),
-            nameof(JsonIgnoreAttribute),
-            nameof(JsonIncludeAttribute),
-            nameof(JsonNumberHandlingAttribute),
-            nameof(JsonObjectCreationHandlingAttribute),
-            nameof(JsonPolymorphicAttribute),
-            nameof(JsonPropertyNameAttribute),
-            nameof(JsonPropertyOrderAttribute),
-            nameof(JsonRequiredAttribute),
-            nameof(JsonSerializableAttribute),
-            nameof(JsonSourceGenerationOptionsAttribute),
-            nameof(JsonStringEnumMemberNameAttribute),
-            nameof(JsonUnmappedMemberHandlingAttribute),
-        });
 
         /// <summary>
         /// Adds any back-compatibility attributes from the last contract that are not already present in

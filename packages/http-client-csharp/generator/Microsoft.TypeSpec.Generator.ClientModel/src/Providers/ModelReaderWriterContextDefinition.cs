@@ -22,6 +22,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DefaultObsoleteDiagnosticId = "CS0618";
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
+        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
+        {
+            nameof(ModelReaderWriterBuildableAttribute),
+        });
 
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
@@ -109,11 +113,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var merged = base.BuildAttributesForBackCompatibility(original);
             return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore.Value);
         }
-
-        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
-        {
-            nameof(ModelReaderWriterBuildableAttribute),
-        });
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
         {

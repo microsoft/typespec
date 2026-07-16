@@ -14,6 +14,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     internal class BackCompatibilityTests
     {
+        private class MockMrwProvider : MrwSerializationTypeDefinition
+        {
+            public MockMrwProvider(InputModelType inputModel, ModelProvider modelProvider)
+                : base(inputModel, modelProvider)
+            {
+            }
+
+            protected override MethodProvider[] BuildMethods() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+        }
+
         [Test]
         public async Task BuildAttributesForBackCompatibilityDoesNotRestoreProxyAttribute()
         {
@@ -24,6 +36,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
+                createSerializationsCore: (inputType, typeProvider)
+                    => inputType is InputModelType modelType ? [new MockMrwProvider(modelType, (typeProvider as ModelProvider)!)] : [],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
