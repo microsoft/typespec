@@ -43,8 +43,3 @@ cspell.yaml
 /packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
 /packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
 /packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @iscai-msft @catalinaperalta
-
-######################
-# GraphQL
-######################
-/packages/graphql/                           @bterlson @markcowl @allenjzhang @timotheeguerin
