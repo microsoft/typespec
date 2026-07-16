@@ -6,9 +6,8 @@ using System;
 
 namespace Test
 {
-    [global::System.ObsoleteAttribute]
-    [global::System.ObsoleteAttribute]
     [global::System.ObsoleteAttribute("This is obsolete")]
+    [global::System.SerializableAttribute]
     public partial class TestName
     {
     }

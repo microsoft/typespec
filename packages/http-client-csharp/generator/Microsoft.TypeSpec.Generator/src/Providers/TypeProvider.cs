@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -1032,24 +1034,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
-        // Attributes that should never be restored from the last contract. These are either CodeGen
-        // customization markers or attributes that generation (re)applies based on the current inputs,
-        // so restoring a stale copy from the last contract would be incorrect.
-        private static readonly HashSet<string> s_attributesNotToRestore = new(StringComparer.Ordinal)
+        private static readonly Lazy<HashSet<string>> s_nonRestorableAttributeNames = new(() => new(StringComparer.Ordinal)
         {
             CodeGenAttributes.CodeGenSuppressAttributeName,
             CodeGenAttributes.CodeGenMemberAttributeName,
             CodeGenAttributes.CodeGenTypeAttributeName,
             CodeGenAttributes.CodeGenSerializationAttributeName,
-            nameof(System.ComponentModel.EditorBrowsableAttribute),
-            nameof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute),
-        };
+            nameof(EditorBrowsableAttribute),
+            nameof(ExperimentalAttribute),
+            nameof(ObsoleteAttribute),
+        });
 
         /// <summary>
         /// Adds any back-compatibility attributes from the last contract that are not already present in
         /// <paramref name="originalAttributes"/> (or the custom-code attributes). Attributes that
-        /// generation owns (see <see cref="s_attributesNotToRestore"/>) are never restored. The original
-        /// attributes are returned unchanged when there is nothing new to add.
+        /// generation owns (see <see cref="s_nonRestorableAttributeNames"/>) are never restored. The
+        /// original attributes are returned unchanged when there is nothing new to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
@@ -1075,7 +1075,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (ShouldPreserveLastContractAttribute(attribute) && seen.Add(attribute.ToDisplayString()))
+                if (ShouldRestoreLastContractAttribute(attribute) && seen.Add(attribute.ToDisplayString()))
                 {
                     merged ??= [.. original];
                     merged.Add(attribute);
@@ -1085,10 +1085,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return merged ?? original;
         }
 
-        private static bool ShouldPreserveLastContractAttribute(AttributeStatement attribute)
+        /// <summary>
+        /// Determines whether an attribute declared on the last contract should be restored onto the
+        /// current generation. Attributes that generation owns (see <see cref="s_nonRestorableAttributeNames"/>)
+        /// are never restored. Derived types can override this to exclude additional attributes.
+        /// </summary>
+        protected virtual bool ShouldRestoreLastContractAttribute(AttributeStatement attribute)
         {
             var attributeName = attribute.Data?.AttributeClass?.Name;
-            return attributeName is null || !s_attributesNotToRestore.Contains(attributeName);
+            return attributeName is null || !s_nonRestorableAttributeNames.Value.Contains(attributeName);
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;

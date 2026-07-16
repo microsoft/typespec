@@ -1865,7 +1865,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var contextDefinition = new TestableModelReaderWriterContextDefinition();
 
             // The last contract declares a ModelReaderWriterBuildable attribute (owned by generation and
-            // rebuilt at write time) alongside an Obsolete attribute. Only the non-buildable Obsolete
+            // rebuilt at write time) alongside a Description attribute. Only the non-buildable Description
             // attribute should be restored.
             var result = contextDefinition.BuildAttributesForBackCompatibilityPublic([]);
 
@@ -1873,7 +1873,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 result.Any(a => a.Type.Equals(typeof(ModelReaderWriterBuildableAttribute))),
                 "ModelReaderWriterBuildable attributes must not be restored from the last contract.");
             Assert.IsTrue(
-                result.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))),
+                result.Any(a => a.Type.Equals(typeof(System.ComponentModel.DescriptionAttribute))),
                 "Non-buildable back-compat attributes should still be restored.");
         }
 

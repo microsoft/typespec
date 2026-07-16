@@ -6,7 +6,7 @@ using System;
 
 namespace Test
 {
-    [global::System.CLSCompliantAttribute(true)]
+    [global::System.SerializableAttribute]
     public partial class BackCompatAttributeType
     {
     }

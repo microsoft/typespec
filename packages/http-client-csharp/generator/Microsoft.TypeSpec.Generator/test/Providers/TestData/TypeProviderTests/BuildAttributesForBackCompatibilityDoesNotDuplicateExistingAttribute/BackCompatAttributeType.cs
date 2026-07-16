@@ -2,7 +2,7 @@ using System;
 
 namespace Test
 {
-    [Obsolete("bc")]
+    [CLSCompliant(true)]
     public class BackCompatAttributeType
     {
     }

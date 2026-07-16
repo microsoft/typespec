@@ -30,8 +30,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var provider = new AttributeTestProvider();
 
-            // With no last contract to restore attributes from, the method only ever adds new back-compat
-            // attributes, so it returns the original attributes unchanged (without deduplicating them).
+            // With no last contract to restore attributes from, the method returns the generated
+            // attributes unchanged.
             var attributes = provider.GetBackCompatibilityAttributes();
             provider.Update(attributes: attributes);
 
@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
 
-            // The last contract declares [Obsolete("bc")] which is not present in the original set, so it
+            // The last contract declares [CLSCompliant(true)] which is not present in the original set, so it
             // should be appended to the result.
             var attributes = provider.GetBackCompatibilityAttributes([]);
             provider.Update(attributes: attributes);
@@ -58,11 +58,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
 
-            // The original set already contains the same [Obsolete("bc")] attribute that the last contract
-            // declares, so nothing new is added and the original list is returned unchanged.
+            // The original set already contains the same [CLSCompliant(true)] attribute that the last
+            // contract declares, so nothing new is added and the original list is returned unchanged.
             IReadOnlyList<AttributeStatement> original =
             [
-                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("bc")),
+                new AttributeStatement(typeof(CLSCompliantAttribute), Snippet.Literal(true)),
             ];
             var attributes = provider.GetBackCompatibilityAttributes(original);
 
@@ -70,6 +70,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreSame(original, attributes);
 
             provider.Update(attributes: attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsAttributesAlreadyInCustomCode()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = new AttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract declares a mix of attributes: [CLSCompliant(true)] which is also present in
+            // the custom code, and [Serializable] which is new. Only the [Serializable] attribute should be
+            // restored because the [CLSCompliant(true)] attribute already exists in the custom code.
+            var attributes = provider.GetBackCompatibilityAttributes([]);
+            provider.Update(attributes: attributes);
+
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
@@ -140,9 +157,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected override IReadOnlyList<MethodBodyStatement> BuildAttributes() =>
             [
-                new AttributeStatement(typeof(ObsoleteAttribute)),
-                new AttributeStatement(typeof(ObsoleteAttribute)),
                 new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+                new AttributeStatement(typeof(SerializableAttribute)),
             ];
 
             public IReadOnlyList<AttributeStatement> GetBackCompatibilityAttributes() => BuildAttributesForBackCompatibility(Attributes);

@@ -6,7 +6,7 @@ using System;
 
 namespace Test
 {
-    [global::System.ObsoleteAttribute("bc")]
+    [global::System.CLSCompliantAttribute(true)]
     public partial class BackCompatAttributeType
     {
     }

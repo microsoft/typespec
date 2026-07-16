@@ -1,10 +1,10 @@
-using System;
+using System.ComponentModel;
 using System.ClientModel.Primitives;
 
 namespace Sample
 {
     [ModelReaderWriterBuildable(typeof(object))]
-    [Obsolete("bc")]
+    [Description("bc")]
     public partial class SampleContext : ModelReaderWriterContext
     {
     }
