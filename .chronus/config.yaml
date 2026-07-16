@@ -60,6 +60,7 @@ versionPolicies:
       - "@typespec/streams"
       - "@typespec/xml"
       - "@typespec/standalone-cli"
+      - "@typespec/http-specs"
 
   - name: standalone
     type: independent
