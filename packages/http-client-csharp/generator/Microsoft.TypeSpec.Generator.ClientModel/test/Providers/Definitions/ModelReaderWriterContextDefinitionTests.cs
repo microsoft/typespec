@@ -1862,23 +1862,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var contextDefinition = new TestableModelReaderWriterContextDefinition();
+            var contextDefinition = new ModelReaderWriterContextDefinition();
 
             // The last contract declares a ModelReaderWriterBuildable attribute (owned by generation and
-            // rebuilt at write time) alongside a Description attribute. Only the non-buildable Description
-            // attribute should be restored.
-            var attributes = contextDefinition.BuildAttributesForBackCompatibilityPublic([]);
-            contextDefinition.Update(attributes: attributes);
+            // rebuilt at write time) alongside a Description attribute. Back-compat processing should only
+            // restore the non-buildable Description attribute.
+            contextDefinition.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        private class TestableModelReaderWriterContextDefinition : ModelReaderWriterContextDefinition
-        {
-            public IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibilityPublic(IEnumerable<AttributeStatement> originalAttributes)
-                => BuildAttributesForBackCompatibility(originalAttributes);
         }
 
         private class CustomSerializationProvider : TypeProvider
