@@ -21,6 +21,8 @@ When specified, builds the management plane emitter locally and regenerates mgmt
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 .PARAMETER PipelineRunUrl
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
+.PARAMETER LibraryRegenParallelism
+Maximum number of Azure SDK library regeneration workers. Defaults to the smaller of 8 or the machine's logical processor count.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -55,7 +57,11 @@ param(
   [string]$PipelineRunUrl,
 
   [Parameter(Mandatory = $false)]
-  [switch]$UseTypeSpecNext
+  [switch]$UseTypeSpecNext,
+
+  [Parameter(Mandatory = $false)]
+  [ValidateRange(1, 64)]
+  [int]$LibraryRegenParallelism = [Math]::Min(8, [Environment]::ProcessorCount)
 )
 
 # Import the Generation module to use the Invoke helper function
@@ -559,9 +565,9 @@ try {
                 }
             }
             
-            # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
+            # Discover libraries with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
-            $serviceDirectories = @()
+            $librariesByPath = @{}
             foreach ($tspLocation in $tspLocations) {
                 $content = Get-Content $tspLocation.FullName -Raw
                 $matched = $false
@@ -574,42 +580,105 @@ try {
                 if ($matched) {
                     $relativePath = $tspLocation.DirectoryName -replace ".*[\\/]sdk[\\/]", ""
                     $serviceDirectory = $relativePath -replace "[\\/].*", ""
-                    if ($serviceDirectories -notcontains $serviceDirectory) {
-                        $serviceDirectories += $serviceDirectory
+                    $libraryPath = $tspLocation.DirectoryName
+                    if (-not $librariesByPath.ContainsKey($libraryPath)) {
+                        $srcPath = Join-Path $libraryPath "src"
+                        $buildPath = if (Get-ChildItem -Path $libraryPath -Filter "*.csproj" -ErrorAction SilentlyContinue) {
+                            $libraryPath
+                        } elseif ((Test-Path $srcPath) -and (Get-ChildItem -Path $srcPath -Filter "*.csproj" -ErrorAction SilentlyContinue)) {
+                            $srcPath
+                        } else {
+                            $libraryPath
+                        }
+
+                        $librariesByPath[$libraryPath] = [PSCustomObject]@{
+                            ServiceDirectory = $serviceDirectory
+                            BuildPath = $buildPath
+                            DisplayPath = $relativePath
+                        }
                     }
                 }
             }
+            $librariesToRegenerate = @($librariesByPath.Values | Sort-Object DisplayPath)
 
-            if ($serviceDirectories.Count -eq 0) {
+            if ($librariesToRegenerate.Count -eq 0) {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
             } else {
-                $serviceProj = Join-Path $tempDir "eng/service.proj"
+                $sdkEngFolder = Join-Path $tempDir "eng"
+                $tspClientDir = Join-Path $sdkEngFolder "common" "tsp-client"
+                $clientPluginPath = Join-Path $sdkEngFolder "packages" "plugins" "client" "Client.Plugin"
 
-                # Service directories whose libraries share a single code generator plugin that each
-                # library's generation builds into a common output folder. These services are regenerated
-                # serially since they share a common plugin project that shouldn't be built in parallel.
+                Write-Host "Pre-installing tsp-client for parallel library regeneration..."
+                Invoke "npm ci --prefix `"$tspClientDir`"" $tspClientDir
+
+                Write-Host "Pre-building the shared client plugin..."
+                Invoke "dotnet build `"$clientPluginPath`" --nologo -v:quiet" $sdkEngFolder
+
+                # Libraries in these services share an additional code generator plugin output.
+                # Keep each service in one work item so its libraries remain serial while running
+                # concurrently with libraries from other services.
                 $serialCodeGenServiceDirectories = @("ai")
 
-                foreach ($serviceDirectory in $serviceDirectories) {
-                    Write-Host "Regenerating code for service directory: $serviceDirectory"
-                    $previousErrorAction = $ErrorActionPreference
-                    $ErrorActionPreference = "Continue"
-                    try {
-                        $generateCommand = "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:Trace=true /p:ServiceDirectory=$serviceDirectory"
-                        if ($serialCodeGenServiceDirectories -contains $serviceDirectory) {
-                            $generateCommand += " /m:1 /p:BuildInParallel=false"
-                        }
-                        Invoke $generateCommand $tempDir
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Warning "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
-                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                        }
-                    } catch {
-                        Write-Warning "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
-                    } finally {
-                        $ErrorActionPreference = $previousErrorAction
+                $workItems = @()
+                foreach ($serviceDirectory in $serialCodeGenServiceDirectories) {
+                    $serviceLibraries = @($librariesToRegenerate | Where-Object { $_.ServiceDirectory -eq $serviceDirectory })
+                    if ($serviceLibraries.Count -gt 0) {
+                        $workItems += [PSCustomObject]@{ Libraries = $serviceLibraries }
                     }
+                }
+
+                foreach ($library in $librariesToRegenerate | Where-Object { $_.ServiceDirectory -notin $serialCodeGenServiceDirectories }) {
+                    $workItems += [PSCustomObject]@{ Libraries = @($library) }
+                }
+
+                $effectiveParallelism = [Math]::Min($LibraryRegenParallelism, $workItems.Count)
+                Write-Host "Regenerating $($librariesToRegenerate.Count) SDK libraries with $effectiveParallelism concurrent workers..."
+
+                $generationFailures = [System.Collections.Concurrent.ConcurrentBag[object]]::new()
+                $completedLibraries = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
+                $totalLibraries = $librariesToRegenerate.Count
+
+                $workItems | ForEach-Object -ThrottleLimit $effectiveParallelism -Parallel {
+                    $workItem = $_
+                    $failures = $using:generationFailures
+                    $completed = $using:completedLibraries
+                    $total = $using:totalLibraries
+
+                    foreach ($library in $workItem.Libraries) {
+                        Write-Host "Regenerating code for: $($library.DisplayPath)"
+                        Push-Location $library.BuildPath
+                        try {
+                            $output = & dotnet build /restore /t:GenerateCode /p:Trace=true /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true --nologo -v:minimal 2>&1
+                            $exitCode = $LASTEXITCODE
+                            if ($exitCode -ne 0) {
+                                $failures.Add([PSCustomObject]@{
+                                    DisplayPath = $library.DisplayPath
+                                    Error = "Code generation failed with exit code $exitCode."
+                                    Output = ($output -join "`n")
+                                })
+                            }
+                        }
+                        catch {
+                            $failures.Add([PSCustomObject]@{
+                                DisplayPath = $library.DisplayPath
+                                Error = $_.Exception.Message
+                                Output = $_.Exception.ToString()
+                            })
+                        }
+                        finally {
+                            Pop-Location
+                            $completed.Add(1)
+                            Write-Host "[$($completed.Count)/$total] Completed $($library.DisplayPath)"
+                        }
+                    }
+                }
+
+                foreach ($failure in $generationFailures | Sort-Object DisplayPath) {
+                    Write-Warning "Code generation failed for $($failure.DisplayPath): $($failure.Error)"
+                    if ($failure.Output) {
+                        Write-Host $failure.Output
+                    }
+                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
                 }
             }
         }
