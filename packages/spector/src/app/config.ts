@@ -13,9 +13,4 @@ export interface ApiMockAppConfig {
    * Coverage file Path.
    */
   coverageFile: string;
-
-  /**
-   * Host/interface the server should bind to. Defaults to loopback only.
-   */
-  host?: string;
 }

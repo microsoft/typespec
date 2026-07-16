@@ -32,7 +32,7 @@ export class MockApiApp {
   private resolverConfig!: ResolverConfig;
 
   constructor(private config: ApiMockAppConfig) {
-    this.server = new MockApiServer({ port: config.port, host: config.host });
+    this.server = new MockApiServer({ port: config.port });
     this.coverageTracker = new CoverageTracker(config.coverageFile);
   }
 
