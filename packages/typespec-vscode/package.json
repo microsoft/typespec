@@ -249,8 +249,11 @@
             "description": "The path to trigger tsp compile"
           },
           "args": {
-            "type": "string",
-            "description": "The arguments to tsp compile"
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The arguments passed to tsp compile, where each element is a single argument."
           }
         }
       }
