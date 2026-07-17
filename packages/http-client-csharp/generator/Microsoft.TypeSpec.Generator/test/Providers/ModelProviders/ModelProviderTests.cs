@@ -671,6 +671,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void UnverifiableAdditionalPropertyTypeIsMetadataOnly()
+        {
+            var valueModel = InputFactory.Model("ValueModel");
+            var dictionaryModel = new ModelProvider(
+                InputFactory.Model(
+                    "DictionaryModel",
+                    properties: [],
+                    additionalProperties: valueModel));
+
+            var valueType = dictionaryModel.Properties
+                .Single(property => property.IsAdditionalProperties)
+                .Type
+                .ElementType;
+
+            Assert.IsTrue(valueType.IsUnion);
+            Assert.AreEqual(UnionItemTypeReferenceKind.MetadataOnly, valueType.UnionItemTypeReferenceKind);
+            Assert.AreEqual("ValueModel", valueType.UnionItemTypes.Single().Name);
+        }
+
+        [Test]
         public void TestAdditionalPropertiesPropertyNamesAndAccessors()
         {
             // model with multiple additional properties

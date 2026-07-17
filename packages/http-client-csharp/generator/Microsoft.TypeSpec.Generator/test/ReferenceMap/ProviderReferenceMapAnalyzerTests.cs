@@ -223,6 +223,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void MetadataOnlyUnionPropertyDoesNotReferenceUnionMember()
+        {
+            var variant = new GeneratedModelTestTypeProvider(
+                "Variant",
+                TypeSignatureModifiers.Public,
+                "Sample");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(client, variant),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    new CSharpType(
+                        typeof(IReadOnlyDictionary<,>),
+                        typeof(string),
+                        CSharpType.FromUnion(
+                            [variant.Type],
+                            false,
+                            UnionItemTypeReferenceKind.MetadataOnly)),
+                    "Value",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([client, variant]);
+
+            Assert.IsTrue(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(variant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(ProviderReferenceMapAnalyzer.ShouldWriteProvider(variant));
+        }
+
+        [Test]
         public void BinaryDataUnionPropertyDoesNotPublicizeAbstractBaseModel()
         {
             var discriminator = InputFactory.Property(

@@ -570,7 +570,10 @@ namespace Microsoft.TypeSpec.Generator
 
             AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
             AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
-            if (type.IsUnion)
+            if (type.IsUnion &&
+                type.UnionItemTypeReferenceKind != UnionItemTypeReferenceKind.MetadataOnly &&
+                (unionItemTypeExclusions == null ||
+                    type.UnionItemTypeReferenceKind == UnionItemTypeReferenceKind.PublicSurface))
             {
                 foreach (var unionItemType in type.UnionItemTypes)
                 {
