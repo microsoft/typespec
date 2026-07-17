@@ -304,6 +304,7 @@ namespace Microsoft.TypeSpec.Generator
                 includeAdditionalRoots: true,
                 publicClientRootsOnly: false);
 
+            removeRoots.UnionWith(GetLastContractPublicRoots(generatedProviders, graph.Nodes));
             removeRoots.UnionWith(customRemovalRoots);
             AddKeptNonRootNames(removeRoots, graph.Nodes);
 

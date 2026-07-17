@@ -303,6 +303,7 @@ namespace Microsoft.TypeSpec.Generator
                 includeModelFactory: false,
                 includeAdditionalRoots: true,
                 publicClientRootsOnly: true);
+            internalizeRoots.UnionWith(GetLastContractPublicRoots(generatedProviders, graph.Nodes));
 
             var generatedPublicReachable = GetReachableTypes(internalizeRoots, internalizeReferences);
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, generatedPublicReachable, generatedDiscriminatorBaseNames);

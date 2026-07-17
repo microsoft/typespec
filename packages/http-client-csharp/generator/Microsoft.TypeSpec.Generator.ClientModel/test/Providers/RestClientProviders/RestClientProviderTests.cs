@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -1600,6 +1601,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: hasPrefix.ToString()), file.Content);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestCollectionHeaderPrefix_AddsHelperRequiredByRequestApi(bool useDefaultRequestApi)
+        {
+            if (!useDefaultRequestApi)
+            {
+                MockHelpers.LoadMockGenerator(httpRequestApi: TestHttpRequestApi.Instance);
+            }
+
+            var metadataHeaderParam = InputFactory.HeaderParameter(
+                "metadata",
+                InputFactory.Dictionary(InputPrimitiveType.String),
+                isRequired: true,
+                serializedName: "x-ms-meta",
+                collectionHeaderPrefix: "x-ms-meta-");
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters: [metadataHeaderParam]),
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "metadata",
+                        InputFactory.Dictionary(InputPrimitiveType.String),
+                        isRequired: true,
+                        location: InputRequestLocation.Header)
+                ]);
+            var restClient = new ClientProvider(
+                InputFactory.Client("TestClient", methods: [inputServiceMethod])).RestClient;
+
+            Assert.AreEqual(
+                useDefaultRequestApi,
+                restClient.HelperDependencyTypes.Contains(
+                    ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
+        }
+
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
@@ -2378,6 +2416,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "Generated code should use corrected parameter name 'maxPageSize'");
             Assert.IsTrue(file.Content.Contains("uri.AppendQuery(\"maxpagesize\""),
                 "Generated code should use the serialized name 'maxpagesize' in the query string");
+        }
+
+        private sealed record TestHttpRequestApi : HttpRequestApi
+        {
+            public static TestHttpRequestApi Instance { get; } = new(Empty);
+
+            public TestHttpRequestApi(ValueExpression original)
+                : base(typeof(object), original)
+            {
+            }
+
+            public override Type UriBuilderType => typeof(UriBuilder);
+
+            public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
+                => Original.Invoke("SetHeaders", arguments).Terminate();
+
+            public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
+                => Original.Invoke("AddCollectionHeaders", [prefix, headers]).Terminate();
+
+            public override ValueExpression Content() => Original;
+
+            public override ValueExpression ClientRequestId() => Original;
+
+            public override HttpRequestApi FromExpression(ValueExpression original)
+                => new TestHttpRequestApi(original);
+
+            public override HttpRequestApi ToExpression() => this;
         }
     }
 }

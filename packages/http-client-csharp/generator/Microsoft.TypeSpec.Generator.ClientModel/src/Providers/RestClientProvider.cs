@@ -81,7 +81,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
-            var uriBuilderType = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
+            var requestApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression();
+            var uriBuilderType = requestApi.UriBuilderType;
             var dependencies = new List<CSharpType>();
             var dependencyNames = new HashSet<string>(StringComparer.Ordinal);
             if (uriBuilderType == typeof(ClientUriBuilderDefinition))
@@ -104,9 +105,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType);
                         if (parameter is InputHeaderParameter headerParameter &&
-                            !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix))
+                            !string.IsNullOrEmpty(headerParameter.CollectionHeaderPrefix) &&
+                            requestApi.GetCollectionHeaderHelperType() is { } collectionHeaderHelperType)
                         {
-                            TryAddDependency(dependencies, dependencyNames, ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type);
+                            TryAddDependency(dependencies, dependencyNames, collectionHeaderHelperType);
                         }
                     }
                     else if (type?.IsCollection == true)

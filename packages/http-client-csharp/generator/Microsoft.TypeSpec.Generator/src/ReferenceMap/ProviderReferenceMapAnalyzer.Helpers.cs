@@ -476,6 +476,42 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
+        private static HashSet<string> GetLastContractPublicRoots(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> nodes)
+        {
+            var roots = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var provider in providers)
+            {
+                if (!IsPublicInLastContract(provider))
+                {
+                    continue;
+                }
+
+                var providerName = GetProviderTypeName(provider.Type);
+                if (nodes.Contains(providerName))
+                {
+                    roots.Add(providerName);
+                }
+            }
+
+            return roots;
+        }
+
+        private static bool IsPublicInLastContract(TypeProvider provider)
+        {
+            for (TypeProvider? current = provider; current != null; current = current.DeclaringTypeProvider)
+            {
+                if (current.LastContractView is not { } lastContractView ||
+                    !lastContractView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static void RemoveMethodsFromModelFactory(HashSet<string> namesToRemove, HashSet<string> nodes)
         {
             if (namesToRemove.Count == 0)

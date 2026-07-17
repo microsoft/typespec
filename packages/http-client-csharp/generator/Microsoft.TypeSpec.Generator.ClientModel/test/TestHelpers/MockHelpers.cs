@@ -72,6 +72,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
+            HttpRequestApi? httpRequestApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
             Func<OutputLibrary>? createOutputLibrary = null,
@@ -171,6 +172,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (httpMessageApi is not null)
             {
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
+            }
+
+            if (httpRequestApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.HttpRequestApi).Returns(httpRequestApi);
             }
 
             if (requestContentApi is not null)

@@ -954,6 +954,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public async Task LastContractPublicDeclarationRootsGeneratedType()
+        {
+            var lastContractCompilation = CSharpCompilation.Create(
+                "LastContract",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public partial class GeneratedModel
+                        {
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var generatedModel = new GeneratedModelTestTypeProvider(
+                "GeneratedModel",
+                TypeSignatureModifiers.Public,
+                "Sample.Models");
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(generatedModel),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                lastContractCompilation: () => Task.FromResult<Compilation>(lastContractCompilation));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([generatedModel]);
+
+            Assert.IsTrue(generatedModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(generatedModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(generatedModel));
+        }
+
+        [Test]
         public async Task LastContractGenericDeclarationDoesNotRootGeneratedType()
         {
             var lastContractCompilation = CSharpCompilation.Create(
@@ -985,7 +1015,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task LastContractNestedPublicDeclarationDoesNotRootGeneratedType()
+        public async Task LastContractNestedPublicDeclarationRootsGeneratedType()
         {
             var lastContractCompilation = CSharpCompilation.Create(
                 "LastContract",
@@ -1010,7 +1040,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
                 configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
                 lastContractCompilation: () => Task.FromResult<Compilation>(lastContractCompilation));
 
-            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([outerModel]);
+            Assert.IsNotNull(outerModel.LastContractView);
+            Assert.IsNotNull(innerModel.LastContractView);
+            Assert.IsTrue(outerModel.LastContractView!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(innerModel.LastContractView!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([outerModel]);
+
+            Assert.IsTrue(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(innerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(outerModel));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(innerModel));
+        }
+
+        [Test]
+        public async Task LastContractPublicNestedDeclarationInInternalTypeDoesNotRootGeneratedType()
+        {
+            var lastContractCompilation = CSharpCompilation.Create(
+                "LastContract",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        internal partial class OuterModel
+                        {
+                            public partial class InnerModel
+                            {
+                            }
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+
+            var outerModel = new TestTypeProvider("OuterModel", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            var innerModel = new NestedTestTypeProvider("InnerModel", TypeSignatureModifiers.Public, outerModel, ns: "Sample.Models");
+            outerModel.NestedTypesInternal = [innerModel];
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(outerModel),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                lastContractCompilation: () => Task.FromResult<Compilation>(lastContractCompilation));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([outerModel]);
 
             Assert.IsTrue(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsFalse(outerModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
