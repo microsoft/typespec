@@ -861,7 +861,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
-            BackCompatHelper.AddOverloadsForNewOptionalParameters(this, methods);
+            BackCompatHelper.AddBackCompatOverloads(this, methods);
 
             return methods;
         }
@@ -994,7 +994,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature))
+                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature)
+                    && !MethodProviderHelpers.DiffersByValueTypeParameterNullability(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }

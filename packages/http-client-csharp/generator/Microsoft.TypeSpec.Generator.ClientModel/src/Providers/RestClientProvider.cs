@@ -57,6 +57,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         protected override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];

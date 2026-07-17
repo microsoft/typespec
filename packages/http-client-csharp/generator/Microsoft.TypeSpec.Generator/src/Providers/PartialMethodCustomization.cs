@@ -213,7 +213,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // Clones a ParameterProvider with a new name (and optionally without its default value)
         // while preserving all generator metadata. Returns the source unchanged when no change is
         // needed.
-        private static ParameterProvider CloneParameterWithName(
+        internal static ParameterProvider CloneParameterWithName(
             ParameterProvider source,
             string newName,
             bool removeDefault)
