@@ -1,7 +1,6 @@
 import {
   AnySchema,
   ApiVersion,
-  ApiVersions,
   ArraySchema,
   BinaryResponse,
   BinarySchema,
@@ -168,8 +167,11 @@ import {
   trace,
 } from "./utils.js";
 import {
-  getClientApiVersionInitializationKind,
   InconsistentVersions,
+  getFilteredApiVersions,
+  getServiceApiVersions,
+  isStableApiVersionString,
+  resolveApiVersionOption,
 } from "./versioning-utils.js";
 
 export interface EmitterOptionsDev {
@@ -694,24 +696,34 @@ export class CodeModelBuilder {
     }
 
     // versioning, here we handle consistent api-versions for the client
-    const clientApiVersionInitialization = getClientApiVersionInitializationKind(client);
-    let clientContextApiVersions: ApiVersions | InconsistentVersions.MixedVersions | undefined;
-    if (clientApiVersionInitialization.kind === "enum") {
-      const clientApiVersions = clientApiVersionInitialization.apiVersions;
-      this.apiVersion = clientApiVersions[clientApiVersions.length - 1];
+    const versions = getServiceApiVersions(this.program, client);
+    if (Array.isArray(versions) && versions.length > 0) {
+      // consistent api-versions
+      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+      if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
+        this.apiVersion = versions[versions.length - 1].value;
+      } else {
+        this.apiVersion = versions.find((it) => it.value === apiVersionOption)?.value;
+        if (!this.apiVersion) {
+          reportDiagnostic(this.program, {
+            code: "invalid-api-version",
+            format: { apiVersion: apiVersionOption },
+            target: NoTarget,
+          });
+        }
+      }
+
       codeModelClient.apiVersions = [];
-      for (const version of clientApiVersions) {
+      for (const version of getFilteredApiVersions(
+        this.program,
+        this.apiVersion,
+        versions,
+        !(this.options["service-version-exclude-preview"] === false),
+      )) {
         const apiVersion = new ApiVersion();
-        apiVersion.version = version;
+        apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
       }
-      clientContextApiVersions = codeModelClient.apiVersions;
-    } else if (clientApiVersionInitialization.kind === "string") {
-      this.apiVersion = undefined;
-      clientContextApiVersions = InconsistentVersions.MixedVersions;
-    } else {
-      this.apiVersion = undefined;
-      clientContextApiVersions = undefined;
     }
 
     // client initialization
@@ -750,9 +762,15 @@ export class CodeModelBuilder {
       baseUri,
       hostParameters,
       codeModelClient.globalParameters!,
-      // versioning: consistent api-versions, MixedVersions, or undefined if not versioned
-      clientContextApiVersions,
-      false,
+      // versioning: consistent api-versions, or MixedVersions for mixed api-versions, undefined if not versioned
+      versions === InconsistentVersions.MixedVersions
+        ? InconsistentVersions.MixedVersions
+        : codeModelClient.apiVersions,
+      this.codeModel.apiVersionMap === undefined
+        ? false
+        : Object.values(this.codeModel.apiVersionMap).every((version) =>
+            isStableApiVersionString(version),
+          ) && !(this.options["service-version-exclude-preview"] === false),
     );
 
     const enableSubclient: boolean = optionBoolean(this.options["enable-subclient"]) ?? false;
