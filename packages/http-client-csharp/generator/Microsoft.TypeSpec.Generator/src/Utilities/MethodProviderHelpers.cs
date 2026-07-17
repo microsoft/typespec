@@ -138,6 +138,23 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
+        // Returns true when the two signatures, already known to match when nullability is ignored, differ in
+        // the nullability of a value-type parameter. Such a difference makes them distinct C# overloads.
+        public static bool DiffersByValueTypeParameterNullability(MethodSignatureBase a, MethodSignatureBase b)
+        {
+            for (int i = 0; i < a.Parameters.Count; i++)
+            {
+                var aType = a.Parameters[i].Type;
+                var bType = b.Parameters[i].Type;
+                if ((aType.IsValueType || bType.IsValueType) && aType.IsNullable != bType.IsNullable)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static bool ShouldSkipParameterValidation(MethodSignatureBase signature, TypeProvider enclosingType)
         {
             // Skip parameter validation for methods that are not public or protected on a public type.

@@ -87,10 +87,18 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer(checkNullability: false);
+        internal static readonly IEqualityComparer<MethodSignatureBase> SignatureComparerIncludingNullability = new MethodSignatureBaseEqualityComparer(checkNullability: true);
 
         private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
         {
+            private readonly bool _checkNullability;
+
+            public MethodSignatureBaseEqualityComparer(bool checkNullability)
+            {
+                _checkNullability = checkNullability;
+            }
+
             public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
             {
                 if (ReferenceEquals(x, y))
@@ -160,7 +168,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type))
+                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type, _checkNullability))
                     {
                         return false;
                     }

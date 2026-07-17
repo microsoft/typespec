@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -33,9 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return false;
             }
 
-            var modifiers = previousSignature.Modifiers;
-            return modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                   modifiers.HasFlag(MethodSignatureModifiers.Protected);
+            return (previousSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) != 0;
         }
 
         /// <summary>
@@ -335,13 +335,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Adds hidden back-compat overloads for public/protected methods that gained one or more new
-        /// optional non-body parameters relative to the last contract. Each added overload matches a
-        /// previously-published signature and delegates to the current method, forwarding the previous
-        /// arguments and passing <c>default</c> for every new parameter. Renaming a method's parameter
-        /// set this way is otherwise a source-breaking change for existing callers.
+        /// Adds hidden back-compat overloads for public/protected methods whose signature changed in a
+        /// recoverable way relative to the last contract: either one or more new optional non-body
+        /// parameters were added, or a value-type parameter's nullability was removed (<c>T?</c> became
+        /// <c>T</c>). Both scenarios are detected in a single scan of the current methods so they are not
+        /// re-classified once per scenario, and each produces a hidden overload reproducing the
+        /// previously-published signature that delegates to the current method. When both scenarios apply
+        /// to the same previous signature, the new-optional-parameter overload is preferred because it
+        /// forwards the shared parameters directly rather than unwrapping a nullable value type.
         /// </summary>
-        public static void AddOverloadsForNewOptionalParameters(TypeProvider enclosingType, List<MethodProvider> methods)
+        public static void AddBackCompatOverloads(TypeProvider enclosingType, List<MethodProvider> methods)
         {
             if (enclosingType.LastContractView?.Methods is not { Count: > 0 } previousMethods)
             {
@@ -351,6 +354,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var currentMethods = enclosingType.CustomCodeView?.Methods is { } customMethods
                 ? methods.Concat(customMethods)
                 : methods;
+
             if (!currentMethods.Any())
             {
                 return;
@@ -370,47 +374,122 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var previousMethod in previousMethods)
             {
                 var previousSignature = previousMethod.Signature;
-                if ((!previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Public) &&
-                     !previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Protected)) ||
+                if ((previousSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) == 0 ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;
                 }
 
-                // One pass over the same-named methods: bail if the previous signature still exists,
-                // otherwise remember the first public/protected method that merely gained optional
-                // non-body parameters.
-                MethodProvider? matchedCurrent = null;
-                bool previousStillExists = false;
+                bool previousStillExistsIgnoringNullability = false;
+                bool previousStillExistsIncludingNullability = false;
+                MethodProvider? newOptionalMatch = null;
+                MethodProvider? nullabilityMatch = null;
+                MethodProvider? optionalityMatch = null;
+
                 foreach (var candidate in candidates)
                 {
-                    if (MethodSignature.MethodSignatureComparer.Equals(candidate.Signature, previousSignature))
+                    var candidateSignature = candidate.Signature;
+                    bool candidateIsAccessible = (candidateSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) != 0;
+
+                    if (MethodSignatureBase.SignatureComparerIncludingNullability.Equals(candidateSignature, previousSignature))
                     {
-                        previousStillExists = true;
+                        if (candidateIsAccessible && IsSingleNullableParameterOptionalToRequired(previousSignature, candidateSignature))
+                        {
+                            optionalityMatch = candidate;
+                        }
+                        else
+                        {
+                            previousStillExistsIncludingNullability = true;
+                        }
                         break;
                     }
 
-                    var modifiers = candidate.Signature.Modifiers;
-                    if (matchedCurrent is null &&
-                        (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected)) &&
-                        HasNewOptionalNonBodyParametersOnly(previousSignature, candidate.Signature))
+                    if (MethodSignature.MethodSignatureComparer.Equals(candidateSignature, previousSignature))
                     {
-                        matchedCurrent = candidate;
+                        previousStillExistsIgnoringNullability = true;
+                    }
+
+                    // The remaining scenarios add a public/protected shim, so only accessible candidates matter.
+                    if (!candidateIsAccessible)
+                    {
+                        continue;
+                    }
+
+                    if (newOptionalMatch is null && HasNewOptionalNonBodyParametersOnly(previousSignature, candidateSignature))
+                    {
+                        newOptionalMatch = candidate;
+                    }
+
+                    if (nullabilityMatch is null && HasRelaxedNullableValueTypeParametersOnly(previousSignature, candidateSignature))
+                    {
+                        nullabilityMatch = candidate;
                     }
                 }
 
-                if (previousStillExists || matchedCurrent is null || IsMethodRemovalAcceptedInBaseline(enclosingType, previousSignature))
+                if (previousStillExistsIncludingNullability)
                 {
                     continue;
                 }
 
-                var overload = BuildNewOptionalParameterOverload(enclosingType, previousMethod, matchedCurrent);
+                // Prefer, in order: the optionality-restoration overload (identical types, a nullable
+                // parameter became required), then the new-optional-parameter overload (forwards shared
+                // parameters directly), then the nullability overload (which unwraps the previously-nullable
+                // value type with .Value). The new-optional scenario only applies when the signature no
+                // longer exists even when parameter nullability is ignored.
+                bool canAddNewOptional = !previousStillExistsIgnoringNullability && newOptionalMatch is not null;
+                if (optionalityMatch is null && !canAddNewOptional && nullabilityMatch is null)
+                {
+                    continue;
+                }
+
+                if (IsMethodRemovalAcceptedInBaseline(enclosingType, previousSignature))
+                {
+                    continue;
+                }
+
+                var (overload, category, reason) = true switch
+                {
+                    _ when optionalityMatch is not null => (
+                        BuildOptionalityRestorationOverload(enclosingType, previousMethod, optionalityMatch),
+                        BackCompatibilityChangeCategory.SvcMethodParameterOptionalityRestorationOverloadAdded,
+                        "to restore a nullable parameter that changed from optional to required relative to the last contract."),
+                    _ when canAddNewOptional => (
+                        BuildNewOptionalParameterOverload(enclosingType, previousMethod, newOptionalMatch!),
+                        BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded,
+                        "to handle new optional parameter(s) introduced relative to the last contract."),
+                    _ => (
+                        BuildChangedParameterNullabilityOverload(enclosingType, previousMethod, nullabilityMatch!),
+                        BackCompatibilityChangeCategory.SvcMethodParameterNullabilityChangeOverloadAdded,
+                        "to preserve a parameter whose nullability was removed relative to the last contract."),
+                };
+
+                // Do not add if the new overload would be identical to an existing method
+                if (candidates.Any(c =>
+                    MethodSignatureBase.SignatureComparer.Equals(c.Signature, overload.Signature)
+                    && !MethodProviderHelpers.DiffersByValueTypeParameterNullability(c.Signature, overload.Signature)))
+                {
+                    continue;
+                }
+
                 candidates.Add(overload);
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
-                    $"Added back-compat overload for '{enclosingType.Name}.{previousSignature.Name}' to handle new optional parameter(s) introduced relative to the last contract.",
-                    BackCompatibilityChangeCategory.SvcMethodNewOptionalParameterOverloadAdded);
+                    $"Added back-compat overload for '{enclosingType.Name}.{previousSignature.Name}' {reason}",
+                    category);
             }
+        }
+
+        // Returns true when both signatures have the same return type (matched by name); a null return type
+        // matches only another null return type. Compares in both directions so that a return type whose
+        // (possibly generic) parts are unresolved in the customization compilation still matches by name.
+        private static bool ReturnTypesMatch(MethodSignature previous, MethodSignature current)
+        {
+            if (previous.ReturnType is null || current.ReturnType is null)
+            {
+                return previous.ReturnType is null && current.ReturnType is null;
+            }
+
+            return previous.ReturnType.AreNamesEqual(current.ReturnType) || current.ReturnType.AreNamesEqual(previous.ReturnType);
         }
 
         /// <summary>
@@ -428,9 +507,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return false;
             }
 
-            if (previousSignature.ReturnType is null
-                ? currentSignature.ReturnType is not null
-                : !previousSignature.ReturnType.AreNamesEqual(currentSignature.ReturnType))
+            if (!ReturnTypesMatch(previousSignature, currentSignature))
             {
                 return false;
             }
@@ -485,46 +562,44 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Named argument syntax cannot be combined with 'ref'/'out', so when any parameter is passed by
             // reference every argument is forwarded positionally instead (the arguments are already built in
             // the current method's parameter order).
-            bool hasByRefParameter = false;
-            foreach (var currentParam in currentSignature.Parameters)
-            {
-                if (currentParam.IsRef || currentParam.IsOut)
-                {
-                    hasByRefParameter = true;
-                    break;
-                }
-            }
+            bool hasByRefParameter = currentSignature.Parameters.Any(p => p.IsRef || p.IsOut);
 
             var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
+            var nullGuards = new List<MethodBodyStatement>();
             foreach (var currentParam in currentSignature.Parameters)
             {
                 var variableName = currentParam.Name.ToVariableName();
                 ValueExpression value = previousParametersByName.TryGetValue(variableName, out var previousParam)
-                    ? previousParam
+                    ? ForwardParameter(previousParam, currentParam.Type, nullGuards)
                     : currentParam.DefaultValue ?? Default;
 
-                if (hasByRefParameter)
-                {
-                    arguments.Add(currentParam.IsRef || currentParam.IsOut
-                        ? value.AsArgument(isRef: currentParam.IsRef, isOut: currentParam.IsOut)
-                        : value);
-                }
-                else
-                {
-                    arguments.Add(PositionalReference(variableName, value));
-                }
+                AddForwardedArgument(arguments, currentParam, value, hasByRefParameter);
             }
 
-            var invocationTarget = currentSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
-                ? Static(enclosingType.Type)
-                : This;
-            var delegatingCall = invocationTarget.Invoke(currentSignature.Name, arguments);
-            MethodBodyStatement body = IsVoidReturnType(currentSignature.ReturnType)
-                ? delegatingCall.Terminate()
-                : Return(delegatingCall);
+            var body = BuildDelegatingBody(enclosingType, currentSignature, arguments, nullGuards);
+
+            // Preserve the previous parameter optionality when every previous parameter is required in the
+            // current method: the current method then cannot bind a call that omits a trailing parameter, so
+            // this hidden overload can keep its optional defaults without creating an ambiguous call site,
+            // and callers that omitted an optional parameter still compile. Otherwise the defaults are
+            // stripped (BuildBackCompatMethodSignature does this) to avoid an ambiguous call with the current
+            // method over a shared optional parameter (e.g. a trailing optional CancellationToken); in that
+            // case the current method itself still serves the omitting callers.
+            int requiredCurrentParameterCount = currentSignature.Parameters.Count(p => p.DefaultValue is null);
+            var preservedDefaults = requiredCurrentParameterCount >= previousSignature.Parameters.Count
+                ? previousSignature.Parameters.Select(p => p.DefaultValue).ToArray()
+                : null;
 
             // The shim delegates without awaiting, so it must not be declared 'async'.
             var signature = MethodSignatureHelper.BuildBackCompatMethodSignature(previousSignature, hideMethod: true, shouldNotBeAsync: true);
+
+            if (preservedDefaults is not null)
+            {
+                for (int i = 0; i < signature.Parameters.Count; i++)
+                {
+                    signature.Parameters[i].DefaultValue = preservedDefaults[i];
+                }
+            }
 
             return new MethodProvider(
                 signature,
@@ -533,7 +608,352 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 previousMethod.XmlDocs);
         }
 
-        private static bool IsVoidReturnType(CSharpType? returnType) =>
-            returnType is null || (returnType.IsFrameworkType && returnType.FrameworkType == typeof(void));
+        // Forwards a previous parameter to the current method. When the parameter's value-type nullability
+        // was removed (T? -> T) it is unwrapped with .Value and a null-guard is appended (T? does not
+        // implicitly convert to T, and the guard turns a null argument into a clear ArgumentNullException);
+        // otherwise it is forwarded unchanged.
+        private static ValueExpression ForwardParameter(
+            ParameterProvider previousParam,
+            CSharpType currentParamType,
+            List<MethodBodyStatement> nullGuards)
+        {
+            if (IsNullabilityRelaxedValueType(previousParam.Type, currentParamType))
+            {
+                nullGuards.Add(ArgumentSnippets.AssertNotNull(previousParam));
+                return previousParam.Property(nameof(Nullable<int>.Value));
+            }
+
+            return previousParam;
+        }
+
+        private static void AddForwardedArgument(
+            List<ValueExpression> arguments,
+            ParameterProvider currentParam,
+            ValueExpression value,
+            bool hasByRefParameter)
+        {
+            if (hasByRefParameter)
+            {
+                arguments.Add(currentParam.IsRef || currentParam.IsOut
+                    ? value.AsArgument(isRef: currentParam.IsRef, isOut: currentParam.IsOut)
+                    : value);
+            }
+            else
+            {
+                arguments.Add(PositionalReference(currentParam.Name.ToVariableName(), value));
+            }
+        }
+
+        // Builds the shim body that forwards to the current method: any argument null-guards followed by the
+        // delegating call (returned directly, or terminated for a void return).
+        private static MethodBodyStatement BuildDelegatingBody(
+            TypeProvider enclosingType,
+            MethodSignature currentSignature,
+            IReadOnlyList<ValueExpression> arguments,
+            List<MethodBodyStatement>? nullGuards = null)
+        {
+            var invocationTarget = currentSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
+                ? Static(enclosingType.Type)
+                : This;
+            var delegatingCall = invocationTarget.Invoke(currentSignature.Name, arguments);
+            var returnType = currentSignature.ReturnType;
+            bool returnsVoid = returnType is null || (returnType.IsFrameworkType && returnType.FrameworkType == typeof(void));
+            MethodBodyStatement delegatingStatement = returnsVoid
+                ? delegatingCall.Terminate()
+                : Return(delegatingCall);
+
+            if (nullGuards is { Count: > 0 })
+            {
+                nullGuards.Add(delegatingStatement);
+                return nullGuards;
+            }
+
+            return delegatingStatement;
+        }
+
+        // Builds a hidden (EditorBrowsable.Never) overload signature from a previous signature, replacing
+        // its parameters and clearing the 'async' modifier (the shim delegates without awaiting).
+        private static MethodSignature BuildHiddenOverloadSignature(
+            MethodSignature previousSignature,
+            IReadOnlyList<ParameterProvider> parameters)
+        {
+            return new MethodSignature(
+                previousSignature.Name,
+                previousSignature.Description,
+                previousSignature.Modifiers & ~MethodSignatureModifiers.Async,
+                previousSignature.ReturnType,
+                previousSignature.ReturnDescription,
+                parameters,
+                Attributes: [new(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
+        }
+
+        /// <summary>
+        /// Returns true when <paramref name="currentSignature"/> has the same name, parameter count, and
+        /// return type as <paramref name="previousSignature"/>, every parameter matches by name and type,
+        /// and at least one parameter differs only in that a nullable value type (<c>T?</c>) became its
+        /// non-nullable form (<c>T</c>).
+        /// </summary>
+        public static bool HasRelaxedNullableValueTypeParametersOnly(
+            MethodSignature previousSignature,
+            MethodSignature currentSignature)
+        {
+            if (previousSignature.Parameters.Count != currentSignature.Parameters.Count)
+            {
+                return false;
+            }
+
+            if (!ReturnTypesMatch(previousSignature, currentSignature))
+            {
+                return false;
+            }
+
+            bool foundNullabilityChange = false;
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                var previousParam = previousSignature.Parameters[i];
+                var currentParam = currentSignature.Parameters[i];
+
+                if (previousParam.Name.ToVariableName() != currentParam.Name.ToVariableName())
+                {
+                    return false;
+                }
+
+                // An unchanged parameter (identical type, including nullability).
+                if (previousParam.Type.AreNamesEqual(currentParam.Type, checkNullability: true))
+                {
+                    continue;
+                }
+
+                // A value-type parameter whose nullability was removed (T? -> T).
+                if (IsNullabilityRelaxedValueType(previousParam.Type, currentParam.Type))
+                {
+                    // A ref/out parameter cannot be forwarded through .Value
+                    if (currentParam.IsRef || currentParam.IsOut || previousParam.IsRef || previousParam.IsOut)
+                    {
+                        return false;
+                    }
+
+                    foundNullabilityChange = true;
+                    continue;
+                }
+
+                // Any other difference disqualifies the method from this scenario.
+                return false;
+            }
+
+            return foundNullabilityChange;
+        }
+
+        private static bool IsNullabilityRelaxedValueType(CSharpType previousType, CSharpType currentType)
+        {
+            if (previousType is not { IsValueType: true, IsNullable: true })
+            {
+                return false;
+            }
+
+            // The current parameter resolved to the non-nullable value type. Compare names in both
+            // directions so a type that is unresolved in the customization compilation still matches by name.
+            if (currentType is { IsValueType: true, IsNullable: false })
+            {
+                return previousType.AreNamesEqual(currentType) || currentType.AreNamesEqual(previousType);
+            }
+
+            return !currentType.IsNullable
+               && !currentType.IsFrameworkType
+               && string.IsNullOrEmpty(currentType.Namespace)
+               && currentType.Name == previousType.Name;
+        }
+
+        private static MethodProvider BuildChangedParameterNullabilityOverload(
+            TypeProvider enclosingType,
+            MethodProvider previousMethod,
+            MethodProvider currentMethod)
+        {
+            var previousSignature = previousMethod.Signature;
+            var currentSignature = currentMethod.Signature;
+
+            // Making the changed (nullability-relaxed) parameter required avoids an ambiguous call site
+            // with the current (non-nullable) method, but that is only necessary when the current
+            // parameter is itself optional. When the current parameter is required, the previous optional
+            // default is preserved: the current required overload wins for concrete values while this
+            // optional overload still binds for omitted/null callers, so omit-callers do not break.
+            // To keep a valid required-before-optional ordering, strip defaults from every parameter up to
+            // and including the last one that must become required.
+            int lastRequiredIndex = -1;
+            for (int i = 0; i < previousSignature.Parameters.Count; i++)
+            {
+                if (IsNullabilityRelaxedValueType(previousSignature.Parameters[i].Type, currentSignature.Parameters[i].Type)
+                    && currentSignature.Parameters[i].DefaultValue is not null)
+                {
+                    lastRequiredIndex = i;
+                }
+            }
+
+            var shimParameters = new ParameterProvider[previousSignature.Parameters.Count];
+            for (int i = 0; i < shimParameters.Length; i++)
+            {
+                var previousParam = previousSignature.Parameters[i];
+                shimParameters[i] = PartialMethodCustomization.CloneParameterWithName(
+                    previousParam,
+                    previousParam.Name,
+                    removeDefault: i <= lastRequiredIndex);
+            }
+
+            // Build the delegating call, unwrapping each previously-nullable value-type argument with .Value
+            // (guarded first) to match the current non-nullable parameter type.
+            bool hasByRefParameter = currentSignature.Parameters.Any(p => p.IsRef || p.IsOut);
+            var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
+            var nullGuards = new List<MethodBodyStatement>();
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                var currentParam = currentSignature.Parameters[i];
+                var value = ForwardParameter(shimParameters[i], currentParam.Type, nullGuards);
+                AddForwardedArgument(arguments, currentParam, value, hasByRefParameter);
+            }
+
+            var body = BuildDelegatingBody(enclosingType, currentSignature, arguments, nullGuards);
+            var signature = BuildHiddenOverloadSignature(previousSignature, shimParameters);
+
+            return new MethodProvider(
+                signature,
+                body,
+                enclosingType,
+                previousMethod.XmlDocs);
+        }
+
+        // Given two signatures already known to have equal parameter count and types (including nullability),
+        // e.g. verified via SignatureComparerIncludingNullability, returns true when their only difference is
+        // that exactly one nullable parameter changed from optional to required and dropping it in a
+        // reduced-arity overload stays unambiguous (its type differs from every other parameter's type).
+        internal static bool IsSingleNullableParameterOptionalToRequired(
+            MethodSignature previousSignature,
+            MethodSignature currentSignature)
+        {
+            if (!ReturnTypesMatch(previousSignature, currentSignature))
+            {
+                return false;
+            }
+
+            int becameRequiredIndex = -1;
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                var previousParam = previousSignature.Parameters[i];
+                var currentParam = currentSignature.Parameters[i];
+
+                if (previousParam.Name.ToVariableName() != currentParam.Name.ToVariableName())
+                {
+                    return false;
+                }
+
+                if (previousParam.DefaultValue is not null && currentParam.DefaultValue is null)
+                {
+                    // Only a nullable parameter is in scope, and only a single one so the reduced-arity
+                    // overload stays unambiguous.
+                    if (!currentParam.Type.IsNullable || becameRequiredIndex != -1)
+                    {
+                        return false;
+                    }
+                    becameRequiredIndex = i;
+                }
+            }
+
+            if (becameRequiredIndex == -1)
+            {
+                return false;
+            }
+
+            // The reduced-arity overload drops the became-required parameter; a single positional argument
+            // could bind to both overloads if any remaining parameter shares its (underlying) type.
+            var droppedType = currentSignature.Parameters[becameRequiredIndex].Type;
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                if (i != becameRequiredIndex && droppedType.AreNamesEqual(currentSignature.Parameters[i].Type))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static MethodProvider BuildOptionalityRestorationOverload(
+            TypeProvider enclosingType,
+            MethodProvider previousMethod,
+            MethodProvider currentMethod)
+        {
+            var previousSignature = previousMethod.Signature;
+            var currentSignature = currentMethod.Signature;
+
+            // Find the single nullable parameter that changed from optional to required.
+            int droppedIndex = -1;
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                if (previousSignature.Parameters[i].DefaultValue is not null && currentSignature.Parameters[i].DefaultValue is null)
+                {
+                    droppedIndex = i;
+                    break;
+                }
+            }
+
+            var droppedParameter = previousSignature.Parameters[droppedIndex];
+
+            // The overload reproduces the previous signature without the dropped parameter, preserving the
+            // previous optionality of the remaining parameters.
+            var shimParameters = previousSignature.Parameters.Where((_, i) => i != droppedIndex).ToList();
+
+            // Delegate to the current (required) method, supplying the dropped parameter's previous default.
+            bool hasByRefParameter = currentSignature.Parameters.Any(p => p.IsRef || p.IsOut);
+            var arguments = new List<ValueExpression>(currentSignature.Parameters.Count);
+            for (int i = 0; i < currentSignature.Parameters.Count; i++)
+            {
+                var currentParam = currentSignature.Parameters[i];
+                ValueExpression value = i == droppedIndex
+                    ? droppedParameter.DefaultValue ?? Default
+                    : previousSignature.Parameters[i];
+                AddForwardedArgument(arguments, currentParam, value, hasByRefParameter);
+            }
+
+            var body = BuildDelegatingBody(enclosingType, currentSignature, arguments);
+            var signature = BuildHiddenOverloadSignature(previousSignature, shimParameters);
+            var xmlDocs = BuildXmlDocsWithoutParameter(previousMethod.XmlDocs, droppedParameter.Name.ToVariableName());
+
+            return new MethodProvider(
+                signature,
+                body,
+                enclosingType,
+                xmlDocs);
+        }
+
+        // Rebuilds an XML doc provider without any reference to the dropped parameter: its &lt;param&gt;
+        // entry is removed and every &lt;exception&gt; that referenced it is rebuilt without that
+        // &lt;paramref&gt; (exceptions that referenced only the dropped parameter are removed entirely).
+        // This avoids stale-doc compile errors (CS1572/CS1734) on the reduced-arity overload.
+        private static XmlDocProvider BuildXmlDocsWithoutParameter(XmlDocProvider docs, string droppedVariableName)
+        {
+            var filteredParameters = docs.Parameters
+                .Where(p => p.Parameter.Name.ToVariableName() != droppedVariableName)
+                .ToList();
+
+            var filteredExceptions = new List<XmlDocExceptionStatement>(docs.Exceptions.Count);
+            foreach (var exceptionDoc in docs.Exceptions)
+            {
+                var remaining = exceptionDoc.Parameters
+                    .Where(p => p.Name.ToVariableName() != droppedVariableName)
+                    .ToList();
+
+                // Drop an exception that referenced only the removed parameter; keep an unrelated one as-is;
+                // otherwise rebuild it without the removed paramref.
+                if (exceptionDoc.Parameters.Count > 0 && remaining.Count == 0)
+                {
+                    continue;
+                }
+
+                filteredExceptions.Add(remaining.Count == exceptionDoc.Parameters.Count
+                    ? exceptionDoc
+                    : new XmlDocExceptionStatement(exceptionDoc.ExceptionType, remaining));
+            }
+
+            return new XmlDocProvider(docs.Summary, filteredParameters, filteredExceptions, docs.Returns, docs.Inherit);
+        }
     }
 }
