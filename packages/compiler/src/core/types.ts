@@ -2499,6 +2499,18 @@ export interface TypeSpecLibraryDef<
   readonly capabilities?: TypeSpecLibraryCapabilities;
 
   /**
+   * Reference documentation configuration for this library.
+   * When set, the compiler auto-generates the `url` of each documented diagnostic and linter
+   * rule that does not specify one explicitly, pointing at the generated reference pages:
+   *  - diagnostics -> `${baseUrl}/diagnostics/<code>`
+   *  - linter rules -> `${baseUrl}/rules/<name>`
+   */
+  readonly referenceDocs?: {
+    /** Base URL of the library's generated reference documentation (e.g. its `.../reference` page). */
+    readonly baseUrl: string;
+  };
+
+  /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
   readonly diagnostics: DiagnosticMap<T>;

@@ -1,6 +1,8 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { Hover, MarkupKind } from "vscode-languageserver";
+import { fileRef } from "../../src/core/file-ref.js";
+import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -834,6 +836,238 @@ describe("template access", () => {
     ok(returnTypeValue.includes("(template access)"));
     ok(returnTypeValue.includes("O::returnType extends unknown"));
   });
+});
+
+describe("compiler: server: on hover: diagnostic docs", () => {
+  it("shows the extended docs and reference link of a diagnostic reported at the position", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      docs: "This is the **extended** documentation for always-error.",
+      referenceDocsBaseUrl: "https://example.com/test-lib/reference",
+    });
+    ok(value);
+    ok(
+      value.includes("This is the **extended** documentation for always-error."),
+      `Expected extended docs in hover, got:\n${value}`,
+    );
+    ok(
+      value.includes(
+        "[See documentation](https://example.com/test-lib/reference/diagnostics/always-error)",
+      ),
+      `Expected reference link in hover, got:\n${value}`,
+    );
+  });
+
+  it("reads docs from a co-located file referenced with fileRef", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      docs: fileRef.fromPackageRoot("docs/always-error.md"),
+      docContent: "Documentation loaded from a file.",
+    });
+    ok(value);
+    ok(
+      value.includes("Documentation loaded from a file."),
+      `Expected file-based docs in hover, got:\n${value}`,
+    );
+  });
+
+  it("resolves fileRef docs from a dependency hoisted to an ancestor node_modules", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      docs: fileRef.fromPackageRoot("docs/always-error.md"),
+      docContent: "Documentation loaded from a hoisted package.",
+      hoisted: true,
+    });
+    ok(value);
+    ok(
+      value.includes("Documentation loaded from a hoisted package."),
+      `Expected hoisted file-based docs in hover, got:\n${value}`,
+    );
+  });
+
+  it("does not show a dead reference link when the diagnostic has no docs", async () => {
+    const value = await getHoverValueWithLibDiagnostic({
+      referenceDocsBaseUrl: "https://example.com/test-lib/reference",
+    });
+    ok(value);
+    ok(
+      !value.includes("[See documentation]"),
+      `Expected no reference link in hover, got:\n${value}`,
+    );
+  });
+
+  // Regression: a library's `$linter` commonly lives only in its default entry (e.g. http's
+  // `index.js`), while the entry imported by `.tsp` files (the `typespec` condition) exposes
+  // only `$lib`. The hover must still resolve linter-rule docs from the default entry.
+  it("shows linter rule docs whose $linter is only in the library's default entry", async () => {
+    const testHost = await createTestServerHost();
+    const packageRoot = "test/node_modules/linter-lib";
+
+    const $lib = createTypeSpecLibrary({
+      name: "linter-lib",
+      referenceDocs: { baseUrl: "https://example.com/linter-lib/reference" },
+      diagnostics: {},
+    } as any);
+    const noModelsRule = createLinterRule({
+      name: "no-models",
+      severity: "warning",
+      description: "Models are not allowed.",
+      docs: "Extended docs for the **no-models** rule (from the default entry).",
+      messages: { default: "Models are not allowed." },
+      create(context) {
+        return { model: (model) => context.reportDiagnostic({ target: model }) };
+      },
+    });
+
+    // `typespec` condition entry: only `$lib`, NO `$linter`.
+    testHost.addJsFile(`${packageRoot}/tsp-index.js`, { $lib });
+    // default/`import` condition entry: both `$lib` and `$linter`.
+    testHost.addJsFile(`${packageRoot}/index.js`, { $lib, $linter: { rules: [noModelsRule] } });
+    testHost.addTypeSpecFile(
+      `${packageRoot}/package.json`,
+      JSON.stringify({
+        name: "linter-lib",
+        version: "0.1.0",
+        exports: { ".": { typespec: "./main.tsp", import: "./index.js" } },
+        peerDependencies: { "@typespec/compiler": "*" },
+      }),
+    );
+    testHost.addTypeSpecFile(
+      `${packageRoot}/main.tsp`,
+      `import "./tsp-index.js";\nnamespace LinterLib;\n`,
+    );
+    testHost.addTypeSpecFile(
+      "test/package.json",
+      JSON.stringify({ dependencies: { "linter-lib": "*" } }),
+    );
+    testHost.addTypeSpecFile(
+      "test/tspconfig.yaml",
+      "linter:\n  enable:\n    'linter-lib/no-models': true",
+    );
+
+    const { source, pos } = extractCursor(`
+      import "linter-lib";
+
+      model Fo┆o {}
+    `);
+    const document = testHost.addOrUpdateDocument("test/main.tsp", source);
+    await testHost.server.compile(document, undefined, { mode: "full" });
+
+    const value = getHoverValue(
+      await testHost.server.getHover({
+        textDocument: document,
+        position: document.positionAt(pos),
+      }),
+    );
+    ok(value);
+    ok(
+      value.includes("Extended docs for the **no-models** rule (from the default entry)."),
+      `Expected linter rule docs in hover, got:\n${value}`,
+    );
+  });
+
+  async function getHoverValueWithLibDiagnostic(options: {
+    docs?: string | ReturnType<typeof fileRef.fromPackageRoot>;
+    referenceDocsBaseUrl?: string;
+    docContent?: string;
+    hoisted?: boolean;
+  }): Promise<string | undefined> {
+    const testHost = await createTestServerHost();
+    const projectRoot = options.hoisted ? "workspace/packages/test" : "test";
+    const packageRoot = options.hoisted
+      ? "workspace/node_modules/test-lib"
+      : `${projectRoot}/node_modules/test-lib`;
+
+    addTestLibrary(testHost, packageRoot, options);
+    const { document, pos } = addTestProject(testHost, projectRoot, "Foo");
+
+    // Full compile first so linter/library diagnostics are indexed for hover to pick up.
+    await testHost.server.compile(document, undefined, { mode: "full" });
+
+    return getHoverValue(
+      await testHost.server.getHover({
+        textDocument: document,
+        position: document.positionAt(pos),
+      }),
+    );
+  }
+
+  function addTestLibrary(
+    testHost: Awaited<ReturnType<typeof createTestServerHost>>,
+    packageRoot: string,
+    options: {
+      docs?: string | ReturnType<typeof fileRef.fromPackageRoot>;
+      referenceDocsBaseUrl?: string;
+      docContent?: string;
+    },
+  ) {
+    const $lib = createTypeSpecLibrary({
+      name: "test-lib",
+      ...(options.referenceDocsBaseUrl
+        ? { referenceDocs: { baseUrl: options.referenceDocsBaseUrl } }
+        : {}),
+      diagnostics: {
+        "always-error": {
+          severity: "error",
+          ...(options.docs !== undefined ? { docs: options.docs } : {}),
+          messages: { default: "Always errors." },
+        },
+      },
+    } as any);
+
+    testHost.addJsFile(`${packageRoot}/index.js`, {
+      $lib,
+      $decorators: {
+        TestLib: {
+          alwaysError: (context: any, target: any) => {
+            ($lib as any).reportDiagnostic(context.program, {
+              code: "always-error",
+              target,
+            });
+          },
+        },
+      },
+    });
+    testHost.addTypeSpecFile(
+      `${packageRoot}/package.json`,
+      JSON.stringify({
+        name: "test-lib",
+        version: "0.1.0",
+        exports: {
+          ".": {
+            import: "./index.js",
+            typespec: "./main.tsp",
+          },
+        },
+        peerDependencies: { "@typespec/compiler": "*" },
+      }),
+    );
+    testHost.addTypeSpecFile(
+      `${packageRoot}/main.tsp`,
+      `import "./index.js";\nnamespace TestLib;\nextern dec alwaysError(target: unknown);\n`,
+    );
+    if (options.docContent !== undefined) {
+      testHost.addTypeSpecFile(`${packageRoot}/docs/always-error.md`, options.docContent);
+    }
+  }
+
+  function addTestProject(
+    testHost: Awaited<ReturnType<typeof createTestServerHost>>,
+    projectRoot: string,
+    modelName: string,
+  ) {
+    testHost.addTypeSpecFile(
+      `${projectRoot}/package.json`,
+      JSON.stringify({ dependencies: { "test-lib": "*" } }),
+    );
+
+    const { source, pos } = extractCursor(`
+      import "test-lib";
+      using TestLib;
+
+      @alwaysError
+      model ${modelName.slice(0, -1)}┆${modelName.slice(-1)} {}
+    `);
+    const document = testHost.addOrUpdateDocument(`${projectRoot}/main.tsp`, source);
+    return { document, pos };
+  }
 });
 
 async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undefined> {

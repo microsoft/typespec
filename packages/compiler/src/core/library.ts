@@ -66,7 +66,11 @@ export function createTypeSpecLibrary<
 >(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
 
-  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(
+    lib.diagnostics,
+    lib.name,
+    lib.referenceDocs?.baseUrl,
+  );
 
   function createStateSymbol(name: string): symbol {
     return Symbol.for(`${lib.name}.${name}`);

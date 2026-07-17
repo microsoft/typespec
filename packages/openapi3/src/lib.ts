@@ -302,6 +302,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/openapi3",
+  referenceDocs: { baseUrl: "https://typespec.io/docs/emitters/openapi3/reference" },
   capabilities: {
     dryRun: true,
   },

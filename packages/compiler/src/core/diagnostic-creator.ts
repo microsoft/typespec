@@ -17,6 +17,7 @@ import type {
 export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMessages }>(
   diagnostics: DiagnosticMap<T>,
   libraryName?: string,
+  referenceDocsBaseUrl?: string,
 ): DiagnosticCreator<T> {
   const errorMessage = libraryName
     ? `It must match one of the code defined in the library '${libraryName}'`
@@ -59,6 +60,9 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
     };
     if (diagnosticDef.url) {
       mutate(result).url = diagnosticDef.url;
+    } else if (diagnosticDef.docs && referenceDocsBaseUrl) {
+      mutate(result).url =
+        `${referenceDocsBaseUrl.replace(/\/$/, "")}/diagnostics/${String(diagnostic.code)}`;
     }
     if (diagnostic.codefixes) {
       mutate(result).codefixes = diagnostic.codefixes;

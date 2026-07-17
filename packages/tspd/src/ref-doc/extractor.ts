@@ -129,7 +129,7 @@ export async function extractLibraryRefDocs(
     }
     const linter = entrypoint.$linter;
     if (lib && linter) {
-      const resolved = resolveLinterDefinition(lib.name, linter);
+      const resolved = resolveLinterDefinition(lib.name, linter, lib.referenceDocs?.baseUrl);
       refDoc.linter = extractLinterRefDoc(lib.name, resolved, libraryPath);
       for (const r of refDoc.linter.rules) {
         if (!r.doc) {

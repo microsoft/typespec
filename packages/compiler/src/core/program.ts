@@ -56,6 +56,7 @@ import {
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
+  LinterDefinition,
   LiteralType,
   LocationContext,
   LogSink,
@@ -135,9 +136,30 @@ export interface Program {
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
   /**
+   * Get information about a library loaded during this compilation, by its package name.
+   * Used by tooling (e.g. the language server) to resolve reference documentation.
+   * @internal
+   */
+  getLoadedLibraryInfo(name: string): Promise<LoadedLibraryInfo | undefined>;
+
+  /**
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+}
+
+/**
+ * Information about a library loaded during compilation, used by tooling (e.g. the
+ * language server) to resolve reference documentation without re-resolving or reloading it.
+ * @internal
+ */
+export interface LoadedLibraryInfo {
+  /** Absolute path to the package root (the folder containing the library's package.json). */
+  readonly packageRoot: string;
+  /** The library's `$lib` export, if any. */
+  readonly $lib?: TypeSpecLibrary<any>;
+  /** The library's `$linter` export, if any. */
+  readonly $linter?: LinterDefinition;
 }
 
 interface EmitterRef {
@@ -271,6 +293,7 @@ async function createProgram(
     /** @internal */
     resolveTypeOrValueReference,
     getSourceFileLocationContext,
+    getLoadedLibraryInfo,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
 
@@ -492,6 +515,25 @@ async function createProgram(
     return locationContext;
   }
 
+  async function getLoadedLibraryInfo(name: string): Promise<LoadedLibraryInfo | undefined> {
+    const ref = sourceResolution.loadedLibraries.get(name);
+    if (ref === undefined) {
+      return undefined;
+    }
+    // Load the library's default entrypoint (which exports `$lib` and `$linter`) the same way the
+    // compiler does. `loadJsFile` is cached, so for a library already loaded during this
+    // compilation this does not re-read or re-evaluate anything. Note the entry imported by
+    // `.tsp` files (the `typespec` condition) may only expose `$lib`, so we can't rely on the
+    // already-parsed `jsSourceFiles` to also carry `$linter`.
+    const [resolution] = await resolveEmitterModuleAndEntrypoint(basedir, name);
+    const esmExports = resolution?.entrypoint?.esmExports;
+    return {
+      packageRoot: ref.path,
+      $lib: esmExports?.$lib,
+      $linter: esmExports?.$linter,
+    };
+  }
+
   async function loadEmitters(
     basedir: string,
     emitterNameOrPaths: string[],
@@ -548,7 +590,13 @@ async function createProgram(
       ...resolution,
       metadata,
       definition: libDefinition,
-      linter: linterDef && resolveLinterDefinition(libraryNameOrPath, linterDef),
+      linter:
+        linterDef &&
+        resolveLinterDefinition(
+          libraryNameOrPath,
+          linterDef,
+          libDefinition?.referenceDocs?.baseUrl,
+        ),
     };
   }
 
