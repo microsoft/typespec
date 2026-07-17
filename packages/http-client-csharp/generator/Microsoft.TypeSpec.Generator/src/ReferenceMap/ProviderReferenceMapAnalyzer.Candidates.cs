@@ -422,13 +422,17 @@ namespace Microsoft.TypeSpec.Generator
 
                 modelProviders.Add(modelProvider);
 
-                if (modelProvider.DiscriminatorProperty != null)
+                var hasKnownDiscriminatorVariants = modelProvider.DerivedModels.Any(
+                    derivedModel => !derivedModel.IsUnknownDiscriminatorModel && derivedModel.DiscriminatorValue != null);
+                if (modelProvider.DiscriminatorProperty != null || hasKnownDiscriminatorVariants)
                 {
                     discriminatorBaseNames.Add(GetProviderTypeName(modelProvider.Type));
                 }
 
                 if (!modelProvider.IsUnknownDiscriminatorModel &&
-                    (modelProvider.DiscriminatorProperty != null || modelProvider.DiscriminatorValue != null))
+                    (modelProvider.DiscriminatorProperty != null ||
+                        modelProvider.DiscriminatorValue != null ||
+                        hasKnownDiscriminatorVariants))
                 {
                     discriminatorProviders.Add(modelProvider);
                 }
@@ -499,6 +503,13 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         addedReference = true;
                     }
+                }
+
+                var reachableCount = publicBaseModels.Count;
+                publicBaseModels.UnionWith(GetReachableTypes(publicBaseModels, references));
+                if (publicBaseModels.Count != reachableCount)
+                {
+                    addedReference = true;
                 }
             }
         }

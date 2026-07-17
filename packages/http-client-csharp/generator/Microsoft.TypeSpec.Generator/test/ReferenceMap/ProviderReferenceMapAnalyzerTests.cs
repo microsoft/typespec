@@ -346,6 +346,110 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void NestedKnownDiscriminatorVariantRemainsPublicWhenOuterBaseIsCustomRoot()
+        {
+            var innerDiscriminator = InputFactory.Property(
+                "innerKind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var innerDerivedInput = InputFactory.Model(
+                "InnerKnownVariant",
+                "Sample",
+                access: null!,
+                discriminatedKind: "inner");
+            var innerBaseInput = InputFactory.Model(
+                "InnerBaseModel",
+                "Sample",
+                access: null!,
+                properties: [innerDiscriminator],
+                derivedModels: [innerDerivedInput],
+                discriminatorProperty: innerDiscriminator);
+            var outerDiscriminator = InputFactory.Property(
+                "outerKind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var outerDerivedInput = InputFactory.Model(
+                "OuterKnownVariant",
+                "Sample",
+                access: null!,
+                properties: [InputFactory.Property("nested", innerBaseInput, isRequired: true)],
+                discriminatedKind: "outer");
+            var outerBaseInput = InputFactory.Model(
+                "OuterBaseModel",
+                "Sample",
+                access: null!,
+                properties: [outerDiscriminator],
+                derivedModels: [outerDerivedInput],
+                discriminatorProperty: outerDiscriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes:
+            [
+                outerBaseInput,
+                outerDerivedInput,
+                innerBaseInput,
+                innerDerivedInput
+            ]);
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var outerBaseProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "OuterBaseModel");
+            var innerDerivedProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "InnerKnownVariant");
+            var customCodeView = new SignatureDependencyTestTypeProvider(
+                "CustomApi",
+                TypeSignatureModifiers.Public,
+                outerBaseProvider.Type);
+            var customApi = new CustomizableTestTypeProvider(
+                "CustomApi",
+                TypeSignatureModifiers.Public,
+                customCodeView,
+                "Sample");
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([customApi, .. providers]);
+
+            Assert.IsTrue(innerDerivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(innerDerivedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
+        public void KnownDiscriminatorVariantRemainsPublicWhenIntermediateBaseHasNoDiscriminatorProperty()
+        {
+            var discriminator = InputFactory.Property(
+                "kind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var leafInput = InputFactory.Model(
+                "KnownVariant",
+                "Sample",
+                access: null!,
+                discriminatedKind: "known");
+            var intermediateInput = InputFactory.Model(
+                "IntermediateBase",
+                "Sample",
+                access: null!,
+                derivedModels: [leafInput]);
+            var rootInput = InputFactory.Model(
+                "RootBase",
+                "Sample",
+                access: null!,
+                properties: [discriminator],
+                derivedModels: [intermediateInput],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [rootInput, intermediateInput, leafInput]);
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var rootProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "RootBase");
+            var intermediateProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "IntermediateBase");
+            var leafProvider = providers.OfType<ModelProvider>().Single(provider => provider.Name == "KnownVariant");
+            CodeModelGenerator.Instance.AddTypeToKeep(rootProvider);
+
+            Assert.IsNull(intermediateProvider.DiscriminatorProperty);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(providers);
+
+            Assert.IsTrue(leafProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(leafProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
         public void DisconnectedKnownDiscriminatorVariantIsNotPublicRoot()
         {
             var discriminator = InputFactory.Property(
