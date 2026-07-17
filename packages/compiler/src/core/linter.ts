@@ -49,9 +49,14 @@ export interface LinterResult {
 export function resolveLinterDefinition(
   libName: string,
   linter: LinterDefinition,
+  referenceDocsBaseUrl?: string,
 ): LinterResolvedDefinition {
   const rules: LinterRule<string, any>[] = linter.rules.map((rule) => {
-    return { ...rule, id: `${libName}/${rule.name}` };
+    const resolved: LinterRule<string, any> = { ...rule, id: `${libName}/${rule.name}` };
+    if (resolved.url === undefined && resolved.docs && referenceDocsBaseUrl) {
+      resolved.url = `${referenceDocsBaseUrl.replace(/\/$/, "")}/rules/${rule.name}`;
+    }
+    return resolved;
   });
   if (linter.rules.length === 0 || (linter.ruleSets && "all" in linter.ruleSets)) {
     return {
