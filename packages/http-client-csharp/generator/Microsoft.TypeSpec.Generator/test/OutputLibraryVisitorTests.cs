@@ -332,40 +332,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
-        public async Task NestedProviderConstructorIsFilteredWhenMatchingCustomCode()
-        {
-            var typeProvider = new TestTypeProvider(ns: "Sample");
-            var customNestedProvider = new TestConstructorTypeProvider("NestedType", "Sample");
-            customNestedProvider.ConstructorProviders =
-            [
-                new ConstructorProvider(
-                    new ConstructorSignature(customNestedProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
-                    Snippet.Throw(Snippet.Null), customNestedProvider)
-            ];
-            var nestedProvider = new TestConstructorTypeProvider("NestedType", "Sample", typeProvider, customNestedProvider);
-            var constructor = new ConstructorProvider(
-                new ConstructorSignature(nestedProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
-                Snippet.Throw(Snippet.Null), nestedProvider);
-            nestedProvider.ConstructorProviders = [constructor];
-            typeProvider.NestedTypesInternal = [nestedProvider];
-
-            var generator = await MockHelpers.LoadMockGeneratorAsync(
-                createOutputLibrary: () => new TestOutputLibrary(typeProvider));
-
-            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
-            {
-                type.EnsureBuilt();
-            }
-
-            Assert.AreEqual(1, nestedProvider.Constructors.Count, "Nested provider should have 1 constructor before filtering");
-            Assert.IsNotNull(nestedProvider.CustomCodeView, "Nested provider custom code view should be found");
-
-            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
-
-            Assert.AreEqual(0, nestedProvider.Constructors.Count, "Nested provider constructor should be filtered when matching custom code");
-        }
-
-        [Test]
         public async Task MatchingPropertyIsFilteredAfterVisitorMutation()
         {
             var typeProvider = new TestTypeProvider();
@@ -552,35 +518,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             protected override string BuildRelativeFilePath() => $"{Name}.cs";
             protected override string BuildName() => "TestSerializationProvider";
             protected override string BuildNamespace() => "Test";
-            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
-        }
-
-        private class TestConstructorTypeProvider : TypeProvider
-        {
-            private readonly string _name;
-            private readonly string _namespace;
-            private readonly TypeProvider? _declaringTypeProvider;
-
-            public TestConstructorTypeProvider(string name, string @namespace, TypeProvider? declaringTypeProvider = null)
-                : this(name, @namespace, declaringTypeProvider, customCodeView: null)
-            {
-            }
-
-            public TestConstructorTypeProvider(string name, string @namespace, TypeProvider? declaringTypeProvider, TypeProvider? customCodeView)
-            {
-                _name = name;
-                _namespace = @namespace;
-                _declaringTypeProvider = declaringTypeProvider;
-                _customCodeView = customCodeView;
-            }
-
-            private readonly TypeProvider? _customCodeView;
-            public ConstructorProvider[] ConstructorProviders { get; set; } = [];
-            protected override string BuildRelativeFilePath() => $"{Name}.cs";
-            protected override string BuildName() => _name;
-            protected override string BuildNamespace() => _namespace;
-            protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
-            private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => _customCodeView;
             protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
     }

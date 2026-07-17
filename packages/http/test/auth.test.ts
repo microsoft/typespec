@@ -124,3 +124,32 @@ it("should deduplicate scopes when multiple flows share the same scopes", async 
     expect(oauthRef.scopes).toHaveLength(1);
   }
 });
+
+it("carries scopes on the auth ref for OpenIdConnectAuth", async () => {
+  const { program } = await Tester.compile(`
+    model oidc<Scopes extends string[]>
+      is OpenIdConnectAuth<"https://example.org/.well-known/openid-configuration", Scopes>;
+
+    @useAuth(oidc<["read", "write"]>)
+    @test op testOp(): void;
+  `);
+
+  const [services] = getAllHttpServices(program);
+  const httpService = services[0];
+  const auth = resolveAuthentication(httpService);
+
+  const testOp = httpService.operations.find((op) => op.operation.name === "testOp");
+  ok(testOp, "Should find test operation");
+
+  const operationAuth = auth.operationsAuth.get(testOp.operation);
+  ok(operationAuth, "Should have operation auth");
+
+  const ref = operationAuth.options[0].all[0];
+  // OIDC routes through the scheme-agnostic `any` ref which carries the
+  // requirement scopes.
+  strictEqual(ref.kind, "any");
+  strictEqual(ref.auth.type, "openIdConnect");
+  if (ref.kind === "any") {
+    expect(ref.scopes).toEqual(["read", "write"]);
+  }
+});

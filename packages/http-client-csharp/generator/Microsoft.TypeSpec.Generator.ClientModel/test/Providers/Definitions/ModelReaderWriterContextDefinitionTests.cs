@@ -5,7 +5,6 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -114,113 +113,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 buildableAttributes[0].Arguments.First().ToDisplayString());
             Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[1].Arguments.First().ToDisplayString(),
                 "The ModelReaderWriterBuildableAttribute should be generated for TestMrwSerialization");
-        }
-
-        [Test]
-        public void RemovedProvidersDoNotContributeBuildableAttributes()
-        {
-            var keptProvider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: false);
-            var removedProvider = new RemovedProviderWithFrameworkDependency();
-            var outputLibrary = new TestOutputLibrary([keptProvider, removedProvider]);
-            MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
-
-            try
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(keptProvider);
-                ProviderReferenceMapAnalyzer.Analyze(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders);
-
-                var contextDefinition = new ModelReaderWriterContextDefinition();
-                var buildableAttributes = contextDefinition.Attributes
-                    .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
-                    .Select(a => a.Arguments.First().ToDisplayString())
-                    .ToList();
-
-                Assert.AreEqual(1, buildableAttributes.Count);
-                Assert.AreEqual("typeof(global::Sample.TestMrwSerialization)", buildableAttributes[0]);
-                Assert.IsFalse(
-                    buildableAttributes.Contains("typeof(global::Sample.RemovedProviderWithFrameworkDependency)"),
-                    "Removed providers should not get standalone context entries.");
-            }
-            finally
-            {
-                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
-            }
-        }
-
-        [Test]
-        public async Task VisitorAttributesArePreservedAfterReferenceMapAnalysis()
-        {
-            var outputPath = Path.Combine(
-                TestContext.CurrentContext.WorkDirectory,
-                nameof(ModelReaderWriterContextDefinitionTests),
-                nameof(VisitorAttributesArePreservedAfterReferenceMapAnalysis));
-            var outputLibrary = new TestOutputLibrary([new RemovedProviderWithFrameworkDependency()]);
-            var mockGenerator = MockHelpers.LoadMockGenerator(
-                createOutputLibrary: () => outputLibrary,
-                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
-                outputPath: outputPath);
-            mockGenerator.Object.AddVisitor(new ContextAttributeVisitor());
-
-            await new CSharpGen().ExecuteAsync();
-
-            var context = outputLibrary.TypeProviders.OfType<ModelReaderWriterContextDefinition>().Single();
-            Assert.IsTrue(context.Attributes.Any(attribute => attribute.Type.Equals(typeof(ObsoleteAttribute))));
-            var content = await File.ReadAllTextAsync(Path.Combine(outputPath, context.RelativeFilePath));
-            StringAssert.Contains("[Obsolete]", content);
-            StringAssert.DoesNotContain(nameof(RemovedProviderWithFrameworkDependency), content);
-        }
-
-        [Test]
-        public void RemovedFrameworkTypeIsNotMatchedToKeptProviderWithSameSimpleName()
-        {
-            var keptProvider = new ShadowedBuildableProvider("Sample");
-            var removedProvider = new RemovedShadowedBuildableProvider();
-            var outputLibrary = new TestOutputLibrary([keptProvider, removedProvider]);
-            MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
-
-            try
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(keptProvider);
-                ProviderReferenceMapAnalyzer.Analyze(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders);
-
-                var contextDefinition = new ModelReaderWriterContextDefinition();
-                var buildableAttributes = contextDefinition.Attributes
-                    .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
-                    .Select(a => a.Arguments.First().ToDisplayString())
-                    .ToList();
-
-                Assert.AreEqual(1, buildableAttributes.Count);
-                Assert.AreEqual("typeof(global::Sample.ShadowedModel)", buildableAttributes[0]);
-                Assert.IsFalse(
-                    buildableAttributes.Contains("typeof(global::Sample.Agents.ShadowedModel)"),
-                    "Removed source types should not be resolved through a kept provider with the same simple name.");
-            }
-            finally
-            {
-                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
-            }
-        }
-
-        [Test]
-        public void ExternalModelProvidersDoNotContributeStandaloneBuildableAttributes()
-        {
-            MockHelpers.LoadMockGenerator(
-                inputModels: () =>
-                [
-                    InputFactory.Model(
-                        "File",
-                        @namespace: "External.Library",
-                        usage: InputModelTypeUsage.Json,
-                        external: new InputExternalTypeMetadata("External.Library.File", package: null, minVersion: null))
-                ]);
-
-            var contextDefinition = new ModelReaderWriterContextDefinition();
-            var buildableAttributes = contextDefinition.Attributes
-                .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
-                .Select(a => a.Arguments.First().ToDisplayString())
-                .ToList();
-
-            Assert.IsEmpty(buildableAttributes);
         }
 
         [Test]
@@ -1153,63 +1045,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             protected override string BuildRelativeFilePath()
             {
-                return Path.Combine("src", "Generated", $"{Name}.cs");
-            }
-        }
-
-        private class RemovedProviderWithFrameworkDependency : TypeProvider
-        {
-            protected override string BuildName() => "RemovedProviderWithFrameworkDependency";
-
-            protected internal override CSharpType[] BuildImplements()
-            {
-                return [new CSharpType(typeof(IPersistableModel<object>))];
-            }
-
-            protected internal override PropertyProvider[] BuildProperties()
-            {
-                return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(DependencyModel)), "p1", new AutoPropertyBody(false), this)];
-            }
-
-            protected override string BuildRelativeFilePath()
-            {
-                return Path.Combine("src", "Generated", $"{Name}.cs");
-            }
-        }
-
-        private class ShadowedBuildableProvider : TypeProvider
-        {
-            private readonly string _namespace;
-
-            public ShadowedBuildableProvider(string ns)
-            {
-                _namespace = ns;
-            }
-
-            protected override string BuildName() => "ShadowedModel";
-
-            protected override string BuildNamespace() => _namespace;
-
-            protected internal override CSharpType[] BuildImplements()
-            {
-                return [new CSharpType(typeof(IPersistableModel<object>))];
-            }
-
-            protected override string BuildRelativeFilePath()
-            {
-                return Path.Combine("src", "Generated", $"{Name}.cs");
-            }
-        }
-
-        private class RemovedShadowedBuildableProvider : ShadowedBuildableProvider
-        {
-            public RemovedShadowedBuildableProvider() : base("Sample.Agents")
-            {
-            }
-
-            protected internal override PropertyProvider[] BuildProperties()
-            {
-                return [new PropertyProvider(null, MethodSignatureModifiers.Public, new CSharpType(typeof(Sample.Agents.ShadowedModel)), "p1", new AutoPropertyBody(false), this)];
+                throw new NotImplementedException();
             }
         }
 
@@ -1499,19 +1335,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             }
         }
 
-        private sealed class ContextAttributeVisitor : LibraryVisitor
-        {
-            protected override TypeProvider? VisitType(TypeProvider type)
-            {
-                if (type is ModelReaderWriterContextDefinition)
-                {
-                    type.Update(attributes: [.. type.Attributes, new AttributeStatement(typeof(ObsoleteAttribute))]);
-                }
-
-                return type;
-            }
-        }
-
         // Test class for a framework type marked with [Obsolete]
         [Obsolete("This type is obsolete. Use NewFrameworkType instead.")]
         public class ObsoleteFrameworkType : IJsonModel<ObsoleteFrameworkType>, IPersistableModel<ObsoleteFrameworkType>
@@ -1732,63 +1555,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void ValidateFrameworkBodyDependencyTypesAreNotDiscovered()
-        {
-            var clientProvider = new TestClientProviderWithFrameworkBodyDependency();
-            var outputLibrary = new TestOutputLibrary([clientProvider]);
-            var mockGenerator = MockHelpers.LoadMockGenerator(
-                createOutputLibrary: () => outputLibrary);
-
-            var contextDefinition = new ModelReaderWriterContextDefinition();
-            var attributes = contextDefinition.Attributes;
-
-            Assert.IsNotNull(attributes);
-            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
-                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
-
-            Assert.IsFalse(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ResponseError")),
-                "Framework types referenced only from provider bodies should not be added to the MRW context");
-        }
-
-        [Test]
-        public async Task CustomizedBuildableAttributesAreNotRegenerated()
-        {
-            var clientProvider = new TestClientProviderWithResponseErrorReturnType();
-            var outputLibrary = new TestOutputLibrary([clientProvider]);
-            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
-            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
-            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(compilation, null));
-
-            var contextDefinition = new ModelReaderWriterContextDefinition();
-            var buildableAttributes = contextDefinition.Attributes
-                .Where(a => a.Type.IsFrameworkType &&
-                    a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
-
-            Assert.IsFalse(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ResponseError")),
-                "Buildable attributes supplied by a customized context should not be regenerated");
-        }
-
-        [Test]
-        public async Task CustomProjectionPropertiesDoNotAddBuildableTypes()
-        {
-            var model = InputFactory.Model("ModelWithProjectedProperty", properties:
-            [
-                InputFactory.Property("Error", InputPrimitiveType.String)
-            ]);
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [model],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var contextDefinition = new ModelReaderWriterContextDefinition();
-            var buildableAttributes = contextDefinition.Attributes
-                .Where(a => a.Type.IsFrameworkType &&
-                    a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
-
-            Assert.IsFalse(buildableAttributes.Any(a => a.Arguments.First().ToDisplayString().Contains("ResponseError")),
-                "Public projections over CodeGenMember backing properties are not part of wire serialization");
-        }
-
-        [Test]
         public async Task ValidateCustomPropertiesOnModelsAreDiscovered()
         {
             // Test that properties added via custom code are discovered
@@ -1996,101 +1762,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)
                 ];
             }
-        }
-
-        private class TestClientProviderWithFrameworkBodyDependency : TypeProvider
-        {
-            protected override string BuildName() => "TestClient";
-
-            protected override string BuildRelativeFilePath() => "TestClient.cs";
-
-            protected internal override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
-            {
-                return [new CSharpType(typeof(Azure.ResponseError))];
-            }
-        }
-
-        private class TestClientProviderWithResponseErrorReturnType : TypeProvider
-        {
-            protected override string BuildName() => "TestClient";
-
-            protected override string BuildRelativeFilePath() => "TestClient.cs";
-
-            protected internal override MethodProvider[] BuildMethods()
-            {
-                var signature = new MethodSignature(
-                    Name: "GetError",
-                    Description: null,
-                    Modifiers: MethodSignatureModifiers.Public,
-                    ReturnType: new CSharpType(typeof(Azure.ResponseError)),
-                    ReturnDescription: null,
-                    Parameters: []);
-
-                return [new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)];
-            }
-        }
-    }
-
-}
-
-namespace Azure
-{
-    public class ResponseError : IJsonModel<ResponseError>
-    {
-        ResponseError? IJsonModel<ResponseError>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        ResponseError? IPersistableModel<ResponseError>.Create(BinaryData data, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        string IPersistableModel<ResponseError>.GetFormatFromOptions(ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IJsonModel<ResponseError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        BinaryData IPersistableModel<ResponseError>.Write(ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-    }
-}
-
-namespace Sample.Agents
-{
-    public class ShadowedModel : IJsonModel<ShadowedModel>
-    {
-        ShadowedModel? IJsonModel<ShadowedModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        ShadowedModel? IPersistableModel<ShadowedModel>.Create(BinaryData data, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        string IPersistableModel<ShadowedModel>.GetFormatFromOptions(ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IJsonModel<ShadowedModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        BinaryData IPersistableModel<ShadowedModel>.Write(ModelReaderWriterOptions options)
-        {
-            throw new NotImplementedException();
         }
     }
 }

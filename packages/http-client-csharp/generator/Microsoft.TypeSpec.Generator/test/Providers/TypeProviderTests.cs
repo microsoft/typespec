@@ -1040,7 +1040,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
                     Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
             typeProvider.Update(attributes: [
-                    new AttributeStatement(typeof(ObsoleteAttribute))
+                    new(typeof(ObsoleteAttribute))
                 ]);
 
             Assert.IsNotNull(typeProvider.Attributes);

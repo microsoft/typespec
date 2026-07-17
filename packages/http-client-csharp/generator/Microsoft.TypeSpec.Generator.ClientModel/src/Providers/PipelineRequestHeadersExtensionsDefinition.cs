@@ -17,7 +17,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     internal class PipelineRequestHeadersExtensionsDefinition : TypeProvider
     {
-        internal const string SetDelimitedMethodName = "SetDelimited";
+        private const string _setDelimited = "SetDelimited";
         private const string _addWithPrefix = "Add";
         private ParameterProvider _pipelineRequestHeadersParam;
         public PipelineRequestHeadersExtensionsDefinition()
@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? new[] { _pipelineRequestHeadersParam, nameParameter, valueParameter, delimiterParameter, formatParameter }
                 : new[] { _pipelineRequestHeadersParam, nameParameter, valueParameter, delimiterParameter };
             MethodSignature signature = new MethodSignature(
-                Name: SetDelimitedMethodName,
+                Name: _setDelimited,
                 Modifiers: modifiers,
                 Parameters: parameters,
                 ReturnType: null,

@@ -48,25 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
-            // TODO https://github.com/microsoft/typespec/issues/11232: Move this generated/custom attribute merge into a shared TypeProvider API.
-            return DeduplicateAttributes(
-                _generatedTypeProvider.Attributes,
-                _generatedTypeProvider.CustomCodeView?.Attributes);
-        }
-
-        private static IReadOnlyList<AttributeStatement> DeduplicateAttributes(params IEnumerable<AttributeStatement>?[] attributeSets)
-        {
-            var seen = new HashSet<string>();
-            var attributes = new List<AttributeStatement>();
-            foreach (var attribute in attributeSets.SelectMany(static attributeSet => attributeSet ?? []))
-            {
-                if (seen.Add(attribute.ToDisplayString()))
-                {
-                    attributes.Add(attribute);
-                }
-            }
-
-            return attributes;
+            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;

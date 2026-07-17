@@ -405,7 +405,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             public MethodProvider[] MethodProviders { get; set; } = [];
             public ConstructorProvider[] ConstructorProviders { get; set; } = [];
 
-            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildRelativeFilePath() => ".";
 
             protected override string BuildName() => "MockInputClient";
 
