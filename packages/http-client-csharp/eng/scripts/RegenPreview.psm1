@@ -134,9 +134,10 @@ function Get-NextGeneratorVersion {
 
     $dateStamp = Get-Date -Format 'yyyyMMdd'
     $prefix = "$BaseVersion-alpha.$dateStamp"
+    $counterPattern = "^" + [regex]::Escape($prefix) + "\.(\d+)$"
     $maxCounter = 0
     foreach ($version in $publishedVersions) {
-        if ($version -match ("^" + [regex]::Escape($prefix) + "\.(\d+)$")) {
+        if ($version -match $counterPattern) {
             $counter = [int]$Matches[1]
             if ($counter -gt $maxCounter) {
                 $maxCounter = $counter
