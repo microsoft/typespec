@@ -133,7 +133,6 @@
     "@vitest/ui": "catalog:",
     "pathe": "catalog:",
     "rimraf": "catalog:",
-    "source-map-support": "catalog:",
     "tmlanguage-generator": "workspace:^",
     "typescript": "catalog:",
     "vitest": "catalog:",
