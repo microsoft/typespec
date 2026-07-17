@@ -494,7 +494,18 @@ try {
                 Write-Host "##[section]Building Azure generator..."
                 $previousErrorAction = $ErrorActionPreference
                 $ErrorActionPreference = "Continue"
+                # When publishing, query the ADO feed for the next available version to stamp the Azure
+                # emitter package with, following the existing "<base>-alpha.<yyyyMMdd>.<n>" format.
+                $azurePublishVersion = $null
                 try {
+                    if ($PublishRegistry) {
+                        $azureBaseVersion = ((Get-Content (Join-Path $azureGeneratorPath "package.json") -Raw | ConvertFrom-Json).version -split '-')[0]
+                        $azurePublishVersion = Get-NextGeneratorVersion `
+                            -PackageName '@azure-typespec/http-client-csharp' `
+                            -BaseVersion $azureBaseVersion `
+                            -Registry $PublishRegistry `
+                            -NpmrcPath $PublishNpmrcPath
+                    }
                     $azurePackagePath = Update-AzureGenerator `
                         -AzureGeneratorPath $azureGeneratorPath `
                         -UnbrandedPackagePath $unbrandedPackagePath `
@@ -502,6 +513,7 @@ try {
                         -PackagesDataPropsPath $packagesDataPropsPath `
                         -LocalVersion $PackageVersion `
                         -PublishRegistry $PublishRegistry `
+                        -PublishVersion $azurePublishVersion `
                         -NpmrcPath $PublishNpmrcPath
                     Write-Host "Azure generator built successfully"
                     
@@ -519,7 +531,7 @@ try {
                     }
                     if ($PublishRegistry) {
                         $updateAzureEmitterArgs.PackageName = '@azure-typespec/http-client-csharp'
-                        $updateAzureEmitterArgs.PublishVersion = $PackageVersion
+                        $updateAzureEmitterArgs.PublishVersion = $azurePublishVersion
                         $updateAzureEmitterArgs.Registry = $PublishRegistry
                     }
                     Update-EmitterPackageArtifact @updateAzureEmitterArgs
@@ -549,11 +561,24 @@ try {
                         $ErrorActionPreference = "Continue"
                         try {
                             $engFolder = Join-Path $tempDir "eng"
+                            # When publishing, query the ADO feed for the next available mgmt emitter version.
+                            $mgmtPublishVersion = $null
+                            if ($PublishRegistry) {
+                                $mgmtBaseVersion = ((Get-Content (Join-Path $mgmtGeneratorPath "package.json") -Raw | ConvertFrom-Json).version -split '-')[0]
+                                $mgmtPublishVersion = Get-NextGeneratorVersion `
+                                    -PackageName '@azure-typespec/http-client-csharp-mgmt' `
+                                    -BaseVersion $mgmtBaseVersion `
+                                    -Registry $PublishRegistry `
+                                    -NpmrcPath $PublishNpmrcPath
+                            }
                             Update-MgmtGenerator `
                                 -EngFolder $engFolder `
                                 -DebugFolder $debugFolder `
                                 -LocalVersion $PackageVersion `
                                 -PublishRegistry $PublishRegistry `
+                                -PublishVersion $mgmtPublishVersion `
+                                -AzureVersion $azurePublishVersion `
+                                -UnbrandedVersion $PackageVersion `
                                 -NpmrcPath $PublishNpmrcPath
                             Write-Host "Management plane generator built successfully"
                             
