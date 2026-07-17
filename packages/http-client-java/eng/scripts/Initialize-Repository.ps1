@@ -77,13 +77,13 @@ try {
         Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
         Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
-        Invoke-LoggedCommand "npm ci"
+        Invoke-LoggedCommand "npm ci --registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     }
     elseif ($UseTypeSpecNext) {
         # TODO: add use typespec next to template later
     }
     else {
-        Invoke-LoggedCommand "npm ci"
+        Invoke-LoggedCommand "npm ci --registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     }
 
     Invoke-LoggedCommand "npm ls -a" -GroupOutput
