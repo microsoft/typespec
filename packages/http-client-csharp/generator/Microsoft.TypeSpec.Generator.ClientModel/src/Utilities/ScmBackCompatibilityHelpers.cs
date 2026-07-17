@@ -15,17 +15,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         /// <c>BuildAttributesForBackCompatibility</c> call; any attribute whose type name is in
         /// <paramref name="generatorOwnedAttributeNames"/> and was not already present in
         /// <paramref name="originalAttributes"/> is removed, since generation recomputes it.
+        /// <paramref name="generatorOwnedAttributeNames"/> is only evaluated when there is restored
+        /// content to filter, so callers can pass a lazily-initialized set without paying for it when
+        /// nothing was restored.
         /// </summary>
         public static IReadOnlyList<AttributeStatement> FilterRestoredAttributes(
             IReadOnlyList<AttributeStatement> originalAttributes,
             IReadOnlyList<AttributeStatement> restoredAttributes,
-            IReadOnlySet<string> generatorOwnedAttributeNames)
+            Func<IReadOnlySet<string>> generatorOwnedAttributeNames)
         {
             // The base returns the original list unchanged when nothing was restored.
             if (ReferenceEquals(restoredAttributes, originalAttributes))
             {
                 return restoredAttributes;
             }
+
+            var ownedNames = generatorOwnedAttributeNames();
 
             var originalDisplayStrings = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attribute in originalAttributes)
@@ -36,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
             var result = new List<AttributeStatement>(restoredAttributes.Count);
             foreach (var attribute in restoredAttributes)
             {
-                if (generatorOwnedAttributeNames.Contains(attribute.Type.Name)
+                if (ownedNames.Contains(attribute.Type.Name)
                     && !originalDisplayStrings.Contains(attribute.ToDisplayString()))
                 {
                     continue;

@@ -187,6 +187,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The type has an attribute in each of the three sources:
+            //   - generated:     [Obsolete("This is obsolete")]
+            //   - custom code:   [CLSCompliant(true)]
+            //   - last contract: [Obsolete("This is obsolete")], [CLSCompliant(true)], [Restorable]
+            // Back-compat merging should not produce duplicates: the generated [Obsolete] and the
+            // custom-code [CLSCompliant] already cover two of the last-contract attributes, so only the
+            // new [Restorable] attribute is restored.
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType", attributes:
+            [
+                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
+            ]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
         private static TestTypeProvider CreateAttributeTestProvider(
             string? name = null,
             IEnumerable<MethodBodyStatement>? attributes = null,

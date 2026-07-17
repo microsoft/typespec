@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
             var merged = base.BuildAttributesForBackCompatibility(original);
-            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore.Value);
+            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, static () => s_attributesToIgnore.Value);
         }
 
         /// <summary>

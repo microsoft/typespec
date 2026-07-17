@@ -992,8 +992,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
 
-            // Only externally visible (public or protected) types can break a consumer contract, so we
-            // only restore attributes for those types.
             if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected))
             {
