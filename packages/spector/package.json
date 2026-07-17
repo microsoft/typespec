@@ -48,7 +48,6 @@
     "morgan": "catalog:",
     "multer": "catalog:",
     "picocolors": "catalog:",
-    "source-map-support": "catalog:",
     "yaml": "catalog:",
     "yargs": "catalog:"
   },
