@@ -122,15 +122,6 @@ class _ModelSerializer(BaseSerializer, ABC):
         # building the param line of the property doc
         return _documentation_string(prop, "keyword", "paramtype")
 
-    def keyword_documentation_string(self, model: ModelType) -> list[str]:
-        # building the ``:keyword:``/``:paramtype:`` lines for the keyword-only
-        # arguments of the generated ``__init__`` overload so that the docstring
-        # keeps a 1:1 correlation with the keyword-only arguments in the signature.
-        retval: list[str] = []
-        for prop in sorted(self._init_line_parameters(model), key=lambda x: x.optional):
-            retval.extend(self.input_documentation_string(prop))
-        return retval
-
     @staticmethod
     def variable_documentation_string(prop: Property) -> list[str]:
         return _documentation_string(prop, "ivar", "vartype")
@@ -210,13 +201,7 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     def class_pylint_disable(self, model: ModelType) -> str:
         """Class-level pylint disables for the model declaration line."""
-        retval = model.pylint_disable()
-        # When the model's only constructor is ``def __init__(self, *args, **kwargs)`` (i.e. no
-        # typed overload is generated), the guideline checker reports the ``*args`` vararg as an
-        # undocumented param. There is no meaningful param to document, so silence the check.
-        if not self.need_init(model) and self.initialize_properties(model):
-            retval = add_to_pylint_disable(retval, "docstring-missing-param")
-        return retval
+        return model.pylint_disable()
 
     def global_pylint_disables(self) -> str:
         return ""
@@ -427,6 +412,16 @@ class DpgModelSerializer(_ModelSerializer):
         if model.discriminator_value:
             basename += f", discriminator='{model.discriminator_value}'"
         return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
+
+    def class_pylint_disable(self, model: ModelType) -> str:
+        retval = super().class_pylint_disable(model)
+        # DPG models render an empty ``@overload def __init__(self, *, ...)`` body, so the
+        # guideline checker validates the keyword-only arguments against the *class* docstring.
+        # We only document those arguments as instance variables (``:ivar:``) to avoid a redundant
+        # ``:keyword:`` entry per property, so silence the keyword/keyword-only correlation check.
+        if self._init_line_parameters(model):
+            retval = add_to_pylint_disable(retval, "docstring-keyword-should-match-keyword-only")
+        return retval
 
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> list[Property]:
