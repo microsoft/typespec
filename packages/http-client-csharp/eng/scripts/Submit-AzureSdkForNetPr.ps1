@@ -24,13 +24,13 @@ The URL of the pipeline run that triggered this PR. When provided, it is include
 .PARAMETER Phase
 Which phase of the flow to run. The publish pipeline drives these as discrete, independently-failing steps that share a single on-disk checkout:
   - Prepare:          Clone azure-sdk-for-net, update the generator version, regenerate the unbranded test projects and emitter-package.json artifacts.
-  - PublishGenerators: Build and pack the Azure (and mgmt) generator from the published unbranded generator artifact, stamping the next available feed version and pinning the emitter artifacts to it. The packed packages are published to the ADO feed by the pipeline via the shared publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml).
+  - BuildGenerators: Build and pack the Azure (and mgmt) generator from the published unbranded generator artifact, stamping the next available feed version and pinning the emitter artifacts to it. The packed packages are published to the ADO feed by the pipeline via the shared publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml).
   - Regenerate:       Regenerate the SDK libraries and open the azure-sdk-for-net PR.
 Defaults to 'All', which runs every phase in a single invocation (used for local, non-pipeline runs).
 .PARAMETER WorkingDirectory
 The azure-sdk-for-net checkout directory shared across phases. When omitted (typically for the 'All' phase), a unique temp directory is created and cleaned up automatically.
 .PARAMETER DebugFolder
-The directory holding the packed generator packages and NuGet packages shared between the PublishGenerators and Regenerate phases. When omitted, a unique temp directory is derived from WorkingDirectory.
+The directory holding the packed generator packages and NuGet packages shared between the BuildGenerators and Regenerate phases. When omitted, a unique temp directory is derived from WorkingDirectory.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -68,7 +68,7 @@ param(
   [switch]$UseTypeSpecNext,
 
   [Parameter(Mandatory = $false)]
-  [ValidateSet('All', 'Prepare', 'PublishGenerators', 'Regenerate')]
+  [ValidateSet('All', 'Prepare', 'BuildGenerators', 'Regenerate')]
   [string]$Phase = 'All',
 
   [Parameter(Mandatory = $false)]
@@ -104,7 +104,7 @@ if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
 # The publish pipeline drives this script as three discrete, independently-failing steps that share a
 # single on-disk azure-sdk-for-net checkout (see publish.yml). Resolve which phases this invocation runs.
 $runPrepare = $Phase -in @('All', 'Prepare')
-$runPublishGenerators = $Phase -in @('All', 'PublishGenerators')
+$runBuildGenerators = $Phase -in @('All', 'BuildGenerators')
 $runRegenerate = $Phase -in @('All', 'Regenerate')
 
 # Set up variables for the PR
@@ -171,7 +171,7 @@ Write-Host "Branch: $PRBranch"
 Write-Host "Title: $PRTitle"
 
 # Resolve the shared checkout directory. The publish pipeline passes an explicit, deterministic
-# -WorkingDirectory so the Prepare / PublishGenerators / Regenerate steps operate on the same on-disk
+# -WorkingDirectory so the Prepare / BuildGenerators / Regenerate steps operate on the same on-disk
 # checkout. For a single 'All' invocation (e.g. local runs) fall back to a unique temp directory.
 if ($WorkingDirectory) {
     $tempDir = $WorkingDirectory
@@ -179,7 +179,7 @@ if ($WorkingDirectory) {
     $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 }
 
-# The debug folder holds the packed generator + NuGet packages shared between the PublishGenerators and
+# The debug folder holds the packed generator + NuGet packages shared between the BuildGenerators and
 # Regenerate phases. Derive a deterministic default from the checkout so both phases agree.
 if (-not $DebugFolder) {
     $DebugFolder = Join-Path $tempDir ".generator-packages"
@@ -512,17 +512,17 @@ try {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
 
-    # Persist the resolved install state so the later PublishGenerators / Regenerate phases (which may
+    # Persist the resolved install state so the later BuildGenerators / Regenerate phases (which may
     # run as separate processes) honor the same gating as a single 'All' invocation.
     @{ InstallSucceeded = $installSucceeded } | ConvertTo-Json | Set-Content $prepareStateFile -Encoding utf8
     } # end if ($runPrepare)
 
-    # PublishGenerators phase: build and pack the Azure (and mgmt) generator from the published
+    # BuildGenerators phase: build and pack the Azure (and mgmt) generator from the published
     # unbranded generator artifact, stamping the next available feed version and pinning the emitter
     # artifacts to it. This runs as a discrete, fail-hard pipeline step (see publish.yml) so any build
     # failure fails the pipeline instead of silently producing an unrestorable PR. The packed packages
     # are published to the ADO feed by the pipeline via the shared publish template.
-    if ($runPublishGenerators -and $installSucceeded -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
+    if ($runBuildGenerators -and $installSucceeded -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
         $regenScope = @()
         if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
         if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
@@ -643,7 +643,7 @@ try {
             Write-Host "##vso[task.complete result=SucceededWithIssues;]"
         } else {
             # Build the emitter patterns to match in tsp-location.yaml. The Azure/mgmt emitter
-            # artifacts are produced by the PublishGenerators phase and persisted on disk.
+            # artifacts are produced by the BuildGenerators phase and persisted on disk.
             $emitterPatterns = @("eng/http-client-csharp-emitter-package.json")
             if ($RegenerateAzureLibraries) {
                 $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
@@ -856,7 +856,7 @@ try {
     Pop-Location
     # Clean up the shared checkout only when this invocation owns its whole lifecycle. In a split
     # pipeline run the Regenerate phase is the last step, so it performs the cleanup; earlier phases
-    # (Prepare/PublishGenerators) leave the checkout in place for the next step.
+    # (Prepare/BuildGenerators) leave the checkout in place for the next step.
     if ($Phase -in @('All', 'Regenerate') -and (Test-Path $tempDir)) {
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item $prepareStateFile -Force -ErrorAction SilentlyContinue

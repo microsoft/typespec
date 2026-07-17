@@ -277,7 +277,7 @@ extends:
                   scriptLocation: scriptPath
                   scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
-                    -Phase 'PublishGenerators'
+                    -Phase 'BuildGenerators'
                     -WorkingDirectory '$(AzureSdkForNetCheckout)'
                     -DebugFolder '$(GeneratorPackagesFolder)'
                     -PackageVersion '$(PackageVersion)'
