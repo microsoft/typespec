@@ -1047,7 +1047,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 displayString = attribute.ToDisplayString();
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex) when (
+                ex is NotImplementedException or NotSupportedException or InvalidOperationException or NullReferenceException)
             {
                 displayString = null;
                 return false;
