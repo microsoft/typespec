@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -33,30 +32,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType BuildBaseType() => typeof(ModelReaderWriterContext);
 
-        // Buildable attributes depend on the final set of providers selected by the reference map.
-        // They are rebuilt at write time while non-buildable attributes, including visitor updates, are preserved.
-        protected override bool ShouldAnalyzeAttributesInReferenceMap => false;
-
-        protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
-        {
-            var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
-            return [.. BuildAttributes(), .. visitorAttributes];
-        }
-
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
-            var customizedBuildableTypes = GetCustomizedBuildableTypes();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
-                {
-                    continue;
-                }
-
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
                 var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
@@ -73,11 +56,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
-                {
-                    continue;
-                }
-
                 // Use the full attribute type name to ensure proper compilation
                 var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
                 var attributeStatement = new AttributeStatement(attributeType, TypeOf(provider.Type));
@@ -98,51 +76,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
-        private static bool IsBuildableAttribute(MethodBodyStatement statement)
-        {
-            var attribute = statement switch
-            {
-                AttributeStatement directAttribute => directAttribute,
-                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
-                _ => null
-            };
-
-            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
-        }
-
-        private HashSet<string> GetCustomizedBuildableTypes()
-        {
-            var customizedTypes = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var attribute in CustomCodeView?.Attributes ?? [])
-            {
-                if (!string.Equals(
-                    attribute.Type.FullyQualifiedName,
-                    typeof(ModelReaderWriterBuildableAttribute).FullName,
-                    StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                foreach (var argument in attribute.Arguments)
-                {
-                    if (argument is TypeOfExpression typeOf)
-                    {
-                        customizedTypes.Add(GetTypeIdentity(typeOf.Type));
-                    }
-                }
-            }
-
-            return customizedTypes;
-        }
-
-        private static string GetTypeIdentity(CSharpType type)
-        {
-            var name = type.FullyQualifiedName.TrimStart('.');
-            return type.Arguments.Count == 0
-                ? name
-                : $"{name}<{string.Join(",", type.Arguments.Select(GetTypeIdentity))}>";
-        }
-
         /// <summary>
         /// Collects all types that implement IPersistableModel, including all models and their properties
         /// that are also IPersistableModel types, recursively without duplicates.
@@ -154,6 +87,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var visitedBaseProviders = new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance);
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
+
             // Base-model traversal can encounter equivalent provider instances that are not reference-equal to
             // the output-library roots, so keep the output-library provider set name-comparable.
             var contextEligibleOutputProviders = new HashSet<TypeProvider>(
@@ -163,13 +97,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each output-library provider recursively to discover types from methods and properties.
             foreach (var provider in contextEligibleOutputProviders)
             {
-                if (!ShouldWriteProvider(provider))
-                {
-                    continue;
-                }
-
                 // Only output-library providers get standalone context entries.
-                if (ShouldAddStandaloneBuildableProvider(provider))
+                if (ImplementsModelReaderWriter(provider))
                 {
                     buildableProviders.Add(provider);
                 }
@@ -261,10 +190,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Traverse base model properties for discoverable types, but do not add the base model
                 // itself as a context entry unless it was in the output-library seed set.
-                var baseModelProvider = modelProvider.BaseModelProvider;
-                if (visitedBaseProviders.Add(baseModelProvider))
+                if (visitedBaseProviders.Add(modelProvider.BaseModelProvider))
                 {
-                    CollectBuildableTypesRecursiveCore(baseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                    CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
                 }
             }
             else
@@ -292,11 +220,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             try
             {
-                if (!IsResolvableBuildableType(frameworkType))
-                {
-                    return;
-                }
-
                 buildableTypes.Add(frameworkType.FrameworkType);
                 var type = frameworkType.FrameworkType;
                 var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -501,23 +424,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
-        }
-
-        private static bool ShouldAddStandaloneBuildableProvider(TypeProvider provider)
-            => IsResolvableBuildableType(provider.Type)
-                && ImplementsModelReaderWriter(provider)
-                && HasWritableModelReaderWriterSerialization(provider);
-
-        private static bool HasWritableModelReaderWriterSerialization(TypeProvider provider)
-        {
-            if (provider is not ModelProvider)
-            {
-                return true;
-            }
-
-            return provider.SerializationProviders
-                .OfType<MrwSerializationTypeDefinition>()
-                .Any(ShouldWriteProvider);
         }
 
         private static void AddAttributeForType(

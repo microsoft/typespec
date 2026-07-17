@@ -24,23 +24,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             foreach (INamedTypeSymbol symbol in namespaceSymbol.GetTypeMembers())
             {
-                foreach (var type in GetSymbols(symbol))
-                {
-                    yield return type;
-                }
-            }
-        }
-
-        private static IEnumerable<ITypeSymbol> GetSymbols(INamedTypeSymbol typeSymbol)
-        {
-            yield return typeSymbol;
-
-            foreach (var nestedTypeSymbol in typeSymbol.GetTypeMembers())
-            {
-                foreach (var type in GetSymbols(nestedTypeSymbol))
-                {
-                    yield return type;
-                }
+                yield return symbol;
             }
         }
 
