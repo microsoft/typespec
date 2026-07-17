@@ -154,6 +154,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityRestoresAttributeWithIntegralLiteralArguments()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract declares an attribute whose arguments use every integral literal kind
+            // (byte/sbyte/short/ushort/uint/ulong). These must be rendered without throwing so the
+            // attribute can be restored rather than crashing generation.
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 

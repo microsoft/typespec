@@ -1001,11 +1001,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var seen = new HashSet<string>();
             foreach (var attribute in original)
             {
-                seen.Add(attribute.ToDisplayString());
+                if (TryGetAttributeDisplayString(attribute, out var display))
+                {
+                    seen.Add(display);
+                }
             }
             foreach (var attribute in CustomCodeView?.Attributes ?? [])
             {
-                seen.Add(attribute.ToDisplayString());
+                if (TryGetAttributeDisplayString(attribute, out var display))
+                {
+                    seen.Add(display);
+                }
             }
 
             List<AttributeStatement>? merged = null;
@@ -1017,7 +1023,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (seen.Add(attribute.ToDisplayString()))
+                // An attribute from the last contract may reference argument literals or types that the
+                // generator cannot render. Such an attribute cannot be safely restored, so skip it rather
+                // than crashing the entire generation.
+                if (TryGetAttributeDisplayString(attribute, out var display) && seen.Add(display))
                 {
                     merged ??= [.. original];
                     merged.Add(attribute);
@@ -1025,6 +1034,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return merged ?? original;
+        }
+
+        // Renders an attribute to its display string used as the de-duplication key. Attributes read
+        // from the last contract (or custom code) may reference argument literals or types that the
+        // generator cannot render; in that case rendering throws and we treat the attribute as
+        // non-restorable instead of crashing the entire generation.
+        private static bool TryGetAttributeDisplayString(AttributeStatement attribute, [NotNullWhen(true)] out string? displayString)
+        {
+            try
+            {
+                displayString = attribute.ToDisplayString();
+                return true;
+            }
+            catch (Exception)
+            {
+                displayString = null;
+                return false;
+            }
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
