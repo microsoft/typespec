@@ -1090,8 +1090,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (attribute.Type.Name.Contains(CodeGenAttributes.CodeGenAttributePrefix, StringComparison.Ordinal)
-                    || s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name))
+                if (s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name)
+                    || attribute.Type.Name.Contains(CodeGenAttributes.CodeGenAttributePrefix, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
