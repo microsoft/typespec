@@ -1382,6 +1382,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void PublicSerializationPartialDoesNotPublicizeInternalOwner()
+        {
+            var model = new GeneratedModelTestTypeProvider(
+                "InternalModel",
+                TypeSignatureModifiers.Internal,
+                ns: "Sample.Models");
+            var serialization = new TestTypeProvider(
+                "InternalModel",
+                TypeSignatureModifiers.Public,
+                ns: "Sample.Models");
+            model.Update(serializations: [serialization]);
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(model),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            CodeModelGenerator.Instance.AddTypeToKeep(model.Type.FullyQualifiedName);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([model]);
+
+            Assert.IsTrue(model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(serialization.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(serialization.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        [Test]
         public void InternalizedGenericModelRemovesAritylessModelFactoryMethod()
         {
             var genericArgument = CreateNamedType("T", string.Empty);

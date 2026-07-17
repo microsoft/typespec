@@ -918,6 +918,11 @@ namespace Microsoft.TypeSpec.Generator
             var nonInternalDeclarations = new HashSet<string>(StringComparer.Ordinal);
             foreach (var provider in GetGeneratedProviders(providers))
             {
+                if (IsModelSerializationProviderDeclaration(provider))
+                {
+                    continue;
+                }
+
                 if (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                 {
                     AddTypeReference(declarations, provider.Type, generatedTypeNames);
