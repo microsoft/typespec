@@ -123,6 +123,9 @@ extends:
               TMPDIR: $(Agent.TempDirectory)
               NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
+              # Shared on-disk state for the discrete Prepare / Publish generators / Regenerate steps.
+              AzureSdkForNetCheckout: $(Agent.TempDirectory)/azure-sdk-for-net
+              GeneratorPackagesFolder: $(Agent.TempDirectory)/generator-packages
             steps:
               - checkout: self
 
@@ -232,14 +235,70 @@ extends:
                   TokenOwners:
                     - Azure
 
+              # The azure-sdk-for-net PR is produced by three discrete, independently-failing steps that
+              # share a single on-disk checkout ($(AzureSdkForNetCheckout)) and generator package folder
+              # ($(GeneratorPackagesFolder)):
+              #   1. Prepare            - clone azure-sdk-for-net and regenerate the unbranded emitter artifacts.
+              #   2. Publish generators - build the Azure (and mgmt) generator from the published unbranded
+              #                           generator artifact and publish it to the ADO feed. Only runs when a
+              #                           regen was requested, and fails the pipeline on any build/publish error.
+              #   3. Regenerate & PR    - regenerate the SDK libraries and open the azure-sdk-for-net PR.
               - task: AzureCLI@2
-                displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
+                displayName: "Prepare azure-sdk-for-net checkout & regenerate unbranded emitter"
                 inputs:
                   azureSubscription: "AzureSDKEngKeyVault Secrets"
                   scriptType: pscore
                   scriptLocation: scriptPath
                   scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
+                    -Phase 'Prepare'
+                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
+                    -DebugFolder '$(GeneratorPackagesFolder)'
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(GH_TOKEN)'
+                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+
+              - task: AzureCLI@2
+                displayName: "Build & publish Azure/mgmt generators to ADO feed"
+                condition: and(succeeded(), or(${{ parameters.RegenerateAzureLibraries }}, ${{ parameters.RegenerateMgmtLibraries }}))
+                inputs:
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -Phase 'PublishGenerators'
+                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
+                    -DebugFolder '$(GeneratorPackagesFolder)'
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(GH_TOKEN)'
+                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+
+              - task: AzureCLI@2
+                displayName: "Regenerate SDK libraries & create PR in azure-sdk-for-net"
+                inputs:
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -Phase 'Regenerate'
+                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
+                    -DebugFolder '$(GeneratorPackagesFolder)'
                     -PackageVersion '$(PackageVersion)'
                     -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
