@@ -842,9 +842,13 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
+        // Compare the api-version strings, not the ApiVersion object references. Each client
+        // builds its own ApiVersion instances (see `new ApiVersion()` above), so reference
+        // equality ("===") would always be false for clients that in fact share the same
+        // api-versions, incorrectly producing a separate ServiceVersion enum per client.
         apiVersionSameForAllClients =
           sharedApiVersions.length === apiVersions.length &&
-          sharedApiVersions.every((it, index) => it === apiVersions[index]);
+          sharedApiVersions.every((it, index) => it.version === apiVersions[index].version);
       }
       if (!apiVersionSameForAllClients) {
         break;
