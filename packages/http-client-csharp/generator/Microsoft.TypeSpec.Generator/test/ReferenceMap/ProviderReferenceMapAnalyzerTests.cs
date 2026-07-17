@@ -194,6 +194,81 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void BinaryDataUnionPropertyDoesNotPublicizeInternalUnionMembers()
+        {
+            var internalVariant = new GeneratedModelTestTypeProvider(
+                "InternalVariant",
+                TypeSignatureModifiers.Internal,
+                "Sample");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(client, internalVariant),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    CSharpType.FromUnion([internalVariant.Type, typeof(string)]),
+                    "Value",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([client, internalVariant]);
+
+            Assert.IsTrue(internalVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(internalVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(internalVariant));
+        }
+
+        [Test]
+        public void BinaryDataUnionPropertyDoesNotPublicizeAbstractBaseModel()
+        {
+            var discriminator = InputFactory.Property(
+                "kind",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isDiscriminator: true);
+            var derivedInput = InputFactory.Model(
+                "InternalVariant",
+                "Sample",
+                access: "internal",
+                discriminatedKind: "internal");
+            var baseInput = InputFactory.Model(
+                "Variant",
+                "Sample",
+                access: null!,
+                properties: [discriminator],
+                derivedModels: [derivedInput],
+                discriminatorProperty: discriminator);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInput, derivedInput]);
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var baseVariant = providers.OfType<ModelProvider>().Single(provider => provider.Name == "Variant");
+            var internalVariant = providers.OfType<ModelProvider>().Single(provider => provider.Name == "InternalVariant");
+            var client = new ClientTestTypeProvider("SampleClient", "Sample");
+            client.Update(properties:
+            [
+                new PropertyProvider(
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    CSharpType.FromUnion(
+                    [
+                        new CSharpType(typeof(IList<>), baseVariant.Type),
+                        typeof(string)
+                    ]),
+                    "Value",
+                    new AutoPropertyBody(false),
+                    client)
+            ]);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([client, baseVariant, internalVariant]);
+
+            Assert.IsTrue(baseVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(internalVariant.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
         public void UnionVariantEnumRemainsPublicWhenReferencedByPublicProperty()
         {
             var inputEnum = InputFactory.StringEnum(

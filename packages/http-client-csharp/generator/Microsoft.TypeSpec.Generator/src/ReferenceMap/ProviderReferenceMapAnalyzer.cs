@@ -204,13 +204,16 @@ namespace Microsoft.TypeSpec.Generator
             // Build two graphs from provider metadata: the full implementation graph for removal,
             // and the public-surface graph for accessibility decisions.
             var graph = BuildGraph(generatedProviders);
-            var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
-
-            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
-            var customCodeRemovalRoots = GetCustomCodeGeneratedTypeRoots(generatedProviders, graph.Nodes);
-            var customRemovalRoots = new HashSet<string>(customCodeRemovalRoots, StringComparer.Ordinal);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
+            var unionItemTypeExclusions = new HashSet<string>(customInternalDeclarations, StringComparer.Ordinal);
+            unionItemTypeExclusions.UnionWith(generatedInternalDeclarations);
+            AddAbstractModelDeclarations(generatedProviders, unionItemTypeExclusions, graph.Nodes);
+            var publicGraph = BuildGraph(generatedProviders, publicOnly: true, unionItemTypeExclusions);
+
+            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes, unionItemTypeExclusions);
+            var customCodeRemovalRoots = GetCustomCodeGeneratedTypeRoots(generatedProviders, graph.Nodes);
+            var customRemovalRoots = new HashSet<string>(customCodeRemovalRoots, StringComparer.Ordinal);
 
             // Helper types are rooted after an initial reachability pass so unused infrastructure
             // such as change-tracking dictionaries can still be removed when no reachable type needs them.
@@ -254,10 +257,13 @@ namespace Microsoft.TypeSpec.Generator
         {
             var generatedProviders = GetGeneratedProviders(providers);
             var graph = BuildGraph(generatedProviders);
-            var publicGraph = BuildGraph(generatedProviders, publicOnly: true);
-            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes);
             var customInternalDeclarations = GetCustomCodeInternalGeneratedTypeDeclarations(generatedProviders, graph.Nodes);
             var generatedInternalDeclarations = GetGeneratedInternalTypeDeclarations(generatedProviders, graph.Nodes);
+            var unionItemTypeExclusions = new HashSet<string>(customInternalDeclarations, StringComparer.Ordinal);
+            unionItemTypeExclusions.UnionWith(generatedInternalDeclarations);
+            AddAbstractModelDeclarations(generatedProviders, unionItemTypeExclusions, graph.Nodes);
+            var publicGraph = BuildGraph(generatedProviders, publicOnly: true, unionItemTypeExclusions);
+            var customPublicRoots = GetCustomCodePublicGeneratedTypeRoots(generatedProviders, graph.Nodes, unionItemTypeExclusions);
             var generatedDiscriminatorBaseNames = new HashSet<string>(StringComparer.Ordinal);
 
             var (internalizeCandidates, publicCandidates, _) = GetAccessibilityCandidates(
@@ -373,7 +379,10 @@ namespace Microsoft.TypeSpec.Generator
             return (internalizeCandidates, publicCandidates, internalizeHelperRoots);
         }
 
-        private static ProviderReferenceGraph BuildGraph(IReadOnlyList<TypeProvider> generatedProviders, bool publicOnly = false)
+        private static ProviderReferenceGraph BuildGraph(
+            IReadOnlyList<TypeProvider> generatedProviders,
+            bool publicOnly = false,
+            HashSet<string>? unionItemTypeExclusions = null)
         {
             // Each generated provider becomes a node, and provider metadata supplies the edges:
             // inheritance, signatures, properties, fields, nested/serialization providers, attributes,
@@ -396,9 +405,9 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var current = GetProviderTypeName(provider.Type);
                 var providerNamespace = provider.Type.Namespace;
-                AddTypeReference(references[current], provider.Type, nodes, serializationReferenceNamesByType, providerNamespace);
-                AddTypeReference(references[current], provider.BaseType, nodes, serializationReferenceNamesByType, providerNamespace);
-                AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes, serializationReferenceNamesByType, providerNamespace);
+                AddTypeReference(references[current], provider.Type, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
+                AddTypeReference(references[current], provider.BaseType, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
+                AddTypeReference(references[current], provider.DeclaringTypeProvider?.Type, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
 
                 if (publicOnly && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
                 {
@@ -419,7 +428,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var implementedType in provider.Implements)
                 {
-                    AddTypeReference(references[current], implementedType, nodes, serializationReferenceNamesByType, providerNamespace);
+                    AddTypeReference(references[current], implementedType, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
 
                 if (!publicOnly)
@@ -440,7 +449,7 @@ namespace Microsoft.TypeSpec.Generator
 
                 foreach (var signatureDependency in provider.SignatureDependencyTypes)
                 {
-                    AddTypeReference(references[current], signatureDependency, nodes, serializationReferenceNamesByType, providerNamespace);
+                    AddTypeReference(references[current], signatureDependency, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
 
                 foreach (var property in provider.Properties)
@@ -450,8 +459,8 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddTypeReference(references[current], property.Type, nodes, serializationReferenceNamesByType, providerNamespace);
-                    AddTypeReference(references[current], property.ExplicitInterface, nodes, serializationReferenceNamesByType, providerNamespace);
+                    AddTypeReference(references[current], property.Type, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
+                    AddTypeReference(references[current], property.ExplicitInterface, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                     if (!publicOnly)
                     {
                         AddAttributes(references[current], property.Attributes, nodes, serializationReferenceNamesByType, includeArguments: false);
@@ -465,7 +474,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddTypeReference(references[current], field.Type, nodes, serializationReferenceNamesByType, providerNamespace);
+                    AddTypeReference(references[current], field.Type, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                     if (!publicOnly)
                     {
                         AddAttributes(references[current], field.Attributes, nodes, serializationReferenceNamesByType, includeArguments: false);
@@ -479,7 +488,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], constructor.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace);
+                    AddSignatureReferences(references[current], constructor.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
 
                 foreach (var method in provider.Methods)
@@ -494,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace);
+                    AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
             }
 

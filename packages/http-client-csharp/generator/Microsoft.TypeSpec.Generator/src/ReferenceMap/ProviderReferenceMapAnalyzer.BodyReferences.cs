@@ -412,7 +412,8 @@ namespace Microsoft.TypeSpec.Generator
             bool includeAttributeArguments = true,
             string? providerNamespace = null,
             string? containingProviderTypeName = null,
-            IReadOnlySet<string>? contextualTypeExclusions = null)
+            IReadOnlySet<string>? contextualTypeExclusions = null,
+            HashSet<string>? unionItemTypeExclusions = null)
         {
             HashSet<string>? signatureTypeExclusions = contextualTypeExclusions == null
                 ? null
@@ -423,7 +424,7 @@ namespace Microsoft.TypeSpec.Generator
                 signatureTypeExclusions.UnionWith(genericMethodSignature.GenericArguments.Select(argument => argument.Name));
             }
 
-            AddTypeReference(references, signature.ReturnType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+            AddTypeReference(references, signature.ReturnType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
             if (includeAttributes)
             {
                 AddAttributes(references, signature.Attributes, nodes, serializationProviderNamesByType, includeAttributeArguments);
@@ -431,7 +432,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var parameter in signature.Parameters)
             {
-                AddTypeReference(references, parameter.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+                AddTypeReference(references, parameter.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
                 if (includeAttributes)
                 {
                     AddAttributes(references, parameter.Attributes, nodes, serializationProviderNamesByType, includeAttributeArguments);
@@ -440,12 +441,12 @@ namespace Microsoft.TypeSpec.Generator
 
             if (signature is MethodSignature methodSignature)
             {
-                AddTypeReference(references, methodSignature.ExplicitInterface, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+                AddTypeReference(references, methodSignature.ExplicitInterface, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
                 if (methodSignature.GenericArguments != null)
                 {
                     foreach (var genericArgument in methodSignature.GenericArguments)
                     {
-                        AddTypeReference(references, genericArgument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+                        AddTypeReference(references, genericArgument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
                     }
                 }
 
@@ -453,14 +454,14 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     foreach (var constraint in methodSignature.GenericParameterConstraints)
                     {
-                        AddTypeReference(references, constraint.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+                        AddTypeReference(references, constraint.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
                     }
                 }
             }
 
             if (signature is ConstructorSignature constructorSignature)
             {
-                AddTypeReference(references, constructorSignature.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions);
+                AddTypeReference(references, constructorSignature.Type, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, signatureTypeExclusions, unionItemTypeExclusions);
             }
         }
 
@@ -515,20 +516,33 @@ namespace Microsoft.TypeSpec.Generator
             IReadOnlyDictionary<string, string[]>? serializationProviderNamesByType = null,
             string? providerNamespace = null,
             string? containingProviderTypeName = null,
-            IReadOnlySet<string>? contextualTypeExclusions = null)
+            IReadOnlySet<string>? contextualTypeExclusions = null,
+            HashSet<string>? unionItemTypeExclusions = null,
+            bool isUnionItemType = false)
         {
             if (type == null)
             {
                 return;
             }
 
-            if (type.IsArray)
+            var providerTypeName = GetProviderTypeName(type);
+            if (isUnionItemType &&
+                unionItemTypeExclusions != null &&
+                MatchesGeneratedNode(
+                    providerTypeName,
+                    StripGenericArity(GetSimpleName(providerTypeName)),
+                    unionItemTypeExclusions,
+                    nodes))
             {
-                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
                 return;
             }
 
-            var providerTypeName = GetProviderTypeName(type);
+            if (type.IsArray)
+            {
+                AddTypeReference(references, type.ElementType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
+                return;
+            }
+
             var matchedContainingType = string.IsNullOrEmpty(type.Namespace) &&
                 contextualTypeExclusions?.Contains(type.Name) != true &&
                 !string.IsNullOrEmpty(containingProviderTypeName) &&
@@ -554,18 +568,18 @@ namespace Microsoft.TypeSpec.Generator
                 AddExactMetadataNameMatch(references, $"{providerNamespace}.{providerTypeName}", nodes);
             }
 
-            AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
-            AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+            AddTypeReference(references, type.BaseType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
+            AddTypeReference(references, type.DeclaringType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
             if (type.IsUnion)
             {
                 foreach (var unionItemType in type.UnionItemTypes)
                 {
-                    AddTypeReference(references, unionItemType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+                    AddTypeReference(references, unionItemType, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType: true);
                 }
             }
             foreach (var argument in type.Arguments)
             {
-                AddTypeReference(references, argument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions);
+                AddTypeReference(references, argument, nodes, serializationProviderNamesByType, providerNamespace, containingProviderTypeName, contextualTypeExclusions, unionItemTypeExclusions, isUnionItemType);
             }
         }
 

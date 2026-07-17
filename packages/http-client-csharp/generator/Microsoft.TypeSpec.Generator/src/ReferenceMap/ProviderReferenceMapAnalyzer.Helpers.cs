@@ -573,7 +573,10 @@ namespace Microsoft.TypeSpec.Generator
             return roots;
         }
 
-        private static HashSet<string> GetCustomCodePublicGeneratedTypeRoots(IReadOnlyList<TypeProvider> providers, HashSet<string> generatedTypeNames)
+        private static HashSet<string> GetCustomCodePublicGeneratedTypeRoots(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> generatedTypeNames,
+            HashSet<string> unionItemTypeExclusions)
         {
             var roots = new HashSet<string>(StringComparer.Ordinal);
             foreach (var customCodeView in GetCustomCodeViews(providers))
@@ -584,7 +587,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 AddCustomCodeViewGeneratedTypeRoot(roots, customCodeView, generatedTypeNames);
-                AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: true);
+                AddCustomCodeViewRoots(roots, customCodeView, generatedTypeNames, publicOnly: true, unionItemTypeExclusions);
             }
 
             return roots;
@@ -639,13 +642,14 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> roots,
             TypeProvider customCodeView,
             HashSet<string> generatedTypeNames,
-            bool publicOnly)
+            bool publicOnly,
+            HashSet<string>? unionItemTypeExclusions = null)
         {
             var containingProviderTypeName = NormalizeMetadataTypeName(GetCustomCodeViewIdentity(customCodeView));
             var contextualTypeExclusions = customCodeView.Type.Arguments
                 .Select(argument => argument.Name)
                 .ToHashSet(StringComparer.Ordinal);
-            AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames);
+            AddTypeReference(roots, customCodeView.BaseType, generatedTypeNames, unionItemTypeExclusions: unionItemTypeExclusions);
             AddProviderBodyDependencyTypes(roots, customCodeView.SignatureDependencyTypes, generatedTypeNames, includeUnqualifiedSimpleNameReferences: true);
             if (!publicOnly)
             {
@@ -656,7 +660,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var implementedType in customCodeView.Implements)
             {
-                AddTypeReference(roots, implementedType, generatedTypeNames);
+                AddTypeReference(roots, implementedType, generatedTypeNames, unionItemTypeExclusions: unionItemTypeExclusions);
             }
 
             foreach (var constructor in customCodeView.Constructors)
@@ -673,7 +677,8 @@ namespace Microsoft.TypeSpec.Generator
                     serializationProviderNamesByType: null,
                     includeAttributes: !publicOnly,
                     containingProviderTypeName: containingProviderTypeName,
-                    contextualTypeExclusions: contextualTypeExclusions);
+                    contextualTypeExclusions: contextualTypeExclusions,
+                    unionItemTypeExclusions: unionItemTypeExclusions);
             }
 
             foreach (var method in customCodeView.Methods)
@@ -690,7 +695,8 @@ namespace Microsoft.TypeSpec.Generator
                     serializationProviderNamesByType: null,
                     includeAttributes: !publicOnly,
                     containingProviderTypeName: containingProviderTypeName,
-                    contextualTypeExclusions: contextualTypeExclusions);
+                    contextualTypeExclusions: contextualTypeExclusions,
+                    unionItemTypeExclusions: unionItemTypeExclusions);
             }
 
             foreach (var property in customCodeView.Properties)
@@ -705,8 +711,9 @@ namespace Microsoft.TypeSpec.Generator
                     property.Type,
                     generatedTypeNames,
                     containingProviderTypeName: containingProviderTypeName,
-                    contextualTypeExclusions: contextualTypeExclusions);
-                AddTypeReference(roots, property.ExplicitInterface, generatedTypeNames);
+                    contextualTypeExclusions: contextualTypeExclusions,
+                    unionItemTypeExclusions: unionItemTypeExclusions);
+                AddTypeReference(roots, property.ExplicitInterface, generatedTypeNames, unionItemTypeExclusions: unionItemTypeExclusions);
                 if (!publicOnly)
                 {
                     AddAttributes(roots, property.Attributes, generatedTypeNames, serializationProviderNamesByType: null, includeArguments: true);
@@ -725,7 +732,8 @@ namespace Microsoft.TypeSpec.Generator
                     field.Type,
                     generatedTypeNames,
                     containingProviderTypeName: containingProviderTypeName,
-                    contextualTypeExclusions: contextualTypeExclusions);
+                    contextualTypeExclusions: contextualTypeExclusions,
+                    unionItemTypeExclusions: unionItemTypeExclusions);
                 if (!publicOnly)
                 {
                     AddAttributes(roots, field.Attributes, generatedTypeNames, serializationProviderNamesByType: null, includeArguments: true);
@@ -886,6 +894,19 @@ namespace Microsoft.TypeSpec.Generator
 
             declarations.ExceptWith(nonInternalDeclarations);
             return declarations;
+        }
+
+        private static void AddAbstractModelDeclarations(
+            IReadOnlyList<TypeProvider> providers,
+            HashSet<string> unionItemTypeExclusions,
+            HashSet<string> generatedTypeNames)
+        {
+            foreach (var abstractModel in GetGeneratedProviders(providers)
+                .OfType<ModelProvider>()
+                .Where(provider => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)))
+            {
+                AddTypeReference(unionItemTypeExclusions, abstractModel.Type, generatedTypeNames);
+            }
         }
 
         private static HashSet<string> GetGeneratedImplementationInternalTypeDeclarations(
