@@ -14,6 +14,25 @@ import Footer from "../footer/footer.astro";
   </div>
 </Default>
 
+<script>
+  // Starlight positions the page content and sidebar using a fixed
+  // `--sl-nav-height`. The site header can grow taller than that single-row
+  // height when its content wraps (e.g. under text resize or reflow / zoom),
+  // which made it overflow and overlap the navigation and content below.
+  // Keep `--sl-nav-height` in sync with the real header height so everything
+  // reflows correctly. (WCAG 1.4.4 Resize Text & 1.4.10 Reflow.)
+  function setupNavHeightSync() {
+    const navbar = document.querySelector<HTMLElement>("header.header nav.navbar");
+    if (!navbar) return;
+    const sync = () =>
+      document.documentElement.style.setProperty("--sl-nav-height", `${navbar.offsetHeight}px`);
+    sync();
+    new ResizeObserver(sync).observe(navbar);
+    window.addEventListener("resize", sync);
+  }
+  setupNavHeightSync();
+</script>
+
 <style>
   .footer-wrapper {
     position: relative;
