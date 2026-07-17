@@ -24,7 +24,7 @@ The URL of the pipeline run that triggered this PR. When provided, it is include
 .PARAMETER Phase
 Which phase of the flow to run. The publish pipeline drives these as discrete, independently-failing steps that share a single on-disk checkout:
   - Prepare:          Clone azure-sdk-for-net, update the generator version, regenerate the unbranded test projects and emitter-package.json artifacts.
-  - PublishGenerators: Build the Azure (and mgmt) generator from the published unbranded generator artifact and publish it to the ADO feed, pinning the emitter artifacts to the published version.
+  - PublishGenerators: Build and pack the Azure (and mgmt) generator from the published unbranded generator artifact, stamping the next available feed version and pinning the emitter artifacts to it. The packed packages are published to the ADO feed by the pipeline via the shared publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml).
   - Regenerate:       Regenerate the SDK libraries and open the azure-sdk-for-net PR.
 Defaults to 'All', which runs every phase in a single invocation (used for local, non-pipeline runs).
 .PARAMETER WorkingDirectory
@@ -83,10 +83,11 @@ Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -
 # Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
 Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking -Force
 
-# Publishing the locally built generator packages happens by default whenever a regeneration is
-# requested, so the regenerated emitter-package.json artifacts reference a published version instead
-# of a host-only "file:" path. That way CI can restore the emitter dependencies in the resulting
-# azure-sdk-for-net PR. Resolve the registry and authenticated .npmrc used for publishing.
+# The locally built Azure/mgmt generator packages are published to the ADO feed by the pipeline via
+# the shared publish template (see publish.yml). This script only stamps the next available feed
+# version onto the packed packages and pins the regenerated emitter-package.json artifacts to it, so
+# CI can restore the emitter dependencies in the resulting azure-sdk-for-net PR. Resolve the registry
+# and authenticated .npmrc used to query the feed for the next available version.
 $PublishRegistry = $null
 $PublishNpmrcPath = $null
 if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
@@ -516,15 +517,16 @@ try {
     @{ InstallSucceeded = $installSucceeded } | ConvertTo-Json | Set-Content $prepareStateFile -Encoding utf8
     } # end if ($runPrepare)
 
-    # PublishGenerators phase: build the Azure (and mgmt) generator from the published unbranded
-    # generator artifact and publish it to the ADO feed, pinning the emitter artifacts to the published
-    # version. This runs as a discrete, fail-hard pipeline step (see publish.yml) so any build/publish
-    # failure fails the pipeline instead of silently producing an unrestorable PR.
+    # PublishGenerators phase: build and pack the Azure (and mgmt) generator from the published
+    # unbranded generator artifact, stamping the next available feed version and pinning the emitter
+    # artifacts to it. This runs as a discrete, fail-hard pipeline step (see publish.yml) so any build
+    # failure fails the pipeline instead of silently producing an unrestorable PR. The packed packages
+    # are published to the ADO feed by the pipeline via the shared publish template.
     if ($runPublishGenerators -and $installSucceeded -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
         $regenScope = @()
         if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
         if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
-        Write-Host "##[section]Building and publishing generators for: $($regenScope -join ', ')..."
+        Write-Host "##[section]Building generators for: $($regenScope -join ', ')..."
 
         # Locate the unbranded .tgz and .nupkg files from build artifacts
         if (-not $BuildArtifactsPath -or -not (Test-Path $BuildArtifactsPath)) {

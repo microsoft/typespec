@@ -1,0 +1,24 @@
+parameters:
+  # Directory containing the packed *.tgz npm packages to publish.
+  - name: PackagesPath
+    type: string
+
+  # Condition guarding the publish step.
+  - name: Condition
+    type: string
+    default: succeeded()
+
+# Publishes all packed *.tgz npm packages found in PackagesPath to the internal
+# Azure Artifacts (DevOps) feed. Callers are responsible for authenticating the
+# active npm registry beforehand (for example via
+# /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml).
+steps:
+  - pwsh: |
+      $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
+      foreach ($file in $packageFiles.Name) {
+        Write-Host "npm publish $file --verbose --access public"
+        npm publish $file --verbose --access public
+      }
+    displayName: Publish to DevOps feed
+    workingDirectory: ${{ parameters.PackagesPath }}
+    condition: ${{ parameters.Condition }}

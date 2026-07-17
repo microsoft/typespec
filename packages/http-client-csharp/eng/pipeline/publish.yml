@@ -235,14 +235,17 @@ extends:
                   TokenOwners:
                     - Azure
 
-              # The azure-sdk-for-net PR is produced by three discrete, independently-failing steps that
+              # The azure-sdk-for-net PR is produced by discrete, independently-failing steps that
               # share a single on-disk checkout ($(AzureSdkForNetCheckout)) and generator package folder
               # ($(GeneratorPackagesFolder)):
               #   1. Prepare            - clone azure-sdk-for-net and regenerate the unbranded emitter artifacts.
-              #   2. Publish generators - build the Azure (and mgmt) generator from the published unbranded
-              #                           generator artifact and publish it to the ADO feed. Only runs when a
-              #                           regen was requested, and fails the pipeline on any build/publish error.
-              #   3. Regenerate & PR    - regenerate the SDK libraries and open the azure-sdk-for-net PR.
+              #   2. Build generators   - build and pack the Azure (and mgmt) generator from the published
+              #                           unbranded generator artifact, stamping the next available feed
+              #                           version and pinning the emitter artifacts to it. Only runs when a
+              #                           regen was requested, and fails the pipeline on any build error.
+              #   3. Publish generators - publish the packed generator packages to the ADO feed via the shared
+              #                           publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml).
+              #   4. Regenerate & PR    - regenerate the SDK libraries and open the azure-sdk-for-net PR.
               - task: AzureCLI@2
                 displayName: "Prepare azure-sdk-for-net checkout & regenerate unbranded emitter"
                 inputs:
@@ -266,7 +269,7 @@ extends:
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
 
               - task: AzureCLI@2
-                displayName: "Build & publish Azure/mgmt generators to ADO feed"
+                displayName: "Build Azure/mgmt generators"
                 condition: and(succeeded(), or(${{ parameters.RegenerateAzureLibraries }}, ${{ parameters.RegenerateMgmtLibraries }}))
                 inputs:
                   azureSubscription: "AzureSDKEngKeyVault Secrets"
@@ -287,6 +290,15 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+
+              # Publish the packed Azure/mgmt generator packages to the ADO feed using the shared publish
+              # template. The active npm registry was already authenticated for the ADO feed by the
+              # create-authenticated-npmrc step above, so CI on the resulting azure-sdk-for-net PR can
+              # restore the emitter dependencies from the feed.
+              - template: /eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml
+                parameters:
+                  PackagesPath: $(GeneratorPackagesFolder)
+                  Condition: and(succeeded(), or(${{ parameters.RegenerateAzureLibraries }}, ${{ parameters.RegenerateMgmtLibraries }}))
 
               - task: AzureCLI@2
                 displayName: "Regenerate SDK libraries & create PR in azure-sdk-for-net"

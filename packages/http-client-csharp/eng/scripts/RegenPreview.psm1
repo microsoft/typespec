@@ -4,69 +4,6 @@ Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Globa
 # This is the public azure-sdk-for-js Azure Artifacts feed.
 $script:DefaultGeneratorRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
 
-function Publish-GeneratorPackage {
-    <#
-    .SYNOPSIS
-        Publishes a locally built generator package (.tgz) to an npm registry.
-
-    .DESCRIPTION
-        Publishing the locally built generator packages to the configured registry allows the
-        regenerated emitter-package.json artifacts to reference a published version instead of a
-        host-only "file:" path. That way the resulting azure-sdk-for-net PR can restore the emitter
-        dependencies in CI.
-
-        Re-publishing a version that already exists on the feed is treated as success so the operation
-        is idempotent across pipeline re-runs.
-
-    .PARAMETER PackagePath
-        Path to the packed .tgz file to publish.
-
-    .PARAMETER Registry
-        The npm registry to publish to.
-
-    .PARAMETER NpmrcPath
-        Optional path to an .npmrc file (with authentication) to use for the publish operation.
-    #>
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$PackagePath,
-
-        [Parameter(Mandatory=$true)]
-        [string]$Registry,
-
-        [Parameter(Mandatory=$false)]
-        [string]$NpmrcPath
-    )
-
-    if (-not (Test-Path $PackagePath)) {
-        throw "Package not found for publishing: $PackagePath"
-    }
-
-    Write-Host "Publishing $(Split-Path $PackagePath -Leaf) to $Registry..." -ForegroundColor Gray
-
-    $publishArgs = @("publish", $PackagePath, "--registry", $Registry)
-    if ($NpmrcPath -and (Test-Path $NpmrcPath)) {
-        $publishArgs += @("--userconfig", $NpmrcPath)
-    }
-
-    $publishOutput = & npm @publishArgs 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        $outputText = ($publishOutput | Out-String)
-        # Treat an already-published version as success so re-runs remain idempotent.
-        if ($outputText -match "EPUBLISHCONFLICT" -or
-            $outputText -match "cannot publish over" -or
-            $outputText -match "previously published" -or
-            $outputText -match "409 Conflict") {
-            Write-Host "  Package version already published; continuing." -ForegroundColor Yellow
-            return
-        }
-        Write-Host $outputText -ForegroundColor Red
-        throw "Failed to publish package: $PackagePath"
-    }
-
-    Write-Host "  Published $(Split-Path $PackagePath -Leaf)" -ForegroundColor Green
-}
-
 function Get-NextGeneratorVersion {
     <#
     .SYNOPSIS
@@ -451,11 +388,10 @@ function Update-GeneratorPackage {
             
             Write-Host "  Package created: $packageFile" -ForegroundColor Green
 
-            # Step 4 (optional): Publish the package so downstream emitter artifacts can reference a
-            # restorable published version instead of a host-only "file:" path.
-            if ($PublishRegistry) {
-                Publish-GeneratorPackage -PackagePath $destPath -Registry $PublishRegistry -NpmrcPath $NpmrcPath
-            }
+            # NOTE: publishing the packed .tgz to the feed is handled by the pipeline via the shared
+            # publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml), not
+            # here. This function only stamps the next available feed version and packs the .tgz so the
+            # downstream emitter artifacts can reference a restorable published version.
 
             return $destPath
         }
@@ -1339,4 +1275,4 @@ function Update-AzureSpectorScenarios {
     return $generationOutput
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Publish-GeneratorPackage", "Update-EmitterPackageArtifact", "Get-NextGeneratorVersion"
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource", "Update-AzureSpectorScenarios", "Update-EmitterPackageArtifact", "Get-NextGeneratorVersion"
