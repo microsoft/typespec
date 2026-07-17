@@ -101,6 +101,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsAllCodeGenPrefixedAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract declares a mix: a CodeGen-prefixed attribute ([CodeGenModel("Something")])
+            // that is not one of the explicitly-known CodeGen attributes, and a [Restorable] attribute. Only
+            // [Restorable] should be restored because any CodeGen-prefixed attribute is never restored.
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
+        [Test]
         public async Task BuildAttributesForBackCompatibilitySkipsEditorBrowsableAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
