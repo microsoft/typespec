@@ -201,7 +201,13 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     def class_pylint_disable(self, model: ModelType) -> str:
         """Class-level pylint disables for the model declaration line."""
-        return model.pylint_disable()
+        retval = model.pylint_disable()
+        # When the model's only constructor is ``def __init__(self, *args, **kwargs)`` (i.e. no
+        # typed overload is generated), the guideline checker reports the ``*args`` vararg as an
+        # undocumented param. There is no meaningful param to document, so silence the check.
+        if not self.need_init(model) and self.initialize_properties(model):
+            retval = add_to_pylint_disable(retval, "docstring-missing-param")
+        return retval
 
     def global_pylint_disables(self) -> str:
         return ""
