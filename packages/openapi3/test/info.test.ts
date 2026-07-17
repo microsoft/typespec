@@ -79,4 +79,25 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       },
     });
   });
+
+  it("set the license identifier with @info decorator", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @info(#{
+        license: #{
+          name: "Apache 2.0",
+          identifier: "Apache-2.0"
+        },
+      })
+      namespace Foo {
+        op test(): string;
+      }
+      `,
+    );
+    deepStrictEqual(res.info.license, {
+      name: "Apache 2.0",
+      identifier: "Apache-2.0",
+    });
+  });
 });

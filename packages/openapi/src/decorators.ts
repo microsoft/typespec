@@ -274,6 +274,16 @@ export const $info: InfoDecorator = (
       return;
     }
   }
+
+  // Validate that license `url` and `identifier` are mutually exclusive
+  if (data.license?.url && data.license?.identifier) {
+    reportDiagnostic(context.program, {
+      code: "license-url-and-identifier",
+      target: context.getArgumentTarget(0)!,
+    });
+    return;
+  }
+
   setInfo(context.program, entity, data);
 };
 

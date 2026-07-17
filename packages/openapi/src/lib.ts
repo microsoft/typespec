@@ -22,6 +22,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`${"property"}: ${"value"} is not a valid URL.`,
       },
     },
+    "license-url-and-identifier": {
+      severity: "error",
+      messages: {
+        default: `License "url" and "identifier" are mutually exclusive. Specify only one of them.`,
+      },
+    },
     "duplicate-tag": {
       severity: "error",
       messages: {

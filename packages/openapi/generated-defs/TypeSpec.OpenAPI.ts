@@ -46,6 +46,7 @@ export interface Contact {
 export interface License {
   readonly [key: string]: unknown;
   readonly name: string;
+  readonly identifier?: string;
   readonly url?: string;
 }
 

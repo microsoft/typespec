@@ -51,7 +51,14 @@ export interface License {
   /** The license name used for the API. */
   name: string;
 
-  /** A URL to the license used for the API. MUST be in the format of a URL. */
+  /**
+   * An SPDX license expression for the API. Mutually exclusive of the `url` field.
+   */
+  identifier?: string;
+
+  /**
+   * A URL to the license used for the API. MUST be in the format of a URL. Mutually exclusive of the `identifier` field.
+   */
   url?: string;
 }
 

@@ -103,7 +103,14 @@ model License {
   /** The license name used for the API. */
   name: string;
 
-  /** A URL to the license used for the API. MUST be in the format of a URL. */
+  /**
+   * An [SPDX](https://spdx.org/licenses/) license expression for the API. The `identifier` field is mutually exclusive of the `url` field.
+   */
+  identifier?: string;
+
+  /**
+   * A URL to the license used for the API. MUST be in the format of a URL. The `url` field is mutually exclusive of the `identifier` field.
+   */
   url?: url;
 
   ...Record<unknown>;

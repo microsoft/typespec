@@ -248,6 +248,48 @@ describe("@info", () => {
     });
   });
 
+  it("set license identifier", async () => {
+    const { program, Service } = await Tester.compile(t.code`
+      @info(#{
+        title: "My API",
+        version: "1.0.0",
+        license: #{
+          name: "Apache 2.0",
+          identifier: "Apache-2.0"
+        },
+      })
+      namespace ${t.namespace("Service")} {}
+    `);
+
+    deepStrictEqual(getInfo(program, Service), {
+      title: "My API",
+      version: "1.0.0",
+      license: {
+        name: "Apache 2.0",
+        identifier: "Apache-2.0",
+      },
+    });
+  });
+
+  it("emit diagnostic if license has both url and identifier", async () => {
+    const diagnostics = await Tester.diagnose(`
+      @info(#{
+        title: "My API",
+        version: "1.0.0",
+        license: #{
+          name: "Apache 2.0",
+          identifier: "Apache-2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+      })
+      namespace Service {}
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi/license-url-and-identifier",
+    });
+  });
+
   it("resolveInfo() merge with data from @service and @summary", async () => {
     const { program, Service } = await Tester.compile(t.code`
       @service(#{ 
