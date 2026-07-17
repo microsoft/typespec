@@ -171,12 +171,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDoesNotRestoreForInternalType()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CreateAttributeTestProvider(
+                name: "BackCompatAttributeType",
+                declarationModifiers: TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class);
+
+            // The last contract declares [CLSCompliant(true)], but attribute restoration only applies to
+            // externally visible (public or protected) types. Since the generated type is internal, nothing
+            // is restored.
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
         private static TestTypeProvider CreateAttributeTestProvider(
             string? name = null,
-            IEnumerable<MethodBodyStatement>? attributes = null) =>
+            IEnumerable<MethodBodyStatement>? attributes = null,
+            TypeSignatureModifiers? declarationModifiers = null) =>
             new TestTypeProvider(
                 name: name ?? "TestName",
-                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                declarationModifiers: declarationModifiers ?? (TypeSignatureModifiers.Public | TypeSignatureModifiers.Class),
                 attributes: attributes);
 
         [Test]

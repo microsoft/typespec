@@ -981,15 +981,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Adds any back-compatibility attributes from the last contract that are not already present in
-        /// <paramref name="originalAttributes"/> (or the custom-code attributes). Attributes that
-        /// generation owns (any <c>CodeGen</c>-prefixed attribute or one listed in
-        /// <see cref="s_nonRestorableAttributeNames"/>) are never restored. The original attributes are
-        /// returned unchanged when there is nothing new to add.
+        /// Merges the generated (<paramref name="originalAttributes"/>) and custom-code attributes with
+        /// the attributes from the last contract, restoring any last-contract attribute that is not already
+        /// present so that removing it does not break a consumer contract. Restoration only applies to types
+        /// that are externally visible (public or protected); attributes that generation owns (any attribute
+        /// whose name contains <c>CodeGen</c> or one listed in <see cref="s_nonRestorableAttributeNames"/>)
+        /// are never restored. The original attributes are returned unchanged when there is nothing to add.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
+
+            // Only externally visible (public or protected) types can break a consumer contract, so we
+            // only restore attributes for those types.
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected))
+            {
+                return original;
+            }
 
             if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
             {
