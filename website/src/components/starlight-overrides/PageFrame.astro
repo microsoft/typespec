@@ -20,7 +20,7 @@ import Footer from "../footer/footer.astro";
   // height when its content wraps (e.g. under text resize or reflow / zoom),
   // which made it overflow and overlap the navigation and content below.
   // Keep `--sl-nav-height` in sync with the real header height so everything
-  // reflows correctly. (WCAG 1.4.4 Resize Text & 1.4.10 Reflow.)
+  // reflows correctly. (Resize Text 1.4.4 & Reflow 1.4.10.)
   function setupNavHeightSync() {
     const navbar = document.querySelector<HTMLElement>("header.header nav.navbar");
     if (!navbar) return;
