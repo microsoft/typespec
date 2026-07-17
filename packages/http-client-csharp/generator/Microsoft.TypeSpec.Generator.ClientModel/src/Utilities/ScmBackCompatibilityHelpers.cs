@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         public static IReadOnlyList<AttributeStatement> FilterRestoredAttributes(
             IReadOnlyList<AttributeStatement> originalAttributes,
             IReadOnlyList<AttributeStatement> restoredAttributes,
-            Func<IReadOnlySet<string>> generatorOwnedAttributeNames)
+            Lazy<HashSet<string>> generatorOwnedAttributeNames)
         {
             // The base returns the original list unchanged when nothing was restored.
             if (ReferenceEquals(restoredAttributes, originalAttributes))
@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
                 return restoredAttributes;
             }
 
-            var ownedNames = generatorOwnedAttributeNames();
+            var ownedNames = generatorOwnedAttributeNames.Value;
 
             var originalDisplayStrings = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attribute in originalAttributes)
