@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -34,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             nameof(ExperimentalAttribute),
             nameof(ObsoleteAttribute),
             nameof(SerializableAttribute),
+            nameof(DefaultMemberAttribute),
             nameof(JsonConstructorAttribute),
             nameof(JsonConverterAttribute),
             nameof(JsonDerivedTypeAttribute),

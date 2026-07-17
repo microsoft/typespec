@@ -140,6 +140,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsDefaultMemberAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
+
+            // The last contract declares a mix: a [DefaultMember] attribute (which indicates specific
+            // runtime behavior and is never restored) and a [Restorable] attribute. Only [Restorable]
+            // should be restored.
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
 
