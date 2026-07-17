@@ -1045,10 +1045,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return merged ?? original;
         }
 
-        // Renders an attribute to its display string used as the de-duplication key. Attributes read
-        // from the last contract (or custom code) may reference argument literals or types that the
-        // generator cannot render; in that case rendering throws and we treat the attribute as
-        // non-restorable instead of crashing the entire generation.
         private static bool TryGetAttributeDisplayString(AttributeStatement attribute, [NotNullWhen(true)] out string? displayString)
         {
             try
@@ -1056,8 +1052,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 displayString = attribute.ToDisplayString();
                 return true;
             }
-            catch (Exception ex) when (
-                ex is NotImplementedException or NotSupportedException or InvalidOperationException or NullReferenceException)
+            catch (Exception)
             {
                 displayString = null;
                 return false;
