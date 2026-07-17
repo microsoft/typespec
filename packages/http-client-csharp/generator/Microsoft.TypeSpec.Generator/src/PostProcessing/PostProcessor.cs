@@ -111,9 +111,13 @@ namespace Microsoft.TypeSpec.Generator
 
         private bool IsAdditionalNonRootType(INamedTypeSymbol symbol)
         {
+            if (_additionalNonRootTypeNames.Contains(symbol.Name))
+            {
+                return true;
+            }
+
             var fullyQualifiedName = symbol.GetFullyQualifiedName();
-            if (_additionalNonRootTypeNames.Contains(symbol.Name)
-                || _additionalNonRootTypeNames.Contains(fullyQualifiedName))
+            if (_additionalNonRootTypeNames.Contains(fullyQualifiedName))
             {
                 return true;
             }
