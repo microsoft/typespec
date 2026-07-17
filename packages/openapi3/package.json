@@ -59,7 +59,6 @@
   },
   "files": [
     "lib/*.tsp",
-    "src/**/*.md",
     "dist/**",
     "!dist/test/**"
   ],

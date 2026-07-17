@@ -2,7 +2,6 @@ import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
-  referenceDocs: { baseUrl: "https://typespec.io/docs/libraries/http/reference" },
   diagnostics: {
     "http-verb-duplicate": {
       severity: "error",

@@ -24,6 +24,7 @@ import {
   InitializeParams,
   InitializeResult,
   Location,
+  MarkupContent,
   MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
@@ -52,7 +53,6 @@ import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
-import { isFileRef } from "../core/file-ref.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
@@ -899,14 +899,13 @@ export function createServer(
       return { contents: [] };
     }
 
-    const offset = document.offsetAt(params.position);
-    const sections: string[] = [];
-
-    const id = getNodeAtPosition(script, offset);
+    const id = getNodeAtPosition(script, document.offsetAt(params.position));
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveRelatedSymbols(id) : undefined;
 
-    if (sym && sym.length > 0) {
+    if (!sym || sym.length === 0) {
+      return { contents: { kind: MarkupKind.Markdown, value: "" } };
+    } else {
       // Only show full definition if the symbol is a model or interface that has extends or is clauses.
       // Avoid showing full definition in other cases which can be long and not useful
       let includeExpandedDefinition = false;
@@ -925,108 +924,21 @@ export function createServer(
         }
       }
 
-      const details = await getSymbolDetails(program, sym[0], {
-        includeSignature: true,
-        includeParameterTags: true,
-        includeExpandedDefinition,
-      });
-      if (details) {
-        sections.push(details);
-      }
-    }
-
-    const diagnosticDoc = await getDiagnosticDocMarkdownAtPosition(
-      program,
-      script.file.path,
-      offset,
-    );
-    if (diagnosticDoc) {
-      sections.push(diagnosticDoc);
-    }
-
-    return {
-      contents: {
+      const markdown: MarkupContent = {
         kind: MarkupKind.Markdown,
-        value: sections.join("\n\n---\n\n"),
-      },
-    };
-  }
-
-  /**
-   * Build a markdown section with the extended documentation (and reference link) of any
-   * reported diagnostic that covers the given offset in the given file. Reuses the diagnostics
-   * from the last full compile (matched the same way the squiggles are), since the extended
-   * documentation cannot be attached to the LSP diagnostic itself.
-   */
-  async function getDiagnosticDocMarkdownAtPosition(
-    program: Program,
-    filePath: string,
-    offset: number,
-  ): Promise<string | undefined> {
-    const sections: string[] = [];
-    const seenCodes = new Set<string>();
-    for (const diag of currentDiagnosticIndex.values()) {
-      if (typeof diag.code !== "string" || seenCodes.has(diag.code)) {
-        continue;
-      }
-      const location = getSourceLocation(diag.target, { locateId: true });
-      if (!location?.file || location.file.path !== filePath) {
-        continue;
-      }
-      if (offset < location.pos || offset > location.end) {
-        continue;
-      }
-      seenCodes.add(diag.code);
-      const markdown = await resolveDiagnosticDocMarkdown(program, diag);
-      if (markdown) {
-        sections.push(markdown);
-      }
+        value:
+          sym && sym.length > 0
+            ? await getSymbolDetails(program, sym[0], {
+                includeSignature: true,
+                includeParameterTags: true,
+                includeExpandedDefinition,
+              })
+            : "",
+      };
+      return {
+        contents: markdown,
+      };
     }
-    return sections.length > 0 ? sections.join("\n\n---\n\n") : undefined;
-  }
-
-  /** Resolve the extended docs + reference link markdown for a single reported diagnostic. */
-  async function resolveDiagnosticDocMarkdown(
-    program: Program,
-    diag: Diagnostic,
-  ): Promise<string | undefined> {
-    const code = diag.code as string;
-    const segments = code.split("/");
-    const localCode = segments.pop();
-    const libName = segments.join("/");
-    const sections: string[] = [];
-
-    if (libName && localCode) {
-      // Reuse the library already loaded by the compiler instead of re-resolving/reloading it.
-      const library = await program.getLoadedLibraryInfo(libName);
-      const docs =
-        library?.$lib?.diagnostics?.[localCode]?.docs ??
-        library?.$linter?.rules?.find((rule) => rule.name === localCode)?.docs;
-      let docText: string | undefined;
-      if (typeof docs === "string") {
-        docText = docs;
-      } else if (isFileRef(docs) && library) {
-        try {
-          const file = await compilerHost.readFile(joinPaths(library.packageRoot, docs.path));
-          docText = file.text;
-        } catch (error) {
-          log({
-            level: "debug",
-            message: `Unable to read extended documentation for diagnostic '${code}'.`,
-            detail: error,
-          });
-        }
-      }
-      if (docText && docText.trim().length > 0) {
-        sections.push(docText.trim());
-      }
-    }
-
-    if (diag.url) {
-      sections.push(`[See documentation](${diag.url})`);
-    }
-
-    return sections.length > 0 ? sections.join("\n\n") : undefined;
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
