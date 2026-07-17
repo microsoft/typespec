@@ -277,9 +277,9 @@ try {
 
     if ($runPrepare) {
     # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
+    # ($propsFilePath, $packageJsonPath and $httpClientDir are computed once above and shared across phases.)
     Write-Host "Updating dependency version in eng/centralpackagemanagement/Directory.Generation.Packages.props..."
-    $propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
-    
+
     if (-not (Test-Path $propsFilePath)) {
         throw "eng/centralpackagemanagement/Directory.Generation.Packages.props not found in the repository"
     }
@@ -305,8 +305,7 @@ try {
 
     # Update the dependency in eng/packages/http-client-csharp/package.json
     Write-Host "Updating dependency version in eng/packages/http-client-csharp/package.json..."
-    $packageJsonPath = Join-Path $tempDir "eng/packages/http-client-csharp/package.json"
-    
+
     if (-not (Test-Path $packageJsonPath)) {
         throw "eng/packages/http-client-csharp/package.json not found in the repository"
     }
@@ -334,9 +333,8 @@ try {
     # Only run expensive operations if we actually made updates
     $installSucceeded = $true
     if ($packageJsonUpdated) {
-        # Run npm install in the http-client-csharp directory
+        # Run npm install in the http-client-csharp directory ($httpClientDir is shared, computed above)
         Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
-        $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
 
         # Update TypeSpec dependencies to @next versions in the Azure emitter package.json
         if ($UseTypeSpecNext) {
@@ -550,9 +548,11 @@ try {
             Write-Host "Copied NuGet package: $($nupkg.Name)"
         }
 
-        # Build and package Azure generator (needed for both Azure data plane and mgmt)
-        $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
-        $packagesDataPropsPath = Join-Path $tempDir "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
+        # Build and package Azure generator (needed for both Azure data plane and mgmt).
+        # The Azure generator lives in the same eng/packages/http-client-csharp folder as $httpClientDir,
+        # and the generation props file is the shared $propsFilePath.
+        $azureGeneratorPath = $httpClientDir
+        $packagesDataPropsPath = $propsFilePath
         $engFolder = Join-Path $tempDir "eng"
 
         Write-Host "##[section]Building Azure generator..."
