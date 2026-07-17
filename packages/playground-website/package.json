@@ -92,6 +92,7 @@
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "@typescript/typescript6": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }

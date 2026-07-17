@@ -1,0 +1,24 @@
+diff --git a/dist/commands/build.js b/dist/commands/build.js
+index 53ad172a1517ce32c8a5ade930441957720da8c8..bde87caea343c53ae55b89362d246d7fa17b3836 100644
+--- a/dist/commands/build.js
++++ b/dist/commands/build.js
+@@ -1,7 +1,7 @@
+ import { parseArgs } from "node:util";
+ import { join } from "pathe";
+ import pc from "picocolors";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { buildAllFiles } from "../babel.js";
+ import { getParseCommandLine } from "../typescript.js";
+ const formatHost = {
+diff --git a/dist/typescript.js b/dist/typescript.js
+index 9a80f974c992e3bb735253770c5269c9567945b0..ed6409b571bfa8d2aa1f1373e5e0a5fa8674555d 100644
+--- a/dist/typescript.js
++++ b/dist/typescript.js
+@@ -1,5 +1,5 @@
+ import { dirname, join } from "pathe";
+-import * as ts from "typescript";
++import * as ts from "@typescript/typescript6";
+ export function getParseCommandLine() {
+     const configPath = findTSConfigFile();
+     const opts = ts.getParsedCommandLineOfConfigFile(configPath, { skipLibCheck: true }, {

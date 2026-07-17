@@ -52,6 +52,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-checker": "catalog:",
+    "@typescript/typescript6": "catalog:",
     "vite-plugin-dts": "catalog:"
   }
 }

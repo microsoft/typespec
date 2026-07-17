@@ -310,7 +310,7 @@ export class TspLanguageClient {
 
     const sendLmChatRequestRequestName: LspClientCustomRequest_ChatComplete_Name =
       "custom/chatCompletion";
-    lc.onRequest(
+    lc.onRequest<string | undefined, unknown>(
       sendLmChatRequestRequestName,
       (params: LspClientCustomRequest_ChatCompletion_Params) =>
         sendLmChatRequest(params.messages, params.modelFamily, params.options, params.id),

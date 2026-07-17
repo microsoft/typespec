@@ -1,0 +1,496 @@
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+index 1883dff026006954b14a4f8ded3ec826c09c6199..83790a7ae43e906f224a5a0b35487a62fbdd6264 100644
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -45,5 +45,5 @@ export { type ComponentPath, ConsoleLogger, type DeclarationReference, type Enum
+ export { type Deserializable, Deserializer, type DeserializerComponent, JSONOutput, SerializeEvent, Serializer, type SerializerComponent, type SerializerEvents, } from "./lib/serialization/index.js";
+ export * as Internationalization from "./lib/internationalization/index.js";
+ export type { TranslatableStrings } from "./lib/internationalization/internationalization.js";
+-import TypeScript from "typescript";
++import TypeScript from "@typescript/typescript6";
+ export { TypeScript };
+diff --git a/dist/index.js b/dist/index.js
+index 785b2dc2a8575012c4917f39499473ce0afab2a1..bfb6f6f35de1deee440ff6c7831882d8fdd430ff 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -42,5 +42,5 @@ export { ArgumentsReader, CommentStyle, EntryPointStrategy, normalizePath, Optio
+ export { ConsoleLogger, EventDispatcher, EventHooks, i18n, JSX, Logger, LogLevel, MinimalSourceFile, translateTagName, } from "#utils";
+ export { Deserializer, JSONOutput, SerializeEvent, Serializer, } from "./lib/serialization/index.js";
+ export * as Internationalization from "./lib/internationalization/index.js";
+-import TypeScript from "typescript";
++import TypeScript from "@typescript/typescript6";
+ export { TypeScript };
+diff --git a/dist/lib/application.js b/dist/lib/application.js
+index 4a2189c9094eda211ca1a2bd9bc6c3455abfc1aa..0a5b939e39f0fed446aaca0ab21deafc1dac8160 100644
+--- a/dist/lib/application.js
++++ b/dist/lib/application.js
+@@ -33,7 +33,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
+     return useValue ? value : void 0;
+ };
+ import * as Path from "path";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { Deserializer, Serializer } from "./serialization/index.js";
+ import { Converter } from "./converter/index.js";
+ import { Renderer } from "./output/renderer.js";
+diff --git a/dist/lib/converter/comments/blockLexer.d.ts b/dist/lib/converter/comments/blockLexer.d.ts
+index 864a4d4c4cae1c19226fcd160ff8b19eec8ad441..c065660bceed91ce7abe6befd4a726650dd21429 100644
+--- a/dist/lib/converter/comments/blockLexer.d.ts
++++ b/dist/lib/converter/comments/blockLexer.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { type Token } from "./lexer.js";
+ import type { Context } from "../context.js";
+ export declare function lexBlockComment(file: string, pos?: number, end?: number, createSymbolId?: Context["createSymbolId"], jsDoc?: ts.JSDoc, checker?: ts.TypeChecker): Generator<Token, undefined, undefined>;
+diff --git a/dist/lib/converter/comments/blockLexer.js b/dist/lib/converter/comments/blockLexer.js
+index 1244816517c7023772f5c04b6503db797b333cf2..53bbf3abf317aa5deb412e091d92152c9a4db792 100644
+--- a/dist/lib/converter/comments/blockLexer.js
++++ b/dist/lib/converter/comments/blockLexer.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { TokenSyntaxKind } from "./lexer.js";
+ import { resolveAliasedSymbol } from "../utils/symbols.js";
+ export function* lexBlockComment(file, pos = 0, end = file.length, createSymbolId = () => {
+diff --git a/dist/lib/converter/comments/discovery.d.ts b/dist/lib/converter/comments/discovery.d.ts
+index e0e8fbe2a830e0857b2ef77bb831bf74fa471e88..93d43ff4ba29d34ca8f76db184ce1c376e2c4aeb 100644
+--- a/dist/lib/converter/comments/discovery.d.ts
++++ b/dist/lib/converter/comments/discovery.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ReflectionKind } from "../../models/index.js";
+ import { CommentStyle } from "../../utils/options/declaration.js";
+ import { type Logger } from "#utils";
+diff --git a/dist/lib/converter/comments/discovery.js b/dist/lib/converter/comments/discovery.js
+index ea12a843a59c6162a0d51a95bf2e267460dd1525..a1dd993b28537c8c8da55e6dfeff05e3ba036f3d 100644
+--- a/dist/lib/converter/comments/discovery.js
++++ b/dist/lib/converter/comments/discovery.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ReflectionKind } from "../../models/index.js";
+ import { CommentStyle } from "../../utils/options/declaration.js";
+ import { nicePath } from "../../utils/paths.js";
+diff --git a/dist/lib/converter/comments/index.d.ts b/dist/lib/converter/comments/index.d.ts
+index 44ca82888013e772b8186e1e5c1bd54c3df07ce3..d9cae9acb1b03d42fb475f53438be3528934c276 100644
+--- a/dist/lib/converter/comments/index.d.ts
++++ b/dist/lib/converter/comments/index.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { Comment, ReflectionKind } from "../../models/index.js";
+ import type { CommentStyle, JsDocCompatibility, ValidationOptions } from "../../utils/options/declaration.js";
+ import type { FileRegistry } from "../../models/FileRegistry.js";
+diff --git a/dist/lib/converter/comments/index.js b/dist/lib/converter/comments/index.js
+index fb9f5df915eeb913fefe85c15fb596de77f8bd19..569800a9b1ac09e112f32dbba6d278e4226dc1cd 100644
+--- a/dist/lib/converter/comments/index.js
++++ b/dist/lib/converter/comments/index.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { Comment, ReflectionKind } from "../../models/index.js";
+ import { lexBlockComment } from "./blockLexer.js";
+ import { discoverComment, discoverFileComments, discoverNodeComment, discoverSignatureComment, } from "./discovery.js";
+diff --git a/dist/lib/converter/comments/lineLexer.d.ts b/dist/lib/converter/comments/lineLexer.d.ts
+index a7b4670f08d38a237acb392c2093b133bd7e1762..9cecd7391e6e7fc8b13410075144673cc658d77d 100644
+--- a/dist/lib/converter/comments/lineLexer.d.ts
++++ b/dist/lib/converter/comments/lineLexer.d.ts
+@@ -1,3 +1,3 @@
+-import type ts from "typescript";
++import type ts from "@typescript/typescript6";
+ import { type Token } from "./lexer.js";
+ export declare function lexLineComments(file: string, ranges: ts.CommentRange[]): Generator<Token, undefined, undefined>;
+diff --git a/dist/lib/converter/comments/linkResolver.js b/dist/lib/converter/comments/linkResolver.js
+index 119a0d0f3dfd525fceff1f9ee9a56d8ab7de8385..d83bb396f48f9a3f64f3d969e3be05b81e478405 100644
+--- a/dist/lib/converter/comments/linkResolver.js
++++ b/dist/lib/converter/comments/linkResolver.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { makeRecursiveVisitor, Reflection, ReflectionKind, ReflectionSymbolId, } from "../../models/index.js";
+ import { resolveDeclarationReference } from "./declarationReferenceResolver.js";
+ import { maxElementByScore, parseDeclarationReference } from "#utils";
+diff --git a/dist/lib/converter/context.d.ts b/dist/lib/converter/context.d.ts
+index efec123c5b9ae40cd3726c8cd5f8a5eeaf2bf28f..f8dc97b10051db6fe1fd47e6552f77c49f0e0eb7 100644
+--- a/dist/lib/converter/context.d.ts
++++ b/dist/lib/converter/context.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { Comment, DeclarationReflection, type DocumentReflection, type ProjectReflection, ReferenceType, type Reflection, ReflectionKind } from "../models/index.js";
+ import type { Converter } from "./converter.js";
+ import { type NormalizedPath } from "#utils";
+diff --git a/dist/lib/converter/context.js b/dist/lib/converter/context.js
+index 90375251d80169398a3cc0ef7e2aad215977b2a8..95e1bcf036da175d901d097c49f1879ff758aefe 100644
+--- a/dist/lib/converter/context.js
++++ b/dist/lib/converter/context.js
+@@ -1,5 +1,5 @@
+ import { ok as assert } from "assert";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { Comment, ContainerReflection, DeclarationReflection, ReferenceType, ReflectionFlag, ReflectionKind, } from "../models/index.js";
+ import { isNamedNode } from "./utils/nodes.js";
+ import { ConverterEvents } from "./converter-events.js";
+diff --git a/dist/lib/converter/convert-expression.d.ts b/dist/lib/converter/convert-expression.d.ts
+index 9242850cf6e097d6fd206c084ac2ef5d714e11a0..8c11e03cd7880328c4cd7f2e5dfb8989f5dd3729 100644
+--- a/dist/lib/converter/convert-expression.d.ts
++++ b/dist/lib/converter/convert-expression.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ /**
+  * Return the default value of the given node.
+  *
+diff --git a/dist/lib/converter/convert-expression.js b/dist/lib/converter/convert-expression.js
+index 52467449a1461010c282a4b437ca0c526db5571a..bcd2ae933c773c5edaed3199cd5143f846bd9115 100644
+--- a/dist/lib/converter/convert-expression.js
++++ b/dist/lib/converter/convert-expression.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ /**
+  * Return the default value of the given node.
+  *
+diff --git a/dist/lib/converter/converter.d.ts b/dist/lib/converter/converter.d.ts
+index 9c95b44ef1aaada93c12e24474b6378a9d72cf86..8f96c1592ff6976997aacb35962c449a511b6476 100644
+--- a/dist/lib/converter/converter.d.ts
++++ b/dist/lib/converter/converter.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Application } from "../application.js";
+ import { Comment, type CommentDisplayPart, type ContainerReflection, type DeclarationReflection, DocumentReflection, type ParameterReflection, ProjectReflection, Reflection, type ReflectionSymbolId, type SignatureReflection, type SomeType, type TypeParameterReflection } from "../models/index.js";
+ import { Context } from "./context.js";
+diff --git a/dist/lib/converter/converter.js b/dist/lib/converter/converter.js
+index eaf4a024bcc42af97d6822be98cb45a0a787e9eb..185c359a6d93bc96f1c6f16313a0dab9f6b431fe 100644
+--- a/dist/lib/converter/converter.js
++++ b/dist/lib/converter/converter.js
+@@ -32,7 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
+     }
+     return useValue ? value : void 0;
+ };
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ok } from "assert";
+ import { Comment, DocumentReflection, ProjectReflection, Reflection, ReflectionKind, } from "../models/index.js";
+ import { Context } from "./context.js";
+diff --git a/dist/lib/converter/factories/index-signature.d.ts b/dist/lib/converter/factories/index-signature.d.ts
+index 196740cdad66ddc8354f55e805aee2c9272c09b2..c875497251c480e76f7a0dcae47b41b44712cead 100644
+--- a/dist/lib/converter/factories/index-signature.d.ts
++++ b/dist/lib/converter/factories/index-signature.d.ts
+@@ -1,3 +1,3 @@
+-import type ts from "typescript";
++import type ts from "@typescript/typescript6";
+ import type { Context } from "../context.js";
+ export declare function convertIndexSignatures(context: Context, type: ts.Type): void;
+diff --git a/dist/lib/converter/factories/signature.d.ts b/dist/lib/converter/factories/signature.d.ts
+index e1ab0d1ca2a4a595ae35afe5586722721e222869..4dae08cb15461a05480af886409cba3474a31078 100644
+--- a/dist/lib/converter/factories/signature.d.ts
++++ b/dist/lib/converter/factories/signature.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ParameterReflection, type Reflection, ReflectionKind, SignatureReflection, TypeParameterReflection } from "../../models/index.js";
+ import type { Context } from "../context.js";
+ export declare function convertConstructSignatures(context: Context, symbol: ts.Symbol): void;
+diff --git a/dist/lib/converter/factories/signature.js b/dist/lib/converter/factories/signature.js
+index bd3bfd7dc208745ef24d948f7d84e48c976c2d4d..3f3b7fe7060a0f4ae5d8c0b66e93fc3fa2959fd2 100644
+--- a/dist/lib/converter/factories/signature.js
++++ b/dist/lib/converter/factories/signature.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import assert from "assert";
+ import { DeclarationReflection, IntrinsicType, ParameterReflection, PredicateType, ReferenceType, ReflectionFlag, ReflectionKind, SignatureReflection, TypeParameterReflection, VarianceModifier, } from "../../models/index.js";
+ import { ConverterEvents } from "../converter-events.js";
+diff --git a/dist/lib/converter/factories/symbol-id.d.ts b/dist/lib/converter/factories/symbol-id.d.ts
+index c3a0d3b6243a81b8c407cdeb1c831346e362d953..0ceb2629882af280965ca3ebe7b3b878c0c2aaa2 100644
+--- a/dist/lib/converter/factories/symbol-id.d.ts
++++ b/dist/lib/converter/factories/symbol-id.d.ts
+@@ -1,3 +1,3 @@
+ import { ReflectionSymbolId } from "#models";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export declare function createSymbolIdImpl(symbol: ts.Symbol, declaration?: ts.Declaration): ReflectionSymbolId;
+diff --git a/dist/lib/converter/factories/symbol-id.js b/dist/lib/converter/factories/symbol-id.js
+index 323ba9dc50cde10d506ede93edb66df5ea6fc96a..fb3e84465f9a3d586299129b82c4b1d1ac02e796 100644
+--- a/dist/lib/converter/factories/symbol-id.js
++++ b/dist/lib/converter/factories/symbol-id.js
+@@ -2,7 +2,7 @@ import { ReflectionSymbolId } from "#models";
+ import { findPackageForPath, getQualifiedName, normalizePath, resolveDeclarationMaps } from "#node-utils";
+ import {} from "#utils";
+ import { relative } from "node:path";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ let transientCount = 0;
+ const transientIds = new WeakMap();
+ // Don't use this directly, use Context.createSymbolId instead.
+diff --git a/dist/lib/converter/jsdoc.d.ts b/dist/lib/converter/jsdoc.d.ts
+index c53c7dc9a2f072bf282c54eddf5408e592face7d..ebc1948250152d0b9a36bb559f02747710b50150 100644
+--- a/dist/lib/converter/jsdoc.d.ts
++++ b/dist/lib/converter/jsdoc.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Context } from "./context.js";
+ export declare function convertJsDocAlias(context: Context, symbol: ts.Symbol, declaration: ts.JSDocTypedefTag | ts.JSDocEnumTag, exportSymbol?: ts.Symbol): undefined;
+ export declare function convertJsDocCallback(context: Context, symbol: ts.Symbol, declaration: ts.JSDocCallbackTag, exportSymbol?: ts.Symbol): void;
+diff --git a/dist/lib/converter/jsdoc.js b/dist/lib/converter/jsdoc.js
+index da2ecd6e7ce97fe3f2a59f70f0545d53a1c3e43e..9d21ad36509d5b3dc44e8e8fca813d0cdb788b54 100644
+--- a/dist/lib/converter/jsdoc.js
++++ b/dist/lib/converter/jsdoc.js
+@@ -2,7 +2,7 @@
+ // @typedef
+ // @callback
+ import { ok } from "assert";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { DeclarationReflection, IntrinsicType, ReflectionKind, ReflectionType, SignatureReflection, } from "../models/index.js";
+ import { ConverterEvents } from "./converter-events.js";
+ import { convertConstructSignatures, convertParameterNodes, convertTemplateParameterNodes, createSignature, } from "./factories/signature.js";
+diff --git a/dist/lib/converter/plugins/ImplementsPlugin.js b/dist/lib/converter/plugins/ImplementsPlugin.js
+index 46b3cf259c9584c58446b99cc7075bfbd2349b4b..fe100337e6a1b2fcabbf34209f4cf9157544c5de 100644
+--- a/dist/lib/converter/plugins/ImplementsPlugin.js
++++ b/dist/lib/converter/plugins/ImplementsPlugin.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ApplicationEvents } from "../../application-events.js";
+ import { DeclarationReflection, ReflectionFlag, ReflectionKind, SignatureReflection, } from "../../models/index.js";
+ import { ReferenceType, ReflectionType } from "../../models/types.js";
+diff --git a/dist/lib/converter/plugins/SourcePlugin.js b/dist/lib/converter/plugins/SourcePlugin.js
+index ca2cb0153ab395d14035a624be8e67c6c31cc984..29cdc83ae2436827fa1b6a13abac31e2331ea8c8 100644
+--- a/dist/lib/converter/plugins/SourcePlugin.js
++++ b/dist/lib/converter/plugins/SourcePlugin.js
+@@ -32,7 +32,7 @@ var __runInitializers = (this && this.__runInitializers) || function (thisArg, i
+     }
+     return useValue ? value : void 0;
+ };
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { DeclarationReflection, ReflectionKind, SignatureReflection } from "../../models/index.js";
+ import { ConverterComponent } from "../components.js";
+ import { getCommonDirectory, normalizePath, Option } from "../../utils/index.js";
+diff --git a/dist/lib/converter/symbols.d.ts b/dist/lib/converter/symbols.d.ts
+index 69ea9f794a5e5657a2ee4a89ff5ff8652708da41..d0b9b4b05cf370ba258cb527463f919265259b53 100644
+--- a/dist/lib/converter/symbols.d.ts
++++ b/dist/lib/converter/symbols.d.ts
+@@ -1,3 +1,3 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Context } from "./context.js";
+ export declare function convertSymbol(context: Context, symbol: ts.Symbol, exportSymbol?: ts.Symbol): void;
+diff --git a/dist/lib/converter/symbols.js b/dist/lib/converter/symbols.js
+index ed3b1efddfa38098646bd119dc94999ae84c0ff3..fafda51e038abb6eec75569c01061ae5e3ff5811 100644
+--- a/dist/lib/converter/symbols.js
++++ b/dist/lib/converter/symbols.js
+@@ -1,5 +1,5 @@
+ import assert from "assert";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { DeclarationReflection, IntrinsicType, LiteralType, ReferenceReflection, ReflectionFlag, ReflectionKind, } from "../models/index.js";
+ import { getEnumFlags, hasAllFlags, hasAnyFlag, i18n, removeFlag } from "#utils";
+ import { convertDefaultValue } from "./convert-expression.js";
+diff --git a/dist/lib/converter/types.d.ts b/dist/lib/converter/types.d.ts
+index ba598f3fabca4f8daded908ef5a8458971e71f7d..324f69649dbad6b5757ade13b4be35cbbf83a592 100644
+--- a/dist/lib/converter/types.d.ts
++++ b/dist/lib/converter/types.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { type SomeType } from "../models/index.js";
+ import type { Context } from "./context.js";
+ export interface TypeConverter<TNode extends ts.TypeNode = ts.TypeNode, TType extends ts.Type = ts.Type> {
+diff --git a/dist/lib/converter/types.js b/dist/lib/converter/types.js
+index 5402c4bf3cde48ccbee9f9a31a8e75c159b0db81..8bc2cbb935e51ea718fe6822b7ecfcb2e2c64d3c 100644
+--- a/dist/lib/converter/types.js
++++ b/dist/lib/converter/types.js
+@@ -1,5 +1,5 @@
+ import assert from "assert";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ArrayType, ConditionalType, DeclarationReflection, IndexedAccessType, InferredType, IntersectionType, IntrinsicType, LiteralType, MappedType, NamedTupleMember, OptionalType, PredicateType, QueryType, ReferenceType, ReflectionFlag, ReflectionKind, ReflectionType, RestType, SignatureReflection, TemplateLiteralType, TupleType, TypeOperatorType, UnionType, UnknownType, } from "../models/index.js";
+ import { zip } from "#utils";
+ import { ConverterEvents } from "./converter-events.js";
+diff --git a/dist/lib/converter/utils/nodes.d.ts b/dist/lib/converter/utils/nodes.d.ts
+index 88b86a0f8164296ced0e783ecc32b920016e2cf5..0dae9103c44e2d96c7b79b88a98700113656178b 100644
+--- a/dist/lib/converter/utils/nodes.d.ts
++++ b/dist/lib/converter/utils/nodes.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export declare function isNamedNode(node: unknown): node is {
+     readonly name: ts.Identifier | ts.PrivateIdentifier | ts.ComputedPropertyName;
+ };
+diff --git a/dist/lib/converter/utils/nodes.js b/dist/lib/converter/utils/nodes.js
+index d357df9100059b2ec8e75c6e68be75eccd8d009b..3d2ba1f5e18aebbb131ddf15134c724c70712f3d 100644
+--- a/dist/lib/converter/utils/nodes.js
++++ b/dist/lib/converter/utils/nodes.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export function isNamedNode(node) {
+     const name = node.name;
+     return !!name && (ts.isMemberName(name) || ts.isComputedPropertyName(name));
+diff --git a/dist/lib/converter/utils/symbols.d.ts b/dist/lib/converter/utils/symbols.d.ts
+index 6dce3adc758bed05f4977a9fa7bd8a87ce5cd16c..f1d698193e85e86cadf8d784a9e5f82a7439026f 100644
+--- a/dist/lib/converter/utils/symbols.d.ts
++++ b/dist/lib/converter/utils/symbols.d.ts
+@@ -1,2 +1,2 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export declare function resolveAliasedSymbol(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Symbol;
+diff --git a/dist/lib/converter/utils/symbols.js b/dist/lib/converter/utils/symbols.js
+index 9dfeee927a4d4ba990eb1a114a898cecf01338f1..f746d366e31d222e1793ab616ebdea22410a8674 100644
+--- a/dist/lib/converter/utils/symbols.js
++++ b/dist/lib/converter/utils/symbols.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export function resolveAliasedSymbol(symbol, checker) {
+     const seen = new Set();
+     while (ts.SymbolFlags.Alias & symbol.flags) {
+diff --git a/dist/lib/utils/declaration-maps.d.ts b/dist/lib/utils/declaration-maps.d.ts
+index 51675e68d16356b9c94ee177d243db42e459727e..fcaa607d27822e6bca00cd507ab030b3af15b4d4 100644
+--- a/dist/lib/utils/declaration-maps.d.ts
++++ b/dist/lib/utils/declaration-maps.d.ts
+@@ -1,3 +1,3 @@
+-import type ts from "typescript";
++import type ts from "@typescript/typescript6";
+ export declare function resolveDeclarationMaps(file: string): string;
+ export declare function addInferredDeclarationMapPaths(opts: ts.CompilerOptions, files: readonly string[]): void;
+diff --git a/dist/lib/utils/entry-point.d.ts b/dist/lib/utils/entry-point.d.ts
+index e1024b84c4e623ef86a4f92ec805020f6d0e5c56..0f37675c679865e76a46f176c4ec85eb8c02cc78 100644
+--- a/dist/lib/utils/entry-point.d.ts
++++ b/dist/lib/utils/entry-point.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Options } from "./options/index.js";
+ import { type GlobString, type Logger, type NormalizedPath } from "#utils";
+ /**
+diff --git a/dist/lib/utils/entry-point.js b/dist/lib/utils/entry-point.js
+index fbbbb04ccb884da50081cdc8b1dde1baddc9dfbf..19bc03c1cfba29aefd3d8a83e7db09178c5c25ce 100644
+--- a/dist/lib/utils/entry-point.js
++++ b/dist/lib/utils/entry-point.js
+@@ -1,5 +1,5 @@
+ import { join, relative, resolve } from "path";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import * as FS from "fs";
+ import { expandPackages } from "./package-manifest.js";
+ import { deriveRootDir, getCommonDirectory, MinimatchSet, nicePath, normalizePath } from "./paths.js";
+diff --git a/dist/lib/utils/loggers.d.ts b/dist/lib/utils/loggers.d.ts
+index 79f67eec672ca606c03ffdb6d9692cc86df52ed6..4277c1bbf4eb5b963435b51adc0c4d41a73fd696 100644
+--- a/dist/lib/utils/loggers.d.ts
++++ b/dist/lib/utils/loggers.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ConsoleLogger, type Logger, LogLevel, type MinimalNode, type MinimalSourceFile } from "#utils";
+ export declare function diagnostics(logger: Logger, diagnostics: readonly ts.Diagnostic[]): void;
+ export declare function diagnostic(logger: Logger, diagnostic: ts.Diagnostic): void;
+diff --git a/dist/lib/utils/loggers.js b/dist/lib/utils/loggers.js
+index 9fd1b71fea9775821cc34b091086e8dbbaad8086..c7ef50de242a9aad63355a5f4244b862ab1ade01 100644
+--- a/dist/lib/utils/loggers.js
++++ b/dist/lib/utils/loggers.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { resolve } from "path";
+ import { nicePath } from "./paths.js";
+ import { ConsoleLogger, LogLevel } from "#utils";
+diff --git a/dist/lib/utils/options/options.d.ts b/dist/lib/utils/options/options.d.ts
+index 2cab4564ec7c718d4309443653ca5550867aff28..ec0c98f5396f339201197b2c0968bbc7aa3a7308 100644
+--- a/dist/lib/utils/options/options.d.ts
++++ b/dist/lib/utils/options/options.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Application } from "../../../index.js";
+ import { type DeclarationOption, type KeyToDeclaration, type TypeDocOptionMap, type TypeDocOptions, type TypeDocOptionValues } from "./declaration.js";
+ import { type Logger, type NeverIfInternal } from "#utils";
+diff --git a/dist/lib/utils/options/options.js b/dist/lib/utils/options/options.js
+index dd1481b276c18504bb934bf9453132aa14d0a062..257bf1e2b8f1ae8e0c1fd483a2b924449d4745db 100644
+--- a/dist/lib/utils/options/options.js
++++ b/dist/lib/utils/options/options.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { resolve } from "path";
+ import { ParameterType } from "./declaration.js";
+ import { normalizePath } from "../paths.js";
+diff --git a/dist/lib/utils/options/readers/tsconfig.js b/dist/lib/utils/options/readers/tsconfig.js
+index e7cfea92433f4aeb9f896dac9b0691351e45c13f..f03737dbb3f3f160e8a3cf7a9abd7e72ee1191a0 100644
+--- a/dist/lib/utils/options/readers/tsconfig.js
++++ b/dist/lib/utils/options/readers/tsconfig.js
+@@ -1,5 +1,5 @@
+ import { dirname, join, resolve } from "path";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { isFile } from "../../fs.js";
+ import { ok } from "assert";
+ import { i18n, unique, Validation } from "#utils";
+diff --git a/dist/lib/utils/options/readers/typedoc.js b/dist/lib/utils/options/readers/typedoc.js
+index 100e1dce464c4ba1e7b798fc06f50b385e995814..2ad8c24f43c8b1e7eb21bb073d38ee1f3575a4f3 100644
+--- a/dist/lib/utils/options/readers/typedoc.js
++++ b/dist/lib/utils/options/readers/typedoc.js
+@@ -1,6 +1,6 @@
+ import { dirname, join, resolve } from "path";
+ import * as FS from "fs";
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { ok } from "assert";
+ import { nicePath, normalizePath } from "../../paths.js";
+ import { isFile } from "../../fs.js";
+diff --git a/dist/lib/utils/tsconfig.d.ts b/dist/lib/utils/tsconfig.d.ts
+index 3138e64a00ac9391d7305a141cea3851eb395b18..0868bb9c61d309f51848ff40a95785ee2df3eb0b 100644
+--- a/dist/lib/utils/tsconfig.d.ts
++++ b/dist/lib/utils/tsconfig.d.ts
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import type { Logger } from "#utils";
+ export declare function findTsConfigFile(path: string, usedFile?: (path: string) => void): string | undefined;
+ export declare function getTypeDocOptionsFromTsConfig(file: string): any;
+diff --git a/dist/lib/utils/tsconfig.js b/dist/lib/utils/tsconfig.js
+index 35534eb4c4102900ae0146328653fd3dfabc01a2..e2398c674defc811650def31f1cacbde96c6a2a1 100644
+--- a/dist/lib/utils/tsconfig.js
++++ b/dist/lib/utils/tsconfig.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ import { isDir, isFile, readFile } from "./fs.js";
+ import { createRequire } from "module";
+ import { diagnostic, diagnostics } from "./loggers.js";
+diff --git a/dist/lib/utils/tsutils.d.ts b/dist/lib/utils/tsutils.d.ts
+index ca2b91ff7795bac8558ec83a69eb355483f96f6c..99268193dd00c74205e10664cfb04f55219f1feb 100644
+--- a/dist/lib/utils/tsutils.d.ts
++++ b/dist/lib/utils/tsutils.d.ts
+@@ -1,3 +1,3 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export declare function getQualifiedName(symbol: ts.Symbol, defaultName: string): string;
+ export declare function getHumanName(name: string): string;
+diff --git a/dist/lib/utils/tsutils.js b/dist/lib/utils/tsutils.js
+index 2e0ba936dfe059ba9f6fd2dc4a9423e5458b32f3..c57c8812a9663496f7bb2f6ee40c4170e396001b 100644
+--- a/dist/lib/utils/tsutils.js
++++ b/dist/lib/utils/tsutils.js
+@@ -1,4 +1,4 @@
+-import ts from "typescript";
++import ts from "@typescript/typescript6";
+ export function getQualifiedName(symbol, defaultName) {
+     // Two implementation options for this one:
+     // 1. Use the internal symbol.parent, to walk up until we hit a source file symbol (if in a module)
+diff --git a/dist/lib/utils-common/minimalSourceFile.d.ts b/dist/lib/utils-common/minimalSourceFile.d.ts
+index e0cf5fdad53398aaf6f01c1e045cecfa1cfe79fe..56c838978836e077890bf5c0b957c9066b1e2284 100644
+--- a/dist/lib/utils-common/minimalSourceFile.d.ts
++++ b/dist/lib/utils-common/minimalSourceFile.d.ts
+@@ -1,4 +1,4 @@
+-import type { LineAndCharacter, SourceFileLike } from "typescript";
++import type { LineAndCharacter, SourceFileLike } from "@typescript/typescript6";
+ import type { NormalizedPath } from "./path.js";
+ export interface MinimalNode {
+     getStart(): number;
