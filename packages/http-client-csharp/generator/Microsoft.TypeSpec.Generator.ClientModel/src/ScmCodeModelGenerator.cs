@@ -51,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+            AddTypeToKeep(SerializationFormatDefinition, isRoot: false);
         }
 
         public override async Task WriteAdditionalFiles(string outputPath)
