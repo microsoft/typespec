@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -43,6 +44,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static AttributeStatement _fileBinaryContentExpAttribute = new(
             typeof(ExperimentalAttribute),
             [Literal(FileBinaryContentDiagnosticId)]);
+        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
+        {
+            nameof(PersistableModelProxyAttribute),
+        });
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
         internal const string FileBinaryContentDiagnosticId = "SCME0004";
@@ -124,6 +129,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return properties;
+        }
+
+        /// <summary>
+        /// Restores back-compatibility attributes from the last contract, then drops any restored
+        /// <see cref="PersistableModelProxyAttribute"/> since those are recomputed at generation time by the
+        /// serialization provider.
+        /// </summary>
+        protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
+        {
+            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
+            var merged = base.BuildAttributesForBackCompatibility(original);
+            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore.Value);
         }
 
         protected override ConstructorProvider[] BuildConstructors()
