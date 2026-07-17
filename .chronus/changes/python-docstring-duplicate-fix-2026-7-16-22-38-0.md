@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-[Python] Fix duplicate `:keyword:`/`:paramtype:` lines in generated model docstrings and remove `docstring-missing-param` pylint suppressions that became useless with `azure-pylint-guidelines-checker` `0.5.9`
+[Python] Fix duplicate `:keyword:`/`:paramtype:` lines in generated DPG model docstrings that duplicated the existing `:ivar:`/`:vartype:` entries
