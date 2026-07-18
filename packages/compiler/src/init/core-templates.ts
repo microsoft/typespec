@@ -1,5 +1,5 @@
-import type { CompilerHost } from "../core/types.js";
-import { FileSystemTemplateSource } from "./template-source/index.js";
+import type { SystemHost } from "../core/types.js";
+import { defaultInternalTemplateSource } from "./template-source/index.js";
 
 export interface LoadedCoreTemplates {
   readonly baseUri: string;
@@ -7,9 +7,9 @@ export interface LoadedCoreTemplates {
 }
 
 let typeSpecCoreTemplates: LoadedCoreTemplates | undefined;
-export async function getTypeSpecCoreTemplates(host: CompilerHost): Promise<LoadedCoreTemplates> {
+export async function getTypeSpecCoreTemplates(host: SystemHost): Promise<LoadedCoreTemplates> {
   if (typeSpecCoreTemplates === undefined) {
-    const { templates, baseUri } = await new FileSystemTemplateSource(host).loadIndex();
+    const { templates, baseUri } = await defaultInternalTemplateSource(host).loadIndex();
     typeSpecCoreTemplates = { baseUri, templates };
   }
   return typeSpecCoreTemplates;

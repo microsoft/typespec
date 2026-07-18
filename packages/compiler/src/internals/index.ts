@@ -11,8 +11,8 @@ export { resolveCompilerOptions } from "../config/config-to-options.js";
 export { NodeSystemHost } from "../core/node-system-host.js";
 export { InitTemplateSchema } from "../init/init-template.js";
 export { makeScaffoldingConfig, scaffoldNewProject } from "../init/scaffold.js";
-// From host-template-source directly (not the barrel) to avoid pulling node-host's top-level await.
-export { UriTemplateSource } from "../init/template-source/host-template-source.js";
+// From uri-template-source directly (not the barrel) to avoid pulling node-host's top-level await.
+export { UriTemplateSource } from "../init/template-source/uri-template-source.js";
 export type { TemplateSource } from "../init/template-source/types.js";
 export { resolveEntrypointFile } from "../server/entrypoint-resolver.js";
 export { InternalCompileResult, ServerDiagnostic } from "../server/index.js";

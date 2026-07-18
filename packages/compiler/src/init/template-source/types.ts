@@ -12,8 +12,9 @@ export interface LoadedTemplateIndex {
 }
 
 /**
- * A source of `tsp init` templates. Decouples template loading from `host.getExecutionRoot()`: each
- * context supplies its own implementation (filesystem, remote URL, or in-memory bundle).
+ * A source of `tsp init` templates. Decouples template loading from the host filesystem: each context
+ * supplies its own implementation — {@link UriTemplateSource} for a path or URL, or
+ * {@link InMemoryTemplateSource} for a bundle addressed through the `internal:` scheme.
  */
 export interface TemplateSource {
   loadIndex(): Promise<LoadedTemplateIndex>;

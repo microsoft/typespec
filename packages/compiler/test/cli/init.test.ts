@@ -3,7 +3,7 @@ import { CliCompilerHost } from "../../src/core/cli/types.js";
 import { resolvePath } from "../../src/core/path-utils.js";
 import { LogSink } from "../../src/index.js";
 import { initTypeSpecProject, InitTypeSpecProjectOptions } from "../../src/init/init.js";
-import { FileSystemTemplateSource } from "../../src/init/template-source/index.js";
+import { UriTemplateSource } from "../../src/init/template-source/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
 import { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
@@ -129,9 +129,9 @@ parameters:
   Object.assign(testHost.compilerHost as CliCompilerHost, { logSink });
   const compilerHost = testHost.compilerHost as CliCompilerHost;
   // Serve the built-in templates from the test file system rather than the real compiler package.
-  const coreTemplateSource = new FileSystemTemplateSource(compilerHost, templatesRoot);
+  const internalTemplateSource = UriTemplateSource.fromDirectory(compilerHost, templatesRoot);
   const init = (directory: string, options: InitTypeSpecProjectOptions = {}) =>
-    initTypeSpecProject(compilerHost, directory, { ...options, coreTemplateSource });
+    initTypeSpecProject(compilerHost, directory, { ...options, internalTemplateSource });
   return Object.assign(testHost as TestFileSystem & { compilerHost: CliCompilerHost }, { init });
 }
 

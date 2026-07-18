@@ -195,7 +195,7 @@ export async function createTypeSpecProject(
           }
 
           const initTemplateConfig = makeScaffoldingConfig(info.template!, {
-            source: new UriTemplateSource(NodeSystemHost, info.baseUrl),
+            source: UriTemplateSource.fromDirectory(NodeSystemHost, info.baseUrl),
             name: projectName!,
             directory: selectedRootFolder,
             parameters: inputs ?? {},

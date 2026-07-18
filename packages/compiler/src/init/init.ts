@@ -14,8 +14,8 @@ import { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-templat
 import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 import {
-  FileSystemTemplateSource,
-  RemoteTemplateSource,
+  defaultInternalTemplateSource,
+  UriTemplateSource,
   type LoadedTemplateIndex,
   type TemplateSource,
 } from "./template-source/index.js";
@@ -27,13 +27,12 @@ export interface InitTypeSpecProjectOptions {
   readonly args?: string[];
   readonly "project-name"?: string;
   readonly emitters?: string[];
-
   /**
-   * Source for the built-in ("core") templates. Defaults to a {@link FileSystemTemplateSource}
-   * reading the compiler's `templates/` directory. The standalone single-executable injects an
-   * {@link import("./template-source/index.js").InMemoryTemplateSource} here.
+   * Provider that the `internal:` scheme resolves to (the built-in templates). Defaults to the
+   * compiler's on-disk `templates/` directory; the standalone single-executable injects an in-memory
+   * bundle instead.
    */
-  readonly coreTemplateSource?: TemplateSource;
+  readonly internalTemplateSource?: TemplateSource;
 }
 
 export async function initTypeSpecProject(
@@ -66,9 +65,14 @@ export async function initTypeSpecProjectWorker(
 
   const folderName = getBaseFileName(directory);
 
-  const coreSource = options.coreTemplateSource ?? new FileSystemTemplateSource(host);
   const isRemote = options.templatesUrl !== undefined;
-  const source = isRemote ? new RemoteTemplateSource(host, options.templatesUrl!) : coreSource;
+  // A `templatesUrl` points at a filesystem path or URL; otherwise use the built-in ("internal")
+  // templates, either an injected provider (e.g. bundled in the standalone executable) or the
+  // compiler's on-disk `templates/` directory.
+  const source: TemplateSource =
+    options.templatesUrl !== undefined
+      ? new UriTemplateSource(host, options.templatesUrl)
+      : (options.internalTemplateSource ?? defaultInternalTemplateSource(host));
 
   if (isRemote) {
     warning(
