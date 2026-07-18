@@ -8,6 +8,7 @@ import {
   makeScaffoldingConfig,
   NodeSystemHost,
   scaffoldNewProject,
+  UriTemplateSource,
 } from "@typespec/compiler/internals";
 import { Ajv } from "ajv";
 import * as semver from "semver";
@@ -194,7 +195,7 @@ export async function createTypeSpecProject(
           }
 
           const initTemplateConfig = makeScaffoldingConfig(info.template!, {
-            baseUri: info.baseUrl,
+            source: new UriTemplateSource(NodeSystemHost, info.baseUrl),
             name: projectName!,
             directory: selectedRootFolder,
             parameters: inputs ?? {},

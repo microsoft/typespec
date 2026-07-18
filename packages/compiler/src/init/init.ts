@@ -5,16 +5,20 @@ import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
 import { parseCliArgsArgOption } from "../core/cli/utils.js";
 import { createDiagnostic } from "../core/messages.js";
-import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
-import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { getBaseFileName } from "../core/path-utils.js";
+import { Diagnostic, NoTarget } from "../core/types.js";
 import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
-import { readUrlOrPath } from "../utils/misc.js";
-import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
 import { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
 import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
+import {
+  FileSystemTemplateSource,
+  RemoteTemplateSource,
+  type LoadedTemplateIndex,
+  type TemplateSource,
+} from "./template-source/index.js";
 
 export interface InitTypeSpecProjectOptions {
   readonly templatesUrl?: string;
@@ -23,6 +27,13 @@ export interface InitTypeSpecProjectOptions {
   readonly args?: string[];
   readonly "project-name"?: string;
   readonly emitters?: string[];
+
+  /**
+   * Source for the built-in ("core") templates. Defaults to a {@link FileSystemTemplateSource}
+   * reading the compiler's `templates/` directory. The standalone single-executable injects an
+   * {@link import("./template-source/index.js").InMemoryTemplateSource} here.
+   */
+  readonly coreTemplateSource?: TemplateSource;
 }
 
 export async function initTypeSpecProject(
@@ -55,45 +66,49 @@ export async function initTypeSpecProjectWorker(
 
   const folderName = getBaseFileName(directory);
 
-  // Download template configuration and prompt user to select a template
-  // No validation is done until one has been selected
-  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(host);
-  const result =
-    options.templatesUrl === undefined
-      ? (typeSpecCoreTemplates as LoadedTemplate)
-      : await downloadTemplates(host, options.templatesUrl, skipPrompts);
+  const coreSource = options.coreTemplateSource ?? new FileSystemTemplateSource(host);
+  const isRemote = options.templatesUrl !== undefined;
+  const source = isRemote ? new RemoteTemplateSource(host, options.templatesUrl!) : coreSource;
+
+  if (isRemote) {
+    warning(
+      `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
+    );
+    if (!skipPrompts && !(await confirm("Continue"))) {
+      process.exit(1);
+    }
+  }
+
+  // No validation is done until a template has been selected.
+  const index = await loadTemplateIndex(source, options.templatesUrl);
   if (skipPrompts && !options.template) {
     // A template has to be defined if we're skipping prompts
     throw new Error(
       `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: ${Object.keys(
-        result.templates,
+        index.templates,
       )
         .map((t) => `"${t}"`)
         .join(", ")}`,
     );
   }
-  const templateName = options.template ?? (await promptTemplateSelection(result.templates));
+  const templateName = options.template ?? (await promptTemplateSelection(index.templates));
 
-  if (!result.templates[templateName]) {
+  if (!index.templates[templateName]) {
     throw new Error(`Unexpected error: Cannot find template ${templateName}`);
   }
 
   // Validate minimum compiler version for non built-in templates
-  if (
-    !skipPrompts &&
-    result !== typeSpecCoreTemplates &&
-    !(await validateTemplate(result.templates[templateName], result))
-  ) {
+  if (!skipPrompts && isRemote && !(await validateTemplate(index.templates[templateName], index))) {
     return;
   }
 
-  const template = result.templates[templateName] as InitTemplate;
+  const template = index.templates[templateName] as InitTemplate;
   const name = await resolveProjectName(folderName, options);
 
   const emitters = await selectEmitters(template, options);
   const parameters = await promptCustomParameters(template, options);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
-    baseUri: result.baseUri,
+    source,
     name,
     directory,
     parameters,
@@ -246,49 +261,26 @@ async function confirm(message: string): Promise<boolean> {
   });
 }
 
-export interface LoadedTemplate {
-  readonly baseUri: string;
-  readonly templates: Record<string, InitTemplate>;
-  readonly file: SourceFile;
-}
-async function downloadTemplates(
-  host: CompilerHost,
-  url: string,
-  skipCheck: boolean,
-): Promise<LoadedTemplate> {
-  warning(
-    `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
-  );
-  if (!skipCheck && !(await confirm("Continue"))) {
-    process.exit(1);
-  }
-  let file: SourceFile;
+async function loadTemplateIndex(
+  source: TemplateSource,
+  url: string | undefined,
+): Promise<LoadedTemplateIndex> {
   try {
-    file = await readUrlOrPath(host, url);
+    return await source.loadIndex();
   } catch (e: any) {
+    if (url === undefined) {
+      throw e;
+    }
+    const code =
+      e instanceof SyntaxError ? "init-template-invalid-json" : "init-template-download-failed";
     throw new InitTemplateError([
       createDiagnostic({
-        code: "init-template-download-failed",
+        code,
         target: NoTarget,
-        format: { url: url, message: e.message },
+        format: { url, message: e.message },
       }),
     ]);
   }
-
-  let json: unknown;
-  try {
-    json = JSON.parse(file.text);
-  } catch (e: any) {
-    throw new InitTemplateError([
-      createDiagnostic({
-        code: "init-template-invalid-json",
-        target: NoTarget,
-        format: { url: url, message: e.message },
-      }),
-    ]);
-  }
-
-  return { templates: json as any, baseUri: getDirectoryPath(file.path), file };
 }
 
 function getTemplateName(template: InitTemplate) {
@@ -331,17 +323,17 @@ function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
   );
 }
 
-async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
+async function validateTemplate(template: any, index: LoadedTemplateIndex): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
   if (isTemplateCompatibleWithTspVersion(template)) {
-    validationResult = validateTemplateDefinitions(template, loaded.file, true);
+    validationResult = validateTemplateDefinitions(template, index.indexFile, true);
 
     // 1.1 If strict validation fails, try relaxed validation
     if (!validationResult.valid) {
-      validationResult = validateTemplateDefinitions(template, loaded.file, false);
+      validationResult = validateTemplateDefinitions(template, index.indexFile, false);
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
@@ -352,7 +344,7 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
       )
     ) {
       // 2.1 If user choose to continue, proceed with relaxed validation
-      validationResult = validateTemplateDefinitions(template, loaded.file, false);
+      validationResult = validateTemplateDefinitions(template, index.indexFile, false);
     } else {
       return false;
     }

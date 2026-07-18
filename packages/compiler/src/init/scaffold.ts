@@ -4,7 +4,6 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
 import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import {
   createFileTemplatingContext,
   type FileTemplatingContext,
@@ -16,6 +15,7 @@ import type {
   InitTemplateLibrary,
   InitTemplateLibrarySpec,
 } from "./init-template.js";
+import type { TemplateSource } from "./template-source/index.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -24,9 +24,10 @@ export interface ScaffoldingConfig {
   template: InitTemplate;
 
   /**
-   * Path where this template was loaded from.
+   * Source the template was loaded from. Used to read the template's files during scaffolding.
+   * Optional: templates that declare no `files` never need it.
    */
-  baseUri: string;
+  source?: TemplateSource;
 
   /**
    * Directory full path where the project should be initialized.
@@ -73,7 +74,6 @@ export function makeScaffoldingConfig(
   return {
     template,
     libraries: config.libraries ?? template.libraries?.map(normalizeLibrary) ?? [],
-    baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
     parameters: config.parameters ?? {},
@@ -248,8 +248,12 @@ async function writeFile(
   context: FileTemplatingContext,
   file: InitTemplateFile,
 ) {
-  const baseDir = config.baseUri + "/";
-  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
+  if (config.source === undefined) {
+    throw new Error(
+      `Cannot resolve template file "${file.path}": template was loaded without a source.`,
+    );
+  }
+  const template = await config.source.readFile(file.path);
   const content = render(template.text, context);
   const destinationFilePath = joinPaths(config.directory, file.destination);
   // create folders in case they don't exist

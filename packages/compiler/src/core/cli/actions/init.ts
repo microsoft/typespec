@@ -1,4 +1,5 @@
 import { InitTemplateError, initTypeSpecProject } from "../../../init/init.js";
+import type { TemplateSource } from "../../../init/template-source/index.js";
 import { resolvePath } from "../../path-utils.js";
 import { Diagnostic } from "../../types.js";
 import { CliCompilerHost } from "../types.js";
@@ -11,6 +12,7 @@ export interface InitArgs {
   "project-name"?: string;
   emitters?: string[];
   outputDir?: string;
+  coreTemplateSource?: TemplateSource;
 }
 
 export async function initAction(
