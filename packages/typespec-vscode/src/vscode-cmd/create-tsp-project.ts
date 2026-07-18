@@ -17,13 +17,7 @@ import vscode, { ExtensionContext, QuickPickItem } from "vscode";
 import pkgJson from "../../package.json" with { type: "json" };
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import {
-  getBaseFileName,
-  getDirectoryPath,
-  joinPaths,
-  normalizePath,
-  resolvePath,
-} from "../path-utils.js";
+import { getBaseFileName, joinPaths, normalizePath } from "../path-utils.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
 import { TelemetryEventName } from "../telemetry/telemetry-event.js";
 import { Result, ResultCode, SettingName } from "../types.js";
@@ -42,9 +36,6 @@ import {
   isFile,
   isWhitespaceStringOrUndefined,
   spawnExecutionAndLogToOutput,
-  tryParseJson,
-  tryReadFile,
-  tryReadFileOrUrl,
 } from "../utils.js";
 
 export type InitTemplatesUrlSetting = {
@@ -631,19 +622,12 @@ async function selectTemplate(
   return selected?.info;
 }
 
-async function getTypeSpecCoreTemplates(
-  context: ExtensionContext,
-): Promise<{ readonly baseUri: string; readonly templates: Record<string, any> } | undefined> {
+async function getTypeSpecCoreTemplates(context: ExtensionContext) {
   const templatesDir = context.asAbsolutePath("templates");
-  const file = await tryReadFile(resolvePath(templatesDir, "scaffolding.json"));
-  if (file) {
-    const content = tryParseJson(file);
-    return {
-      baseUri: templatesDir,
-      templates: content,
-    };
-  } else {
-    logger.error(`Failed to read core typespec templates from extension: ${templatesDir}`);
+  try {
+    return await UriTemplateSource.fromDirectory(NodeSystemHost, templatesDir).loadIndex();
+  } catch (e) {
+    logger.error(`Failed to read core typespec templates from extension: ${templatesDir}`, [e]);
     return undefined;
   }
 }
@@ -694,39 +678,26 @@ async function loadInitTemplates(
     logger.info("Loading configured and registed init templates...");
     const loadFromConfig = async () => {
       for (const item of all) {
-        const { content, url } = (await tryReadFileOrUrl(item.url)) ?? {
-          content: undefined,
-          url: item.url,
-        };
-        if (!content) {
-          logger.warning(`Failed to read template from ${item.url}. The url will be skipped`, [], {
+        let index;
+        try {
+          index = await new UriTemplateSource(NodeSystemHost, item.url).loadIndex();
+        } catch (e) {
+          logger.warning(`Failed to load templates from ${item.url}. The url will be skipped`, [], {
             showOutput: false,
             showPopup: true,
           });
           continue;
-        } else {
-          const json = tryParseJson(content);
-          if (!json) {
-            logger.warning(
-              `Failed to parse templates content from ${item.url}. The url will be skipped`,
-              [],
-              { showOutput: false, showPopup: true },
-            );
-            continue;
-          } else {
-            for (const [key, value] of Object.entries(json)) {
-              if (value !== undefined) {
-                const info: InitTemplateInfo = {
-                  source: item.name,
-                  sourceType: item.source,
-                  baseUrl: getDirectoryPath(url),
-                  name: key,
-                  template: value as InitProjectTemplate,
-                };
-                templateInfoMap.get(item.name)?.push(info) ??
-                  templateInfoMap.set(item.name, [info]);
-              }
-            }
+        }
+        for (const [key, value] of Object.entries(index.templates)) {
+          if (value !== undefined) {
+            const info: InitTemplateInfo = {
+              source: item.name,
+              sourceType: item.source,
+              baseUrl: index.baseUri,
+              name: key,
+              template: value as InitProjectTemplate,
+            };
+            templateInfoMap.get(item.name)?.push(info) ?? templateInfoMap.set(item.name, [info]);
           }
         }
       }
