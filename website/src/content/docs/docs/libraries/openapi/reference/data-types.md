@@ -69,11 +69,12 @@ model TypeSpec.OpenAPI.License
 
 #### Properties
 
-| Name | Type      | Description                                                            |
-| ---- | --------- | ---------------------------------------------------------------------- |
-| name | `string`  | The license name used for the API.                                     |
-| url? | `url`     | A URL to the license used for the API. MUST be in the format of a URL. |
-|      | `unknown` | Additional properties                                                  |
+| Name        | Type      | Description                                                                                                                             |
+| ----------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| name        | `string`  | The license name used for the API.                                                                                                      |
+| identifier? | `string`  | An [SPDX](https://spdx.org/licenses/) license expression for the API. The `identifier` field is mutually exclusive of the `url` field.  |
+| url?        | `url`     | A URL to the license used for the API. MUST be in the format of a URL. The `url` field is mutually exclusive of the `identifier` field. |
+|             | `unknown` | Additional properties                                                                                                                   |
 
 ### `TagMetadata` {#TypeSpec.OpenAPI.TagMetadata}
 
