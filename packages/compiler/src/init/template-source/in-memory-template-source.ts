@@ -14,32 +14,31 @@ const INTERNAL_URI_PREFIX = "internal:";
  * normalized so callers can use `./`-relative or backslash paths interchangeably.
  */
 export class InMemoryTemplateSource implements TemplateSource {
-  private readonly files: ReadonlyMap<string, string>;
+  #files: ReadonlyMap<string, string>;
+  #indexPath: string;
 
   /**
    * @param files Template files keyed by their relative path (including the index).
    * @param indexPath Relative path of the index within {@link files}.
    */
-  constructor(
-    files: ReadonlyMap<string, string>,
-    private readonly indexPath: string = SCAFFOLDING_FILENAME,
-  ) {
-    this.files = new Map([...files].map(([key, value]) => [normalizeKey(key), value]));
+  constructor(files: ReadonlyMap<string, string>, indexPath: string = SCAFFOLDING_FILENAME) {
+    this.#indexPath = indexPath;
+    this.#files = new Map([...files].map(([key, value]) => [normalizeKey(key), value]));
   }
 
   async loadIndex(): Promise<LoadedTemplateIndex> {
-    const indexFile = this.read(this.indexPath);
+    const indexFile = this.#read(this.#indexPath);
     const templates = JSON.parse(indexFile.text);
     return { templates, indexFile, baseUri: INTERNAL_URI_PREFIX };
   }
 
   async readFile(relativePath: string): Promise<SourceFile> {
-    return this.read(relativePath);
+    return this.#read(relativePath);
   }
 
-  private read(relativePath: string): SourceFile {
+  #read(relativePath: string): SourceFile {
     const key = normalizeKey(relativePath);
-    const content = this.files.get(key);
+    const content = this.#files.get(key);
     if (content === undefined) {
       const error: NodeJS.ErrnoException = new Error(
         `ENOENT: bundled template file not found, '${relativePath}'`,

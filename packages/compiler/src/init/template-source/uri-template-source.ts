@@ -16,19 +16,20 @@ export const SCAFFOLDING_FILENAME = "scaffolding.json";
  * responsible for confirming the source with the user before using it.
  */
 export class UriTemplateSource implements TemplateSource {
+  #host: SystemHost;
+  #indexLocation: string;
   /** Directory (path or URL) that template file paths are resolved against. */
-  private readonly baseUri: string;
+  #baseUri: string;
 
   /**
    * @param host Host used to read the index and template files.
    * @param indexLocation Location of the index file (a path or URL). Template files are resolved
    * relative to its containing directory.
    */
-  constructor(
-    private readonly host: SystemHost,
-    private readonly indexLocation: string,
-  ) {
-    this.baseUri = getDirectoryPath(indexLocation);
+  constructor(host: SystemHost, indexLocation: string) {
+    this.#host = host;
+    this.#indexLocation = indexLocation;
+    this.#baseUri = getDirectoryPath(indexLocation);
   }
 
   /**
@@ -43,12 +44,12 @@ export class UriTemplateSource implements TemplateSource {
   }
 
   async loadIndex(): Promise<LoadedTemplateIndex> {
-    const indexFile = await readUrlOrPath(this.host, this.indexLocation);
+    const indexFile = await readUrlOrPath(this.#host, this.#indexLocation);
     const templates = JSON.parse(indexFile.text);
-    return { templates, indexFile, baseUri: this.baseUri };
+    return { templates, indexFile, baseUri: this.#baseUri };
   }
 
   async readFile(relativePath: string): Promise<SourceFile> {
-    return readUrlOrPath(this.host, resolveRelativeUrlOrPath(this.baseUri + "/", relativePath));
+    return readUrlOrPath(this.#host, resolveRelativeUrlOrPath(this.#baseUri + "/", relativePath));
   }
 }
