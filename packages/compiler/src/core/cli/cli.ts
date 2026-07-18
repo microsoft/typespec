@@ -1,10 +1,11 @@
-process.setSourceMapsEnabled(true);
-
 import yargs from "yargs";
+import type { TemplateSource } from "../../init/template-source/index.js";
 import { installTypeSpecDependencies } from "../../install/install.js";
 import { typespecVersion } from "../../manifest.js";
 import { logDiagnostics } from "../diagnostics.js";
 import { getTypeSpecEngine } from "../engine.js";
+import { NodeHost } from "../node-host.js";
+import { CompilerHost, Diagnostic } from "../types.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
 import { printInfoAction } from "./actions/info.js";
@@ -17,20 +18,21 @@ import {
   installVSCodeExtension,
   uninstallVSCodeExtension,
 } from "./actions/vscode.js";
+import { CliCompilerHost } from "./types.js";
 import {
   CliHostArgs,
   createCLICompilerHost,
   handleInternalCompilerError,
   logDiagnosticCount,
-  withCliHost,
-  withCliHostAndDiagnostics,
+  withCliHostAndDiagnostics as withCliHostAndDiagnosticsBase,
+  withCliHost as withCliHostBase,
 } from "./utils.js";
 
 /**
  * Intercept `tsp compile --emit <emitter> --help` to display emitter options.
  * Returns true if the interception was handled.
  */
-async function handleCompileEmitHelp(argv: string[]): Promise<boolean> {
+async function handleCompileEmitHelp(argv: string[], baseHost: CompilerHost): Promise<boolean> {
   if (argv[0] !== "compile" || !argv.includes("--help")) {
     return false;
   }
@@ -43,7 +45,7 @@ async function handleCompileEmitHelp(argv: string[]): Promise<boolean> {
     return false;
   }
 
-  const host = createCLICompilerHost({ pretty: true });
+  const host = createCLICompilerHost({ pretty: true }, baseHost);
   const diagnostics = await printEmitterOptionsAction(host, emitterName);
   if (diagnostics.length > 0) {
     logDiagnostics(diagnostics, host.logSink);
@@ -55,11 +57,55 @@ async function handleCompileEmitHelp(argv: string[]): Promise<boolean> {
   return true;
 }
 
-async function main() {
+/**
+ * Run the TypeSpec CLI (`tsp`).
+ *
+ * @param options.baseHost {@link CompilerHost} that every CLI action's host is composed from.
+ * Defaults to the real file-system {@link NodeHost}.
+ * @param options.internalTemplateSource Source used for the built-in `tsp init` templates.
+ * Defaults to reading the compiler's `templates/` directory off disk.
+ * The standalone/self-contained CLI passes an in-memory source built from its bundled template assets.
+ */
+export async function runTypeSpecCli(
+  options: { baseHost?: CompilerHost; internalTemplateSource?: TemplateSource } = {},
+): Promise<void> {
+  process.setSourceMapsEnabled(true);
+
+  const baseHost = options.baseHost ?? NodeHost;
+
+  process.on("unhandledRejection", (error: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error("Unhandled promise rejection!");
+    handleInternalCompilerError(error);
+  });
+
+  // Route any error that escapes the command handlers (e.g. yargs parsing or `--emit --help`) to the
+  // internal-error reporter, so callers can `await runTypeSpecCli()` without their own catch.
+  try {
+    await runCli(baseHost, options.internalTemplateSource);
+  } catch (error) {
+    handleInternalCompilerError(error);
+  }
+}
+
+/**
+ * Build and run the `tsp` command line, composing every action's host from `baseHost`.
+ */
+async function runCli(
+  baseHost: CompilerHost,
+  internalTemplateSource?: TemplateSource,
+): Promise<void> {
+  const withCliHost = <T extends CliHostArgs>(
+    fn: (host: CliCompilerHost, args: T) => Promise<void>,
+  ) => withCliHostBase<T>(baseHost, fn);
+  const withCliHostAndDiagnostics = <T extends CliHostArgs>(
+    fn: (host: CliCompilerHost, args: T) => readonly Diagnostic[] | Promise<readonly Diagnostic[]>,
+  ) => withCliHostAndDiagnosticsBase<T>(baseHost, fn);
+
   const argv = process.argv.slice(2);
 
   // Handle `tsp compile --emit <emitter> --help` early before yargs intercepts --help
-  if (await handleCompileEmitHelp(argv)) {
+  if (await handleCompileEmitHelp(argv, baseHost)) {
     return;
   }
 
@@ -294,6 +340,7 @@ async function main() {
           ...args,
           emitters: args["template-emitters"],
           outputDir: args["output-dir"],
+          internalTemplateSource,
         }),
       ),
     )
@@ -326,11 +373,3 @@ async function main() {
     .version(getTypeSpecEngine() === "tsp" ? `${typespecVersion} standalone` : typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
-
-process.on("unhandledRejection", (error: unknown) => {
-  // eslint-disable-next-line no-console
-  console.error("Unhandled promise rejection!");
-  handleInternalCompilerError(error);
-});
-
-main().catch(handleInternalCompilerError);

@@ -143,10 +143,17 @@ async function resolveTypeSpecBundleDefinition(
   libraryPath = normalizePath(await realpath(libraryPath));
   const pkg = await readLibraryPackageJson(libraryPath);
 
+  // Only browser-safe exports are bundled for the playground/web. The `./internals` barrel and its
+  // node-only sub-entrypoints (e.g. `./internals/standalone`, which pulls in the CLI runner and Node
+  // built-ins) must be excluded; `./internals/prettier-formatter` is browser-safe and kept so the
+  // prettier plugin can load it in the browser.
   const exports = pkg.exports
     ? Object.fromEntries(
         Object.entries(pkg.exports).filter(
-          ([k, v]) => k !== "." && k !== "./testing" && k !== "./internals",
+          ([k, v]) =>
+            k !== "." &&
+            k !== "./testing" &&
+            (!k.startsWith("./internals") || k === "./internals/prettier-formatter"),
         ),
       )
     : {};
