@@ -68,18 +68,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
         private HashSet<string>? _customMemberNames;
-        // Names of members already implemented in custom code. Combines custom properties (used by
-        // extensible enums) and custom fields (used by fixed enums) so the same guard works for both.
+        // Names of members already implemented in custom code. Extensible enums expose their members
+        // as properties while fixed enums expose them as fields, so we inspect the appropriate set
+        // based on the concrete provider type.
         private HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
-            (CustomCodeView?.Properties.Select(p => p.Name) ?? [])
-                .Concat(CustomCodeView?.Fields.Select(f => f.Name) ?? []),
+            GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
+
+        private IEnumerable<string> GetCustomMemberNames()
+        {
+            if (CustomCodeView is null)
+            {
+                return [];
+            }
+
+            return IsExtensible
+                ? CustomCodeView.Properties.Select(p => p.Name)
+                : CustomCodeView.Fields.Select(f => f.Name);
+        }
 
         private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
             IReadOnlyList<string> lastContractNames)
         {
+            if (lastContractNames.Count == 0)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
             {
                 return generatedName;
