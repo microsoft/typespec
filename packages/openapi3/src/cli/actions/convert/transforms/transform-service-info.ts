@@ -7,8 +7,8 @@ export function transformServiceInfo(info: OpenAPI3Info): TypeSpecServiceInfo {
   if (license) {
     // Handle x-oai-license-identifier extension from OpenAPI 3.0
     const licenseRecord = license as unknown as Record<string, unknown>;
-    const xOaiIdentifier = licenseRecord["x-oai-license-identifier"] as string | undefined;
-    if (xOaiIdentifier !== undefined) {
+    const xOaiIdentifier = licenseRecord["x-oai-license-identifier"];
+    if (typeof xOaiIdentifier === "string") {
       const { "x-oai-license-identifier": _, ...rest } = licenseRecord;
       license = { ...(rest as unknown as License), identifier: xOaiIdentifier };
     }
