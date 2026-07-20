@@ -561,8 +561,9 @@ try {
         if (-not $unbrandedTgz) {
             throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
         }
-        $unbrandedPackagePath = $unbrandedTgz.FullName
-        Write-Host "Using unbranded package from build artifacts: $unbrandedPackagePath"
+        $unbrandedPackagePath = Join-Path $DebugFolder $unbrandedTgz.Name
+        Copy-Item $unbrandedTgz.FullName -Destination $unbrandedPackagePath -Force
+        Write-Host "Copied unbranded package to debug folder: $unbrandedPackagePath"
 
         # Copy .nupkg files from build artifacts to debug folder
         $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse
