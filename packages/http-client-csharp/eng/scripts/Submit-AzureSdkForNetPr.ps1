@@ -124,6 +124,9 @@ Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking
 # and authenticated .npmrc used to query the feed for the next available version.
 $PublishRegistry = $null
 $PublishNpmrcPath = $null
+# Feed-version stamping is only needed for the CI publish flow, and only when Azure and/or mgmt
+# regeneration was requested. Local runs keep using file-based package references unless they
+# explicitly opt into the CI-style publish behavior with -PublishGeneratorPackages.
 if ($PublishGeneratorPackages -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
     $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"

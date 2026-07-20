@@ -126,6 +126,10 @@ extends:
               # Shared on-disk state for the discrete Prepare / Publish generators / Regenerate steps.
               AzureSdkForNetCheckout: $(Agent.TempDirectory)/azure-sdk-for-net
               GeneratorPackagesFolder: $(Agent.TempDirectory)/generator-packages
+              ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
+                PublishGeneratorPackagesArg: -PublishGeneratorPackages
+              ${{ else }}:
+                PublishGeneratorPackagesArg: ''
               # Common Submit-AzureSdkForNetPr.ps1 arguments shared by the Prepare / BuildGenerators /
               # Regenerate steps. Built once here and reused by each step, which only adds its own -Phase
               # (and the secret -AuthToken, which cannot be nested inside another variable).
@@ -139,7 +143,7 @@ extends:
                 ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
                 ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
                 ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                ${{ replace(replace('True', and(or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries), ne(variables['Build.Reason'], '')), '-PublishGeneratorPackages'), 'True', '') }}
+                $(PublishGeneratorPackagesArg)
                 -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                 -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
                 -BuildReason '$(Build.Reason)'
