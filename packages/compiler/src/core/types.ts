@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
+import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
@@ -2417,6 +2418,12 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly description?: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   readonly url?: string;
+  /**
+   * Extended documentation for this diagnostic. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  readonly docs?: string | FileRef;
 }
 
 export interface DiagnosticMessages {
@@ -2564,6 +2571,12 @@ interface LinterRuleDefinitionBase<
   description: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   url?: string;
+  /**
+   * Extended documentation for this rule. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  docs?: string | FileRef;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
   /**

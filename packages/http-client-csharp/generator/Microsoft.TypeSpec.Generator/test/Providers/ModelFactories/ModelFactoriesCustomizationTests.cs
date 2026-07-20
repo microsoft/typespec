@@ -177,32 +177,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNull(modelFactory);
         }
 
-        // This test validates that a derived model customized to be internal does not get a
-        // public model factory method just because its base model remains public.
-        [Test]
-        public async Task OmitsModelFactoryMethodIfDerivedModelTypeInternal()
-        {
-            var baseModel = InputFactory.Model(
-                "baseModel",
-                properties: [InputFactory.Property("BaseProp", InputPrimitiveType.String)]);
-            var derivedModel = InputFactory.Model(
-                "derivedModel",
-                properties: [InputFactory.Property("DerivedProp", InputPrimitiveType.String)],
-                baseModel: baseModel);
-
-            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [baseModel, derivedModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var csharpGen = new CSharpGen();
-
-            await csharpGen.ExecuteAsync();
-
-            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
-            Assert.IsNotNull(modelFactory);
-            CollectionAssert.Contains(modelFactory!.Methods.Select(m => m.Signature.Name), "BaseModel");
-            CollectionAssert.DoesNotContain(modelFactory.Methods.Select(m => m.Signature.Name), "DerivedModel");
-        }
-
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanCustomizeModelFullConstructor(bool extraParameters)

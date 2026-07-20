@@ -31,6 +31,8 @@ Defaults to 'All', which runs every phase in a single invocation (used for local
 The azure-sdk-for-net checkout directory shared across phases. When omitted (typically for the 'All' phase), a unique temp directory is created and cleaned up automatically.
 .PARAMETER DebugFolder
 The directory holding the packed generator packages and NuGet packages shared between the BuildGenerators and Regenerate phases. When omitted, a unique temp directory is derived from WorkingDirectory.
+.PARAMETER BuildReason
+The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -75,8 +77,32 @@ param(
   [string]$WorkingDirectory,
 
   [Parameter(Mandatory = $false)]
-  [string]$DebugFolder
+  [string]$DebugFolder,
+
+  [Parameter(Mandatory = $false)]
+  [string]$BuildReason
 )
+
+# When the pipeline is triggered manually, failures should fail the pipeline with an
+# error instead of being downgraded to warnings and still opening a PR, which gives a
+# false positive to reviewers. For automated (scheduled/CI) runs, keep the existing
+# behavior of reporting SucceededWithIssues and continuing.
+$FailOnError = $BuildReason -eq 'Manual'
+
+# Tracks non-fatal step failures that were downgraded to warnings so a manual run can
+# fail before creating a pull request.
+$script:StepFailures = [System.Collections.Generic.List[string]]::new()
+
+function Register-StepFailure {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message
+    )
+
+    $script:StepFailures.Add($Message)
+    Write-Warning $Message
+    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+}
 
 # Import the Generation module to use the Invoke helper function
 Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
@@ -388,14 +414,13 @@ try {
             Write-Host "Running: npm install --verbose"
             Invoke "npm install --verbose" $httpClientDir
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "npm install failed with exit code $LASTEXITCODE, skipping generation."
-                Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                Register-StepFailure "npm install failed with exit code $LASTEXITCODE, skipping generation."
                 $installSucceeded = $false
             } else {
                 Write-Host "##[section]npm install completed successfully"
             }
         } catch {
-            Write-Warning "npm install failed: $($_.Exception.Message), skipping generation."
+            Register-StepFailure "npm install failed: $($_.Exception.Message), skipping generation."
             $installSucceeded = $false
         }
         finally {
@@ -414,12 +439,11 @@ try {
             try {
                 Invoke "npm run build" $httpClientDir
                 if ($LASTEXITCODE -ne 0) {
-                    Write-Warning "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
-                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    Register-StepFailure "npm run build failed with exit code $LASTEXITCODE, skipping Generate.ps1"
                     $shouldRunGenerate = $false
                 }
             } catch {
-                Write-Warning "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
+                Register-StepFailure "npm run build failed: $($_.Exception.Message), skipping Generate.ps1"
                 $shouldRunGenerate = $false
             } finally {
                 $ErrorActionPreference = $previousErrorAction
@@ -435,12 +459,10 @@ try {
                     $generationScriptPath = Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1"
                     Invoke "pwsh $generationScriptPath"
                     if ($LASTEXITCODE -ne 0) {
-                        Write-Warning "Generate.ps1 failed with exit code $LASTEXITCODE. Continuing with emitter artifact updates."
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        Register-StepFailure "Generate.ps1 failed with exit code $LASTEXITCODE. Continuing with emitter artifact updates."
                     }
                 } catch {
-                    Write-Warning "Generate.ps1 failed: $($_.Exception.Message). Continuing with emitter artifact updates."
-                    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                    Register-StepFailure "Generate.ps1 failed: $($_.Exception.Message). Continuing with emitter artifact updates."
                 } finally {
                     $ErrorActionPreference = $previousErrorAction
                 }
@@ -638,8 +660,7 @@ try {
         Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
         git sparse-checkout add sdk
         if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Failed to expand sparse checkout. Skipping SDK regeneration."
-            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+            Register-StepFailure "Failed to expand sparse checkout. Skipping SDK regeneration."
         } else {
             # Build the emitter patterns to match in tsp-location.yaml. The Azure/mgmt emitter
             # artifacts are produced by the BuildGenerators phase and persisted on disk.
@@ -693,12 +714,10 @@ try {
                         }
                         Invoke $generateCommand $tempDir
                         if ($LASTEXITCODE -ne 0) {
-                            Write-Warning "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
-                            Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                            Register-StepFailure "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
                         }
                     } catch {
-                        Write-Warning "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
-                        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+                        Register-StepFailure "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
                     } finally {
                         $ErrorActionPreference = $previousErrorAction
                     }
@@ -712,6 +731,13 @@ try {
     Write-Host "Regenerating emitter version dashboard..."
     $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
     & $dashboardScript -RepoRoot $tempDir
+
+    # For manual runs, fail the pipeline if any step reported a failure instead of
+    # opening a pull request that could give reviewers a false positive.
+    if ($FailOnError -and $script:StepFailures.Count -gt 0) {
+        $failureSummary = ($script:StepFailures | ForEach-Object { "- $_" }) -join [Environment]::NewLine
+        throw "One or more steps failed during a manual run; not creating a pull request:$([Environment]::NewLine)$failureSummary"
+    }
 
     # Check if there are changes to commit
     $gitStatus = git status --porcelain

@@ -141,6 +141,7 @@ extends:
                 ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                 -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                 -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                -BuildReason '$(Build.Reason)'
             steps:
               - checkout: self
 
