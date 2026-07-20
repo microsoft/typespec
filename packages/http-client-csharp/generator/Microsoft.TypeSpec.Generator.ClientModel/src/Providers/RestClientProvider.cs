@@ -28,7 +28,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TopParameterName = "top";
         private const string MaxCountParameterName = "maxCount";
         private const string MaxPageSizeParameterName = "maxPageSize";
-        private const string ContentParameterName = "content";
 
         private static readonly Dictionary<string, ParameterProvider> _knownSpecialHeaderParams = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -334,7 +333,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var contentParam = GetBodyContentParameter(signature.Parameters);
+                var contentParam = signature.Parameters.FirstOrDefault(p => p.Name == "content" && p.Location == ParameterLocation.Body);
                 statements.AddRange(AppendHeaderParameters(request, operation, paramMap, contentParam: contentParam));
                 statements.AddRange(GetSetContent(request, signature.Parameters));
             }
@@ -401,13 +400,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
-            var contentParam = GetBodyContentParameter(parameters);
+            var contentParam = parameters.FirstOrDefault(
+                p => p.Location == ParameterLocation.Body);
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
-
-        private static ParameterProvider? GetBodyContentParameter(IReadOnlyList<ParameterProvider> parameters)
-            => parameters.FirstOrDefault(static p => p.InputParameter is InputBodyParameter) ??
-                parameters.FirstOrDefault(static p => p.Location == ParameterLocation.Body);
 
         private Dictionary<List<int>, PropertyProvider> BuildPipelineMessage20xClassifiers()
         {
@@ -981,9 +977,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
-            type = IsContentTypeParameter(inputParam, includeInputHeaderParameter: false)
-                ? null
-                : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
             serializationFormat = null;
 
             if (inputParam.IsApiVersion && ClientProvider.IsMultiServiceClient)
@@ -1294,17 +1288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        if (IsContentTypeParameter(inputParam))
-                        {
-                            parameter.Type = new CSharpType(typeof(string), isNullable: !inputParam.IsRequired);
-                            parameter.Validation = inputParam.IsRequired
-                                ? ParameterValidationType.AssertNotNullOrEmpty
-                                : ParameterValidationType.None;
-                        }
-                        else
-                        {
-                            parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
-                        }
+                        parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                     }
                 }
                 else if (methodType is ScmMethodKind.Convenience &&
@@ -1323,8 +1307,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
-                        if (IsContentTypeParameter(inputParam)
-                            && !ShouldPreserveContentTypeBeforeBody(methodType, serviceMethod, client.BackCompatProvider))
+                        if (inputParam is InputHeaderParameter { IsContentType: true }
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod.Name, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
@@ -1366,42 +1350,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. sortedParams.Values];
         }
 
-        private static bool ShouldPreserveContentTypeBeforeBody(
-            ScmMethodKind methodType,
-            InputServiceMethod serviceMethod,
-            TypeProvider backCompatProvider)
-        {
-            if (HasContentTypeBeforeBodyInLastContract(serviceMethod, backCompatProvider))
-            {
-                return true;
-            }
-
-            // The baseline contract used for back-compat may come from a released package and can
-            // lag the generated sources in the repo. For generated convenience methods that expose a
-            // domain-named body parameter, keep the historic contentType-before-body ordering to avoid
-            // repo regen churn while protocol methods continue using the normalized "content" body.
-            return methodType is ScmMethodKind.Convenience && HasNamedBodyParameter(serviceMethod);
-        }
-
-        private static bool HasNamedBodyParameter(InputServiceMethod serviceMethod)
-        {
-            foreach (var parameter in serviceMethod.Parameters)
-            {
-                if (parameter.Location == InputRequestLocation.Body &&
-                    !string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static bool HasLiteralContentTypeHeader(InputOperation operation)
         {
             foreach (var p in operation.Parameters)
             {
-                if (p is InputHeaderParameter { IsContentType: true } && p.Type is InputLiteralType)
+                if (p is InputHeaderParameter { IsContentType: true } header
+                    && header.Type is InputLiteralType)
                 {
                     return true;
                 }
@@ -1409,19 +1363,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return false;
         }
 
-        private static bool IsContentTypeParameter(InputParameter parameter, bool includeInputHeaderParameter = true) =>
-            includeInputHeaderParameter && parameter is InputHeaderParameter { IsContentType: true } ||
-                parameter is InputMethodParameter { Location: InputRequestLocation.Header } &&
-                string.Equals(parameter.SerializedName, "Content-Type", StringComparison.OrdinalIgnoreCase);
-
         /// <summary>
         /// Checks if the last contract view contains a method matching the given name where
-        /// a "contentType" parameter appears before the body parameter.
+        /// a "contentType" parameter appears before the body ("content") parameter.
         /// If so, we should preserve that ordering for backward compatibility.
         /// </summary>
-        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider)
+        private static bool HasContentTypeBeforeBodyInLastContract(string methodName, TypeProvider backCompatProvider)
         {
             const string contentTypeParamName = "contentType";
+            const string contentParamName = "content";
 
             var lastContractMethods = backCompatProvider.LastContractView?.Methods;
             if (lastContractMethods == null || lastContractMethods.Count == 0)
@@ -1429,9 +1379,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            var syncMethodName = serviceMethod.Name;
-            var asyncMethodName = serviceMethod.Name + "Async";
-            var bodyParameterNames = GetBodyParameterNames(serviceMethod);
+            var syncMethodName = methodName;
+            var asyncMethodName = methodName + "Async";
 
             foreach (var method in lastContractMethods)
             {
@@ -1450,7 +1399,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         contentTypeIndex = i;
                     }
-                    else if (IsLastContractBodyParameter(param, bodyParameterNames))
+                    else if (string.Equals(param.Name, contentParamName, StringComparison.OrdinalIgnoreCase))
                     {
                         bodyIndex = i;
                     }
@@ -1465,45 +1414,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     return true;
                 }
-            }
-
-            return false;
-        }
-
-        private static HashSet<string> GetBodyParameterNames(InputServiceMethod serviceMethod)
-        {
-            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var parameter in serviceMethod.Parameters)
-            {
-                if (parameter.Location == InputRequestLocation.Body)
-                {
-                    names.Add(parameter.Name);
-                }
-            }
-
-            foreach (var parameter in serviceMethod.Operation.Parameters)
-            {
-                if (parameter is InputBodyParameter)
-                {
-                    names.Add(parameter.Name);
-                }
-            }
-
-            return names;
-        }
-
-        private static bool IsLastContractBodyParameter(ParameterProvider parameter, HashSet<string> bodyParameterNames)
-        {
-            if (parameter.InputParameter is InputBodyParameter ||
-                parameter.Location == ParameterLocation.Body ||
-                bodyParameterNames.Contains(parameter.Name))
-            {
-                return true;
-            }
-
-            if (string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
             }
 
             return false;

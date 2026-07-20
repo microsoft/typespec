@@ -29,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
         private readonly MethodProvider _createRequestMethod;
+        private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
@@ -1151,7 +1152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         This.Invoke(createRequestMethod.Signature,
                             BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
+                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
                 ];
             }
 
