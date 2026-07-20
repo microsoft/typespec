@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // effectively remove) the custom implementation.
             var customMemberNames = new HashSet<string>(
                 CustomCodeView?.Properties.Select(p => p.Name) ?? [],
-                StringComparer.Ordinal);
+                StringComparer.OrdinalIgnoreCase);
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
