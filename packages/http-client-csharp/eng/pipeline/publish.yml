@@ -126,6 +126,8 @@ extends:
               # Shared on-disk state for the discrete Prepare / Publish generators / Regenerate steps.
               AzureSdkForNetCheckout: $(Agent.TempDirectory)/azure-sdk-for-net
               GeneratorPackagesFolder: $(Agent.TempDirectory)/generator-packages
+              # Only the CI regen flow should request published feed versions, and only when Azure or mgmt
+              # regeneration was explicitly requested. Local runs never see this pipeline variable.
               ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
                 PublishGeneratorPackagesArg: -PublishGeneratorPackages
               ${{ else }}:

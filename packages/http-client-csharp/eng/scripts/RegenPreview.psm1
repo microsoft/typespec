@@ -499,6 +499,9 @@ function Update-MgmtGenerator {
     $azurePackagePath = Join-Path $DebugFolder $azurePackageName
     $unbrandedPackagePath = Join-Path $DebugFolder $unbrandedPackageName
     
+    # In file-mode regen, both local dependency tgz files must already be staged in DebugFolder.
+    # Publish-mode pins dependencies to feed versions instead, so those local tgz paths are no longer
+    # required even though we still log their derived names below for traceability.
     if (-not $PublishRegistry) {
         if (-not (Test-Path $azurePackagePath)) {
             throw "Azure package not found: $azurePackagePath"
