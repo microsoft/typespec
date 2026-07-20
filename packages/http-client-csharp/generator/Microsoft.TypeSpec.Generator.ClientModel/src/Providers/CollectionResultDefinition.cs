@@ -217,6 +217,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
+            if (ItemModelType != null)
+            {
+                dependencies.Add(ItemModelType);
+            }
+
+            foreach (var field in RequestFields)
+            {
+                dependencies.Add(field.Type);
+            }
+
+            return dependencies;
+        }
+
         protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>

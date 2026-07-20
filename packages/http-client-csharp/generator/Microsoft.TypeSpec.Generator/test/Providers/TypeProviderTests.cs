@@ -900,7 +900,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
                     Snippet.Throw(Snippet.Null), new TestTypeProvider())]);
             typeProvider.Update(attributes: [
-                    new(typeof(ObsoleteAttribute))
+                    new AttributeStatement(typeof(ObsoleteAttribute))
                 ]);
 
             Assert.IsNotNull(typeProvider.Attributes);
@@ -1224,14 +1224,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void InternalHelperProviderIsKeptAsNonRoot()
+        public void InternalHelperProviderHasInternalStaticModifiers()
         {
             var typeProvider = new TestInternalHelperProvider();
 
             Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
             Assert.IsTrue(typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Static));
             Assert.IsFalse(CodeModelGenerator.Instance.AdditionalRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
-            Assert.IsTrue(CodeModelGenerator.Instance.NonRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
+            Assert.IsFalse(CodeModelGenerator.Instance.NonRootTypes.Contains(typeProvider.Type.FullyQualifiedName));
         }
 
         [Test]

@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual;
-            if (_shouldOverrideXmlMethods)
+            if (_shouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Override;
             }
@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildXmlModelWriteCoreMethodBody()
         {
-            var categorizedProperties = _shouldOverrideXmlMethods
+            var categorizedProperties = _shouldOverrideMethods
                 ? CategorizedXmlProperties
                 : AllCategorizedXmlProperties;
             var statements = new List<MethodBodyStatement>
@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.EmptyLine
             };
 
-            if (_shouldOverrideXmlMethods)
+            if (_shouldOverrideMethods)
             {
                 statements.Add(Base.Invoke(XmlModelWriteCoreMethodName, _xmlWriterParameter, _serializationOptionsParameter).Terminate());
             }
