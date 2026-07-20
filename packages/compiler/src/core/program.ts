@@ -75,6 +75,12 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
+
 export interface Program {
   compilerOptions: CompilerOptions;
   /** @internal */
@@ -95,6 +101,15 @@ export interface Program {
   checker: Checker;
   /** @internal */
   resolver: NameResolver;
+
+  /**
+   * The current stage of the compilation pipeline.
+   * Progresses through: "parsing" → "checking" → "validating" → "linting" → "emitting".
+   */
+  readonly currentStage: CompilationStage;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
 
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
@@ -138,6 +153,18 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /**
+   * Get a cached value for the given key, computing it if not already cached.
+   * Caching is only active during the "validating" stage and later (not during "parsing" or "checking")
+   * because decorators may mutate types during the checking stage, making cached values stale.
+   *
+   * @param key A unique symbol identifying this cache entry.
+   * @param type The type to use as the cache key within this cache entry.
+   * @param compute A function that computes the value if not cached.
+   * @returns The cached or freshly computed value.
+   */
+  useCache<T>(key: symbol, type: Type, compute: () => T): T;
 }
 
 interface EmitterRef {
@@ -192,6 +219,7 @@ export async function compile(
   };
   const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
@@ -229,6 +257,8 @@ async function createProgram(
   // eslint-disable-next-line prefer-const -- reassigned after source resolution
   let suppressionTracker: SuppressionTracker | undefined;
 
+  let currentStage: CompilationStage = "parsing";
+
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
@@ -260,6 +290,12 @@ async function createProgram(
     get suppressionTracker() {
       return suppressionTracker;
     },
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage: CompilationStage) {
+      currentStage = stage;
+    },
     hasError() {
       return error;
     },
@@ -272,6 +308,22 @@ async function createProgram(
     resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+    useCache<T>(key: symbol, type: Type, compute: () => T): T {
+      // Only cache from the "validating" stage onward. During "parsing" and
+      // "checking", decorators may still mutate types, so cached values could
+      // become stale.
+      if (currentStage === "parsing" || currentStage === "checking") {
+        return compute();
+      }
+      const map = program.stateMap(key);
+      const existing = map.get(type);
+      if (existing !== undefined) {
+        return existing as T;
+      }
+      const value = compute();
+      map.set(type, value);
+      return value;
+    },
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -326,6 +378,7 @@ async function createProgram(
   }
 
   program.checker = createChecker(program, resolver);
+  currentStage = "checking";
   runtimeStats.checker = perf.time(() => program.checker.checkProgram());
 
   complexityStats.createdTypes = program.checker.stats.createdTypes;
@@ -336,6 +389,7 @@ async function createProgram(
   }
 
   // onValidate stage
+  currentStage = "validating";
   await runValidators();
 
   validateRequiredImports();
@@ -347,6 +401,7 @@ async function createProgram(
   }
 
   // Linter stage
+  currentStage = "linting";
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
