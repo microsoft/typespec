@@ -155,7 +155,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsCompilerEmittedNullableAttributes()
+        public void BuildAttributesForBackCompatibilitySkipsCompilerEmittedNullableAttributes()
         {
             var nullableContextAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableContextAttribute, System.Private.CoreLib")!);
             var nullableAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableAttribute, System.Private.CoreLib")!);
