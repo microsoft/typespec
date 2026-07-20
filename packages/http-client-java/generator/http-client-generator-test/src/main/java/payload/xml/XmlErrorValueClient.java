@@ -15,7 +15,9 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.XmlErrorValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.SimpleModel;
 
 /**
@@ -23,6 +25,8 @@ import payload.xml.models.SimpleModel;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class XmlErrorValueClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final XmlErrorValuesImpl serviceClient;
 
@@ -77,6 +81,6 @@ public final class XmlErrorValueClient {
     public SimpleModel get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class);
+        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class, SERIALIZER);
     }
 }

@@ -16,7 +16,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.ModelWithEmptyArrayValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.ModelWithEmptyArray;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,8 @@ import reactor.core.publisher.Mono;
  */
 @ServiceClient(builder = XmlClientBuilder.class, isAsync = true)
 public final class ModelWithEmptyArrayValueAsyncClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final ModelWithEmptyArrayValuesImpl serviceClient;
 
@@ -117,7 +121,7 @@ public final class ModelWithEmptyArrayValueAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithEmptyArray.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithEmptyArray.class, SERIALIZER));
     }
 
     /**
@@ -137,6 +141,6 @@ public final class ModelWithEmptyArrayValueAsyncClient {
     public Mono<Void> put(ModelWithEmptyArray input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

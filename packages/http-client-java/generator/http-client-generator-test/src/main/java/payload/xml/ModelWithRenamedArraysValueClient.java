@@ -15,7 +15,9 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.ModelWithRenamedArraysValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.ModelWithRenamedArrays;
 
 /**
@@ -23,6 +25,8 @@ import payload.xml.models.ModelWithRenamedArrays;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedArraysValueClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final ModelWithRenamedArraysValuesImpl serviceClient;
 
@@ -114,7 +118,7 @@ public final class ModelWithRenamedArraysValueClient {
     public ModelWithRenamedArrays get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedArrays.class);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedArrays.class, SERIALIZER);
     }
 
     /**
@@ -133,6 +137,6 @@ public final class ModelWithRenamedArraysValueClient {
     public void put(ModelWithRenamedArrays input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
     }
 }

@@ -15,7 +15,9 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.ModelWithNestedModelValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.ModelWithNestedModel;
 
 /**
@@ -23,6 +25,8 @@ import payload.xml.models.ModelWithNestedModel;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithNestedModelValueClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final ModelWithNestedModelValuesImpl serviceClient;
 
@@ -108,7 +112,7 @@ public final class ModelWithNestedModelValueClient {
     public ModelWithNestedModel get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithNestedModel.class);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithNestedModel.class, SERIALIZER);
     }
 
     /**
@@ -127,6 +131,6 @@ public final class ModelWithNestedModelValueClient {
     public void put(ModelWithNestedModel input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
     }
 }

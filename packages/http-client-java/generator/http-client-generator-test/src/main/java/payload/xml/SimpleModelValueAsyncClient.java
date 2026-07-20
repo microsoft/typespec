@@ -16,7 +16,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.SimpleModelValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.SimpleModel;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,8 @@ import reactor.core.publisher.Mono;
  */
 @ServiceClient(builder = XmlClientBuilder.class, isAsync = true)
 public final class SimpleModelValueAsyncClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final SimpleModelValuesImpl serviceClient;
 
@@ -108,7 +112,7 @@ public final class SimpleModelValueAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(SimpleModel.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(SimpleModel.class, SERIALIZER));
     }
 
     /**
@@ -128,6 +132,6 @@ public final class SimpleModelValueAsyncClient {
     public Mono<Void> put(SimpleModel input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -16,7 +16,9 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.serializer.ObjectSerializer;
 import payload.xml.implementation.ModelWithNamespaceOnPropertiesValuesImpl;
+import payload.xml.implementation.XmlSerializerProviders;
 import payload.xml.models.ModelWithNamespaceOnProperties;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,8 @@ import reactor.core.publisher.Mono;
  */
 @ServiceClient(builder = XmlClientBuilder.class, isAsync = true)
 public final class ModelWithNamespaceOnPropertiesValueAsyncClient {
+    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+
     @Generated
     private final ModelWithNamespaceOnPropertiesValuesImpl serviceClient;
 
@@ -111,7 +115,7 @@ public final class ModelWithNamespaceOnPropertiesValueAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithNamespaceOnProperties.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithNamespaceOnProperties.class, SERIALIZER));
     }
 
     /**
@@ -131,6 +135,6 @@ public final class ModelWithNamespaceOnPropertiesValueAsyncClient {
     public Mono<Void> put(ModelWithNamespaceOnProperties input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(input), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).flatMap(FluxUtil::toMono);
     }
 }
