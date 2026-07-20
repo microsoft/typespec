@@ -89,4 +89,3 @@ Some helpers are shipped verbatim as resource templates rather than built up in 
 - `generator/http-client-generator/src/main/java/.../TypeSpecPlugin.java` — `writeHelperClasses(...)` emits per-client helper classes into the implementation subpackage via `JavaPackage.addJavaFromResources(packageName, resourceName[, fileName])`.
 - Resource templates live under `generator/http-client-generator-core/src/main/resources/*.java` and must START with `import` statements — do NOT include a `package` line or the license header. The file factory injects the license header, the `package` statement, and reorders imports. The class name must match the resource/file name.
 - Class-name constants live in `generator/http-client-generator-core/src/main/java/.../util/ClientModelUtil.java`.
-
