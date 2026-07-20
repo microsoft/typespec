@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithOptionalField;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithOptionalFieldValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

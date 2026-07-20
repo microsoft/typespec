@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithRenamedProperty;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedPropertyValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

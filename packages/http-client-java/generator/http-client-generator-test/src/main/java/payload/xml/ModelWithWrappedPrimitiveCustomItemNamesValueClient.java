@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithWrappedPrimitiveCustomItemNames;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithWrappedPrimitiveCustomItemNamesValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

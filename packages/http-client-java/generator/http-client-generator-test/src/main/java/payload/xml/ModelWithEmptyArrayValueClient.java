@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithEmptyArray;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithEmptyArrayValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

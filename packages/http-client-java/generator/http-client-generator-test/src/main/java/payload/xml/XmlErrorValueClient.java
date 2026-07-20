@@ -25,6 +25,7 @@ import payload.xml.models.SimpleModel;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class XmlErrorValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

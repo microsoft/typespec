@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithEnum;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithEnumValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

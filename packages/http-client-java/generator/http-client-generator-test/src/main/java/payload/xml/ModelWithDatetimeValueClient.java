@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithDatetime;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithDatetimeValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

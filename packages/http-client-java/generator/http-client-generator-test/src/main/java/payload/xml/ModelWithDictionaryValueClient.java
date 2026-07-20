@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithDictionary;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithDictionaryValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

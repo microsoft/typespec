@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithSimpleArrays;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithSimpleArraysValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

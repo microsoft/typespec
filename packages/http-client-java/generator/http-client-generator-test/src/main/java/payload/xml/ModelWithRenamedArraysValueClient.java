@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithRenamedArrays;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedArraysValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

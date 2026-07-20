@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithAttributes;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithAttributesValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

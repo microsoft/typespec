@@ -62,7 +62,63 @@ import java.util.stream.Collectors;
 
 abstract class ConvenienceMethodTemplateBase {
 
+    // Name of the static ObjectSerializer member used for XML serialization on the convenience client.
+    static final String XML_SERIALIZER_MEMBER_NAME = "SERIALIZER";
+
     protected ConvenienceMethodTemplateBase() {
+    }
+
+    /**
+     * Whether the XML {@link com.azure.core.util.serializer.ObjectSerializer} overload should be used for the given
+     * MIME type. XML serialization via an explicit serializer is only required for the azure-core (v1) flavor.
+     *
+     * @param mimeType the MIME type.
+     * @return whether to use the XML serializer overload of {@code toObject}/{@code fromObject}.
+     */
+    static boolean useXmlObjectSerializer(SupportedMimeType mimeType) {
+        return mimeType == SupportedMimeType.XML && JavaSettings.getInstance().isAzureV1();
+    }
+
+    /**
+     * The additional argument (e.g. {@code ", SERIALIZER"}) to append to {@code toObject}/{@code fromObject} calls when
+     * the XML serializer overload should be used, or an empty string otherwise.
+     *
+     * @param mimeType the MIME type.
+     * @return the serializer argument, possibly empty.
+     */
+    static String xmlSerializerArgument(SupportedMimeType mimeType) {
+        return useXmlObjectSerializer(mimeType) ? ", " + XML_SERIALIZER_MEMBER_NAME : "";
+    }
+
+    /**
+     * Whether any of the convenience methods requires XML serialization (request or response). Used to decide whether
+     * the convenience client needs a static XML serializer member. Only applicable to the azure-core (v1) flavor.
+     *
+     * @param convenienceMethods the convenience methods on the client.
+     * @return whether a static XML serializer member is required.
+     */
+    public boolean useXmlSerializerMember(Collection<ConvenienceMethod> convenienceMethods) {
+        if (!JavaSettings.getInstance().isAzureV1() || convenienceMethods == null) {
+            return false;
+        }
+        for (ConvenienceMethod convenienceMethod : convenienceMethods) {
+            if (!isMethodIncluded(convenienceMethod)) {
+                continue;
+            }
+            String requestContentType = convenienceMethod.getProtocolMethod().getProxyMethod().getRequestContentType();
+            if (requestContentType != null
+                && SupportedMimeType.getResponseKnownMimeType(List.of(requestContentType)) == SupportedMimeType.XML) {
+                return true;
+            }
+            Set<String> responseContentTypes
+                = convenienceMethod.getProtocolMethod().getProxyMethod().getResponseContentTypes();
+            if (responseContentTypes != null
+                && !responseContentTypes.isEmpty()
+                && SupportedMimeType.getResponseKnownMimeType(responseContentTypes) == SupportedMimeType.XML) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void write(ConvenienceMethod convenienceMethodObj, JavaClass classBlock,
@@ -569,17 +625,19 @@ abstract class ConvenienceMethodTemplateBase {
                 return name;
 
             default:
-                // JSON etc.
+                // JSON, XML etc.
+                String serializerArgument = xmlSerializerArgument(mimeType);
                 if (type == ClassType.BINARY_DATA) {
                     return name;
                 } else {
                     if (type == ClassType.BASE_64_URL) {
-                        return "BinaryData.fromObject(" + ClassType.BASE_64_URL.getName() + ".encode(" + name + "))";
+                        return "BinaryData.fromObject(" + ClassType.BASE_64_URL.getName() + ".encode(" + name + ")"
+                            + serializerArgument + ")";
                     } else if (type instanceof EnumType) {
                         return "BinaryData.fromObject(" + name + " == null ? null : " + name + "."
-                            + ((EnumType) type).getToMethodName() + "())";
+                            + ((EnumType) type).getToMethodName() + "()" + serializerArgument + ")";
                     } else {
-                        return "BinaryData.fromObject(" + name + ")";
+                        return "BinaryData.fromObject(" + name + serializerArgument + ")";
                     }
                 }
         }

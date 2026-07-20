@@ -205,7 +205,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
         Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        // TODO (weidxu): support XML etc.
+        String serializerArgument = xmlSerializerArgument(mimeType);
         switch (mimeType) {
             case TEXT:
                 String basicText = invocationExpression + ".toString()";
@@ -219,32 +219,33 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 return invocationExpression;
 
             default:
-                // JSON etc.
+                // JSON, XML etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
                     IType elementType = ((EnumType) responseBodyType).getElementType();
-                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class))", responseBodyType, elementType,
-                        invocationExpression);
+                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class%4$s))", responseBodyType, elementType,
+                        invocationExpression, serializerArgument);
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. List, Map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("%2$s.toObject(%1$s)", TemplateUtil.getTypeReferenceCreation(responseBodyType),
-                        invocationExpression);
+                    return String.format("%2$s.toObject(%1$s%3$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
+                        serializerArgument);
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData
                     return invocationExpression;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName()
-                            + ".class).decodedBytes()";
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
+                            + serializerArgument + ").decodedBytes()";
                     } else {
-                        return invocationExpression + ".toObject(byte[].class)";
+                        return invocationExpression + ".toObject(byte[].class" + serializerArgument + ")";
                     }
                 } else {
                     // default, treat as class
-                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
-                        invocationExpression);
+                    return String.format("%2$s.toObject(%1$s.class%3$s)", responseBodyType.asNullable(),
+                        invocationExpression, serializerArgument);
                 }
         }
     }

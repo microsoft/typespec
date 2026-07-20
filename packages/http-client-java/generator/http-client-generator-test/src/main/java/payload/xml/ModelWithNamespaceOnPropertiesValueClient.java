@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithNamespaceOnProperties;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithNamespaceOnPropertiesValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

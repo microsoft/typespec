@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithUnwrappedArray;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithUnwrappedArrayValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated

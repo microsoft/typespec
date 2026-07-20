@@ -25,6 +25,7 @@ import payload.xml.models.ModelWithRenamedNestedModel;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedNestedModelValueClient {
+    @Generated
     private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
