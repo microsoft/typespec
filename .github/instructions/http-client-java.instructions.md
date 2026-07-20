@@ -72,7 +72,7 @@ After a compile, inspect `tsp-output/**/code-model.yaml` in the test module to s
 ## Edit → update emitter → test loop
 
 1. Make the emitter (TypeScript) and/or generator (Java) changes.
-2. Ensure the generator compiles: `mvn clean install --define spotless:skip -DskipTests --no-transfer-progress -T 1C -f ./generator/pom.xml` (from `<repository-root>/packages/http-client-java`).
+2. Ensure the generator compiles: `mvn clean install --define spotless:skip --define skipTests --no-transfer-progress -T 1C -f ./generator/pom.xml` (from `<repository-root>/packages/http-client-java`).
 3. Ensure the emitter builds: `npm run build:emitter`.
 4. Format Java with `mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml` and TypeScript via `npm run format`.
 5. Run `pwsh Setup.ps1` in `generator/http-client-generator-test`. This packs the emitter (bundling the freshly built generator jar) and installs it into the test module. Re-run it after every generator/emitter change you want reflected in generation.
@@ -80,7 +80,7 @@ After a compile, inspect `tsp-output/**/code-model.yaml` in the test module to s
    `npx tsp compile <path-to-tsp>`
    (Optionally add `--option "@typespec/http-client-java.emitter-output-dir=$PWD/tsp-output/<name>"` to isolate output into a subfolder for an easier diff.)
 7. Verify the generated code under `tsp-output/**/src` is as expected. When the spec corresponds to sources tracked in `src/main/java`, compare against them and, if correct, copy the generated files into `src` (replacing existing files) but EXCLUDE `module-info.java`. Some specs do not map to `src` — in that case just verify the output, without comparing or copying.
-8. When the spec maps to `src` and you copied the generated code in, run the tests (`mvn test`, or a targeted `"-Dtest=<pkg>.<Class>"`). Restart the Spector server if needed (`npm run spector-stop` then `npm run spector-start`). If the spec does not map to `src`, verifying the generated output (step 7) is sufficient.
+8. When the spec maps to `src` and you copied the generated code in, run the tests (`mvn test`, or a targeted `--define "test=<pkg>.<Class>"`). Restart the Spector server if needed (`npm run spector-stop` then `npm run spector-start`). If the spec does not map to `src`, verifying the generated output (step 7) is sufficient.
 
 ## Emitting static helper classes from resource templates
 
