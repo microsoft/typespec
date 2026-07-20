@@ -20,6 +20,12 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
 export interface RenderToStarlightMarkdownOptions {
   llmstxt?: boolean;
+  /**
+   * Relative directory (from the output dir) where the per-rule reference pages are written.
+   * Defaults to `"rules"` (i.e. `<output-dir>/rules`). Can be set to a path escaping the output
+   * dir (e.g. `"../rules"`) to keep rule pages at a location outside the generated reference folder.
+   */
+  rulesDir?: string;
 }
 
 /**
@@ -29,7 +35,7 @@ export function renderToAstroStarlightMarkdown(
   refDoc: TypeSpecRefDoc,
   options: RenderToStarlightMarkdownOptions = {},
 ): Record<string, string> {
-  const renderer = new StarlightRenderer(refDoc);
+  const renderer = new StarlightRenderer(refDoc, options);
   const files: Record<string, string> = {
     "index.mdx": renderIndexFile(renderer, refDoc),
   };
@@ -58,8 +64,9 @@ export function renderToAstroStarlightMarkdown(
     files["linter.md"] = linter;
   }
 
+  const rulesDir = options.rulesDir ?? "rules";
   for (const rule of refDoc.linter?.rules ?? []) {
-    files[`rules/${rule.rule.name}.md`] = renderRule(rule);
+    files[`${rulesDir}/${rule.rule.name}.md`] = renderRule(rule);
   }
 
   // Generate one page per documented diagnostic, under `diagnostics/`. No index page.
@@ -431,6 +438,11 @@ function renderSubExport(
 }
 
 export class StarlightRenderer extends MarkdownRenderer {
+  #rulesDir: string;
+  constructor(refDoc: TypeSpecRefDoc, options: RenderToStarlightMarkdownOptions = {}) {
+    super(refDoc);
+    this.#rulesDir = options.rulesDir ?? "rules";
+  }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
@@ -473,7 +485,8 @@ export class StarlightRenderer extends MarkdownRenderer {
   }
 
   linterRuleLink(rule: LinterRuleRefDoc) {
-    return `./rules/${rule.rule.name}.md`;
+    const prefix = this.#rulesDir.startsWith(".") ? this.#rulesDir : `./${this.#rulesDir}`;
+    return `${prefix}/${rule.rule.name}.md`;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
