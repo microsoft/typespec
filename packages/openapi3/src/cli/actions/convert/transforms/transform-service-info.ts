@@ -1,4 +1,4 @@
-import { License } from "@typespec/openapi";
+import type { License } from "@typespec/openapi";
 import { OpenAPI3Info } from "../../../../types.js";
 import { TypeSpecServiceInfo } from "../interfaces.js";
 
