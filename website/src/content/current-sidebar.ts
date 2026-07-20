@@ -124,7 +124,7 @@ const sidebar: SidebarItem[] = [
   {
     label: "📚 Libraries",
     items: [
-      createLibraryReferenceStructure("libraries/http", "Http", true, [
+      createLibraryReferenceStructure("libraries/http", "Http", false, [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
         "libraries/http/operations",
@@ -168,7 +168,6 @@ const sidebar: SidebarItem[] = [
       createLibraryReferenceStructure("emitters/openapi3", "OpenAPI3", false, [
         "emitters/openapi3/openapi",
         "emitters/openapi3/cli",
-        "emitters/openapi3/diagnostics",
       ]),
       createLibraryReferenceStructure(
         "emitters/protobuf",
