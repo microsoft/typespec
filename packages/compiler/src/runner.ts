@@ -1,4 +1,4 @@
-import { readFile, realpath, stat } from "fs/promises";
+import { access, readFile, realpath, stat } from "fs/promises";
 import { join, resolve } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import { ResolveModuleHost, resolveModule } from "./module-resolver/index.js";
@@ -10,11 +10,14 @@ import { ResolveModuleHost, resolveModule } from "./module-resolver/index.js";
  * Prevents loading two conflicting copies of TypeSpec modules from global and
  * local package locations.
  */
-export async function runScript(relativePath: string): Promise<void> {
+export async function runScript(relativePath: string, backupPath: string): Promise<void> {
   const packageRoot = await resolvePackageRoot();
 
   if (packageRoot) {
-    const script = join(packageRoot, relativePath);
+    let script = join(packageRoot, relativePath);
+    if (!(await checkFileExists(script)) && backupPath) {
+      script = join(packageRoot, backupPath);
+    }
     const scriptUrl = pathToFileURL(script).toString();
     await import(scriptUrl);
   } else {
@@ -22,6 +25,12 @@ export async function runScript(relativePath: string): Promise<void> {
       "Couldn't resolve TypeSpec compiler root. This is unexpected. Please file an issue at https://github.com/microsoft/typespec.",
     );
   }
+}
+
+function checkFileExists(file: string) {
+  return access(file)
+    .then(() => true)
+    .catch(() => false);
 }
 
 async function resolvePackageRoot(): Promise<string> {
