@@ -70,7 +70,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected static string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            IReadOnlyCollection<string>? customMemberNames = null)
         {
             if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
             {
@@ -90,9 +91,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Take(2)
                 .ToArray();
 
-            return matchingCurrentNames.Length == 1 && matchingLastContractNames.Length == 1
+            var backCompatName = matchingCurrentNames.Length == 1 && matchingLastContractNames.Length == 1
                 ? matchingLastContractNames[0]
                 : generatedName;
+
+            // If restoring the underscore-preserved name would collide with a member that already
+            // exists in custom code, keep the generated name so the custom member is preserved
+            // rather than duplicated or removed.
+            if (customMemberNames != null
+                && !backCompatName.Equals(generatedName, StringComparison.Ordinal)
+                && customMemberNames.Contains(backCompatName))
+            {
+                return generatedName;
+            }
+
+            return backCompatName;
         }
 
         protected override bool GetIsEnum() => true;
