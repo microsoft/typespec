@@ -1,5 +1,5 @@
-import { Card, CardHeader, Text } from "@fluentui/react-components";
-import { FunctionComponent, useState } from "react";
+import { Card, CardHeader, SearchBox, Text } from "@fluentui/react-components";
+import { FunctionComponent, useMemo, useState } from "react";
 import { CoverageSummary } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
@@ -25,6 +25,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
   emitterDisplayNames,
 }) => {
   const [selectedTier, setSelectedTier] = useState<string | undefined>(undefined);
+  const [nameFilter, setNameFilter] = useState<string>("");
 
   const { filteredSummaries, allTiers } = useTierFiltering(
     coverageSummaries,
@@ -32,8 +33,25 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
     selectedTier,
   );
 
-  const summaryTables = filteredSummaries
-    .filter((s) => !selectedTier || s.manifest.scenarios.length > 0)
+  const normalizedNameFilter = nameFilter.trim().toLowerCase();
+
+  const searchedSummaries = useMemo(() => {
+    if (!normalizedNameFilter) {
+      return filteredSummaries;
+    }
+    return filteredSummaries.map((summary) => ({
+      ...summary,
+      manifest: {
+        ...summary.manifest,
+        scenarios: summary.manifest.scenarios.filter((s) =>
+          s.name.toLowerCase().includes(normalizedNameFilter),
+        ),
+      },
+    }));
+  }, [filteredSummaries, normalizedNameFilter]);
+
+  const summaryTables = searchedSummaries
+    .filter((s) => (!selectedTier && !normalizedNameFilter) || s.manifest.scenarios.length > 0)
     .map((coverageSummary, i) => (
       <div key={i} className={style["summary-table"]}>
         <DashboardTable
@@ -64,7 +82,19 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
       )}
       <div className={style["specs-row"]}>{specsCardTable}</div>
       <div className={style["spacer"]}></div>
-      {summaryTables}
+      <div className={style["name-filter"]}>
+        <SearchBox
+          className={style["name-filter-input"]}
+          placeholder="Filter scenarios by name..."
+          value={nameFilter}
+          onChange={(_, data) => setNameFilter(data.value)}
+        />
+      </div>
+      {normalizedNameFilter && summaryTables.length === 0 ? (
+        <Text className={style["no-results"]}>No scenarios match "{nameFilter.trim()}".</Text>
+      ) : (
+        summaryTables
+      )}
     </div>
   );
 };
