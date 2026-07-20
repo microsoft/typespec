@@ -17,9 +17,13 @@ namespace Microsoft.TypeSpec.Generator
 {
     public class TypeFactory
     {
-        private ChangeTrackingListDefinition ChangeTrackingListProvider { get; } = new();
+        private ChangeTrackingListDefinition ChangeTrackingListProvider
+            => _changeTrackingListProvider ??= new();
+        private ChangeTrackingListDefinition? _changeTrackingListProvider;
 
-        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider { get; } = new();
+        private ChangeTrackingDictionaryDefinition ChangeTrackingDictionaryProvider
+            => _changeTrackingDictionaryProvider ??= new();
+        private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
 
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 

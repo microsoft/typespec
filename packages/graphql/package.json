@@ -69,7 +69,6 @@
     "@typespec/mutator-framework": "workspace:~",
     "@typespec/tspd": "workspace:~",
     "rimraf": "catalog:",
-    "source-map-support": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

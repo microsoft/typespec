@@ -1,5 +1,6 @@
 import {
   DeprecationNotice,
+  DiagnosticRefDoc,
   LinterRuleRefDoc,
   NamedTypeRefDoc,
   RefDocEntity,
@@ -55,6 +56,17 @@ export function renderToAstroStarlightMarkdown(
   const linter = renderLinter(renderer, refDoc);
   if (linter) {
     files["linter.md"] = linter;
+  }
+
+  for (const rule of refDoc.linter?.rules ?? []) {
+    files[`rules/${rule.rule.name}.md`] = renderRule(rule);
+  }
+
+  // Generate one page per documented diagnostic, under `diagnostics/`. No index page.
+  for (const diagnostic of refDoc.diagnostics ?? []) {
+    if (diagnostic.doc) {
+      files[`diagnostics/${diagnostic.name}.md`] = renderDiagnostic(diagnostic);
+    }
   }
 
   // Render sub-exports
@@ -277,7 +289,38 @@ function renderLinter(
     "---",
     renderer.linterUsage(refDoc),
   ];
+  return renderMarkdowDoc(content, 2);
+}
 
+function renderRule(rule: LinterRuleRefDoc): string {
+  const content: MarkdownDoc = [
+    "---",
+    `title: "${rule.rule.name}"`,
+    "---",
+    "",
+    codeblock(rule.name, 'text title="Id"'),
+    "",
+    rule.rule.description,
+  ];
+  if (rule.doc) {
+    content.push("", rule.doc);
+  }
+  return renderMarkdowDoc(content, 2);
+}
+
+function renderDiagnostic(diagnostic: DiagnosticRefDoc): string {
+  const content: MarkdownDoc = [
+    "---",
+    `title: "${diagnostic.name}"`,
+    "---",
+    "",
+    codeblock(diagnostic.id, 'text title="Id"'),
+    "",
+    `**Severity:** ${diagnostic.severity}`,
+  ];
+  if (diagnostic.doc) {
+    content.push("", diagnostic.doc);
+  }
   return renderMarkdowDoc(content, 2);
 }
 
@@ -430,7 +473,7 @@ export class StarlightRenderer extends MarkdownRenderer {
   }
 
   linterRuleLink(rule: LinterRuleRefDoc) {
-    return `../rules/${rule.rule.name}.md`;
+    return `./rules/${rule.rule.name}.md`;
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
