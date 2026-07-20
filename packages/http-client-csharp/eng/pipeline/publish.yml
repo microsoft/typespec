@@ -126,6 +126,21 @@ extends:
               # Shared on-disk state for the discrete Prepare / Publish generators / Regenerate steps.
               AzureSdkForNetCheckout: $(Agent.TempDirectory)/azure-sdk-for-net
               GeneratorPackagesFolder: $(Agent.TempDirectory)/generator-packages
+              # Common Submit-AzureSdkForNetPr.ps1 arguments shared by the Prepare / BuildGenerators /
+              # Regenerate steps. Built once here and reused by each step, which only adds its own -Phase
+              # (and the secret -AuthToken, which cannot be nested inside another variable).
+              SubmitCommonArgs: >-
+                -WorkingDirectory '$(AzureSdkForNetCheckout)'
+                -DebugFolder '$(GeneratorPackagesFolder)'
+                -PackageVersion '$(PackageVersion)'
+                -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                -PipelineRunUrl '$(PipelineRunUrl)'
+                ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
             steps:
               - checkout: self
 
@@ -255,18 +270,8 @@ extends:
                   scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -Phase 'Prepare'
-                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
-                    -DebugFolder '$(GeneratorPackagesFolder)'
-                    -PackageVersion '$(PackageVersion)'
-                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
-                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                    -PipelineRunUrl '$(PipelineRunUrl)'
-                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    $(SubmitCommonArgs)
 
               - task: AzureCLI@2
                 displayName: "Build Azure/mgmt generators"
@@ -278,18 +283,8 @@ extends:
                   scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -Phase 'BuildGenerators'
-                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
-                    -DebugFolder '$(GeneratorPackagesFolder)'
-                    -PackageVersion '$(PackageVersion)'
-                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
-                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                    -PipelineRunUrl '$(PipelineRunUrl)'
-                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    $(SubmitCommonArgs)
 
               # Publish the packed Azure/mgmt generator packages to the ADO feed using the shared publish
               # template. The active npm registry was already authenticated for the ADO feed by the
@@ -309,18 +304,8 @@ extends:
                   scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
                   arguments: >
                     -Phase 'Regenerate'
-                    -WorkingDirectory '$(AzureSdkForNetCheckout)'
-                    -DebugFolder '$(GeneratorPackagesFolder)'
-                    -PackageVersion '$(PackageVersion)'
-                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
                     -AuthToken '$(GH_TOKEN)'
-                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                    -PipelineRunUrl '$(PipelineRunUrl)'
-                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
-                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    $(SubmitCommonArgs)
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

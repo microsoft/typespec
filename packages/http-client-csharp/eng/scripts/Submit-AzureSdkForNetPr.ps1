@@ -93,12 +93,11 @@ $PublishNpmrcPath = $null
 if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
     $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"
-    if (Test-Path $resolvedPublishNpmrc) {
-        $PublishNpmrcPath = (Resolve-Path $resolvedPublishNpmrc).Path
-        Write-Host "Generator packages will be published to $PublishRegistry using .npmrc at $PublishNpmrcPath"
-    } else {
-        Write-Host "Generator packages will be published to $PublishRegistry using ambient npm configuration"
+    if (-not (Test-Path $resolvedPublishNpmrc)) {
+        throw "Expected an authenticated .npmrc at '$resolvedPublishNpmrc' to query and publish generator packages to $PublishRegistry, but none was found. The pipeline must create and authenticate this file before running the generator regeneration phases."
     }
+    $PublishNpmrcPath = (Resolve-Path $resolvedPublishNpmrc).Path
+    Write-Host "Generator packages will be published to $PublishRegistry using .npmrc at $PublishNpmrcPath"
 }
 
 # The publish pipeline drives this script as three discrete, independently-failing steps that share a
