@@ -68,9 +68,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
         private HashSet<string>? _customMemberNames;
-        // Names of members already implemented in custom code. Extensible enums expose their members
-        // as properties while fixed enums expose them as fields, so we inspect the appropriate set
-        // based on the concrete provider type.
         private HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
             GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
