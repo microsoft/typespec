@@ -6,10 +6,10 @@ title: "op-reference-container-route"
 @typespec/http/op-reference-container-route
 ```
 
-Check for referenced (`op is`) operations which have a `@route` on one of their containers.
+Check for referenced (`op is`) operations which have a @route on one of their containers.
 
-When referencing an operation with `op is` only the data on the operation itself is carried over anything on parent container is lost.
-This result in unexpected behavior where information is lost.
+When referencing an operation with `op is`, only the data on the operation itself is carried over; anything on the parent container is lost.
+This results in unexpected behavior where information is lost.
 As a best practice the route should be provided on the operation itself.
 
 #### ❌ Incorrect
