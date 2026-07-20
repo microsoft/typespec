@@ -51,8 +51,11 @@ export interface License {
   /** The license name used for the API. */
   name: string;
 
-  /** A URL to the license used for the API. MUST be in the format of a URL. */
+  /** A URL to the license used for the API. MUST be in the format of a URL. Mutually exclusive with `identifier`. */
   url?: string;
+
+  /** An SPDX license expression for the API. Mutually exclusive with `url`. Only supported in OpenAPI 3.1+. For OpenAPI 3.0, this will be emitted as `x-oai-license-identifier`. */
+  identifier?: string;
 }
 
 /**

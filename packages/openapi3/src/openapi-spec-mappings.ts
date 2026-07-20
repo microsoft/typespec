@@ -102,11 +102,21 @@ function createRoot(
 ): SupportedOpenAPIDocuments {
   const info = resolveInfo(program, serviceType);
 
+  // Handle license identifier: for OpenAPI 3.0, use x-oai-license-identifier extension
+  let processedInfo = info;
+  if (info?.license?.identifier && specVersion === "3.0.0") {
+    const { identifier, ...restLicense } = info.license;
+    processedInfo = {
+      ...info,
+      license: { ...restLicense, "x-oai-license-identifier": identifier } as any,
+    };
+  }
+
   return {
     openapi: specVersion,
     info: {
       title: "(title)",
-      ...info,
+      ...processedInfo,
       version: serviceVersion ?? info?.version ?? "0.0.0",
     },
     externalDocs: getExternalDocs(program, serviceType),
