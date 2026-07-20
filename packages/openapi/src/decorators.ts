@@ -276,7 +276,7 @@ export const $info: InfoDecorator = (
   }
 
   // Validate license: url and identifier are mutually exclusive
-  if (data.license?.url && data.license?.identifier) {
+  if (data.license?.url !== undefined && data.license?.identifier !== undefined) {
     reportDiagnostic(context.program, {
       code: "license-url-identifier-conflict",
       target: context.getArgumentTarget(0)!,
