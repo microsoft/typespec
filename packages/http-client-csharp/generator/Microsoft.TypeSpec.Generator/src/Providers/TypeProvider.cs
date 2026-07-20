@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -51,8 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             nameof(JsonSourceGenerationOptionsAttribute),
             nameof(JsonStringEnumMemberNameAttribute),
             nameof(JsonUnmappedMemberHandlingAttribute),
-            "NullableAttribute",
-            "NullableContextAttribute",
+            nameof(NullableAttribute),
+            nameof(NullableContextAttribute),
         });
 
         protected TypeProvider(InputType? inputType = default)
