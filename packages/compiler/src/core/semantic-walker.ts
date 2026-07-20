@@ -116,6 +116,8 @@ export function navigateTypesInNamespace(
 
 /**
  * Create a Semantic node listener from an event emitter.
+ * Only creates handlers for events that have registered listeners,
+ * allowing the navigation context to skip unlistened events via optional chaining.
  * @param eventEmitter Event emitter.
  * @returns Semantic node listener.
  */
@@ -124,9 +126,11 @@ export function mapEventEmitterToNodeListener(
 ): SemanticNodeListener {
   const listener: SemanticNodeListener = {};
   for (const eventName of eventNames) {
-    listener[eventName] = (...args) => {
-      eventEmitter.emit(eventName, ...(args as [any]));
-    };
+    if (eventEmitter.hasListeners(eventName)) {
+      listener[eventName] = (arg: any) => {
+        return eventEmitter.emitOne(eventName, arg);
+      };
+    }
   }
 
   return listener;
@@ -148,7 +152,7 @@ function createNavigationContext(
 ): NavigationContext {
   return {
     visited: new Set(),
-    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
+    emit: (key, arg) => (listeners as any)[key]?.(arg),
     options: computeOptions(options),
   };
 }
@@ -164,7 +168,7 @@ interface NavigationContext<
 > {
   options: ResolvedNavigationOptions;
   visited: Set<Type>;
-  emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>): ListenerFlow | undefined | void;
+  emit<K extends keyof T>(name: K, arg: Parameters<T[K]>[0]): ListenerFlow | undefined | void;
 }
 
 function navigateNamespaceType(namespace: Namespace, context: NavigationContext) {
@@ -464,13 +468,35 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
     }
   }
 
+  /** Check if any listeners are registered for the given event. */
+  public hasListeners<K extends keyof T>(name: K): boolean {
+    const listeners = this.listeners.get(name);
+    return listeners !== undefined && listeners.length > 0;
+  }
+
   public emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
     const listeners = this.listeners.get(name);
     if (listeners) {
-      for (const listener of listeners) {
-        listener(...(args as any));
+      for (let i = 0; i < listeners.length; i++) {
+        listeners[i](...(args as any));
       }
     }
+  }
+
+  /**
+   * Emit an event with a single argument (optimized hot path avoiding spread).
+   * Returns the first non-undefined ListenerFlow value from any listener.
+   */
+  public emitOne<K extends keyof T>(name: K, arg: any): any {
+    const listeners = this.listeners.get(name);
+    if (listeners) {
+      let result: any;
+      for (let i = 0; i < listeners.length; i++) {
+        result = listeners[i](arg);
+        if (result !== undefined) return result;
+      }
+    }
+    return undefined;
   }
 }
 
