@@ -159,7 +159,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         {
             var nullableContextAttributeType = CreateCompilerServicesAttributeType("NullableContextAttribute");
             var nullableAttributeType = CreateCompilerServicesAttributeType("NullableAttribute");
-            var restorableAttributeType = CreateTestAttributeType("RestorableAttribute");
+            var restorableAttributeType = new CSharpType(
+                name: "RestorableAttribute",
+                ns: "Test",
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: true,
+                isStruct: false);
             var provider = new LastContractAttributeTestTypeProvider(
                 name: "BackCompatAttributeType",
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
@@ -251,17 +259,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             return new CSharpType(type);
         }
-
-        private static CSharpType CreateTestAttributeType(string name)
-            => new(
-                name: name,
-                ns: "Test",
-                isValueType: false,
-                isNullable: false,
-                declaringType: null,
-                args: [],
-                isPublic: true,
-                isStruct: false);
 
         private sealed class LastContractAttributeTestTypeProvider : TestTypeProvider
         {
