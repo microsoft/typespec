@@ -155,6 +155,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public async Task BuildAttributesForBackCompatibilitySkipsCompilerEmittedNullableAttributes()
+        {
+            var nullableContextAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableContextAttribute, System.Private.CoreLib")!);
+            var nullableAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableAttribute, System.Private.CoreLib")!);
+            var restorableAttributeType = new CSharpType("RestorableAttribute", "Test", isValueType: false, isNullable: false, declaringType: null, args: [], isPublic: true, isStruct: false);
+            var provider = new LastContractAttributeTestTypeProvider(
+                name: "BackCompatAttributeType",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                lastContractAttributes:
+                [
+                    new AttributeStatement(nullableContextAttributeType, Snippet.Literal(2)),
+                    new AttributeStatement(nullableAttributeType, Snippet.Literal(0), Snippet.Literal(2)),
+                    new AttributeStatement(restorableAttributeType),
+                ]);
+
+            // The last contract includes compiler-emitted nullability metadata attributes on the type.
+            // Those compiler-reserved attributes should not be restored; only the hand-authored
+            // [Restorable] attribute should flow back through back-compat.
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
+        }
+
+        [Test]
         public async Task BuildAttributesForBackCompatibilityRestoresAttributeWithIntegralLiteralArguments()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -219,6 +243,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 name: name ?? "TestName",
                 declarationModifiers: declarationModifiers ?? (TypeSignatureModifiers.Public | TypeSignatureModifiers.Class),
                 attributes: attributes);
+
+        private sealed class LastContractAttributeTestTypeProvider : TestTypeProvider
+        {
+            private readonly IReadOnlyList<MethodBodyStatement> _lastContractAttributes;
+
+            public LastContractAttributeTestTypeProvider(
+                string name,
+                TypeSignatureModifiers declarationModifiers,
+                IReadOnlyList<MethodBodyStatement> lastContractAttributes)
+                : base(name: name, declarationModifiers: declarationModifiers)
+            {
+                _lastContractAttributes = lastContractAttributes;
+            }
+
+            private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+                => new TestTypeProvider(
+                    name: generatedTypeName ?? Name,
+                    ns: generatedTypeNamespace ?? Type.Namespace,
+                    declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
+                    attributes: _lastContractAttributes);
+        }
 
         [Test]
         public void TestUpdateCanonicalView()

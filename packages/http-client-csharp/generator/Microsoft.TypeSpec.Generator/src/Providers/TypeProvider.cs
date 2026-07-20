@@ -51,6 +51,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             nameof(JsonSourceGenerationOptionsAttribute),
             nameof(JsonStringEnumMemberNameAttribute),
             nameof(JsonUnmappedMemberHandlingAttribute),
+            "NullableAttribute",
+            "NullableContextAttribute",
         });
 
         protected TypeProvider(InputType? inputType = default)
