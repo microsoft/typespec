@@ -105,6 +105,7 @@ abstract class ConvenienceMethodTemplateBase {
             if (!isMethodIncluded(convenienceMethod)) {
                 continue;
             }
+            // getResponseKnownMimeType simply parses a MIME string, so it is reused here for the request content type.
             String requestContentType = convenienceMethod.getProtocolMethod().getProxyMethod().getRequestContentType();
             if (requestContentType != null
                 && SupportedMimeType.getResponseKnownMimeType(List.of(requestContentType)) == SupportedMimeType.XML) {

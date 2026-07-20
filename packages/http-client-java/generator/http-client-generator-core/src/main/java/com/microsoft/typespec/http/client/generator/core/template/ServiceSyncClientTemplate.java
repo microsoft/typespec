@@ -73,7 +73,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
         Templates.getConvenienceSyncMethodTemplate().addImports(imports, syncClient.getConvenienceMethods());
 
-        if (Templates.getConvenienceSyncMethodTemplate().useXmlSerializerMember(syncClient.getConvenienceMethods())) {
+        if (useXmlSerializerMember(syncClient)) {
             imports.add("com.azure.core.util.serializer.ObjectSerializer");
             imports.add(settings.getPackage(settings.getImplementationSubpackage()) + "."
                 + ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME);
@@ -113,7 +113,7 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
         final boolean wrapServiceClient = methodGroupClient == null;
 
         // Add service client member
-        if (Templates.getConvenienceSyncMethodTemplate().useXmlSerializerMember(syncClient.getConvenienceMethods())) {
+        if (useXmlSerializerMember(syncClient)) {
             addGeneratedAnnotation(classBlock);
             classBlock.privateStaticFinalVariable(
                 "ObjectSerializer " + ConvenienceMethodTemplateBase.XML_SERIALIZER_MEMBER_NAME + " = "
@@ -216,6 +216,10 @@ public class ServiceSyncClientTemplate implements IJavaTemplate<AsyncSyncClient,
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
         classBlock.annotation(Annotation.GENERATED.getName());
+    }
+
+    private static boolean useXmlSerializerMember(AsyncSyncClient syncClient) {
+        return Templates.getConvenienceSyncMethodTemplate().useXmlSerializerMember(syncClient.getConvenienceMethods());
     }
 
     private void writeConvenienceMethods(List<ConvenienceMethod> convenienceMethods, JavaClass classBlock) {
