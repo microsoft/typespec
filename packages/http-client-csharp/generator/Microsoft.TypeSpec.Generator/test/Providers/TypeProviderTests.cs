@@ -157,9 +157,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void BuildAttributesForBackCompatibilitySkipsCompilerEmittedNullableAttributes()
         {
-            var nullableContextAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableContextAttribute, System.Private.CoreLib")!);
-            var nullableAttributeType = new CSharpType(Type.GetType("System.Runtime.CompilerServices.NullableAttribute, System.Private.CoreLib")!);
-            var restorableAttributeType = new CSharpType("RestorableAttribute", "Test", isValueType: false, isNullable: false, declaringType: null, args: [], isPublic: true, isStruct: false);
+            var nullableContextAttributeType = CreateCompilerServicesAttributeType("NullableContextAttribute");
+            var nullableAttributeType = CreateCompilerServicesAttributeType("NullableAttribute");
+            var restorableAttributeType = CreateTestAttributeType("RestorableAttribute");
             var provider = new LastContractAttributeTestTypeProvider(
                 name: "BackCompatAttributeType",
                 declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
@@ -243,6 +243,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 name: name ?? "TestName",
                 declarationModifiers: declarationModifiers ?? (TypeSignatureModifiers.Public | TypeSignatureModifiers.Class),
                 attributes: attributes);
+
+        private static CSharpType CreateCompilerServicesAttributeType(string name)
+        {
+            var type = typeof(System.Runtime.CompilerServices.ExtensionAttribute).Assembly.GetType($"System.Runtime.CompilerServices.{name}")
+                ?? throw new InvalidOperationException($"Could not resolve compiler services attribute type '{name}'.");
+
+            return new CSharpType(type);
+        }
+
+        private static CSharpType CreateTestAttributeType(string name)
+            => new(name, "Test", isValueType: false, isNullable: false, declaringType: null, args: [], isPublic: true, isStruct: false);
 
         private sealed class LastContractAttributeTestTypeProvider : TestTypeProvider
         {
