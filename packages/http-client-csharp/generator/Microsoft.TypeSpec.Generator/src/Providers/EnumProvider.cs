@@ -67,11 +67,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
-        private protected static string GetBackCompatibleName(
+        private HashSet<string>? _customMemberNames;
+        // Names of members already implemented in custom code. Combines custom properties (used by
+        // extensible enums) and custom fields (used by fixed enums) so the same guard works for both.
+        private HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
+            (CustomCodeView?.Properties.Select(p => p.Name) ?? [])
+                .Concat(CustomCodeView?.Fields.Select(f => f.Name) ?? []),
+            StringComparer.OrdinalIgnoreCase);
+
+        private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
-            IReadOnlyList<string> lastContractNames,
-            IReadOnlyCollection<string>? customMemberNames = null)
+            IReadOnlyList<string> lastContractNames)
         {
             if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
             {
@@ -98,9 +105,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // If restoring the underscore-preserved name would collide with a member that already
             // exists in custom code, keep the generated name so the custom member is preserved
             // rather than duplicated or removed.
-            if (customMemberNames != null
-                && !backCompatName.Equals(generatedName, StringComparison.Ordinal)
-                && customMemberNames.Contains(backCompatName))
+            if (!backCompatName.Equals(generatedName, StringComparison.Ordinal)
+                && CustomMemberNames.Contains(backCompatName))
             {
                 return generatedName;
             }

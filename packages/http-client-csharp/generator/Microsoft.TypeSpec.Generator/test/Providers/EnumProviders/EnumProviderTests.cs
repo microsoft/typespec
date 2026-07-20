@@ -866,10 +866,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             // The generated member keeps its non-underscore name so the custom 'Existing_Value'
             // member (which references the generated 'ExistingValue') is preserved.
-            Assert.AreEqual("ExistingValueValue", enumType.Fields[1].Name);
-            Assert.AreEqual("OtherValue", enumType.Fields[2].Name);
-            Assert.AreEqual("ExistingValue", enumType.Properties[0].Name);
-            Assert.AreEqual("Other", enumType.Properties[1].Name);
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // Verifies that back-compat does NOT re-introduce enum values that have been suppressed
