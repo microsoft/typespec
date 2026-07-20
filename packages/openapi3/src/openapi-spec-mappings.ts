@@ -104,7 +104,7 @@ function createRoot(
 
   // Handle license identifier: for OpenAPI 3.0, use x-oai-license-identifier extension
   let processedInfo = info;
-  if (info?.license?.identifier && specVersion === "3.0.0") {
+  if (info?.license?.identifier !== undefined && specVersion === "3.0.0") {
     const { identifier, ...restLicense } = info.license;
     processedInfo = {
       ...info,
