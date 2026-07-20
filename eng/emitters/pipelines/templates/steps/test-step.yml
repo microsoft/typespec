@@ -53,6 +53,12 @@ steps:
 
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
+  - ${{ if eq(parameters.LanguageShortName, 'python') }}:
+    - template: /eng/common/pipelines/templates/steps/auth-dev-feed.yml
+
+  - ${{ if eq(parameters.LanguageShortName, 'java') }}:
+    - template: /eng/common/pipelines/templates/steps/maven-authenticate.yml
+
   - download: current
     artifact: ${{ parameters.BuildArtifactName }}
     displayName: Download build artifacts
