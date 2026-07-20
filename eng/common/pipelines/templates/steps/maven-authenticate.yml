@@ -7,11 +7,11 @@ steps:
       $m2Dir = if ($env:USERPROFILE) { "$env:USERPROFILE\.m2" } else { "$HOME/.m2" }
       New-Item -ItemType Directory -Force -Path $m2Dir | Out-Null
       Copy-Item -Path "${{ parameters.SourceDirectory }}/eng/settings.xml" -Destination "$m2Dir/settings.xml"
-    displayName: 'Setup Maven mirror settings'
+    displayName: "Setup Maven mirror settings"
 
   # Authenticate with Azure Artifacts feeds
   # MavenAuthenticate adds <server> entries to ~/.m2/settings.xml matching mirror id 'azure-sdk-for-java'
   - task: MavenAuthenticate@0
-    displayName: 'Maven Authenticate'
+    displayName: "Maven Authenticate"
     inputs:
-      artifactsFeeds: 'azure-sdk-for-java'
+      artifactsFeeds: "azure-sdk-for-java"

@@ -37,6 +37,6 @@ steps:
     retryCountOnTaskFailure: 3
 
   - ${{ if parameters.useDotNet }}:
-      - script: dotnet restore
+      - script: dotnet restore --configfile "$(Build.SourcesDirectory)/NuGet.Config"
         displayName: Restore .NET Dependencies
         workingDirectory: packages/typespec-vs
