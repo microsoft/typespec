@@ -176,6 +176,13 @@ const sidebar: SidebarItem[] = [
         ["emitters/protobuf/guide"],
         "preview",
       ),
+      createLibraryReferenceStructure(
+        "emitters/graphql",
+        "GraphQL",
+        false,
+        ["emitters/graphql/guide"],
+        "preview",
+      ),
       {
         label: "Clients",
         items: [

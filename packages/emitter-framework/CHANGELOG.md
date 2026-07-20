@@ -1,5 +1,12 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.19.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
 ## 0.18.0
 
 ### Features
@@ -22,13 +29,11 @@
 
 - [#9879](https://github.com/microsoft/typespec/pull/9879) Add the missing export in index for extensible-enum in csharp
 
-
 ## 0.16.0
 
 ### Bump dependencies
 
 - [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
-
 
 ## 0.15.0
 
@@ -41,7 +46,6 @@
 
 - [#9202](https://github.com/microsoft/typespec/pull/9202) Update to alloy 0.22
 - [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
-
 
 ## 0.14.0
 

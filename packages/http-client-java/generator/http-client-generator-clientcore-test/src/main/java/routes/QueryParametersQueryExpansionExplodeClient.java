@@ -25,7 +25,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -38,7 +38,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -55,7 +55,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -69,7 +69,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,7 +86,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +100,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,7 +117,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -127,5 +127,36 @@ public final class QueryParametersQueryExpansionExplodeClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void record(Map<String, Integer> param) {
         recordWithResponse(param, RequestContext.none());
+    }
+
+    /**
+     * The model operation.
+     *
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> modelWithResponse(ExpandParameters param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryExpansion.Explode.model",
+            requestContext, updatedContext -> this.serviceClient.modelWithResponse(param, updatedContext));
+    }
+
+    /**
+     * The model operation.
+     *
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void model(ExpandParameters param) {
+        modelWithResponse(param, RequestContext.none());
     }
 }

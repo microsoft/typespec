@@ -102,6 +102,9 @@ catalogs:
     '@octokit/plugin-rest-endpoint-methods':
       specifier: ^17.0.0
       version: 17.0.0
+    '@pinterest/alloy-graphql':
+      specifier: ^1.1.0
+      version: 1.1.0
     '@playwright/test':
       specifier: ^1.60.0
       version: 1.61.0
@@ -294,6 +297,9 @@ catalogs:
     fast-xml-parser:
       specifier: ^5.7.0
       version: 5.9.3
+    graphql:
+      specifier: ^17.0.0-alpha.9
+      version: 17.0.2
     happy-dom:
       specifier: ^20.9.0
       version: 20.10.6
@@ -402,9 +408,6 @@ catalogs:
     simple-git:
       specifier: ^3.36.0
       version: 3.36.0
-    source-map-support:
-      specifier: ^0.5.21
-      version: 0.5.21
     storybook:
       specifier: ^10.3.5
       version: 10.4.6
@@ -839,9 +842,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       tmlanguage-generator:
         specifier: workspace:^
         version: link:../tmlanguage-generator
@@ -939,6 +939,58 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.9(vitest@4.1.9)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+
+  packages/graphql:
+    dependencies:
+      '@alloy-js/core':
+        specifier: 'catalog:'
+        version: 0.24.1
+      '@alloy-js/typescript':
+        specifier: 'catalog:'
+        version: 0.24.0
+      '@pinterest/alloy-graphql':
+        specifier: 'catalog:'
+        version: 1.1.0
+      change-case:
+        specifier: 'catalog:'
+        version: 5.4.4
+      graphql:
+        specifier: 'catalog:'
+        version: 17.0.2
+    devDependencies:
+      '@alloy-js/cli':
+        specifier: 'catalog:'
+        version: 0.24.0
+      '@alloy-js/rollup-plugin':
+        specifier: 'catalog:'
+        version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.0.0
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/emitter-framework':
+        specifier: workspace:~
+        version: link:../emitter-framework
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/mutator-framework':
+        specifier: workspace:~
+        version: link:../mutator-framework
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1763,9 +1815,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1929,6 +1978,9 @@ importers:
       '@typespec/events':
         specifier: workspace:^
         version: link:../events
+      '@typespec/graphql':
+        specifier: workspace:^
+        version: link:../graphql
       '@typespec/html-program-viewer':
         specifier: workspace:^
         version: link:../html-program-viewer
@@ -2419,9 +2471,6 @@ importers:
       picocolors:
         specifier: 'catalog:'
         version: 1.1.1
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -2703,9 +2752,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -5885,6 +5931,9 @@ packages:
     resolution: {integrity: sha512-Fa2Iyw7kaDRzGMfNYNUXNW2zbL5FQVDgSOcbDHdzBrDEdpqOqg8TcZ68F22ol6NJ9IGzvUdmeyZypLW5dyhqsg==}
     cpu: [x64]
     os: [win32]
+
+  '@pinterest/alloy-graphql@1.1.0':
+    resolution: {integrity: sha512-4HDWyHC51xl3FguYJSzwda3Lr/JxjxDM9Hr62OZ4JEQ3o/bYXd3blfbvvDtTcEvi6u23qYocgFR1jQLpvIwy2A==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -9080,10 +9129,6 @@ packages:
     resolution: {integrity: sha512-DPi0FmjiSU5EvQV0++GFDOJ9ASQUVFh5kD+OzOnYdi7n3Wpm9hWWGfB/O2blfHcMVTL5WkQXSnRiK9makhrcnw==}
     engines: {node: '>=0.3.1'}
 
-  diff@9.0.0:
-    resolution: {integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==}
-    engines: {node: '>=0.3.1'}
-
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -9751,6 +9796,10 @@ packages:
 
   grapheme-splitter@1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
+
+  graphql@17.0.2:
+    resolution: {integrity: sha512-FRWbddMxfkjiB7z+aQDWIR+E34xo9I8c9mtK2RPv8PmMzKRvrdsreHL/Ui/TmwHJfhHChEtsFPyMHKI+xuarQQ==}
+    engines: {node: ^22.0.0 || ^24.0.0 || ^25.0.0 || >=26.0.0}
 
   gray-matter@4.0.3:
     resolution: {integrity: sha512-5v6yZd4JK3eMI3FqqCouswVqwugaA9r4dNZB1wwcmrD02QkV5H0y7XBQW8QwQqEaZY1pM9aqORSORhJRdNK44Q==}
@@ -16950,7 +16999,7 @@ snapshots:
       '@rushstack/rig-package': 0.7.3
       '@rushstack/terminal': 0.24.0(@types/node@26.0.0)
       '@rushstack/ts-command-line': 5.3.10(@types/node@26.0.0)
-      diff: 9.0.0
+      diff: 8.0.4
       minimatch: 10.2.3
       resolve: 1.22.12
       semver: 7.7.4
@@ -17523,6 +17572,16 @@ snapshots:
 
   '@pagefind/windows-x64@1.5.2':
     optional: true
+
+  '@pinterest/alloy-graphql@1.1.0':
+    dependencies:
+      '@alloy-js/core': 0.24.1
+      graphql: 17.0.2
+      pathe: 2.0.3
+      pluralize: 8.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -21668,8 +21727,6 @@ snapshots:
 
   diff@8.0.4: {}
 
-  diff@9.0.0: {}
-
   dir-glob@3.0.1:
     dependencies:
       path-type: 4.0.0
@@ -22485,6 +22542,8 @@ snapshots:
       '@esfx/disposable': 1.0.0
 
   grapheme-splitter@1.0.4: {}
+
+  graphql@17.0.2: {}
 
   gray-matter@4.0.3:
     dependencies:

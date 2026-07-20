@@ -15,7 +15,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class PipelineRequestHeadersExtensionsDefinition : TypeProvider
+    internal class PipelineRequestHeadersExtensionsDefinition : InternalHelperProvider
     {
         private const string _setDelimited = "SetDelimited";
         private const string _addWithPrefix = "Add";
@@ -25,11 +25,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipelineRequestHeadersParam = new ParameterProvider("headers", FormattableStringHelpers.Empty, typeof(PipelineRequestHeaders));
         }
         private readonly CSharpType _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "PipelineRequestHeadersExtensions";
