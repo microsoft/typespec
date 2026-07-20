@@ -56,3 +56,37 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 # Add feature or fix bug
 
 - Run `npm run format` and commit the formatted code before finalizing. Do not include any other changes in the commit.
+- Add a changelog entry: `pnpm change add @typespec/http-client-java --kind=<feature|fix> --message="<change-summary>"` (use `feature` for new features, `fix` for bug fixes). Commit the new md file in the ".chronus" folder of the repository root.
+
+# Modify the code generator (emitter + generator e2e loop)
+
+Use this workflow when a change requires modifying how client code is generated (not just adding tests).
+
+The code generator has two connected parts, linked by a `code-model.yaml`:
+
+- `emitter/` — TypeScript. Consumes the TypeSpec compiler output and produces `code-model.yaml`.
+- `generator/` — Java. Consumes `code-model.yaml` and emits the Java client source.
+
+After a compile, inspect `tsp-output/**/code-model.yaml` in the test module to see what the emitter passed to the generator.
+
+## Edit → update emitter → test loop
+
+1. Make the emitter (TypeScript) and/or generator (Java) changes.
+2. Ensure the generator compiles: `mvn clean install --define spotless:skip -DskipTests --no-transfer-progress -T 1C -f ./generator/pom.xml` (from `<repository-root>/packages/http-client-java`).
+3. Ensure the emitter builds: `npm run build:emitter`.
+4. Format Java with `mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml` and TypeScript via `npm run format`.
+5. Run `pwsh Setup.ps1` in `generator/http-client-generator-test`. This packs the emitter (bundling the freshly built generator jar) and installs it into the test module. Re-run it after every generator/emitter change you want reflected in generation.
+6. Regenerate by compiling a spec. Do NOT hardcode the TypeSpec file name — it varies per feature, and sometimes you must author a new `<scenario>/main.tsp` first. The test module's `tspconfig.yaml` already configures the emitter and its output dir, so a plain compile is enough; output goes to `tsp-output/`:
+   `npx tsp compile <path-to-tsp>`
+   (Optionally add `--option "@typespec/http-client-java.emitter-output-dir=$PWD/tsp-output/<name>"` to isolate output into a subfolder for an easier diff.)
+7. Verify the generated code under `tsp-output/**/src` is as expected. When the spec corresponds to sources tracked in `src/main/java`, compare against them and, if correct, copy the generated files into `src` (replacing existing files) but EXCLUDE `module-info.java`. Some specs do not map to `src` — in that case just verify the output, without comparing or copying.
+8. When the spec maps to `src` and you copied the generated code in, run the tests (`mvn test`, or a targeted `"-Dtest=<pkg>.<Class>"`). Restart the Spector server if needed (`npm run spector-stop` then `npm run spector-start`). If the spec does not map to `src`, verifying the generated output (step 7) is sufficient.
+
+## Emitting static helper classes from resource templates
+
+Some helpers are shipped verbatim as resource templates rather than built up in code:
+
+- `generator/http-client-generator/src/main/java/.../TypeSpecPlugin.java` — `writeHelperClasses(...)` emits per-client helper classes into the implementation subpackage via `JavaPackage.addJavaFromResources(packageName, resourceName[, fileName])`.
+- Resource templates live under `generator/http-client-generator-core/src/main/resources/*.java` and must START with `import` statements — do NOT include a `package` line or the license header. The file factory injects the license header, the `package` statement, and reorders imports. The class name must match the resource/file name.
+- Class-name constants live in `generator/http-client-generator-core/src/main/java/.../util/ClientModelUtil.java`.
+
