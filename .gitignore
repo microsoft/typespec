@@ -243,3 +243,6 @@ packages/http-client-python/tests/.wheels/
 
 # Turborepo
 .turbo
+
+# agents
+.claude/settings.local.json

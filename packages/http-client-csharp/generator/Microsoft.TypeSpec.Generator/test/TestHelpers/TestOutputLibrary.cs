@@ -14,11 +14,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
             _types = [typeProvider];
         }
 
-        public TestOutputLibrary(params TypeProvider[] typeProviders)
-        {
-            _types = typeProviders;
-        }
-
         protected override TypeProvider[] BuildTypeProviders() => _types;
     }
 }

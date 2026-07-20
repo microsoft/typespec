@@ -31,8 +31,8 @@ namespace Microsoft.TypeSpec.Generator
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
-            // Resolve PackageReference items from the .csproj so custom code referencing external
-            // NuGet types compiles correctly.
+            // Resolve PackageReference items from the .csproj so custom code referencing
+            // external NuGet types (e.g., Azure.Storage.Common) compiles correctly.
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
             // Pre-walk the input library and resolve any external types that point at NuGet packages.
@@ -90,69 +90,36 @@ namespace Microsoft.TypeSpec.Generator
             {
                 // Ensure back-compatibility processing is done after all visitors have run
                 outputType.ProcessTypeForBackCompatibility();
-            }
 
-            try
-            {
-                using var referenceMapSession = ProviderReferenceMapAnalyzer.PrepareForGeneration(output.TypeProviders);
-                foreach (var outputType in output.TypeProviders)
+                var writer = CodeModelGenerator.Instance.GetWriter(outputType);
+                generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
+
+                foreach (var serialization in outputType.SerializationProviders)
                 {
-                    if (!referenceMapSession.ShouldWriteProvider(outputType))
-                    {
-                        continue;
-                    }
-
-                    if (outputType is ModelFactoryProvider && outputType.Methods.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var writer = CodeModelGenerator.Instance.GetWriter(outputType);
+                    writer = CodeModelGenerator.Instance.GetWriter(serialization);
                     generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
-
-                    foreach (var serialization in outputType.SerializationProviders)
-                    {
-                        if (!referenceMapSession.ShouldWriteProvider(serialization))
-                        {
-                            continue;
-                        }
-
-                        writer = CodeModelGenerator.Instance.GetWriter(serialization);
-                        generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
-                    }
                 }
-
-                // Add all the generated files to the workspace
-                await Task.WhenAll(generateFilesTasks);
-
-                referenceMapSession.RestorePreWriteModelFactoryMethods();
-
-                LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
-
-                // Delete any old generated files
-                DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
-
-                LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
-            }
-            finally
-            {
-                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
             }
 
-            var generatedFiles = new List<(string Name, string Text)>();
+            // Add all the generated files to the workspace
+            await Task.WhenAll(generateFilesTasks);
+
+            LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
+
+            // Delete any old generated files
+            DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+
+            LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
+
+            await generatedCodeWorkspace.PostProcessAsync();
+
+            // Write the generated files to the output directory
             await foreach (var file in generatedCodeWorkspace.GetGeneratedFilesAsync())
             {
                 if (string.IsNullOrEmpty(file.Text))
                 {
                     continue;
                 }
-
-                generatedFiles.Add((file.Name, file.Text));
-            }
-
-            // Write the generated files to the output directory
-            foreach (var file in generatedFiles)
-            {
                 var filename = Path.Combine(outputPath, file.Name);
                 CodeModelGenerator.Instance.Emitter.Info($"Writing {Path.GetFullPath(filename)}");
                 Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
@@ -173,30 +140,15 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static void FilterAllCustomizedMembers(OutputLibrary output)
         {
-            var visited = new HashSet<TypeProvider>();
             foreach (var typeProvider in output.TypeProviders)
             {
-                FilterAllCustomizedMembers(typeProvider, visited);
-            }
-        }
-
-        private static void FilterAllCustomizedMembers(TypeProvider typeProvider, HashSet<TypeProvider> visited)
-        {
-            if (!visited.Add(typeProvider))
-            {
-                return;
-            }
-
-            // Update the type with the potentially modified members, filtering out customized members
-            // after the visitors have been applied so that the filtering is done against the final version.
-            FilterCustomizedMembers(typeProvider);
-            foreach (var serializationProvider in typeProvider.SerializationProviders)
-            {
-                FilterAllCustomizedMembers(serializationProvider, visited);
-            }
-            foreach (var nestedType in typeProvider.NestedTypes)
-            {
-                FilterAllCustomizedMembers(nestedType, visited);
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                FilterCustomizedMembers(typeProvider);
+                foreach (var serializationProvider in typeProvider.SerializationProviders)
+                {
+                    FilterCustomizedMembers(serializationProvider);
+                }
             }
         }
 
@@ -225,10 +177,9 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            var fileNamesToKeep = filesToKeep.ToHashSet(StringComparer.Ordinal);
             foreach (var file in directoryInfo.GetFiles("*", SearchOption.AllDirectories))
             {
-                if (!fileNamesToKeep.Contains(file.Name))
+                if (!filesToKeep.Contains(file.Name))
                 {
                     file.Delete();
                 }
