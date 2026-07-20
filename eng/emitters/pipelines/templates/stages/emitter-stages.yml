@@ -329,14 +329,9 @@ stages:
               - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
               # publish to devops feed
-              - pwsh: |
-                  $packageFiles = Get-ChildItem -Path . -Filter '*.tgz'
-                  foreach ($file in $packageFiles.Name) {
-                    Write-Host "npm publish $file --verbose --access public"
-                    npm publish $file --verbose --access public
-                  }
-                displayName: Publish to DevOps feed
-                workingDirectory: $(buildArtifactsPath)/packages
+              - template: /eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml
+                parameters:
+                  PackagesPath: $(buildArtifactsPath)/packages
 
               # If publishing publicly, also publish to npmjs.org
               - ${{ if eq(parameters.Publish, 'public') }}:

@@ -21,8 +21,23 @@ When specified, builds the management plane emitter locally and regenerates mgmt
 Path to the build artifacts directory containing the published .tgz and .nupkg files. Required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified.
 .PARAMETER PipelineRunUrl
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
+.PARAMETER Phase
+Which phase of the flow to run. The publish pipeline drives these as discrete, independently-failing steps that share a single on-disk checkout:
+  - Prepare:          Clone azure-sdk-for-net, update the generator version, regenerate the unbranded test projects and emitter-package.json artifacts.
+  - BuildGenerators: Build and pack the Azure (and mgmt) generator from the published unbranded generator artifact, stamping the next available feed version and pinning the emitter artifacts to it. The packed packages are published to the ADO feed by the pipeline via the shared publish template (/eng/emitters/pipelines/templates/steps/publish-to-devops-feed.yml).
+  - Regenerate:       Regenerate the SDK libraries and open the azure-sdk-for-net PR.
+Defaults to 'All', which runs every phase in a single invocation (used for local, non-pipeline runs).
+.PARAMETER WorkingDirectory
+The azure-sdk-for-net checkout directory shared across phases. When omitted (typically for the 'All' phase), a unique temp directory is created and cleaned up automatically.
+.PARAMETER DebugFolder
+The directory holding the packed generator packages and NuGet packages shared between the BuildGenerators and Regenerate phases. When omitted, a unique temp directory is derived from WorkingDirectory.
 .PARAMETER BuildReason
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
+
+.PARAMETER PublishGeneratorPackages
+When specified, enable feed-version stamping for the Azure/mgmt generator packages so the pipeline can
+publish them and pin emitter artifacts to restorable feed versions. Local runs leave this off by default
+so regen continues to use local `file:` package references unless explicitly opted in.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -60,6 +75,19 @@ param(
   [switch]$UseTypeSpecNext,
 
   [Parameter(Mandatory = $false)]
+  [switch]$PublishGeneratorPackages,
+
+  [Parameter(Mandatory = $false)]
+  [ValidateSet('All', 'Prepare', 'BuildGenerators', 'Regenerate')]
+  [string]$Phase = 'All',
+
+  [Parameter(Mandatory = $false)]
+  [string]$WorkingDirectory,
+
+  [Parameter(Mandatory = $false)]
+  [string]$DebugFolder,
+
+  [Parameter(Mandatory = $false)]
   [string]$BuildReason
 )
 
@@ -88,6 +116,32 @@ function Register-StepFailure {
 Import-Module (Join-Path $PSScriptRoot "Generation.psm1") -DisableNameChecking -Force
 # Import RegenPreview module for Update-AzureGenerator and Update-MgmtGenerator
 Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking -Force
+
+# The locally built Azure/mgmt generator packages are published to the ADO feed by the pipeline via
+# the shared publish template (see publish.yml). This script only stamps the next available feed
+# version onto the packed packages and pins the regenerated emitter-package.json artifacts to it, so
+# CI can restore the emitter dependencies in the resulting azure-sdk-for-net PR. Resolve the registry
+# and authenticated .npmrc used to query the feed for the next available version.
+$PublishRegistry = $null
+$PublishNpmrcPath = $null
+# Feed-version stamping is only needed for the CI publish flow, and only when Azure and/or mgmt
+# regeneration was requested. Local runs keep using file-based package references unless they
+# explicitly opt into the CI-style publish behavior with -PublishGeneratorPackages.
+if ($PublishGeneratorPackages -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
+    $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+    $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"
+    if (-not (Test-Path $resolvedPublishNpmrc)) {
+        throw "Expected an authenticated .npmrc at '$resolvedPublishNpmrc' to query and publish generator packages to $PublishRegistry, but none was found. The pipeline must create and authenticate this file before running the generator regeneration phases."
+    }
+    $PublishNpmrcPath = (Resolve-Path $resolvedPublishNpmrc).Path
+    Write-Host "Generator packages will be published to $PublishRegistry using .npmrc at $PublishNpmrcPath"
+}
+
+# The publish pipeline drives this script as three discrete, independently-failing steps that share a
+# single on-disk azure-sdk-for-net checkout (see publish.yml). Resolve which phases this invocation runs.
+$runPrepare = $Phase -in @('All', 'Prepare')
+$runBuildGenerators = $Phase -in @('All', 'BuildGenerators')
+$runRegenerate = $Phase -in @('All', 'Regenerate')
 
 # Set up variables for the PR
 $RepoOwner = "Azure"
@@ -152,22 +206,49 @@ Write-Host "Creating PR in $RepoOwner/$RepoName"
 Write-Host "Branch: $PRBranch"
 Write-Host "Title: $PRTitle"
 
-# Create temp folder for repo
-$tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-Write-Host "Created temp directory: $tempDir"
+# Resolve the shared checkout directory. The publish pipeline passes an explicit, deterministic
+# -WorkingDirectory so the Prepare / BuildGenerators / Regenerate steps operate on the same on-disk
+# checkout. For a single 'All' invocation (e.g. local runs) fall back to a unique temp directory.
+if ($WorkingDirectory) {
+    $tempDir = $WorkingDirectory
+} else {
+    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "azure-sdk-for-net-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+}
+
+# The debug folder holds the packed generator + NuGet packages shared between the BuildGenerators and
+# Regenerate phases. Derive a deterministic default from the checkout so both phases agree.
+if (-not $DebugFolder) {
+    $DebugFolder = Join-Path $tempDir ".generator-packages"
+}
+
+if ($runPrepare) {
+    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+    Write-Host "Created temp directory: $tempDir"
+} elseif (-not (Test-Path $tempDir)) {
+    throw "Working directory '$tempDir' does not exist. The Prepare phase must run before the '$Phase' phase."
+}
+
+# Derived paths shared across phases (each phase may run in a separate process, so compute these from
+# $tempDir rather than relying on state set by an earlier phase).
+$propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
+$packageJsonPath = Join-Path $tempDir "eng/packages/http-client-csharp/package.json"
+$httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
+
+# Whether the unbranded npm install/build succeeded during Prepare. In a split pipeline run the
+# Regenerate phase only runs when the Prepare step succeeded (the pipeline fails otherwise), so default
+# to true; the 'All' path updates this in the Prepare section below. The Prepare phase persists the
+# resolved value to a sibling state file so the later phase processes can honor the same gating.
+$installSucceeded = $true
+$prepareStateFile = "$tempDir.prepare-state.json"
+if (-not $runPrepare -and (Test-Path $prepareStateFile)) {
+    try {
+        $installSucceeded = [bool]((Get-Content $prepareStateFile -Raw | ConvertFrom-Json).InstallSucceeded)
+    } catch {
+        Write-Warning "Failed to read Prepare state from ${prepareStateFile}: $($_.Exception.Message). Assuming install succeeded."
+    }
+}
 
 try {
-    # Use sparse checkout to clone only the necessary files
-    # This significantly reduces disk space usage as azure-sdk-for-net is a very large repository
-    Write-Host "Setting up sparse checkout for azure-sdk-for-net repository..."
-    
-    # Initialize empty git repository
-    git init $tempDir
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to initialize repository"
-    }
-    
     Push-Location $tempDir
 
     # Set the authentication token for gh CLI early so that scripts invoked
@@ -178,51 +259,64 @@ try {
     # Configure git user for commits in this repository
     git config user.name "azure-sdk"
     git config user.email "azuresdk@microsoft.com"
-    
-    # Add the remote
-    git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to add remote"
-    }
-    
-    # Enable sparse checkout with cone mode for better performance
-    git sparse-checkout init --cone
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to initialize sparse checkout"
-    }
-    
-    # Set the sparse checkout patterns - only the directories we need
-    # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
-    # Note: 'doc/GeneratorVersions' is needed for regenerating the emitter version dashboard
-    git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src doc/GeneratorVersions
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to set sparse checkout patterns"
-    }
-    
-    # Fetch only the main branch with depth 1
-    Write-Host "Fetching $BaseBranch branch with sparse checkout..."
-    git fetch --depth 1 origin $BaseBranch
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to fetch repository"
-    }
-    
-    # Checkout the fetched branch
-    git checkout $BaseBranch
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to checkout $BaseBranch"
+
+    if ($runPrepare) {
+        # Use sparse checkout to clone only the necessary files
+        # This significantly reduces disk space usage as azure-sdk-for-net is a very large repository
+        Write-Host "Setting up sparse checkout for azure-sdk-for-net repository..."
+
+        # Initialize empty git repository
+        git init $tempDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to initialize repository"
+        }
+
+        # Add the remote
+        git remote add origin "https://github.com/$RepoOwner/$RepoName.git"
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to add remote"
+        }
+
+        # Enable sparse checkout with cone mode for better performance
+        git sparse-checkout init --cone
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to initialize sparse checkout"
+        }
+
+        # Set the sparse checkout patterns - only the directories we need
+        # Note: 'eng' covers eng/packages/http-client-csharp, eng/packages/http-client-csharp-mgmt, and all eng/ artifacts
+        # Note: 'doc/GeneratorVersions' is needed for regenerating the emitter version dashboard
+        git sparse-checkout set eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src doc/GeneratorVersions
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to set sparse checkout patterns"
+        }
+
+        # Fetch only the main branch with depth 1
+        Write-Host "Fetching $BaseBranch branch with sparse checkout..."
+        git fetch --depth 1 origin $BaseBranch
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to fetch repository"
+        }
+
+        # Checkout the fetched branch
+        git checkout $BaseBranch
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to checkout $BaseBranch"
+        }
+
+        # Create a new branch
+        Write-Host "Creating branch $PRBranch..."
+        git checkout -b $PRBranch
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create branch"
+        }
     }
 
-    # Create a new branch
-    Write-Host "Creating branch $PRBranch..."
-    git checkout -b $PRBranch
-    if ($LASTEXITCODE -ne 0) {
-        throw "Failed to create branch"
-    }
-
+    if ($runPrepare) {
     # Update the dependency in eng/centralpackagemanagement/Directory.Generation.Packages.props
+    # ($propsFilePath, $packageJsonPath and $httpClientDir are computed once above and shared across phases.)
     Write-Host "Updating dependency version in eng/centralpackagemanagement/Directory.Generation.Packages.props..."
-    $propsFilePath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
-    
+
     if (-not (Test-Path $propsFilePath)) {
         throw "eng/centralpackagemanagement/Directory.Generation.Packages.props not found in the repository"
     }
@@ -248,8 +342,7 @@ try {
 
     # Update the dependency in eng/packages/http-client-csharp/package.json
     Write-Host "Updating dependency version in eng/packages/http-client-csharp/package.json..."
-    $packageJsonPath = Join-Path $tempDir "eng/packages/http-client-csharp/package.json"
-    
+
     if (-not (Test-Path $packageJsonPath)) {
         throw "eng/packages/http-client-csharp/package.json not found in the repository"
     }
@@ -277,9 +370,8 @@ try {
     # Only run expensive operations if we actually made updates
     $installSucceeded = $true
     if ($packageJsonUpdated) {
-        # Run npm install in the http-client-csharp directory
+        # Run npm install in the http-client-csharp directory ($httpClientDir is shared, computed above)
         Write-Host "##[section]Running npm install in eng/packages/http-client-csharp..."
-        $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
 
         # Update TypeSpec dependencies to @next versions in the Azure emitter package.json
         if ($UseTypeSpecNext) {
@@ -451,133 +543,147 @@ try {
     } else {
         Write-Warning "TypeSpecSourcePackageJsonPath not provided or file doesn't exist. Skipping emitter-package.json generation."
     }
-    
-    # Regenerate all SDK libraries that use the unbranded emitter
-    if ($installSucceeded) {
+
+    # Persist the resolved install state so the later BuildGenerators / Regenerate phases (which may
+    # run as separate processes) honor the same gating as a single 'All' invocation.
+    @{ InstallSucceeded = $installSucceeded } | ConvertTo-Json | Set-Content $prepareStateFile -Encoding utf8
+    } # end if ($runPrepare)
+
+    # BuildGenerators phase: build and pack the Azure (and mgmt) generator from the published
+    # unbranded generator artifact, stamping the next available feed version and pinning the emitter
+    # artifacts to it. This runs as a discrete, fail-hard pipeline step (see publish.yml) so any build
+    # failure fails the pipeline instead of silently producing an unrestorable PR. The packed packages
+    # are published to the ADO feed by the pipeline via the shared publish template.
+    if ($runBuildGenerators -and $installSucceeded -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
+        $regenScope = @()
+        if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
+        if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
+        Write-Host "##[section]Building generators for: $($regenScope -join ', ')..."
+
+        # Locate the unbranded .tgz and .nupkg files from build artifacts
+        if (-not $BuildArtifactsPath -or -not (Test-Path $BuildArtifactsPath)) {
+            throw "BuildArtifactsPath is required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified. Path: $BuildArtifactsPath"
+        }
+
+        New-Item -ItemType Directory -Path $DebugFolder -Force | Out-Null
+
+        # Find unbranded .tgz from build artifacts
+        $unbrandedTgz = Get-ChildItem -Path $BuildArtifactsPath -Filter "typespec-http-client-csharp-*.tgz" -Recurse | Select-Object -First 1
+        if (-not $unbrandedTgz) {
+            throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
+        }
+        $unbrandedPackagePath = Join-Path $DebugFolder $unbrandedTgz.Name
+        Copy-Item $unbrandedTgz.FullName -Destination $unbrandedPackagePath -Force
+        Write-Host "Copied unbranded package to debug folder: $unbrandedPackagePath"
+
+        # Copy .nupkg files from build artifacts to debug folder
+        $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse
+        foreach ($nupkg in $nupkgFiles) {
+            Copy-Item $nupkg.FullName -Destination $DebugFolder -Force
+            Write-Host "Copied NuGet package: $($nupkg.Name)"
+        }
+
+        # Build and package Azure generator (needed for both Azure data plane and mgmt).
+        # The Azure generator lives in the same eng/packages/http-client-csharp folder as $httpClientDir,
+        # and the generation props file is the shared $propsFilePath.
+        $azureGeneratorPath = $httpClientDir
+        $packagesDataPropsPath = $propsFilePath
+        $engFolder = Join-Path $tempDir "eng"
+
+        Write-Host "##[section]Building Azure generator..."
+        # When publishing, query the ADO feed for the next available version to stamp the Azure
+        # emitter package with, following the existing "<base>-alpha.<yyyyMMdd>.<n>" format.
+        $azurePublishVersion = $null
+        if ($PublishRegistry) {
+            $azureBaseVersion = ((Get-Content (Join-Path $azureGeneratorPath "package.json") -Raw | ConvertFrom-Json).version -split '-')[0]
+            $azurePublishVersion = Get-NextGeneratorVersion `
+                -PackageName '@azure-typespec/http-client-csharp' `
+                -BaseVersion $azureBaseVersion `
+                -Registry $PublishRegistry `
+                -NpmrcPath $PublishNpmrcPath
+        }
+        $azurePackagePath = Update-AzureGenerator `
+            -AzureGeneratorPath $azureGeneratorPath `
+            -UnbrandedPackagePath $unbrandedPackagePath `
+            -DebugFolder $DebugFolder `
+            -PackagesDataPropsPath $packagesDataPropsPath `
+            -LocalVersion $PackageVersion `
+            -PublishRegistry $PublishRegistry `
+            -PublishVersion $azurePublishVersion `
+            -NpmrcPath $PublishNpmrcPath
+        Write-Host "Azure generator built successfully"
+
+        # Update Azure emitter package artifacts. When publishing, reference the published
+        # version so CI can restore it; otherwise pin to the local tgz via a "file:" path.
+        Write-Host "Updating Azure emitter package artifacts..."
+        $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
+        $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
+
+        $updateAzureEmitterArgs = @{
+            EmitterJsonPath = $azureEmitterJson
+            LockJsonPath    = $azureLockJson
+            PackagePath     = $azurePackagePath
+        }
+        if ($PublishRegistry) {
+            $updateAzureEmitterArgs.PackageName = '@azure-typespec/http-client-csharp'
+            $updateAzureEmitterArgs.PublishVersion = $azurePublishVersion
+            $updateAzureEmitterArgs.Registry = $PublishRegistry
+        }
+        Update-EmitterPackageArtifact @updateAzureEmitterArgs
+
+        # Add NuGet source for local packages
+        $nugetConfigPath = Join-Path $tempDir "NuGet.Config"
+        if (Test-Path $nugetConfigPath) {
+            Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $DebugFolder
+        }
+
+        # Build and package management plane generator (only when mgmt is requested)
+        if ($RegenerateMgmtLibraries) {
+            $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
+            if (-not (Test-Path $mgmtGeneratorPath)) {
+                throw "Management plane generator not found at $mgmtGeneratorPath"
+            }
+            Write-Host "##[section]Building management plane generator..."
+            # When publishing, query the ADO feed for the next available mgmt emitter version.
+            $mgmtPublishVersion = $null
+            if ($PublishRegistry) {
+                $mgmtBaseVersion = ((Get-Content (Join-Path $mgmtGeneratorPath "package.json") -Raw | ConvertFrom-Json).version -split '-')[0]
+                $mgmtPublishVersion = Get-NextGeneratorVersion `
+                    -PackageName '@azure-typespec/http-client-csharp-mgmt' `
+                    -BaseVersion $mgmtBaseVersion `
+                    -Registry $PublishRegistry `
+                    -NpmrcPath $PublishNpmrcPath
+            }
+            Update-MgmtGenerator `
+                -EngFolder $engFolder `
+                -DebugFolder $DebugFolder `
+                -LocalVersion $PackageVersion `
+                -PublishRegistry $PublishRegistry `
+                -PublishVersion $mgmtPublishVersion `
+                -AzureVersion $azurePublishVersion `
+                -UnbrandedVersion $PackageVersion `
+                -NpmrcPath $PublishNpmrcPath
+            Write-Host "Management plane generator built successfully"
+        }
+    }
+
+    # Regenerate phase: regenerate all SDK libraries that consume the (now published) emitters.
+    if ($runRegenerate -and $installSucceeded) {
         Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
         git sparse-checkout add sdk
         if ($LASTEXITCODE -ne 0) {
             Register-StepFailure "Failed to expand sparse checkout. Skipping SDK regeneration."
         } else {
-            # Build the emitter patterns to match in tsp-location.yaml
+            # Build the emitter patterns to match in tsp-location.yaml. The Azure/mgmt emitter
+            # artifacts are produced by the BuildGenerators phase and persisted on disk.
             $emitterPatterns = @("eng/http-client-csharp-emitter-package.json")
-            
-            if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
-                $regenScope = @()
-                if ($RegenerateAzureLibraries) { $regenScope += "Azure data plane" }
-                if ($RegenerateMgmtLibraries) { $regenScope += "mgmt" }
-                Write-Host "##[section]Building emitters locally for: $($regenScope -join ', ')..."
-                
-                # Locate the unbranded .tgz and .nupkg files from build artifacts
-                if (-not $BuildArtifactsPath -or -not (Test-Path $BuildArtifactsPath)) {
-                    throw "BuildArtifactsPath is required when RegenerateAzureLibraries or RegenerateMgmtLibraries is specified. Path: $BuildArtifactsPath"
-                }
-                
-                $debugFolder = Join-Path ([System.IO.Path]::GetTempPath()) "csharp-debug-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
-                
-                # Find unbranded .tgz from build artifacts
-                $unbrandedTgz = Get-ChildItem -Path $BuildArtifactsPath -Filter "typespec-http-client-csharp-*.tgz" -Recurse | Select-Object -First 1
-                if (-not $unbrandedTgz) {
-                    throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
-                }
-                $unbrandedPackagePath = $unbrandedTgz.FullName
-                Write-Host "Using unbranded package from build artifacts: $unbrandedPackagePath"
-                
-                # Copy .nupkg files from build artifacts to debug folder
-                $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse
-                foreach ($nupkg in $nupkgFiles) {
-                    Copy-Item $nupkg.FullName -Destination $debugFolder -Force
-                    Write-Host "Copied NuGet package: $($nupkg.Name)"
-                }
-                
-                # Build and package Azure generator (needed for both Azure data plane and mgmt)
-                $azureGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp"
-                $packagesDataPropsPath = Join-Path $tempDir "eng" "centralpackagemanagement" "Directory.Generation.Packages.props"
-                
-                Write-Host "##[section]Building Azure generator..."
-                $previousErrorAction = $ErrorActionPreference
-                $ErrorActionPreference = "Continue"
-                try {
-                    $azurePackagePath = Update-AzureGenerator `
-                        -AzureGeneratorPath $azureGeneratorPath `
-                        -UnbrandedPackagePath $unbrandedPackagePath `
-                        -DebugFolder $debugFolder `
-                        -PackagesDataPropsPath $packagesDataPropsPath `
-                        -LocalVersion $PackageVersion
-                    Write-Host "Azure generator built successfully"
-                    
-                    # Update Azure emitter package artifacts
-                    Write-Host "Updating Azure emitter package artifacts..."
-                    $engFolder = Join-Path $tempDir "eng"
-                    $azureTempDir = Join-Path $engFolder "temp-azure-package-update"
-                    New-Item -ItemType Directory -Path $azureTempDir -Force | Out-Null
-                    
-                    try {
-                        $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
-                        $tempPackageJson = Join-Path $azureTempDir "package.json"
-                        
-                        Copy-Item $azureEmitterJson $tempPackageJson -Force
-                        
-                        Push-Location $azureTempDir
-                        try {
-                            Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $azureTempDir
-                            
-                            Copy-Item $tempPackageJson $azureEmitterJson -Force
-                            $lockFile = Join-Path $azureTempDir "package-lock.json"
-                            if (Test-Path $lockFile) {
-                                $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
-                                Copy-Item $lockFile $azureLockJson -Force
-                            }
-                        } finally {
-                            Pop-Location
-                        }
-                    } finally {
-                        Remove-Item $azureTempDir -Recurse -Force -ErrorAction SilentlyContinue
-                    }
-                    
-                    if ($RegenerateAzureLibraries) {
-                        $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
-                    }
-                    
-                    # Add NuGet source for local packages
-                    $nugetConfigPath = Join-Path $tempDir "NuGet.Config"
-                    if (Test-Path $nugetConfigPath) {
-                        Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
-                    }
-                } catch {
-                    Register-StepFailure "Failed to build Azure generator: $($_.Exception.Message). Continuing without Azure library regeneration."
-                } finally {
-                    $ErrorActionPreference = $previousErrorAction
-                }
-                
-                # Build and package management plane generator (only when mgmt is requested)
-                if ($RegenerateMgmtLibraries) {
-                    $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
-                    if (Test-Path $mgmtGeneratorPath) {
-                        Write-Host "##[section]Building management plane generator..."
-                        $previousErrorAction = $ErrorActionPreference
-                        $ErrorActionPreference = "Continue"
-                        try {
-                            $engFolder = Join-Path $tempDir "eng"
-                            Update-MgmtGenerator `
-                                -EngFolder $engFolder `
-                                -DebugFolder $debugFolder `
-                                -LocalVersion $PackageVersion
-                            Write-Host "Management plane generator built successfully"
-                            
-                            $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-                        } catch {
-                            Register-StepFailure "Failed to build management plane generator: $($_.Exception.Message). Continuing without mgmt library regeneration."
-                        } finally {
-                            $ErrorActionPreference = $previousErrorAction
-                        }
-                    } else {
-                        Write-Host "Management plane generator not found at $mgmtGeneratorPath, skipping..."
-                    }
-                }
+            if ($RegenerateAzureLibraries) {
+                $emitterPatterns += "eng/azure-typespec-http-client-csharp-emitter-package.json"
             }
-            
+            if ($RegenerateMgmtLibraries) {
+                $emitterPatterns += "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+            }
+
             # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
             $serviceDirectories = @()
@@ -633,6 +739,7 @@ try {
     }
 
     # Regenerate the emitter version dashboard
+    if ($runRegenerate) {
     Write-Host "Regenerating emitter version dashboard..."
     $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
     & $dashboardScript -RepoRoot $tempDir
@@ -777,14 +884,18 @@ try {
     # Extract PR URL from gh output
     $prUrl = $ghOutput.Trim()
     Write-Host "Successfully created PR: $prUrl"
+    } # end if ($runRegenerate)
 
 } catch {
     Write-Error "Error creating PR: $_"
     exit 1
 } finally {
     Pop-Location
-    # Clean up temp directory
-    if (Test-Path $tempDir) {
+    # Clean up the shared checkout only when this invocation owns its whole lifecycle. In a split
+    # pipeline run the Regenerate phase is the last step, so it performs the cleanup; earlier phases
+    # (Prepare/BuildGenerators) leave the checkout in place for the next step.
+    if ($Phase -in @('All', 'Regenerate') -and (Test-Path $tempDir)) {
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        Remove-Item $prepareStateFile -Force -ErrorAction SilentlyContinue
     }
 }
