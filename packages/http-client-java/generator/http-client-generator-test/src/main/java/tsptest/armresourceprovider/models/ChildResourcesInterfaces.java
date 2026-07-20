@@ -14,7 +14,7 @@ import com.azure.core.util.Context;
 public interface ChildResourcesInterfaces {
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -29,7 +29,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -42,7 +42,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -54,7 +54,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -67,7 +67,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * List ChildResource resources by TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -79,7 +79,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * List ChildResource resources by TopLevelArmResource.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param context The context to associate with this operation.
@@ -92,8 +92,8 @@ public interface ChildResourcesInterfaces {
         Context context);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -104,8 +104,8 @@ public interface ChildResourcesInterfaces {
     void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
-     * 
+     * The actionWithoutBody operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childResourceName ChildResources.
@@ -119,7 +119,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param id the resource ID.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -130,7 +130,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Get a ChildResource.
-     * 
+     *
      * @param id the resource ID.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -142,7 +142,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param id the resource ID.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -152,7 +152,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Delete a ChildResource.
-     * 
+     *
      * @param id the resource ID.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -163,7 +163,7 @@ public interface ChildResourcesInterfaces {
 
     /**
      * Begins definition for a new ChildResource resource.
-     * 
+     *
      * @param name resource name.
      * @return the first stage of the new ChildResource definition.
      */

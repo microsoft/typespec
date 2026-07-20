@@ -375,7 +375,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static ApiCompatBaseline LoadApiCompatBaseline()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
 
             while (directory != null)
@@ -395,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static async Task<Compilation?> LoadBaselineContract()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))

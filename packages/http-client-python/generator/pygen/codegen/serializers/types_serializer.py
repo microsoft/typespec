@@ -5,7 +5,8 @@
 # --------------------------------------------------------------------------
 import keyword
 import re
-from typing import Optional
+from functools import cached_property
+from typing import Any, Optional
 from ..models import ModelType, CodeModel
 from ..models.enum_type import EnumType
 from ..models.imports import FileImport, ImportType
@@ -39,13 +40,38 @@ _BUILTIN_TYPE_NAMES = frozenset(
 )
 
 
+# Matches a single- or double-quoted string literal (escape-aware). Used to split an
+# annotation so that bare-identifier rewriting/detection skips text inside string literals
+# such as ``Literal["type"]`` values or quoted forward references like ``"SomeModel"``.
+_STRING_LITERAL_RE = re.compile(r"""('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")""")
+
+
+def _annotation_references_builtin(annotation: str, name: str) -> bool:
+    """Whether ``name`` appears as a bare (non-dotted) identifier outside any string literal."""
+    pattern = re.compile(rf"(?<!\.)\b{name}\b")
+    # re.split with a single capturing group yields code/string/code/string/... segments.
+    for index, segment in enumerate(_STRING_LITERAL_RE.split(annotation)):
+        if index % 2 == 0 and pattern.search(segment):
+            return True
+    return False
+
+
 def _qualify_shadowed_builtins(annotation: str, shadowed: frozenset[str]) -> str:
-    """Replace bare builtin type references with builtins.X when shadowed by a field name."""
+    """Replace bare builtin type references with builtins.X when shadowed by a field name.
+
+    Only bare identifiers in real type-expression positions are rewritten; identifiers
+    inside string literals (e.g. ``Literal["type"]`` values, quoted forward references)
+    and already-dotted names are left untouched.
+    """
     if not shadowed:
         return annotation
-    for name in shadowed:
-        annotation = re.sub(rf"\b{name}\b", f"builtins.{name}", annotation)
-    return annotation
+    segments = _STRING_LITERAL_RE.split(annotation)
+    for index in range(0, len(segments), 2):  # even indices are code, odd are string literals
+        segment = segments[index]
+        for name in shadowed:
+            segment = re.sub(rf"(?<!\.)\b{name}\b", f"builtins.{name}", segment)
+        segments[index] = segment
+    return "".join(segments)
 
 
 class TypesSerializer(BaseSerializer):
@@ -71,28 +97,114 @@ class TypesSerializer(BaseSerializer):
         values = [enum.get_declaration(v.value) for v in enum.values]
         return f"{enum.name} = Literal[{', '.join(values)}]"
 
+    @staticmethod
+    def _renders_as_input_typeddict(m: "ModelType") -> bool:
+        """Whether a non-json model is a *seed* for the types.py input surface.
+
+        TypedDicts (and discriminated-base union aliases) in ``types.py`` describe request-body
+        (*input*) shapes. Output-only models already render as classes in ``models/`` and are
+        referenced via ``_models.*``, so a response-only model that nothing input references would be
+        dead code. A model seeds the input surface when it is:
+
+        * a typeddict copy (``base == "typeddict"``) — these only exist as input body overloads
+          (their ``usage`` may carry ``Spread``/``Json`` rather than ``Input``), or
+        * ``is_typed_dict_only`` — includes every model in full ``typeddict`` mode (responses too),
+          and input-only anonymous bodies, or
+        * used as input (``is_usage_input``) — e.g. a model shared between request and response.
+
+        The full set rendered in types.py is the transitive closure of these seeds over base
+        classes, discriminated subtypes and property types (see :attr:`_types_file_model_names`), so
+        an output-only model that *is* referenced by an input model (e.g. ARM ``SystemData`` on
+        ``Resource``) is still rendered.
+        """
+        return m.base == "typeddict" or m.is_typed_dict_only or m.is_usage_input
+
+    @staticmethod
+    def _iter_referenced_models(base_type: Any):
+        """Yield ModelType instances directly referenced by a type, recursing through containers.
+
+        Handles list/dict ``element_type``, constant/enum ``value_type`` and combined ``types``.
+        A referenced ModelType is yielded but not descended into — the closure walk descends into a
+        model's own properties/parents/subtypes when that model is itself visited.
+        """
+        stack = [base_type]
+        seen: set[int] = set()
+        while stack:
+            t = stack.pop()
+            if t is None or id(t) in seen:
+                continue
+            seen.add(id(t))
+            if isinstance(t, ModelType):
+                yield t
+                continue
+            for attr in ("element_type", "value_type"):
+                child = getattr(t, attr, None)
+                if child is not None:
+                    stack.append(child)
+            for child in getattr(t, "types", []) or []:
+                stack.append(child)
+
+    @cached_property
+    def _types_file_model_names(self) -> set[str]:
+        """Names of every model that must be rendered in types.py.
+
+        Starts from the input seeds (:meth:`_renders_as_input_typeddict`) and takes the transitive
+        closure over base classes, discriminated subtypes and property types. Keyed on model
+        ``name`` (dpg models and their typeddict copies share a name and render as one TypedDict), so
+        the result is stable regardless of which copy a reference points at.
+
+        Cached: the closure is a full walk over the model graph and is read several times per file
+        (via :attr:`typeddict_models` and :attr:`discriminated_base_models`). ``self._models`` is set
+        once at construction and never mutated, so memoizing on the instance is safe.
+        """
+        needed: set[str] = set()
+        stack = [m for m in self._models if m.base != "json" and self._renders_as_input_typeddict(m)]
+        while stack:
+            m = stack.pop()
+            if m.base == "json" or m.name in needed:
+                continue
+            needed.add(m.name)
+            stack.extend(m.parents)
+            stack.extend(m.discriminated_subtypes.values())
+            for prop in m.properties:
+                stack.extend(self._iter_referenced_models(prop.type))
+        return needed
+
     @property
     def typeddict_models(self) -> list[ModelType]:
         """Models that should be rendered as TypedDicts (excluding discriminated bases which become unions).
 
-        When both a dpg model and its typeddict copy exist (same crossLanguageDefinitionId),
+        When both a dpg model and its typeddict copy exist for the same model,
         prefer the dpg model (it already renders as a TypedDict in types.py) and skip the copy.
+
+        The pairing is keyed on the model ``name`` (the copy is a shallow copy of the source, so it
+        shares the source's name). ``crossLanguageDefinitionId`` cannot be used here: template
+        instantiated models such as ``ResourceUpdateModel<Foo, FooProperties>`` all share the
+        template's cross-language id, so keying on it would wrongly collapse distinct models
+        (e.g. ``CacheUpdate`` and ``VolumeUpdate``) into one and drop the rest from types.py.
+
+        Only models in the input-surface closure (:attr:`_types_file_model_names`) are rendered, so
+        response-only models (e.g. ``GetResponse``) are dropped while models reachable from an input
+        model — including output-only ones such as a discriminated subtype or an ARM ``SystemData``
+        property — are kept, ensuring no forward reference is left undefined.
         """
-        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes]
-        seen_ids: dict[str, "ModelType"] = {}
+        needed = self._types_file_model_names
+        candidates = [
+            m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
+        ]
+        seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:
-            clid = m.yaml_data.get("crossLanguageDefinitionId")
-            if clid and clid in seen_ids:
+            name = m.name
+            if name in seen_names:
                 # Prefer the dpg model over the typeddict copy
-                if m.base == "dpg" and seen_ids[clid].base == "typeddict":
+                if m.base == "dpg" and seen_names[name].base == "typeddict":
                     # Replace the typeddict copy with the dpg model
-                    result = [r if r is not seen_ids[clid] else m for r in result]
-                    seen_ids[clid] = m
+                    result = [r if r is not seen_names[name] else m for r in result]
+                    seen_names[name] = m
                 # Otherwise skip this duplicate
                 continue
-            if clid:
-                seen_ids[clid] = m
+            seen_names[name] = m
             result.append(m)
         return result
 
@@ -100,10 +212,16 @@ class TypesSerializer(BaseSerializer):
     def discriminated_base_models(self) -> list[ModelType]:
         """Discriminated base models that become Union type aliases in types.py.
 
+        Only bases in the input-surface closure (:attr:`_types_file_model_names`) are emitted: an
+        output-only ``Dinosaur = Union[TRex]`` alias is dead code and would reference subtype
+        TypedDicts that are themselves (correctly) omitted from types.py, causing a ``NameError`` at
+        import time.
+
         Topologically sorted so that nested discriminated bases (e.g. Shark)
         are defined before their parents (e.g. Fish = Union[Salmon, Shark]).
         """
-        bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes]
+        needed = self._types_file_model_names
+        bases = [m for m in self._models if m.base != "json" and m.discriminated_subtypes and m.name in needed]
         base_names = {m.name for m in bases}
         sorted_bases: list[ModelType] = []
         visited: set[str] = set()
@@ -132,22 +250,27 @@ class TypesSerializer(BaseSerializer):
         """Whether any property wire_name is a Python keyword or requires functional TypedDict form."""
         return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
-    @staticmethod
-    def get_shadowed_builtins(model: ModelType) -> frozenset[str]:
+    def get_shadowed_builtins(self, model: ModelType) -> frozenset[str]:
         """Return the set of builtin type names shadowed by property wire_names in this model.
 
-        Only includes a builtin if it is both used as a wire_name AND referenced
-        in a type annotation within the same model (otherwise no shadowing occurs).
+        Only includes a builtin if it is both used as a wire_name AND referenced as a bare
+        type in an annotation within the same model (otherwise no shadowing occurs). Detection
+        uses the exact ``TYPES_FILE`` annotation emitted for each property so that types which
+        change under the types-file serialization (e.g. ``bytes``/``datetime`` -> ``str``,
+        ``decimal`` -> ``float``) are evaluated as they actually appear in the output.
         """
         wire_builtins = {p.wire_name for p in model.properties if p.wire_name in _BUILTIN_TYPE_NAMES}
         if not wire_builtins:
             return frozenset()
-        # Check which of these builtins actually appear in type annotations
+        # Check which of these builtins actually appear in emitted type annotations
         used = set()
         for prop in model.properties:
-            annotation = prop.type_annotation()
+            annotation = prop.type_annotation(
+                serialize_namespace=self.serialize_namespace,
+                serialize_namespace_type=NamespaceType.TYPES_FILE,
+            )
             for name in wire_builtins:
-                if re.search(rf"\b{name}\b", annotation):
+                if _annotation_references_builtin(annotation, name):
                     used.add(name)
         return frozenset(used)
 

@@ -307,8 +307,18 @@ class PreProcessPlugin(YamlUpdatePlugin):
         return self.options.get("tsp_file", False)
 
     @staticmethod
-    def _find_existing_typeddict(code_model: dict[str, Any], cross_lang_id: Optional[str]) -> Optional[dict[str, Any]]:
-        """Find an existing typeddict copy with the given crossLanguageDefinitionId."""
+    def _find_existing_typeddict(
+        code_model: dict[str, Any],
+        cross_lang_id: Optional[str],
+        name: Optional[str] = None,
+    ) -> Optional[dict[str, Any]]:
+        """Find an existing typeddict copy for the given model.
+
+        Matches on both ``crossLanguageDefinitionId`` and ``name``. The name is required because
+        template-instantiated models (e.g. ``ResourceUpdateModel<Foo, FooProperties>``) all share
+        the template's cross-language id, so matching on the id alone would reuse one model's copy
+        (e.g. ``CacheUpdate``) for a different model (e.g. ``VolumeUpdate``).
+        """
         if not cross_lang_id:
             return None
         return next(
@@ -318,9 +328,49 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 if t.get("type") == "model"
                 and t.get("base") == "typeddict"
                 and t.get("crossLanguageDefinitionId") == cross_lang_id
+                and (name is None or t.get("name") == name)
             ),
             None,
         )
+
+    @staticmethod
+    def _find_spread_original(code_model: dict[str, Any], json_model: dict[str, Any]) -> Optional[dict[str, Any]]:
+        """Recover the dpg model that a spread (json) body was cloned from.
+
+        When a spread body type is also used elsewhere, the emitter clones it, renames the clone to
+        ``<Method>Request`` and sets ``base = "json"`` while keeping the original
+        ``crossLanguageDefinitionId``. To reference the real model's TypedDict we look the clone up
+        by that id.
+
+        Distinct template-instantiated models share a single ``crossLanguageDefinitionId``, so an id
+        match alone is ambiguous. We only reuse an original when the choice is unambiguous:
+
+        * a dpg candidate whose ``name`` equals the json model's name (the body was not renamed), or
+        * exactly one dpg candidate carries the id.
+
+        Otherwise we return ``None`` so the caller falls back to the json model itself, avoiding a
+        reference to the wrong model's TypedDict.
+        """
+        cross_lang_id = json_model.get("crossLanguageDefinitionId")
+        if not cross_lang_id:
+            return None
+        candidates = [
+            t
+            for t in code_model["types"]
+            if t.get("type") == "model"
+            and t.get("base") == "dpg"
+            and t.get("crossLanguageDefinitionId") == cross_lang_id
+            and t is not json_model
+        ]
+        if not candidates:
+            return None
+        name = json_model.get("name")
+        for candidate in candidates:
+            if candidate.get("name") == name:
+                return candidate
+        if len(candidates) == 1:
+            return candidates[0]
+        return None
 
     @staticmethod
     def _insert_typeddict_overload(
@@ -349,6 +399,25 @@ class PreProcessPlugin(YamlUpdatePlugin):
         code_model: dict[str, Any],
         body_parameter: dict[str, Any],
     ):
+        # For a binary `bytes` body (e.g. content type application/octet-stream or a custom
+        # binary media type), add an IO overload alongside the `bytes` one. This keeps backward
+        # compatibility for services migrating from swagger, whose binary bodies were typed as IO.
+        is_multipart = self.is_tsp and has_multi_part_content_type(body_parameter)
+        is_binary_body = not has_json_content_type(body_parameter) and not is_multipart
+        if (
+            body_parameter
+            and body_parameter["type"]["type"] == "bytes"
+            and is_binary_body
+            and self.options["models-mode"] != "typeddict"
+            and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
+        ):
+            body_parameter["type"] = {
+                "type": "combined",
+                "types": [body_parameter["type"], KNOWN_TYPES["binary"]],
+            }
+            code_model["types"].append(body_parameter["type"])
+            return
+
         # only add overload for special content type
         if (  # pylint: disable=too-many-boolean-expressions
             body_parameter
@@ -376,25 +445,14 @@ class PreProcessPlugin(YamlUpdatePlugin):
             # Add typeddict overload for non-spread dpg models
             if self.options["models-mode"] == "dpg" and is_dpg_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
-                existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
                 self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
 
             # For spread bodies (json base), add a typeddict overload that references
             # the original model. This replaces the JSON single-body overload.
             if is_json_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
-                original = None
-                if cross_lang_id:
-                    original = next(
-                        (
-                            t
-                            for t in code_model["types"]
-                            if t.get("type") == "model"
-                            and t.get("crossLanguageDefinitionId") == cross_lang_id
-                            and t is not model_type
-                        ),
-                        None,
-                    )
+                original = self._find_spread_original(code_model, model_type)
 
                 if is_typeddict_only and original:
                     # In typeddict-only mode, the original dpg model already renders
@@ -407,7 +465,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         body_parameter["type"]["types"].insert(1, td_list_or_dict)
                 else:
                     source = original or model_type
-                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id)
+                    existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
 
             if len(body_parameter["type"]["types"]) == 1:
@@ -419,7 +477,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 return
 
             code_model["types"].append(body_parameter["type"])
-
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well

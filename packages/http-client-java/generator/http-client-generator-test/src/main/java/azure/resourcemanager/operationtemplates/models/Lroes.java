@@ -12,8 +12,8 @@ import java.util.List;
  */
 public interface Lroes {
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -25,8 +25,8 @@ public interface Lroes {
     ExportResult export(String resourceGroupName, String orderName, ExportRequest body);
 
     /**
-     * A long-running resource action.
-     * 
+     * The export operation.
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -40,7 +40,7 @@ public interface Lroes {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -51,7 +51,7 @@ public interface Lroes {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -63,7 +63,7 @@ public interface Lroes {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -74,7 +74,7 @@ public interface Lroes {
 
     /**
      * The exportArray operation.
-     * 
+     *
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,7 +86,7 @@ public interface Lroes {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param id the resource ID.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -96,7 +96,7 @@ public interface Lroes {
 
     /**
      * Delete a Order.
-     * 
+     *
      * @param id the resource ID.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -107,7 +107,7 @@ public interface Lroes {
 
     /**
      * Begins definition for a new Order resource.
-     * 
+     *
      * @param name resource name.
      * @return the first stage of the new Order definition.
      */
