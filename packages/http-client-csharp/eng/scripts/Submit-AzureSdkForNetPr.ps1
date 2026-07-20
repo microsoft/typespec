@@ -33,6 +33,11 @@ The azure-sdk-for-net checkout directory shared across phases. When omitted (typ
 The directory holding the packed generator packages and NuGet packages shared between the BuildGenerators and Regenerate phases. When omitted, a unique temp directory is derived from WorkingDirectory.
 .PARAMETER BuildReason
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
+
+.PARAMETER PublishGeneratorPackages
+When specified, enable feed-version stamping for the Azure/mgmt generator packages so the pipeline can
+publish them and pin emitter artifacts to restorable feed versions. Local runs leave this off by default
+so regen continues to use local `file:` package references unless explicitly opted in.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -68,6 +73,9 @@ param(
 
   [Parameter(Mandatory = $false)]
   [switch]$UseTypeSpecNext,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$PublishGeneratorPackages,
 
   [Parameter(Mandatory = $false)]
   [ValidateSet('All', 'Prepare', 'BuildGenerators', 'Regenerate')]
@@ -116,7 +124,7 @@ Import-Module (Join-Path $PSScriptRoot "RegenPreview.psm1") -DisableNameChecking
 # and authenticated .npmrc used to query the feed for the next available version.
 $PublishRegistry = $null
 $PublishNpmrcPath = $null
-if ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries) {
+if ($PublishGeneratorPackages -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
     $PublishRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
     $resolvedPublishNpmrc = Join-Path $PSScriptRoot "../../.npmrc"
     if (-not (Test-Path $resolvedPublishNpmrc)) {

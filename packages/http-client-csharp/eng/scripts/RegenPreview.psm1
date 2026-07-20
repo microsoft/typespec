@@ -219,8 +219,8 @@ function Update-GeneratorPackage {
 
     .PARAMETER PublishRegistry
         When provided, dependencies are pinned to their published versions (see PublishedDependencyVersions)
-        instead of a local "file:" path, and the packed .tgz is published to this registry so the resulting
-        emitter artifacts reference a version that CI can restore.
+        instead of a local "file:" path, and the packed .tgz is stamped for that publish flow so the
+        resulting emitter artifacts reference a version that CI can restore after the pipeline publishes it.
 
     .PARAMETER PublishedDependencyVersions
         Hashtable of dependency name -> published version string. Used in publish mode to pin each dependency
@@ -437,11 +437,11 @@ function Update-MgmtGenerator {
 
     .PARAMETER PublishRegistry
         When provided, the mgmt (and its local dependencies) are pinned to the published version and the
-        packed mgmt package is published to this registry. The emitter-package.json artifact then
+        packed mgmt package is stamped for pipeline publication. The emitter-package.json artifact then
         references the published version instead of a host-only "file:" path so CI can restore it.
 
     .PARAMETER PublishVersion
-        In publish mode, the version to stamp and publish the mgmt npm emitter package with (typically the
+        In publish mode, the version to stamp the mgmt npm emitter package with (typically the
         next available version queried from the ADO feed). Defaults to $LocalVersion when not provided.
 
     .PARAMETER AzureVersion
@@ -499,11 +499,13 @@ function Update-MgmtGenerator {
     $azurePackagePath = Join-Path $DebugFolder $azurePackageName
     $unbrandedPackagePath = Join-Path $DebugFolder $unbrandedPackageName
     
-    if (-not (Test-Path $azurePackagePath)) {
-        throw "Azure package not found: $azurePackagePath"
-    }
-    if (-not (Test-Path $unbrandedPackagePath)) {
-        throw "Unbranded package not found: $unbrandedPackagePath"
+    if (-not $PublishRegistry) {
+        if (-not (Test-Path $azurePackagePath)) {
+            throw "Azure package not found: $azurePackagePath"
+        }
+        if (-not (Test-Path $unbrandedPackagePath)) {
+            throw "Unbranded package not found: $unbrandedPackagePath"
+        }
     }
 
     Write-Host "Management plane generator path: $mgmtGeneratorPath" -ForegroundColor Gray
@@ -597,11 +599,11 @@ function Update-AzureGenerator {
 
     .PARAMETER PublishRegistry
         When provided, the Azure generator is pinned to the published unbranded version and the packed
-        Azure package is published to this registry so downstream emitter artifacts can reference a
+        Azure package is stamped for pipeline publication so downstream emitter artifacts can reference a
         restorable published version instead of a host-only "file:" path.
 
     .PARAMETER PublishVersion
-        In publish mode, the version to stamp and publish the Azure npm emitter package with (typically the
+        In publish mode, the version to stamp the Azure npm emitter package with (typically the
         next available version queried from the ADO feed). Defaults to $LocalVersion when not provided.
 
     .PARAMETER NpmrcPath
