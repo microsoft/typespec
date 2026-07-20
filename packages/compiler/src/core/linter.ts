@@ -252,15 +252,15 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
   }
 
   function reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void {
-    const diagnostic = createDiagnostic(diag);
-    if (diagnostic.target !== NoTarget) {
-      const context = getLocationContext(program, diagnostic.target);
+    if (diag.target !== NoTarget) {
+      const context = getLocationContext(program, diag.target);
       // Only report diagnostic in the user project.
       // See for showing diagnostic in library at point of usage https://github.com/microsoft/typespec/issues/1997
-      if (context.type === "project") {
-        diagnosticCollector.add(diagnostic);
+      if (context.type !== "project") {
+        return;
       }
     }
+    diagnosticCollector.add(createDiagnostic(diag));
   }
 }
 
