@@ -47,7 +47,8 @@ function Pack-And-Write-Info {
     )
 
     $versionOption = $BuildNumber ? "/p:Version=$version" : ""
-    Invoke-LoggedCommand "dotnet pack ./$package/src/$package.csproj $versionOption -c Release -o $outputPath/packages"
+    $ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
+    Invoke-LoggedCommand "dotnet pack ./$package/src/$package.csproj $versionOption $ciNugetAuditArg -c Release -o $outputPath/packages"
     Write-PackageInfo -packageName $package -directoryPath "packages/http-client-csharp/generator/$package/src" -version $version
 }
 
