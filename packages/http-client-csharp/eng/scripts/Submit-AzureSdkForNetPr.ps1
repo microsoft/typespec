@@ -483,9 +483,6 @@ try {
                 }
                 Write-Host "Using unbranded package from build artifacts: $($unbrandedTgz.FullName)"
 
-                # Copy the unbranded .tgz into the debug folder so downstream generators
-                # (e.g. the management plane generator) can locate it alongside the
-                # locally built Azure package using the expected debug-folder path.
                 $unbrandedPackagePath = Join-Path $debugFolder $unbrandedTgz.Name
                 Copy-Item $unbrandedTgz.FullName -Destination $unbrandedPackagePath -Force
                 
