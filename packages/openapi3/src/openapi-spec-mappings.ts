@@ -108,7 +108,7 @@ function createRoot(
     const { identifier, ...restLicense } = info.license;
     processedInfo = {
       ...info,
-      license: { ...restLicense, "x-oai-license-identifier": identifier } as any,
+      license: { ...restLicense, "x-oai-license-identifier": identifier },
     };
   }
 

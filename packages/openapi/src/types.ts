@@ -56,6 +56,9 @@ export interface License {
 
   /** An SPDX license expression for the API. Mutually exclusive with `url`. Only supported in OpenAPI 3.1+. For OpenAPI 3.0, this will be emitted as `x-oai-license-identifier`. */
   identifier?: string;
+
+  /** Additional extension data. Keys must start with `x-`. */
+  [extensionKey: string]: unknown;
 }
 
 /**
