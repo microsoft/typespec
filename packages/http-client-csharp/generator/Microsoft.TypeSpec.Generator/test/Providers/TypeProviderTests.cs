@@ -253,7 +253,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         private static CSharpType CreateTestAttributeType(string name)
-            => new(name, "Test", isValueType: false, isNullable: false, declaringType: null, args: [], isPublic: true, isStruct: false);
+            => new(
+                name: name,
+                ns: "Test",
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: [],
+                isPublic: true,
+                isStruct: false);
 
         private sealed class LastContractAttributeTestTypeProvider : TestTypeProvider
         {
