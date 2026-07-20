@@ -485,16 +485,19 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 
   /**
    * Emit an event with a single argument (optimized hot path avoiding spread).
-   * Returns the first non-undefined ListenerFlow value from any listener.
+   * Calls all listeners and returns ListenerFlow.NoRecursion if any listener returns it.
    */
   public emitOne<K extends keyof T>(name: K, arg: any): any {
     const listeners = this.listeners.get(name);
     if (listeners) {
-      let result: any;
+      let flow: any;
       for (let i = 0; i < listeners.length; i++) {
-        result = listeners[i](arg);
-        if (result !== undefined) return result;
+        const result = listeners[i](arg);
+        if (result !== undefined) {
+          flow = result;
+        }
       }
+      return flow;
     }
     return undefined;
   }
