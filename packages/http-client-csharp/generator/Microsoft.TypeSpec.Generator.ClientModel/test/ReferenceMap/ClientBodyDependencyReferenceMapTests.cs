@@ -632,7 +632,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
         }
 
         [Test]
-        public async Task GeneratedScalarHeaderDoesNotKeepExtensions()
+        public async Task GeneratedScalarHeaderKeepsExtensions()
         {
             var header = InputFactory.HeaderParameter("x-ms-custom", InputPrimitiveType.String, isRequired: true);
             var operation = InputFactory.Operation("Create", parameters: [header]);
@@ -644,12 +644,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [],
                 clients: [client],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "PipelineRequestHeadersExtensions.cs")]);
         }
 
         [Test]
-        public async Task BinaryDataBodyParameterDoesNotKeepBinaryContentHelpers()
+        public async Task BinaryDataBodyParameterKeepsBinaryContentHelpers()
         {
             var parameter = InputFactory.BodyParameter(
                 "content",
@@ -669,8 +668,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 models: [],
                 clients: [client],
                 customFiles: [],
-                expectedFiles: [],
-                unexpectedFiles: [
+                expectedFiles: [
                     Path.Combine("src", "Generated", "Internal", "BinaryContentHelper.cs"),
                     Path.Combine("src", "Generated", "Internal", "Utf8JsonBinaryContent.cs")
                 ]);
