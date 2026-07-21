@@ -30,6 +30,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _models = models;
         }
 
+        internal bool PreserveLeadingMethodSeparator { get; private set; }
+
+        internal void PreserveLeadingMethodSeparatorForBackCompat() => PreserveLeadingMethodSeparator = true;
+
         protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");

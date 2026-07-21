@@ -54,6 +54,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.Multipart.cs");
         }
 
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => _model.Properties.Any(
+            prop => prop.WireInfo != null && !prop.WireInfo.IsRequired &&
+                (prop.Type is { IsCollection: true, IsReadOnlyMemory: false } || prop.Type.IsDictionary))
+            ? [OptionalType]
+            : [];
+
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
 

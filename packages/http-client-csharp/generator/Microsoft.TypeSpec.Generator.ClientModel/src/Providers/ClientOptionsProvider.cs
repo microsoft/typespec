@@ -248,6 +248,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
+        protected override bool ShouldWriteTypeXmlDocs => CustomCodeView is null;
+
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => _clientProvider.DeclarationModifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
+
         protected override string BuildName()
         {
             if (UseSingletonInstance(_inputClient))
