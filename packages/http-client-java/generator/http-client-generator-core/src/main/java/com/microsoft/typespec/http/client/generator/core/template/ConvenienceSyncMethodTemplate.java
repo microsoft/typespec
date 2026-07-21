@@ -205,7 +205,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
         Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        String serializerArgument = xmlSerializerArgument(mimeType);
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
                 String basicText = invocationExpression + ".toString()";

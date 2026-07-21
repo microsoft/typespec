@@ -146,7 +146,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        String serializerArgument = xmlSerializerArgument(mimeType);
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
                 String baseHandling = "protocolMethodData.toString()";
