@@ -86,8 +86,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
         String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
 
-        IType responseBodyType = getResponseBodyType(convenienceMethod);
-        IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
+        IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
+        IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         String convertFromResponse
@@ -182,20 +182,6 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
 
         return String.format("%1$s protocolMethodResponse = %2$s;", protocolMethod.getReturnValue().getType(),
             statement);
-    }
-
-    private IType getResponseBodyType(ClientMethod method) {
-        // no need to care about LRO
-        IType type = method.getReturnValue().getType();
-        if (type instanceof GenericType
-            && (ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
-                || (ClassType.PAGED_ITERABLE.getName().equals(((GenericType) type).getName())))) {
-            type = ((GenericType) type).getTypeArguments()[0];
-        } else if (isResponseBase(type)) {
-            // TODO: ResponseBase is not in use, hence it may have bug
-            type = ((GenericType) type).getTypeArguments()[1];
-        }
-        return type;
     }
 
     private boolean isResponseBase(IType type) {

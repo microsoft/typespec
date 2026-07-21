@@ -66,8 +66,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
         ClientMethodType methodType = protocolMethod.getType();
 
-        IType responseBodyType = getResponseBodyType(convenienceMethod);
-        IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
+        IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
+        IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (methodType == ClientMethodType.PagingAsync) {
@@ -118,17 +118,6 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         } else {
             methodBlock.methodReturn(String.format("Mono.error(%s)", exceptionExpression));
         }
-    }
-
-    private IType getResponseBodyType(ClientMethod method) {
-        // no need to care about LRO
-        // Mono<T> / PagedFlux<T>
-        IType type = ((GenericType) method.getReturnValue().getType()).getTypeArguments()[0];
-        if (type instanceof GenericType && ClassType.RESPONSE.getName().equals(((GenericType) type).getName())) {
-            // Mono<Response<T>>
-            type = ((GenericType) type).getTypeArguments()[0];
-        }
-        return type;
     }
 
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,

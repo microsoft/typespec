@@ -176,7 +176,7 @@ abstract class ConvenienceMethodTemplateBase {
      * @param method the convenience method.
      * @return the response body type.
      */
-    private static IType getConvenienceResponseBodyType(ClientMethod method) {
+    protected static IType getConvenienceResponseBodyType(ClientMethod method) {
         IType type = method.getReturnValue().getType();
         while (type instanceof GenericType) {
             GenericType genericType = (GenericType) type;
