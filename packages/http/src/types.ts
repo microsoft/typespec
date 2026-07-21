@@ -122,10 +122,7 @@ export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
 }
 
 export type OAuth2Flow =
-  | AuthorizationCodeFlow
-  | ImplicitFlow
-  | PasswordFlow
-  | ClientCredentialsFlow;
+  AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
 
 export type OAuth2FlowType = OAuth2Flow["type"];
 
@@ -462,9 +459,7 @@ export interface HttpOperationResponseContent {
 
 /** The possible bodies of an HTTP operation. */
 export type HttpPayloadBody =
-  | HttpOperationBody
-  | HttpOperationMultipartBody
-  | HttpOperationFileBody;
+  HttpOperationBody | HttpOperationMultipartBody | HttpOperationFileBody;
 
 export interface HttpOperationBodyBase {
   /** Content types. */
@@ -494,8 +489,7 @@ export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
 
 /** Body marked with `@multipartBody` */
 export type HttpOperationMultipartBody =
-  | HttpOperationMultipartBodyModel
-  | HttpOperationMultipartBodyTuple;
+  HttpOperationMultipartBodyModel | HttpOperationMultipartBodyTuple;
 
 export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
   readonly bodyKind: "multipart";
