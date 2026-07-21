@@ -13,7 +13,7 @@ import com.azure.core.util.Context;
 public interface LroPagings {
     /**
      * The postPagingLro operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -25,7 +25,7 @@ public interface LroPagings {
 
     /**
      * The postPagingLro operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
      * @param context The context to associate with this operation.
