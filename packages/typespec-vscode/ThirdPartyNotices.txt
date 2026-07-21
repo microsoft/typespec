@@ -8,8 +8,8 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. @babel/code-frame version 8.0.0 (https://github.com/babel/babel)
-2. @babel/helper-validator-identifier version 8.0.4 (https://github.com/babel/babel)
+1. @babel/code-frame version 7.29.7 (https://github.com/babel/babel)
+2. @babel/helper-validator-identifier version 7.29.7 (https://github.com/babel/babel)
 3. ajv version 8.20.0 (ajv-validator/ajv)
 4. balanced-match version 4.0.4 (https://github.com/juliangruber/balanced-match)
 5. brace-expansion version 5.0.7 (https://github.com/juliangruber/brace-expansion)
@@ -20,7 +20,7 @@ granted herein, whether by implication, estoppel or otherwise.
 10. is-unicode-supported version 2.1.0 (sindresorhus/is-unicode-supported)
 11. isexe version 2.0.0 (https://github.com/isaacs/isexe)
 12. isexe version 4.0.0 (https://github.com/isaacs/isexe)
-13. js-tokens version 10.0.0 (lydell/js-tokens)
+13. js-tokens version 4.0.0 (lydell/js-tokens)
 14. json-schema-traverse version 1.0.0 (https://github.com/epoberezkin/json-schema-traverse)
 15. minimatch version 10.2.5 (git@github.com:isaacs/minimatch)
 16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
@@ -405,7 +405,7 @@ END OF isexe NOTICES AND INFORMATION
 =====================================================
 The MIT License (MIT)
 
-Copyright (c) 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 Simon Lydell
+Copyright (c) 2014, 2015, 2016, 2017, 2018 Simon Lydell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
