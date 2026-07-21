@@ -203,8 +203,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return {
       package: (
         (details?.properties.get("name") as ModelProperty | undefined)?.type as
-          | StringLiteral
-          | undefined
+          StringLiteral | undefined
       )?.value,
 
       options: Object.fromEntries(packageOptions),
@@ -886,26 +885,18 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map(
-        (variant): ProtoEnumVariantDeclaration => ({
-          kind: "variant",
-          name: variant.name,
-          value: variant.value as number,
-          doc: getDoc(program, variant),
-        }),
-      ),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
+        kind: "variant",
+        name: variant.name,
+        value: variant.value as number,
+        doc: getDoc(program, variant),
+      })),
       doc: getDoc(program, e),
     };
   }
 
   type NamespaceTraversable =
-    | Enum
-    | Model
-    | Interface
-    | Union
-    | Operation
-    | Namespace
-    | IntrinsicType;
+    Enum | Model | Interface | Union | Operation | Namespace | IntrinsicType;
 
   function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
@@ -990,8 +981,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             ? (map(
                 k,
                 addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
-                  | ProtoRef
-                  | ProtoScalar,
+                  ProtoRef | ProtoScalar,
                 // Anything else is unreachable by construction.
               ) as T)
             : pt;
@@ -1013,8 +1003,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             return pt;
 
           const dependencyDetails = program.stateMap(state.package).get(dependencyPackage) as
-            | Model
-            | undefined;
+            Model | undefined;
 
           const dependencyPackageName = (
             dependencyDetails?.properties.get("name")?.type as StringLiteral | undefined

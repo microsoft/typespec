@@ -30,15 +30,7 @@ export interface DecoratorArgument {
    * Marshalled value for use in Javascript.
    */
   jsValue:
-    | Type
-    | Value
-    | Record<string, unknown>
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | Numeric
-    | null;
+    Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric | null;
   node?: Node;
 }
 
@@ -1516,11 +1508,7 @@ export type Expression =
 export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
 
 export type ReferenceExpression =
-  | TypeReferenceNode
-  | MemberExpressionNode
-  | IdentifierNode
-  | VoidKeywordNode
-  | NeverKeywordNode;
+  TypeReferenceNode | MemberExpressionNode | IdentifierNode | VoidKeywordNode | NeverKeywordNode;
 
 export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
@@ -1555,8 +1543,7 @@ export interface OperationSignatureReferenceNode extends BaseNode {
 }
 
 export type OperationSignature =
-  | OperationSignatureDeclarationNode
-  | OperationSignatureReferenceNode;
+  OperationSignatureDeclarationNode | OperationSignatureReferenceNode;
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.OperationStatement;
