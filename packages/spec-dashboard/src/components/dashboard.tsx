@@ -1,5 +1,5 @@
 import { Card, CardHeader, SearchBox, Text } from "@fluentui/react-components";
-import { FunctionComponent, useMemo, useState } from "react";
+import { FunctionComponent, useDeferredValue, useMemo, useState } from "react";
 import { CoverageSummary } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
@@ -27,13 +27,18 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
   const [selectedTier, setSelectedTier] = useState<string | undefined>(undefined);
   const [nameFilter, setNameFilter] = useState<string>("");
 
+  // Defer the filter value so typing stays responsive: the SearchBox updates
+  // instantly while the expensive filtering + tree expansion render happens on
+  // a lower-priority, non-blocking update.
+  const deferredNameFilter = useDeferredValue(nameFilter);
+
   const { filteredSummaries, allTiers } = useTierFiltering(
     coverageSummaries,
     scenarioTierConfig,
     selectedTier,
   );
 
-  const normalizedNameFilter = nameFilter.trim().toLowerCase();
+  const normalizedNameFilter = deferredNameFilter.trim().toLowerCase();
 
   const searchedSummaries = useMemo(() => {
     if (!normalizedNameFilter) {
@@ -57,6 +62,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
         <DashboardTable
           coverageSummary={coverageSummary}
           emitterDisplayNames={emitterDisplayNames}
+          expandAll={Boolean(normalizedNameFilter)}
         />
       </div>
     ));
@@ -91,7 +97,9 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
         />
       </div>
       {normalizedNameFilter && summaryTables.length === 0 ? (
-        <Text className={style["no-results"]}>No scenarios match "{nameFilter.trim()}".</Text>
+        <Text className={style["no-results"]}>
+          No scenarios match "{deferredNameFilter.trim()}".
+        </Text>
       ) : (
         summaryTables
       )}
