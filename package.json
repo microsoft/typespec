@@ -53,6 +53,7 @@
     "@vitest/coverage-v8": "catalog:",
     "c8": "catalog:",
     "cspell": "catalog:",
+    "execa": "catalog:",
     "micromatch": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",

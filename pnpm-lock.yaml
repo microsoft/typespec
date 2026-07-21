@@ -358,7 +358,7 @@ catalogs:
       specifier: 1.0.0-alpha.6
       version: 1.0.0-alpha.6
     prettier:
-      specifier: ^3.8.1
+      specifier: ^3.9.5
       version: 3.9.5
     prettier-plugin-astro:
       specifier: ^0.14.1
@@ -548,6 +548,9 @@ importers:
       cspell:
         specifier: 'catalog:'
         version: 10.0.1
+      execa:
+        specifier: 'catalog:'
+        version: 9.6.1
       micromatch:
         specifier: 'catalog:'
         version: 4.0.8
