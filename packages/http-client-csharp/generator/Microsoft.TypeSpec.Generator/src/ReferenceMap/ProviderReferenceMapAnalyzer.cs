@@ -37,6 +37,8 @@ namespace Microsoft.TypeSpec.Generator
         public static bool ShouldWriteProvider(TypeProvider provider) =>
             _latestResult?.RemoveCandidates.Contains(GetProviderTypeName(provider.Type)) != true;
 
+        public static bool IsRemovedTypeReference(CSharpType type) => MatchesRemovedProvider(type);
+
         public static bool IsResolvableBuildableType(CSharpType type)
         {
             if (TryGetProvider(type, exact: true, out var provider))
