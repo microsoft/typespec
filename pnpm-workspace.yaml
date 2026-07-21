@@ -6,6 +6,19 @@ packages:
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
 
+allowBuilds:
+  "@playwright/browser-chromium": false
+  "@scarf/scarf": false
+  "@vscode/vsce-sign": false
+  esbuild: false
+  keytar: false
+  sharp: false
+  tree-sitter-c-sharp: false
+  tree-sitter-java: false
+  tree-sitter-javascript: false
+  tree-sitter-python: false
+  tree-sitter-typescript: false
+
 catalog:
   "@alloy-js/cli": ^0.24.0
   "@alloy-js/core": ^0.24.1
@@ -17,7 +30,7 @@ catalog:
   "@alloy-js/typescript": ^0.24.0
   "@astrojs/check": ^0.9.8
   "@astrojs/react": ^6.0.0
-  "@astrojs/starlight": ^0.40.0
+  "@astrojs/starlight": ^0.41.3
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
   "@babel/code-frame": ^7.29.0
@@ -27,7 +40,7 @@ catalog:
   "@chronus/github-pr-commenter": ^1.0.6
   "@docsearch/css": ^4.6.2
   "@docsearch/js": ^4.6.2
-  "@expressive-code/core": ^0.43.1
+  "@expressive-code/core": ^0.44.0
   "@fluentui/react-components": ^9.73.7
   "@fluentui/react-icons": ^2.0.323
   "@fluentui/react-list": ^9.6.13
@@ -68,13 +81,13 @@ catalog:
   "@types/swagger-ui-express": ^4.1.8
   "@types/which": ^3.0.4
   "@types/yargs": ^17.0.35
-  "@typespec/ts-http-runtime": 0.3.6
+  "@typespec/ts-http-runtime": 0.3.7
   "@vitejs/plugin-react": ^6.0.1
   "@vitest/coverage-v8": ^4.1.3
   "@vitest/ui": ^4.1.3
   "@vscode/extension-telemetry": ^1.5.1
   "@vscode/test-electron": ^3.0.0
-  "@vscode/test-web": ^0.0.80
+  "@vscode/test-web": ^0.0.81
   "@vscode/vsce": ^3.7.1
   "@yarnpkg/core": ^4.6.0
   "@yarnpkg/fslib": ^3.1.4
@@ -83,8 +96,8 @@ catalog:
   "@yarnpkg/plugin-pnp": ^4.1.3
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
-  astro: ^7.0.0
-  astro-expressive-code: ^0.43.1
+  astro: ^7.0.9
+  astro-expressive-code: ^0.44.0
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^11.0.0
   change-case: ^5.4.4
@@ -117,7 +130,7 @@ catalog:
   mustache: ^4.2.0
   ora: ^9.3.0
   oxlint: ^1.69.0
-  oxlint-tsgolint: ^0.23.0
+  oxlint-tsgolint: ^0.24.0
   p-limit: ^7.3.0
   pathe: ^2.0.3
   picocolors: ^1.1.1
@@ -127,7 +140,7 @@ catalog:
   prettier: ^3.9.5
   prettier-plugin-astro: ^0.14.1
   prettier-plugin-organize-imports: ^4.3.0
-  prettier-plugin-sh: ^0.18.1
+  prettier-plugin-sh: ^0.19.0
   prism-react-renderer: ^2.4.1
   react: ^19.2.7
   react-dom: ^19.2.7
@@ -153,14 +166,14 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  turbo: 2.9.14
+  turbo: 2.10.5
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
   uri-template: ^2.0.0
-  vite: ^8.0.8
+  vite: ^8.1.2
   vite-plugin-checker: ^0.14.1
-  vite-plugin-dts: 5.0.2
+  vite-plugin-dts: 5.0.3
   vitest: ^4.1.3
   vscode-languageclient: ^10.0.0
   vscode-languageserver: ^10.0.0
@@ -175,11 +188,21 @@ catalog:
 ignoredBuiltDependencies:
   - esbuild
 
-minimumReleaseAge: 2880
+minimumReleaseAge: 10080 # 7 days
 
 minimumReleaseAgeExclude:
   - "@alloy-js/*"
   - "@pinterest/alloy-graphql"
+
+packageExtensions:
+  # The alloy toolchain (@alloy-js/rollup-plugin -> @babel/preset-typescript@7.x) only supports
+  # Babel 7. Because @alloy-js/rollup-plugin doesn't depend on @babel/core directly, pnpm
+  # auto-installs the transitive @babel/core peer as the latest version (8.x), which breaks with
+  # "Requires Babel ^7.0.0-0". Give the plugin an explicit @babel/core dependency so the whole
+  # toolchain resolves against Babel 7.
+  "@alloy-js/rollup-plugin":
+    dependencies:
+      "@babel/core": ^7.29.0
 
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
