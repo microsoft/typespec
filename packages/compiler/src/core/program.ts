@@ -309,10 +309,15 @@ async function createProgram(
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
     useCache<T>(key: symbol, type: Type, compute: () => T): T {
-      // Only cache from the "validating" stage onward. During "parsing" and
-      // "checking", decorators may still mutate types, so cached values could
-      // become stale.
-      if (currentStage === "parsing" || currentStage === "checking") {
+      // Only cache from the "linting" stage onward. During "parsing" and
+      // "checking", decorators may still mutate types. During "validating",
+      // validators may call getHttpOperation for validation purposes and we
+      // want to avoid polluting the cache before all validators have run.
+      if (
+        currentStage === "parsing" ||
+        currentStage === "checking" ||
+        currentStage === "validating"
+      ) {
         return compute();
       }
       const map = program.stateMap(key);

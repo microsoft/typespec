@@ -365,8 +365,8 @@ describe("HTTP operation caching", () => {
       // Verify nothing was cached during checking stage
       strictEqual(cache.has(myOp), false);
 
-      // Restore to validating stage — now caching should work
-      program.setCurrentStage("validating");
+      // Restore to linting stage — now caching should work
+      program.setCurrentStage("linting");
       const [afterValidating] = getHttpOperation(program, myOp);
       strictEqual(afterValidating.path, "/widgets/items");
 
@@ -396,8 +396,8 @@ describe("HTTP operation caching", () => {
       // Should NOT have been cached
       strictEqual(cache.has(myOp), false);
 
-      // After moving to validating stage, result should be cached
-      program.setCurrentStage("validating");
+      // After moving to linting stage, result should be cached
+      program.setCurrentStage("linting");
       const [opsAfterValidating] = listHttpOperationsIn(program, Widgets);
       strictEqual(opsAfterValidating.length, 1);
       strictEqual(opsAfterValidating[0].path, "/widgets");
@@ -411,7 +411,7 @@ describe("HTTP operation caching", () => {
       // 2. Without the stage guard, the incomplete result gets cached
       // 3. Later callers (linter rules, emitters) get the stale/incomplete result
       //
-      // program.useCache prevents this by only caching from "validating" onward.
+      // program.useCache prevents this by only caching from "linting" onward.
       const { myOp, program } = await Tester.compile(t.code`
        @service(#{title: "Test"}) namespace TestService;
        @route("/parent")
@@ -430,8 +430,8 @@ describe("HTTP operation caching", () => {
       getHttpOperation(program, myOp);
       strictEqual(cache.has(myOp), false);
 
-      // Phase 2: post-checking call — e.g. from a validator or linter rule
-      program.setCurrentStage("validating");
+      // Phase 2: post-checking call — e.g. from a linter rule or emitter
+      program.setCurrentStage("linting");
       const [finalResult] = getHttpOperation(program, myOp);
 
       // The result should be the fully-resolved path, not a stale incomplete one
