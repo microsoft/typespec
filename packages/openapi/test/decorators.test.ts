@@ -176,6 +176,42 @@ describe("@info", () => {
     });
   });
 
+  it("set license identifier", async () => {
+    const { program, Service } = await Tester.compile(t.code`
+      @info(#{
+        license: #{
+          name: "MIT",
+          identifier: "MIT",
+        },
+      })
+      namespace ${t.namespace("Service")} {}
+    `);
+
+    deepStrictEqual(getInfo(program, Service), {
+      license: {
+        name: "MIT",
+        identifier: "MIT",
+      },
+    });
+  });
+
+  it("emit diagnostic when both license url and identifier are set", async () => {
+    const diagnostics = await Tester.diagnose(`
+      @info(#{
+        license: #{
+          name: "Apache 2.0",
+          url: "http://www.apache.org/licenses/LICENSE-2.0.html",
+          identifier: "Apache-2.0",
+        },
+      })
+      namespace Service {}
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi/license-url-identifier-conflict",
+    });
+  });
+
   it("emit diagnostic if termsOfService is not a valid url", async () => {
     const diagnostics = await Tester.diagnose(`
       @info(#{termsOfService:"notvalidurl"})

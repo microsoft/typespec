@@ -4,6 +4,7 @@ import { Executable } from "vscode-languageclient/node";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { normalizeSlashes } from "./path-utils.js";
+import { resolveTaskCommand } from "./task-command.js";
 import { resolveTypeSpecCli } from "./tsp-executable-resolver.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
@@ -70,21 +71,26 @@ function getTaskPath(targetPath: string): { absoluteTargetPath: string; workspac
   return { absoluteTargetPath: targetPath, workspaceFolder };
 }
 
+/**
+ * Create a tsp compile {@link vscode.Task} that runs via {@link vscode.ProcessExecution}
+ * (no shell) so workspace paths and task arguments cannot be interpreted as shell
+ * commands.
+ */
 function createTaskInternal(
   name: string,
   absoluteTargetPath: string,
-  args: string,
+  args: string[],
   cli: Executable,
   workspaceFolder: string,
 ) {
-  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${absoluteTargetPath}" ${args}`;
-  const variableResolver = new VSCodeVariableResolver({
+  const { command, args: commandArgs } = resolveTaskCommand(
+    absoluteTargetPath,
+    args,
+    cli,
     workspaceFolder,
-    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
-  });
-  cmd = variableResolver.resolve(cmd);
+  );
   logger.debug(
-    `Command of tsp compile task "${name}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`,
+    `Command of tsp compile task "${name}" is resolved to: ${command} ${commandArgs.join(" ")} with cwd "${workspaceFolder}"`,
   );
   return new vscode.Task(
     {
@@ -96,18 +102,18 @@ function createTaskInternal(
     name,
     "tsp",
     workspaceFolder
-      ? new vscode.ShellExecution(cmd, { cwd: workspaceFolder })
-      : new vscode.ShellExecution(cmd),
+      ? new vscode.ProcessExecution(command, commandArgs, { cwd: workspaceFolder })
+      : new vscode.ProcessExecution(command, commandArgs),
   );
 }
 
-async function createTask(name: string, targetPath: string, args?: string) {
+async function createTask(name: string, targetPath: string, args?: string[]) {
   const { absoluteTargetPath, workspaceFolder } = getTaskPath(targetPath);
   const cli = await resolveTypeSpecCli(absoluteTargetPath);
   if (!cli) {
     return undefined;
   }
-  return await createTaskInternal(name, absoluteTargetPath, args ?? "", cli, workspaceFolder);
+  return await createTaskInternal(name, absoluteTargetPath, args ?? [], cli, workspaceFolder);
 }
 
 async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
@@ -117,8 +123,8 @@ async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
     return [];
   }
   return [
-    { name: `compile - ${targetPath}`, args: "" },
-    { name: `watch - ${targetPath}`, args: "--watch" },
+    { name: `compile - ${targetPath}`, args: [] },
+    { name: `watch - ${targetPath}`, args: ["--watch"] },
   ].map(({ name, args }) => {
     return createTaskInternal(name, absoluteTargetPath, args, cli, workspaceFolder);
   });

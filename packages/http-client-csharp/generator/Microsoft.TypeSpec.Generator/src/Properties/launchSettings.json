@@ -55,6 +55,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-encode-boolean": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/boolean -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-encode-bytes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/bytes -g StubLibraryGenerator",
       "commandName": "Executable",
