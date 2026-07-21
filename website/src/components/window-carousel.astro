@@ -1,6 +1,11 @@
 ---
 import Window from "./window.astro";
 const tabs = Object.keys(Astro.slots);
+const slug = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 ---
 
 <style>
@@ -50,19 +55,29 @@ const tabs = Object.keys(Astro.slots);
     list-style: none;
   }
 
-  a[role="tab"] {
+  a[role="tab"],
+  button[role="tab"] {
     display: block;
     color: var(--colorNeutralForeground2);
     cursor: pointer;
     padding-bottom: 3px;
     border-bottom: 2px solid transparent;
   }
-  a[role="tab"]:hover {
+  button[role="tab"] {
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font: inherit;
+  }
+  a[role="tab"]:hover,
+  button[role="tab"]:hover {
     color: var(--colorBrandForeground1);
     cursor: pointer;
     border-bottom-color: var(--colorBrandForeground1);
   }
-  a[role="tab"][aria-selected="true"] {
+  a[role="tab"][aria-selected="true"],
+  button[role="tab"][aria-selected="true"] {
     border-bottom-color: var(--colorBrandForeground1);
   }
 </style>
@@ -73,25 +88,33 @@ const tabs = Object.keys(Astro.slots);
       tabs.map(async (name, i) => {
         const render = await Astro.slots.render(name);
         return (
-          <Window class:list={["item", i === 0 && "item-selected"]} role="tabpanel">
+          <Window
+            class:list={["item", i === 0 && "item-selected"]}
+            id={`carousel-panel-${slug(name)}`}
+            role="tabpanel"
+            aria-labelledby={`carousel-tab-${slug(name)}`}
+            tabindex="0"
+          >
             <Fragment set:html={render} />
           </Window>
         );
       })
     }
   </div>
-  <ul role="tablist">
+  <ul role="tablist" aria-label="Sample views">
     {
       tabs.map((name, i) => (
         <li role="presentation" class="tab">
-          <a
+          <button
+            type="button"
             role="tab"
-            id={name}
+            id={`carousel-tab-${slug(name)}`}
+            aria-controls={`carousel-panel-${slug(name)}`}
             aria-selected={i === 0 ? "true" : "false"}
             tabindex={i !== 0 ? -1 : 0}
           >
             {name}
-          </a>
+          </button>
         </li>
       ))
     }
@@ -100,15 +123,14 @@ const tabs = Object.keys(Astro.slots);
 
 <script>
   class CarouselTabs extends HTMLElement {
-    tabs: HTMLAnchorElement[];
+    tabs: HTMLButtonElement[];
     panels: HTMLElement[];
 
     constructor() {
       super();
       const tablist = this.querySelector<HTMLUListElement>('[role="tablist"]')!;
-      this.tabs = [...tablist.querySelectorAll<HTMLAnchorElement>('[role="tab"]')];
+      this.tabs = [...tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
       this.panels = [...this.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
-      console.log("register", this.tabs);
 
       this.panels.forEach((panel, i) => {
         panel.addEventListener("click", (e) => {
@@ -122,7 +144,7 @@ const tabs = Object.keys(Astro.slots);
           e.preventDefault();
           const currentTab = tablist.querySelector('[aria-selected="true"]');
           if (e.currentTarget !== currentTab) {
-            this.switchTab(e.currentTarget as HTMLAnchorElement, i);
+            this.switchTab(e.currentTarget as HTMLButtonElement, i);
           }
         });
 
@@ -150,7 +172,7 @@ const tabs = Object.keys(Astro.slots);
       });
     }
 
-    switchTab(newTab: HTMLAnchorElement | null | undefined, index: number, shouldSync = true) {
+    switchTab(newTab: HTMLButtonElement | null | undefined, index: number, shouldSync = true) {
       if (!newTab) return;
 
       // If tabs should be synced, we store the current position so we can restore it after
@@ -169,7 +191,6 @@ const tabs = Object.keys(Astro.slots);
 
       // Show new panel and mark new tab as selected.
       const newPanel = this.panels[index];
-      console.log("Switch", newPanel, this.panels);
       if (newPanel) newPanel.classList.add("item-selected");
       // Restore active tab to the default tab order.
       newTab.removeAttribute("tabindex");
