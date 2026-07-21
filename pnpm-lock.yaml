@@ -1115,15 +1115,9 @@ importers:
 
   packages/http-canonicalization:
     dependencies:
-      '@typespec/compiler':
-        specifier: workspace:^
-        version: link:../compiler
       '@typespec/emitter-framework':
         specifier: workspace:^
         version: link:../emitter-framework
-      '@typespec/http':
-        specifier: workspace:^
-        version: link:../http
       '@typespec/mutator-framework':
         specifier: workspace:^
         version: link:../mutator-framework
@@ -1134,6 +1128,12 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.1.1
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
       concurrently:
         specifier: 'catalog:'
         version: 10.0.3
