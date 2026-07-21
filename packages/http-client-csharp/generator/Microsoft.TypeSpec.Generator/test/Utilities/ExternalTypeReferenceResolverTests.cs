@@ -276,11 +276,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 nugetCacheDir, packageName, version, source, referencedAssemblyPaths, dependencies);
         }
 
-                private static void WriteLocalNuGetConfig(string projectDir, string nugetCacheDir)
-                {
-                        var nugetConfigPath = Path.Combine(projectDir, "NuGet.Config");
-                        var normalizedCachePath = nugetCacheDir.Replace("\\", "/");
-                        var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+        private static void WriteLocalNuGetConfig(string projectDir, string nugetCacheDir)
+        {
+            var nugetConfigPath = Path.Combine(projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCacheDir.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <configuration>
     <packageSources>
         <clear />
@@ -291,19 +291,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
     </disabledPackageSources>
 </configuration>";
 
-                        File.WriteAllText(nugetConfigPath, config);
-                }
+            File.WriteAllText(nugetConfigPath, config);
+        }
 
-                    private static void ResetResolverIfInitialized()
-                    {
-                        try
-                        {
-                            ExternalTypeReferenceResolver.Reset();
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            // CodeModelGenerator may not be initialized yet when this fixture runs in isolation.
-                        }
-                    }
+        private static void ResetResolverIfInitialized()
+        {
+            try
+            {
+                ExternalTypeReferenceResolver.Reset();
+            }
+            catch (InvalidOperationException)
+            {
+                // CodeModelGenerator may not be initialized yet when this fixture runs in isolation.
+            }
+        }
     }
 }
