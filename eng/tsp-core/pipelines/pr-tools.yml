@@ -80,6 +80,8 @@ extends:
             displayName: Create TryIt comment
             dependsOn: tryit
             steps:
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - pwsh: |
                   $curlCommand = 'curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension"'
                   $response = Invoke-Expression $curlCommand

@@ -10,8 +10,6 @@
     <!-- Set this to 'all' explicitly to get a consistent behavior. It's the default value now in latest VS/.Net/NugetMgr, but maybe not in some previous version -->
     <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
     <NuGetAuditMode>all</NuGetAuditMode>
-    <!-- Non-Windows CI builds use dotnet restore/build and can fail with NU1900 when the vulnerability feed is unreachable. -->
-    <NuGetAudit Condition="'$(OS)' != 'Windows_NT'">false</NuGetAudit>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
     <Version>42.42.42</Version>
