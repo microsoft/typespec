@@ -102,6 +102,8 @@ export interface KeyedMockResponse<K extends string = string> extends MockRespon
 export interface MockBody {
   contentType: string;
   rawContent: string | Buffer | Resolver | undefined;
+  /** When set, the response body is streamed as separate chunks instead of sent as a single buffer. */
+  streamChunks?: Buffer[];
 }
 
 export interface ResolverConfig {

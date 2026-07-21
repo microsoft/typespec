@@ -53,6 +53,17 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
     def name(self) -> str:
         return self.yaml_data["name"]
 
+    @property
+    def has_docstring_only_keyword(self) -> bool:
+        """Whether the constructor docstring documents a ``:keyword:`` that is not a real
+        keyword-only argument (it is popped from ``kwargs`` instead).
+
+        This happens for params routed to ``**kwargs`` (e.g. ``api_version``): they are
+        still rendered as ``:keyword:`` in the docstring, so we must silence the
+        ``docstring-keyword-should-match-keyword-only`` guideline check.
+        """
+        return any(p for p in self.parameters.method if p.method_location == ParameterMethodLocation.KWARG)
+
 
 class Client(_ClientConfigBase[ClientGlobalParameterList]):
     """Model representing our service client"""
@@ -187,6 +198,8 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             retval = add_to_pylint_disable(retval, "too-many-instance-attributes")
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
+        if self.has_docstring_only_keyword or self.has_public_lro_operations:
+            retval = add_to_pylint_disable(retval, "docstring-keyword-should-match-keyword-only")
         return retval
 
     @property
@@ -375,6 +388,8 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         retval = add_to_pylint_disable("", "too-many-instance-attributes") if self.code_model.is_azure_flavor else ""
         if len(self.name) > NAME_LENGTH_LIMIT:
             retval = add_to_pylint_disable(retval, "name-too-long")
+        if self.has_docstring_only_keyword:
+            retval = add_to_pylint_disable(retval, "docstring-keyword-should-match-keyword-only")
         return retval
 
     @property

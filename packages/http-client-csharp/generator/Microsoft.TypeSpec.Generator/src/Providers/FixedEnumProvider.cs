@@ -73,6 +73,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
+            var generatedNames = AllowedValues
+                .Select(v => v.IsExactName ? v.Name : v.Name.ToIdentifierName())
+                .ToArray();
+            var lastContractFields = LastContractView?.Fields ?? [];
+            var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
 
             var values = new EnumTypeMember[AllowedValues.Count];
 
@@ -81,13 +86,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = inputValue.IsExactName ? inputValue.Name : inputValue.Name.ToIdentifierName();
+                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames);
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
                 foreach (var customMember in customMembers)
                 {
-                    if (customMember.OriginalName == name)
+                    if (customMember.OriginalName == generatedNames[i])
                     {
                         customMemberName = customMember.Name;
                     }
@@ -124,10 +129,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var currentLookup = currentValues.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
             var allMembers = new List<EnumTypeMember>(currentValues.Count);
+            var processedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var customMemberLastContractNames = GetCustomMemberLastContractNames(lastContractFields);
 
             foreach (var field in lastContractFields)
             {
-                if (currentLookup.TryGetValue(field.Name, out var existingMember))
+                if (currentLookup.TryGetValue(field.Name, out var existingMember) && processedNames.Add(existingMember.Name))
                 {
                     // By default, preserve the last contract's explicit value for integer enums so
                     // members keep their exact values. If the baseline accepts a value change for this
@@ -151,6 +158,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         initializationValue);
                     allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, memberValue));
                 }
+                else if (customMemberLastContractNames.Contains(field.Name))
+                {
+                    continue;
+                }
                 else if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, field.Name, 0) == true)
                 {
                     CodeModelGenerator.Instance.Emitter.Debug(
@@ -167,7 +178,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Then, add new members that weren't in the last contract (in their original input order).
-            AppendMembersNotInLastContract(currentValues, lastContractFields, allMembers);
+            foreach (var current in currentValues)
+            {
+                if (!processedNames.Contains(current.Name))
+                {
+                    allMembers.Add(current);
+                }
+            }
 
             // Report a reordering only when the relative order of members present in BOTH the
             // current values and the resulting set was actually altered.
@@ -179,6 +196,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return allMembers;
+        }
+
+        private HashSet<string> GetCustomMemberLastContractNames(IReadOnlyList<FieldProvider> lastContractFields)
+        {
+            var customOriginalNames = new HashSet<string>(
+                CustomCodeView?.Fields
+                    .Where(f => f.OriginalName != null)
+                    .Select(f => f.OriginalName!) ?? [],
+                StringComparer.Ordinal);
+            var generatedNames = AllowedValues
+                .Select(v => v.IsExactName ? v.Name : v.Name.ToIdentifierName())
+                .ToArray();
+            var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
+            var customMemberLastContractNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < generatedNames.Length; i++)
+            {
+                if (customOriginalNames.Contains(generatedNames[i]))
+                {
+                    customMemberLastContractNames.Add(
+                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames));
+                }
+            }
+
+            return customMemberLastContractNames;
         }
 
         private bool TryResurrectRemovedMember(FieldProvider lastContractField, [NotNullWhen(true)] out EnumTypeMember? member)
@@ -225,19 +267,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentNames = new HashSet<string>(currentValues.Count, StringComparer.Ordinal);
             foreach (var member in currentValues)
             {
-                currentNames.Add(member.Name);
+                currentNames.Add(RemoveUnderscores(member.Name));
             }
 
             var index = 0;
             foreach (var member in result)
             {
-                if (!currentNames.Contains(member.Name))
+                if (!currentNames.Contains(RemoveUnderscores(member.Name)))
                 {
                     continue;
                 }
 
                 if (index >= currentValues.Count
-                    || !string.Equals(member.Name, currentValues[index].Name, StringComparison.Ordinal))
+                    || !string.Equals(
+                        RemoveUnderscores(member.Name),
+                        RemoveUnderscores(currentValues[index].Name),
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }

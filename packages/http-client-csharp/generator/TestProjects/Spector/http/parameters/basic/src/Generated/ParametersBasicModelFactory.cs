@@ -3,6 +3,7 @@
 #nullable disable
 
 using Parameters.Basic._ExplicitBody;
+using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {

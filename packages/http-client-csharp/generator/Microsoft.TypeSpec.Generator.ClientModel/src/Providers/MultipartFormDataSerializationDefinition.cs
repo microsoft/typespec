@@ -57,9 +57,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
 
-        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
-            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
-
         protected override ConstructorProvider[] BuildConstructors()
         {
             if (_hasJsonOrXmlUsage)

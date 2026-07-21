@@ -102,6 +102,9 @@ catalogs:
     '@octokit/plugin-rest-endpoint-methods':
       specifier: ^17.0.0
       version: 17.0.0
+    '@pinterest/alloy-graphql':
+      specifier: ^1.1.0
+      version: 1.1.0
     '@playwright/test':
       specifier: ^1.60.0
       version: 1.61.0
@@ -294,6 +297,9 @@ catalogs:
     fast-xml-parser:
       specifier: ^5.7.0
       version: 5.9.3
+    graphql:
+      specifier: ^17.0.0-alpha.9
+      version: 17.0.2
     happy-dom:
       specifier: ^20.9.0
       version: 20.10.6
@@ -402,9 +408,6 @@ catalogs:
     simple-git:
       specifier: ^3.36.0
       version: 3.36.0
-    source-map-support:
-      specifier: ^0.5.21
-      version: 0.5.21
     storybook:
       specifier: ^10.3.5
       version: 10.4.6
@@ -500,6 +503,7 @@ overrides:
   cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
   diff@>=6.0.0 <8.0.3: '>=8.0.3'
   dompurify: ^3.3.3
+  sigstore@<4.1.1: ^4.1.1
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
 
 importers:
@@ -839,9 +843,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       tmlanguage-generator:
         specifier: workspace:^
         version: link:../tmlanguage-generator
@@ -939,6 +940,58 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 4.1.9(vitest@4.1.9)
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.1.3
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.9(@types/node@26.0.0)(@vitest/coverage-v8@4.1.9)(@vitest/ui@4.1.9)(happy-dom@20.10.6)(jsdom@25.0.1)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(tsx@4.22.4)(yaml@2.9.0))
+
+  packages/graphql:
+    dependencies:
+      '@alloy-js/core':
+        specifier: 'catalog:'
+        version: 0.24.1
+      '@alloy-js/typescript':
+        specifier: 'catalog:'
+        version: 0.24.0
+      '@pinterest/alloy-graphql':
+        specifier: 'catalog:'
+        version: 1.1.0
+      change-case:
+        specifier: 'catalog:'
+        version: 5.4.4
+      graphql:
+        specifier: 'catalog:'
+        version: 17.0.2
+    devDependencies:
+      '@alloy-js/cli':
+        specifier: 'catalog:'
+        version: 0.24.0
+      '@alloy-js/rollup-plugin':
+        specifier: 'catalog:'
+        version: 0.1.2(@babel/core@7.29.7)(@types/babel__core@7.20.5)(rollup@4.62.2)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.0.0
+      '@typespec/compiler':
+        specifier: workspace:~
+        version: link:../compiler
+      '@typespec/emitter-framework':
+        specifier: workspace:~
+        version: link:../emitter-framework
+      '@typespec/http':
+        specifier: workspace:~
+        version: link:../http
+      '@typespec/mutator-framework':
+        specifier: workspace:~
+        version: link:../mutator-framework
+      '@typespec/tspd':
+        specifier: workspace:~
+        version: link:../tspd
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1418,6 +1471,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
@@ -1430,6 +1486,9 @@ importers:
       '@typespec/spector':
         specifier: workspace:^
         version: link:../spector
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
       '@typespec/versioning':
         specifier: workspace:^
         version: link:../versioning
@@ -1763,9 +1822,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1929,6 +1985,9 @@ importers:
       '@typespec/events':
         specifier: workspace:^
         version: link:../events
+      '@typespec/graphql':
+        specifier: workspace:^
+        version: link:../graphql
       '@typespec/html-program-viewer':
         specifier: workspace:^
         version: link:../html-program-viewer
@@ -2419,9 +2478,6 @@ importers:
       picocolors:
         specifier: 'catalog:'
         version: 1.1.1
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -2703,9 +2759,6 @@ importers:
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
-      source-map-support:
-        specifier: 'catalog:'
-        version: 0.5.21
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -5886,6 +5939,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@pinterest/alloy-graphql@1.1.0':
+    resolution: {integrity: sha512-4HDWyHC51xl3FguYJSzwda3Lr/JxjxDM9Hr62OZ4JEQ3o/bYXd3blfbvvDtTcEvi6u23qYocgFR1jQLpvIwy2A==}
+
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -6899,49 +6955,25 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@sigstore/bundle@3.1.0':
-    resolution: {integrity: sha512-Mm1E3/CmDDCz3nDhFKTuYdB47EdRFRQMOE/EAbiG1MJW77/w1b3P7Qx7JSrVJs8PfwOLOVcKQCHErIwCTyPbag==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
   '@sigstore/bundle@4.0.0':
     resolution: {integrity: sha512-NwCl5Y0V6Di0NexvkTqdoVfmjTaQwoLM236r89KEojGmq/jMls8S+zb7yOwAPdXvbwfKDlP+lmXgAL4vKSQT+A==}
     engines: {node: ^20.17.0 || >=22.9.0}
-
-  '@sigstore/core@2.0.0':
-    resolution: {integrity: sha512-nYxaSb/MtlSI+JWcwTHQxyNmWeWrUXJJ/G4liLrGG7+tS4vAz6LF3xRXqLH6wPIVUoZQel2Fs4ddLx4NCpiIYg==}
-    engines: {node: ^18.17.0 || >=20.5.0}
 
   '@sigstore/core@3.2.1':
     resolution: {integrity: sha512-qRsxPnCrbC/puegGxKuynfnxgLiHqWStrSjxkoB4YKqq3Z3s4cyZyj42ZdWFAEblNP65C+rBH8EuREHIXoi83g==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  '@sigstore/protobuf-specs@0.4.3':
-    resolution: {integrity: sha512-fk2zjD9117RL9BjqEwF7fwv7Q/P9yGsMV4MUJZ/DocaQJ6+3pKr+syBq1owU5Q5qGw5CUbXzm+4yJ2JVRDQeSA==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
   '@sigstore/protobuf-specs@0.5.1':
     resolution: {integrity: sha512-/ScWUhhoFasJsSRGTVBwId1loQjjnjAfE4djL6ZhrXRpNCmPTnUKF5Jokd58ILseOMjzET3UrMOtJPS9sYeI0g==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
-  '@sigstore/sign@3.1.0':
-    resolution: {integrity: sha512-knzjmaOHOov1Ur7N/z4B1oPqZ0QX5geUfhrVaqVlu+hl0EAoL4o+l0MSULINcD5GCWe3Z0+YJO8ues6vFlW0Yw==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
   '@sigstore/sign@4.1.1':
     resolution: {integrity: sha512-Hf4xglukg0XXQ2RiD5vSoLjdPe8OBUPA8XeVjUObheuDcWdYWrnH/BNmxZCzkAy68MzmNCxXLeurJvs6hcP2OQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  '@sigstore/tuf@3.1.1':
-    resolution: {integrity: sha512-eFFvlcBIoGwVkkwmTi/vEQFSva3xs5Ot3WmBcjgjVdiaoelBLQaQ/ZBfhlG0MnG0cmTYScPpk7eDdGDWUcFUmg==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
   '@sigstore/tuf@4.0.2':
     resolution: {integrity: sha512-TCAzTy0xzdP79EnxSjq9KQ3eaR7+FmudLC6eRKknVKZbV7ZNlGLClAAQb/HMNJ5n2OBNk2GT1tEmU0xuPr+SLQ==}
     engines: {node: ^20.17.0 || >=22.9.0}
-
-  '@sigstore/verify@2.1.1':
-    resolution: {integrity: sha512-hVJD77oT67aowHxwT4+M6PGOp+E2LtLdTK3+FC0lBO9T7sYwItDMXZ7Z07IDCvR1M717a4axbIWckrW67KMP/w==}
-    engines: {node: ^18.17.0 || >=20.5.0}
 
   '@sigstore/verify@3.1.1':
     resolution: {integrity: sha512-qv7+G3J2cc6wwFj3yKvXOamzqhMwSk1ogPGmhpS8iXllcPrJaIIBA+4HbttlHVu1pqWTdmaCH/WE7UOC51kdoA==}
@@ -7101,10 +7133,6 @@ packages:
   '@tufjs/canonical-json@2.0.0':
     resolution: {integrity: sha512-yVtV8zsdo8qFHe+/3kw81dSLyF7D576A5cCFCi4X7B39tWT7SekaEFUnvnWJHz+9qO7qJTah1JbrDjWKqFtdWA==}
     engines: {node: ^16.14.0 || >=18.0.0}
-
-  '@tufjs/models@3.0.1':
-    resolution: {integrity: sha512-UUYHISyhCU3ZgN8yaear3cGATHb3SMuKHsQ/nVbHXcmnBf+LzQ/cQfhNG+rfaSHgqGKNEm2cOCLVLELStUQ1JA==}
-    engines: {node: ^18.17.0 || >=20.5.0}
 
   '@tufjs/models@4.1.0':
     resolution: {integrity: sha512-Y8cK9aggNRsqJVaKUlEYs4s7CvQ1b1ta2DVPyAimb0I2qhzjNk+A+mxvll/klL0RlfuIUei8BF7YWiua4kQqww==}
@@ -9748,6 +9776,10 @@ packages:
   grapheme-splitter@1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
 
+  graphql@17.0.2:
+    resolution: {integrity: sha512-FRWbddMxfkjiB7z+aQDWIR+E34xo9I8c9mtK2RPv8PmMzKRvrdsreHL/Ui/TmwHJfhHChEtsFPyMHKI+xuarQQ==}
+    engines: {node: ^22.0.0 || ^24.0.0 || ^25.0.0 || >=26.0.0}
+
   gray-matter@4.0.3:
     resolution: {integrity: sha512-5v6yZd4JK3eMI3FqqCouswVqwugaA9r4dNZB1wwcmrD02QkV5H0y7XBQW8QwQqEaZY1pM9aqORSORhJRdNK44Q==}
     engines: {node: '>=6.0'}
@@ -12337,10 +12369,6 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  sigstore@3.1.0:
-    resolution: {integrity: sha512-ZpzWAFHIFqyFE56dXqgX/DkDRZdz+rRcjoIk/RQU4IX0wiCv1l8S7ZrXDHcCc+uaf+6o7w3h2l3g6GYG5TKN9Q==}
-    engines: {node: ^18.17.0 || >=20.5.0}
-
   sigstore@4.1.1:
     resolution: {integrity: sha512-endqECJkfhozrXMK5ngu/UAA0xVcVEFdnHJCElGaExypjW+HK5i6zu3NteLoaX/iFbRUbC3+DjttQs0GARr+5w==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -12902,10 +12930,6 @@ packages:
     resolution: {integrity: sha512-X8EX+XV4QR5xCsrgxaED954zTDfY8KqlDtskKEL0cHhyS/P8b4IFOvGDQpsC9Q1XnLq915wEfwwY/zzskCtmhg==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  tuf-js@3.1.0:
-    resolution: {integrity: sha512-3T3T04WzowbwV2FDiGXBbr81t64g1MUGGJRgT4x5o97N+8ArdhVCAF9IxFrxuSJmM3E5Asn7nKHkao0ibcZXAg==}
-    engines: {node: ^18.17.0 || >=20.5.0}
 
   tuf-js@4.1.0:
     resolution: {integrity: sha512-50QV99kCKH5P/Vs4E2Gzp7BopNV+KzTXqWeaxrfu5IQJBOULRsTIS9seSsOVT8ZnGXzCyx55nYWAi4qJzpZKEQ==}
@@ -17520,6 +17544,16 @@ snapshots:
   '@pagefind/windows-x64@1.5.2':
     optional: true
 
+  '@pinterest/alloy-graphql@1.1.0':
+    dependencies:
+      '@alloy-js/core': 0.24.1
+      graphql: 17.0.2
+      pathe: 2.0.3
+      pluralize: 8.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
@@ -18953,32 +18987,13 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@sigstore/bundle@3.1.0':
-    dependencies:
-      '@sigstore/protobuf-specs': 0.4.3
-
   '@sigstore/bundle@4.0.0':
     dependencies:
       '@sigstore/protobuf-specs': 0.5.1
 
-  '@sigstore/core@2.0.0': {}
-
   '@sigstore/core@3.2.1': {}
 
-  '@sigstore/protobuf-specs@0.4.3': {}
-
   '@sigstore/protobuf-specs@0.5.1': {}
-
-  '@sigstore/sign@3.1.0':
-    dependencies:
-      '@sigstore/bundle': 3.1.0
-      '@sigstore/core': 2.0.0
-      '@sigstore/protobuf-specs': 0.4.3
-      make-fetch-happen: 14.0.3
-      proc-log: 5.0.0
-      promise-retry: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@sigstore/sign@4.1.1':
     dependencies:
@@ -18991,25 +19006,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@sigstore/tuf@3.1.1':
-    dependencies:
-      '@sigstore/protobuf-specs': 0.4.3
-      tuf-js: 3.1.0
-    transitivePeerDependencies:
-      - supports-color
-
   '@sigstore/tuf@4.0.2':
     dependencies:
       '@sigstore/protobuf-specs': 0.5.1
       tuf-js: 4.1.0
     transitivePeerDependencies:
       - supports-color
-
-  '@sigstore/verify@2.1.1':
-    dependencies:
-      '@sigstore/bundle': 3.1.0
-      '@sigstore/core': 2.0.0
-      '@sigstore/protobuf-specs': 0.4.3
 
   '@sigstore/verify@3.1.1':
     dependencies:
@@ -19221,11 +19223,6 @@ snapshots:
       '@textlint/ast-node-types': 15.7.1
 
   '@tufjs/canonical-json@2.0.0': {}
-
-  '@tufjs/models@3.0.1':
-    dependencies:
-      '@tufjs/canonical-json': 2.0.0
-      minimatch: 9.0.9
 
   '@tufjs/models@4.1.0':
     dependencies:
@@ -20117,7 +20114,7 @@ snapshots:
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
-      ink: 3.2.0(@types/react@19.2.17)(react@19.2.7)
+      ink: 3.2.0(@types/react@19.2.17)(react@17.0.2)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@19.2.17)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.8.5
@@ -20179,7 +20176,7 @@ snapshots:
       es-toolkit: 1.48.1
       micromatch: 4.0.8
       semver: 7.8.5
-      sigstore: 3.1.0
+      sigstore: 4.1.1
       ssri: 12.0.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -20267,7 +20264,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.9.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.48.1
-      ink: 3.2.0(@types/react@19.2.17)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.17)(react@19.2.7)
       react: 17.0.2
       semver: 7.8.5
       tslib: 2.8.1
@@ -22479,6 +22476,8 @@ snapshots:
       '@esfx/disposable': 1.0.0
 
   grapheme-splitter@1.0.4: {}
+
+  graphql@17.0.2: {}
 
   gray-matter@4.0.3:
     dependencies:
@@ -25879,17 +25878,6 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  sigstore@3.1.0:
-    dependencies:
-      '@sigstore/bundle': 3.1.0
-      '@sigstore/core': 2.0.0
-      '@sigstore/protobuf-specs': 0.4.3
-      '@sigstore/sign': 3.1.0
-      '@sigstore/tuf': 3.1.1
-      '@sigstore/verify': 2.1.1
-    transitivePeerDependencies:
-      - supports-color
-
   sigstore@4.1.1:
     dependencies:
       '@sigstore/bundle': 4.0.0
@@ -26483,14 +26471,6 @@ snapshots:
       esbuild: 0.28.1
     optionalDependencies:
       fsevents: 2.3.3
-
-  tuf-js@3.1.0:
-    dependencies:
-      '@tufjs/models': 3.0.1
-      debug: 4.4.3
-      make-fetch-happen: 14.0.3
-    transitivePeerDependencies:
-      - supports-color
 
   tuf-js@4.1.0:
     dependencies:

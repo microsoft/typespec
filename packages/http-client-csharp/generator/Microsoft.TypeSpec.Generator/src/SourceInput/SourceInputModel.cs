@@ -22,7 +22,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public ApiCompatBaseline ApiCompatBaseline { get; }
 
         private readonly Lazy<IReadOnlyDictionary<string, INamedTypeSymbol>> _nameMap;
-        private readonly Lazy<IReadOnlyList<TypeProvider>> _customizationTypeProviders;
 
         public SourceInputModel(Compilation? customization, Compilation? lastContract)
             : this(customization, lastContract, ApiCompatBaseline.Empty)
@@ -36,7 +35,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             ApiCompatBaseline = apiCompatBaseline ?? ApiCompatBaseline.Empty;
 
             _nameMap = new(PopulateNameMap);
-            _customizationTypeProviders = new(PopulateCustomizationTypeProviders);
         }
 
         private IReadOnlyDictionary<string, INamedTypeSymbol> PopulateNameMap()
@@ -69,32 +67,31 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCustomization(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
-        private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()
+        private TypeProvider? FindTypeInCompilation(
+            Compilation? compilation,
+            string ns,
+            string name,
+            bool includeReferencedAssemblies,
+            string? declaringTypeName,
+            bool includeInternal = true)
         {
-            var providers = new List<TypeProvider>();
-            if (Customization == null)
+            if (compilation == null)
             {
-                return providers;
+                return null;
+            }
+            string fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
+
+            var type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
+            if (!includeInternal && type != null && type.DeclaredAccessibility != Accessibility.Public)
+            {
+                type = null;
             }
 
-            foreach (IModuleSymbol module in Customization.Assembly.Modules)
-            {
-                foreach (var type in SourceInputHelper.GetSymbols(module.GlobalNamespace))
-                {
-                    if (type is INamedTypeSymbol namedTypeSymbol)
-                    {
-                        providers.Add(new NamedTypeSymbolProvider(namedTypeSymbol, Customization));
-                    }
-                }
-            }
-
-            return providers;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
-
-        internal IReadOnlyList<TypeProvider> CustomizationTypeProviders => _customizationTypeProviders.Value;
 
         private static INamedTypeSymbol? FindNamedTypeSymbol(Compilation compilation, bool includeReferencedAssemblies, string fullyQualifiedMetadataName)
             => includeReferencedAssemblies
@@ -111,8 +108,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             string ns,
             string name,
             bool includeReferencedAssemblies,
-            string? declaringTypeName = null,
-            bool includeInternal = true)
+            string? declaringTypeName = null)
         {
             if (compilation == null)
             {
@@ -121,24 +117,10 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             var fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
 
-            // Either find by the CodeGenType attribute in customization or by the actual type name.
-            INamedTypeSymbol? type = null;
-            if (ReferenceEquals(compilation, Customization) &&
-                _nameMap.Value.TryGetValue(name, out var mappedType) &&
-                IsContainingTypeMatch(mappedType, ns, declaringTypeName))
-            {
-                type = mappedType;
-            }
-
-            if (type == null)
+            // Either find by the CodeGenType attribute or by the actual type name.
+            if (!_nameMap.Value.TryGetValue(name, out var type))
             {
                 type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
-                type ??= FindNestedNamedTypeSymbol(compilation, ns, name, declaringTypeName);
-            }
-
-            if (!includeInternal && type != null && type.DeclaredAccessibility != Accessibility.Public)
-            {
-                type = null;
             }
 
             return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
@@ -168,47 +150,5 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             return name != null;
         }
-
-        private static INamedTypeSymbol? FindNestedNamedTypeSymbol(Compilation compilation, string ns, string name, string? declaringTypeName)
-        {
-            if (declaringTypeName == null)
-            {
-                return null;
-            }
-
-            foreach (var module in compilation.Assembly.Modules)
-            {
-                foreach (var type in SourceInputHelper.GetSymbols(module.GlobalNamespace))
-                {
-                    if (type is not INamedTypeSymbol namedTypeSymbol ||
-                        !string.Equals(namedTypeSymbol.Name, name, StringComparison.Ordinal) ||
-                        !string.Equals(GetContainingTypeName(namedTypeSymbol), declaringTypeName, StringComparison.Ordinal) ||
-                        !string.Equals(namedTypeSymbol.ContainingNamespace.ToDisplayString(), ns, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    return namedTypeSymbol;
-                }
-            }
-
-            return null;
-        }
-
-        private static string? GetContainingTypeName(INamedTypeSymbol symbol)
-        {
-            if (symbol.ContainingType is null)
-            {
-                return null;
-            }
-
-            var parentName = GetContainingTypeName(symbol.ContainingType);
-            return parentName is null
-                ? symbol.ContainingType.MetadataName
-                : $"{parentName}+{symbol.ContainingType.MetadataName}";
-        }
-
-        private static bool IsContainingTypeMatch(INamedTypeSymbol symbol, string ns, string? declaringTypeName)
-            => string.Equals(GetContainingTypeName(symbol), declaringTypeName, StringComparison.Ordinal);
     }
 }
