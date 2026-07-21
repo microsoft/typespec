@@ -40,7 +40,7 @@ public final class SpecialCharsImpl {
 
     /**
      * Initializes an instance of SpecialCharsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     SpecialCharsImpl(QueryClientImpl client) {
@@ -77,7 +77,7 @@ public final class SpecialCharsImpl {
 
     /**
      * The dollarSign operation.
-     *
+     * 
      * @param filter The filter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -94,7 +94,7 @@ public final class SpecialCharsImpl {
 
     /**
      * The dollarSign operation.
-     *
+     * 
      * @param filter The filter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

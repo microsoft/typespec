@@ -168,7 +168,6 @@ const sidebar: SidebarItem[] = [
       createLibraryReferenceStructure("emitters/openapi3", "OpenAPI3", false, [
         "emitters/openapi3/openapi",
         "emitters/openapi3/cli",
-        "emitters/openapi3/diagnostics",
       ]),
       createLibraryReferenceStructure(
         "emitters/protobuf",
