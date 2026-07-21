@@ -33,8 +33,8 @@ catalog:
   "@astrojs/starlight": ^0.41.3
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
-  "@babel/code-frame": ^8.0.0
-  "@babel/core": ^8.0.1
+  "@babel/code-frame": ^7.29.0
+  "@babel/core": ^7.29.0
   "@chronus/chronus": ^1.3.1
   "@chronus/github": ^1.0.6
   "@chronus/github-pr-commenter": ^1.0.6
@@ -81,7 +81,7 @@ catalog:
   "@types/swagger-ui-express": ^4.1.8
   "@types/which": ^3.0.4
   "@types/yargs": ^17.0.35
-  "@typespec/ts-http-runtime": 0.3.6
+  "@typespec/ts-http-runtime": 0.3.7
   "@vitejs/plugin-react": ^6.0.1
   "@vitest/coverage-v8": ^4.1.3
   "@vitest/ui": ^4.1.3
@@ -96,10 +96,7 @@ catalog:
   "@yarnpkg/plugin-pnp": ^4.1.3
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
-  # Pinned to 7.0.3: 7.0.4-7.0.6 have a static-build regression (withastro/astro#17306).
-  # The fix (7.0.8) is published but still within our 7-day new-package quarantine.
-  # Drop this pin once 7.0.8 clears quarantine.
-  astro: 7.0.3
+  astro: ^7.0.9
   astro-expressive-code: ^0.44.0
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^11.0.0
@@ -143,7 +140,7 @@ catalog:
   prettier: ^3.8.1
   prettier-plugin-astro: ^0.14.1
   prettier-plugin-organize-imports: ^4.3.0
-  prettier-plugin-sh: ^0.18.1
+  prettier-plugin-sh: ^0.19.0
   prism-react-renderer: ^2.4.1
   react: ^19.2.7
   react-dom: ^19.2.7
@@ -169,7 +166,7 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  turbo: 2.9.14
+  turbo: 2.10.5
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
@@ -196,6 +193,16 @@ minimumReleaseAge: 10080 # 7 days
 minimumReleaseAgeExclude:
   - "@alloy-js/*"
   - "@pinterest/alloy-graphql"
+
+packageExtensions:
+  # The alloy toolchain (@alloy-js/rollup-plugin -> @babel/preset-typescript@7.x) only supports
+  # Babel 7. Because @alloy-js/rollup-plugin doesn't depend on @babel/core directly, pnpm
+  # auto-installs the transitive @babel/core peer as the latest version (8.x), which breaks with
+  # "Requires Babel ^7.0.0-0". Give the plugin an explicit @babel/core dependency so the whole
+  # toolchain resolves against Babel 7.
+  "@alloy-js/rollup-plugin":
+    dependencies:
+      "@babel/core": ^7.29.0
 
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
