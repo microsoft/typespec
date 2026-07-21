@@ -64,12 +64,12 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null, bool includeReferencedAssemblies = false)
         {
-            return FindTypeInCustomization(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
+            return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCustomization(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
         private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()
@@ -106,7 +106,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 ? $"{ns}.{declaringTypeName}+{name}"
                 : $"{ns}.{name}";
 
-        private TypeProvider? FindTypeInCustomization(
+        private TypeProvider? FindTypeInCompilation(
             Compilation? compilation,
             string ns,
             string name,
