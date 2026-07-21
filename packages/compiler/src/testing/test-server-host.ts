@@ -122,6 +122,8 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
   await server.initialize({
     capabilities: { workspace: { workspaceFolders: true } },
     processId: null,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
     workspaceFolders: [
       {
         name: "<root>",
