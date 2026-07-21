@@ -81,7 +81,8 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             foreach (var model in InputNamespace.Models)
             {
-                if (model.Usage.HasFlag(InputModelTypeUsage.Xml))
+                if (model.Usage.HasFlag(InputModelTypeUsage.Xml)
+                    && !model.Usage.HasFlag(InputModelTypeUsage.Exception))
                 {
                     return true;
                 }
