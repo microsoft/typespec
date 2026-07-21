@@ -79,11 +79,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private bool GetHasXmlModelSerialization()
         {
-            // Only models implement IPersistableModel and are registered with the
-            // ModelReaderWriterContext. Enums are not, so an Xml-usage enum on its own
-            // must not trigger generation of the Xml serialization helpers (e.g. the
-            // WriteObjectValue extension method), which reference the context and would
-            // otherwise cause the source generator to fail when no model has Xml usage.
             foreach (var model in InputNamespace.Models)
             {
                 if (model.Usage.HasFlag(InputModelTypeUsage.Xml))
