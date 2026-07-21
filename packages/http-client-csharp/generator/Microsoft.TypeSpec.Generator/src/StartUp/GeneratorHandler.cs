@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -308,9 +309,7 @@ namespace Microsoft.TypeSpec.Generator
             // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
             // errors to standard output rather than standard error, so we include both when
             // reporting a failure.
-            var stdout = process.StandardOutput.ReadToEnd();
-            var stderr = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+            var (stdout, stderr) = ReadProcessOutput(process);
 
             if (process.ExitCode != 0)
             {
@@ -336,6 +335,15 @@ namespace Microsoft.TypeSpec.Generator
 
             emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
             return null;
+        }
+
+        internal static (string StandardOutput, string StandardError) ReadProcessOutput(Process process)
+        {
+            var stdoutTask = process.StandardOutput.ReadToEndAsync();
+            var stderrTask = process.StandardError.ReadToEndAsync();
+            process.WaitForExit();
+            Task.WaitAll(stdoutTask, stderrTask);
+            return (stdoutTask.Result, stderrTask.Result);
         }
 
         /// <summary>

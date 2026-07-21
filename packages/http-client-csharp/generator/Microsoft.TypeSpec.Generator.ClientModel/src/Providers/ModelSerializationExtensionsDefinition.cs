@@ -27,7 +27,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed partial class ModelSerializationExtensionsDefinition : TypeProvider
+    public sealed partial class ModelSerializationExtensionsDefinition : InternalHelperProvider
     {
         public const string WireOptionsFieldName = "WireOptions";
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
@@ -94,11 +94,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [Identifier("IgnoreComments")] = True
                     }),
                 enclosingType: this);
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         internal FieldProvider WireOptionsField { get; }

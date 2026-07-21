@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, it, vi } from "vitest";
 import { NodeHost } from "../../src/index.js";
 import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
+import { defaultInternalTemplateSource } from "../../src/init/template-source/index.js";
 
 const fetchMock = vi.fn().mockResolvedValue({
   json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
@@ -122,7 +123,7 @@ describe("Init templates e2e tests", () => {
       makeScaffoldingConfig(template, {
         name,
         directory: targetFolder,
-        baseUri: typeSpecCoreTemplates.baseUri,
+        source: defaultInternalTemplateSource(NodeHost),
       }),
     );
   }

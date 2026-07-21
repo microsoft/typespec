@@ -215,6 +215,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                    severity: EmitterDiagnosticSeverity.Warning);
             }
 
+            // Back-compat: a type that the last contract published as non-abstract must not become
+            // abstract, which would be a source-breaking change for existing derived types and
+            // callers. Preserve the previously-published non-abstract shape.
+            if (modifiers.HasFlag(TypeSignatureModifiers.Abstract) &&
+                LastContractView is { } lastContractView &&
+                !lastContractView.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                modifiers &= ~TypeSignatureModifiers.Abstract;
+            }
+
             // we always add partial when possible
             if (!modifiers.HasFlag(TypeSignatureModifiers.Enum) && DeclaringTypeProvider is null)
             {
@@ -814,11 +824,122 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
 
+        /// <summary>
+        /// Returns this type's methods with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation restores the previous
+        /// parameter order on a current method when it matches a last-contract method by name and
+        /// return type with the same parameter set but in a different order. Reordering is done in
+        /// place, so a method's body (which references its parameters by object) remains valid.
+        /// Override and call <c>base</c> to extend this behavior; override without calling
+        /// <c>base</c> to replace it.
+        /// </summary>
         protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
-            => [.. originalMethods];
+        {
+            var methods = new List<MethodProvider>(originalMethods);
 
+            if (LastContractView?.Methods is not { Count: > 0 } previousMethods)
+            {
+                return methods;
+            }
+
+            var currentMethodSignatures = BuildCurrentMethodSignatureMap(methods);
+
+            foreach (var previousMethod in previousMethods)
+            {
+                if (!BackCompatHelper.ShouldApplyMethodBackCompatibility(previousMethod.Signature, currentMethodSignatures)
+                    || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                var methodToReorder = BackCompatHelper.FindMethodWithSameParametersDifferentOrder(previousMethod.Signature, currentMethodSignatures);
+                if (methodToReorder != null && BackCompatHelper.TryRestorePreviousParameterOrder(methodToReorder, previousMethod.Signature))
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Reordered parameters of '{Name}.{methodToReorder.Signature.Name}' to match last contract.",
+                        BackCompatibilityChangeCategory.MethodParameterReordering);
+                }
+            }
+
+            BackCompatHelper.RestorePreviousParameterNames(this, methods);
+            BackCompatHelper.AddOverloadsForNewOptionalParameters(this, methods);
+
+            return methods;
+        }
+
+        /// <summary>
+        /// Builds a lookup of the type's current method signatures (including custom code methods)
+        /// used to match against last-contract methods.
+        /// </summary>
+        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatureMap(IEnumerable<MethodProvider> methods)
+        {
+            var allMethods = CustomCodeView?.Methods != null
+                ? methods.Concat(CustomCodeView.Methods)
+                : methods;
+
+            var result = new Dictionary<MethodSignature, MethodProvider>(MethodSignature.MethodSignatureComparer);
+            foreach (var method in allMethods)
+            {
+                result.TryAdd(method.Signature, method);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns this type's constructors with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation preserves a previously-published
+        /// public constructor on an abstract base type: when the current generation would emit a
+        /// <c>private protected</c> constructor whose parameters match a <c>public</c> constructor in
+        /// the last contract, the modifier is promoted back to <c>public</c>. Override and call
+        /// <c>base</c> to extend this behavior.
+        /// </summary>
         protected internal virtual IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
-            => [.. originalConstructors];
+        {
+            // Only handle the case of changing modifiers on abstract base types.
+            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            {
+                return [.. originalConstructors];
+            }
+
+            if (LastContractView?.Constructors == null || LastContractView.Constructors.Count == 0)
+            {
+                return [.. originalConstructors];
+            }
+
+            List<ConstructorProvider> constructors = [.. originalConstructors];
+
+            // Check if the last contract had a public constructor with matching parameters
+            foreach (var previousConstructor in LastContractView.Constructors)
+            {
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                // Find a matching constructor in the current version by parameter signature
+                for (int i = 0; i < constructors.Count; i++)
+                {
+                    var currentConstructor = constructors[i];
+                    if (!currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
+                        !currentConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                    {
+                        continue;
+                    }
+
+                    // Check if parameters match (same count and types)
+                    if (BackCompatHelper.ParametersMatch(currentConstructor.Signature.Parameters, previousConstructor.Signature.Parameters))
+                    {
+                        // Change the modifier from private protected to public
+                        currentConstructor.Signature.Update(modifiers: MethodSignatureModifiers.Public);
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Promoted constructor '{Name}({string.Join(", ", currentConstructor.Signature.Parameters.Select(p => p.Type.ToString()))})' from 'private protected' to 'public' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorModifierPreserved);
+                    }
+                }
+            }
+
+            return [.. constructors];
+        }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 

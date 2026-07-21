@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.25",
+  "version": "0.1.0-alpha.27",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -48,7 +48,6 @@
     "morgan": "catalog:",
     "multer": "catalog:",
     "picocolors": "catalog:",
-    "source-map-support": "catalog:",
     "yaml": "catalog:",
     "yargs": "catalog:"
   },

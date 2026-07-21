@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ChangeTrackingListDefinition : TypeProvider
+    internal sealed class ChangeTrackingListDefinition : InternalHelperProvider
     {
         private class ChangeTrackingListTemplate<T> { }
 
@@ -46,10 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnsureList = new(This.Invoke(_ensureListSignature));
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal;
-        }
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
