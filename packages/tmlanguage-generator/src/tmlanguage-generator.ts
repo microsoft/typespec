@@ -40,9 +40,7 @@ export type Captures<Scope extends string = string> = Record<
 >;
 
 export type Rule<Scope extends string = string> =
-  | MatchRule<Scope>
-  | BeginEndRule<Scope>
-  | IncludeRule<Scope>;
+  MatchRule<Scope> | BeginEndRule<Scope> | IncludeRule<Scope>;
 
 export interface MatchRule<Scope extends string = string> extends RuleScope<Scope>, RuleKey {
   match: string;
