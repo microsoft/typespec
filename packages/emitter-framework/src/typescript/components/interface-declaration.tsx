@@ -21,8 +21,7 @@ export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclara
 }
 
 export type InterfaceDeclarationProps =
-  | TypedInterfaceDeclarationProps
-  | ts.InterfaceDeclarationProps;
+  TypedInterfaceDeclarationProps | ts.InterfaceDeclarationProps;
 
 export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   const { $ } = useTsp();

@@ -1,15 +1,9 @@
 import type { Entity, Type } from "@typespec/compiler";
 
 export type PropertyRendering<T> =
-  | { kind: "parent" | "nested-items" | "ref" | "value" | "skip" }
-  | NestedPropertyRendering<T>;
+  { kind: "parent" | "nested-items" | "ref" | "value" | "skip" } | NestedPropertyRendering<T>;
 export type PropertyRenderingRaw<T> =
-  | "parent"
-  | "nested-items"
-  | "ref"
-  | "value"
-  | "skip"
-  | NestedPropertyRenderingRaw<T>;
+  "parent" | "nested-items" | "ref" | "value" | "skip" | NestedPropertyRenderingRaw<T>;
 
 export type PropertiesRenderingRaw<T> = { [K in keyof T]: PropertyRenderingRaw<T[K]> };
 export type PropertiesRendering<T> = { [K in keyof T]: PropertyRendering<T[K]> };

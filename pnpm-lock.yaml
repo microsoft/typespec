@@ -358,8 +358,8 @@ catalogs:
       specifier: 1.0.0-alpha.6
       version: 1.0.0-alpha.6
     prettier:
-      specifier: ^3.8.1
-      version: 3.8.4
+      specifier: ^3.9.5
+      version: 3.9.5
     prettier-plugin-astro:
       specifier: ^0.14.1
       version: 0.14.1
@@ -566,16 +566,16 @@ importers:
         version: 1.61.0
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
       prettier-plugin-astro:
         specifier: 'catalog:'
         version: 0.14.1
       prettier-plugin-organize-imports:
         specifier: 'catalog:'
-        version: 4.3.0(prettier@3.8.4)(typescript@6.0.3)
+        version: 4.3.0(prettier@3.9.5)(typescript@6.0.3)
       prettier-plugin-sh:
         specifier: 'catalog:'
-        version: 0.18.1(prettier@3.8.4)
+        version: 0.18.1(prettier@3.9.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -625,7 +625,7 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: 'catalog:'
-        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)
       '@astrojs/starlight':
         specifier: 'catalog:'
         version: 0.40.0(astro@7.0.0(@astrojs/markdown-remark@7.2.0)(@azure/identity@4.13.1)(@azure/storage-blob@12.32.0)(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.1)(@types/node@26.0.0)(rollup@4.62.2)(tsx@4.22.4)(yaml@2.9.0))(typescript@6.0.3)
@@ -793,7 +793,7 @@ importers:
         version: 1.1.1
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
       semver:
         specifier: 'catalog:'
         version: 7.8.5
@@ -897,7 +897,7 @@ importers:
         version: 2.0.3
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
       tree-sitter-c-sharp:
         specifier: 'catalog:'
         version: 0.23.5
@@ -1140,7 +1140,7 @@ importers:
         version: 10.0.3
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
 
   packages/http-client:
     devDependencies:
@@ -1203,7 +1203,7 @@ importers:
         version: link:../rest
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
     devDependencies:
       '@alloy-js/cli':
         specifier: 'catalog:'
@@ -1382,7 +1382,7 @@ importers:
     dependencies:
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -1687,7 +1687,7 @@ importers:
         version: 10.0.3
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
 
   packages/openapi:
     devDependencies:
@@ -2102,7 +2102,7 @@ importers:
     dependencies:
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
     devDependencies:
       '@typespec/compiler':
         specifier: workspace:^
@@ -2724,7 +2724,7 @@ importers:
         version: 1.1.1
       prettier:
         specifier: 'catalog:'
-        version: 3.8.4
+        version: 3.9.5
       typedoc:
         specifier: 'catalog:'
         version: 0.28.19(typescript@6.0.3)
@@ -2920,7 +2920,7 @@ importers:
     dependencies:
       '@astrojs/check':
         specifier: 'catalog:'
-        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+        version: 0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)
       '@astrojs/react':
         specifier: 'catalog:'
         version: 6.0.0(@types/node@26.0.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(esbuild@0.28.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tsx@4.22.4)(yaml@2.9.0)
@@ -11732,6 +11732,11 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  prettier@3.9.5:
+    resolution: {integrity: sha512-/FVl766LpUfB5vXgCYOYa0MeV/441Ia99AeICQIQFTY/Nw0roZwULcXpku5i1/m5kt/baz+s4Zogspd839HSMg==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   pretty-bytes@5.6.0:
     resolution: {integrity: sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==}
     engines: {node: '>=6'}
@@ -14050,9 +14055,9 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
       lru-cache: 10.4.3
 
-  '@astrojs/check@0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)':
+  '@astrojs/check@0.9.9(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)':
     dependencies:
-      '@astrojs/language-server': 2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)
+      '@astrojs/language-server': 2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)
       chokidar: 4.0.3
       kleur: 4.1.5
       typescript: 6.0.3
@@ -14128,7 +14133,7 @@ snapshots:
       smol-toml: 1.7.0
       unified: 11.0.5
 
-  '@astrojs/language-server@2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.8.4)(typescript@6.0.3)':
+  '@astrojs/language-server@2.16.10(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)':
     dependencies:
       '@astrojs/compiler': 2.13.1
       '@astrojs/yaml2ts': 0.2.4
@@ -14142,14 +14147,14 @@ snapshots:
       volar-service-css: 0.0.70(@volar/language-service@2.4.28)
       volar-service-emmet: 0.0.70(@volar/language-service@2.4.28)
       volar-service-html: 0.0.70(@volar/language-service@2.4.28)
-      volar-service-prettier: 0.0.70(@volar/language-service@2.4.28)(prettier@3.8.4)
+      volar-service-prettier: 0.0.70(@volar/language-service@2.4.28)(prettier@3.9.5)
       volar-service-typescript: 0.0.70(@volar/language-service@2.4.28)
       volar-service-typescript-twoslash-queries: 0.0.70(@volar/language-service@2.4.28)
       volar-service-yaml: 0.0.70(@volar/language-service@2.4.28)
       vscode-html-languageservice: 5.6.2
       vscode-uri: 3.1.0
     optionalDependencies:
-      prettier: 3.8.4
+      prettier: 3.9.5
       prettier-plugin-astro: 0.14.1
     transitivePeerDependencies:
       - typescript
@@ -20117,7 +20122,7 @@ snapshots:
       algoliasearch: 4.27.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.2
-      ink: 3.2.0(@types/react@19.2.17)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.17)(react@19.2.7)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@19.2.17)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.8.5
@@ -20267,7 +20272,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.2.0(@yarnpkg/core@4.9.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.48.1
-      ink: 3.2.0(@types/react@19.2.17)(react@19.2.7)
+      ink: 3.2.0(@types/react@19.2.17)(react@17.0.2)
       react: 17.0.2
       semver: 7.8.5
       tslib: 2.8.1
@@ -24969,21 +24974,23 @@ snapshots:
   prettier-plugin-astro@0.14.1:
     dependencies:
       '@astrojs/compiler': 2.13.1
-      prettier: 3.8.4
+      prettier: 3.9.5
       sass-formatter: 0.7.9
 
-  prettier-plugin-organize-imports@4.3.0(prettier@3.8.4)(typescript@6.0.3):
+  prettier-plugin-organize-imports@4.3.0(prettier@3.9.5)(typescript@6.0.3):
     dependencies:
-      prettier: 3.8.4
+      prettier: 3.9.5
       typescript: 6.0.3
 
-  prettier-plugin-sh@0.18.1(prettier@3.8.4):
+  prettier-plugin-sh@0.18.1(prettier@3.9.5):
     dependencies:
       '@reteps/dockerfmt': 0.5.2
-      prettier: 3.8.4
+      prettier: 3.9.5
       sh-syntax: 0.5.8
 
   prettier@3.8.4: {}
+
+  prettier@3.9.5: {}
 
   pretty-bytes@5.6.0: {}
 
@@ -26906,12 +26913,12 @@ snapshots:
     optionalDependencies:
       '@volar/language-service': 2.4.28
 
-  volar-service-prettier@0.0.70(@volar/language-service@2.4.28)(prettier@3.8.4):
+  volar-service-prettier@0.0.70(@volar/language-service@2.4.28)(prettier@3.9.5):
     dependencies:
       vscode-uri: 3.1.0
     optionalDependencies:
       '@volar/language-service': 2.4.28
-      prettier: 3.8.4
+      prettier: 3.9.5
 
   volar-service-typescript-twoslash-queries@0.0.70(@volar/language-service@2.4.28):
     dependencies:
