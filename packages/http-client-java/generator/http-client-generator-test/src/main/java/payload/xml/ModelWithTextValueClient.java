@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithText;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithTextValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithTextValuesImpl serviceClient;
@@ -109,7 +109,7 @@ public final class ModelWithTextValueClient {
     public ModelWithText get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithText.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithText.class, XML_SERIALIZER);
     }
 
     /**
@@ -128,6 +128,6 @@ public final class ModelWithTextValueClient {
     public void put(ModelWithText input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }

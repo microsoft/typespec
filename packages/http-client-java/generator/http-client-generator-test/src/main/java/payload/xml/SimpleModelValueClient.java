@@ -26,7 +26,7 @@ import payload.xml.models.SimpleModel;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class SimpleModelValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final SimpleModelValuesImpl serviceClient;
@@ -109,7 +109,7 @@ public final class SimpleModelValueClient {
     public SimpleModel get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class, XML_SERIALIZER);
     }
 
     /**
@@ -128,6 +128,6 @@ public final class SimpleModelValueClient {
     public void put(SimpleModel input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }

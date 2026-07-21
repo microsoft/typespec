@@ -65,7 +65,7 @@ import java.util.stream.Collectors;
 abstract class ConvenienceMethodTemplateBase {
 
     // Name of the static ObjectSerializer member used for XML serialization on the convenience client.
-    static final String XML_SERIALIZER_MEMBER_NAME = "SERIALIZER";
+    static final String XML_SERIALIZER_MEMBER_NAME = "XML_SERIALIZER";
 
     protected ConvenienceMethodTemplateBase() {
     }
