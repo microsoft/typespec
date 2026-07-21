@@ -7,9 +7,9 @@ packages:
   - "!packages/http-client-python/**"
 
 allowBuilds:
-  '@playwright/browser-chromium': false
-  '@scarf/scarf': false
-  '@vscode/vsce-sign': false
+  "@playwright/browser-chromium": false
+  "@scarf/scarf": false
+  "@vscode/vsce-sign": false
   esbuild: false
   keytar: false
   sharp: false
