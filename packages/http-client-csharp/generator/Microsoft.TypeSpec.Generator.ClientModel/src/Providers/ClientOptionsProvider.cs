@@ -27,20 +27,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly InputClient _inputClient;
         private readonly ClientProvider _clientProvider;
-        private readonly Lazy<Dictionary<InputEnumType, EnumProvider>?> _serviceVersionsEnums;
+        private readonly Dictionary<InputEnumType, EnumProvider>? _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;
-        // All clients sharing the singleton are tracked so its accessibility reflects every owner.
-        private static readonly List<ClientProvider> _singletonClientProviders = [];
 
         internal ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            _serviceVersionsEnums = new(BuildServiceVersionsEnums);
-        }
-
-        private Dictionary<InputEnumType, EnumProvider>? BuildServiceVersionsEnums()
-        {
             List<InputEnumType> inputEnums = [.. _inputClient.Parameters
                     .Where(p => p.IsApiVersion && p.Type is InputEnumType)
                     .Select(p => (InputEnumType)p.Type)];
@@ -52,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (inputEnums.Count > 0)
             {
-                Dictionary<InputEnumType, EnumProvider> serviceVersionsEnums = [];
+                _serviceVersionsEnums = [];
                 foreach (var inputEnum in inputEnums)
                 {
                     var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum, this);
@@ -60,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         // Ensure the service version enum uses the same namespace as the options class since it is nested.
                         enumProvider.Update(@namespace: Type.Namespace);
-                        serviceVersionsEnums.Add(inputEnum, enumProvider);
+                        _serviceVersionsEnums.Add(inputEnum, enumProvider);
                     }
 
                     // Only create one version property for single service clients
@@ -69,11 +62,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     }
                 }
-
-                return serviceVersionsEnums;
             }
-
-            return null;
         }
 
         /// <summary>
@@ -88,14 +77,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (UseSingletonInstance(inputClient))
             {
+                // Use singleton instance
                 if (_singletonInstance == null)
                 {
-                    _singletonClientProviders.Clear();
+                    // Create singleton with namespace-based naming
                     _singletonInstance = new ClientOptionsProvider(inputClient, clientProvider);
-                }
-                if (!_singletonClientProviders.Contains(clientProvider))
-                {
-                    _singletonClientProviders.Add(clientProvider);
                 }
                 return _singletonInstance;
             }
@@ -174,14 +160,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Dictionary<EnumProvider, PropertyProvider>? BuildVersionProperties()
         {
-            var serviceVersionsEnums = _serviceVersionsEnums.Value;
-            if (serviceVersionsEnums is null)
+            if (_serviceVersionsEnums is null)
             {
                 return null;
             }
 
-            var properties = new Dictionary<EnumProvider, PropertyProvider>(serviceVersionsEnums.Count);
-            foreach (var (inputEnum, enumProvider) in serviceVersionsEnums)
+            var properties = new Dictionary<EnumProvider, PropertyProvider>(_serviceVersionsEnums.Count);
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
                 string versionPropertyName;
                 if (!_inputClient.IsMultiServiceClient)
@@ -192,10 +177,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var serviceNamespace = inputEnum.Namespace;
                     if (!string.IsNullOrEmpty(serviceNamespace) &&
-                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, serviceVersionsEnums.Keys))
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
                     {
                         // Last segment collides — find the shortest unique namespace suffix.
-                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, serviceVersionsEnums.Keys);
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
                         versionPropertyName = $"{uniquePrefix.ToIdentifierName()}{ApiVersionSuffix}";
                     }
                     else
@@ -220,14 +205,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Dictionary<FieldProvider, EnumProvider>? BuildLatestVersionsFields()
         {
-            var serviceVersionsEnums = _serviceVersionsEnums.Value;
-            if (serviceVersionsEnums is null)
+            if (_serviceVersionsEnums is null)
             {
                 return null;
             }
 
-            Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(serviceVersionsEnums.Count);
-            foreach (var (inputEnum, enumProvider) in serviceVersionsEnums)
+            Dictionary<FieldProvider, EnumProvider> latestVersionFields = new(_serviceVersionsEnums.Count);
+            foreach (var (inputEnum, enumProvider) in _serviceVersionsEnums)
             {
                 string fieldName;
                 if (!_inputClient.IsMultiServiceClient)
@@ -238,10 +222,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     var serviceNamespace = inputEnum.Namespace;
                     if (!string.IsNullOrEmpty(serviceNamespace) &&
-                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, serviceVersionsEnums.Keys))
+                        ClientHelper.HasLastSegmentCollision(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys))
                     {
                         // Last segment collides — find the shortest unique namespace suffix.
-                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, serviceVersionsEnums.Keys);
+                        string uniquePrefix = ClientHelper.GetShortestUniqueNamespacePrefix(serviceNamespace, inputEnum, _serviceVersionsEnums.Keys);
                         fieldName = $"{LatestPrefix}{uniquePrefix.ToIdentifierName()}{VersionSuffix}";
                     }
                     else
@@ -263,30 +247,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-
-        // TODO https://github.com/microsoft/typespec/issues/11181: Remove this once generated source parity no longer depends on internal ClientOptions XML docs.
-        protected override bool ShouldWriteTypeXmlDocs => CustomCodeView is null;
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            if (this == _singletonInstance)
-            {
-                foreach (var clientProvider in _singletonClientProviders)
-                {
-                    if (clientProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                    {
-                        return TypeSignatureModifiers.Public;
-                    }
-                }
-
-                return TypeSignatureModifiers.Internal;
-            }
-
-            return GetAccessibilityModifiers(_clientProvider.DeclarationModifiers);
-        }
-
-        private static TypeSignatureModifiers GetAccessibilityModifiers(TypeSignatureModifiers modifiers)
-            => modifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Internal | TypeSignatureModifiers.Protected | TypeSignatureModifiers.Private);
 
         protected override string BuildName()
         {
@@ -329,13 +289,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeProvider[] BuildNestedTypes()
         {
-            var serviceVersionsEnums = _serviceVersionsEnums.Value;
-            if (serviceVersionsEnums is null)
+            if (_serviceVersionsEnums is null)
             {
                 return [];
             }
 
-            return [.. serviceVersionsEnums.Values.OrderBy(e => e.Name)];
+            return [.. _serviceVersionsEnums.Values.OrderBy(e => e.Name)];
         }
 
         protected override ConstructorProvider[] BuildConstructors()

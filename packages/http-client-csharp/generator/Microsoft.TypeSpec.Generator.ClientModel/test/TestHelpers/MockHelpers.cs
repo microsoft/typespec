@@ -34,8 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<IReadOnlyList<string>>? apiVersions = null,
             string? configuration = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
-            Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            string? outputPath = null)
+            Func<InputType, bool>? createCSharpTypeCoreFallback = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -45,13 +44,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 apiVersions: apiVersions,
                 configuration: configuration,
                 createCSharpTypeCore: createCSharpTypeCore,
-                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback,
-                outputPath: outputPath);
+                createCSharpTypeCoreFallback: createCSharpTypeCoreFallback);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(compilationResult, lastContractCompilationResult));
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, lastContractCompilationResult)) { CallBase = true };
+            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             return mockGenerator;
         }
@@ -77,8 +76,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<OutputLibrary>? createOutputLibrary = null,
             bool includeXmlDocs = false,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            Func<InputModelType, ModelProvider?>? createModelCore = null,
-            string? outputPath = null)
+            Func<InputModelType, ModelProvider?>? createModelCore = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -152,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             {
                 configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
             }
-            object?[] parameters = [outputPath ?? _configFilePath, configuration];
+            object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockGeneratorInstance = new Mock<ScmCodeModelGenerator>(mockGeneratorContext.Object) { CallBase = true };
@@ -188,7 +186,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
-            mockGeneratorInstance.SetupProperty(p => p.SourceInputModel, new SourceInputModel(null, null));
+            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
+            mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
             clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);

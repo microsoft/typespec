@@ -45,11 +45,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteType(CodeWriter writer)
         {
-            if (_provider.PreserveTypeXmlDocs || _provider.ShouldWriteTypeXmlDocs || IsPublicContext(_provider))
+            if (IsPublicContext(_provider))
             {
                 writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
-            foreach (var attribute in _provider.GetAttributesForWrite())
+            foreach (var attribute in _provider.GetAttributes())
             {
                 attribute.Write(writer);
                 if (attribute is AttributeStatement)
@@ -207,11 +207,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private void WriteMethods(CodeWriter writer)
         {
-            if (_provider is ModelFactoryProvider { PreserveLeadingMethodSeparator: true } && _provider.Methods.Count > 0)
-            {
-                writer.WriteLine();
-            }
-
             for (int i = 0; i < _provider.Methods.Count; i++)
             {
                 writer.WriteMethod(_provider.Methods[i]);
