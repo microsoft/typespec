@@ -118,7 +118,7 @@ catalog:
   picocolors: ^1.1.1
   playwright: ^1.60.0
   plist: ^5.0.0
-  prettier: ^3.8.1
+  prettier: ^3.9.5
   prettier-plugin-astro: ^0.14.1
   prettier-plugin-organize-imports: ^4.3.0
   prettier-plugin-sh: ^0.18.1
