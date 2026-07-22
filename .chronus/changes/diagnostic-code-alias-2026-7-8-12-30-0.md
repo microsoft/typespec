@@ -24,3 +24,5 @@ export const $lib = createTypeSpecLibrary({
   },
 } as const);
 ```
+
+An `alias` must be kebab-case (lowercase letters, digits, and hyphens). When two loaded libraries would resolve to the same short name, that short name is ambiguous: referencing it (in a `#suppress` directive or the `linter` config) reports a warning and the full name must be used.

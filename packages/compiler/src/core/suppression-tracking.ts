@@ -21,6 +21,12 @@ export interface DuplicateSuppression {
   directive: SuppressDirective;
 }
 
+export interface AmbiguousSuppression {
+  directive: SuppressDirective;
+  shortName: string;
+  candidates: readonly string[];
+}
+
 export interface SuppressionTracker {
   markUsed(directiveNode: DirectiveExpressionNode): void;
   getUnusedSuppressions(): UnusedSuppression[];
@@ -89,6 +95,46 @@ export function findDuplicateSuppressions(
       }
 
       seenSuppressions.add(directive.code);
+    }
+
+    visitChildren(node, visit);
+  }
+}
+
+/**
+ * Find suppress directives whose code uses an ambiguous short name (one that
+ * resolves to two or more loaded libraries).
+ */
+export function findAmbiguousSuppressions(
+  sourceResolution: SourceResolution,
+  codeResolver: DiagnosticCodeResolver | undefined,
+): AmbiguousSuppression[] {
+  const ambiguous: AmbiguousSuppression[] = [];
+  if (codeResolver === undefined) {
+    return ambiguous;
+  }
+
+  for (const script of sourceResolution.sourceFiles.values()) {
+    if (sourceResolution.locationContexts.get(script.file)?.type !== "project") {
+      continue;
+    }
+
+    visit(script);
+  }
+
+  return ambiguous;
+
+  function visit(node: Node) {
+    for (const directiveNode of node.directives ?? []) {
+      const directive = parseDirective(directiveNode);
+      if (directive?.name !== "suppress") {
+        continue;
+      }
+
+      const conflict = codeResolver!.getAmbiguousShortName(directive.code);
+      if (conflict) {
+        ambiguous.push({ directive, ...conflict });
+      }
     }
 
     visitChildren(node, visit);

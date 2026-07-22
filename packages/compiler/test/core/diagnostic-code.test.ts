@@ -117,4 +117,35 @@ describe("createDiagnosticCodeResolver", () => {
       expect(mixed.getDisplayCode("@typespec/openapi3/no-foo")).toEqual("openapi3/no-foo");
     });
   });
+
+  describe("getAmbiguousShortName", () => {
+    const conflicting = createDiagnosticCodeResolver([
+      { name: "@typespec/http" },
+      { name: "typespec-http" },
+      { name: "@typespec/openapi3" },
+    ]);
+
+    it("returns the conflicting candidates for an ambiguous short name", () => {
+      expect(conflicting.getAmbiguousShortName("http/no-foo")).toEqual({
+        shortName: "http",
+        candidates: ["@typespec/http", "typespec-http"],
+      });
+    });
+
+    it("returns undefined for an unambiguous short name", () => {
+      expect(conflicting.getAmbiguousShortName("openapi3/no-foo")).toBeUndefined();
+    });
+
+    it("returns undefined for a full code even when the short name is ambiguous", () => {
+      expect(conflicting.getAmbiguousShortName("@typespec/http/no-foo")).toBeUndefined();
+    });
+
+    it("returns undefined for an unknown short name", () => {
+      expect(conflicting.getAmbiguousShortName("unknown/no-foo")).toBeUndefined();
+    });
+
+    it("returns undefined for a bare compiler code", () => {
+      expect(conflicting.getAmbiguousShortName("unknown-identifier")).toBeUndefined();
+    });
+  });
 });

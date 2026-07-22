@@ -12,9 +12,33 @@ describe("createTypeSpecLibrary", () => {
     ).not.toThrow();
   });
 
+  it("accepts a kebab-case alias with digits", () => {
+    expect(() =>
+      createTypeSpecLibrary({ name: "@typespec/test", alias: "my-lib-2", diagnostics: {} }),
+    ).not.toThrow();
+  });
+
   it("throws when the alias contains a '/'", () => {
     expect(() =>
       createTypeSpecLibrary({ name: "@typespec/test", alias: "foo/bar", diagnostics: {} }),
-    ).toThrow(/alias cannot contain a '\/'/);
+    ).toThrow(/alias "foo\/bar".*is invalid/);
+  });
+
+  it("throws when the alias is an empty string", () => {
+    expect(() =>
+      createTypeSpecLibrary({ name: "@typespec/test", alias: "", diagnostics: {} }),
+    ).toThrow(/is invalid/);
+  });
+
+  it("throws when the alias contains uppercase letters", () => {
+    expect(() =>
+      createTypeSpecLibrary({ name: "@typespec/test", alias: "Foo", diagnostics: {} }),
+    ).toThrow(/is invalid/);
+  });
+
+  it("throws when the alias contains invalid characters", () => {
+    expect(() =>
+      createTypeSpecLibrary({ name: "@typespec/test", alias: "foo bar", diagnostics: {} }),
+    ).toThrow(/is invalid/);
   });
 });

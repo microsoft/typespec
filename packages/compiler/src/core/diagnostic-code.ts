@@ -32,6 +32,15 @@ export interface DiagnosticCodeResolver {
    * library has an unambiguous short name, otherwise the full code unchanged.
    */
   getDisplayCode(fullCode: string): string;
+
+  /**
+   * If `code`'s leading short-name segment maps to two or more loaded libraries,
+   * return the ambiguity information; otherwise return `undefined`. A full code
+   * that is already prefixed with a known package is never ambiguous.
+   */
+  getAmbiguousShortName(
+    code: string,
+  ): { shortName: string; candidates: readonly string[] } | undefined;
 }
 
 /**
@@ -67,6 +76,11 @@ export function getPackageShortName(name: string, alias?: string): string | unde
   return undefined;
 }
 
+/** Format the conflicting full package names of an ambiguous short name for display. */
+export function formatShortNameCandidates(candidates: readonly string[]): string {
+  return candidates.map((name) => `"${name}"`).join(", ");
+}
+
 /**
  * Create a resolver mapping between full and short diagnostic codes for the given
  * loaded libraries. When two libraries would resolve to the same short name, that
@@ -94,10 +108,13 @@ export function createDiagnosticCodeResolver(
 
   const shortToFull = new Map<string, string>();
   const fullToShort = new Map<string, string>();
+  const ambiguousShortNames = new Map<string, string[]>();
   for (const [short, names] of shortToNames) {
     if (names.length === 1) {
       shortToFull.set(short, names[0]);
       fullToShort.set(names[0], short);
+    } else {
+      ambiguousShortNames.set(short, names);
     }
   }
 
@@ -143,6 +160,24 @@ export function createDiagnosticCodeResolver(
         return fullCode;
       }
       return `${short}/${fullCode.slice(fullName.length + 1)}`;
+    },
+
+    getAmbiguousShortName(code) {
+      // A full code referencing a known library is never ambiguous.
+      if (matchFullPackage(code) !== undefined) {
+        return undefined;
+      }
+
+      const separator = code.indexOf("/");
+      if (separator === -1) {
+        return undefined;
+      }
+      const shortName = code.slice(0, separator);
+      const candidates = ambiguousShortNames.get(shortName);
+      if (candidates === undefined) {
+        return undefined;
+      }
+      return { shortName, candidates };
     },
   };
 }

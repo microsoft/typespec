@@ -15,6 +15,7 @@ import {
   DiagnosticCodeResolver,
   LibraryNameInfo,
   createDiagnosticCodeResolver,
+  formatShortNameCandidates,
 } from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
@@ -49,6 +50,7 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   SuppressionTracker,
   createSuppressionTracker,
+  findAmbiguousSuppressions,
   findDirectiveSuppressingOnNode,
   findDuplicateSuppressions,
 } from "./suppression-tracking.js";
@@ -327,6 +329,16 @@ async function createProgram(
         format: { code: directive.code },
         target: directive.node,
       }),
+    ),
+  );
+  reportDiagnostics(
+    findAmbiguousSuppressions(sourceResolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
     ),
   );
 

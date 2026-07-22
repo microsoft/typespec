@@ -9,6 +9,7 @@ import {
   type LinterDefinition,
   type LinterRuleContext,
 } from "../../src/index.js";
+import type { MockFile } from "../../src/testing/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -490,6 +491,53 @@ describe("(integration) short names", () => {
     const labels = diagnostics[0].codefixes?.map((fix) => fix.label);
     expect(labels).toContain(`Suppress warning: "@typespec/test-real/no-model-foo"`);
     expect(labels).toContain(`Suppress warning: "test-real/no-model-foo"`);
+  });
+
+  // Two libraries that both resolve to the short name `http`.
+  function twoConflictingLibs() {
+    const libNames = ["@typespec/http", "typespec-http"];
+    const files: Record<string, MockFile> = {};
+    for (const libName of libNames) {
+      const libDir = `node_modules/${libName}`;
+      files[`${libDir}/package.json`] = JSON.stringify({ name: libName, main: "index.js" });
+      files[`${libDir}/index.js`] = mockFile.js({
+        $lib: createTypeSpecLibrary({ name: libName, diagnostics: {} }),
+        $linter: { rules: [noModelFoo] },
+      });
+    }
+    const imports = libNames.map((n) => `import "${n}";`).join("\n");
+    return { files, imports };
+  }
+
+  it("warns and does not enable a rule when the short name is ambiguous", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(`${imports}\nmodel Foo {}`, {
+      compilerOptions: {
+        linterRuleSet: { enable: { "http/no-model-foo": true } },
+      },
+    });
+    // Only the ambiguity warning, no unknown-rule error and no rule triggered.
+    expectDiagnostics(diagnostics, {
+      code: "ambiguous-short-name",
+      message: /Short name "http" is ambiguous/,
+    });
+  });
+
+  it("warns when suppressing with an ambiguous short name", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(
+      `${imports}\n#suppress "http/no-model-foo" "intentional"\nmodel Foo {}`,
+      {
+        compilerOptions: {
+          linterRuleSet: { enable: { "@typespec/http/no-model-foo": true } },
+        },
+      },
+    );
+    // The suppression can't be resolved, so the rule still fires, plus the ambiguity warning.
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-short-name", message: /Short name "http" is ambiguous/ },
+      { code: "@typespec/http/no-model-foo" },
+    ]);
   });
 });
 

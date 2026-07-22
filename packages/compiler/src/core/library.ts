@@ -67,8 +67,8 @@ export function createTypeSpecLibrary<
   let emitterOptionValidator: JSONSchemaValidator;
 
   compilerAssert(
-    lib.alias === undefined || !lib.alias.includes("/"),
-    `Library alias cannot contain a '/'. Got "${lib.alias}" for library "${lib.name}".`,
+    lib.alias === undefined || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(lib.alias),
+    `Library alias "${lib.alias}" for library "${lib.name}" is invalid. It must contain only lowercase letters, digits, and hyphens (e.g. "tcgc").`,
   );
 
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);

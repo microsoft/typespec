@@ -752,6 +752,12 @@ const diagnostics = {
       default: paramMessage`Diagnostic "${"code"}" is already suppressed on this node.`,
     },
   },
+  "ambiguous-short-name": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Short name "${"shortName"}" is ambiguous. It could refer to ${"candidates"}. Use the full name instead.`,
+    },
+  },
   "decorator-decl-target": {
     severity: "error",
     messages: {

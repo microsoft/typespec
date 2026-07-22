@@ -1,5 +1,5 @@
 import { isPromise } from "../utils/misc.js";
-import { DiagnosticCodeResolver } from "./diagnostic-code.js";
+import { DiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
@@ -81,6 +81,28 @@ export function createLinter(
 
   const resolveCode = (ref: string): string => (codeResolver ? codeResolver.resolveCode(ref) : ref);
 
+  /**
+   * Report a warning when `ref` uses an ambiguous short name. Returns `true` if it was
+   * ambiguous so the caller can skip processing that entry.
+   */
+  const reportIfAmbiguous = (ref: string, diagnostics: DiagnosticCollector): boolean => {
+    const conflict = codeResolver?.getAmbiguousShortName(ref);
+    if (conflict) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: {
+            shortName: conflict.shortName,
+            candidates: formatShortNameCandidates(conflict.candidates),
+          },
+          target: NoTarget,
+        }),
+      );
+      return true;
+    }
+    return false;
+  };
+
   const ruleMap = new Map<string, LinterRule<string, any, any>>();
   const enabledRules = new Map<
     string,
@@ -99,6 +121,9 @@ export function createLinter(
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
       for (const extendingRuleSetName of ruleSet.extends) {
+        if (reportIfAmbiguous(extendingRuleSetName, diagnostics)) {
+          continue;
+        }
         const ref = diagnostics.pipe(
           parseRuleReference(resolveCode(extendingRuleSetName) as RuleRef),
         );
@@ -125,6 +150,9 @@ export function createLinter(
     if (ruleSet.enable) {
       for (const [rawRuleName, enableValue] of Object.entries(ruleSet.enable)) {
         if (enableValue === false) {
+          continue;
+        }
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
           continue;
         }
         const ruleName = resolveCode(rawRuleName);
@@ -156,6 +184,9 @@ export function createLinter(
 
     if (ruleSet.disable) {
       for (const rawRuleName of Object.keys(ruleSet.disable)) {
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
         const ruleName = resolveCode(rawRuleName);
         if (enabledInThisRuleSet.has(ruleName)) {
           diagnostics.add(

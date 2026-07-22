@@ -445,6 +445,8 @@ linter:
     "best-practices/no-x": true
 ```
 
+If two loaded libraries would resolve to the same short name, that short name is ambiguous: using it reports a warning and the entry is skipped, so the full name must be used for those libraries.
+
 #### Configuring rule options
 
 Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:

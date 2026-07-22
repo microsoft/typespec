@@ -102,7 +102,7 @@ namespace Lib {
 }
 ```
 
-The full name is always accepted. If two loaded libraries would resolve to the same short name, that short name becomes ambiguous and you must use the full name for those libraries.
+The full name is always accepted. If two loaded libraries would resolve to the same short name, that short name becomes ambiguous: referencing it reports a warning and you must use the full name for those libraries.
 
 ### Api
 

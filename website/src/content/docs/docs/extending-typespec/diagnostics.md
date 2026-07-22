@@ -76,13 +76,15 @@ By default the short name is the package name with the scope stripped (`@typespe
 export const $lib = createTypeSpecLibrary({
   name: "@azure-tools/typespec-client-generator-core",
   alias: "tcgc",
-  diagnostics: {
-    /* ... */
-  },
+  diagnostics: {/* ... */},
 } as const);
 ```
 
 With the alias above, diagnostics and linter rules can be referenced as `tcgc/<code>` (e.g. `#suppress "tcgc/no-foo"`).
+
+An `alias` must be kebab-case: lowercase letters, digits, and hyphens only (e.g. `tcgc`, `my-lib-2`).
+
+If two loaded libraries would resolve to the same short name (auto-stripped or aliased), that short name is **ambiguous**: referencing it reports a warning and the full name must be used for those libraries.
 
 ### Report diagnostics
 
