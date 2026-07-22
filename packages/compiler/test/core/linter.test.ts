@@ -483,16 +483,6 @@ describe("(integration) short names", () => {
     expectDiagnosticEmpty(diagnostics);
   });
 
-  it("offers both the full and short name suppress code fixes", async () => {
-    const diagnostics = await diagnoseWithLib(`model Foo {}`, {
-      libName: "@typespec/test-real",
-      enable: "test-real/no-model-foo",
-    });
-    const labels = diagnostics[0].codefixes?.map((fix) => fix.label);
-    expect(labels).toContain(`Suppress warning: "@typespec/test-real/no-model-foo"`);
-    expect(labels).toContain(`Suppress warning: "test-real/no-model-foo"`);
-  });
-
   // Two libraries that both resolve to the short name `http`.
   function twoConflictingLibs() {
     const libNames = ["@typespec/http", "typespec-http"];

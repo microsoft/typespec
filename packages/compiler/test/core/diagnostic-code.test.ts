@@ -72,26 +72,6 @@ describe("createDiagnosticCodeResolver", () => {
     });
   });
 
-  describe("getDisplayCode", () => {
-    it("returns the short form for a known library", () => {
-      expect(resolver.getDisplayCode("@typespec/http/no-foo")).toEqual("http/no-foo");
-    });
-
-    it("returns the aliased short form", () => {
-      expect(resolver.getDisplayCode("@azure-tools/typespec-client-generator-core/no-foo")).toEqual(
-        "tcgc/no-foo",
-      );
-    });
-
-    it("returns the full code for an unknown library", () => {
-      expect(resolver.getDisplayCode("@scope/other/no-foo")).toEqual("@scope/other/no-foo");
-    });
-
-    it("returns a bare compiler code unchanged", () => {
-      expect(resolver.getDisplayCode("unknown-identifier")).toEqual("unknown-identifier");
-    });
-  });
-
   describe("short name conflicts", () => {
     const conflicting = createDiagnosticCodeResolver([
       { name: "@typespec/http" },
@@ -102,19 +82,13 @@ describe("createDiagnosticCodeResolver", () => {
       expect(conflicting.resolveCode("http/no-foo")).toEqual("http/no-foo");
     });
 
-    it("displays the full name for conflicting libraries", () => {
-      expect(conflicting.getDisplayCode("@typespec/http/no-foo")).toEqual("@typespec/http/no-foo");
-      expect(conflicting.getDisplayCode("typespec-http/no-foo")).toEqual("typespec-http/no-foo");
-    });
-
-    it("still resolves and displays non-conflicting libraries", () => {
+    it("still resolves non-conflicting libraries", () => {
       const mixed = createDiagnosticCodeResolver([
         { name: "@typespec/http" },
         { name: "typespec-http" },
         { name: "@typespec/openapi3" },
       ]);
       expect(mixed.resolveCode("openapi3/no-foo")).toEqual("@typespec/openapi3/no-foo");
-      expect(mixed.getDisplayCode("@typespec/openapi3/no-foo")).toEqual("openapi3/no-foo");
     });
   });
 

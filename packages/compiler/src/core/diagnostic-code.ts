@@ -28,12 +28,6 @@ export interface DiagnosticCodeResolver {
   resolveCode(code: string): string;
 
   /**
-   * Get the display code for a canonical full code: the short form when the
-   * library has an unambiguous short name, otherwise the full code unchanged.
-   */
-  getDisplayCode(fullCode: string): string;
-
-  /**
    * If `code`'s leading short-name segment maps to two or more loaded libraries,
    * return the ambiguity information; otherwise return `undefined`. A full code
    * that is already prefixed with a known package is never ambiguous.
@@ -107,12 +101,10 @@ export function createDiagnosticCodeResolver(
   }
 
   const shortToFull = new Map<string, string>();
-  const fullToShort = new Map<string, string>();
   const ambiguousShortNames = new Map<string, string[]>();
   for (const [short, names] of shortToNames) {
     if (names.length === 1) {
       shortToFull.set(short, names[0]);
-      fullToShort.set(names[0], short);
     } else {
       ambiguousShortNames.set(short, names);
     }
@@ -148,18 +140,6 @@ export function createDiagnosticCodeResolver(
         return `${fullName}/${rest}`;
       }
       return code;
-    },
-
-    getDisplayCode(fullCode) {
-      const fullName = matchFullPackage(fullCode);
-      if (fullName === undefined) {
-        return fullCode;
-      }
-      const short = fullToShort.get(fullName);
-      if (short === undefined) {
-        return fullCode;
-      }
-      return `${short}/${fullCode.slice(fullName.length + 1)}`;
     },
 
     getAmbiguousShortName(code) {
