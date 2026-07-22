@@ -26,7 +26,7 @@ try {
 
             # Use the repo NuGet.Config explicitly so restore always targets the Azure DevOps feed.
             $repoRoot = (Resolve-Path "$packageRoot/../..").Path
-            $nugetConfigPath = (Join-Path $repoRoot "nuget.config")
+            $nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
             $ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
             Invoke-LoggedCommand "dotnet nuget list source --configfile `"$nugetConfigPath`"" -GroupOutput
 
