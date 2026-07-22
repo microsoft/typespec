@@ -1,0 +1,147 @@
+name: "python / emitter diff"
+
+# Diffs generated code between this PR's emitter and the merge-base baseline.
+# Informational only: reports a sticky PR comment + HTML artifact, and fails the
+# job only on a tool/build error (never on a diff). See eng/emitter-diff.
+#
+# The tool runs `npm run regenerate` verbatim in each tree. It auto-prepares the
+# baseline tree it fetches from GitHub (via the preset's --setup: install +
+# build + venv), so this workflow only builds the head (PR) emitter itself.
+
+on:
+  pull_request:
+    branches: [main, release/*]
+    paths:
+      - "packages/http-client-python/**"
+      - "eng/emitter-diff/**"
+      - ".github/workflows/ci-emitter-diff-python.yml"
+  workflow_dispatch:
+    inputs:
+      baseline:
+        description: "Baseline emitter ref (local path or github ref). Defaults to the PR merge-base. A gh:/github: ref is fetched and auto-prepared (install + build) by the tool; a local: path is used as-is."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  emitter-diff:
+    name: "Generate & Diff"
+    runs-on: ubuntu-latest
+    # Fork PRs are intentionally skipped
+    if: github.event.pull_request.head.repo.fork != true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Determine baseline
+        id: baseline
+        # Dispatch input is untrusted: pass via env, reference only as "$VAR".
+        env:
+          BASELINE_INPUT: ${{ github.event.inputs.baseline || '' }}
+          BASE_REF: ${{ github.event.pull_request.base.ref || github.event.repository.default_branch }}
+        run: |
+          input="$BASELINE_INPUT"
+          if [ -n "$input" ]; then
+            echo "ref=$input" >> "$GITHUB_OUTPUT"
+            echo "Baseline (explicit): $input"
+          else
+            # merge-base = a real commit on the base branch; survives squash/rebase.
+            git fetch --no-tags origin "$BASE_REF"
+            base_sha="$(git merge-base FETCH_HEAD HEAD)"
+            [ -n "$base_sha" ] || { echo "::error::No merge-base with $BASE_REF."; exit 1; }
+            # gh:<sha> = this repo at the merge-base. The tool fetches that tree
+            # and auto-preps it (install + build + venv) via the preset's --setup.
+            echo "ref=gh:$base_sha" >> "$GITHUB_OUTPUT"
+            echo "Baseline (merge-base): gh:$base_sha"
+          fi
+
+      - name: Prepare head emitter (build + venv)
+        working-directory: packages/http-client-python
+        # http-client-python is excluded from the pnpm workspace (standalone,
+        # registry-versioned deps), so the repo-level `pnpm install` above does
+        # NOT provision its node_modules. Install them first (scripts skipped),
+        # then `npm run setup` (build + venv). Mirrors the baseline tree prep the
+        # tool does via the python preset's --setup.
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+
+      - name: Run emitter diff
+        id: diff
+        working-directory: packages/http-client-python
+        env:
+          BASELINE_REF: ${{ steps.baseline.outputs.ref }}
+          RUNNER_TEMP: ${{ runner.temp }}
+        run: |
+          set +e
+          # No --fail-on-diff (informational); tool/build errors still exit non-zero
+          # (checked in "Fail on tool error").
+          npm run diff-spector-tests -- \
+            --ci \
+            --baseline "$BASELINE_REF" \
+            --html "$RUNNER_TEMP/emitter-diff.html" \
+            --md "$RUNNER_TEMP/emitter-diff.md" \
+            | tee "$RUNNER_TEMP/emitter-diff.log"
+          echo "status=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          # Reuse the tool's own summary line (strip ANSI) instead of re-parsing.
+          summary="$(sed -r 's/\x1b\[[0-9;]*m//g' "$RUNNER_TEMP/emitter-diff.log" \
+            | grep -oE 'Diff summary: [0-9]+ file\(s\), \+[0-9]+ / -[0-9]+' | head -1)"
+          echo "summary=${summary:-No changes to generated output.}" >> "$GITHUB_OUTPUT"
+          # Render the diff inline on the run page.
+          if [ -f "$RUNNER_TEMP/emitter-diff.md" ]; then
+            cat "$RUNNER_TEMP/emitter-diff.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload HTML diff
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: emitter-diff-html
+          path: ${{ runner.temp }}/emitter-diff.html
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Comment on PR
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          BASELINE: ${{ steps.baseline.outputs.sha || steps.baseline.outputs.ref }}
+          STATUS: ${{ steps.diff.outputs.status }}
+          SUMMARY: ${{ steps.diff.outputs.summary }}
+        with:
+          script: |
+            const marker = "<!-- emitter-diff-python -->";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const { STATUS, SUMMARY, BASELINE } = process.env;
+            let body = `${marker}\n### Python emitter diff\nBaseline \`${BASELINE}\` vs this PR.\n\n`;
+            body += STATUS !== "0"
+              ? `⚠️ **emitter-diff failed** (exit \`${STATUS}\`) — tool/build error, not a diff. See the [run](${runUrl}).\n`
+              : `${SUMMARY}\n\nRendered diff: inline on the [run summary](${runUrl}), or the **emitter-diff-html** artifact.\n`;
+            body += `\n_Informational check (eng/emitter-diff); does not block the PR._`;
+            const { owner, repo } = context.repo, issue_number = context.issue.number;
+            const { data } = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const hit = data.find((c) => c.body && c.body.includes(marker));
+            if (hit) await github.rest.issues.updateComment({ owner, repo, comment_id: hit.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
+      - name: Fail on tool error
+        if: always()
+        env:
+          STATUS: ${{ steps.diff.outputs.status }}
+        run: '[ "$STATUS" = "0" ] || { echo "::error::emitter-diff failed (exit $STATUS)."; exit 1; }'

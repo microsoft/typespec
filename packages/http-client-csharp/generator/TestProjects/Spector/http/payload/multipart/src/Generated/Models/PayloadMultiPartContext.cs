@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using Payload.MultiPart._FormData.File;
 
 namespace Payload.MultiPart
 {

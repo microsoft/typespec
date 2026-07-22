@@ -91,16 +91,12 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
   // Validate the `ContentType` type is `TypeSpec.string`, a string literal, or a union of string literals
   const contentType = target.properties.get("contentType")!.type;
 
-  if (
-    !(
-      (
-        contentType.kind === "String" || // is string literal
-        context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
-        (contentType.kind === "Union" &&
-          [...contentType.variants.values()].every((v) => v.type.kind === "String"))
-      ) // is union of string literals
-    )
-  ) {
+  if (!(
+    contentType.kind === "String" || // is string literal
+    context.program.checker.isStdType(contentType, "string") || // is TypeSpec.string
+    (contentType.kind === "Union" &&
+      [...contentType.variants.values()].every((v) => v.type.kind === "String")) // is union of string literals
+  )) {
     const contentTypeDiagnosticTarget =
       getTemplateArgumentTarget(templateMapper?.source, "ContentType", 0) ??
       templateMetadata?.contentTypeArg;
