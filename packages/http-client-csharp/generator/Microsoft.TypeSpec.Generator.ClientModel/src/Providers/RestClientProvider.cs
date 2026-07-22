@@ -1371,9 +1371,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputServiceMethod serviceMethod,
             TypeProvider backCompatProvider)
         {
-            if (HasContentTypeBeforeBodyInLastContract(serviceMethod, backCompatProvider))
+            var lastContractOrder = GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider);
+            if (lastContractOrder != LastContractContentTypeOrder.NoMatchingMethod)
             {
-                return true;
+                return lastContractOrder == LastContractContentTypeOrder.BeforeBody;
             }
 
             // The baseline contract used for back-compat may come from a released package and can
@@ -1419,19 +1420,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// a "contentType" parameter appears before the body parameter.
         /// If so, we should preserve that ordering for backward compatibility.
         /// </summary>
-        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider)
+        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider) =>
+            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider) == LastContractContentTypeOrder.BeforeBody;
+
+        private static LastContractContentTypeOrder GetContentTypeOrderInLastContract(
+            InputServiceMethod serviceMethod,
+            TypeProvider backCompatProvider)
         {
             const string contentTypeParamName = "contentType";
 
             var lastContractMethods = backCompatProvider.LastContractView?.Methods;
             if (lastContractMethods == null || lastContractMethods.Count == 0)
             {
-                return false;
+                return LastContractContentTypeOrder.NoMatchingMethod;
             }
 
             var syncMethodName = serviceMethod.Name;
             var asyncMethodName = serviceMethod.Name + "Async";
             var bodyParameterNames = GetBodyParameterNames(serviceMethod);
+            var matchedMethod = false;
+            var foundAfterBody = false;
 
             foreach (var method in lastContractMethods)
             {
@@ -1441,6 +1449,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                matchedMethod = true;
                 int contentTypeIndex = -1;
                 int bodyIndex = -1;
                 for (int i = 0; i < method.Signature.Parameters.Count; i++)
@@ -1463,11 +1472,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (contentTypeIndex >= 0 && bodyIndex >= 0 && contentTypeIndex < bodyIndex)
                 {
-                    return true;
+                    return LastContractContentTypeOrder.BeforeBody;
+                }
+
+                if (contentTypeIndex >= 0 && bodyIndex >= 0)
+                {
+                    foundAfterBody = true;
                 }
             }
 
-            return false;
+            if (foundAfterBody)
+            {
+                return LastContractContentTypeOrder.AfterBody;
+            }
+
+            return matchedMethod
+                ? LastContractContentTypeOrder.MatchingMethodWithoutOrder
+                : LastContractContentTypeOrder.NoMatchingMethod;
+        }
+
+        private enum LastContractContentTypeOrder
+        {
+            NoMatchingMethod,
+            MatchingMethodWithoutOrder,
+            BeforeBody,
+            AfterBody
         }
 
         private static HashSet<string> GetBodyParameterNames(InputServiceMethod serviceMethod)
