@@ -166,25 +166,52 @@ namespace Microsoft.TypeSpec.Generator
 
             // Accessibility has to be adjusted before files are written. Roslyn can remove files
             // later, but it cannot safely change provider declarations or model factory signatures.
-            var (internalizeCandidates, publicCandidates, nodes) = GetPreWriteAccessibilityCandidates(providers);
-            foreach (var provider in GetGeneratedProviders(providers))
+            var internalizedProviderNames = new HashSet<string>(StringComparer.Ordinal);
+            while (true)
             {
-                var providerName = GetProviderTypeName(provider.Type);
-                if (internalizeCandidates.Contains(providerName))
+                var changed = false;
+                var (internalizeCandidates, publicCandidates, nodes) = GetPreWriteAccessibilityCandidates(providers);
+                foreach (var provider in GetGeneratedProviders(providers))
                 {
-                    if (provider.DeclaringTypeProvider is null)
+                    var providerName = GetProviderTypeName(provider.Type);
+                    TypeSignatureModifiers? modifiers = null;
+                    if (internalizeCandidates.Contains(providerName))
+                    {
+                        modifiers = MakeInternal(provider.DeclarationModifiers);
+                    }
+                    else if (publicCandidates.Contains(providerName) && !IsGeneratedInternalImplementation(provider))
+                    {
+                        modifiers = MakePublic(provider.DeclarationModifiers);
+                    }
+
+                    if (modifiers == null || modifiers == provider.DeclarationModifiers)
+                    {
+                        continue;
+                    }
+
+                    if (modifiers.Value.HasFlag(TypeSignatureModifiers.Internal) &&
+                        provider.DeclaringTypeProvider is null)
                     {
                         provider.PreserveXmlDocs();
                     }
-                    provider.Update(modifiers: MakeInternal(provider.DeclarationModifiers));
+                    provider.Update(modifiers: modifiers.Value);
+                    if (modifiers.Value.HasFlag(TypeSignatureModifiers.Internal))
+                    {
+                        internalizedProviderNames.Add(providerName);
+                    }
+                    else
+                    {
+                        internalizedProviderNames.Remove(providerName);
+                    }
+                    changed = true;
                 }
-                else if (publicCandidates.Contains(providerName) && !IsGeneratedInternalImplementation(provider))
+
+                if (!changed)
                 {
-                    provider.Update(modifiers: MakePublic(provider.DeclarationModifiers));
+                    RemoveMethodsFromModelFactory(internalizedProviderNames, nodes);
+                    return;
                 }
             }
-
-            RemoveMethodsFromModelFactory(internalizeCandidates, nodes);
         }
 
         public static void RestorePreWriteModelFactoryMethods()
@@ -422,6 +449,11 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
+                if (!publicOnly)
+                {
+                    AddAttributes(references[current], provider.Attributes, nodes, serializationReferenceNamesByType, includeArguments: true);
+                }
+
                 // Model factory signatures mention many models, but methods for unreachable models
                 // are removed with those models. Only helper dependencies contribute reachability.
                 if (IsModelFactoryProvider(provider))
@@ -466,7 +498,7 @@ namespace Microsoft.TypeSpec.Generator
                     AddTypeReference(references[current], property.ExplicitInterface, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                     if (!publicOnly)
                     {
-                        AddAttributes(references[current], property.Attributes, nodes, serializationReferenceNamesByType, includeArguments: false);
+                        AddAttributes(references[current], property.Attributes, nodes, serializationReferenceNamesByType, includeArguments: true);
                     }
                 }
 
@@ -480,7 +512,7 @@ namespace Microsoft.TypeSpec.Generator
                     AddTypeReference(references[current], field.Type, nodes, serializationReferenceNamesByType, providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                     if (!publicOnly)
                     {
-                        AddAttributes(references[current], field.Attributes, nodes, serializationReferenceNamesByType, includeArguments: false);
+                        AddAttributes(references[current], field.Attributes, nodes, serializationReferenceNamesByType, includeArguments: true);
                     }
                 }
 
@@ -491,7 +523,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], constructor.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
+                    AddSignatureReferences(references[current], constructor.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: true, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
 
                 foreach (var method in provider.Methods)
@@ -506,7 +538,7 @@ namespace Microsoft.TypeSpec.Generator
                         continue;
                     }
 
-                    AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: false, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
+                    AddSignatureReferences(references[current], method.Signature, nodes, serializationReferenceNamesByType, includeAttributes: !publicOnly, includeAttributeArguments: true, providerNamespace: providerNamespace, unionItemTypeExclusions: unionItemTypeExclusions);
                 }
             }
 

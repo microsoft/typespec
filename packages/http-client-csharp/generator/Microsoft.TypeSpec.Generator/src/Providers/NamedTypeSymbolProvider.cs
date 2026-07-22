@@ -661,6 +661,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     case BaseNamespaceDeclarationSyntax namespaceDeclaration:
                         namespaces.Add(namespaceDeclaration.Name.ToString());
+                        foreach (var usingDirective in namespaceDeclaration.Usings)
+                        {
+                            AddUsingNamespace(namespaces, usingDirective);
+                        }
                         break;
                 }
             }
@@ -669,14 +673,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var usingDirective in compilationUnit.Usings)
                 {
-                    if (usingDirective.Alias == null && !usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) && usingDirective.Name != null)
-                    {
-                        namespaces.Add(usingDirective.Name.ToString());
-                    }
+                    AddUsingNamespace(namespaces, usingDirective);
                 }
             }
 
             return [.. namespaces];
+        }
+
+        private static void AddUsingNamespace(HashSet<string> namespaces, UsingDirectiveSyntax usingDirective)
+        {
+            if (usingDirective.Alias == null &&
+                !usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword) &&
+                usingDirective.Name != null)
+            {
+                namespaces.Add(usingDirective.Name.ToString());
+            }
         }
 
         private static bool IsSyntacticTypeReference(TypeSyntax type)
@@ -705,12 +716,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ObjectCreationExpressionSyntax objectCreation => objectCreation.Type == type,
                 MemberAccessExpressionSyntax memberAccess => memberAccess.Expression == type && LooksLikeTypeName(type),
                 CastExpressionSyntax cast => cast.Type == type,
+                BinaryExpressionSyntax binary =>
+                    (binary.IsKind(SyntaxKind.IsExpression) || binary.IsKind(SyntaxKind.AsExpression)) &&
+                    binary.Right == type,
+                DeclarationPatternSyntax declarationPattern => declarationPattern.Type == type,
+                TypePatternSyntax typePattern => typePattern.Type == type,
+                RecursivePatternSyntax recursivePattern => recursivePattern.Type == type,
                 DefaultExpressionSyntax @default => @default.Type == type,
                 SizeOfExpressionSyntax sizeOf => sizeOf.Type == type,
                 TypeOfExpressionSyntax typeOf => typeOf.Type == type,
                 DeclarationExpressionSyntax declaration => declaration.Type == type,
-                _ => false
+                _ => IsNameOfTypeReference(type)
             };
+        }
+
+        private static bool IsNameOfTypeReference(TypeSyntax type)
+        {
+            if (!LooksLikeTypeName(type))
+            {
+                return false;
+            }
+
+            SyntaxNode current = type;
+            while (current.Parent is MemberAccessExpressionSyntax memberAccess &&
+                (memberAccess.Expression == current || memberAccess.Name == current))
+            {
+                current = memberAccess;
+            }
+
+            return current.Parent is ArgumentSyntax { Parent: ArgumentListSyntax { Parent: InvocationExpressionSyntax invocation } } &&
+                invocation.Expression is IdentifierNameSyntax identifier &&
+                string.Equals(identifier.Identifier.ValueText, "nameof", StringComparison.Ordinal);
         }
 
         private static bool LooksLikeTypeName(TypeSyntax type)

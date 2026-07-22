@@ -92,6 +92,157 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public async Task InternalContainingTypeDoesNotInternalizePublicNestedCustomPartial()
+        {
+            var outer = new TestTypeProvider("Outer", TypeSignatureModifiers.Public, ns: "Sample");
+            var inner = new NestedTestTypeProvider("Inner", TypeSignatureModifiers.Public, outer, ns: "Sample");
+            outer.NestedTypesInternal = [inner];
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(outer),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration([outer]);
+
+            Assert.IsTrue(outer.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(outer.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(inner.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(inner.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
+        public void GeneratedAttributeAndTypeOfArgumentRootGeneratedTypes()
+        {
+            var attribute = new GeneratedModelTestTypeProvider("GeneratedAttribute", TypeSignatureModifiers.Internal, ns: "Sample");
+            var converter = new GeneratedModelTestTypeProvider("GeneratedConverter", TypeSignatureModifiers.Internal, ns: "Sample");
+            var owner = new AttributedTestTypeProvider(
+                "GeneratedModel",
+                TypeSignatureModifiers.Public,
+                ns: "Sample",
+                new AttributeStatement(attribute.Type, TypeOf(converter.Type)));
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(owner, attribute, converter),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            CodeModelGenerator.Instance.AddTypeToKeep(owner);
+
+            ProviderReferenceMapAnalyzer.Analyze([owner, attribute, converter]);
+
+            Assert.That(
+                new[]
+                {
+                    ProviderReferenceMapAnalyzer.ShouldWriteProvider(attribute),
+                    ProviderReferenceMapAnalyzer.ShouldWriteProvider(converter)
+                },
+                Is.All.True);
+        }
+
+        [Test]
+        public async Task CustomPatternAndNameofReferencesRootGeneratedType()
+        {
+            var customType = new TestTypeProvider("CustomType", TypeSignatureModifiers.Public, ns: "Sample");
+            var patternModel = new TestTypeProvider("PatternModel", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            var castModel = new TestTypeProvider("CastModel", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            var nameofModel = new TestTypeProvider("NameofModel", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(customType, patternModel, castModel, nameofModel),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            CodeModelGenerator.Instance.AddTypeToKeep(customType);
+
+            ProviderReferenceMapAnalyzer.Analyze([customType, patternModel, castModel, nameofModel]);
+
+            Assert.That(
+                new[]
+                {
+                    ProviderReferenceMapAnalyzer.ShouldWriteProvider(patternModel),
+                    ProviderReferenceMapAnalyzer.ShouldWriteProvider(castModel),
+                    ProviderReferenceMapAnalyzer.ShouldWriteProvider(nameofModel)
+                },
+                Is.All.True);
+        }
+
+        [Test]
+        public async Task NamespaceScopedUsingRootsGeneratedType()
+        {
+            var customType = new TestTypeProvider("CustomType", TypeSignatureModifiers.Public, ns: "Sample");
+            var referencedModel = new TestTypeProvider("ReferencedModel", TypeSignatureModifiers.Public, ns: "Sample.Models");
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(customType, referencedModel),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            CodeModelGenerator.Instance.AddTypeToKeep(customType);
+
+            ProviderReferenceMapAnalyzer.Analyze([customType, referencedModel]);
+
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(referencedModel));
+        }
+
+        [Test]
+        public void PublicAccessibilityPromotionReachesFixedPoint()
+        {
+            var publicRoot = new ClientTestTypeProvider("PublicRoot", "Sample");
+            var intermediate = new GeneratedModelTestTypeProvider("Intermediate", TypeSignatureModifiers.Internal, ns: "Sample");
+            var dependency = new GeneratedModelTestTypeProvider("Dependency", TypeSignatureModifiers.Internal, ns: "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(publicRoot, intermediate, dependency),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            publicRoot.Update(properties:
+            [
+                new PropertyProvider($"", MethodSignatureModifiers.Public, intermediate.Type, "Intermediate", new AutoPropertyBody(false), publicRoot)
+            ]);
+            intermediate.Update(properties:
+            [
+                new PropertyProvider($"", MethodSignatureModifiers.Public, dependency.Type, "Dependency", new AutoPropertyBody(false), intermediate)
+            ]);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([publicRoot, intermediate, dependency]);
+
+            Assert.IsTrue(intermediate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(intermediate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsTrue(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
+        public void FixedPointPromotionPreservesFactoryMethodForFinallyPublicType()
+        {
+            var publicRoot = new ClientTestTypeProvider("PublicRoot", "Sample");
+            var intermediate = new GeneratedModelTestTypeProvider("Intermediate", TypeSignatureModifiers.Internal, ns: "Sample");
+            var dependency = new GeneratedModelTestTypeProvider("Dependency", TypeSignatureModifiers.Public, ns: "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(publicRoot, intermediate, dependency),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            publicRoot.Update(properties:
+            [
+                new PropertyProvider($"", MethodSignatureModifiers.Public, intermediate.Type, "Intermediate", new AutoPropertyBody(false), publicRoot)
+            ]);
+            intermediate.Update(properties:
+            [
+                new PropertyProvider($"", MethodSignatureModifiers.Public, dependency.Type, "Dependency", new AutoPropertyBody(false), intermediate)
+            ]);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.Update(methods:
+            [
+                new MethodProvider(
+                    new MethodSignature(
+                        "Dependency",
+                        $"",
+                        MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
+                        dependency.Type,
+                        $"",
+                        []),
+                    MethodBodyStatement.Empty,
+                    modelFactory)
+            ]);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility([publicRoot, intermediate, dependency]);
+
+            Assert.IsTrue(intermediate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(dependency.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsNotEmpty(modelFactory.Methods.Where(m => m.Signature.Name == "Dependency"));
+        }
+
+        [Test]
         public void AmbiguousNamespaceLessCustomCodeBodyDependencyDoesNotRootGeneratedTypeBySimpleName()
         {
             var customCodeView = new BodyDependencyTestTypeProvider("CustomType", CreateNamedType("Error", string.Empty));
