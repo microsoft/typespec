@@ -64,7 +64,7 @@ export const validateXmlBodyEquals = (
     throw new ValidationError(BODY_EMPTY_ERROR_MESSAGE, expectedXml, request.rawBody);
   }
 
-  const parser = new XMLParser({ parseTagValue: false });
+  const parser = new XMLParser({ parseTagValue: false, ignoreDeclaration: true });
   const actualParsed: unknown = parser.parse(request.rawBody);
   let expectedParsed: unknown = parser.parse(expectedXml);
 
