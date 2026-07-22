@@ -371,8 +371,7 @@ describe("getHttpOperation caching", () => {
       });
 
       // Simulate validation phase: getAllHttpServices processes all operations
-      const [services] = getAllHttpServices(program);
-      const validationOp = services[0].operations.find((o) => o.operation === createOp);
+      getAllHttpServices(program);
 
       // Now simulate emitting phase: getHttpOperation called individually (cached)
       const [emitResult1] = getHttpOperation(program, createOp);
@@ -389,7 +388,7 @@ describe("getHttpOperation caching", () => {
     });
 
     it("template ops with filtered params stay correct through cache", async () => {
-      const { program, create, TestService } = await Tester.compile(t.code`
+      const { program, create } = await Tester.compile(t.code`
         @service(#{title: "Test"}) namespace ${t.namespace("TestService")};
 
         op ResourceCreate<T>(@path name: string, @body resource: T): void;
@@ -435,7 +434,7 @@ describe("getHttpOperation caching", () => {
     });
 
     it("multiple operations with different filtering cached independently", async () => {
-      const { program, opA, opB, TestService } = await Tester.compile(t.code`
+      const { program, opA, opB } = await Tester.compile(t.code`
         @service(#{title: "Test"}) namespace ${t.namespace("TestService")};
         op ${t.op("opA")}(@path provider: "Microsoft.Test", @path name: string): void;
         op ${t.op("opB")}(@path provider: "Microsoft.Other", @path id: string): void;
