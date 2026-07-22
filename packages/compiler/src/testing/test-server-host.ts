@@ -120,10 +120,16 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
   const clientConfigProvider = createClientConfigProvider();
   const server = createServer(serverHost, clientConfigProvider);
   await server.initialize({
-    rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
-    capabilities: {},
+    capabilities: { workspace: { workspaceFolders: true } },
     processId: null,
-    workspaceFolders: null,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
+    workspaceFolders: [
+      {
+        name: "<root>",
+        uri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
+      },
+    ],
   });
   server.initialized({});
   const serverCompile = server.compile;

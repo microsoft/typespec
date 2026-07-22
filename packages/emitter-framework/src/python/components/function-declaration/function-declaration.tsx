@@ -18,8 +18,7 @@ export interface FunctionDeclarationPropsWithType extends Omit<
 }
 
 export type FunctionDeclarationProps =
-  | FunctionDeclarationPropsWithType
-  | py.FunctionDeclarationProps;
+  FunctionDeclarationPropsWithType | py.FunctionDeclarationProps;
 
 /**
  * A Python function declaration. Pass the `type` prop to create the
