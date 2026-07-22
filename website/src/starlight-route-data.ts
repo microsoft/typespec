@@ -44,8 +44,8 @@ export const onRequest = defineRouteMiddleware(async (context) => {
   group.entries = links;
 
   // Recompute pagination chronologically: previous = older release, next = newer release.
-  // `links` is newest-first, so the neighbour after the current entry is older (previous) and the
-  // neighbour before it is newer (next). No wrap-around at the ends.
+  // `links` is newest-first, so the neighbor after the current entry is older (previous) and the
+  // neighbor before it is newer (next). No wrap-around at the ends.
   //
   // Match on the current route id rather than the `isCurrent` flag: the config adds a standalone
   // "Release Notes" quick-link to the latest release which Starlight marks as current instead of
