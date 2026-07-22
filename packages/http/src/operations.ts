@@ -36,20 +36,6 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
-  // Cache during emitting stage for performance (avoids redundant computation by emitters)
-  if (!options && program.currentStage === "emitting") {
-    const key = Symbol.for("@typespec/http.httpOperationCache");
-    const stateMap = program.stateMap(key);
-    const cached = stateMap.get(operation) as
-      | { httpOperation: HttpOperation; diagnostics: readonly Diagnostic[] }
-      | undefined;
-    if (cached) {
-      return [cached.httpOperation, cached.diagnostics];
-    }
-    const result = getHttpOperationInternal(program, operation, options, new Map());
-    stateMap.set(operation, { httpOperation: result[0], diagnostics: result[1] });
-    return result;
-  }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 
