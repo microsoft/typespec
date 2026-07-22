@@ -36,6 +36,8 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
+  // Placeholder for future stage-aware caching (no behavioral change)
+  void program.currentStage;
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 
