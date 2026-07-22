@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithEncodedNames;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithEncodedNamesValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithEncodedNamesValuesImpl serviceClient;
@@ -119,7 +119,7 @@ public final class ModelWithEncodedNamesValueClient {
     public ModelWithEncodedNames get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithEncodedNames.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithEncodedNames.class, XML_SERIALIZER);
     }
 
     /**
@@ -138,6 +138,6 @@ public final class ModelWithEncodedNamesValueClient {
     public void put(ModelWithEncodedNames input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }

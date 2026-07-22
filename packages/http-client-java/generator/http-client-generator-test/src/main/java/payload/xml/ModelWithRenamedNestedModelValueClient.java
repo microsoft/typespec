@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithRenamedNestedModel;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedNestedModelValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithRenamedNestedModelValuesImpl serviceClient;
@@ -111,7 +111,7 @@ public final class ModelWithRenamedNestedModelValueClient {
     public ModelWithRenamedNestedModel get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedNestedModel.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedNestedModel.class, XML_SERIALIZER);
     }
 
     /**
@@ -130,6 +130,6 @@ public final class ModelWithRenamedNestedModelValueClient {
     public void put(ModelWithRenamedNestedModel input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }
