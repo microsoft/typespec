@@ -13,6 +13,8 @@ updates:
     package-ecosystem: pip
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   - directory: /
     exclude-paths:
       - packages/http-client-csharp
@@ -115,6 +117,8 @@ updates:
     package-ecosystem: npm
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
   - directory: /
     exclude-paths:
       - .github/workflows/*.lock.{yaml,yml}
@@ -128,4 +132,6 @@ updates:
     package-ecosystem: github-actions
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
 version: 2
