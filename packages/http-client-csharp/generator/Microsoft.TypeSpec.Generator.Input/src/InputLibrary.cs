@@ -81,19 +81,13 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             foreach (var model in InputNamespace.Models)
             {
-                if (model.Usage.HasFlag(InputModelTypeUsage.Xml))
+                if (model.Usage.HasFlag(InputModelTypeUsage.Xml)
+                    && !model.Usage.HasFlag(InputModelTypeUsage.Exception))
                 {
                     return true;
                 }
             }
 
-            foreach (var enumType in InputNamespace.Enums)
-            {
-                if (enumType.Usage.HasFlag(InputModelTypeUsage.Xml))
-                {
-                    return true;
-                }
-            }
             return false;
         }
     }
