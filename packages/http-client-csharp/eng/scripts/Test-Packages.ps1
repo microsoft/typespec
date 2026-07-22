@@ -31,7 +31,21 @@ try {
             Invoke-LoggedCommand "dotnet nuget list source --configfile `"$nugetConfigPath`"" -GroupOutput
 
             # test the generator
-            Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+            # Ensure child dotnet processes spawned from tests use the same restore/audit settings.
+            $previousRestoreConfigFile = $env:RestoreConfigFile
+            $previousNuGetAudit = $env:NuGetAudit
+            try {
+                $env:RestoreConfigFile = $nugetConfigPath
+                if ($env:TF_BUILD) {
+                    $env:NuGetAudit = "false"
+                }
+
+                Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+            }
+            finally {
+                $env:RestoreConfigFile = $previousRestoreConfigFile
+                $env:NuGetAudit = $previousNuGetAudit
+            }
 
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }
