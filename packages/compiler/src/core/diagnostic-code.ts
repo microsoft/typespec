@@ -76,6 +76,21 @@ export function formatShortNameCandidates(candidates: readonly string[]): string
 }
 
 /**
+ * Pattern a library `alias` must match: a non-empty, kebab-case identifier made of
+ * lowercase letters and digits, with single hyphens allowed between segments (no
+ * leading/trailing/double hyphens, no uppercase, whitespace or other characters).
+ * The alias is used as a diagnostic/linter code prefix (e.g. `tcgc/no-foo`), so it
+ * must not contain a `/` and should look like the scope-stripped package names it
+ * replaces (e.g. `client-generator-core`).
+ */
+const libraryAliasPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/** Returns whether `alias` is a valid library alias (see {@link libraryAliasPattern}). */
+export function isValidLibraryAlias(alias: string): boolean {
+  return libraryAliasPattern.test(alias);
+}
+
+/**
  * Create a resolver mapping between full and short diagnostic codes for the given
  * loaded libraries. When two libraries would resolve to the same short name, that
  * short name is considered ambiguous and all conflicting libraries fall back to

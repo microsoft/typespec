@@ -1,3 +1,4 @@
+import { isValidLibraryAlias } from "./diagnostic-code.js";
 import { createDiagnosticCreator } from "./diagnostic-creator.js";
 import { compilerAssert } from "./diagnostics.js";
 import type { Program } from "./program.js";
@@ -67,7 +68,7 @@ export function createTypeSpecLibrary<
   let emitterOptionValidator: JSONSchemaValidator;
 
   compilerAssert(
-    lib.alias === undefined || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(lib.alias),
+    lib.alias === undefined || isValidLibraryAlias(lib.alias),
     `Library alias "${lib.alias}" for library "${lib.name}" is invalid. It must contain only lowercase letters, digits, and hyphens (e.g. "tcgc").`,
   );
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDiagnosticCodeResolver,
   getPackageShortName,
+  isValidLibraryAlias,
 } from "../../src/core/diagnostic-code.js";
 
 describe("getPackageShortName", () => {
@@ -28,6 +29,19 @@ describe("getPackageShortName", () => {
     expect(getPackageShortName("some-random-package")).toBeUndefined();
     expect(getPackageShortName("@scope/other")).toBeUndefined();
   });
+});
+
+describe("isValidLibraryAlias", () => {
+  it.each(["tcgc", "http", "my-lib-2", "a", "client-generator-core"])("accepts %s", (alias) => {
+    expect(isValidLibraryAlias(alias)).toBe(true);
+  });
+
+  it.each(["", "Foo", "foo/bar", "foo bar", "-foo", "foo-", "foo--bar", "foo_bar"])(
+    "rejects %s",
+    (alias) => {
+      expect(isValidLibraryAlias(alias)).toBe(false);
+    },
+  );
 });
 
 describe("createDiagnosticCodeResolver", () => {
