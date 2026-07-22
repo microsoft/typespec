@@ -26,14 +26,6 @@ import {
   RouteResolutionOptions,
 } from "./types.js";
 
-/** Symbol used as the cache key for program state. */
-const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
-
-interface CachedHttpOperation {
-  httpOperation: HttpOperation;
-  diagnostics: readonly Diagnostic[];
-}
-
 /**
  * Return the Http Operation details for a given TypeSpec operation.
  * @param operation Operation
@@ -44,26 +36,7 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
-  // Bypass cache when custom options are provided (e.g. routeParamFilter)
-  // because they produce different results for the same operation.
-  if (options) {
-    return getHttpOperationInternal(program, operation, options, new Map());
-  }
-  // Only cache during "emitting" stage. Earlier stages (parsing, checking,
-  // validating, linting) always compute fresh to match original behavior
-  // and avoid interactions with validators/rules that may process operations
-  // in different orders or with different context.
-  if (program.currentStage !== "emitting") {
-    return getHttpOperationInternal(program, operation, undefined, new Map());
-  }
-  const cache = program.stateMap(httpOperationCacheKey) as Map<Operation, CachedHttpOperation>;
-  const existing = cache.get(operation);
-  if (existing) {
-    return [existing.httpOperation, existing.diagnostics];
-  }
-  const result = getHttpOperationInternal(program, operation, undefined, new Map());
-  cache.set(operation, { httpOperation: result[0], diagnostics: result[1] });
-  return result;
+  return getHttpOperationInternal(program, operation, options, new Map());
 }
 
 /**
@@ -80,10 +53,9 @@ export function listHttpOperationsIn(
 ): [HttpOperation[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const operations = listOperationsIn(container, options?.listOptions);
-  // Local cache shared across operations in this call for overload resolution
-  const localCache = new Map<Operation, HttpOperation>();
+  const cache = new Map();
   const httpOperations = operations.map((x) =>
-    diagnostics.pipe(getHttpOperationInternal(program, x, options, localCache)),
+    diagnostics.pipe(getHttpOperationInternal(program, x, options, cache)),
   );
   return diagnostics.wrap(httpOperations);
 }
