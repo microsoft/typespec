@@ -29,7 +29,7 @@ After changing compiler or library behavior, validate a representative TypeSpec 
 - Add a changelog entry for user-facing or package changes with:
 
   ```sh
-  pnpm chronus add <package-name> --kind=<kind> --message="<summary>"
+  pnpm chronus add "$PACKAGE_NAME" --kind="$KIND" --message="$SUMMARY"
   ```
 
   Valid kinds are defined in `.chronus/config.yaml`. Use separate entries when packages have different change kinds. Documentation-only, test-only, and internal repository changes may not require an entry; follow Chronus verification.

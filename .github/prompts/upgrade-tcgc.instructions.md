@@ -16,8 +16,8 @@ Client emitters are outside the pnpm workspace. Use npm from the emitter package
 1. Verify the requested TCGC version and inspect its peers:
 
    ```sh
-   npm view @azure-tools/typespec-client-generator-core@<version> version
-   npm view @azure-tools/typespec-client-generator-core@<version> peerDependencies --json
+   npm view "@azure-tools/typespec-client-generator-core@$VERSION" version
+   npm view "@azure-tools/typespec-client-generator-core@$VERSION" peerDependencies --json
    ```
 
 2. Set the TCGC development dependency to the exact requested version.

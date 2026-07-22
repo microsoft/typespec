@@ -9,7 +9,7 @@ This package is outside the pnpm workspace. Run package commands from the absolu
 Add required changelog entries from the repository root with:
 
 ```sh
-pnpm chronus add @typespec/http-client-java --kind=<kind> --message="<summary>"
+pnpm chronus add @typespec/http-client-java --kind="$KIND" --message="$SUMMARY"
 ```
 
 ## Dependency updates
