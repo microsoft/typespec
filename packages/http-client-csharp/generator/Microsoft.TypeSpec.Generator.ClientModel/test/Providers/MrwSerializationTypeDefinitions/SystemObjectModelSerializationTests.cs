@@ -146,6 +146,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
         }
 
+        [Test]
+        public void XmlModelWriteCore_IsOverride_WhenBaseProviderIsResolvedAfterSerialization()
+        {
+            var baseInputModel = InputFactory.Model("Resource", usage: InputModelTypeUsage.Xml);
+            var derivedInputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [InputFactory.Property("Location", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Xml);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseInputModel, derivedInputModel]);
+
+            var derived = new DelayedBaseModelProvider(derivedInputModel);
+            var serialization = new MrwSerializationTypeDefinition(derivedInputModel, derived);
+
+            derived.BaseModel = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+
+            var method = serialization.Methods.Single(method => method.Signature.Name == "XmlModelWriteCore");
+
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
         // -------------------------------------------------------------------
         // PersistableModelWriteCore: 'virtual' with system base, 'override' with regular
         // (the framework base already implements this; derived model re-introduces it)
