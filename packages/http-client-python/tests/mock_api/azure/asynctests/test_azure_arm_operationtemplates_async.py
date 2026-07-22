@@ -204,3 +204,21 @@ async def test_lro_paging_begin_post_paging_lro(client):
     assert items[1].name == "product2"
     assert items[1].properties.product_id == "product2"
     assert items[1].properties.provisioning_state == "Succeeded"
+
+
+@pytest.mark.asyncio
+async def test_lro_paging_begin_post_paging_lro_with_body(client):
+    poller = await client.lro_paging.begin_post_paging_lro_with_body(
+        resource_group_name=RESOURCE_GROUP_NAME,
+        product_name="default",
+        body=models.VnetProfile(vnet_id="vnet1"),
+    )
+    result = await poller.result()
+    items = [item async for item in result]
+    assert len(items) == 2
+    assert items[0].name == "product1"
+    assert items[0].properties.product_id == "product1"
+    assert items[0].properties.provisioning_state == "Succeeded"
+    assert items[1].name == "product2"
+    assert items[1].properties.product_id == "product2"
+    assert items[1].properties.provisioning_state == "Succeeded"
