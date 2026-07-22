@@ -1,7 +1,7 @@
 // cspell:ignore bfff
 import { defineConfig, defineLabels } from "../scripts/labels/config.js";
 import { repo } from "../scripts/utils/common.js";
-import { AreaPaths } from "./area.js";
+import { AreaPaths, ExternalOwners } from "./area.js";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -230,4 +230,5 @@ export default defineConfig({
     },
   },
   areaPaths: AreaPaths,
+  externalOwners: ExternalOwners,
 });

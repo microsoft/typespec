@@ -35,6 +35,18 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 };
 
 /**
+ * External area owners: teams/users outside the org that should be notified on PRs
+ * touching their area. GitHub does not allow non-collaborators in CODEOWNERS, nor can
+ * they be added as formal reviewers, so they are @-mentioned in a comment instead.
+ *
+ * Keyed by the same area names as {@link AreaPaths}; the paths are reused from there.
+ */
+export const ExternalOwners: Partial<Record<keyof typeof AreaLabels, string[]>> = {
+  // cspell:ignore swatkatz fionabronwen
+  "emitter:graphql": ["fionabronwen", "swatkatz", "steverice"],
+};
+
+/**
  * Path that should trigger every CI build.
  */
 const all = ["eng/common/", "vitest.config.ts", "tsconfig.base.json"];
