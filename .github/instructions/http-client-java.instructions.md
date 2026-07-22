@@ -21,6 +21,17 @@ pnpm chronus add @typespec/http-client-java --kind="$KIND" --message="$SUMMARY"
 5. If `http-specs` or `azure-http-specs` changed, regenerate `generator/http-client-generator-test`. If `http-specs` changed, also regenerate `generator/http-client-generator-clientcore-test`.
 6. Add a `dependencies` changelog entry.
 
+## Releases
+
+For a minor or patch release:
+
+1. Start from the current `main` branch and create the required `publish/` release branch.
+2. Run `pnpm prepare-publish --only @typespec/http-client-java` from the repository root and commit the version changes.
+3. Run `npm install` from the Java emitter root and commit the updated lockfile.
+4. Update the package versions in `generator/http-client-generator-clientcore-test/package.json` and `generator/http-client-generator-test/package.json` to match the root emitter version.
+
+The package publish pipeline runs after the release PR merges.
+
 ## Generator changes
 
 The TypeScript emitter produces `code-model.yaml`; the Java generator consumes it.
