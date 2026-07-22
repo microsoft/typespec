@@ -471,6 +471,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     continue;
                 }
 
+                if (optionalityMatch is not null
+                    && candidates.Any(c => HasSameRequiredParameterTypes(c.Signature, overload.Signature)))
+                {
+                    continue;
+                }
+
                 candidates.Add(overload);
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
@@ -490,6 +496,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             return previous.ReturnType.AreNamesEqual(current.ReturnType) || current.ReturnType.AreNamesEqual(previous.ReturnType);
+        }
+
+        private static bool HasSameRequiredParameterTypes(MethodSignatureBase a, MethodSignatureBase b)
+        {
+            var requiredA = a.Parameters.Where(p => p.DefaultValue is null).ToList();
+            var requiredB = b.Parameters.Where(p => p.DefaultValue is null).ToList();
+            if (requiredA.Count != requiredB.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < requiredA.Count; i++)
+            {
+                if (!requiredA[i].Type.AreNamesEqual(requiredB[i].Type, checkNullability: true)
+                    && !requiredB[i].Type.AreNamesEqual(requiredA[i].Type, checkNullability: true))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

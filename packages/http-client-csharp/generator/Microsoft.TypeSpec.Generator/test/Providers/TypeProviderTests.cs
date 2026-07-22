@@ -613,6 +613,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // When the optionality-restoration reduced-arity shim (dropping the became-required parameter) would share its
+        // required-parameter prefix with another existing overload — here a hand-authored overload whose
+        // trailing parameters are all optional — a caller supplying only those arguments would bind to both
+        // (CS0121). The shim must NOT be added; the existing overload already serves those callers.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOptionalityOverloadWhenAmbiguousWithExistingOverload()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Customization"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+
+            // Last contract: GetData(string name, int? code = default, string tag = default) (code optional).
+            // Customization makes 'code' required and adds GetData(string name, long other = default). The shim
+            // would drop 'code' to GetData(string name, string tag = default), whose required prefix
+            // (string name) collides with the 'long other' overload, so it must be suppressed.
+            var typeProvider = new TestTypeProvider(name: "AmbiguousOptionalityType", ns: "Test", methods: []);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         // TypeProvider: when a previous signature's removal is accepted in the ApiCompat baseline, the
         // optional-parameter overload pass must NOT resurrect it even though the replacement method added
         // optional parameters.
