@@ -26,6 +26,8 @@ import {
   RouteResolutionOptions,
 } from "./types.js";
 
+const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
+
 /**
  * Return the Http Operation details for a given TypeSpec operation.
  * @param operation Operation
@@ -36,6 +38,11 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
+  if (!options) {
+    return program.useCache(httpOperationCacheKey, operation, () =>
+      getHttpOperationInternal(program, operation, options, new Map()),
+    );
+  }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 

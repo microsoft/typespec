@@ -309,10 +309,11 @@ async function createProgram(
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
     useCache<T>(key: symbol, type: Type, compute: () => T): T {
-      // Only cache during "emitting" stage. During "parsing" and "checking",
-      // decorators may still mutate types. During "validating" and "linting",
-      // cache results could interact unexpectedly with validators and rules.
-      if (currentStage !== "emitting") {
+      // Only cache during "linting" and "emitting" stages. During "parsing" and
+      // "checking", decorators may still mutate types. During "validating",
+      // validators may still report diagnostics that affect type resolution.
+      // By "linting" all types are fully resolved and immutable.
+      if (currentStage !== "linting" && currentStage !== "emitting") {
         return compute();
       }
       const map = program.stateMap(key);
