@@ -129,8 +129,9 @@ public class TypeSpecPlugin extends Javagen {
             }
         }
 
-        // XmlSerializer
+        // XmlSerializer, only for the azure-core (v1) data-plane flavor
         final boolean generateXmlSerializer = JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
             && client.getModels().stream().filter(ModelUtil::isGeneratingModel).anyMatch(ClientModel::isUsedInXml);
         if (generateXmlSerializer) {
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),

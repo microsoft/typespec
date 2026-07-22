@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithRenamedAttribute;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedAttributeValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithRenamedAttributeValuesImpl serviceClient;
@@ -111,7 +111,7 @@ public final class ModelWithRenamedAttributeValueClient {
     public ModelWithRenamedAttribute get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedAttribute.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithRenamedAttribute.class, XML_SERIALIZER);
     }
 
     /**
@@ -130,6 +130,6 @@ public final class ModelWithRenamedAttributeValueClient {
     public void put(ModelWithRenamedAttribute input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }
