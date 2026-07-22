@@ -813,12 +813,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 internalClientNames: ["Responses"]);
         }
 
-        private static async Task GenerateAndAssertInternalModels(
-            InputModelType[] models,
-            InputClient[] clients,
-            string[] modelNames)
-            => await GenerateAndAssertModels(models, clients, modelNames, shouldBePublic: false);
-
         private static async Task GenerateAndAssertPublicModels(
             InputModelType[] models,
             InputClient[] clients,

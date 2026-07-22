@@ -87,16 +87,17 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer(checkNullability: false);
-        internal static readonly IEqualityComparer<MethodSignatureBase> SignatureComparerIncludingNullability = new MethodSignatureBaseEqualityComparer(checkNullability: true);
+        public static readonly IEqualityComparer<MethodSignatureBase> SignatureComparer = new MethodSignatureBaseEqualityComparer();
+        internal static readonly IEqualityComparer<MethodSignatureBase> SignatureComparerIgnoringOptionalValueTypeNullability
+            = new MethodSignatureBaseEqualityComparer(ignoreOptionalValueTypeParameterNullability: true);
 
         private class MethodSignatureBaseEqualityComparer : IEqualityComparer<MethodSignatureBase>
         {
-            private readonly bool _checkNullability;
+            private readonly bool _ignoreOptionalValueTypeParameterNullability;
 
-            public MethodSignatureBaseEqualityComparer(bool checkNullability)
+            public MethodSignatureBaseEqualityComparer(bool ignoreOptionalValueTypeParameterNullability = false)
             {
-                _checkNullability = checkNullability;
+                _ignoreOptionalValueTypeParameterNullability = ignoreOptionalValueTypeParameterNullability;
             }
 
             public bool Equals(MethodSignatureBase? x, MethodSignatureBase? y)
@@ -168,7 +169,19 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
                 for (int i = 0; i < x.Parameters.Count; i++)
                 {
-                    if (!x.Parameters[i].Type.AreNamesEqual(y.Parameters[i].Type, _checkNullability))
+                    var xType = x.Parameters[i].Type;
+                    var yType = y.Parameters[i].Type;
+                    if (!xType.AreNamesEqual(yType))
+                    {
+                        return false;
+                    }
+
+                    // Value-type T and T? are distinct overloads, so their nullability matters; reference-type
+                    // nullability is annotation-only and never affects overload identity.
+                    if (xType.IsNullable != yType.IsNullable && (xType.IsValueType || yType.IsValueType)
+                        && !(_ignoreOptionalValueTypeParameterNullability
+                            && x.Parameters[i].DefaultValue is not null
+                            && y.Parameters[i].DefaultValue is not null))
                     {
                         return false;
                     }

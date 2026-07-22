@@ -926,7 +926,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in previousMethods)
             {
-                if (!BackCompatHelper.ShouldApplyMethodBackCompatibility(previousMethod.Signature, currentMethodSignatures)
+                if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
+                    || !MethodProviderHelpers.IsPublicApi(previousMethod.Signature.Modifiers)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -1075,8 +1076,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (MethodSignatureBase.SignatureComparer.Equals(customMethod.Signature, method.Signature)
-                    && !MethodProviderHelpers.DiffersByValueTypeParameterNullability(customMethod.Signature, method.Signature))
+                // A custom method suppresses the generated one when their signatures match — treating
+                // optional value-type parameters that differ only by nullability as equal, since emitting
+                // both would be a CS0121-ambiguous coexistence.
+                if (MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(customMethod.Signature, method.Signature))
                 {
                     return false;
                 }

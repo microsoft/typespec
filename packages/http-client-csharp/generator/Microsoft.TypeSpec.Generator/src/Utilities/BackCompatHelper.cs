@@ -23,22 +23,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     internal static class BackCompatHelper
     {
         /// <summary>
-        /// Returns true when a last-contract method should be considered for back compatibility:
-        /// it is public or protected and has no exact match among the current signatures.
-        /// </summary>
-        public static bool ShouldApplyMethodBackCompatibility(
-            MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
-        {
-            if (currentMethodSignatures.ContainsKey(previousSignature))
-            {
-                return false;
-            }
-
-            return (previousSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) != 0;
-        }
-
-        /// <summary>
         /// Returns true when the removal of a previously-published method — identified by the enclosing
         /// type's fully-qualified name, the method name, and the exact parameter types — has been
         /// accepted in the ApiCompat baseline, in which case back compatibility must not resurrect or
@@ -374,14 +358,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var previousMethod in previousMethods)
             {
                 var previousSignature = previousMethod.Signature;
-                if ((previousSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) == 0 ||
+                if (!MethodProviderHelpers.IsPublicApi(previousSignature.Modifiers) ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;
                 }
 
-                bool previousStillExistsIgnoringNullability = false;
-                bool previousStillExistsIncludingNullability = false;
+                bool previousStillExists = false;
                 MethodProvider? newOptionalMatch = null;
                 MethodProvider? nullabilityMatch = null;
                 MethodProvider? optionalityMatch = null;
@@ -389,9 +372,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 foreach (var candidate in candidates)
                 {
                     var candidateSignature = candidate.Signature;
-                    bool candidateIsAccessible = (candidateSignature.Modifiers & (MethodSignatureModifiers.Public | MethodSignatureModifiers.Protected)) != 0;
+                    bool candidateIsAccessible = MethodProviderHelpers.IsPublicApi(candidateSignature.Modifiers);
 
-                    if (MethodSignatureBase.SignatureComparerIncludingNullability.Equals(candidateSignature, previousSignature))
+                    if (MethodSignature.MethodSignatureComparer.Equals(candidateSignature, previousSignature))
                     {
                         if (candidateIsAccessible && IsSingleNullableParameterOptionalToRequired(previousSignature, candidateSignature))
                         {
@@ -399,14 +382,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         }
                         else
                         {
-                            previousStillExistsIncludingNullability = true;
+                            previousStillExists = true;
                         }
                         break;
-                    }
-
-                    if (MethodSignature.MethodSignatureComparer.Equals(candidateSignature, previousSignature))
-                    {
-                        previousStillExistsIgnoringNullability = true;
                     }
 
                     // The remaining scenarios add a public/protected shim, so only accessible candidates matter.
@@ -426,7 +404,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     }
                 }
 
-                if (previousStillExistsIncludingNullability)
+                if (previousStillExists)
                 {
                     continue;
                 }
@@ -434,9 +412,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // Prefer, in order: the optionality-restoration overload (identical types, a nullable
                 // parameter became required), then the new-optional-parameter overload (forwards shared
                 // parameters directly), then the nullability overload (which unwraps the previously-nullable
-                // value type with .Value). The new-optional scenario only applies when the signature no
-                // longer exists even when parameter nullability is ignored.
-                bool canAddNewOptional = !previousStillExistsIgnoringNullability && newOptionalMatch is not null;
+                // value type with .Value).
+                bool canAddNewOptional = newOptionalMatch is not null;
                 if (optionalityMatch is null && !canAddNewOptional && nullabilityMatch is null)
                 {
                     continue;
@@ -464,9 +441,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 };
 
                 // Do not add if the new overload would be identical to an existing method
-                if (candidates.Any(c =>
-                    MethodSignatureBase.SignatureComparer.Equals(c.Signature, overload.Signature)
-                    && !MethodProviderHelpers.DiffersByValueTypeParameterNullability(c.Signature, overload.Signature)))
+                if (candidates.Any(c => MethodSignatureBase.SignatureComparer.Equals(c.Signature, overload.Signature)))
+                {
+                    continue;
+                }
+
+                if (optionalityMatch is not null
+                    && candidates.Any(c => HasSameRequiredParameterTypes(c.Signature, overload.Signature)))
                 {
                     continue;
                 }
@@ -490,6 +471,29 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             return previous.ReturnType.AreNamesEqual(current.ReturnType) || current.ReturnType.AreNamesEqual(previous.ReturnType);
+        }
+
+        private static bool HasSameRequiredParameterTypes(MethodSignatureBase a, MethodSignatureBase b)
+        {
+            var requiredA = a.Parameters.Where(p => p.DefaultValue is null).ToList();
+            var requiredB = b.Parameters.Where(p => p.DefaultValue is null).ToList();
+            if (requiredA.Count != requiredB.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < requiredA.Count; i++)
+            {
+                var typeA = requiredA[i].Type;
+                var typeB = requiredB[i].Type;
+                if (typeA.IsNullable != typeB.IsNullable
+                    || (!typeA.AreNamesEqual(typeB) && !typeB.AreNamesEqual(typeA)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -719,7 +723,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
 
                 // An unchanged parameter (identical type, including nullability).
-                if (previousParam.Type.AreNamesEqual(currentParam.Type, checkNullability: true))
+                if (previousParam.Type.IsNullable == currentParam.Type.IsNullable &&
+                    previousParam.Type.AreNamesEqual(currentParam.Type))
                 {
                     continue;
                 }
@@ -822,7 +827,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         // Given two signatures already known to have equal parameter count and types (including nullability),
-        // e.g. verified via SignatureComparerIncludingNullability, returns true when their only difference is
+        // e.g. verified via MethodSignatureComparer, returns true when their only difference is
         // that exactly one nullable parameter changed from optional to required and dropping it in a
         // reduced-arity overload stays unambiguous (its type differs from every other parameter's type).
         internal static bool IsSingleNullableParameterOptionalToRequired(
