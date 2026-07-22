@@ -32,6 +32,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
+
         protected override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>
