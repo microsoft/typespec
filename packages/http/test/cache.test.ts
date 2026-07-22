@@ -365,8 +365,8 @@ describe("HTTP operation caching", () => {
       // Verify nothing was cached during checking stage
       strictEqual(cache.has(myOp), false);
 
-      // Restore to linting stage — now caching should work
-      program.setCurrentStage("linting");
+      // Restore to emitting stage — now caching should work
+      program.setCurrentStage("emitting");
       const [afterValidating] = getHttpOperation(program, myOp);
       strictEqual(afterValidating.path, "/widgets/items");
 
@@ -374,7 +374,7 @@ describe("HTTP operation caching", () => {
       strictEqual(cache.has(myOp), true);
     });
 
-    it("does not cache in listHttpOperationsIn when program is in checking stage", async () => {
+    it("listHttpOperationsIn always computes fresh (uses local cache only)", async () => {
       const { myOp, Widgets, program } = await Tester.compile(t.code`
        @service(#{title: "Test"}) namespace TestService;
        @route("/widgets")
@@ -387,21 +387,20 @@ describe("HTTP operation caching", () => {
       const cache = program.stateMap(cacheKey) as Map<any, any>;
       cache.delete(myOp);
 
-      // Set to checking stage
+      // listHttpOperationsIn uses its own local cache for overload resolution
+      // and does NOT populate the program-level cache (regardless of stage).
       program.setCurrentStage("checking");
       const [opsWhileChecking] = listHttpOperationsIn(program, Widgets);
       strictEqual(opsWhileChecking.length, 1);
       strictEqual(opsWhileChecking[0].path, "/widgets");
-
-      // Should NOT have been cached
       strictEqual(cache.has(myOp), false);
 
-      // After moving to linting stage, result should be cached
-      program.setCurrentStage("linting");
-      const [opsAfterValidating] = listHttpOperationsIn(program, Widgets);
-      strictEqual(opsAfterValidating.length, 1);
-      strictEqual(opsAfterValidating[0].path, "/widgets");
-      strictEqual(cache.has(myOp), true);
+      program.setCurrentStage("emitting");
+      const [opsWhileEmitting] = listHttpOperationsIn(program, Widgets);
+      strictEqual(opsWhileEmitting.length, 1);
+      strictEqual(opsWhileEmitting[0].path, "/widgets");
+      // listHttpOperationsIn still doesn't populate the program cache
+      strictEqual(cache.has(myOp), false);
     });
 
     it("prevents stale checking-phase result from poisoning cache for later callers", async () => {
@@ -411,7 +410,7 @@ describe("HTTP operation caching", () => {
       // 2. Without the stage guard, the incomplete result gets cached
       // 3. Later callers (linter rules, emitters) get the stale/incomplete result
       //
-      // program.useCache prevents this by only caching from "linting" onward.
+      // program.useCache prevents this by only caching during "emitting" stage.
       const { myOp, program } = await Tester.compile(t.code`
        @service(#{title: "Test"}) namespace TestService;
        @route("/parent")
@@ -430,8 +429,8 @@ describe("HTTP operation caching", () => {
       getHttpOperation(program, myOp);
       strictEqual(cache.has(myOp), false);
 
-      // Phase 2: post-checking call — e.g. from a linter rule or emitter
-      program.setCurrentStage("linting");
+      // Phase 2: post-checking call — e.g. from an emitter
+      program.setCurrentStage("emitting");
       const [finalResult] = getHttpOperation(program, myOp);
 
       // The result should be the fully-resolved path, not a stale incomplete one

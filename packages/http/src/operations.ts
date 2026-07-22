@@ -26,7 +26,7 @@ import {
   RouteResolutionOptions,
 } from "./types.js";
 
-/** Symbol used as the cache key for program.useCache. */
+/** Symbol used as the cache key for program state. */
 const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
 
 interface CachedHttpOperation {
@@ -49,13 +49,21 @@ export function getHttpOperation(
   if (options) {
     return getHttpOperationInternal(program, operation, options, new Map());
   }
-  // program.useCache handles stage-gating: only caches from "validating" onward,
-  // so decorator-phase calls during "checking" always recompute.
-  const cached = program.useCache<CachedHttpOperation>(httpOperationCacheKey, operation, () => {
-    const result = getHttpOperationInternal(program, operation, undefined, new Map());
-    return { httpOperation: result[0], diagnostics: result[1] };
-  });
-  return [cached.httpOperation, cached.diagnostics];
+  // Only cache during "emitting" stage. Earlier stages (parsing, checking,
+  // validating, linting) always compute fresh to match original behavior
+  // and avoid interactions with validators/rules that may process operations
+  // in different orders or with different context.
+  if (program.currentStage !== "emitting") {
+    return getHttpOperationInternal(program, operation, undefined, new Map());
+  }
+  const cache = program.stateMap(httpOperationCacheKey) as Map<Operation, CachedHttpOperation>;
+  const existing = cache.get(operation);
+  if (existing) {
+    return [existing.httpOperation, existing.diagnostics];
+  }
+  const result = getHttpOperationInternal(program, operation, undefined, new Map());
+  cache.set(operation, { httpOperation: result[0], diagnostics: result[1] });
+  return result;
 }
 
 /**
@@ -74,16 +82,9 @@ export function listHttpOperationsIn(
   const operations = listOperationsIn(container, options?.listOptions);
   // Local cache shared across operations in this call for overload resolution
   const localCache = new Map<Operation, HttpOperation>();
-  const httpOperations = operations.map((x) => {
-    if (options) {
-      return diagnostics.pipe(getHttpOperationInternal(program, x, options, localCache));
-    }
-    const cached = program.useCache<CachedHttpOperation>(httpOperationCacheKey, x, () => {
-      const result = getHttpOperationInternal(program, x, undefined, localCache);
-      return { httpOperation: result[0], diagnostics: result[1] };
-    });
-    return diagnostics.pipe([cached.httpOperation, cached.diagnostics] as const);
-  });
+  const httpOperations = operations.map((x) =>
+    diagnostics.pipe(getHttpOperationInternal(program, x, options, localCache)),
+  );
   return diagnostics.wrap(httpOperations);
 }
 
