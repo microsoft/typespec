@@ -28,7 +28,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - **CRITICAL**: Run all tests: `pnpm test` (takes ~5 minutes, NEVER CANCEL - set timeout to 10+ minutes)
 - Run E2E tests: `pnpm test:e2e` and `node e2e/e2e-tests.js` (~1 minute)
 - Run tests with coverage: `pnpm test:ci`
-- Run tests in watch mode (in specific package): `pnpm test:watch`
+- Run tests in watch mode from the package you are working in (for example, `vitest --watch` or the package's own watch script)
 
 ### Code Quality
 
@@ -105,7 +105,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Common Development Tasks
 
-- Add change description: `pnpm change add`
+- Add a change description with `pnpm chronus add` (see the changelog guidance below for package and kind selection)
 - Generate external signatures: `pnpm gen-compiler-extern-signature`
 - Regenerate samples: `pnpm regen-samples`
 - Regenerate docs: `pnpm regen-docs`

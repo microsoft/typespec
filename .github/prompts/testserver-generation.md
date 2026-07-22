@@ -72,8 +72,7 @@
      - If invalid and not needed: change the word
 
 4. **FINALIZATION**
-   - Run `pnpm change add` from the root directory
-   - Select the touched package as a "new feature"
+   - Run `pnpm chronus add @typespec/http-specs --kind=feature --message="<change-summary>"` from the repository root
    - Only add the `lib:http-specs` label to the PR
    - NEVER remove or modify existing scenario docs
 

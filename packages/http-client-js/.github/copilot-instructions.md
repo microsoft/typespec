@@ -141,19 +141,7 @@
 
 ---
 
-## 6. Context Management
-
-- **Random Emoji**
-  - Prepend a random emoji at the beginning of **every** generated response.
-- **Summaries**
-  - Periodically generate concise summaries of progress or changes.
-  - Write or append these summaries to `.github/context/[timestamp]-context-summary.md`.
-- **No Additional Dependencies**
-  - Implement emoji generation or summary logic with built-in JS features only.
-
-  ***
-
-  ## 7. Debugging and Troubleshooting
+## 6. Debugging and Troubleshooting
 
 - **TypeSpec Type System**
   - When investigating issues, understand that TypeSpec has a complex type system with these key concepts:

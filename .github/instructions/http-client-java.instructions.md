@@ -5,6 +5,7 @@ applyTo: "packages/http-client-java/**/*"
 - The directories mentioned in this instruction are relative to `<repository-root>/packages/http-client-java`. For example, the root is the folder `<repository-root>/packages/http-client-java`; the directory `generator/http-client-generator-test` refers to `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
 - Always use absolute paths when changing directories or running scripts.
 - Whenever calling `npm`, use `--registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`.
+- When a changelog entry is required, run `pnpm chronus add @typespec/http-client-java --kind=<dependencies|internal|feature|fix> --message="<change-summary>"` from the repository root and commit the generated file in `.chronus/`.
 
 # Update Node.js packages for latest dependencies
 
@@ -17,14 +18,14 @@ Steps:
 5. Commit the changes to `package.json` and `package-lock.json`.
 6. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
 7. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
-8. Call `pnpm change add @typespec/http-client-java --kind=dependencies --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
+8. Add the `dependencies` changelog entry described above.
 
 # Prepare for minor/patch release
 
 Steps:
 
 1. Checkout "main" branch, pull the latest changes.
-2. Create a new branch. The name must follow the pattern "publish/http-client-java-<version>". Remind user that this branch must be pushed to remote upstream.
+2. Create a new `publish/` branch that follows the repository release branch convention. Remind the user that this branch must be pushed to the remote upstream.
 3. Invoke `pnpm prepare-publish --only @typespec/http-client-java` in repository root. Commit the changes.
 4. Invoke `npm install` in the root to update `package-lock.json`. Commit the changes.
 5. Update the two `package.json` files in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test` to match the new version in the root `package.json`. Commit the changes.
@@ -51,12 +52,12 @@ Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 9. Start Spector server by `npm run spector-start`.
 10. Run the tests (`mvn test`). Make sure all tests pass.
 11. Stop Spector server by `npm run spector-stop`.
-12. Call `pnpm change add @typespec/http-client-java --kind=internal --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
+12. Add the `internal` changelog entry described above.
 
 # Add feature or fix bug
 
 - Run `npm run format` and commit the formatted code before finalizing. Do not include any other changes in the commit.
-- Add a changelog entry: `pnpm change add @typespec/http-client-java --kind=<feature|fix> --message="<change-summary>"` (use `feature` for new features, `fix` for bug fixes). Commit the new md file in the ".chronus" folder of the repository root.
+- Add the appropriate changelog entry described above (`feature` for new features, `fix` for bug fixes).
 
 # Modify the code generator (emitter + generator e2e loop)
 

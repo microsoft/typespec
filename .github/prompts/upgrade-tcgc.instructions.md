@@ -12,9 +12,9 @@ Example: `tcgc upgrade my-emitter 0.61.0`
 
 ## Migration TODO List
 
-**IMPORTANT: Use the `manage_todo_list` tool throughout this migration to track progress and ensure no steps are missed.**
+**IMPORTANT: Keep a running checklist throughout this migration so the phases are completed in order and no steps are missed.**
 
-When starting the migration, create a TODO list with these items:
+When starting the migration, track these checklist items:
 
 1. **Pre-migration assessment** - Detect build system and run initial build
 2. **Package upgrade** - Update package.json and install dependencies
@@ -23,7 +23,7 @@ When starting the migration, create a TODO list with these items:
 5. **Final validation** - Run build to ensure all issues resolved
 6. **Summary and documentation** - Report changes to user
 
-Mark each todo as `in-progress` when starting work on it, and `completed` when finished. This helps track migration progress and ensures systematic completion.
+Mark each item as `in-progress` when starting work on it, and `completed` when finished. This keeps the migration systematic and easy to verify.
 
 ## Step-by-Step Migration Process
 
@@ -34,7 +34,7 @@ Mark each todo as `in-progress` when starting work on it, and `completed` when f
 
 ### Phase 1: Pre-Migration Assessment
 
-**Use `manage_todo_list` to mark "Pre-migration assessment" as in-progress**
+**Mark "Pre-migration assessment" as in-progress**
 
 1. **Identify the target package** to upgrade in `package.json` dependencies or devDependencies.
    - The prompt provides the emitter name and target version.
@@ -591,7 +591,7 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 3. **Fix validation pattern**:
    - After each category of fixes, run build immediately
    - New errors may appear as previous errors are resolved
-   - Update TODO list with newly discovered error categories
+   - Update the checklist with any newly discovered error categories
    - Continue until clean build achieved
 
 ### **Tool Usage Best Practices for Breaking Changes**
@@ -647,7 +647,7 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 
 **Mark "Summary and documentation" as completed**
 
-**All todos should now be completed - verify with `manage_todo_list` tool**
+**All checklist items should now be completed**
 
 ## Safety Guidelines
 
@@ -672,14 +672,14 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 
 ## Notes for LLMs
 
-- **Use TODO tracking:** Always use the `manage_todo_list` tool to create and track migration progress
+- **Track progress explicitly:** Keep the migration checklist updated as you move through the phases
 - **Be systematic:** Follow the phases in order and mark todos complete as you go
 - **Be thorough:** Check all files that import the upgraded package
 - **Be conservative:** Only change what's necessary to fix build errors
 - **Be consistent:** Apply the same patterns across similar code
 - **Validate frequently:** Run builds after each major change to catch issues early
 - **Document changes:** Summarize what was changed and why
-- **Update progress:** Mark todos as in-progress when starting and completed when finished
+- **Update progress:** Mark checklist items as in-progress when starting and completed when finished
 - **Do not change unrelated code:** Do not modify code or comments that is unrelated to the migration
 - **No any type assertions:** Avoid using `any` type assertions; prefer precise typings or implicit inference.
 
