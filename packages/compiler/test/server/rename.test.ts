@@ -1,16 +1,15 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { it } from "vitest";
 import { Range } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost, getTestIdentifiers } from "../../src/testing/test-server-host.js";
 
-describe("compiler: server: rename and find references", () => {
-  // `┆` marks where the cursor is positioned
-  // trailing /**/ marks identifiers that should be found/renamed
+// `┆` marks where the cursor is positioned
+// trailing /**/ marks identifiers that should be found/renamed
 
-  test(
-    "models",
-    `
+test(
+  "models",
+  `
       model MyModel/**/ {
         prop: MyMo┆del/**/; 
       }
@@ -29,11 +28,11 @@ describe("compiler: server: rename and find references", () => {
 
       model C<MyModel> {} // template parameter name
       `,
-  );
+);
 
-  test(
-    "template parameters",
-    `
+test(
+  "template parameters",
+  `
     model Template<T┆/**/> {
       prop: T/**/;
     }
@@ -43,11 +42,11 @@ describe("compiler: server: rename and find references", () => {
       prop: T;
     }
     `,
-  );
+);
 
-  test(
-    "namespaces",
-    `
+test(
+  "namespaces",
+  `
     namespace A.B/**/.C {
 
     }
@@ -61,31 +60,27 @@ describe("compiler: server: rename and find references", () => {
     namespace B {
     }
     `,
-  );
+);
 
-  test(
-    "aliases",
-    `alias Alias┆/**/ = string;
+test(
+  "aliases",
+  `alias Alias┆/**/ = string;
     op foo(): Alias/**/;`,
-  );
+);
 
-  test("enum members", `enum A { B┆/**/, C, D }; model M { prop: A.B/**/;}`);
+test("enum members", `enum A { B┆/**/, C, D }; model M { prop: A.B/**/;}`);
 
-  test("model properties", `model A { prop┆/**/: string; } model M { prop: A.prop/**/; }`);
+test("model properties", `model A { prop┆/**/: string; } model M { prop: A.prop/**/; }`);
 
-  test("anonymous model properties", `model A { b: { prop┆/**/: string; } }`);
+test("anonymous model properties", `model A { b: { prop┆/**/: string; } }`);
 
-  test("parameters", "op test(param┆/**/:string): void;");
+test("parameters", "op test(param┆/**/:string): void;");
 
-  test("interface operations", `interface A { test┆/**/(): void }; model M { prop: A.test/**/;}`);
+test("interface operations", `interface A { test┆/**/(): void }; model M { prop: A.test/**/;}`);
 
-  test(
-    "namespace operations",
-    `namespace A { op test┆/**/(): void }; model M { prop: A.test/**/;}`,
-  );
+test("namespace operations", `namespace A { op test┆/**/(): void }; model M { prop: A.test/**/;}`);
 
-  test("union variants", `union A { b┆/**/: B, c: C, d: D }; model M { prop: A.b/**/;}`);
-});
+test("union variants", `union A { b┆/**/: B, c: C, d: D }; model M { prop: A.b/**/;}`);
 
 function test(things: string, sourceWithCursor: string) {
   it(`renames ${things}`, () => testRename(sourceWithCursor));

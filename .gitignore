@@ -211,6 +211,13 @@ vite.config.ts.timestamp-*
 packages/*/etc/
 **/docs/**/js-api/
 
+# Generated linter rule and diagnostic reference pages (produced by `tspd doc` /
+# regen-docs from each rule/diagnostic's `docs` field). Regenerated during the
+# website build (build:web), so they are not tracked. The source docs live in
+# packages/*/src/rules/*.md and packages/*/src/diagnostics/*.md.
+website/src/content/docs/docs/**/rules/
+website/src/content/docs/docs/**/reference/diagnostics/
+
 # VS Code test web temp files
 .vscode-test-web/
 
@@ -243,3 +250,6 @@ packages/http-client-python/tests/.wheels/
 
 # Turborepo
 .turbo
+
+# agents
+.claude/settings.local.json

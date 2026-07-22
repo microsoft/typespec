@@ -1,5 +1,20 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.27
+
+### Bug Fixes
+
+- [#11274](https://github.com/microsoft/typespec/pull/11274) Bind the mock server to the loopback interface (`127.0.0.1`) so the unauthenticated `/.admin/stop` endpoint can no longer be reached by other hosts on the network. The server is only reachable from the local host.
+
+
+## 0.1.0-alpha.26
+
+### Bug Fixes
+
+- [#11117](https://github.com/microsoft/typespec/pull/11117) Ensure the coverage file's parent directory is created before writing so `tsp-spector serve --coverageFile <path>` no longer silently drops the report when the directory is missing
+- [#10978](https://github.com/microsoft/typespec/pull/10978) `validate-mock-apis` now verifies that every route defined in a scenario's `main.tsp` is served by at least one of the scenario's mock API `uri`s, so a mismatch between the spec route and the mock api uri (which would make a generated client get a 404 from the mock server) is detected by CI.
+
+
 ## 0.1.0-alpha.25
 
 ### Features

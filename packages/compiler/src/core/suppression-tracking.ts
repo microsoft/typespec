@@ -17,6 +17,10 @@ export interface UnusedSuppression {
   directive: SuppressDirective;
 }
 
+export interface DuplicateSuppression {
+  directive: SuppressDirective;
+}
+
 export interface SuppressionTracker {
   markUsed(directiveNode: DirectiveExpressionNode): void;
   getUnusedSuppressions(): UnusedSuppression[];
@@ -55,6 +59,40 @@ export function createSuppressionTracker(
       return unused;
     },
   };
+}
+
+export function findDuplicateSuppressions(
+  sourceResolution: SourceResolution,
+): DuplicateSuppression[] {
+  const duplicates: DuplicateSuppression[] = [];
+  for (const script of sourceResolution.sourceFiles.values()) {
+    if (sourceResolution.locationContexts.get(script.file)?.type !== "project") {
+      continue;
+    }
+
+    visit(script);
+  }
+
+  return duplicates;
+
+  function visit(node: Node) {
+    const seenSuppressions = new Set<string>();
+    for (const directiveNode of node.directives ?? []) {
+      const directive = parseDirective(directiveNode);
+      if (directive?.name !== "suppress") {
+        continue;
+      }
+
+      if (seenSuppressions.has(directive.code)) {
+        duplicates.push({ directive });
+        continue;
+      }
+
+      seenSuppressions.add(directive.code);
+    }
+
+    visitChildren(node, visit);
+  }
 }
 
 interface SuppressionRecord {

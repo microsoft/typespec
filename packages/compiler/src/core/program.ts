@@ -50,6 +50,7 @@ import {
   SuppressionTracker,
   createSuppressionTracker,
   findDirectiveSuppressingOnNode,
+  findDuplicateSuppressions,
 } from "./suppression-tracking.js";
 import {
   CompilerHost,
@@ -319,6 +320,16 @@ async function createProgram(
 
   diagnosticCodeResolver = createDiagnosticCodeResolver(collectLibraryNameInfos());
   suppressionTracker = createSuppressionTracker(sourceResolution, diagnosticCodeResolver);
+  reportDiagnostics(
+    findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
+      createDiagnostic({
+        code: "duplicate-suppression",
+        format: { code: directive.code },
+        target: directive.node,
+      }),
+    ),
+  );
+
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 

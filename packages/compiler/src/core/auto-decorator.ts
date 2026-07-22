@@ -29,7 +29,6 @@ export function createAutoDecoratorImplementation(
   node: DecoratorDeclarationStatementNode,
 ): (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void {
   const fqn = getFullyQualifiedSymbolName(symbol);
-  const stateKey = getAutoDecoratorStateKey(fqn);
   const paramNames = node.parameters.map((p) => p.id.sv);
   const lastParamIsRest =
     node.parameters.length > 0 && node.parameters[node.parameters.length - 1].rest;
@@ -53,12 +52,33 @@ export function createAutoDecoratorImplementation(
         data[paramNames[i]] = args[i];
       }
     }
-    context.program.stateMap(stateKey).set(target, data);
+    setAutoDecorator(context.program, fqn, target, data);
   };
   // The function name drives the `@<name>` text in the duplicate-decorator
   // diagnostic; mirror the extern `$name` convention so the helper strips it.
   Object.defineProperty(impl, "name", { value: `$${node.id.sv}` });
   return impl;
+}
+
+/**
+ * Programmatically apply an auto decorator to a target, storing its argument values.
+ *
+ * Mirrors what the synthesized `auto dec` implementation does when the decorator is
+ * written in source, so emitters and mutators can mark synthetic types the same way
+ * without reaching into the program state map directly.
+ * @param program - The current program.
+ * @param decoratorFqn - The fully-qualified name of the decorator (e.g., "MyLib.myDec").
+ * @param target - The type to mark.
+ * @param value - The stored `{ paramName: value }` record (defaults to `{}` for a no-arg decorator).
+ */
+export function setAutoDecorator(
+  program: Program,
+  decoratorFqn: string,
+  target: Type,
+  value: Record<string, unknown> = {},
+): void {
+  const key = getAutoDecoratorStateKey(decoratorFqn);
+  program.stateMap(key).set(target, value);
 }
 
 /**

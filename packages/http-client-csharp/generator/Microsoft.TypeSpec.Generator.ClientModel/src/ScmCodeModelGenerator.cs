@@ -24,8 +24,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
-        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
-            new ModelSerializationExtensionsDefinition();
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition
+            => _modelSerializationExtensionsDefinition ??= new ModelSerializationExtensionsDefinition();
+        private ModelSerializationExtensionsDefinition? _modelSerializationExtensionsDefinition;
 
         internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
             new SerializationFormatDefinition();
@@ -50,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
             AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+            AddTypeToKeep(SerializationFormatDefinition, isRoot: false);
         }
 
         public override async Task WriteAdditionalFiles(string outputPath)

@@ -61,6 +61,7 @@ words:
   - debugpy
   - Declipse
   - dedented
+  - dedup
   - Dedupes
   - deps
   - deser
@@ -155,6 +156,7 @@ words:
   - MACVMIMAGEM
   - marshal
   - mday
+  - Menlo
   - methodsubscriptionid
   - mgmt
   - mgmtplane
@@ -200,6 +202,7 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - opfields
   - oxlint
   - openapiv
   - Packument
@@ -218,6 +221,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments
@@ -316,7 +320,9 @@ words:
   - vnet
   - VNEXT
   - vsix
+  - vsextensions
   - vsmarketplace
+  - vspackage
   - VSSDK
   - Vsts
   - vswhere
@@ -364,6 +370,7 @@ ignorePaths:
   - "**/*.plist"
   - .git/**
   - .gitignore
+  - .claude/**
   - .vscode/**
   - .editorconfig
   - .github/CODEOWNERS

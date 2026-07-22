@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -133,7 +133,6 @@
     "@vitest/ui": "catalog:",
     "pathe": "catalog:",
     "rimraf": "catalog:",
-    "source-map-support": "catalog:",
     "tmlanguage-generator": "workspace:^",
     "typescript": "catalog:",
     "vitest": "catalog:",

@@ -951,7 +951,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -971,7 +971,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -988,7 +988,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1007,7 +1007,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1025,7 +1025,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1043,7 +1043,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1062,7 +1062,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1078,7 +1078,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -1093,7 +1093,7 @@ public final class TopLevelArmResourceInterfacesClientImpl implements TopLevelAr
     }
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.

@@ -1,6 +1,7 @@
 {
   "name": "typespec-vscode",
-  "version": "1.13.0",
+  "private": true,
+  "version": "1.14.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -248,8 +249,11 @@
             "description": "The path to trigger tsp compile"
           },
           "args": {
-            "type": "string",
-            "description": "The arguments to tsp compile"
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The arguments passed to tsp compile, where each element is a single argument."
           }
         }
       }
