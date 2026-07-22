@@ -31,7 +31,8 @@ export type IsActivitySender = {
 
 export type IsAction = {
   isAction: {
-    action: // Issues
+    action:
+      // Issues
       | "Opened"
       | "Closed"
       | "Reopened"

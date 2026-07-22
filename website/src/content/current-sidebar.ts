@@ -124,7 +124,7 @@ const sidebar: SidebarItem[] = [
   {
     label: "📚 Libraries",
     items: [
-      createLibraryReferenceStructure("libraries/http", "Http", false, [
+      createLibraryReferenceStructure("libraries/http", "Http", true, [
         "libraries/http/cheat-sheet",
         "libraries/http/authentication",
         "libraries/http/operations",

@@ -299,8 +299,7 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
       .reduce((a, b) => [...a, ...b]) ?? [];
 
   const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
-    | SdkEndpointParameter
-    | undefined;
+    SdkEndpointParameter | undefined;
   const operationGroups = emitOperationGroups(context, client, client, "", client.apiVersions);
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
