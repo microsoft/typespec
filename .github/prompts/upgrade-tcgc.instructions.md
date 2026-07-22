@@ -521,7 +521,7 @@ Critical patterns discovered during migration:
 
 ### Phase 3: Fix Breaking Changes - Enhanced Strategy
 
-**Mark "Post-upgrade build analysis" as in-progress**
+**Mark "Post-upgrade build" as in-progress**
 
 1. **Immediate build analysis after package upgrade**:
 
@@ -548,10 +548,10 @@ Critical patterns discovered during migration:
    - For each unique error pattern:
      - Identify the root cause (what changed in TCGC)
      - Determine fix scope (single file vs. multiple files)
-     - Create specific TODO items for each fix category
-     - Use semantic_search to find all affected files
+     - Create specific checklist items for each fix category
+     - Use the available search tools to find all affected files
 
-**Mark "Post-upgrade build analysis" as completed when error categories identified**
+**Mark "Post-upgrade build" as completed when error categories are identified**
 
 ### **Build Configuration Resilience**
 
@@ -582,8 +582,8 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 
    ```
    Mark category as in-progress →
-   semantic_search for affected files →
-   Apply multi_replace_string_in_file for batch fixes →
+   Search for affected files →
+   Apply the necessary batch edits →
    npm run build to validate fixes →
    Mark category as completed
    ```
@@ -597,8 +597,8 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 ### **Tool Usage Best Practices for Breaking Changes**
 
 1. **Batch operations when possible**:
-   - Use `multi_replace_string_in_file` for similar changes across multiple files
-   - Use `semantic_search` to find all instances before making changes
+   - Use bulk-edit tools for similar changes across multiple files
+   - Use the available search tools to find all instances before making changes
    - Group related fixes together rather than making changes one at a time
 
 2. **Build feedback loop**:
@@ -673,7 +673,7 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 ## Notes for LLMs
 
 - **Track progress explicitly:** Keep the migration checklist updated as you move through the phases
-- **Be systematic:** Follow the phases in order and mark todos complete as you go
+- **Be systematic:** Follow the phases in order and mark checklist items complete as you go
 - **Be thorough:** Check all files that import the upgraded package
 - **Be conservative:** Only change what's necessary to fix build errors
 - **Be consistent:** Apply the same patterns across similar code

@@ -22,7 +22,7 @@
    - DO NOT modify any files in other packages (such as `http-client-js`, `http`, etc.)
    - When searching for examples or patterns:
      - RESTRICT your search to the `packages/http-specs/specs` directory only
-     - If using `grep_search`, ALWAYS include `packages/http-specs/specs` in the `includePattern`
+     - If using grep or repository search tools, scope them to `packages/http-specs/specs`
      - NEVER use examples from other packages as implementation references
    - For each scenario:
      - Add a `@scenario` and `@scenarioDoc` decorator
