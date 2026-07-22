@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithEmptyArray;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithEmptyArrayValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithEmptyArrayValuesImpl serviceClient;
@@ -118,7 +118,7 @@ public final class ModelWithEmptyArrayValueClient {
     public ModelWithEmptyArray get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithEmptyArray.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithEmptyArray.class, XML_SERIALIZER);
     }
 
     /**
@@ -137,6 +137,6 @@ public final class ModelWithEmptyArrayValueClient {
     public void put(ModelWithEmptyArray input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }

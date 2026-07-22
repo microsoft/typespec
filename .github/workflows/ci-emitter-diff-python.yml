@@ -37,11 +37,11 @@ jobs:
     # Fork PRs are intentionally skipped
     if: github.event.pull_request.head.repo.fork != true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
