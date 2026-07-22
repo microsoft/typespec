@@ -1324,7 +1324,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (IsContentTypeParameter(inputParam)
-                            && !ShouldPreserveContentTypeBeforeBody(methodType, serviceMethod, client.BackCompatProvider))
+                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
@@ -1364,38 +1364,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. sortedParams.Values];
-        }
-
-        private static bool ShouldPreserveContentTypeBeforeBody(
-            ScmMethodKind methodType,
-            InputServiceMethod serviceMethod,
-            TypeProvider backCompatProvider)
-        {
-            var lastContractOrder = GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider);
-            if (lastContractOrder != LastContractContentTypeOrder.NoMatchingMethod)
-            {
-                return lastContractOrder == LastContractContentTypeOrder.BeforeBody;
-            }
-
-            // The baseline contract used for back-compat may come from a released package and can
-            // lag the generated sources in the repo. For generated convenience methods that expose a
-            // domain-named body parameter, keep the historic contentType-before-body ordering to avoid
-            // repo regen churn while protocol methods continue using the normalized "content" body.
-            return methodType is ScmMethodKind.Convenience && HasNamedBodyParameter(serviceMethod);
-        }
-
-        private static bool HasNamedBodyParameter(InputServiceMethod serviceMethod)
-        {
-            foreach (var parameter in serviceMethod.Parameters)
-            {
-                if (parameter.Location == InputRequestLocation.Body &&
-                    !string.Equals(parameter.Name, ContentParameterName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static bool HasLiteralContentTypeHeader(InputOperation operation)

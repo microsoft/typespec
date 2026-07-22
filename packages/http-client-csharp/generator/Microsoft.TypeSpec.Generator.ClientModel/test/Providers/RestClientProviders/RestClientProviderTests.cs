@@ -568,6 +568,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("contentType", convenienceMethodParameters[3].Name);
         }
 
+        [TestCase("content")]
+        [TestCase("schemaContent")]
+        public void ContentTypeOrderWithoutLastContractDoesNotDependOnBodyName(string bodyName)
+        {
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter(bodyName, InputPrimitiveType.String, isRequired: true);
+            var methodContentTypeParam = InputFactory.MethodParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                serializedName: "Content-Type",
+                location: InputRequestLocation.Header);
+            var methodBodyParam = InputFactory.MethodParameter(
+                bodyName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+            var operation = InputFactory.Operation("Upload", parameters: [contentTypeHeader, bodyParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [methodContentTypeParam, methodBodyParam]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = MockHelpers.LoadMockGenerator(clients: () => [client]);
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider);
+
+            Assert.AreEqual(bodyName, methodParameters[0].Name);
+            Assert.AreEqual("contentType", methodParameters[1].Name);
+        }
+
         [Test]
         public void ContentTypeOrderUsesBodyMetadataWhenLastContractHasMultipleBinaryDataParameters()
         {
