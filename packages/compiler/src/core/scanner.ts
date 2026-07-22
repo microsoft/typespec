@@ -224,9 +224,7 @@ export type DocToken =
   | Token.EndOfFile;
 
 export type StringTemplateToken =
-  | Token.StringTemplateHead
-  | Token.StringTemplateMiddle
-  | Token.StringTemplateTail;
+  Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail;
 
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([

@@ -481,8 +481,10 @@ try {
                 if (-not $unbrandedTgz) {
                     throw "Could not find unbranded emitter .tgz in build artifacts at: $BuildArtifactsPath"
                 }
-                $unbrandedPackagePath = $unbrandedTgz.FullName
-                Write-Host "Using unbranded package from build artifacts: $unbrandedPackagePath"
+                Write-Host "Using unbranded package from build artifacts: $($unbrandedTgz.FullName)"
+
+                $unbrandedPackagePath = Join-Path $debugFolder "typespec-http-client-csharp-$PackageVersion.tgz"
+                Copy-Item $unbrandedTgz.FullName -Destination $unbrandedPackagePath -Force -ErrorAction Stop
                 
                 # Copy .nupkg files from build artifacts to debug folder
                 $nupkgFiles = Get-ChildItem -Path $BuildArtifactsPath -Filter "*.nupkg" -Recurse

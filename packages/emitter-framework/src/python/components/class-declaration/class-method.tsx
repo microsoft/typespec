@@ -21,8 +21,7 @@ export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps,
 }
 
 export type MethodProps =
-  | MethodPropsWithType
-  | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
+  MethodPropsWithType | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
 
 /**
  * Get the method component based on the resolved method type.

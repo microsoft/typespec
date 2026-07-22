@@ -107,8 +107,7 @@ async function extractPackageNameFromTgzFile(tgzFilePath: string): Promise<strin
 
     await tar.t({
       file: tgzFilePath,
-      // cspell:ignore onentry
-      onentry: (entry) => {
+      onReadEntry: (entry) => {
         if (entry.path === "package/package.json") {
           entry.on("data", (chunk) => {
             if (packageJsonContent === null) {
