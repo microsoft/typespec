@@ -362,6 +362,12 @@ namespace ExtensibleStrings {
     Verify that enum members with special word names can be sent and received properly.
     Send 'class' and expect the same value back.
     """)
+  @surfaceDoc(
+    "naming",
+    ExtensibleString.and,
+    "and",
+    "The reserved-word enum member surfaces on the client with an idiomatic, non-conflicting identifier."
+  )
   @put
   @route("/string")
   op putExtensibleStringValue(
