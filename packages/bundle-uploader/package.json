@@ -39,8 +39,8 @@
   "dependencies": {
     "@azure/identity": "catalog:",
     "@azure/storage-blob": "catalog:",
-    "@pnpm/workspace.find-packages": "catalog:",
     "@typespec/bundler": "workspace:^",
+    "@typespec/internal-build-utils": "workspace:^",
     "picocolors": "catalog:",
     "semver": "catalog:"
   },

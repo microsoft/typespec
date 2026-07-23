@@ -102,7 +102,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -136,7 +136,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -152,7 +152,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -175,7 +175,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -200,7 +200,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -216,7 +216,7 @@ public final class LroPagingsClientImpl implements LroPagingsClient {
     }
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.

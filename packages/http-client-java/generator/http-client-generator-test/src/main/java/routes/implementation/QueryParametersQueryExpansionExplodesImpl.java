@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Mono;
+import routes.models.ExpandParameters;
 
 /**
  * An instance of this class provides access to all the operations defined in QueryParametersQueryExpansionExplodes.
@@ -115,6 +116,24 @@ public final class QueryParametersQueryExpansionExplodesImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> recordSync(@HostParam("endpoint") String endpoint,
             @QueryParam("param") Map<String, Integer> param, RequestOptions requestOptions, Context context);
+
+        @Get("/routes/query/query-expansion/explode/model")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> model(@HostParam("endpoint") String endpoint, @QueryParam("param") ExpandParameters param,
+            RequestOptions requestOptions, Context context);
+
+        @Get("/routes/query/query-expansion/explode/model")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> modelSync(@HostParam("endpoint") String endpoint, @QueryParam("param") ExpandParameters param,
+            RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -218,5 +237,38 @@ public final class QueryParametersQueryExpansionExplodesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> recordWithResponse(Map<String, Integer> param, RequestOptions requestOptions) {
         return service.recordSync(this.client.getEndpoint(), param, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> modelWithResponseAsync(ExpandParameters param, RequestOptions requestOptions) {
+        return FluxUtil
+            .withContext(context -> service.model(this.client.getEndpoint(), param, requestOptions, context));
+    }
+
+    /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> modelWithResponse(ExpandParameters param, RequestOptions requestOptions) {
+        return service.modelSync(this.client.getEndpoint(), param, requestOptions, Context.NONE);
     }
 }

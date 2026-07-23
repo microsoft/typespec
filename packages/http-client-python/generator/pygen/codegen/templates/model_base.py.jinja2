@@ -161,7 +161,15 @@ def _is_readonly(p):
 
 
 class SdkJSONEncoder(JSONEncoder):
-    """A JSON encoder that's capable of serializing datetime objects and bytes."""
+    """A JSON encoder that's capable of serializing datetime objects and bytes.
+
+    :param args: Additional positional arguments passed to the base ``JSONEncoder``.
+    :type args: typing.Any
+    :keyword exclude_readonly: Whether to exclude readonly properties. Defaults to False.
+    :paramtype exclude_readonly: bool
+    :keyword format: The format to use for serialization. Defaults to None.
+    :paramtype format: typing.Optional[str]
+    """
 
     def __init__(self, *args, exclude_readonly: bool = False, format: typing.Optional[str] = None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -348,6 +356,12 @@ def _deserialize_int_as_str(attr):
     return int(attr)
 
 
+def _deserialize_bool_as_str(attr):
+    if isinstance(attr, bool):
+        return attr
+    return attr.lower() == "true"
+
+
 _DESERIALIZE_MAPPING = {
     datetime: _deserialize_datetime,
     date: _deserialize_date,
@@ -375,6 +389,8 @@ _DESERIALIZE_MAPPING_WITHFORMAT = {
 def get_deserializer(annotation: typing.Any, rf: typing.Optional["_RestField"] = None):
     if annotation is int and rf and rf._format == "str":
         return _deserialize_int_as_str
+    if annotation is bool and rf and rf._format == "str":
+        return _deserialize_bool_as_str
     if annotation is str and rf and rf._format in _ARRAY_ENCODE_MAPPING:
         return functools.partial(_deserialize_array_encoded, _ARRAY_ENCODE_MAPPING[rf._format])
     if rf and rf._format:

@@ -17,6 +17,7 @@ import com.azure.core.http.rest.Response;
 import java.util.List;
 import java.util.Map;
 import routes.implementation.QueryParametersQueryExpansionExplodesImpl;
+import routes.models.ExpandParameters;
 
 /**
  * Initializes a new instance of the synchronous RoutesClient type.
@@ -88,6 +89,23 @@ public final class QueryParametersQueryExpansionExplodeClient {
     }
 
     /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> modelWithResponse(ExpandParameters param, RequestOptions requestOptions) {
+        return this.serviceClient.modelWithResponse(param, requestOptions);
+    }
+
+    /**
      * The primitive operation.
      * 
      * @param param The param parameter.
@@ -142,5 +160,24 @@ public final class QueryParametersQueryExpansionExplodeClient {
         // Generated convenience method for recordWithResponse
         RequestOptions requestOptions = new RequestOptions();
         recordWithResponse(param, requestOptions).getValue();
+    }
+
+    /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void model(ExpandParameters param) {
+        // Generated convenience method for modelWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        modelWithResponse(param, requestOptions).getValue();
     }
 }

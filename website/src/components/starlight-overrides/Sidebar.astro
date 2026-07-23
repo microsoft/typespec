@@ -2,7 +2,23 @@
 import MobileMenuFooter from "@astrojs/starlight/components/MobileMenuFooter.astro";
 import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import SidebarSublist from "@astrojs/starlight/components/SidebarSublist.astro";
+import Link from "@typespec/astro-utils/components/link.astro";
 import { getCollection } from "astro:content";
+
+// Primary site navigation. On documentation pages the site header's own menu
+// button is hidden so it doesn't overlap Starlight's sidebar menu button
+// (#10795 / #10796). Surface those links here (mobile menu only) so they stay
+// reachable from the single remaining menu button.
+const primaryNav = [
+  { label: "OpenAPI", href: "/openapi" },
+  { label: "Data Validation", href: "/data-validation" },
+  { label: "Tooling support", href: "/tooling" },
+  { label: "Docs", href: "/docs" },
+  { label: "Videos", href: "/videos" },
+  { label: "Playground", href: "/playground" },
+  { label: "Blog", href: "/blog" },
+  { label: "Community", href: "/community" },
+];
 
 const { sidebar } = Astro.locals.starlightRoute;
 const pathname = Astro.url.pathname;
@@ -42,6 +58,18 @@ if (isReleaseNotes) {
 }
 ---
 
+<nav class="site-nav md:sl-hidden" aria-label="Site">
+  <ul>
+    {
+      primaryNav.map((entry) => (
+        <li>
+          <Link href={entry.href}>{entry.label}</Link>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
 <SidebarPersister>
   <SidebarSublist sublist={filtered} />
 </SidebarPersister>
@@ -49,3 +77,29 @@ if (isReleaseNotes) {
 <div class="md:sl-hidden">
   <MobileMenuFooter />
 </div>
+
+<style>
+  .site-nav {
+    border-bottom: 1px solid var(--sl-color-hairline-shade);
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .site-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .site-nav a {
+    display: block;
+    padding: 0.4rem 0;
+    color: var(--sl-color-white);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .site-nav a:hover {
+    color: var(--sl-color-text-accent);
+  }
+</style>

@@ -12,7 +12,7 @@ import com.azure.core.util.Context;
  */
 public interface LroPagings {
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.
@@ -24,7 +24,7 @@ public interface LroPagings {
     PagedIterable<Product> postPagingLro(String resourceGroupName, String productName);
 
     /**
-     * A long-running resource action.
+     * The postPagingLro operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param productName The name of the Product.

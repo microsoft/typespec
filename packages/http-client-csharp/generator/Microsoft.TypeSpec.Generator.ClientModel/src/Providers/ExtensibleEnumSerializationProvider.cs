@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -33,6 +34,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName() => _enumProvider.Name;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _enumProvider.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
 
         protected override MethodProvider[] BuildMethods()
         {

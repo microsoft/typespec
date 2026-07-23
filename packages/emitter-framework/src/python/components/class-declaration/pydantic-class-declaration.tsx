@@ -47,8 +47,7 @@ export interface PydanticClassDeclarationPropsWithType extends Omit<
 }
 
 export type PydanticClassDeclarationProps =
-  | PydanticClassDeclarationPropsWithType
-  | PydanticClassDeclarationBaseProps;
+  PydanticClassDeclarationPropsWithType | PydanticClassDeclarationBaseProps;
 
 function isTypedPydanticClassDeclarationProps(
   props: PydanticClassDeclarationProps,

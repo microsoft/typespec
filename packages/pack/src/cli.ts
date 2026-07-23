@@ -1,10 +1,4 @@
-try {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await import("source-map-support/register.js");
-} catch {
-  // package only present in dev.
-}
+process.setSourceMapsEnabled(true);
 
 import { getDirectoryPath, logDiagnostics, NodeHost, normalizePath } from "@typespec/compiler";
 import { mkdir, writeFile } from "fs/promises";

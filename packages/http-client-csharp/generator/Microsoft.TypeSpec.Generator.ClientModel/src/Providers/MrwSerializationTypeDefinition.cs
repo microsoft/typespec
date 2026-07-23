@@ -77,7 +77,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private bool ShouldOverrideMethods => _shouldOverrideMethods ??= _model.BaseModelProvider != null && !_isStruct;
         private bool? _shouldSkipSerializationMethodOverrides;
         private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
-        private readonly bool _shouldOverrideXmlMethods;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
         // Unknown discriminator models use their base model as the serialization interface type.
@@ -100,7 +99,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             _supportsXml = inputModel.Usage.HasFlag(InputModelTypeUsage.Xml);
             _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json) || !_supportsXml;
-            _shouldOverrideXmlMethods = _model.BaseModelProvider != null && !_isStruct;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
@@ -117,6 +115,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 
@@ -125,6 +127,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName() => _model.Name;
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
+
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => _rawDataField != null || _additionalProperties.Value.Length > 0
+            ? [ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType]
+            : [];
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
         {

@@ -159,6 +159,8 @@ Import-Module "$PSScriptRoot\RegenPreview.psm1" -DisableNameChecking -Force
 # Resolve paths
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $sdkRepoPath = Resolve-Path $SdkLibraryRepoPath -ErrorAction Stop
+# Azure SDK artifact feed used for all npm restores in this script.
+$artifactFeedRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
 
 Write-Host "==================== LOCAL VALIDATION SCRIPT ====================" -ForegroundColor Cyan
 
@@ -592,7 +594,7 @@ try {
     Push-Location $packageRoot
     try {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
-        Invoke "npm ci"
+        Invoke "npm ci --registry $artifactFeedRegistry"
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to install dependencies for unbranded generator"
         }
@@ -843,7 +845,7 @@ try {
         $tempDir = Join-Path $engFolder "temp-package-update"
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
         
-        # Create a local .npmrc pointing at the public azure-sdk-for-js registry so that
+        # Create a local .npmrc pointing at the Azure SDK artifact feed so that
         # installing the local package tarball does not require authentication.
         Set-Content (Join-Path $tempDir ".npmrc") "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n" -Encoding utf8
         
@@ -973,7 +975,7 @@ try {
     $sdkForNetEngFolder = Join-Path $sdkRepoPath "eng"
     Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
     $tspClientDir = Join-Path $sdkForNetEngFolder "common" "tsp-client"
-    Invoke "npm ci --prefix $tspClientDir" $tspClientDir
+    Invoke "npm ci --prefix $tspClientDir --registry $artifactFeedRegistry" $tspClientDir
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to install tsp-client"
     }
@@ -990,17 +992,30 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to build client plugin"
     }
+    Write-Host "  Client plugin ready" -ForegroundColor Green
+    Write-Host ""
     
     # Thread-safe collections for progress tracking
     $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
     $totalCount = $libraries.Count
     
+    Write-Host "Configuring npm registry for tsp-client (temporary .env)..." -ForegroundColor Gray
+    $sdkEnvFile = Join-Path $sdkRepoPath ".env"
+    $originalSdkEnv = if (Test-Path $sdkEnvFile) { Get-Content $sdkEnvFile -Raw } else { $null }
+    Set-Content $sdkEnvFile "npm_config_registry=$artifactFeedRegistry`n" -Encoding utf8 -NoNewline
+    Write-Host "  Wrote $sdkEnvFile" -ForegroundColor Green
+    Write-Host ""
+    
+    try {
+    Write-Host "Dispatching $totalCount regeneration jobs ($throttleLimit at a time)..." -ForegroundColor Cyan
     # Run regeneration in parallel
     $results = $libraries | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
         $library = $_
         $azureSdkPath = $using:sdkRepoPath
         $completedBag = $using:completed
         $total = $using:totalCount
+        
+        Write-Host "  -> Starting $($library.Library) ($($library.Service))" -ForegroundColor DarkGray
         
         # Determine build path (check for src subdirectory)
         $libraryPath = Join-Path $azureSdkPath $library.Path
@@ -1056,6 +1071,15 @@ try {
             Success = if ($result.ContainsKey('Success')) { $result.Success } else { $false }
             Error = if ($result.ContainsKey('Error')) { $result.Error } else { "" }
             Output = if ($result.ContainsKey('Output')) { $result.Output } else { "" }
+        }
+    }
+    }
+    finally {
+        # Remove/restore the temporary .env used to redirect tsp-client's npm registry
+        if ($null -eq $originalSdkEnv) {
+            Remove-Item $sdkEnvFile -Force -ErrorAction SilentlyContinue
+        } else {
+            Set-Content $sdkEnvFile $originalSdkEnv -Encoding utf8 -NoNewline
         }
     }
     
