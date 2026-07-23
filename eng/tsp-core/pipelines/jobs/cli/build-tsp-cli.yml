@@ -37,7 +37,7 @@ jobs:
         displayName: Install Node.js
         retryCountOnTaskFailure: 3
         inputs:
-          version: 22.x
+          version: 26.x
 
       # - script: npm install -g bun
       #   displayName: Install bun
@@ -46,11 +46,10 @@ jobs:
 
       - template: /eng/common/pipelines/templates/steps/install-pnpm.yml
 
-      - script: pnpm install --filter "@typespec/standalone-cli"
+      - script: pnpm install --filter "@typespec/standalone-cli..."
         displayName: Install JavaScript Dependencies
 
-      - script: pnpm build
-        workingDirectory: packages/standalone
+      - script: pnpm --filter "@typespec/standalone-cli..." build
         displayName: Build
 
       - script: pnpm check smoke --smoke-only

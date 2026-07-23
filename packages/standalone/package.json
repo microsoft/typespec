@@ -45,17 +45,12 @@
     "esbuild": "catalog:",
     "execa": "catalog:",
     "ora": "catalog:",
-    "postject": "catalog:",
     "rimraf": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "dependencies": {
-    "@yarnpkg/core": "catalog:",
-    "@yarnpkg/fslib": "catalog:",
-    "@yarnpkg/plugin-nm": "catalog:",
-    "@yarnpkg/plugin-npm": "catalog:",
-    "@yarnpkg/plugin-pnp": "catalog:"
+    "@typespec/compiler": "workspace:^"
   }
 }
