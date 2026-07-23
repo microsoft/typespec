@@ -667,7 +667,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
-            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<MethodBodyStatement>? attributes = default,
             IEnumerable<CSharpType>? implements = null,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
@@ -826,12 +826,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
-
-            IReadOnlyList<AttributeStatement>? newAttributes = null;
+            IReadOnlyList<MethodBodyStatement>? newAttributes = null;
             if (hasAttributes)
             {
-                var backCompatAttributes = BuildAttributesForBackCompatibility(Attributes);
-                if (backCompatAttributes.Count != Attributes.Count)
+                var currentAttributes = GetAttributes();
+                var backCompatAttributes = BuildAttributesForBackCompatibility(currentAttributes);
+                if (backCompatAttributes.Count != currentAttributes.Count)
                 {
                     newAttributes = backCompatAttributes;
                 }
@@ -1033,14 +1033,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Returns the generated type attributes to use after back-compat processing.
-        /// The base implementation does not restore any last-contract type attributes.
-        /// Providers that own specific restorable attributes can override this method.
+        /// Returns the type attributes to emit, restoring any last-contract type attributes the owning
+        /// provider is responsible for. The base implementation does not restore any attributes.
+        /// <see cref="ProcessTypeForBackCompatibility"/> applies this to the generated attributes so the
+        /// default write path (<see cref="GetAttributes"/>) emits the restored attributes. Providers that
+        /// rebuild attributes in <see cref="BuildAttributesForWrite"/> must re-invoke it there so the restore
+        /// also runs against their final, post-reference-map attribute set.
         /// </summary>
-        protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
-        {
-            return originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
-        }
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IEnumerable<MethodBodyStatement> originalAttributes)
+            => originalAttributes as IReadOnlyList<MethodBodyStatement> ?? [.. originalAttributes];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
