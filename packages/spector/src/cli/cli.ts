@@ -3,12 +3,14 @@ import "source-map-support/register.js";
 import yargs from "yargs";
 import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
+import { generateSurfaceChecks } from "../actions/generate-surface-checks.js";
 import { validateScenarios } from "../actions/index.js";
 import { serve, startInBackground, stop } from "../actions/serve.js";
 import { serverTest } from "../actions/server-test.js";
 import { uploadCoverageReport } from "../actions/upload-coverage-report.js";
 import { uploadScenarioManifest } from "../actions/upload-scenario-manifest.js";
 import { validateMockApis } from "../actions/validate-mock-apis.js";
+import { verifySurfaceChecks } from "../actions/verify-surface-checks.js";
 import { logger } from "../logger.js";
 import { getCommit } from "../utils/misc-utils.js";
 
@@ -87,6 +89,80 @@ async function main() {
           });
           overrideOutputFile = true;
         }
+      },
+    )
+    .command(
+      "generate-surface-checks <scenariosPaths..>",
+      "Precompute the surface-checks doc (Markdown, from @surfaceDoc) for all specs.",
+      (cmd) => {
+        return cmd
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios",
+            type: "string",
+            array: true,
+            demandOption: true,
+          })
+          .option("outputFile", {
+            type: "string",
+            description: "Path to the generated surface-checks doc (Markdown).",
+            default: join(process.cwd(), "surface-checks.md"),
+          });
+      },
+      async (args) => {
+        for (const scenariosPath of args.scenariosPaths) {
+          await generateSurfaceChecks({
+            scenariosPath: resolve(process.cwd(), scenariosPath),
+            outputFile: resolve(process.cwd(), args.outputFile),
+          });
+        }
+      },
+    )
+    .command(
+      "verify-surface-checks",
+      "Run the deterministic client-surface checks (shared, language-agnostic engine).",
+      (cmd) => {
+        return cmd
+          .option("checks", {
+            type: "string",
+            demandOption: true,
+            description: "Path to the checks doc (Markdown table from @surfaceDoc, or JSON).",
+          })
+          .option("verifiers", {
+            type: "string",
+            demandOption: true,
+            description: "Path to the emitter's declarative verifiers.json routing table.",
+          })
+          .option("generated-root", {
+            type: "string",
+            demandOption: true,
+            description: "Root of the generated SDKs; packages live under <root>/<flavor>/.",
+          })
+          .option("flavor", {
+            type: "string",
+            default: "azure",
+            description: "Flavor subfolder under generated-root (e.g. azure, unbranded).",
+          })
+          .option("language", {
+            type: "string",
+            demandOption: true,
+            description: "Emitter language (selects per-language client names).",
+          })
+          .option("scenario", {
+            type: "string",
+            description: "Optional case-insensitive substring filter on the check id.",
+          });
+      },
+      async (args) => {
+        const output = await verifySurfaceChecks({
+          checksPath: resolve(process.cwd(), args.checks),
+          verifiersPath: resolve(process.cwd(), args.verifiers),
+          generatedRoot: resolve(process.cwd(), args["generated-root"]),
+          flavor: args.flavor,
+          language: args.language,
+          scenario: args.scenario,
+        });
+        // eslint-disable-next-line no-console
+        console.log(JSON.stringify(output, null, 2));
       },
     )
     .command("server", "Server management", (cmd) => {
@@ -273,20 +349,13 @@ async function main() {
       },
     )
     .command(
-      "upload-manifest <scenariosPaths..>",
+      "upload-manifest <scenariosPath>",
       "Upload the scenario manifest. DO NOT CALL in generator.",
       (cmd) => {
         return cmd
-          .positional("scenariosPaths", {
+          .positional("scenariosPath", {
             description: "Path to the scenarios and mock apis",
             type: "string",
-            array: true,
-            demandOption: true,
-          })
-          .option("setName", {
-            type: "string",
-            description: "Set used to generate the manifest.",
-            array: true,
             demandOption: true,
           })
           .option("storageAccountName", {
@@ -298,14 +367,26 @@ async function main() {
             description: "Name of the Container",
             demandOption: true,
           })
+          .option("manifestName", {
+            type: "string",
+            description:
+              "Name of the manifest(will be located at manifests/<manifestName>.json in the container).",
+            demandOption: true,
+          })
+          .option("override", {
+            type: "boolean",
+            description: "Override existing manifest with the same version.",
+            default: false,
+          })
           .demandOption("storageAccountName");
       },
       async (args) => {
         await uploadScenarioManifest({
-          scenariosPaths: args.scenariosPaths,
+          scenariosPath: args.scenariosPath,
           storageAccountName: args.storageAccountName,
-          setNames: args.setName,
           containerName: args.containerName,
+          manifestName: args.manifestName,
+          override: args.override,
         });
       },
     )
