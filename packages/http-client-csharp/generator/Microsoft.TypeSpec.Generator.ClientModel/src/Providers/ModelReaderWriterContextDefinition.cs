@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -635,9 +636,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return attributeStatement;
         }
 
-        private static bool IsTypeAvailableForWrite(CSharpType type) =>
-            type.IsFrameworkType ||
-            (FindCurrentTypeProvider(type) is not null && IsResolvableBuildableType(type));
+        private static bool IsTypeAvailableForWrite(CSharpType type)
+        {
+            if (type.IsFrameworkType)
+            {
+                return type.FrameworkType.GetCustomAttribute<ObsoleteAttribute>()?.IsError != true;
+            }
+
+            var typeProvider = FindCurrentTypeProvider(type);
+            return typeProvider is not null &&
+                !HasErrorObsoleteAttribute(typeProvider) &&
+                IsResolvableBuildableType(type);
+        }
+
+        private static bool HasErrorObsoleteAttribute(TypeProvider typeProvider) =>
+            typeProvider.CanonicalView.Attributes.Any(attribute =>
+                attribute.Type.Equals(typeof(ObsoleteAttribute)) &&
+                attribute.Arguments.Count > 1 &&
+                attribute.Arguments[1] is LiteralExpression { Literal: true });
 
         private static TypeProvider? FindCurrentTypeProvider(CSharpType type) =>
             FindCurrentTypeProvider(CodeModelGenerator.Instance.OutputLibrary.TypeProviders, type)
@@ -680,7 +696,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var parentName = GetDeclaringTypeMetadataName(declaringType.DeclaringType);
-            return parentName is null ? declaringType.Name : $"{parentName}+{declaringType.Name}";
+            var metadataName = declaringType.Arguments.Count == 0
+                ? declaringType.Name
+                : $"{declaringType.Name}`{declaringType.Arguments.Count}";
+            return parentName is null ? metadataName : $"{parentName}+{metadataName}";
         }
 
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)

@@ -679,12 +679,23 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
                 {
-                    AppendDeclaringTypeName(type.DeclaringType);
+                    AppendDeclaringTypeName(type.DeclaringType, writeTypeNameOnly, genericDepth);
                 }
 
                 AppendRaw(type.Name);
             }
 
+            AppendTypeArguments(type, writeTypeNameOnly, genericDepth);
+
+            // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
+            if ((!_writingNewInstance || genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
+            {
+                AppendRaw("?");
+            }
+        }
+
+        private void AppendTypeArguments(CSharpType type, bool writeTypeNameOnly, int genericDepth)
+        {
             if (type.Arguments.Any())
             {
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
@@ -698,22 +709,18 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
-
-            // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
-            if ((!_writingNewInstance || genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
-            {
-                AppendRaw("?");
-            }
         }
 
-        private void AppendDeclaringTypeName(CSharpType declaringType)
+        private void AppendDeclaringTypeName(CSharpType declaringType, bool writeTypeNameOnly, int genericDepth)
         {
             if (declaringType.DeclaringType is not null)
             {
-                AppendDeclaringTypeName(declaringType.DeclaringType);
+                AppendDeclaringTypeName(declaringType.DeclaringType, writeTypeNameOnly, genericDepth);
             }
 
-            AppendRaw($"{declaringType.Name}.");
+            AppendRaw(declaringType.Name);
+            AppendTypeArguments(declaringType, writeTypeNameOnly, genericDepth);
+            AppendRaw(".");
         }
 
         public CodeWriter WriteLine(FormattableString formattableString)

@@ -16,4 +16,9 @@ namespace Sample.Models
     public class ExperimentalPreviousModel
     {
     }
+
+    [Obsolete("This model cannot be used.", true)]
+    public class ErrorObsoleteModel
+    {
+    }
 }
