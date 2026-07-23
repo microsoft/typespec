@@ -137,10 +137,11 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   const { createServer } = host.compiler;
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
-    capabilities: {},
+    capabilities: { workspace: { workspaceFolders: true } },
     processId: 1,
-    workspaceFolders: [],
-    rootUri: "inmemory://",
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
+    workspaceFolders: [{ name: "<root>", uri: "inmemory://" }],
   });
   serverLib.initialized({});
 

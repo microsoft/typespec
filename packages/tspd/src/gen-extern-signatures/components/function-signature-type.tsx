@@ -29,24 +29,22 @@ export function FunctionSignatureType(props: Readonly<FunctionSignatureProps>) {
       name: "context",
       type: typespecCompiler.FunctionContext,
     },
-    ...func.parameters.map(
-      (param): ts.ParameterDescriptor => ({
-        // https://github.com/alloy-framework/alloy/issues/144
-        name: param.rest ? `...${param.name}` : param.name,
-        type: param.rest ? (
-          <>
-            (
-            {param.type ? (
-              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
-            ) : undefined}
-            )[]
-          </>
-        ) : (
-          <ParameterTsType constraint={param.type} />
-        ),
-        optional: param.optional,
-      }),
-    ),
+    ...func.parameters.map((param): ts.ParameterDescriptor => ({
+      // https://github.com/alloy-framework/alloy/issues/144
+      name: param.rest ? `...${param.name}` : param.name,
+      type: param.rest ? (
+        <>
+          (
+          {param.type ? (
+            <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+          ) : undefined}
+          )[]
+        </>
+      ) : (
+        <ParameterTsType constraint={param.type} />
+      ),
+      optional: param.optional,
+    })),
   ];
 
   const returnType = <ParameterTsType constraint={func.returnType} />;

@@ -16,11 +16,6 @@
             {% endfor %}
         {% endfor %}
     {% endif %}
-    {% if serializer.need_init(model) %}
-        {% for line in serializer.keyword_documentation_string(model) %}
-    {{ macros.wrap_model_string(line, '\n    ') -}}
-        {% endfor %}
-    {% endif %}
     """
 
     {% if model.is_polymorphic %}

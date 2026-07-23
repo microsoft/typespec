@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator
             }
             var docs = await Task.WhenAll(documents);
 
-            LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+            LoggingHelpers.LogElapsedTime("Roslyn document processing complete");
 
             foreach (var doc in docs)
             {
@@ -258,33 +258,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return project;
-        }
-
-        /// <summary>
-        /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
-        /// </summary>
-        public async Task PostProcessAsync()
-        {
-            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
-            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
-            var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
-                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeNames: nonRootTypes);
-
-            switch (Configuration.UnreferencedTypesHandling)
-            {
-                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    _project = await postProcessor.RemoveAsync(_project);
-                    break;
-            }
         }
 
         /// <summary>

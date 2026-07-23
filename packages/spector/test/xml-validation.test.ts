@@ -35,6 +35,12 @@ describe("with plain string (no matchers)", () => {
     ).toThrow("Body provided doesn't match expected body");
   });
 
+  it("should accept matching XML when actual has no declaration", () => {
+    expect(() =>
+      validateXmlBodyEquals(makeRequest("<Root><a>1</a></Root>"), "<Root><a>1</a></Root>"),
+    ).not.toThrow();
+  });
+
   it("should reject empty body", () => {
     expect(() => validateXmlBodyEquals(makeRequest(""), "<Root/>")).toThrow("Body should exists");
   });
