@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -17,8 +18,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     /// <summary>
     /// Resolves <see cref="InputExternalTypeMetadata"/> entries to <see cref="Type"/> instances by
-    /// looking up the package in the NuGet global cache (or downloading it from configured feeds when
-    /// missing) and loading the assembly via reflection. Used by <c>TypeFactory.CreateExternalType</c>
+    /// loading registered project-reference assemblies or looking up the package in the NuGet global cache
+    /// (downloading it from configured feeds when missing). Used by <c>TypeFactory.CreateExternalType</c>
     /// as a fallback after <c>CreateFrameworkType</c> returns <c>null</c>.
     /// </summary>
     /// <remarks>
@@ -57,9 +58,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// <summary>
         /// Walks all <see cref="InputType"/> instances reachable from
         /// <see cref="CodeModelGenerator.InputLibrary"/> and resolves any <see cref="InputExternalTypeMetadata"/>
-        /// that names a package. Results are cached for use by <see cref="TryResolve"/>; their assemblies
-        /// are added to <see cref="CodeModelGenerator.AdditionalMetadataReferences"/> so subsequent Roslyn
-        /// workspaces can compile generated code that references the external types.
+        /// entries. Results are cached for use by <see cref="TryResolve"/>; NuGet assemblies are added to
+        /// <see cref="CodeModelGenerator.AdditionalMetadataReferences"/> so subsequent Roslyn workspaces can
+        /// compile generated code that references the external types.
         /// </summary>
         public static async Task ResolveAllAsync()
         {
@@ -103,15 +104,15 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         /// <summary>
         /// Synchronously returns the resolved <see cref="Type"/> for <paramref name="external"/>, or
-        /// <c>null</c> if the metadata is missing a package name or the assembly/type cannot be located.
-        /// On a cache miss, performs the NuGet resolution synchronously (a deadlock-free fall-through
-        /// for the rare case where <see cref="ResolveAllAsync"/> didn't see this metadata up front).
+        /// <c>null</c> if the identity is missing or the assembly/type cannot be located. On a cache miss,
+        /// searches registered references and then performs NuGet resolution synchronously when a package
+        /// is specified (a deadlock-free fall-through for the rare case where <see cref="ResolveAllAsync"/>
+        /// didn't see this metadata up front).
         /// </summary>
         public static Type? TryResolve(InputExternalTypeMetadata? external)
         {
             if (external == null
-                || string.IsNullOrEmpty(external.Identity)
-                || string.IsNullOrEmpty(external.Package))
+                || string.IsNullOrEmpty(external.Identity))
             {
                 return null;
             }
@@ -147,6 +148,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             if (state.Resolved.TryGetValue(key, out var existing) && existing.IsValueCreated)
             {
                 return existing.Value;
+            }
+
+            if (string.IsNullOrEmpty(external.Package))
+            {
+                var referencedType = await TryResolveFromRegisteredReference(external).ConfigureAwait(false);
+                CacheResult(state, key, referencedType);
+                return referencedType;
             }
 
             var configurationDir = generator.Configuration?.ProjectDirectory;
@@ -252,6 +260,34 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return loadedType;
         }
 
+        private static async Task<Type?> TryResolveFromRegisteredReference(InputExternalTypeMetadata external)
+        {
+            var assemblyPaths = CodeModelGenerator.Instance.AdditionalMetadataReferences
+                .Select(reference => reference.Display)
+                .Where(path => !string.IsNullOrEmpty(path) && File.Exists(path))
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var assemblyPath in assemblyPaths)
+            {
+                try
+                {
+                    var assemblyBytes = await File.ReadAllBytesAsync(assemblyPath!).ConfigureAwait(false);
+                    var resolvedType = Assembly.Load(assemblyBytes).GetType(external.Identity, throwOnError: false);
+                    if (resolvedType != null)
+                    {
+                        return resolvedType;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    CodeModelGenerator.Instance.Emitter?.Debug(
+                        $"Failed to load referenced assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
+                }
+            }
+
+            return null;
+        }
+
         private static void CacheResult(CacheState state, string key, Type? result)
         {
             // Replace whatever Lazy is in the slot with one that already has the computed value.
@@ -317,8 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             if (type.External != null
-                && !string.IsNullOrEmpty(type.External.Identity)
-                && !string.IsNullOrEmpty(type.External.Package))
+                && !string.IsNullOrEmpty(type.External.Identity))
             {
                 var key = $"{type.External.Package}|{type.External.Identity}|{type.External.MinVersion ?? string.Empty}";
                 if (!collected.ContainsKey(key))

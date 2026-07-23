@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -308,6 +309,118 @@ namespace My.External.Library
             var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
 
             Assert.AreEqual(refCountBefore + 2, refCountAfter, "Should have added two metadata references");
+        }
+
+        [Test]
+        public async Task AddPackageReferencesFromProject_AddsProjectReferences()
+        {
+            var ns = "TestNamespace";
+            var referencedProjectName = "Referenced.Library";
+            var referencedProjectDir = Path.Combine(_projectDir!, referencedProjectName);
+            var referencedOutputDir = Path.Combine(referencedProjectDir, "bin", "Release", "net8.0");
+            Directory.CreateDirectory(referencedOutputDir);
+
+            var referencedProjectPath = Path.Combine(referencedProjectDir, $"{referencedProjectName}.csproj");
+            File.WriteAllText(referencedProjectPath, $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <AssemblyName>{referencedProjectName}</AssemblyName>
+  </PropertyGroup>
+</Project>");
+
+            var referencedSyntaxTree = CSharpSyntaxTree.ParseText(@"
+namespace Referenced.Library
+{
+    public class ExternalType { }
+}");
+            var referencedCompilation = CSharpCompilation.Create(
+                referencedProjectName,
+                [referencedSyntaxTree],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var referencedDllPath = Path.Combine(referencedOutputDir, $"{referencedProjectName}.dll");
+            var emitResult = referencedCompilation.Emit(referencedDllPath);
+            Assert.IsTrue(emitResult.Success, "Failed to emit referenced project assembly");
+
+            var projectReferencePath = Path.GetRelativePath(
+                Path.Combine(_projectDir!, "src"),
+                referencedProjectPath);
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include=""{projectReferencePath}"" />
+  </ItemGroup>
+</Project>";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var refCountAfter = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.AreEqual(refCountBefore + 1, refCountAfter, "Should add the project output as a metadata reference");
+            Assert.AreEqual(
+                referencedDllPath,
+                CodeModelGenerator.Instance.AdditionalMetadataReferences.Last().Display);
+
+            var alternateType = InputFactory.Model(
+                "ExternalType",
+                external: new InputExternalTypeMetadata(
+                    "Referenced.Library.ExternalType",
+                    null,
+                    null));
+            var resolvedType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(alternateType);
+
+            Assert.IsNotNull(resolvedType, "Should resolve an alternate type from the project reference");
+            Assert.IsTrue(resolvedType!.IsFrameworkType);
+            Assert.AreEqual("Referenced.Library.ExternalType", resolvedType.FrameworkType.FullName);
+        }
+
+        [Test]
+        public async Task AddPackageReferencesFromProject_SkipsUnbuiltProjectReferences()
+        {
+            var ns = "TestNamespace";
+            var referencedProjectDir = Path.Combine(_projectDir!, "Unbuilt.Library");
+            Directory.CreateDirectory(referencedProjectDir);
+
+            var referencedProjectPath = Path.Combine(referencedProjectDir, "Unbuilt.Library.csproj");
+            File.WriteAllText(referencedProjectPath, @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>");
+
+            var projectReferencePath = Path.GetRelativePath(
+                Path.Combine(_projectDir!, "src"),
+                referencedProjectPath);
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include=""{projectReferencePath}"" />
+  </ItemGroup>
+</Project>";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+
+            var refCountBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+
+            Assert.AreEqual(
+                refCountBefore,
+                CodeModelGenerator.Instance.AdditionalMetadataReferences.Count,
+                "Should skip project references whose output assembly has not been built");
         }
 
         /// <summary>

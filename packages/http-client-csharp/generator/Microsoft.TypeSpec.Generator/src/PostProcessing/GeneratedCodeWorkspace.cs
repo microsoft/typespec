@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -288,8 +289,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
-        /// as metadata references so that custom code referencing external NuGet types compiles correctly.
+        /// Resolves PackageReference and ProjectReference items from the project's .csproj file and adds
+        /// their assemblies as metadata references so custom code and alternate types compile correctly.
         /// </summary>
         internal static async Task AddPackageReferencesFromProject()
         {
@@ -314,6 +315,20 @@ namespace Microsoft.TypeSpec.Generator
                     .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
                     .Where(n => !string.IsNullOrEmpty(n)),
                 StringComparer.OrdinalIgnoreCase);
+
+            foreach (var resolvedAssemblyPath in await FindProjectReferenceAssemblies(projectFilePath))
+            {
+                var assemblyName = Path.GetFileNameWithoutExtension(resolvedAssemblyPath);
+                if (!existingRefs.Add(assemblyName))
+                {
+                    continue;
+                }
+
+                CodeModelGenerator.Instance.AddMetadataReference(
+                    MetadataReference.CreateFromFile(resolvedAssemblyPath));
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Added metadata reference: {assemblyName} from {resolvedAssemblyPath}");
+            }
 
             foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
             {
@@ -365,6 +380,142 @@ namespace Microsoft.TypeSpec.Generator
                         $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
                 }
             }
+        }
+
+        private static async Task<IEnumerable<string>> FindProjectReferenceAssemblies(string projectFilePath)
+        {
+            var candidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var configuration in new[] { "Debug", "Release" })
+            {
+                var projectReferencesJson = await RunMSBuildQuery(
+                    projectFilePath,
+                    $"-property:Configuration={configuration}",
+                    "-getItem:ProjectReference");
+                if (projectReferencesJson == null)
+                {
+                    continue;
+                }
+
+                using var projectReferences = JsonDocument.Parse(projectReferencesJson);
+                if (!projectReferences.RootElement.TryGetProperty("Items", out var items)
+                    || !items.TryGetProperty("ProjectReference", out var references))
+                {
+                    continue;
+                }
+
+                foreach (var projectReference in references.EnumerateArray())
+                {
+                    if (projectReference.TryGetProperty("ReferenceOutputAssembly", out var referenceOutputAssembly)
+                        && string.Equals(
+                            referenceOutputAssembly.GetString(),
+                            "false",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (!projectReference.TryGetProperty("FullPath", out var fullPath)
+                        || string.IsNullOrEmpty(fullPath.GetString()))
+                    {
+                        continue;
+                    }
+
+                    foreach (var targetPath in await GetProjectTargetPaths(
+                        fullPath.GetString()!,
+                        configuration))
+                    {
+                        candidates.Add(targetPath);
+                    }
+                }
+            }
+
+            return candidates.OrderByDescending(File.GetLastWriteTimeUtc);
+        }
+
+        private static async Task<IEnumerable<string>> GetProjectTargetPaths(
+            string projectFilePath,
+            string configuration)
+        {
+            if (!File.Exists(projectFilePath))
+            {
+                return [];
+            }
+
+            var propertiesJson = await RunMSBuildQuery(
+                projectFilePath,
+                $"-property:Configuration={configuration}",
+                "-getProperty:TargetPath,TargetFrameworks");
+            if (propertiesJson == null)
+            {
+                return [];
+            }
+
+            using var properties = JsonDocument.Parse(propertiesJson);
+            var propertyValues = properties.RootElement.GetProperty("Properties");
+            var targetFrameworks = propertyValues.GetProperty(TargetFrameworksPropertyName).GetString();
+            if (string.IsNullOrEmpty(targetFrameworks))
+            {
+                var targetPath = propertyValues.GetProperty("TargetPath").GetString();
+                return !string.IsNullOrEmpty(targetPath) && File.Exists(targetPath)
+                    ? [targetPath]
+                    : [];
+            }
+
+            var candidates = new List<string>();
+            foreach (var targetFramework in targetFrameworks.Split(
+                ';',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var targetPath = await RunMSBuildQuery(
+                    projectFilePath,
+                    $"-property:Configuration={configuration}",
+                    $"-property:TargetFramework={targetFramework}",
+                    "-getProperty:TargetPath");
+                var normalizedTargetPath = targetPath?.Trim();
+                if (!string.IsNullOrEmpty(normalizedTargetPath) && File.Exists(normalizedTargetPath))
+                {
+                    candidates.Add(normalizedTargetPath);
+                }
+            }
+
+            return candidates;
+        }
+
+        private static async Task<string?> RunMSBuildQuery(string projectFilePath, params string[] arguments)
+        {
+            var startInfo = new ProcessStartInfo("dotnet")
+            {
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+            startInfo.ArgumentList.Add("msbuild");
+            startInfo.ArgumentList.Add(projectFilePath);
+            startInfo.ArgumentList.Add("-nologo");
+            startInfo.ArgumentList.Add("-verbosity:quiet");
+            foreach (var argument in arguments)
+            {
+                startInfo.ArgumentList.Add(argument);
+            }
+
+            using var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                return null;
+            }
+
+            var standardOutput = process.StandardOutput.ReadToEndAsync();
+            var standardError = process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            if (process.ExitCode != 0)
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Could not evaluate project references for {projectFilePath}: {await standardError}");
+                return null;
+            }
+
+            return await standardOutput;
         }
 
         /// <summary>

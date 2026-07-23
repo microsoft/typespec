@@ -328,11 +328,11 @@ namespace Microsoft.TypeSpec.Generator
         private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null)
         {
             // Resolve the type: first as a framework type from the fully qualified name (free, no I/O, and the
-            // source of truth for BCL types), then, on a miss, dynamically from the NuGet package named in the
-            // metadata. ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
-            // pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
+            // source of truth for BCL types), then, on a miss, dynamically from registered project references
+            // or the NuGet package named in the metadata. ExternalTypeReferenceResolver consults a process-wide
+            // cache populated by the eager pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
             var resolvedType = CreateFrameworkType(externalProperties.Identity);
-            if (resolvedType == null && !string.IsNullOrEmpty(externalProperties.Package))
+            if (resolvedType == null)
             {
                 resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
             }
@@ -361,7 +361,7 @@ namespace Microsoft.TypeSpec.Generator
             // Each branch is a self-contained sentence so the final message reads naturally and
             // doesn't repeat "could not be resolved".
             var details = string.IsNullOrEmpty(externalProperties.Package)
-                ? "no package metadata was provided"
+                ? "the type was not found in framework or project references, and no package metadata was provided"
                 : string.IsNullOrEmpty(externalProperties.MinVersion)
                     ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
                     : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";

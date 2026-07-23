@@ -85,9 +85,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             const string typeName = "Test.MultiVersion.Package.SomeType";
 
             // Create three cached versions; MinVersion=2.0.0 must skip 1.0.0 and pick 3.0.0 (highest >= MinVersion).
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+            var lowerVersionAssembly = CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
             CreateFakeNuGetPackage(nugetCacheDir, pkgName, "2.5.0");
             CreateFakeNuGetPackage(nugetCacheDir, pkgName, "3.0.0");
+            CodeModelGenerator.Instance.AddMetadataReference(
+                Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(lowerVersionAssembly));
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, "2.0.0");
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
