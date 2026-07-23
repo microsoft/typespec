@@ -587,10 +587,10 @@ namespace Referenced.Library
         public async Task AddPackageReferencesFromProject_SkipsUnbuiltProjectReferences()
         {
             var ns = "TestNamespace";
-            var referencedProjectDir = Path.Combine(_projectDir!, "Unbuilt.Library");
+            var referencedProjectDir = Path.Combine(_projectDir!, "MissingOutput.Library");
             Directory.CreateDirectory(referencedProjectDir);
 
-            var referencedProjectPath = Path.Combine(referencedProjectDir, "Unbuilt.Library.csproj");
+            var referencedProjectPath = Path.Combine(referencedProjectDir, "MissingOutput.Library.csproj");
             File.WriteAllText(referencedProjectPath, @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
