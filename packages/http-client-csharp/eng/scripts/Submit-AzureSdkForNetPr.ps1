@@ -125,14 +125,14 @@ This PR updates the UnbrandedGeneratorVersion property in eng/centralpackagemana
 - Ran npm install to update package-lock.json
 - Ran eng/packages/http-client-csharp/eng/scripts/Generate.ps1 to regenerate test projects
 - Generated emitter-package.json artifacts using tsp-client
-- Regenerated SDK libraries using the unbranded emitter via dotnet build /t:GenerateCode
+- Regenerated SDK libraries using the unbranded emitter via dotnet msbuild /t:GenerateCode
 $(if ($RegenerateAzureLibraries) {
 @"
 
 ### Additional changes (Azure data plane regeneration)
 - Built and packaged Azure emitter locally from eng/packages/http-client-csharp
 - Updated Azure emitter package artifacts in eng/
-- Regenerated Azure data plane SDK libraries via dotnet build /t:GenerateCode
+- Regenerated Azure data plane SDK libraries via dotnet msbuild /t:GenerateCode
 "@
 })
 $(if ($RegenerateMgmtLibraries) {
@@ -141,7 +141,7 @@ $(if ($RegenerateMgmtLibraries) {
 ### Additional changes (mgmt regeneration)
 - Built and packaged management plane emitter locally from eng/packages/http-client-csharp-mgmt
 - Updated mgmt emitter package artifacts in eng/
-- Regenerated mgmt SDK libraries via dotnet build /t:GenerateCode
+- Regenerated mgmt SDK libraries via dotnet msbuild /t:GenerateCode
 "@
 })
 
@@ -647,12 +647,12 @@ try {
 
                 if ($regenerationSetupSucceeded) {
                     $cpuCores = [Environment]::ProcessorCount
-                    $throttleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+                    $throttleLimit = Get-ParallelThrottleLimit -ProcessorCount $cpuCores
                     $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
                     $totalCount = $sdkProjects.Count
                     $regenerationStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-                    Write-Host "##[section]Regenerating $totalCount SDK projects with $throttleLimit concurrent jobs..."
+                    Write-Host "##[section]Regenerating $totalCount SDK projects with $throttleLimit concurrent jobs (detected $cpuCores logical processors)..."
                     $results = $sdkProjects | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
                         $sdkProject = $_
                         $completedBag = $using:completed
@@ -660,7 +660,7 @@ try {
                         $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 
                         try {
-                            $output = & dotnet build $sdkProject.ProjectPath /t:GenerateCode /p:Trace=true /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
+                            $output = & dotnet msbuild $sdkProject.ProjectPath /t:GenerateCode /p:Trace=true /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
                             $exitCode = $LASTEXITCODE
                             $timingOutput = @($output | Where-Object { "$_" -match "Total Elapsed time" })
 
