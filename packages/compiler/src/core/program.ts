@@ -149,8 +149,6 @@ export interface Program {
   setCurrentStage(stage: CompilationStage): void;
   /** @internal */
   useCache<T>(key: symbol, type: Type, compute: () => T): T;
-  /** @internal */
-  invalidateCaches(types: Iterable<Type>): void;
 }
 
 interface EmitterRef {
@@ -232,7 +230,6 @@ async function createProgram(
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
-  const cacheKeys = new Set<symbol>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
@@ -308,7 +305,13 @@ async function createProgram(
       ) {
         return compute();
       }
-      cacheKeys.add(key);
+      // Don't cache results for unfinished types. Types are unfinished during
+      // decorator application (including late template instantiation in the
+      // emitting stage) and inside mutators. Caching at those points risks
+      // storing results computed against an incomplete type graph.
+      if (!type.isFinished) {
+        return compute();
+      }
       const map = program.stateMap(key);
       const existing = map.get(type);
       if (existing !== undefined) {
@@ -317,17 +320,6 @@ async function createProgram(
       const value = compute();
       map.set(type, value);
       return value;
-    },
-    /** @internal */
-    invalidateCaches(types: Iterable<Type>): void {
-      for (const key of cacheKeys) {
-        const m = stateMaps.get(key);
-        if (m) {
-          for (const type of types) {
-            m.delete(type);
-          }
-        }
-      }
     },
   };
 

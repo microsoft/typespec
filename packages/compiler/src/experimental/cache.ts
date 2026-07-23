@@ -3,8 +3,10 @@ import type { Type } from "../core/types.js";
 
 /**
  * Get a cached value for the given key, computing it if not already cached.
- * Caching is only active during the "validating" stage and later (not during "parsing" or "checking")
- * because decorators may mutate types during the checking stage, making cached values stale.
+ * Caching is only active from the "validating" stage onward and only for
+ * finished types. During "parsing" and "checking", decorators are still being
+ * applied. Unfinished types (during decorator application or inside mutators)
+ * are never cached because the type graph may not yet be in a stable state.
  *
  * @param program The program instance.
  * @param key A unique symbol identifying this cache namespace.
@@ -16,18 +18,4 @@ import type { Type } from "../core/types.js";
  */
 export function useCache<T>(program: Program, key: symbol, type: Type, compute: () => T): T {
   return program.useCache(key, type, compute);
-}
-
-/**
- * Invalidate cached values stored by {@link useCache} for the specified types.
- * Call this when type graph mutations (e.g. Realm mutations) may have made
- * previously cached results stale.
- *
- * @param program The program instance.
- * @param types The types whose cache entries should be invalidated.
- *
- * @experimental
- */
-export function invalidateCaches(program: Program, types: Iterable<Type>): void {
-  program.invalidateCaches(types);
 }

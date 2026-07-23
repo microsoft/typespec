@@ -22,7 +22,6 @@ import { $ } from "../typekit/index.js";
 import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
 import { useStateMap } from "../utils/state-accessor.js";
-import { invalidateCaches } from "./cache.js";
 import { Realm } from "./realm.js";
 
 // #region Types
@@ -328,9 +327,6 @@ export function mutateSubgraphWithNamespace(
   if (mutated === type) {
     return { realm: null, type };
   }
-  // Surgically invalidate only the types that were traversed by this mutation,
-  // since their parent references (e.g. operation.interface) may have changed.
-  invalidateCaches(program, engine.visitedTypes);
   return { realm: engine.realm, type: mutated };
 }
 
@@ -371,7 +367,6 @@ export function mutateSubgraph<T extends MutableType>(
   if (mutated === type) {
     return { realm: null, type };
   }
-  invalidateCaches(program, engine.visitedTypes);
   return { realm: engine.realm, type: mutated };
 }
 
@@ -381,7 +376,6 @@ interface MutatorEngineOptions {
 
 interface MutatorEngine {
   readonly realm: Realm;
-  readonly visitedTypes: Set<Type>;
   mutate(type: MutableType): MutableType;
   mutate(type: MutableTypeWithNamespace): MutableTypeWithNamespace;
 }
@@ -414,7 +408,6 @@ function createMutatorEngine(
 ): MutatorEngine {
   const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
-  const visitedTypes = new Set<Type>();
 
   // Shared across every engine operating on this program (including the nested
   // engines a mutator spins up via re-entrant `mutateSubgraph` calls), so
@@ -439,7 +432,6 @@ function createMutatorEngine(
 
   return {
     realm,
-    visitedTypes,
     mutate: (type) => {
       return mutateSubgraphWorker(type, muts) as any;
     },
@@ -531,7 +523,6 @@ function createMutatorEngine(
     activeMutators: Set<MutatorAll>,
     mutateSubNamespace: boolean = true,
   ): MutableTypeWithNamespace {
-    visitedTypes.add(type);
     let existing = seen.get([type, activeMutators]);
     if (existing) {
       if (
