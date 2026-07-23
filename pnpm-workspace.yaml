@@ -115,7 +115,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.1
   execa: ^9.6.1
   express: ^5.2.1
-  fast-xml-parser: ^5.7.0
+  fast-xml-parser: ^5.10.1
   graphql: ^17.0.0-alpha.9
   happy-dom: ^20.9.0
   is-unicode-supported: ^2.1.0
