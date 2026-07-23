@@ -11,10 +11,10 @@ runs:
 
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@v3
+      uses: pnpm/action-setup@v6
 
     - name: Set node version to ${{ inputs.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ inputs.node-version }}
         cache: pnpm

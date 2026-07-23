@@ -334,7 +334,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        public void PublicEnumsAreIncludedInAdditionalRootTypes()
         {
             var inputEnum = InputFactory.StringEnum(
                 "StringEnum",
@@ -349,6 +349,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsTrue(rootTypes.Contains("Sample.Models.StringEnum"));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToList());
+            Assert.IsTrue(enumProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(enumProvider));
         }
 
         [Test]
@@ -841,6 +846,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("OtherValue", enumType.Fields[2].Name);
             Assert.AreEqual("Existing_Value", enumType.Properties[0].Name);
             Assert.AreEqual("Other", enumType.Properties[1].Name);
+        }
+
+        // Verifies that when custom code already implements the underscore-named member (e.g. the
+        // user manually re-added 'Existing_Value' pointing at the generated 'ExistingValue'), the
+        // underscore back-compat restoration does NOT rename the generated member. Otherwise the
+        // generated member would collide with (and effectively remove) the custom implementation.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumCustomCodeTakesPrecedenceOverPreservedUnderscores()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("ExistingValue", "existing"),
+                ("Other", "other"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsNotNull(enumType.CustomCodeView);
+            Assert.IsTrue(enumType.CustomCodeView!.Properties.Any(p => p.Name == "Existing_Value"));
+
+            // The generated member keeps its non-underscore name so the custom 'Existing_Value'
+            // member (which references the generated 'ExistingValue') is preserved.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // Verifies that back-compat does NOT re-introduce enum values that have been suppressed

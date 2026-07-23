@@ -35,7 +35,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             string? configuration = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null)
+            Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
+            string? outputPath = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -46,13 +47,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 configuration: configuration,
                 createCSharpTypeCore: createCSharpTypeCore,
                 createCSharpTypeCoreFallback: createCSharpTypeCoreFallback,
-                createSerializationsCore: createSerializationsCore);
+                createSerializationsCore: createSerializationsCore,
+                outputPath: outputPath);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(compilationResult, lastContractCompilationResult)) { CallBase = true };
-            mockGenerator.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(compilationResult, lastContractCompilationResult));
 
             return mockGenerator;
         }
@@ -73,12 +74,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
+            HttpRequestApi? httpRequestApi = null,
             RequestContentApi? requestContentApi = null,
             Func<InputAuth>? auth = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             bool includeXmlDocs = false,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            Func<InputModelType, ModelProvider?>? createModelCore = null)
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            string? outputPath = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputLiteralType> inputNsLiterals = inputLiterals?.Invoke() ?? [];
@@ -152,7 +155,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             {
                 configuration = "{\"disable-xml-docs\": false, \"package-name\": \"Sample.Namespace\"}";
             }
-            object?[] parameters = [_configFilePath, configuration];
+            object?[] parameters = [outputPath ?? _configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockGeneratorInstance = new Mock<ScmCodeModelGenerator>(mockGeneratorContext.Object) { CallBase = true };
@@ -173,6 +176,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
             }
 
+            if (httpRequestApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.HttpRequestApi).Returns(httpRequestApi);
+            }
+
             if (requestContentApi is not null)
             {
                 mockTypeFactory.Setup(p => p.RequestContentApi).Returns(requestContentApi);
@@ -188,8 +196,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockGeneratorInstance.Setup(p => p.OutputLibrary).Returns(createOutputLibrary);
             }
 
-            var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null, null)) { CallBase = true };
-            mockGeneratorInstance.Setup(p => p.SourceInputModel).Returns(sourceInputModel.Object);
+            mockGeneratorInstance.SetupProperty(p => p.SourceInputModel, new SourceInputModel(null, null));
 
             codeModelInstance!.SetValue(null, mockGeneratorInstance.Object);
             clientModelInstance!.SetValue(null, mockGeneratorInstance.Object);

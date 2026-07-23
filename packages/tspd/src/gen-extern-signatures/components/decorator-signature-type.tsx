@@ -33,24 +33,22 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name: decorator.target.name,
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
-    ...decorator.parameters.map(
-      (param): ts.ParameterDescriptor => ({
-        // https://github.com/alloy-framework/alloy/issues/144
-        name: param.rest ? `...${param.name}` : param.name,
-        type: param.rest ? (
-          <>
-            (
-            {param.type ? (
-              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
-            ) : undefined}
-            )[]
-          </>
-        ) : (
-          <ParameterTsType constraint={param.type} />
-        ),
-        optional: param.optional,
-      }),
-    ),
+    ...decorator.parameters.map((param): ts.ParameterDescriptor => ({
+      // https://github.com/alloy-framework/alloy/issues/144
+      name: param.rest ? `...${param.name}` : param.name,
+      type: param.rest ? (
+        <>
+          (
+          {param.type ? (
+            <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+          ) : undefined}
+          )[]
+        </>
+      ) : (
+        <ParameterTsType constraint={param.type} />
+      ),
+      optional: param.optional,
+    })),
   ];
   return (
     <ts.TypeDeclaration

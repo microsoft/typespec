@@ -58,9 +58,7 @@ export interface WellKnownFileOptions {
  * A top-level declaration.
  */
 export type ProtoTopLevelDeclaration =
-  | ProtoServiceDeclaration
-  | ProtoMessageDeclaration
-  | ProtoEnumDeclaration;
+  ProtoServiceDeclaration | ProtoMessageDeclaration | ProtoEnumDeclaration;
 
 /**
  * A declaration. One of `service`, `message`, a field within a message, `one_of`, `enum`, or an `rpc` method.
@@ -237,10 +235,7 @@ export interface ProtoMethodDeclaration extends ProtoDeclarationCommon {
  * A declaration that can fit within the body of a message declaration.
  */
 export type ProtoMessageBodyDeclaration =
-  | ProtoFieldDeclaration
-  | ProtoMessageDeclaration
-  | ProtoOneOfDeclaration
-  | ProtoEnumDeclaration;
+  ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration | ProtoEnumDeclaration;
 
 /**
  * A `message` declaration.

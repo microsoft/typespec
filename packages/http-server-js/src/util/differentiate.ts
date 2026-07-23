@@ -340,8 +340,7 @@ export function differentiateUnion(
       },
       cases: variants.map((v) => {
         const discriminatorPropertyType = (v.type as Model).properties.get(discriminator)!.type as
-          | JsLiteralType
-          | EnumMember;
+          JsLiteralType | EnumMember;
 
         return {
           value: { kind: "literal", value: getJsValue(ctx, discriminatorPropertyType) },

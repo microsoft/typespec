@@ -67,11 +67,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
-        private protected static string GetBackCompatibleName(
+        private HashSet<string>? _customMemberNames;
+        private HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
+            GetCustomMemberNames(),
+            StringComparer.OrdinalIgnoreCase);
+
+        private IEnumerable<string> GetCustomMemberNames()
+        {
+            if (CustomCodeView is null)
+            {
+                return [];
+            }
+
+            return IsExtensible
+                ? CustomCodeView.Properties.Select(p => p.Name)
+                : CustomCodeView.Fields.Select(f => f.Name);
+        }
+
+        private protected string GetBackCompatibleName(
             string generatedName,
             IReadOnlyList<string> generatedNames,
             IReadOnlyList<string> lastContractNames)
         {
+            if (lastContractNames.Count == 0)
+            {
+                return generatedName;
+            }
+
             if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
             {
                 return generatedName;
@@ -90,9 +112,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Take(2)
                 .ToArray();
 
-            return matchingCurrentNames.Length == 1 && matchingLastContractNames.Length == 1
+            var backCompatName = matchingCurrentNames.Length == 1 && matchingLastContractNames.Length == 1
                 ? matchingLastContractNames[0]
                 : generatedName;
+
+            // If restoring the underscore-preserved name would collide with a member that already
+            // exists in custom code, keep the generated name so the custom member is preserved
+            // rather than duplicated or removed.
+            if (!backCompatName.Equals(generatedName, StringComparison.Ordinal)
+                && CustomMemberNames.Contains(backCompatName))
+            {
+                return generatedName;
+            }
+
+            return backCompatName;
         }
 
         protected override bool GetIsEnum() => true;
