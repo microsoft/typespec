@@ -1,5 +1,9 @@
 export { createSourceLoader as unsafe_createSourceLoader } from "../core/source-loader.js";
 export {
+  invalidateCaches as unsafe_invalidateCaches,
+  useCache as unsafe_useCache,
+} from "./cache.js";
+export {
   MutableType as unsafe_MutableType,
   Mutator as unsafe_Mutator,
   MutatorFilterFn as unsafe_MutatorFilterFn,

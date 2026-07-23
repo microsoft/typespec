@@ -22,6 +22,7 @@ import { $ } from "../typekit/index.js";
 import { CustomKeyMap } from "../utils/custom-key-map.js";
 import { mutate } from "../utils/misc.js";
 import { useStateMap } from "../utils/state-accessor.js";
+import { invalidateCaches } from "./cache.js";
 import { Realm } from "./realm.js";
 
 // #region Types
@@ -330,7 +331,7 @@ export function mutateSubgraphWithNamespace(
   // Namespace mutations may change type references (e.g. operation.interface)
   // in-place, which can invalidate cached computations that depend on the
   // type graph structure (such as HTTP operation resolution).
-  program.invalidateCaches();
+  invalidateCaches(program);
   return { realm: engine.realm, type: mutated };
 }
 
@@ -371,7 +372,7 @@ export function mutateSubgraph<T extends MutableType>(
   if (mutated === type) {
     return { realm: null, type };
   }
-  program.invalidateCaches();
+  invalidateCaches(program);
   return { realm: engine.realm, type: mutated };
 }
 

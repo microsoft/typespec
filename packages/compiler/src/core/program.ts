@@ -154,23 +154,10 @@ export interface Program {
    */
   readonly projectRoot: string;
 
-  /**
-   * Get a cached value for the given key, computing it if not already cached.
-   * Caching is only active during the "validating" stage and later (not during "parsing" or "checking")
-   * because decorators may mutate types during the checking stage, making cached values stale.
-   *
-   * @param key A unique symbol identifying this cache entry.
-   * @param type The type to use as the cache key within this cache entry.
-   * @param compute A function that computes the value if not cached.
-   * @returns The cached or freshly computed value.
-   */
+  /** @internal */
   useCache<T>(key: symbol, type: Type, compute: () => T): T;
 
-  /**
-   * Invalidate all cached values stored by {@link useCache}.
-   * Call this when type graph mutations (e.g. Realm mutations) may have made
-   * previously cached results stale.
-   */
+  /** @internal */
   invalidateCaches(): void;
 }
 
@@ -316,6 +303,7 @@ async function createProgram(
     resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+    /** @internal */
     useCache<T>(key: symbol, type: Type, compute: () => T): T {
       // Only cache from "validating" onward. During "parsing" and "checking",
       // decorators are still being applied and may not have finished setting up
@@ -338,6 +326,7 @@ async function createProgram(
       map.set(type, value);
       return value;
     },
+    /** @internal */
     invalidateCaches(): void {
       for (const key of cacheKeys) {
         const m = stateMaps.get(key);

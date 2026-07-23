@@ -1,4 +1,5 @@
 import { Operation } from "@typespec/compiler";
+import { unsafe_invalidateCaches as invalidateCaches } from "@typespec/compiler/experimental";
 import { t } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
@@ -501,7 +502,7 @@ describe("getHttpOperation caching", () => {
       strictEqual(result1.path, "/items/{id}");
 
       // Invalidate caches
-      program.invalidateCaches();
+      invalidateCaches(program);
 
       // Second call should recompute (not return stale cache)
       const [result2] = getHttpOperation(program, myOp);
