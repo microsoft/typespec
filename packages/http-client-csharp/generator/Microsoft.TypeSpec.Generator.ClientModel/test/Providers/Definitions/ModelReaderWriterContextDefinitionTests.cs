@@ -439,33 +439,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         // (mirroring the netstandard2.0 polyfill shipped by libraries such as OpenAI) and a model annotated with
         // it that implements IPersistableModel<T>. The returned Type therefore carries an [Experimental] attribute
         // whose runtime identity differs from the BCL ExperimentalAttribute, exercising the name-based match.
+        // The source for the emitted assembly lives in the TestData asset file for this test.
         private static Type EmitPolyfilledExperimentalModelType()
         {
-            const string source = @"
-using System;
-using System.ClientModel.Primitives;
-
-namespace System.Diagnostics.CodeAnalysis
-{
-    [AttributeUsage(AttributeTargets.All, Inherited = false)]
-    public sealed class ExperimentalAttribute : Attribute
-    {
-        public ExperimentalAttribute(string diagnosticId) { DiagnosticId = diagnosticId; }
-        public string DiagnosticId { get; }
-        public string? UrlFormat { get; set; }
-    }
-}
-
-namespace Polyfilled.External
-{
-    [System.Diagnostics.CodeAnalysis.Experimental(""POLY001"")]
-    public class PolyfilledExperimentalModel : IPersistableModel<PolyfilledExperimentalModel>
-    {
-        PolyfilledExperimentalModel IPersistableModel<PolyfilledExperimentalModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw new NotImplementedException();
-        string IPersistableModel<PolyfilledExperimentalModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw new NotImplementedException();
-        BinaryData IPersistableModel<PolyfilledExperimentalModel>.Write(ModelReaderWriterOptions options) => throw new NotImplementedException();
-    }
-}";
+            var source = Helpers.GetExpectedFromFile("Input", nameof(PolyfilledExperimentalDependencyModelHaveAttributeSuppressions));
 
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
