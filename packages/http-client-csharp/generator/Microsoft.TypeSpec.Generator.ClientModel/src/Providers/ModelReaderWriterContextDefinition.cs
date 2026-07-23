@@ -40,13 +40,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
         {
             var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
-            return BuildAttributesForBackCompatibility([.. BuildAttributes(), .. visitorAttributes]);
+            return MergeLastContractAttributesForWrite([.. BuildAttributes(), .. visitorAttributes]);
         }
 
-        protected override bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute)
-            => attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute));
+        protected override bool ShouldPreserveLastContractAttributeForWrite(AttributeStatement attribute)
+            => attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute))
+                && attribute.Arguments is [TypeOfExpression typeOf]
+                && IsTypeAvailableForWrite(typeOf.Type);
 
-        protected override MethodBodyStatement BuildPreservedAttributeForBackCompatibility(AttributeStatement attribute)
+        protected override MethodBodyStatement BuildLastContractAttributeForWrite(AttributeStatement attribute)
         {
             if (attribute.Arguments is not [TypeOfExpression typeOf])
             {
@@ -66,16 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification);
             }
 
-            var typeProvider = FindCurrentTypeProvider(type)
-                ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                    type.Namespace,
-                    type.Name,
-                    GetDeclaringTypeMetadataName(type.DeclaringType),
-                    includeReferencedAssemblies: true)
-                ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                    type.Namespace,
-                    type.Name,
-                    GetDeclaringTypeMetadataName(type.DeclaringType));
+            var typeProvider = FindCurrentTypeProvider(type);
 
             if (typeProvider is null)
             {
@@ -642,10 +635,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return attributeStatement;
         }
 
+        private static bool IsTypeAvailableForWrite(CSharpType type) =>
+            type.IsFrameworkType ||
+            (FindCurrentTypeProvider(type) is not null && IsResolvableBuildableType(type));
+
         private static TypeProvider? FindCurrentTypeProvider(CSharpType type) =>
-            CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .SelectMany(static provider => new[] { provider }.Concat(provider.NestedTypes))
-                .FirstOrDefault(provider => provider.Type.Equals(type));
+            FindCurrentTypeProvider(CodeModelGenerator.Instance.OutputLibrary.TypeProviders, type)
+            ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                type.Namespace,
+                type.Name,
+                GetDeclaringTypeMetadataName(type.DeclaringType),
+                includeReferencedAssemblies: true);
+
+        private static TypeProvider? FindCurrentTypeProvider(IEnumerable<TypeProvider> providers, CSharpType type)
+        {
+            foreach (var provider in providers)
+            {
+                if (provider.Type.Equals(type))
+                {
+                    return provider;
+                }
+
+                var nestedProvider = FindCurrentTypeProvider(provider.NestedTypes, type);
+                if (nestedProvider is not null)
+                {
+                    return nestedProvider;
+                }
+
+                var serializationProvider = FindCurrentTypeProvider(provider.SerializationProviders, type);
+                if (serializationProvider is not null)
+                {
+                    return serializationProvider;
+                }
+            }
+
+            return null;
+        }
 
         private static string? GetDeclaringTypeMetadataName(CSharpType? declaringType)
         {

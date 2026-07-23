@@ -14,6 +14,10 @@ namespace Sample.Models
     public class ExperimentalPreviousModel
     {
     }
+
+    public class RemovedModel
+    {
+    }
 }
 
 namespace Sample
@@ -21,6 +25,7 @@ namespace Sample
     [ModelReaderWriterBuildable(typeof(Models.CurrentModel))]
     [ModelReaderWriterBuildable(typeof(Models.PreviousModel))]
     [ModelReaderWriterBuildable(typeof(Models.ExperimentalPreviousModel))]
+    [ModelReaderWriterBuildable(typeof(Models.RemovedModel))]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public partial class SampleContext : ModelReaderWriterContext
     {

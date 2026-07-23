@@ -369,13 +369,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// generation decisions can override this without replacing attributes updated by visitors.
         /// </summary>
         protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
-            => BuildAttributesForBackCompatibility(GetAttributes());
+            => MergeLastContractAttributesForWrite(GetAttributes());
 
         /// <summary>
-        /// Restores generator-owned attributes from the last contract when
-        /// <see cref="ShouldPreserveAttributeForBackCompatibility"/> opts in to preserving them.
+        /// Adds selected attributes from the last contract to the attributes emitted by the writer.
+        /// This write-time merge does not update <see cref="Attributes"/> or participate in visitor
+        /// and reference-map processing.
         /// </summary>
-        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(
+        protected internal virtual IReadOnlyList<MethodBodyStatement> MergeLastContractAttributesForWrite(
             IEnumerable<MethodBodyStatement> originalAttributes)
         {
             var original = originalAttributes as IReadOnlyList<MethodBodyStatement> ?? [.. originalAttributes];
@@ -385,7 +386,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var attributesToPreserve = lastContractAttributes
-                .Where(ShouldPreserveAttributeForBackCompatibility)
+                .Where(ShouldPreserveLastContractAttributeForWrite)
                 .ToList();
             if (attributesToPreserve.Count == 0)
             {
@@ -407,21 +408,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 merged ??= [.. original];
-                merged.Add(BuildPreservedAttributeForBackCompatibility(attribute));
+                merged.Add(BuildLastContractAttributeForWrite(attribute));
             }
 
             return merged ?? original;
         }
 
         /// <summary>
-        /// Determines whether a generator-owned attribute from the last contract must be preserved.
+        /// Determines whether an attribute from the last contract should be emitted by the writer.
         /// </summary>
-        protected internal virtual bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute) => false;
+        protected internal virtual bool ShouldPreserveLastContractAttributeForWrite(AttributeStatement attribute) => false;
 
         /// <summary>
-        /// Builds the statement used to restore a generator-owned attribute from the last contract.
+        /// Builds the write-time statement for a selected attribute from the last contract.
         /// </summary>
-        protected internal virtual MethodBodyStatement BuildPreservedAttributeForBackCompatibility(AttributeStatement attribute)
+        protected internal virtual MethodBodyStatement BuildLastContractAttributeForWrite(AttributeStatement attribute)
             => attribute;
 
         private static AttributeStatement? GetAttributeStatement(MethodBodyStatement statement) =>

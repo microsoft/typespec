@@ -93,6 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var file = new TypeProviderWriter(contextDefinition).Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            StringAssert.DoesNotContain("RemovedModel", file.Content);
 
             var generatedTree = CSharpSyntaxTree.ParseText(file.Content);
             var diagnostics = compilation
