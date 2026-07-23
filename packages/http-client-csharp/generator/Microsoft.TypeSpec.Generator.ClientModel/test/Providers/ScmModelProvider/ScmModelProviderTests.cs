@@ -23,30 +23,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
-        public async Task BuildAttributesForBackCompatibilityDoesNotRestoreProxyAttribute()
-        {
-            var inputModel = InputFactory.Model("pet", properties:
-            [
-                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
-            ]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [inputModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
-
-            // The last contract declares a PersistableModelProxy attribute (owned by generation and
-            // recomputed at generation time by the serialization provider) alongside a Description
-            // attribute. Back-compat processing should only restore the non-proxy Description attribute.
-            modelProvider.ProcessTypeForBackCompatibility();
-
-            var writer = new TypeProviderWriter(modelProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        [Test]
         public void TestSimpleDynamicModel()
         {
             var inputModel = InputFactory.Model(

@@ -1857,16 +1857,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task BuildAttributesForBackCompatibilityDoesNotRestoreBuildableAttribute()
+        public async Task BuildAttributesForBackCompatibilityRestoresBuildableAttribute()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
 
-            // The last contract declares a ModelReaderWriterBuildable attribute (owned by generation and
-            // rebuilt at write time) alongside a Description attribute. Back-compat processing should only
-            // restore the non-buildable Description attribute.
+            // The last contract declares both a ModelReaderWriterBuildable attribute and a Description
+            // attribute. Only the SCM-owned buildable attribute should be restored here.
             contextDefinition.ProcessTypeForBackCompatibility();
 
             var writer = new TypeProviderWriter(contextDefinition);

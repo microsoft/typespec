@@ -3,11 +3,10 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using System.ComponentModel;
 
 namespace Sample
 {
-    [global::System.ComponentModel.DescriptionAttribute("bc")]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(object))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

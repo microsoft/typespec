@@ -42,159 +42,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task BuildAttributesForBackCompatibilityAddsAttributeFromLastContract()
+        public async Task BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWithLastContract()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
 
-            // The last contract declares [CLSCompliant(true)] which is not present in the generated set, so it
-            // should be appended by back-compat processing.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilityDoesNotDuplicateExistingAttribute()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            // The generated set already contains the same [CLSCompliant(true)] attribute that the last
-            // contract declares, so nothing new is added.
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType", attributes:
-            [
-                new AttributeStatement(typeof(CLSCompliantAttribute), Snippet.Literal(true)),
-            ]);
-
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsAttributesAlreadyInCustomCode()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract declares a mix of attributes: [CLSCompliant(true)] which is also present in
-            // the custom code, and [Restorable] which is new. Only the [Restorable] attribute should be
-            // restored because the [CLSCompliant(true)] attribute already exists in the custom code.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsCodeGenAttributes()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract only declares a CodeGen-specific attribute, which is never restored, so the
-            // generated (empty) set is left unchanged.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsAllCodeGenPrefixedAttributes()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract declares a mix: a CodeGen-prefixed attribute ([CodeGenModel("Something")])
-            // that is not one of the explicitly-known CodeGen attributes, and a [Restorable] attribute. Only
-            // [Restorable] should be restored because any CodeGen-prefixed attribute is never restored.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsEditorBrowsableAttribute()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract only declares an EditorBrowsable attribute, which generation owns and is
-            // never restored, so the generated (empty) set is left unchanged.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsExperimentalAttribute()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract only declares an Experimental attribute, which generation owns and is never
-            // restored, so the generated (empty) set is left unchanged.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilitySkipsDefaultMemberAttribute()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract declares a mix: a [DefaultMember] attribute (which indicates specific
-            // runtime behavior and is never restored) and a [Restorable] attribute. Only [Restorable]
-            // should be restored.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public void BuildAttributesForBackCompatibilitySkipsCompilerEmittedNullableAttributes()
-        {
-            var nullableContextAttributeType = CreateCompilerServicesAttributeType("NullableContextAttribute");
-            var nullableAttributeType = CreateCompilerServicesAttributeType("NullableAttribute");
-            var restorableAttributeType = new CSharpType(
-                name: "RestorableAttribute",
-                ns: "Test",
-                isValueType: false,
-                isNullable: false,
-                declaringType: null,
-                args: [],
-                isPublic: true,
-                isStruct: false);
-            var provider = new LastContractAttributeTestTypeProvider(
-                name: "BackCompatAttributeType",
-                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
-                lastContractAttributes:
-                [
-                    new AttributeStatement(nullableContextAttributeType, Snippet.Literal(2)),
-                    new AttributeStatement(nullableAttributeType, Snippet.Literal(0), Snippet.Literal(2)),
-                    new AttributeStatement(restorableAttributeType),
-                ]);
-
-            // The last contract includes compiler-emitted nullability metadata attributes on the type.
-            // Those compiler-reserved attributes should not be restored; only the hand-authored
-            // [Restorable] attribute should flow back through back-compat.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilityRestoresAttributeWithIntegralLiteralArguments()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // The last contract declares an attribute whose arguments use every integral literal kind
-            // (byte/sbyte/short/ushort/uint/ulong). These must be rendered without throwing so the
-            // attribute can be restored rather than crashing generation.
+            // Type-level attribute restoration is now opt-in for specific providers. The base
+            // TypeProvider implementation should leave the generated set unchanged even when the
+            // last contract declares additional attributes.
             provider.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
@@ -202,46 +57,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         private static string Write(TypeProvider provider) =>
             CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilityDoesNotRestoreForInternalType()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(
-                name: "BackCompatAttributeType",
-                declarationModifiers: TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class);
-
-            // The last contract declares [CLSCompliant(true)], but attribute restoration only applies to
-            // externally visible (public or protected) types. Since the generated type is internal, nothing
-            // is restored.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContract()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-
-            // The type has an attribute in each of the three sources:
-            //   - generated:     [Obsolete("This is obsolete")]
-            //   - custom code:   [CLSCompliant(true)]
-            //   - last contract: [Obsolete("This is obsolete")], [CLSCompliant(true)], [Restorable]
-            // Back-compat merging should not produce duplicates: the generated [Obsolete] and the
-            // custom-code [CLSCompliant] already cover two of the last-contract attributes, so only the
-            // new [Restorable] attribute is restored.
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType", attributes:
-            [
-                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
-            ]);
-
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
 
         private static TestTypeProvider CreateAttributeTestProvider(
             string? name = null,
@@ -251,35 +66,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 name: name ?? "TestName",
                 declarationModifiers: declarationModifiers ?? (TypeSignatureModifiers.Public | TypeSignatureModifiers.Class),
                 attributes: attributes);
-
-        private static CSharpType CreateCompilerServicesAttributeType(string name)
-        {
-            var type = typeof(System.Runtime.CompilerServices.ExtensionAttribute).Assembly.GetType($"System.Runtime.CompilerServices.{name}")
-                ?? throw new InvalidOperationException($"Could not resolve compiler services attribute type '{name}'.");
-
-            return new CSharpType(type);
-        }
-
-        private sealed class LastContractAttributeTestTypeProvider : TestTypeProvider
-        {
-            private readonly IReadOnlyList<MethodBodyStatement> _lastContractAttributes;
-
-            public LastContractAttributeTestTypeProvider(
-                string name,
-                TypeSignatureModifiers declarationModifiers,
-                IReadOnlyList<MethodBodyStatement> lastContractAttributes)
-                : base(name: name, declarationModifiers: declarationModifiers)
-            {
-                _lastContractAttributes = lastContractAttributes;
-            }
-
-            private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-                => new TestTypeProvider(
-                    name: generatedTypeName ?? Name,
-                    ns: generatedTypeNamespace ?? Type.Namespace,
-                    declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class,
-                    attributes: _lastContractAttributes);
-        }
 
         [Test]
         public void TestUpdateCanonicalView()

@@ -42,10 +42,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DeserializationMethodNamePrefix = "Deserialize";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
-        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
-        {
-            nameof(PersistableModelProxyAttribute),
-        });
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -159,17 +155,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             return [];
-        }
-
-        /// <summary>
-        /// Restores back-compatibility attributes from the last contract, then drops any restored
-        /// <see cref="PersistableModelProxyAttribute"/> since those are recomputed at generation time.
-        /// </summary>
-        protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
-        {
-            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
-            var merged = base.BuildAttributesForBackCompatibility(original);
-            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore);
         }
 
         private CSharpType GetRootModelType()

@@ -22,11 +22,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DefaultObsoleteDiagnosticId = "CS0618";
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
-        private static readonly Lazy<HashSet<string>> s_attributesToIgnore = new(() => new(StringComparer.Ordinal)
-        {
-            nameof(ModelReaderWriterBuildableAttribute),
-        });
-
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
         protected override string BuildName() => s_name;
@@ -44,8 +39,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
         {
-            var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
-            return [.. BuildAttributes(), .. visitorAttributes];
+            var currentAttributes = BuildAttributes();
+            var cachedAttributes = base.BuildAttributesForWrite();
+            var visitorAttributes = cachedAttributes.Where(static attribute => !IsBuildableAttribute(attribute));
+            if (LastContractView?.Attributes is not { Count: > 0 })
+            {
+                return [.. currentAttributes, .. visitorAttributes];
+            }
+
+            var seenBuildableAttributes = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var attribute in currentAttributes)
+            {
+                if (TryGetBuildableAttribute(attribute, out var buildableAttribute))
+                {
+                    seenBuildableAttributes.Add(buildableAttribute.ToDisplayString());
+                }
+            }
+
+            List<AttributeStatement>? restoredBuildableAttributes = null;
+            foreach (var attribute in cachedAttributes)
+            {
+                if (!TryGetBuildableAttribute(attribute, out var buildableAttribute))
+                {
+                    continue;
+                }
+
+                if (seenBuildableAttributes.Add(buildableAttribute.ToDisplayString()))
+                {
+                    restoredBuildableAttributes ??= [];
+                    restoredBuildableAttributes.Add(buildableAttribute);
+                }
+            }
+
+            return restoredBuildableAttributes is null
+                ? [.. currentAttributes, .. visitorAttributes]
+                : [.. currentAttributes, .. restoredBuildableAttributes, .. visitorAttributes];
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
@@ -104,8 +132,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
+            => TryGetBuildableAttribute(statement, out _);
+
+        private static bool TryGetBuildableAttribute(MethodBodyStatement statement, [NotNullWhen(true)] out AttributeStatement? attribute)
         {
-            var attribute = statement switch
+            attribute = statement switch
             {
                 AttributeStatement directAttribute => directAttribute,
                 SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
@@ -149,14 +180,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Restores back-compatibility attributes from the last contract, then drops any restored
-        /// <see cref="ModelReaderWriterBuildableAttribute"/> since those are recomputed at write time.
+        /// Restores <see cref="ModelReaderWriterBuildableAttribute"/> values from the last contract when
+        /// they are missing from the current generated/custom attribute sets.
         /// </summary>
         protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
-            var merged = base.BuildAttributesForBackCompatibility(original);
-            return ScmBackCompatibilityHelpers.FilterRestoredAttributes(original, merged, s_attributesToIgnore);
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return original;
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var attribute in original)
+            {
+                seen.Add(attribute.ToDisplayString());
+            }
+            foreach (var attribute in CustomCodeView?.Attributes ?? [])
+            {
+                seen.Add(attribute.ToDisplayString());
+            }
+
+            List<AttributeStatement>? merged = null;
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (!IsRestorableBuildableAttribute(attribute))
+                {
+                    continue;
+                }
+
+                if (seen.Add(attribute.ToDisplayString()))
+                {
+                    merged ??= [.. original];
+                    merged.Add(attribute);
+                }
+            }
+
+            return merged ?? original;
+        }
+
+        private bool IsRestorableBuildableAttribute(AttributeStatement attribute)
+        {
+            if (!string.Equals(
+                attribute.Type.FullyQualifiedName,
+                typeof(ModelReaderWriterBuildableAttribute).FullName,
+                StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var buildableTypes = attribute.Arguments
+                .OfType<TypeOfExpression>()
+                .Select(static typeOf => typeOf.Type)
+                .ToList();
+
+            return buildableTypes.Count > 0 && buildableTypes.All(IsRestorableBuildableType);
+        }
+
+        private static bool IsRestorableBuildableType(CSharpType type)
+        {
+            var primaryNamespace = ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var typeIdentity = GetTypeIdentity(type);
+            var matchingProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .FirstOrDefault(provider => string.Equals(GetTypeIdentity(provider.Type), typeIdentity, StringComparison.Ordinal));
+
+            if (matchingProvider is not null)
+            {
+                return ShouldWriteProvider(matchingProvider);
+            }
+
+            if (type.Namespace == primaryNamespace || type.Namespace.StartsWith($"{primaryNamespace}.", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            return IsResolvableBuildableType(type);
         }
 
         /// <summary>

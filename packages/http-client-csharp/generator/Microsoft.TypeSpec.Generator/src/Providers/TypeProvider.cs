@@ -3,12 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -29,33 +24,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
-
-        private static readonly Lazy<HashSet<string>> s_nonRestorableAttributeNames = new(() => new(StringComparer.Ordinal)
-        {
-            nameof(EditorBrowsableAttribute),
-            nameof(ExperimentalAttribute),
-            nameof(ObsoleteAttribute),
-            nameof(SerializableAttribute),
-            nameof(DefaultMemberAttribute),
-            nameof(JsonConstructorAttribute),
-            nameof(JsonConverterAttribute),
-            nameof(JsonDerivedTypeAttribute),
-            nameof(JsonExtensionDataAttribute),
-            nameof(JsonIgnoreAttribute),
-            nameof(JsonIncludeAttribute),
-            nameof(JsonNumberHandlingAttribute),
-            nameof(JsonObjectCreationHandlingAttribute),
-            nameof(JsonPolymorphicAttribute),
-            nameof(JsonPropertyNameAttribute),
-            nameof(JsonPropertyOrderAttribute),
-            nameof(JsonRequiredAttribute),
-            nameof(JsonSerializableAttribute),
-            nameof(JsonSourceGenerationOptionsAttribute),
-            nameof(JsonStringEnumMemberNameAttribute),
-            nameof(JsonUnmappedMemberHandlingAttribute),
-            nameof(NullableAttribute),
-            nameof(NullableContextAttribute),
-        });
 
         protected TypeProvider(InputType? inputType = default)
         {
@@ -1065,80 +1033,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Merges the generated (<paramref name="originalAttributes"/>) and custom-code attributes with
-        /// the attributes from the last contract, restoring any last-contract attribute that is not already
-        /// present so that removing it does not break a consumer contract. Restoration only applies to types
-        /// that are externally visible (public or protected); attributes that generation owns (any attribute
-        /// whose name contains <c>CodeGen</c> or one listed in <see cref="s_nonRestorableAttributeNames"/>)
-        /// are never restored. The original attributes are returned unchanged when there is nothing to add.
+        /// Returns the generated type attributes to use after back-compat processing.
+        /// The base implementation does not restore any last-contract type attributes.
+        /// Providers that own specific restorable attributes can override this method.
         /// </summary>
         protected internal virtual IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
-            var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
-
-            if (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected))
-            {
-                return original;
-            }
-
-            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
-            {
-                return original;
-            }
-
-            // Track the original (generated + custom) attributes so we only add back-compat attributes
-            // that don't already exist.
-            var seen = new HashSet<string>();
-            foreach (var attribute in original)
-            {
-                if (TryGetAttributeDisplayString(attribute, out var display))
-                {
-                    seen.Add(display);
-                }
-            }
-            foreach (var attribute in CustomCodeView?.Attributes ?? [])
-            {
-                if (TryGetAttributeDisplayString(attribute, out var display))
-                {
-                    seen.Add(display);
-                }
-            }
-
-            List<AttributeStatement>? merged = null;
-            foreach (var attribute in lastContractAttributes)
-            {
-                if (s_nonRestorableAttributeNames.Value.Contains(attribute.Type.Name)
-                    || attribute.Type.Name.Contains(CodeGenAttributes.CodeGenAttributePrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // An attribute from the last contract may reference argument literals or types that the
-                // generator cannot render. Such an attribute cannot be safely restored, so skip it rather
-                // than crashing the entire generation.
-                if (TryGetAttributeDisplayString(attribute, out var display) && seen.Add(display))
-                {
-                    merged ??= [.. original];
-                    merged.Add(attribute);
-                }
-            }
-
-            return merged ?? original;
-        }
-
-        private static bool TryGetAttributeDisplayString(AttributeStatement attribute, [NotNullWhen(true)] out string? displayString)
-        {
-            try
-            {
-                displayString = attribute.ToDisplayString();
-                return true;
-            }
-            catch (Exception)
-            {
-                displayString = null;
-                return false;
-            }
+            return originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
         }
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
