@@ -1928,6 +1928,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "ModelWithCustomSerialization should be included because it has a serialization provider implementing IJsonModel");
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityRestoresBuildableAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            // The last contract declares both a ModelReaderWriterBuildable attribute and a Description
+            // attribute. Only the SCM-owned buildable attribute should be restored here.
+            contextDefinition.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContractBuildableAttributes()
+        {
+            var generatedModel = InputFactory.Model("GeneratedModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var outputLibrary = new TestOutputLibrary([new TestClientProvider(generatedModel)]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [generatedModel],
+                createOutputLibrary: () => outputLibrary);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom");
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last");
+            mockGenerator.SetupProperty(
+                p => p.SourceInputModel,
+                new SourceInputModel(compilation, lastContractCompilation));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            contextDefinition.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private class CustomSerializationProvider : TypeProvider
         {
             private readonly bool _usePersistableModel;

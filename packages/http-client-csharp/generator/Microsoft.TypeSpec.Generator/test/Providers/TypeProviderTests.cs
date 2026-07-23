@@ -138,6 +138,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // Validates the general contract that ProcessTypeForBackCompatibility applies a provider's
+        // BuildAttributesForBackCompatibility override so restored attributes reach the default write path
+        // (a custom TypeProvider that does NOT override BuildAttributesForWrite).
+        [Test]
+        public async Task ProcessTypeForBackCompatibilityRestoresOwnedAttributeViaDefaultWritePath()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var typeProvider = new AttributeRestoringTypeProvider(name: "AttributeRestoreType", ns: "Test");
+
+            // The current generation declares no attributes; the base ProcessTypeForBackCompatibility must
+            // invoke the override and persist the restored last-contract attribute into the generated set.
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(1, typeProvider.Attributes.Count);
+            var written = new TypeProviderWriter(typeProvider).Write().Content;
+            StringAssert.Contains("Description", written);
+        }
+
         // Validates that the base TypeProvider generalizes the non-abstract base model back-compat to
         // any TypeProvider: a type the current generation would declare abstract is kept non-abstract
         // when the last contract published it as a non-abstract class.
@@ -913,7 +932,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             // re-add the attributes
             typeProvider.Update(attributes: [
-                new(typeof(ObsoleteAttribute))
+                new AttributeStatement(typeof(ObsoleteAttribute))
             ]);
 
             Assert.AreEqual(1, typeProvider.Attributes.Count);
@@ -1305,6 +1324,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             protected override string BuildName() => nameof(TestInternalHelperProvider);
 
             protected override string BuildRelativeFilePath() => $"{Name}.cs";
+        }
+
+        // A custom TypeProvider that owns a restorable attribute: it re-adds every last-contract type
+        // attribute the current generation no longer declares. Uses the default write path.
+        private sealed class AttributeRestoringTypeProvider : TestTypeProvider
+        {
+            public AttributeRestoringTypeProvider(string? name = null, string? ns = null)
+                : base(name: name, ns: ns)
+            {
+            }
+
+            protected internal override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(
+                IEnumerable<MethodBodyStatement> originalAttributes)
+            {
+                var original = originalAttributes as IReadOnlyList<MethodBodyStatement> ?? [.. originalAttributes];
+                return LastContractView?.Attributes is { Count: > 0 } lastContractAttributes
+                    ? [.. original, .. lastContractAttributes]
+                    : original;
+            }
         }
     }
 }

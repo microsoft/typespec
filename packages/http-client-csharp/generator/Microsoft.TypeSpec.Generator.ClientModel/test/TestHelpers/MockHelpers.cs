@@ -35,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             string? configuration = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
+            Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             string? outputPath = null)
         {
             var mockGenerator = LoadMockGenerator(
@@ -46,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 configuration: configuration,
                 createCSharpTypeCore: createCSharpTypeCore,
                 createCSharpTypeCoreFallback: createCSharpTypeCoreFallback,
+                createSerializationsCore: createSerializationsCore,
                 outputPath: outputPath);
 
             var compilationResult = compilation == null ? null : await compilation();

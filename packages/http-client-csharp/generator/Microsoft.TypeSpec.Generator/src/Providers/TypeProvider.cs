@@ -667,7 +667,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
-            IEnumerable<AttributeStatement>? attributes = default,
+            IEnumerable<MethodBodyStatement>? attributes = default,
             IEnumerable<CSharpType>? implements = null,
             XmlDocProvider? xmlDocs = null,
             TypeSignatureModifiers? modifiers = null,
@@ -792,6 +792,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
+            var hasAttributes = LastContractView?.Attributes is { Count: > 0 };
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
@@ -825,8 +826,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
+            IReadOnlyList<MethodBodyStatement>? newAttributes = null;
+            if (hasAttributes)
+            {
+                var currentAttributes = GetAttributes();
+                var backCompatAttributes = BuildAttributesForBackCompatibility(currentAttributes);
+                if (backCompatAttributes.Count != currentAttributes.Count)
+                {
+                    newAttributes = backCompatAttributes;
+                }
+            }
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            if (newFields != null || newMethods != null || newConstructors != null || newAttributes != null)
             {
                 if (updatedEnumValues != null)
                 {
@@ -852,7 +863,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
                 }
 
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                Update(fields: newFields, methods: newMethods, constructors: newConstructors, attributes: newAttributes);
             }
         }
 
@@ -1020,6 +1031,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return [.. constructors];
         }
+
+        /// <summary>
+        /// Returns the type attributes to emit, restoring any last-contract type attributes the owning
+        /// provider is responsible for. The base implementation does not restore any attributes.
+        /// <see cref="ProcessTypeForBackCompatibility"/> applies this to the generated attributes so the
+        /// default write path (<see cref="GetAttributes"/>) emits the restored attributes. Providers that
+        /// rebuild attributes in <see cref="BuildAttributesForWrite"/> must re-invoke it there so the restore
+        /// also runs against their final, post-reference-map attribute set.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IEnumerable<MethodBodyStatement> originalAttributes)
+            => originalAttributes as IReadOnlyList<MethodBodyStatement> ?? [.. originalAttributes];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
