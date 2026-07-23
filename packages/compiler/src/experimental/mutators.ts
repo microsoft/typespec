@@ -37,7 +37,9 @@ import { Realm } from "./realm.js";
  * @experimental
  */
 export type MutatorRecord<T extends Type> =
-  MutatorReplaceRecord<T> | MutatorMutateRecord<T> | MutatorFn<T>;
+  | MutatorReplaceRecord<T>
+  | MutatorMutateRecord<T>
+  | MutatorFn<T>;
 
 /**
  * Common functionality for mutator records.
@@ -325,6 +327,10 @@ export function mutateSubgraphWithNamespace(
   if (mutated === type) {
     return { realm: null, type };
   }
+  // Namespace mutations may change type references (e.g. operation.interface)
+  // in-place, which can invalidate cached computations that depend on the
+  // type graph structure (such as HTTP operation resolution).
+  program.invalidateCaches();
   return { realm: engine.realm, type: mutated };
 }
 
@@ -365,6 +371,7 @@ export function mutateSubgraph<T extends MutableType>(
   if (mutated === type) {
     return { realm: null, type };
   }
+  program.invalidateCaches();
   return { realm: engine.realm, type: mutated };
 }
 

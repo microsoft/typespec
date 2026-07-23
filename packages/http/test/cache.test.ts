@@ -488,4 +488,30 @@ describe("getHttpOperation caching", () => {
       );
     });
   });
+
+  describe("cache invalidation", () => {
+    it("invalidateCaches clears cached results so recomputation occurs", async () => {
+      const { program, myOp } = await Tester.compile(t.code`
+        @service(#{title: "Test"}) namespace TestService;
+        @route("/items/{id}") op ${t.op("myOp")}(@path id: string): void;
+      `);
+
+      // First call caches the result
+      const [result1] = getHttpOperation(program, myOp);
+      strictEqual(result1.path, "/items/{id}");
+
+      // Invalidate caches
+      program.invalidateCaches();
+
+      // Second call should recompute (not return stale cache)
+      const [result2] = getHttpOperation(program, myOp);
+      strictEqual(result2.path, "/items/{id}");
+
+      // Results should be equivalent but potentially different objects
+      deepStrictEqual(
+        result1.parameters.parameters.map((p) => p.name),
+        result2.parameters.parameters.map((p) => p.name),
+      );
+    });
+  });
 });

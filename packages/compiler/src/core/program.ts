@@ -165,6 +165,13 @@ export interface Program {
    * @returns The cached or freshly computed value.
    */
   useCache<T>(key: symbol, type: Type, compute: () => T): T;
+
+  /**
+   * Invalidate all cached values stored by {@link useCache}.
+   * Call this when type graph mutations (e.g. Realm mutations) may have made
+   * previously cached results stale.
+   */
+  invalidateCaches(): void;
 }
 
 interface EmitterRef {
@@ -246,6 +253,7 @@ async function createProgram(
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
+  const cacheKeys = new Set<symbol>();
   const diagnostics: Diagnostic[] = [];
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
@@ -309,13 +317,18 @@ async function createProgram(
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
     useCache<T>(key: symbol, type: Type, compute: () => T): T {
-      // Only cache during "linting" and "emitting" stages. During "parsing" and
-      // "checking", decorators may still mutate types. During "validating",
-      // validators may still report diagnostics that affect type resolution.
-      // By "linting" all types are fully resolved and immutable.
-      if (currentStage !== "linting" && currentStage !== "emitting") {
+      // Only cache from "validating" onward. During "parsing" and "checking",
+      // decorators are still being applied and may not have finished setting up
+      // route options, filters, or other state that affects resolution. By
+      // "validating" all decorators have completed and types are fully resolved.
+      if (
+        currentStage !== "validating" &&
+        currentStage !== "linting" &&
+        currentStage !== "emitting"
+      ) {
         return compute();
       }
+      cacheKeys.add(key);
       const map = program.stateMap(key);
       const existing = map.get(type);
       if (existing !== undefined) {
@@ -324,6 +337,14 @@ async function createProgram(
       const value = compute();
       map.set(type, value);
       return value;
+    },
+    invalidateCaches(): void {
+      for (const key of cacheKeys) {
+        const m = stateMaps.get(key);
+        if (m) {
+          m.clear();
+        }
+      }
     },
   };
 
