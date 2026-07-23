@@ -94,7 +94,8 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
-            # Skip single-body JSON overload; the TypedDict overload replaces it
+            # Use the flattened JSON overload and skip the single-body JSON overload.
+            # When TypedDict generation is disabled, this JSON overload remains.
             continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
