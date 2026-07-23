@@ -1091,6 +1091,115 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("declaration expressions", () => {
+      it("anonymous enum in alias", async () => {
+        const tokens = await tokenize("alias Foo = enum { a, b }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.enum,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("b"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named enum in alias", async () => {
+        const tokens = await tokenize("alias Foo = enum Color { red, green }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.enum,
+          Token.identifiers.type("Color"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("red"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("green"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous union in alias", async () => {
+        const tokens = await tokenize("alias Foo = union { string, int32 }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.punctuation.openBrace,
+          Token.identifiers.type("string"),
+          Token.punctuation.comma,
+          Token.identifiers.type("int32"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named union in alias", async () => {
+        const tokens = await tokenize("alias Foo = union Choice { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.identifiers.type("Choice"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous scalar in alias", async () => {
+        const tokens = await tokenize("alias Foo = scalar extends string");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.scalar,
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+        ]);
+      });
+
+      it("anonymous model in alias", async () => {
+        const tokens = await tokenize("alias Foo = model { x: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.model,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("x"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("declaration expression as a model property type", async () => {
+        const tokens = await tokenize("model Bar { status: enum { active, inactive } }");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("status"),
+          Token.operators.typeAnnotation,
+          Token.keywords.enum,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("active"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("inactive"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");

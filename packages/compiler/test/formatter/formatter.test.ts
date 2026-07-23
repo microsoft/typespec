@@ -1790,6 +1790,315 @@ alias Foo = (A & B) | (C & D);
   });
 });
 
+describe("declaration expressions", () => {
+  it("formats anonymous enum expression", async () => {
+    await assertFormat({
+      code: `alias E   =   enum {  a,   b  };`,
+      expected: `
+alias E = enum {
+a,
+b,
+};
+`,
+    });
+  });
+
+  it("formats anonymous union expression", async () => {
+    await assertFormat({
+      code: `alias U   =   union {  string,   int32  };`,
+      expected: `
+alias U = union {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("formats anonymous model expression", async () => {
+    await assertFormat({
+      code: `alias M   =   model {  x:   string  };`,
+      expected: `
+alias M = model {
+x: string;
+};
+`,
+    });
+  });
+
+  it("formats anonymous scalar expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias S   =   scalar   extends   string;`,
+      expected: `alias S = scalar extends string;`,
+    });
+  });
+
+  it("formats a model `is` expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias M   =   model   is   Base;`,
+      expected: `alias M = model is Base;`,
+    });
+  });
+
+  it("formats a model `is` expression with a body", async () => {
+    await assertFormat({
+      code: `alias M = model is Base {  x:  string  };`,
+      expected: `
+alias M = model is Base {
+x: string;
+};
+`,
+    });
+  });
+
+  it("formats named declaration expression", async () => {
+    await assertFormat({
+      code: `model Foo { nested:   model Inner {  x:  string  }; }`,
+      expected: `
+model Foo {
+nested: model Inner {
+  x: string;
+};
+}
+`,
+    });
+  });
+
+  it("formats named enum expression", async () => {
+    await assertFormat({
+      code: `alias E = enum Color {red, green};`,
+      expected: `
+alias E = enum Color {
+red,
+green,
+};
+`,
+    });
+  });
+
+  it("formats named union expression", async () => {
+    await assertFormat({
+      code: `alias U = union Choice {string, int32};`,
+      expected: `
+alias U = union Choice {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("formats named scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = scalar Celsius extends int32;`,
+      expected: `alias S = scalar Celsius extends int32;`,
+    });
+  });
+
+  it("formats nested declaration expressions", async () => {
+    await assertFormat({
+      code: `alias N = model { inner: enum { a, b } };`,
+      expected: `
+alias N = model {
+inner: enum {
+  a,
+  b,
+};
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") enum {
+a,
+b,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: @doc("the status") enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a named model expression", async () => {
+    await assertFormat({
+      code: `alias M = @doc("d")model Inner {  x:  string  };`,
+      expected: `
+alias M = @doc("d") model Inner {
+x: string;
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a union expression", async () => {
+    await assertFormat({
+      code: `alias U = @doc("d")union {  string, int32  };`,
+      expected: `
+alias U = @doc("d") union {
+string,
+int32,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = @doc("d")scalar Celsius extends int32;`,
+      expected: `alias S = @doc("d") scalar Celsius extends int32;`,
+    });
+  });
+
+  it("keeps multiple decorators inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") @example(1) @friendlyName("E") enum {
+a,
+b,
+};
+`,
+    });
+  });
+
+  it("keeps multiple decorators inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: @a @b @c enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline on an enum expression like a decorator", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status: /** the status */ enum {
+  active,
+  inactive,
+};
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline before decorators on a declaration expression", async () => {
+    await assertFormat({
+      code: `alias E = /** doc */ @a @b enum {  x, y  };`,
+      expected: `
+alias E = /** doc */ @a @b enum {
+x,
+y,
+};
+`,
+    });
+  });
+
+  it("formats a declaration expression used as a decorator argument", async () => {
+    await assertFormat({
+      code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+enum Versions {
+  v1,
+  v2,
+}
+)
+model Foo {}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on a model property when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status:
+  @summary("a fairly long summary text here")
+  @example("some-default-example-value")
+  enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on an alias value when too wide", async () => {
+    await assertFormat({
+      code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
+      expected: `
+alias E =
+@summary("a fairly long summary text goes here now")
+@example("some-default-value")
+enum {
+  a,
+  b,
+};
+`,
+    });
+  });
+
+  it("breaks and indents a doc comment together with decorators when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+status:
+  /** the current lifecycle status of the entity */
+  @example("active")
+  enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("stacks decorators inside a decorator argument when too wide", async () => {
+    await assertFormat({
+      code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+@summary("a long summary for the versions enum value here")
+@example("v1")
+enum Versions {
+  v1,
+  v2,
+}
+)
+model Foo {}
+`,
+    });
+  });
+});
+
 describe("enum", () => {
   it("format simple enum", async () => {
     await assertFormat({

@@ -6,6 +6,7 @@ import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
 import {
   IdentifierNode,
+  ModelStatementNode,
   Node,
   ParseOptions,
   SourceFile,
@@ -275,6 +276,71 @@ describe("union declarations", () => {
     `union A { "hi", \`bye\` }`,
   ]);
   parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
+});
+
+describe("declaration expressions", () => {
+  parseEach([
+    // anonymous keyword declarations in expression position
+    "alias E = enum { a, b };",
+    "alias U = union { string, int32 };",
+    "alias S = scalar extends string;",
+    "alias M = model { x: string };",
+    // named keyword declarations in expression position
+    "alias NE = enum Color { red, green };",
+    "alias NM = model Inner { x: string };",
+    // `is` heritage clause in expression position (must not consume the enclosing `;`)
+    "alias MI = model is Base;",
+    "alias MIB = model is Base { extra: int32 };",
+    "model A { value: model is Base }",
+    "model A { value: model is Base; other: string }",
+    // nested in model properties
+    "model A { status: enum { active, inactive } }",
+    "model A { value: model { x: string } }",
+    "model A { unit: scalar extends string }",
+    "model A { value: union { string, int32 } }",
+    // nested declaration expressions
+    "alias N = model { inner: enum { a, b } };",
+    // in decorator arguments
+    "@useType(enum Versions { v1, v2 }) namespace N {}",
+    `@example(model { x: 1 }) model A { x: int32; }`,
+    "@foo(enum { a, b }, model { x: string }) namespace N {}",
+    "@foo(scalar extends string) namespace N {}",
+    "@foo(union { string, int32 }) namespace N {}",
+    // decorators applied to a declaration expression argument
+    `@useType(@doc("the versions") enum Versions { v1, v2 }) namespace N {}`,
+    // doc comment applied to a declaration expression argument
+    `@useType(/** the versions */ enum Versions { v1, v2 }) namespace N {}`,
+    // in other expression-list positions
+    "alias T = [enum { a, b }, model { x: string }];",
+    "model A { x: Template<enum { a, b }> }",
+    // inline decorators on a declaration expression
+    `model A { status: @doc("the status") enum { active, inactive } }`,
+    `model A { status: @a @b @c enum { active, inactive } }`,
+    // doc comments on a declaration expression (applied like decorators)
+    `model A { status: /** the status */ enum { active, inactive } }`,
+    `alias E = /** doc */ @a enum { a, b };`,
+  ]);
+
+  // interface and operation are intentionally NOT allowed in expression position
+  parseErrorEach([
+    ["alias I = interface { foo(): void };", [/Keyword cannot be used as identifier/]],
+    ["alias O = op (): void;", [/Keyword cannot be used as identifier/]],
+    ["model A { x: interface {} }", [/Keyword cannot be used as identifier/]],
+  ]);
+
+  it("recovers an unclosed expression list at a following declaration keyword", () => {
+    // The unclosed `@foo(` must not swallow the following `model After` statement: a
+    // declaration keyword after an element (with no delimiter) ends the list under the
+    // assumption that the close token is missing.
+    const tree = parse(`@foo(model Inner { x: string }\nmodel After {}`);
+    const modelNames = tree.statements
+      .filter((s): s is ModelStatementNode => s.kind === SyntaxKind.ModelStatement)
+      .map((s) => s.id.sv);
+    ok(
+      modelNames.includes("After"),
+      `expected 'After' to be recovered as a statement, got [${modelNames.join(", ")}]`,
+    );
+  });
 });
 
 describe("const statements", () => {
@@ -622,7 +688,7 @@ describe("identifiers", () => {
         (node) => {
           const statement = node.statements[0];
           assert(statement.kind === SyntaxKind.ModelStatement, "Model statement expected.");
-          assert.strictEqual(statement.id.sv, expected);
+          assert.strictEqual(statement.id?.sv, expected);
         },
       ];
     }),

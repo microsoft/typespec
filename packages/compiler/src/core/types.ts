@@ -260,9 +260,20 @@ export interface RecordModelType extends Model {
 export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Model";
   name: string;
-  node?: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode | ObjectLiteralNode;
+  node?:
+    | ModelStatementNode
+    | ModelDeclarationExpressionNode
+    | ModelExpressionNode
+    | IntersectionExpressionNode
+    | ObjectLiteralNode;
   namespace?: Namespace;
   indexer?: ModelIndexer;
+
+  /**
+   * Whether this model was declared in expression position (e.g. an anonymous
+   * `model { ... }` used as a type) rather than as a named statement.
+   */
+  expression: boolean;
 
   /**
    * The properties of the model.
@@ -425,11 +436,17 @@ export interface TemplateValue extends BaseValue {
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Scalar";
   name: string;
-  node?: ScalarStatementNode;
+  node?: ScalarStatementNode | ScalarDeclarationExpressionNode;
   /**
    * Namespace the scalar was defined in.
    */
   namespace?: Namespace;
+
+  /**
+   * Whether this scalar was declared in expression position (anonymous `scalar ...`)
+   * rather than as a named statement.
+   */
+  expression: boolean;
 
   /**
    * Scalar this scalar extends.
@@ -492,8 +509,14 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
 export interface Enum extends BaseType, DecoratedType {
   kind: "Enum";
   name: string;
-  node?: EnumStatementNode;
+  node?: EnumStatementNode | EnumDeclarationExpressionNode;
   namespace?: Namespace;
+
+  /**
+   * Whether this enum was declared in expression position (anonymous `enum { ... }`)
+   * rather than as a named statement.
+   */
+  expression: boolean;
 
   /**
    * The members of the enum.
@@ -663,7 +686,7 @@ export interface Tuple extends BaseType {
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
-  node?: UnionExpressionNode | UnionStatementNode;
+  node?: UnionExpressionNode | UnionStatementNode | UnionDeclarationExpressionNode;
   namespace?: Namespace;
 
   /**
@@ -1209,6 +1232,10 @@ export enum SyntaxKind {
   InternalKeyword,
   AutoKeyword,
   FunctionTypeExpression,
+  ModelDeclarationExpression,
+  ScalarDeclarationExpression,
+  UnionDeclarationExpression,
+  EnumDeclarationExpression,
 }
 
 export const enum NodeFlags {
@@ -1339,11 +1366,14 @@ export type Node =
  */
 export type TemplateableNode =
   | ModelStatementNode
+  | ModelDeclarationExpressionNode
   | ScalarStatementNode
+  | ScalarDeclarationExpressionNode
   | AliasStatementNode
   | InterfaceStatementNode
   | OperationStatementNode
-  | UnionStatementNode;
+  | UnionStatementNode
+  | UnionDeclarationExpressionNode;
 
 /**
  * Node types that can have referencable members
@@ -1351,11 +1381,15 @@ export type TemplateableNode =
 export type MemberContainerNode =
   | ModelStatementNode
   | ModelExpressionNode
+  | ModelDeclarationExpressionNode
   | InterfaceStatementNode
   | EnumStatementNode
+  | EnumDeclarationExpressionNode
   | UnionStatementNode
+  | UnionDeclarationExpressionNode
   | IntersectionExpressionNode
-  | ScalarStatementNode;
+  | ScalarStatementNode
+  | ScalarDeclarationExpressionNode;
 
 export type MemberNode =
   | ModelPropertyNode
@@ -1440,6 +1474,29 @@ export interface DeclarationNode {
   readonly modifierFlags: ModifierFlags;
 }
 
+/**
+ * Declaration node whose identifier is optional. Used by declaration-expression nodes
+ * (e.g. `alias Foo = enum { a, b }`), which may be anonymous (no `id`) or carry a name
+ * that is kept on the resulting type but never registered in a namespace.
+ */
+export interface OptionallyNamedDeclarationNode {
+  /**
+   * Identifier that this node declares. May be undefined when the declaration is used
+   * as an anonymous expression.
+   */
+  readonly id?: IdentifierNode;
+
+  /**
+   * Modifier nodes applied to this declaration.
+   */
+  readonly modifiers: Modifier[];
+
+  /**
+   * Combined modifier flags for this declaration.
+   */
+  readonly modifierFlags: ModifierFlags;
+}
+
 export type Declaration = Extract<Statement, DeclarationNode>;
 
 export type ScopeNode =
@@ -1487,6 +1544,10 @@ export type Expression =
   | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
+  | ModelDeclarationExpressionNode
+  | EnumDeclarationExpressionNode
+  | UnionDeclarationExpressionNode
+  | ScalarDeclarationExpressionNode
   | ObjectLiteralNode
   | ArrayLiteralNode
   | TupleExpressionNode
@@ -1562,6 +1623,22 @@ export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/**
+ * A `model` declaration used in expression position (e.g. `alias M = model { x: string }`
+ * or a property type). May carry a name (kept on the resulting type but never registered)
+ * and is always `expression: true`. Template parameters are syntactically accepted for
+ * error recovery but rejected by the checker.
+ */
+export interface ModelDeclarationExpressionNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.ModelDeclarationExpression;
+  readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  readonly bodyRange: TextRange;
+  readonly extends?: Expression;
+  readonly is?: Expression;
+  readonly decorators: readonly DecoratorExpressionNode[];
+}
+
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.ScalarStatement;
   readonly extends?: TypeReferenceNode;
@@ -1571,11 +1648,26 @@ export interface ScalarStatementNode extends BaseNode, DeclarationNode, Template
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/**
+ * A `scalar` declaration used in expression position (e.g. `alias S = scalar extends int32`).
+ * May carry a name (kept on the resulting type but never registered) and is always
+ * `expression: true`. Template parameters are syntactically accepted for error recovery but
+ * rejected by the checker.
+ */
+export interface ScalarDeclarationExpressionNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.ScalarDeclarationExpression;
+  readonly extends?: TypeReferenceNode;
+  readonly decorators: readonly DecoratorExpressionNode[];
+  readonly members: readonly ScalarConstructorNode[];
+  readonly bodyRange: TextRange;
+}
+
 export interface ScalarConstructorNode extends BaseNode {
   readonly kind: SyntaxKind.ScalarConstructor;
   readonly id: IdentifierNode;
   readonly parameters: FunctionParameterNode[];
-  readonly parent?: ScalarStatementNode;
+  readonly parent?: ScalarStatementNode | ScalarDeclarationExpressionNode;
 }
 
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
@@ -1594,12 +1686,25 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/**
+ * A keyword-form `union` declaration used in expression position
+ * (e.g. `alias U = union { string, int32 }`). May carry a name (kept on the resulting type
+ * but never registered) and is always `expression: true`. Template parameters are
+ * syntactically accepted for error recovery but rejected by the checker.
+ */
+export interface UnionDeclarationExpressionNode
+  extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  readonly kind: SyntaxKind.UnionDeclarationExpression;
+  readonly options: readonly UnionVariantNode[];
+  readonly decorators: readonly DecoratorExpressionNode[];
+}
+
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
   readonly id?: IdentifierNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: UnionStatementNode;
+  readonly parent?: UnionStatementNode | UnionDeclarationExpressionNode;
 }
 
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
@@ -1609,12 +1714,23 @@ export interface EnumStatementNode extends BaseNode, DeclarationNode {
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/**
+ * An `enum` declaration used in expression position (e.g. `alias E = enum { a, b }`).
+ * May carry a name (kept on the resulting type but never registered) and is always
+ * `expression: true`.
+ */
+export interface EnumDeclarationExpressionNode extends BaseNode, OptionallyNamedDeclarationNode {
+  readonly kind: SyntaxKind.EnumDeclarationExpression;
+  readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
+  readonly decorators: readonly DecoratorExpressionNode[];
+}
+
 export interface EnumMemberNode extends BaseNode {
   readonly kind: SyntaxKind.EnumMember;
   readonly id: IdentifierNode;
   readonly value?: StringLiteralNode | NumericLiteralNode;
   readonly decorators: readonly DecoratorExpressionNode[];
-  readonly parent?: EnumStatementNode;
+  readonly parent?: EnumStatementNode | EnumDeclarationExpressionNode;
 }
 
 export interface EnumSpreadMemberNode extends BaseNode {
@@ -1671,13 +1787,13 @@ export interface ModelPropertyNode extends BaseNode {
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly optional: boolean;
   readonly default?: Expression;
-  readonly parent?: ModelStatementNode | ModelExpressionNode;
+  readonly parent?: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode;
 }
 
 export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
-  readonly parent?: ModelStatementNode | ModelExpressionNode;
+  readonly parent?: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode;
 }
 
 export interface ObjectLiteralNode extends BaseNode {

@@ -942,11 +942,6 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
-    const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
-    if (!skipNameValidation) {
-      name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
-    }
-
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
       return {
@@ -956,6 +951,11 @@ export class OpenAPI3SchemaEmitterBase<
 
     if (shouldInline(this.emitter.getProgram(), type)) {
       return this.#inlineType(type, schema);
+    }
+
+    const skipNameValidation = type.kind === "Model" && type.templateMapper !== undefined;
+    if (!skipNameValidation) {
+      name = ensureValidComponentFixedFieldKey(this.emitter.getProgram(), type, name);
     }
 
     const title = getSummary(this.emitter.getProgram(), type);

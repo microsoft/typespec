@@ -6,6 +6,7 @@ import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
+  isDeclarationExpressionStatementKeyword,
   isKeyword,
   isModifier,
   isPunctuation,
@@ -49,6 +50,7 @@ import {
   DocTextNode,
   DocUnknownTagNode,
   EmptyStatementNode,
+  EnumDeclarationExpressionNode,
   EnumMemberNode,
   EnumSpreadMemberNode,
   EnumStatementNode,
@@ -66,6 +68,7 @@ import {
   InvalidStatementNode,
   LineComment,
   MemberExpressionNode,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelSpreadPropertyNode,
@@ -86,6 +89,7 @@ import {
   ParseOptions,
   PositionDetail,
   ScalarConstructorNode,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   SourceFile,
   Statement,
@@ -104,6 +108,7 @@ import {
   TypeOfExpressionNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
+  UnionDeclarationExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
@@ -158,6 +163,12 @@ interface ListKind {
   readonly toleratedDelimiterIsValid: boolean;
   readonly invalidAnnotationTarget?: string;
   readonly allowedStatementKeyword: Token;
+  /**
+   * When true, the `model`/`enum`/`union`/`scalar` statement keywords are treated as the
+   * start of a declaration expression element rather than as a sign that the list ended
+   * (with a missing close token). Set on lists whose elements are full expressions.
+   */
+  readonly allowDeclarationExpression?: boolean;
 }
 
 interface SurroundedListKind extends ListKind {
@@ -191,11 +202,13 @@ namespace ListKind {
   export const DecoratorArguments = {
     ...OperationParameters,
     invalidAnnotationTarget: "expression",
+    allowDeclarationExpression: true,
   } as const;
 
   export const FunctionArguments = {
     ...OperationParameters,
     invalidAnnotationTarget: "expression",
+    allowDeclarationExpression: true,
   } as const;
 
   export const ModelProperties = {
@@ -266,6 +279,7 @@ namespace ListKind {
 
   export const TemplateArguments = {
     ...TemplateParameters,
+    allowDeclarationExpression: true,
   } as const;
 
   export const CallArguments = {
@@ -273,6 +287,7 @@ namespace ListKind {
     allowEmpty: true,
     open: Token.OpenParen,
     close: Token.CloseParen,
+    allowDeclarationExpression: true,
   } as const;
 
   export const Heritage = {
@@ -287,6 +302,7 @@ namespace ListKind {
     allowEmpty: true,
     open: Token.OpenBracket,
     close: Token.CloseBracket,
+    allowDeclarationExpression: true,
   } as const;
 
   export const ArrayLiteral = {
@@ -721,6 +737,30 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseUnionDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): UnionDeclarationExpressionNode {
+    parseExpected(Token.UnionKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const { items: options } = parseList(ListKind.UnionVariants, parseUnionVariant);
+
+    return {
+      kind: SyntaxKind.UnionDeclarationExpression,
+      id,
+      templateParameters,
+      templateParametersRange,
+      decorators,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
+      options,
+      ...finishNode(pos),
+    };
+  }
+
   function parseIdOrValueForVariant(): Expression {
     const nextToken = token();
 
@@ -906,24 +946,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
 
-    expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
-
-    const optionalExtends = parseOptionalModelExtends();
-    const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
-
-    let propDetail: ListDetail<ModelPropertyNode | ModelSpreadPropertyNode> = createEmptyList<
-      ModelPropertyNode | ModelSpreadPropertyNode
-    >();
-    if (optionalIs) {
-      const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
-      if (tok === Token.Semicolon) {
-        nextToken();
-      } else {
-        propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
-      }
-    } else {
-      propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
-    }
+    const { extends: optionalExtends, is: optionalIs, properties, bodyRange } = parseModelBody();
 
     return {
       kind: SyntaxKind.ModelStatement,
@@ -933,11 +956,85 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       templateParameters,
       templateParametersRange,
       decorators,
-      properties: propDetail.items,
-      bodyRange: propDetail.range,
+      properties,
+      bodyRange,
       modifiers,
       modifierFlags: modifiersToFlags(modifiers),
       ...finishNode(pos),
+    };
+  }
+
+  function parseModelDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): ModelDeclarationExpressionNode {
+    parseExpected(Token.ModelKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const {
+      extends: optionalExtends,
+      is: optionalIs,
+      properties,
+      bodyRange,
+    } = parseModelBody(true);
+
+    return {
+      kind: SyntaxKind.ModelDeclarationExpression,
+      id,
+      extends: optionalExtends,
+      is: optionalIs,
+      templateParameters,
+      templateParametersRange,
+      decorators,
+      properties,
+      bodyRange,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseModelBody(inExpressionPosition = false): {
+    extends?: Expression;
+    is?: Expression;
+    properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+    bodyRange: TextRange;
+  } {
+    expectTokenIsOneOf(Token.OpenBrace, Token.Equals, Token.ExtendsKeyword, Token.IsKeyword);
+
+    const optionalExtends = parseOptionalModelExtends();
+    const optionalIs = optionalExtends ? undefined : parseOptionalModelIs();
+
+    let propDetail: ListDetail<ModelPropertyNode | ModelSpreadPropertyNode> = createEmptyList<
+      ModelPropertyNode | ModelSpreadPropertyNode
+    >();
+    if (optionalIs) {
+      if (inExpressionPosition) {
+        // In expression position there is no `;` terminator (it belongs to the enclosing
+        // construct): only parse a `{ ... }` body when present, otherwise the model has no
+        // own properties.
+        if (token() === Token.OpenBrace) {
+          propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        }
+      } else {
+        const tok = expectTokenIsOneOf(Token.Semicolon, Token.OpenBrace);
+        if (tok === Token.Semicolon) {
+          nextToken();
+        } else {
+          propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+        }
+      }
+    } else {
+      propDetail = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
+    }
+
+    return {
+      extends: optionalExtends,
+      is: optionalIs,
+      properties: propDetail.items,
+      bodyRange: propDetail.range,
     };
   }
 
@@ -1129,6 +1226,33 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseScalarDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): ScalarDeclarationExpressionNode {
+    parseExpected(Token.ScalarKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: templateParameters, range: templateParametersRange } =
+      parseTemplateParameterList();
+
+    const optionalExtends = parseOptionalScalarExtends();
+    const { items: members, range: bodyRange } = parseScalarMembers(true);
+
+    return {
+      kind: SyntaxKind.ScalarDeclarationExpression,
+      id,
+      templateParameters,
+      templateParametersRange,
+      extends: optionalExtends,
+      members,
+      bodyRange,
+      decorators,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
+      ...finishNode(pos),
+    };
+  }
+
   function parseOptionalScalarExtends() {
     if (parseOptional(Token.ExtendsKeyword)) {
       return parseReferenceExpression();
@@ -1136,7 +1260,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return undefined;
   }
 
-  function parseScalarMembers(): ListDetail<ScalarConstructorNode> {
+  function parseScalarMembers(inExpressionPosition = false): ListDetail<ScalarConstructorNode> {
+    // In expression position there is no `;` terminator: only parse a `{ ... }` body
+    // when present, otherwise the scalar has no members.
+    if (inExpressionPosition && token() !== Token.OpenBrace) {
+      return createEmptyList<ScalarConstructorNode>();
+    }
     if (token() === Token.Semicolon) {
       nextToken();
       return createEmptyList<ScalarConstructorNode>();
@@ -1176,6 +1305,24 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       decorators,
       modifiers,
       modifierFlags: modifiersToFlags(modifiers),
+      members,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseEnumDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+  ): EnumDeclarationExpressionNode {
+    parseExpected(Token.EnumKeyword);
+    const id = parseOptionalDeclarationExpressionIdentifier();
+    const { items: members } = parseList(ListKind.EnumMembers, parseEnumMemberOrSpread);
+    return {
+      kind: SyntaxKind.EnumDeclarationExpression,
+      id,
+      decorators,
+      modifiers: [],
+      modifierFlags: ModifierFlags.None,
       members,
       ...finishNode(pos),
     };
@@ -1707,6 +1854,48 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return base;
   }
 
+  /**
+   * Parse a declaration used in expression position (`model`/`enum`/`union`/`scalar`).
+   * {@link pos} should point at the start of the node (the first decorator's `@` when
+   * {@link decorators} are provided, otherwise the keyword). A leading doc comment
+   * ({@link docs}) is attached to the node so it is applied just like an `@doc` decorator.
+   */
+  function parseDeclarationExpression(
+    pos: number,
+    decorators: DecoratorExpressionNode[] = [],
+    docs: DocNode[] = [],
+  ):
+    | ModelDeclarationExpressionNode
+    | EnumDeclarationExpressionNode
+    | UnionDeclarationExpressionNode
+    | ScalarDeclarationExpressionNode {
+    let node:
+      | ModelDeclarationExpressionNode
+      | EnumDeclarationExpressionNode
+      | UnionDeclarationExpressionNode
+      | ScalarDeclarationExpressionNode;
+    switch (token()) {
+      case Token.ModelKeyword:
+        node = parseModelDeclarationExpression(pos, decorators);
+        break;
+      case Token.EnumKeyword:
+        node = parseEnumDeclarationExpression(pos, decorators);
+        break;
+      case Token.UnionKeyword:
+        node = parseUnionDeclarationExpression(pos, decorators);
+        break;
+      case Token.ScalarKeyword:
+        node = parseScalarDeclarationExpression(pos, decorators);
+        break;
+      default:
+        compilerAssert(false, "Expected a declaration expression keyword.");
+    }
+    if (docs.length > 0) {
+      mutate(node).docs = docs;
+    }
+    return node;
+  }
+
   function parsePrimaryExpression(): Expression {
     while (true) {
       switch (token()) {
@@ -1727,14 +1916,36 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseNumericLiteral();
         case Token.OpenBrace:
           return parseModelExpression();
+        case Token.ModelKeyword:
+        case Token.EnumKeyword:
+        case Token.UnionKeyword:
+        case Token.ScalarKeyword: {
+          // A leading doc comment applies to the declaration expression, just like `@doc`.
+          // `pos` starts at the doc comment so the resulting node span includes it.
+          const [pos, docs] = parseDocList();
+          return parseDeclarationExpression(pos, [], docs);
+        }
         case Token.OpenBracket:
           return parseTupleExpression();
         case Token.OpenParen:
           return parseParenthesizedExpression();
-        case Token.At:
+        case Token.At: {
+          // Capture a doc comment that precedes the decorators before they are parsed
+          // (parsing decorators advances the scanner and clears the pending doc range).
+          const [docPos, docs] = parseDocList();
+          // `pos` starts at the doc comment (if any) or the `@` so the resulting node
+          // span includes the docs and decorators.
+          const pos = docs.length > 0 ? docPos : tokenPos();
           const decorators = parseDecoratorList();
+          // Decorators are only valid in expression position when they decorate a
+          // declaration expression (the keyword forms below). `pos` starts at the `@`
+          // so the resulting node span includes the decorators.
+          if (isDeclarationExpressionStatementKeyword(token())) {
+            return parseDeclarationExpression(pos, decorators, docs);
+          }
           reportInvalidDecorators(decorators, "expression");
           continue;
+        }
         case Token.Hash:
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
@@ -2014,6 +2225,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  /**
+   * Parse the optional identifier of a declaration used in expression position. The name
+   * is only parsed when actually present; an anonymous declaration expression has no `id`.
+   */
+  function parseOptionalDeclarationExpressionIdentifier(): IdentifierNode | undefined {
+    return token() === Token.Identifier ? parseIdentifier() : undefined;
+  }
+
   function parseIdentifier(options?: {
     message?: keyof CompilerDiagnostics["token-expected"];
     allowStringLiteral?: boolean; // Allow string literals to be used as identifiers for backward-compatibility, but convert to an identifier node.
@@ -2238,16 +2457,27 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (docRanges.length === 0 || options.docs === false) {
       return [tokenPos(), []];
     }
+    return [docRanges[0].pos, parseDocRanges(docRanges)];
+  }
+
+  /**
+   * Parse the given doc comment ranges into doc nodes. Unlike {@link parseDocList} this does
+   * not read the pending {@link docRanges}, so it can be used to attach doc comments that were
+   * captured earlier (e.g. before a list element's decorators were parsed).
+   */
+  function parseDocRanges(ranges: readonly DocRange[]): DocNode[] {
+    if (ranges.length === 0 || options.docs === false) {
+      return [];
+    }
     const docs: DocNode[] = [];
-    for (const range of docRanges) {
+    for (const range of ranges) {
       const doc = parseRange(ParseMode.Doc, innerDocRange(range), () => parseDoc(range));
       docs.push(doc);
       if (range.comment) {
         mutate(range.comment).parsedAsDocs = true;
       }
     }
-
-    return [docRanges[0].pos, docs];
+    return docs;
   }
 
   function parseDoc(range: TextRange): DocNode {
@@ -2637,15 +2867,34 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     while (true) {
       const startingPos = tokenPos();
+      // Capture any pending doc comment before `parseAnnotations` parses (and clears the
+      // pending range for) decorators, so a doc comment preceding a decorated declaration
+      // expression element can still be attached to it below.
+      const pendingDocRanges = kind.allowDeclarationExpression ? docRanges : undefined;
       const { pos, docs, directives, decorators } = parseAnnotations({
         skipParsingDocNodes: Boolean(kind.invalidAnnotationTarget),
       });
+
+      // A declaration expression element (e.g. `enum { a }`) can carry decorators (and a
+      // doc comment) even in an expression list. Attach them to the declaration expression
+      // instead of rejecting them as an invalid annotation target.
+      const declarationExpressionWithDecorators =
+        kind.allowDeclarationExpression &&
+        decorators.length > 0 &&
+        isDeclarationExpressionStatementKeyword(token());
+
       if (kind.invalidAnnotationTarget) {
-        reportInvalidDecorators(decorators, kind.invalidAnnotationTarget);
         reportInvalidDirective(directives, kind.invalidAnnotationTarget);
+        if (!declarationExpressionWithDecorators) {
+          reportInvalidDecorators(decorators, kind.invalidAnnotationTarget);
+        }
       }
 
-      if (directives.length === 0 && decorators.length === 0 && atEndOfListWithError(kind)) {
+      if (
+        directives.length === 0 &&
+        decorators.length === 0 &&
+        atEndOfListWithError(kind, { atElementStart: true })
+      ) {
         // Error recovery: end surrounded list at statement keyword or end
         // of file. Note, however, that we must parse a missing element if
         // there were directives or decorators as we cannot drop those from
@@ -2657,7 +2906,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
 
       let item: T;
-      if (kind.invalidAnnotationTarget) {
+      if (declarationExpressionWithDecorators) {
+        const declDocs = pendingDocRanges ? parseDocRanges(pendingDocRanges) : [];
+        // When a doc comment precedes the decorators, start the node span at the doc
+        // comment so the doc nodes stay within the parent node's range.
+        const declPos = declDocs.length > 0 ? pendingDocRanges![0].pos : pos;
+        item = parseDeclarationExpression(declPos, decorators, declDocs) as unknown as T;
+      } else if (kind.invalidAnnotationTarget) {
         item = (parseItem as ParseListItem<UnannotatedListKind, T>)();
       } else {
         item = parseItem(pos, decorators);
@@ -2686,7 +2941,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         // If a list *is* surrounded by punctuation, then the list ends when we
         // reach the close token.
         break;
-      } else if (atEndOfListWithError(kind)) {
+      } else if (atEndOfListWithError(kind, { atElementStart: false })) {
         // Error recovery: If a list *is* surrounded by punctuation, then
         // the list ends at statement keyword or end-of-file under the
         // assumption that the closing delimiter is missing. This check is
@@ -2753,11 +3008,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return false;
   }
 
-  function atEndOfListWithError(kind: ListKind) {
+  /**
+   * Whether the parser is at a position where the current list (when surrounded by
+   * punctuation) should be ended under the assumption that its closing token is missing —
+   * i.e. the current token is a statement keyword or end-of-file.
+   *
+   * @param atElementStart Whether we are about to parse a new element (`true`) or have just
+   * parsed one and found neither a delimiter nor the close token (`false`). A
+   * declaration-expression keyword (`model`/`enum`/`union`/`scalar`) is a valid element
+   * start in lists that {@link ListKind.allowDeclarationExpression allow declaration
+   * expressions}, so it must not end the list at the start of an element. After an element,
+   * a declaration-expression keyword cannot start a new element (a delimiter is required
+   * first), so it is treated like any other statement keyword and ends the list — restoring
+   * error recovery for an unclosed delimiter (e.g. `@foo(model X {}` followed by a
+   * statement).
+   */
+  function atEndOfListWithError(kind: ListKind, { atElementStart }: { atElementStart: boolean }) {
     return (
       kind.close !== Token.None &&
       (isStatementKeyword(token()) || token() === Token.EndOfFile) &&
-      token() !== kind.allowedStatementKeyword
+      token() !== kind.allowedStatementKeyword &&
+      !(
+        atElementStart &&
+        kind.allowDeclarationExpression &&
+        isDeclarationExpressionStatementKeyword(token())
+      )
     );
   }
 
@@ -3057,9 +3332,26 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.is) ||
         visitEach(cb, node.properties)
       );
+    case SyntaxKind.ModelDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitNode(cb, node.extends) ||
+        visitNode(cb, node.is) ||
+        visitEach(cb, node.properties)
+      );
     case SyntaxKind.ScalarStatement:
       return (
         visitEach(cb, node.modifiers) ||
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.members) ||
+        visitNode(cb, node.extends)
+      );
+    case SyntaxKind.ScalarDeclarationExpression:
+      return (
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.templateParameters) ||
@@ -3076,6 +3368,13 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.templateParameters) ||
         visitEach(cb, node.options)
       );
+    case SyntaxKind.UnionDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) ||
+        visitNode(cb, node.id) ||
+        visitEach(cb, node.templateParameters) ||
+        visitEach(cb, node.options)
+      );
     case SyntaxKind.UnionVariant:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.EnumStatement:
@@ -3084,6 +3383,10 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitEach(cb, node.decorators) ||
         visitNode(cb, node.id) ||
         visitEach(cb, node.members)
+      );
+    case SyntaxKind.EnumDeclarationExpression:
+      return (
+        visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitEach(cb, node.members)
       );
     case SyntaxKind.EnumMember:
       return visitEach(cb, node.decorators) || visitNode(cb, node.id) || visitNode(cb, node.value);
@@ -3428,6 +3731,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
           kind = IdentifierKind.ModelExpressionProperty;
           break;
         case SyntaxKind.ModelStatement:
+          kind = IdentifierKind.ModelStatementProperty;
+          break;
+        case SyntaxKind.ModelDeclarationExpression:
           kind = IdentifierKind.ModelStatementProperty;
           break;
         default:

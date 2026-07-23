@@ -78,3 +78,50 @@ You can reference enum members using the `.` operator for identifiers.
 ```typespec
 alias North = Direction.North;
 ```
+
+## In expression position
+
+:::warning
+Declaration expressions are an experimental TypeSpec feature. Using a `model`, `enum`, `union`, or `scalar` declaration in expression position yields an `experimental-feature` warning. Enable them without the warning by adding `declaration-expressions` to the `features` list in your `tspconfig.yaml`:
+
+```yaml
+kind: project
+features:
+  - declaration-expressions
+```
+
+:::
+
+The `enum` keyword can also be used anywhere a type expression is expected — for example as an alias value, a property type, a decorator or template argument, or a tuple element.
+
+```typespec
+model Task {
+  // anonymous enum in expression position
+  status: enum {
+    active,
+    inactive,
+  };
+
+  // named enum in expression position
+  priority: enum Priority {
+    low,
+    medium,
+    high,
+  };
+}
+```
+
+An enum used in expression position is marked as an expression and is **not** registered in the enclosing namespace, even when it is given a name. The name is kept on the resulting type for display purposes only — it cannot be referenced elsewhere.
+
+You can apply [decorators](./decorators.md) and doc comments to the declaration inline, and augment it through a navigation reference such as `::type`:
+
+```typespec
+model Task {
+  status: @doc("The current status") enum {
+    active,
+    inactive,
+  };
+}
+
+@@doc(Task.status::type, "The current status");
+```
