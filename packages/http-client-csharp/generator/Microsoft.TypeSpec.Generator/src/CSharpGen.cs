@@ -35,10 +35,8 @@ namespace Microsoft.TypeSpec.Generator
             // NuGet types compiles correctly.
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
 
-            // Pre-walk the input library and resolve any external types that point at NuGet packages.
-            // This populates ExternalTypeReferenceResolver's cache and registers each resolved assembly
-            // as an additional metadata reference *before* the generated/custom code workspaces are
-            // constructed, so their cached Roslyn projects pick the references up.
+            // Pre-walk the input library and resolve external types from the metadata references registered
+            // above. This populates ExternalTypeReferenceResolver's cache before type providers are created.
             await ExternalTypeReferenceResolver.ResolveAllAsync();
 
             // Initialize the workspace project AFTER all metadata references have been added so the
