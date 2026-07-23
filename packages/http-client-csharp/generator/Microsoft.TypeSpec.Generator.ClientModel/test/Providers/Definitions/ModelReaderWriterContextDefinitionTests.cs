@@ -1867,6 +1867,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "RegularModel is produced by the current generation and must not be duplicated by the last contract entry");
             Assert.AreEqual(1, removedModelCount,
                 "RemovedModel was declared in the last contract and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -1902,6 +1906,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "CustomModel is supplied by customized code and must not be regenerated from the last contract");
             Assert.AreEqual(1, removedModelCount,
                 "RemovedModel was declared in the last contract and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityIncludesGeneratedCustomAndRestoredLastContractBuildableAttributes()
+        {
+            // GeneratedModelA and GeneratedModelB are produced by the current generation, CustomModel is supplied
+            // by customized code, and the last contract additionally declares RemovedModelA and RemovedModelB. The
+            // generated entries are emitted, the customized entry is left to the customized code, and both removed
+            // entries are restored for back-compat.
+            var generatedModelA = InputFactory.Model("GeneratedModelA", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+            var generatedModelB = InputFactory.Model("GeneratedModelB", properties:
+            [
+                InputFactory.Property("Property2", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [generatedModelA, generatedModelB],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("GeneratedModelA")),
+                "GeneratedModelA is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("GeneratedModelB")),
+                "GeneratedModelB is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("CustomModel")),
+                "CustomModel is supplied by customized code and must not be regenerated from the last contract");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModelA")),
+                "RemovedModelA was declared in the last contract and must be restored for back-compat");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModelB")),
+                "RemovedModelB was declared in the last contract and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
