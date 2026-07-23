@@ -624,6 +624,16 @@ namespace Referenced.Library
                 "Should skip project references whose output assembly has not been built");
         }
 
+        [TestCase(@"C:\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\netstandard.dll", true)]
+        [TestCase(@"C:\.nuget\packages\netstandard.library\2.0.3\lib\netstandard2.0\Custom.dll", false)]
+        [TestCase(@"C:\.nuget\packages\system.clientmodel\1.9.0\lib\net8.0\System.ClientModel.dll", false)]
+        public void IsFrameworkFacadeReference_IdentifiesNetStandardLibraryFacades(
+            string assemblyPath,
+            bool expected)
+        {
+            Assert.AreEqual(expected, GeneratedCodeWorkspace.IsFrameworkFacadeReference(assemblyPath));
+        }
+
         /// <summary>
         /// Creates a fake NuGet package assembly in the given cache directory and returns the DLL path.
         /// </summary>

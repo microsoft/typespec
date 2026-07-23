@@ -354,6 +354,11 @@ namespace Microsoft.TypeSpec.Generator
 
         private static void AddMetadataReference(string assemblyPath, ISet<string> existingRefs)
         {
+            if (IsFrameworkFacadeReference(assemblyPath))
+            {
+                return;
+            }
+
             var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
             if (!existingRefs.Add(assemblyName))
             {
@@ -364,6 +369,14 @@ namespace Microsoft.TypeSpec.Generator
                 MetadataReference.CreateFromFile(assemblyPath));
             CodeModelGenerator.Instance.Emitter.Debug(
                 $"Added metadata reference: {assemblyName} from {assemblyPath}");
+        }
+
+        internal static bool IsFrameworkFacadeReference(string assemblyPath)
+        {
+            var normalizedPath = assemblyPath.Replace('\\', '/');
+            return normalizedPath.Contains("/netstandard.library/", StringComparison.OrdinalIgnoreCase)
+                && normalizedPath.Contains("/build/", StringComparison.OrdinalIgnoreCase)
+                && normalizedPath.Contains("/ref/", StringComparison.OrdinalIgnoreCase);
         }
 
         private static async Task<IEnumerable<string>> FindEvaluatedMetadataReferences(string projectFilePath)
