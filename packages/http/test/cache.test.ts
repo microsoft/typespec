@@ -500,8 +500,8 @@ describe("getHttpOperation caching", () => {
       const [result1] = getHttpOperation(program, myOp);
       strictEqual(result1.path, "/items/{id}");
 
-      // Invalidate caches
-      invalidateCaches(program);
+      // Invalidate caches for this operation
+      invalidateCaches(program, [myOp]);
 
       // Second call should recompute (not return stale cache)
       const [result2] = getHttpOperation(program, myOp);
