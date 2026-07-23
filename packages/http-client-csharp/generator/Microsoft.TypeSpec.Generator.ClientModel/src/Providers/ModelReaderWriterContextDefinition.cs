@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var type = typeOf.Type;
-            MethodBodyStatement statement = attribute;
+            var suppressions = new List<DiagnosticSuppression>();
             foreach (var componentType in EnumerateTypeComponents(type).Distinct())
             {
                 var experimentalTypeJustification = $"{componentType} is experimental and may change in future versions.";
@@ -65,23 +65,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (componentType.IsFrameworkType)
                 {
-                    statement = ApplyDiagnosticSuppression(
-                        statement,
+                    suppressions.AddRange(GetDiagnosticSuppressions(
                         componentType.FrameworkType,
                         experimentalTypeJustification,
-                        obsoleteTypeJustification);
+                        obsoleteTypeJustification));
                 }
                 else if (FindCurrentTypeProvider(componentType) is { } typeProvider)
                 {
-                    statement = ApplyDiagnosticSuppression(
-                        statement,
+                    suppressions.AddRange(GetDiagnosticSuppressions(
                         typeProvider,
                         experimentalTypeJustification,
-                        obsoleteTypeJustification);
+                        obsoleteTypeJustification));
                 }
             }
 
-            return statement;
+            return ApplyDiagnosticSuppressions(attribute, suppressions);
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
@@ -570,32 +568,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string obsoleteTypeJustification)
             => attributes.Add(
                 typeProvider.Type.FullyQualifiedName,
-                ApplyDiagnosticSuppression(
+                ApplyDiagnosticSuppressions(
                     attributeStatement,
-                    typeProvider,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification));
+                    GetDiagnosticSuppressions(
+                        typeProvider,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification)));
 
-        private static MethodBodyStatement ApplyDiagnosticSuppression(
-            MethodBodyStatement attributeStatement,
+        private static IEnumerable<DiagnosticSuppression> GetDiagnosticSuppressions(
             TypeProvider typeProvider,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
         {
-            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
-                .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
-
-            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
+            foreach (var attribute in typeProvider.CanonicalView.Attributes)
             {
-                return new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification);
+                if (attribute.Type.Equals(typeof(ExperimentalAttribute)) && attribute.Arguments.Count > 0)
+                {
+                    yield return new DiagnosticSuppression(attribute.Arguments[0], experimentalTypeJustification);
+                }
+                else if (attribute.Type.Equals(typeof(ObsoleteAttribute)))
+                {
+                    yield return new DiagnosticSuppression(Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification);
+                }
             }
-
-            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
-            {
-                return new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification);
-            }
-
-            return attributeStatement;
         }
 
         private static void AddAttributeForType(
@@ -606,14 +601,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string obsoleteTypeJustification)
             => attributes.Add(
                 frameworkType.FullName ?? frameworkType.Name,
-                ApplyDiagnosticSuppression(
+                ApplyDiagnosticSuppressions(
                     attributeStatement,
-                    frameworkType,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification));
+                    GetDiagnosticSuppressions(
+                        frameworkType,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification)));
 
-        private static MethodBodyStatement ApplyDiagnosticSuppression(
-            MethodBodyStatement attributeStatement,
+        private static IEnumerable<DiagnosticSuppression> GetDiagnosticSuppressions(
             Type frameworkType,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
@@ -623,7 +618,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (experimentalAttr != null)
             {
                 var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
-                return new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification);
+                yield return new DiagnosticSuppression(Literal(diagnosticId), experimentalTypeJustification);
             }
 
             var obsoleteAttr = frameworkType.GetCustomAttributes(typeof(ObsoleteAttribute), false)
@@ -632,11 +627,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var diagnosticId = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
                     ?? DefaultObsoleteDiagnosticId;
-                return new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification);
+                yield return new DiagnosticSuppression(Literal(diagnosticId), obsoleteTypeJustification);
+            }
+        }
+
+        private static MethodBodyStatement ApplyDiagnosticSuppressions(
+            MethodBodyStatement statement,
+            IEnumerable<DiagnosticSuppression> suppressions)
+        {
+            var appliedDiagnosticIds = new HashSet<ValueExpression>();
+            foreach (var suppression in suppressions)
+            {
+                if (appliedDiagnosticIds.Add(suppression.DiagnosticId))
+                {
+                    statement = new SuppressionStatement(statement, suppression.DiagnosticId, suppression.Justification);
+                }
             }
 
-            return attributeStatement;
+            return statement;
         }
+
+        private readonly record struct DiagnosticSuppression(ValueExpression DiagnosticId, string Justification);
 
         private static bool IsTypeAvailableForWrite(CSharpType type)
         {

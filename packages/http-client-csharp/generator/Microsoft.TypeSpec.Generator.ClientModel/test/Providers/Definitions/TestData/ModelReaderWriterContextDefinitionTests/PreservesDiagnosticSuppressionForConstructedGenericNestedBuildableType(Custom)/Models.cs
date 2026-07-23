@@ -4,11 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 namespace Sample.Models
 {
     [Experimental("ARG001")]
+    [Obsolete("Use another type argument instead.")]
     public class TypeArgument
     {
     }
 
-    [Obsolete("Use another outer type instead.")]
+    [Experimental("ARG001")]
     public class Outer<T>
     {
         public class Middle
