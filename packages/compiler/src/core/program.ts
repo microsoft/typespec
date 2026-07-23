@@ -102,15 +102,6 @@ export interface Program {
   /** @internal */
   resolver: NameResolver;
 
-  /**
-   * The current stage of the compilation pipeline.
-   * Progresses through: "parsing" → "checking" → "validating" → "linting" → "emitting".
-   */
-  readonly currentStage: CompilationStage;
-
-  /** @internal */
-  setCurrentStage(stage: CompilationStage): void;
-
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   /** @internal */
@@ -155,8 +146,9 @@ export interface Program {
   readonly projectRoot: string;
 
   /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
   useCache<T>(key: symbol, type: Type, compute: () => T): T;
-
   /** @internal */
   invalidateCaches(): void;
 }

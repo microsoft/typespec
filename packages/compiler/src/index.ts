@@ -287,7 +287,7 @@ export {
   removeTrailingDirectorySeparator,
   resolvePath,
 } from "./core/path-utils.js";
-export { compile, type CompilationStage, type Program } from "./core/program.js";
+export { compile, type Program } from "./core/program.js";
 export {
   getProperty,
   mapEventEmitterToNodeListener,

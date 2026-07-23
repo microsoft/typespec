@@ -15,7 +15,7 @@ import type { Type } from "../core/types.js";
  * @experimental
  */
 export function useCache<T>(program: Program, key: symbol, type: Type, compute: () => T): T {
-  return (program as any).useCache(key, type, compute);
+  return program.useCache(key, type, compute);
 }
 
 /**
@@ -28,5 +28,5 @@ export function useCache<T>(program: Program, key: symbol, type: Type, compute: 
  * @experimental
  */
 export function invalidateCaches(program: Program): void {
-  (program as any).invalidateCaches();
+  program.invalidateCaches();
 }
