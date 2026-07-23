@@ -19,14 +19,18 @@ export function useCache<T>(program: Program, key: symbol, type: Type, compute: 
 }
 
 /**
- * Invalidate all cached values stored by {@link useCache}.
+ * Invalidate cached values stored by {@link useCache}.
  * Call this when type graph mutations (e.g. Realm mutations) may have made
  * previously cached results stale.
  *
+ * When `types` is provided, only cache entries for those specific types are
+ * removed (surgical invalidation). When omitted, all caches are cleared.
+ *
  * @param program The program instance.
+ * @param types Optional set of types whose cache entries should be invalidated.
  *
  * @experimental
  */
-export function invalidateCaches(program: Program): void {
-  program.invalidateCaches();
+export function invalidateCaches(program: Program, types?: Iterable<Type>): void {
+  program.invalidateCaches(types);
 }

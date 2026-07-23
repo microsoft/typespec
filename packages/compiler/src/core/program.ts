@@ -150,7 +150,7 @@ export interface Program {
   /** @internal */
   useCache<T>(key: symbol, type: Type, compute: () => T): T;
   /** @internal */
-  invalidateCaches(): void;
+  invalidateCaches(types?: Iterable<Type>): void;
 }
 
 interface EmitterRef {
@@ -319,11 +319,24 @@ async function createProgram(
       return value;
     },
     /** @internal */
-    invalidateCaches(): void {
-      for (const key of cacheKeys) {
-        const m = stateMaps.get(key);
-        if (m) {
-          m.clear();
+    invalidateCaches(types?: Iterable<Type>): void {
+      if (types) {
+        // Surgical: only remove entries for the specified types
+        for (const key of cacheKeys) {
+          const m = stateMaps.get(key);
+          if (m) {
+            for (const type of types) {
+              m.delete(type);
+            }
+          }
+        }
+      } else {
+        // Full clear
+        for (const key of cacheKeys) {
+          const m = stateMaps.get(key);
+          if (m) {
+            m.clear();
+          }
         }
       }
     },
