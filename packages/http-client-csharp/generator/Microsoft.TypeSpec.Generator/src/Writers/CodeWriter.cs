@@ -679,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator
                 AppendRaw(".");
                 if (type.DeclaringType is not null)
                 {
-                    AppendRaw($"{type.DeclaringType.Name}.");
+                    AppendDeclaringTypeName(type.DeclaringType);
                 }
 
                 AppendRaw(type.Name);
@@ -704,6 +704,16 @@ namespace Microsoft.TypeSpec.Generator
             {
                 AppendRaw("?");
             }
+        }
+
+        private void AppendDeclaringTypeName(CSharpType declaringType)
+        {
+            if (declaringType.DeclaringType is not null)
+            {
+                AppendDeclaringTypeName(declaringType.DeclaringType);
+            }
+
+            AppendRaw($"{declaringType.Name}.");
         }
 
         public CodeWriter WriteLine(FormattableString formattableString)

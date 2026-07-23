@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// </summary>
         public string FullyQualifiedName => DeclaringType is null
             ? $"{Namespace}.{Name}"
-            : $"{Namespace}.{DeclaringType.Name}.{Name}";
+            : $"{DeclaringType.FullyQualifiedName}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;

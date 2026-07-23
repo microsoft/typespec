@@ -95,7 +95,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
             StringAssert.DoesNotContain("RemovedModel", file.Content);
 
-            var generatedTree = CSharpSyntaxTree.ParseText(file.Content);
+            AssertCompilesWithoutWarnings(compilation, file.Content);
+        }
+
+        [Test]
+        public async Task PreservesDiagnosticSuppressionForDeeplyNestedBuildableType()
+        {
+            MockHelpers.LoadMockGenerator();
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom");
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: () => Task.FromResult(compilation),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+            AssertCompilesWithoutWarnings(compilation, file.Content);
+        }
+
+        private static void AssertCompilesWithoutWarnings(Compilation compilation, string generatedCode)
+        {
+            var generatedTree = CSharpSyntaxTree.ParseText(generatedCode);
             var diagnostics = compilation
                 .AddSyntaxTrees(generatedTree)
                 .GetDiagnostics()

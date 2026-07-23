@@ -224,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator
             if (typeSymbol.ContainingType != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
             {
                 containingType = GetCSharpType(typeSymbol.ContainingType, visited);
-                ns = string.Join('.', pieces.Take(pieces.Length - 2));
+                ns = typeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
             }
 
             CSharpType? baseType = null;
