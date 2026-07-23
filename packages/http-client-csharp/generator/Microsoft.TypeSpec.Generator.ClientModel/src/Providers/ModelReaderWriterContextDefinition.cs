@@ -95,8 +95,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification);
             }
 
+            // Back-compat: restore any ModelReaderWriterBuildableAttribute that was present in the last contract
+            // but is missing from the freshly generated set, without introducing duplicates.
+            AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
+
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        /// <summary>
+        /// Restores <see cref="ModelReaderWriterBuildableAttribute"/> entries that were declared on the
+        /// context type in the last contract but are no longer produced by the current generation. Removing a
+        /// previously-published buildable entry is a source-breaking change for consumers that rely on the
+        /// context to build those types, so any missing entry is re-added. Entries already produced by the
+        /// current generation (or supplied by customized code) are left untouched to avoid duplicates.
+        /// </summary>
+        private void AddLastContractBuildableAttributes(
+            Dictionary<string, MethodBodyStatement> attributes,
+            HashSet<string> customizedBuildableTypes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return;
+            }
+
+            // Buildable attributes from the last contract can render the target type with an empty namespace
+            // (for example "global::.SampleModel") when the referenced type is not defined in the last-contract
+            // compilation, so dedupe by the simple type name to reliably detect entries that already exist.
+            var presentSimpleNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var key in attributes.Keys)
+            {
+                presentSimpleNames.Add(GetSimpleTypeName(key));
+            }
+            foreach (var customizedType in customizedBuildableTypes)
+            {
+                presentSimpleNames.Add(GetSimpleTypeName(customizedType));
+            }
+
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (!string.Equals(
+                    attribute.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var targetType = GetBuildableAttributeTargetType(attribute);
+                if (targetType is null)
+                {
+                    continue;
+                }
+
+                var identity = GetTypeIdentity(targetType);
+                var simpleName = GetSimpleTypeName(identity);
+
+                // Only add the entry when neither the current generation nor customized code already produced it.
+                if (!presentSimpleNames.Add(simpleName))
+                {
+                    continue;
+                }
+
+                attributes[identity] = attribute;
+            }
+        }
+
+        private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)
+        {
+            foreach (var argument in attribute.Arguments)
+            {
+                if (argument is TypeOfExpression typeOf)
+                {
+                    return typeOf.Type;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)

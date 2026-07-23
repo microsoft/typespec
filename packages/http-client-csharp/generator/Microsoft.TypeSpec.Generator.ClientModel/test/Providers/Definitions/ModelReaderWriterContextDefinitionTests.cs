@@ -1841,6 +1841,80 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task LastContractBuildableAttributesAreRestoredWhenMissing()
+        {
+            // The last contract declared buildable attributes for both RegularModel and RemovedModel, but only
+            // RegularModel is produced by the current generation. RemovedModel must be restored for back-compat
+            // and RegularModel must not be duplicated.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            var regularModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel"));
+            var removedModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModel"));
+
+            Assert.AreEqual(1, regularModelCount,
+                "RegularModel is produced by the current generation and must not be duplicated by the last contract entry");
+            Assert.AreEqual(1, removedModelCount,
+                "RemovedModel was declared in the last contract and must be restored for back-compat");
+        }
+
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContractBuildableAttributes()
+        {
+            // RegularModel is produced by the current generation, CustomModel is supplied by customized code, and
+            // the last contract declares buildable attributes for RegularModel, CustomModel, and RemovedModel.
+            // Only RemovedModel is missing, so it must be restored, while the entries already produced by the
+            // generation or customized code must not be duplicated.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last"));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            var regularModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel"));
+            var customModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("CustomModel"));
+            var removedModelCount = buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RemovedModel"));
+
+            Assert.AreEqual(1, regularModelCount,
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(0, customModelCount,
+                "CustomModel is supplied by customized code and must not be regenerated from the last contract");
+            Assert.AreEqual(1, removedModelCount,
+                "RemovedModel was declared in the last contract and must be restored for back-compat");
+        }
+
+        // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
+        // match by fully qualified name to cover both generated and restored entries.
+        private static List<AttributeStatement> GetBuildableAttributes(ModelReaderWriterContextDefinition contextDefinition)
+            => contextDefinition.Attributes
+                .Where(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                .ToList();
+
+        [Test]
         public async Task CustomProjectionPropertiesDoNotAddBuildableTypes()
         {
             var model = InputFactory.Model("ModelWithProjectedProperty", properties:
