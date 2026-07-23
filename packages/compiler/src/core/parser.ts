@@ -854,7 +854,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       };
     } else {
       parseExpected(Token.IsKeyword);
-      const opReference = parseReferenceExpression();
+      const opReference = parseCallOrReferenceExpression();
 
       signature = {
         kind: SyntaxKind.OperationSignatureReference,

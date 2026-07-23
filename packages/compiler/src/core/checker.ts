@@ -2741,7 +2741,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkOperationIs(
     ctx: CheckContext,
     operation: OperationStatementNode,
-    opReference: TypeReferenceNode | undefined,
+    opReference: TypeReferenceNode | CallExpressionNode | undefined,
   ): Operation | undefined {
     if (!opReference) return undefined;
     // Ensure that we don't end up with a circular reference to the same operation
@@ -2750,21 +2750,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       pendingResolutions.start(opSymId, ResolutionKind.BaseType);
     }
 
-    const target = resolver.getNodeLinks(opReference).resolvedSymbol;
+    if (opReference.kind === SyntaxKind.TypeReference) {
+      const target = resolver.getNodeLinks(opReference).resolvedSymbol;
 
-    // Did we encounter a circular operation reference?
-    if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
-      if (ctx.mapper === undefined) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "circular-op-signature",
-            format: { typeName: target.name },
-            target: opReference,
-          }),
-        );
+      // Did we encounter a circular operation reference?
+      if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
+        if (ctx.mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-op-signature",
+              format: { typeName: target.name },
+              target: opReference,
+            }),
+          );
+        }
+
+        return undefined;
       }
-
-      return undefined;
     }
 
     // Resolve the base operation type

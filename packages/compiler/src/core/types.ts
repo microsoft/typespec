@@ -1539,7 +1539,7 @@ export interface OperationSignatureDeclarationNode extends BaseNode {
 
 export interface OperationSignatureReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.OperationSignatureReference;
-  readonly baseOperation: TypeReferenceNode;
+  readonly baseOperation: TypeReferenceNode | CallExpressionNode;
 }
 
 export type OperationSignature =

@@ -1,8 +1,8 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { DecoratorContext, IntrinsicType, Type } from "../../src/core/types.js";
+import { DecoratorContext, FunctionContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
-import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: operations", () => {
@@ -418,5 +418,41 @@ describe("ensure the parameters are fully resolved before marking the operation 
       }
     `);
     expect(myOp.parameters.properties.has("prop")).toBe(true);
+  });
+});
+
+describe("op is with function call", () => {
+  function identityImpl(_ctx: FunctionContext, operation: Operation) {
+    return operation;
+  }
+
+  const FnTester = Tester.files({
+    "identity.js": mockFile.js({
+      $functions: {
+        "": {
+          identity: identityImpl,
+        },
+      },
+    }),
+  })
+    .import("./identity.js")
+    .using("TypeSpec.Reflection");
+
+  it("can use a function call returning an Operation in op is", async () => {
+    const [{ test }, diagnostics] = await FnTester.compileAndDiagnose(t.code`
+      extern fn identity(target: Operation): Operation;
+
+      op base(a: string, b: int32): void;
+
+      op ${t.op("test")} is identity(base);
+    `);
+
+    const filtered = diagnostics.filter((d) => d.code !== "experimental-feature");
+    expectDiagnosticEmpty(filtered);
+
+    strictEqual(test.kind, "Operation");
+    strictEqual(test.parameters.properties.size, 2);
+    ok(test.parameters.properties.has("a"));
+    ok(test.parameters.properties.has("b"));
   });
 });
