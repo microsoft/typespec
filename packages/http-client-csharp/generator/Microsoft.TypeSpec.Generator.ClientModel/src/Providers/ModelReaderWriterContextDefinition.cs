@@ -40,8 +40,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
         {
             var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
-            return [.. BuildAttributes(), .. visitorAttributes];
+            return BuildAttributesForBackCompatibility([.. BuildAttributes(), .. visitorAttributes]);
         }
+
+        protected override bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute)
+            => attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute));
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {

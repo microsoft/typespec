@@ -368,7 +368,63 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the attributes emitted by the writer. Providers whose generated attributes depend on final
         /// generation decisions can override this without replacing attributes updated by visitors.
         /// </summary>
-        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite() => GetAttributes();
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
+            => BuildAttributesForBackCompatibility(GetAttributes());
+
+        /// <summary>
+        /// Restores generator-owned attributes from the last contract when
+        /// <see cref="ShouldPreserveAttributeForBackCompatibility"/> opts in to preserving them.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(
+            IEnumerable<MethodBodyStatement> originalAttributes)
+        {
+            var original = originalAttributes as IReadOnlyList<MethodBodyStatement> ?? [.. originalAttributes];
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return original;
+            }
+
+            var attributesToPreserve = lastContractAttributes
+                .Where(ShouldPreserveAttributeForBackCompatibility)
+                .ToList();
+            if (attributesToPreserve.Count == 0)
+            {
+                return original;
+            }
+
+            var seen = new HashSet<string>(
+                original.Select(GetAttributeStatement)
+                    .Where(static attribute => attribute is not null)
+                    .Select(static attribute => attribute!.ToDisplayString()),
+                StringComparer.Ordinal);
+
+            List<MethodBodyStatement>? merged = null;
+            foreach (var attribute in attributesToPreserve)
+            {
+                if (!seen.Add(attribute.ToDisplayString()))
+                {
+                    continue;
+                }
+
+                merged ??= [.. original];
+                merged.Add(attribute);
+            }
+
+            return merged ?? original;
+        }
+
+        /// <summary>
+        /// Determines whether a generator-owned attribute from the last contract must be preserved.
+        /// </summary>
+        protected internal virtual bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute) => false;
+
+        private static AttributeStatement? GetAttributeStatement(MethodBodyStatement statement) =>
+            statement switch
+            {
+                AttributeStatement attribute => attribute,
+                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                _ => null
+            };
 
         /// <summary>
         /// Indicates whether this provider's attributes should contribute to reference-map analysis.

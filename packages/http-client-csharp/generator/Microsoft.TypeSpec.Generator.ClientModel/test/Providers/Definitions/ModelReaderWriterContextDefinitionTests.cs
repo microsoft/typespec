@@ -71,6 +71,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
         }
 
+        [Test]
+        public async Task PreservesPreviousBuildableAttributesButNotUnrelatedAttributes()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("CurrentModel", properties:
+                    [
+                        InputFactory.Property("Name", InputPrimitiveType.String)
+                    ])
+                ],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
