@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -74,6 +76,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public async Task PreservesPreviousBuildableAttributesButNotUnrelatedAttributes()
         {
+            MockHelpers.LoadMockGenerator();
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom");
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () =>
                 [
@@ -82,12 +86,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                         InputFactory.Property("Name", InputPrimitiveType.String)
                     ])
                 ],
+                compilation: () => Task.FromResult(compilation),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var file = new TypeProviderWriter(contextDefinition).Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            var generatedTree = CSharpSyntaxTree.ParseText(file.Content);
+            var diagnostics = compilation
+                .AddSyntaxTrees(generatedTree)
+                .GetDiagnostics()
+                .Where(diagnostic =>
+                    diagnostic.Severity >= DiagnosticSeverity.Warning &&
+                    diagnostic.Location.SourceTree == generatedTree)
+                .ToList();
+            Assert.That(diagnostics, Is.Empty, string.Join(Environment.NewLine, diagnostics));
         }
 
         [TestCase(true)]

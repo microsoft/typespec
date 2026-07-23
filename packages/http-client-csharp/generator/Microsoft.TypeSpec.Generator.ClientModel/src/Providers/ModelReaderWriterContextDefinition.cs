@@ -46,6 +46,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute)
             => attribute.Type.Equals(typeof(ModelReaderWriterBuildableAttribute));
 
+        protected override MethodBodyStatement BuildPreservedAttributeForBackCompatibility(AttributeStatement attribute)
+        {
+            if (attribute.Arguments is not [TypeOfExpression typeOf])
+            {
+                return attribute;
+            }
+
+            var type = typeOf.Type;
+            var experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
+            var obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
+
+            if (type.IsFrameworkType)
+            {
+                return ApplyDiagnosticSuppression(
+                    attribute,
+                    type.FrameworkType,
+                    experimentalTypeJustification,
+                    obsoleteTypeJustification);
+            }
+
+            var typeProvider = FindCurrentTypeProvider(type)
+                ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    type.Namespace,
+                    type.Name,
+                    GetDeclaringTypeMetadataName(type.DeclaringType),
+                    includeReferencedAssemblies: true)
+                ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                    type.Namespace,
+                    type.Name,
+                    GetDeclaringTypeMetadataName(type.DeclaringType));
+
+            if (typeProvider is null)
+            {
+                return attribute;
+            }
+
+            return ApplyDiagnosticSuppression(
+                attribute,
+                typeProvider,
+                experimentalTypeJustification,
+                obsoleteTypeJustification);
+        }
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
@@ -529,24 +572,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
+            => attributes.Add(
+                typeProvider.Type.FullyQualifiedName,
+                ApplyDiagnosticSuppression(
+                    attributeStatement,
+                    typeProvider,
+                    experimentalTypeJustification,
+                    obsoleteTypeJustification));
+
+        private static MethodBodyStatement ApplyDiagnosticSuppression(
+            AttributeStatement attributeStatement,
+            TypeProvider typeProvider,
+            string experimentalTypeJustification,
+            string obsoleteTypeJustification)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            var key = typeProvider.Type.FullyQualifiedName;
-
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+                return new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification);
             }
-            else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
+
+            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+                return new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification);
             }
-            else
-            {
-                attributes.Add(key, attributeStatement);
-            }
+
+            return attributeStatement;
         }
 
         private static void AddAttributeForType(
@@ -555,16 +608,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Type frameworkType,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
-        {
-            var key = frameworkType.FullName ?? frameworkType.Name;
+            => attributes.Add(
+                frameworkType.FullName ?? frameworkType.Name,
+                ApplyDiagnosticSuppression(
+                    attributeStatement,
+                    frameworkType,
+                    experimentalTypeJustification,
+                    obsoleteTypeJustification));
 
+        private static MethodBodyStatement ApplyDiagnosticSuppression(
+            AttributeStatement attributeStatement,
+            Type frameworkType,
+            string experimentalTypeJustification,
+            string obsoleteTypeJustification)
+        {
             var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
                 .FirstOrDefault();
             if (experimentalAttr != null)
             {
                 var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
-                return;
+                return new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification);
             }
 
             var obsoleteAttr = frameworkType.GetCustomAttributes(typeof(ObsoleteAttribute), false)
@@ -573,11 +636,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var diagnosticId = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
                     ?? DefaultObsoleteDiagnosticId;
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification));
-                return;
+                return new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification);
             }
 
-            attributes.Add(key, attributeStatement);
+            return attributeStatement;
+        }
+
+        private static TypeProvider? FindCurrentTypeProvider(CSharpType type) =>
+            CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(static provider => new[] { provider }.Concat(provider.NestedTypes))
+                .FirstOrDefault(provider => provider.Type.Equals(type));
+
+        private static string? GetDeclaringTypeMetadataName(CSharpType? declaringType)
+        {
+            if (declaringType is null)
+            {
+                return null;
+            }
+
+            var parentName = GetDeclaringTypeMetadataName(declaringType.DeclaringType);
+            return parentName is null ? declaringType.Name : $"{parentName}+{declaringType.Name}";
         }
 
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)

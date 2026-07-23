@@ -407,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 merged ??= [.. original];
-                merged.Add(attribute);
+                merged.Add(BuildPreservedAttributeForBackCompatibility(attribute));
             }
 
             return merged ?? original;
@@ -417,6 +417,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Determines whether a generator-owned attribute from the last contract must be preserved.
         /// </summary>
         protected internal virtual bool ShouldPreserveAttributeForBackCompatibility(AttributeStatement attribute) => false;
+
+        /// <summary>
+        /// Builds the statement used to restore a generator-owned attribute from the last contract.
+        /// </summary>
+        protected internal virtual MethodBodyStatement BuildPreservedAttributeForBackCompatibility(AttributeStatement attribute)
+            => attribute;
 
         private static AttributeStatement? GetAttributeStatement(MethodBodyStatement statement) =>
             statement switch

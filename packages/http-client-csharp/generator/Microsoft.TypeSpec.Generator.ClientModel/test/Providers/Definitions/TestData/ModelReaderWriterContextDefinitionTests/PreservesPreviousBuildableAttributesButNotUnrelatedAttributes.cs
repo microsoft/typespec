@@ -8,7 +8,12 @@ using Sample.Models;
 namespace Sample
 {
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.CurrentModel))]
+#pragma warning disable CS0618 // global::Sample.Models.PreviousModel is obsolete and may be removed in future versions.
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.PreviousModel))]
+#pragma warning restore CS0618 // global::Sample.Models.PreviousModel is obsolete and may be removed in future versions.
+#pragma warning disable TEST001 // global::Sample.Models.ExperimentalPreviousModel is experimental and may change in future versions.
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.ExperimentalPreviousModel))]
+#pragma warning restore TEST001 // global::Sample.Models.ExperimentalPreviousModel is experimental and may change in future versions.
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
