@@ -1,7 +1,7 @@
 // @ts-check
-import { run } from "../../tsp-core/scripts/legacy-helpers.js";
+import { spawnSync } from "child_process";
 
-const proc = run("git", ["status", "--porcelain"], {
+const proc = spawnSync("git", ["status", "--porcelain"], {
   encoding: "utf-8",
   stdio: [null, "pipe", "pipe"],
 });
