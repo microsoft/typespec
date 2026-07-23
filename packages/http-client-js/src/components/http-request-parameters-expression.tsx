@@ -53,7 +53,7 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
 
         if (propertyExpression.isNullish) {
           return code`
-        ...(${propertyExpression.fullExpression} && {${(<JsonTransform itemRef={propertyExpression.leadingExpression} type={httpProperty.property} target="transport" />)}})
+        ...(${propertyExpression.fullExpression} != undefined && {${(<JsonTransform itemRef={propertyExpression.leadingExpression} type={httpProperty.property} target="transport" />)}})
       `;
         } else {
           return (
