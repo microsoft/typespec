@@ -36,6 +36,7 @@ class OptionsDict(MutableMapping):
         "low-level-client": False,
         "no-async": False,
         "no-namespace-folders": False,
+        "generate-typeddict": True,
         "polymorphic-examples": 5,
         "validate-versioning": True,
         "version-tolerant": True,

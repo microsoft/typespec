@@ -306,6 +306,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
 
+    @property
+    def generate_typeddict(self) -> bool:
+        return self.options.get("generate-typeddict", True)
+
     @staticmethod
     def _find_existing_typeddict(
         code_model: dict[str, Any],
@@ -443,7 +447,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
             # Add typeddict overload for non-spread dpg models
-            if self.options["models-mode"] == "dpg" and is_dpg_model:
+            if self.options["models-mode"] == "dpg" and self.generate_typeddict and is_dpg_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
                 existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
                 self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
@@ -463,7 +467,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
                         td_list_or_dict["elementType"] = original
                         body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                else:
+                elif self.generate_typeddict:
                     source = original or model_type
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
