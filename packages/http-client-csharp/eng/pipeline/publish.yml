@@ -24,11 +24,6 @@ parameters:
     type: boolean
     default: false
 
-  - name: SdkRegenerationJobCount
-    displayName: Number of parallel Azure SDK regeneration jobs
-    type: number
-    default: 18
-
   - name: RunTests
     displayName: Run unit tests
     type: boolean
@@ -120,87 +115,18 @@ extends:
           image: $(LINUXVMIMAGE)
           os: linux
         jobs:
-          - ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
-              - job: PrepareSdkRegeneration
-                displayName: Prepare SDK regeneration
-                steps:
-                  - checkout: none
-                  - pwsh: |
-                      $remote = "https://github.com/Azure/azure-sdk-for-net.git"
-                      $commit = (git ls-remote $remote refs/heads/main).Split()[0]
-                      if ($commit -notmatch "^[0-9a-f]{40}$") {
-                        throw "Failed to resolve Azure SDK main commit from $remote"
-                      }
-                      Write-Host "Pinned Azure SDK commit: $commit"
-                      Write-Host "##vso[task.setvariable variable=AzureSdkCommit;isOutput=true]$commit"
-                    name: resolve
-                    displayName: Pin Azure SDK commit
-
-              - job: GenerateSdkChanges
-                displayName: Generate Azure SDK changes
-                dependsOn: PrepareSdkRegeneration
-                timeoutInMinutes: 90
-                strategy:
-                  parallel: ${{ parameters.SdkRegenerationJobCount }}
-                variables:
-                  AzureSdkCommit: $[ dependencies.PrepareSdkRegeneration.outputs['resolve.AzureSdkCommit'] ]
-                steps:
-                  - template: /packages/http-client-csharp/eng/pipeline/steps/prepare-azure-sdk-for-net.yml
-                    parameters:
-                      PackageVersion: $(PackageVersion)
-                      UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
-
-                  - task: PowerShell@2
-                    displayName: Regenerate SDK shard
-                    inputs:
-                      pwsh: true
-                      filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
-                      workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
-                      arguments: >
-                        -PackageVersion '$(PackageVersion)'
-                        -TypeSpecCommitUrl '$(Build.Repository.Uri)/commit/$(Build.SourceVersion)'
-                        -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                        -AzureSdkCommit '$(AzureSdkCommit)'
-                        -ShardIndex '$(System.JobPositionInPhase)'
-                        -ShardCount '$(System.TotalJobsInPhase)'
-                        -SdkPatchOutputPath '$(Build.ArtifactStagingDirectory)/sdk-changes.patch'
-                        ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                        ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
-                        ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                        -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                        -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-                        -BuildReason '$(Build.Reason)'
-
-                  - task: 1ES.PublishPipelineArtifact@1
-                    displayName: Publish SDK shard patch
-                    inputs:
-                      path: $(Build.ArtifactStagingDirectory)/sdk-changes.patch
-                      artifact: sdk_regen_$(System.JobPositionInPhase)
-
-                  - pwsh: |
-                      Remove-Item "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc" -Force -ErrorAction SilentlyContinue
-                    displayName: Cleanup .npmrc
-                    condition: always()
-
           - job: CreatePR
             timeoutInMinutes: 90
-            ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
-              dependsOn:
-                - PrepareSdkRegeneration
-                - GenerateSdkChanges
             variables:
-              ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
-                AzureSdkCommit: $[ dependencies.PrepareSdkRegeneration.outputs['resolve.AzureSdkCommit'] ]
               # Redirect temp and cache directories to Agent.TempDirectory (a separate, larger partition)
               # to avoid running out of disk space on the root partition during generation
               TMPDIR: $(Agent.TempDirectory)
               NUGET_PACKAGES: $(Agent.TempDirectory)/nuget
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
-              - template: /packages/http-client-csharp/eng/pipeline/steps/prepare-azure-sdk-for-net.yml
-                parameters:
-                  PackageVersion: $(PackageVersion)
-                  UseTypeSpecNext: ${{ parameters.UseTypeSpecNext }}
+              - checkout: self
+
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
               - pwsh: |
                   # Determine the TypeSpec PR URL 
@@ -221,6 +147,68 @@ extends:
                   Write-Host "##vso[task.setvariable variable=PipelineRunUrl]$pipelineRunUrl"
                 displayName: Set variables for PR creation
 
+              - task: UseNode@1
+                displayName: "Install Node.js"
+                inputs:
+                  version: "22.x"
+
+              - task: NuGetAuthenticate@1
+
+              - pwsh: |
+                  Write-Host "Creating .npmrc file $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc for registry https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+                  $parentFolder = Split-Path -Path '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' -Parent
+
+                  if (!(Test-Path $parentFolder)) {
+                    Write-Host "Creating folder $parentFolder"
+                    New-Item -Path $parentFolder -ItemType Directory | Out-Null
+                  }
+
+                  $content = "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/`n`nalways-auth=true"
+                  $content | Out-File '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc'
+
+                  Write-Host "##[section].npmrc file created successfully. Contents:"
+                  Get-Content '$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc' | ForEach-Object { Write-Host "  $_" }
+                displayName: "Create .npmrc"
+
+              - task: npmAuthenticate@0
+                displayName: Authenticate npm for Azure Artifacts
+                inputs:
+                  workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
+
+              - download: current
+                artifact: build_artifacts_csharp
+                displayName: Download pipeline artifacts
+
+              - pwsh: |
+                  npm install -g @azure-tools/typespec-client-generator-cli@latest
+                displayName: Install tsp-client
+
+              - pwsh: |
+                  npm install -g semver
+                displayName: Install semver
+
+              - task: PowerShell@2
+                displayName: Update package.json with injected dependencies
+                inputs:
+                  pwsh: true
+                  filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+              - pwsh: |
+                  Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+                  Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+                  Write-Host "Set npm --force and TSPCLIENT_FORCE_INSTALL for TypeSpec Next"
+                displayName: Configure npm for TypeSpec Next
+                condition: ${{ parameters.UseTypeSpecNext }}
+
+              - task: UseDotNet@2
+                inputs:
+                  useGlobalJson: true
+                  workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+
               - pwsh: |
                   Write-Host "##[section]Checking npm configuration before PR submission..."
                   Write-Host "Current npm registry:"
@@ -239,61 +227,30 @@ extends:
                 displayName: "Log npm configuration"
                 condition: eq(${{ parameters.CreateAzureSdkForNetPR }}, true)
 
-              - ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
-                  - task: DownloadPipelineArtifact@2
-                    displayName: Download SDK regeneration patches
-                    inputs:
-                      buildType: current
-                      itemPattern: "**/*.patch"
-                      targetPath: $(Pipeline.Workspace)/sdk_regen
-
               - template: /eng/common/pipelines/templates/steps/login-to-github.yml
                 parameters:
                   TokenOwners:
                     - Azure
 
-              - ${{ if or(parameters.RegenerateAzureLibraries, parameters.RegenerateMgmtLibraries) }}:
-                  - task: AzureCLI@2
-                    displayName: Aggregate SDK changes & create PR in azure-sdk-for-net
-                    inputs:
-                      azureSubscription: "AzureSDKEngKeyVault Secrets"
-                      scriptType: pscore
-                      scriptLocation: scriptPath
-                      scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
-                      arguments: >
-                        -PackageVersion '$(PackageVersion)'
-                        -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                        -AuthToken '$(GH_TOKEN)'
-                        -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                        -PipelineRunUrl '$(PipelineRunUrl)'
-                        -AzureSdkCommit '$(AzureSdkCommit)'
-                        -SdkPatchDirectory '$(Pipeline.Workspace)/sdk_regen'
-                        -SkipSdkRegeneration
-                        ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                        ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
-                        ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
-                        -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                        -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-                        -BuildReason '$(Build.Reason)'
-
-              - ${{ else }}:
-                  - task: AzureCLI@2
-                    displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
-                    inputs:
-                      azureSubscription: "AzureSDKEngKeyVault Secrets"
-                      scriptType: pscore
-                      scriptLocation: scriptPath
-                      scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
-                      arguments: >
-                        -PackageVersion '$(PackageVersion)'
-                        -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
-                        -AuthToken '$(GH_TOKEN)'
-                        -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
-                        -PipelineRunUrl '$(PipelineRunUrl)'
-                        ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
-                        -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
-                        -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
-                        -BuildReason '$(Build.Reason)'
+              - task: AzureCLI@2
+                displayName: Generate emitter-package.json files & create PR in azure-sdk-for-net
+                inputs:
+                  azureSubscription: "AzureSDKEngKeyVault Secrets"
+                  scriptType: pscore
+                  scriptLocation: scriptPath
+                  scriptPath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Submit-AzureSdkForNetPr.ps1
+                  arguments: >
+                    -PackageVersion '$(PackageVersion)'
+                    -TypeSpecCommitUrl '$(TypeSpecCommitUrl)'
+                    -AuthToken '$(GH_TOKEN)'
+                    -TypeSpecSourcePackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+                    -PipelineRunUrl '$(PipelineRunUrl)'
+                    ${{ replace(replace('True', eq(variables['Build.SourceBranchName'], 'main'), ''), 'True', '-Internal') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateAzureLibraries, false), ''), 'True', '-RegenerateAzureLibraries') }}
+                    ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
+                    -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
+                    -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    -BuildReason '$(Build.Reason)'
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
