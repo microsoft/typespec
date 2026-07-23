@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -392,6 +395,98 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void PolyfilledExperimentalDependencyModelHaveAttributeSuppressions()
+        {
+            // Reproduces a metadata-only dependency (for example an OpenAI library targeting netstandard2.0)
+            // that polyfills its own System.Diagnostics.CodeAnalysis.ExperimentalAttribute. The polyfilled
+            // attribute is a distinct runtime Type from the BCL one, so an identity-based reflection match
+            // (GetCustomAttributes(typeof(ExperimentalAttribute))) misses it and the buildable registration
+            // would surface the experimental diagnostic unsuppressed. The context must still emit a
+            // suppression, discovered by matching the attribute's full name.
+            var dependencyType = EmitPolyfilledExperimentalModelType();
+
+            var dependencyModel = InputFactory.Model("PolyfilledExperimentalModel");
+
+            var parentModel = InputFactory.Model("ParentModel", properties:
+            [
+                InputFactory.Property("DependencyProperty", dependencyModel),
+                InputFactory.Property("SimpleProperty", InputPrimitiveType.String)
+            ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [parentModel],
+                createCSharpTypeCore: input => new CSharpType(dependencyType),
+                createCSharpTypeCoreFallback: input => input.Name == "PolyfilledExperimentalModel");
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute));
+            Assert.AreEqual(2, buildableAttributes.Count(), "Exactly two ModelReaderWriterBuildableAttributes should be generated for models with dependency references");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Emits a standalone assembly that declares its own System.Diagnostics.CodeAnalysis.ExperimentalAttribute
+        // (mirroring the netstandard2.0 polyfill shipped by libraries such as OpenAI) and a model annotated with
+        // it that implements IPersistableModel<T>. The returned Type therefore carries an [Experimental] attribute
+        // whose runtime identity differs from the BCL ExperimentalAttribute, exercising the name-based match.
+        private static Type EmitPolyfilledExperimentalModelType()
+        {
+            const string source = @"
+using System;
+using System.ClientModel.Primitives;
+
+namespace System.Diagnostics.CodeAnalysis
+{
+    [AttributeUsage(AttributeTargets.All, Inherited = false)]
+    public sealed class ExperimentalAttribute : Attribute
+    {
+        public ExperimentalAttribute(string diagnosticId) { DiagnosticId = diagnosticId; }
+        public string DiagnosticId { get; }
+        public string? UrlFormat { get; set; }
+    }
+}
+
+namespace Polyfilled.External
+{
+    [System.Diagnostics.CodeAnalysis.Experimental(""POLY001"")]
+    public class PolyfilledExperimentalModel : IPersistableModel<PolyfilledExperimentalModel>
+    {
+        PolyfilledExperimentalModel IPersistableModel<PolyfilledExperimentalModel>.Create(BinaryData data, ModelReaderWriterOptions options) => throw new NotImplementedException();
+        string IPersistableModel<PolyfilledExperimentalModel>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw new NotImplementedException();
+        BinaryData IPersistableModel<PolyfilledExperimentalModel>.Write(ModelReaderWriterOptions options) => throw new NotImplementedException();
+    }
+}";
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .ToList();
+
+            var compilation = CSharpCompilation.Create(
+                "Polyfilled.External",
+                [CSharpSyntaxTree.ParseText(source)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+
+            using var ms = new MemoryStream();
+            var emitResult = compilation.Emit(ms);
+            Assert.IsTrue(
+                emitResult.Success,
+                "Failed to emit polyfilled experimental assembly: " +
+                string.Join(Environment.NewLine, emitResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
+
+            var assembly = Assembly.Load(ms.ToArray());
+            return assembly.GetType("Polyfilled.External.PolyfilledExperimentalModel")!;
         }
 
         [Test]
