@@ -94,22 +94,5 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
-
-        [Test]
-        public void AttributeStatementWithIntegralArguments()
-        {
-            var attributeStatement = new AttributeStatement(typeof(CLSCompliantAttribute),
-                new LiteralExpression((byte)1),
-                new LiteralExpression((sbyte)2),
-                new LiteralExpression((short)3),
-                new LiteralExpression((ushort)4),
-                new LiteralExpression((uint)5),
-                new LiteralExpression((ulong)6));
-
-            using var writer = new CodeWriter();
-            attributeStatement.Write(writer);
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
-        }
     }
 }

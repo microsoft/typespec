@@ -437,7 +437,7 @@ namespace Microsoft.TypeSpec.Generator
 
         public void UseNamespace(string @namespace)
         {
-            if (string.IsNullOrEmpty(@namespace) || _currentNamespace == @namespace)
+            if (_currentNamespace == @namespace)
             {
                 return;
             }

@@ -11,8 +11,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 {
     public static class CodeGenAttributes
     {
-        public const string CodeGenAttributePrefix = "CodeGen";
-
         public const string CodeGenSuppressAttributeName = "CodeGenSuppressAttribute";
 
         public const string CodeGenMemberAttributeName = "CodeGenMemberAttribute";

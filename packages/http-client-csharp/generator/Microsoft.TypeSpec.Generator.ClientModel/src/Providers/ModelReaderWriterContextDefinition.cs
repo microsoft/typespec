@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -20,10 +19,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
+        private const string ExperimentalAttributeFullName = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
+
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
-        private IReadOnlyList<AttributeStatement>? _restoredBuildableAttributes;
 
         protected override string BuildName() => s_name;
 
@@ -96,25 +96,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
-            var currentAttributes = attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
-            return _restoredBuildableAttributes is { Count: > 0 }
-                ? [.. currentAttributes, .. _restoredBuildableAttributes]
-                : currentAttributes;
+            return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
-            => TryGetBuildableAttribute(statement, out _);
-
-        private static bool TryGetBuildableAttribute(MethodBodyStatement statement, [NotNullWhen(true)] out AttributeStatement? attribute)
         {
-            attribute = statement switch
+            var attribute = statement switch
             {
                 AttributeStatement directAttribute => directAttribute,
                 SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
                 _ => null
             };
 
-            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
+            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true &&
+                !attribute.IsSourceBacked;
         }
 
         private HashSet<string> GetCustomizedBuildableTypes()
@@ -153,57 +148,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
-            _restoredBuildableAttributes = null;
             if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
             {
                 return original;
             }
 
-            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var seenBuildableTargets = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attribute in original)
             {
-                if (TryGetRestorableBuildableType(attribute, out var type))
-                {
-                    var identity = GetTypeIdentity(type);
-                    seen.Add(identity);
-                    seen.Add(type.Name);
-                }
-            }
-            foreach (var attribute in CustomCodeView?.Attributes ?? [])
-            {
-                if (TryGetRestorableBuildableType(attribute, out var type))
-                {
-                    var identity = GetTypeIdentity(type);
-                    seen.Add(identity);
-                    seen.Add(type.Name);
-                }
+                AddBuildableAttributeKeys(seenBuildableTargets, attribute);
             }
 
-            List<AttributeStatement>? restored = null;
+            foreach (var attribute in CustomCodeView?.Attributes ?? [])
+            {
+                AddBuildableAttributeKeys(seenBuildableTargets, attribute);
+            }
+
+            List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (!TryGetRestorableBuildableType(attribute, out var type))
+                if (!IsRestorableBuildableAttribute(attribute) || HasAnyBuildableAttributeKey(seenBuildableTargets, attribute))
                 {
                     continue;
                 }
 
-                var identity = GetTypeIdentity(type);
-                if (!seen.Contains(identity) && !seen.Contains(type.Name))
-                {
-                    restored ??= [];
-                    restored.Add(attribute);
-                    seen.Add(identity);
-                    seen.Add(type.Name);
-                }
+                merged ??= [.. original];
+                merged.Add(attribute);
+                AddBuildableAttributeKeys(seenBuildableTargets, attribute);
             }
 
-            _restoredBuildableAttributes = restored;
-            if (restored is null)
-            {
-                return original;
-            }
-
-            return [.. original, .. restored];
+            return merged ?? original;
         }
 
         private static bool IsRestorableBuildableAttribute(AttributeStatement attribute)
@@ -214,22 +188,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 StringComparison.Ordinal);
         }
 
-        private static bool TryGetRestorableBuildableType(AttributeStatement attribute, [NotNullWhen(true)] out CSharpType? type)
-        {
-            type = null;
-            if (!IsRestorableBuildableAttribute(attribute))
-            {
-                return false;
-            }
+        private static bool HasAnyBuildableAttributeKey(HashSet<string> seen, AttributeStatement attribute)
+            => GetBuildableAttributeKeys(attribute).Any(seen.Contains);
 
+        private static void AddBuildableAttributeKeys(HashSet<string> seen, AttributeStatement attribute)
+        {
+            foreach (var key in GetBuildableAttributeKeys(attribute))
+            {
+                seen.Add(key);
+            }
+        }
+
+        private static IReadOnlyList<string> GetBuildableAttributeKeys(AttributeStatement attribute)
+        {
             var typeOf = attribute.Arguments.OfType<TypeOfExpression>().FirstOrDefault();
             if (typeOf is null)
             {
-                return false;
+                return [attribute.ToDisplayString()];
             }
 
-            type = typeOf.Type;
-            return true;
+            var identity = GetTypeIdentity(typeOf.Type);
+            return typeOf.Type.Name == identity
+                ? [identity]
+                : [identity, typeOf.Type.Name];
         }
 
         /// <summary>
@@ -644,11 +625,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var key = frameworkType.FullName ?? frameworkType.Name;
 
-            var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
-                .FirstOrDefault();
-            if (experimentalAttr != null)
+            // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
+            // target netstandard2.0 polyfill their own System.Diagnostics.CodeAnalysis.ExperimentalAttribute,
+            // which is a distinct Type from the BCL one; an identity-based GetCustomAttributes(typeof(...)) match
+            // misses it, leaving the buildable registration to surface the experimental diagnostic unsuppressed.
+            // Reading the attribute data by name covers both the BCL and polyfilled attributes.
+            var experimentalData = frameworkType.GetCustomAttributesData()
+                .FirstOrDefault(a => string.Equals(a.AttributeType.FullName, ExperimentalAttributeFullName, StringComparison.Ordinal));
+            if (experimentalData != null)
             {
-                var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                var diagnosticId = experimentalData.ConstructorArguments.Count > 0
+                    ? experimentalData.ConstructorArguments[0].Value as string
+                    : null;
                 attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
                 return;
             }

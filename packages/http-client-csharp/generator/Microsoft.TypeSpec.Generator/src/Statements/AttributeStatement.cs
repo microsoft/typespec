@@ -26,6 +26,8 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal AttributeData? Data { get; }
 
+        public bool IsSourceBacked => Data is not null;
+
         public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<KeyValuePair<string, ValueExpression>> positionalArguments)
         {
             _type = type;
