@@ -4,4 +4,4 @@ packages:
   - typespec-vscode
 ---
 
-Stabilize the VS Code e2e tests against new VS Code releases. `test:web` and `test:extension` both pulled the *latest* VS Code build, so the VS Code 1.130.0 release hung the E2E CI job indefinitely across unrelated PRs. Skip `test:web` and pin the extension test host to a known-good VS Code version.
+Temporarily skip the VS Code e2e tests. Both `test:web` and `test:extension` pull the *latest* VS Code build, so the VS Code 1.130.0 release hung the E2E CI job indefinitely across unrelated PRs. They will be re-enabled once the test host is pinned to a known-good version and guarded with a timeout.
