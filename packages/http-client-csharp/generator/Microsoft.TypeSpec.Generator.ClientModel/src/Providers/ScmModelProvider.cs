@@ -15,7 +15,6 @@ using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
-using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -44,6 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static AttributeStatement _fileBinaryContentExpAttribute = new(
             typeof(ExperimentalAttribute),
             [Literal(FileBinaryContentDiagnosticId)]);
+
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
         internal const string FileBinaryContentDiagnosticId = "SCME0004";
 

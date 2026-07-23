@@ -39,41 +39,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
         {
-            var currentAttributes = BuildAttributes();
-            var cachedAttributes = base.BuildAttributesForWrite();
-            var visitorAttributes = cachedAttributes.Where(static attribute => !IsBuildableAttribute(attribute));
-            if (LastContractView?.Attributes is not { Count: > 0 })
-            {
-                return [.. currentAttributes, .. visitorAttributes];
-            }
-
-            var seenBuildableAttributes = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var attribute in currentAttributes)
-            {
-                if (TryGetBuildableAttribute(attribute, out var buildableAttribute))
-                {
-                    seenBuildableAttributes.Add(buildableAttribute.ToDisplayString());
-                }
-            }
-
-            List<AttributeStatement>? restoredBuildableAttributes = null;
-            foreach (var attribute in cachedAttributes)
-            {
-                if (!TryGetBuildableAttribute(attribute, out var buildableAttribute))
-                {
-                    continue;
-                }
-
-                if (seenBuildableAttributes.Add(buildableAttribute.ToDisplayString()))
-                {
-                    restoredBuildableAttributes ??= [];
-                    restoredBuildableAttributes.Add(buildableAttribute);
-                }
-            }
-
-            return restoredBuildableAttributes is null
-                ? [.. currentAttributes, .. visitorAttributes]
-                : [.. currentAttributes, .. restoredBuildableAttributes, .. visitorAttributes];
+            var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
+            return [.. BuildAttributes(), .. visitorAttributes];
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
@@ -127,16 +94,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification);
             }
 
+            var buildableAttributes = attributes
+                .Values
+                .Select(static statement => statement switch
+                {
+                    AttributeStatement attribute => attribute,
+                    SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>()!,
+                    _ => throw new InvalidOperationException("Unexpected attribute statement.")
+                })
+                .ToList();
+
+            foreach (var restoredAttribute in MergeRestoredBuildableAttributes(buildableAttributes).Skip(buildableAttributes.Count))
+            {
+                attributes[GetBuildableAttributeKeys(restoredAttribute)[0]] = restoredAttribute;
+            }
+
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
-            => TryGetBuildableAttribute(statement, out _);
-
-        private static bool TryGetBuildableAttribute(MethodBodyStatement statement, [NotNullWhen(true)] out AttributeStatement? attribute)
         {
-            attribute = statement switch
+            var attribute = statement switch
             {
                 AttributeStatement directAttribute => directAttribute,
                 SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
@@ -179,82 +158,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : $"{name}<{string.Join(",", type.Arguments.Select(GetTypeIdentity))}>";
         }
 
-        /// <summary>
-        /// Restores <see cref="ModelReaderWriterBuildableAttribute"/> values from the last contract when
-        /// they are missing from the current generated/custom attribute sets.
-        /// </summary>
         protected override IReadOnlyList<AttributeStatement> BuildAttributesForBackCompatibility(IEnumerable<AttributeStatement> originalAttributes)
         {
             var original = originalAttributes as IReadOnlyList<AttributeStatement> ?? [.. originalAttributes];
+            return MergeRestoredBuildableAttributes(original);
+        }
+
+        private IReadOnlyList<AttributeStatement> MergeRestoredBuildableAttributes(IReadOnlyList<AttributeStatement> originalAttributes)
+        {
             if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
             {
-                return original;
+                return originalAttributes;
             }
 
             var seen = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var attribute in original)
+            foreach (var attribute in originalAttributes)
             {
-                seen.Add(attribute.ToDisplayString());
+                if (IsRestorableBuildableAttribute(attribute))
+                {
+                    AddBuildableAttributeKeys(seen, attribute);
+                }
             }
             foreach (var attribute in CustomCodeView?.Attributes ?? [])
             {
-                seen.Add(attribute.ToDisplayString());
+                if (IsRestorableBuildableAttribute(attribute))
+                {
+                    AddBuildableAttributeKeys(seen, attribute);
+                }
             }
 
             List<AttributeStatement>? merged = null;
             foreach (var attribute in lastContractAttributes)
             {
-                if (!IsRestorableBuildableAttribute(attribute))
+                if (!IsRestorableBuildableAttribute(attribute) || HasAnyBuildableAttributeKey(seen, attribute))
                 {
                     continue;
                 }
 
-                if (seen.Add(attribute.ToDisplayString()))
-                {
-                    merged ??= [.. original];
-                    merged.Add(attribute);
-                }
+                merged ??= [.. originalAttributes];
+                merged.Add(attribute);
+                AddBuildableAttributeKeys(seen, attribute);
             }
 
-            return merged ?? original;
+            return merged ?? originalAttributes;
         }
 
-        private bool IsRestorableBuildableAttribute(AttributeStatement attribute)
+        private static bool IsRestorableBuildableAttribute(AttributeStatement attribute)
         {
-            if (!string.Equals(
+            return string.Equals(
                 attribute.Type.FullyQualifiedName,
                 typeof(ModelReaderWriterBuildableAttribute).FullName,
-                StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            var buildableTypes = attribute.Arguments
-                .OfType<TypeOfExpression>()
-                .Select(static typeOf => typeOf.Type)
-                .ToList();
-
-            return buildableTypes.Count > 0 && buildableTypes.All(IsRestorableBuildableType);
+                StringComparison.Ordinal);
         }
 
-        private static bool IsRestorableBuildableType(CSharpType type)
+        private static bool HasAnyBuildableAttributeKey(HashSet<string> seen, AttributeStatement attribute)
+            => GetBuildableAttributeKeys(attribute).Any(seen.Contains);
+
+        private static void AddBuildableAttributeKeys(HashSet<string> seen, AttributeStatement attribute)
         {
-            var primaryNamespace = ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
-            var typeIdentity = GetTypeIdentity(type);
-            var matchingProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .FirstOrDefault(provider => string.Equals(GetTypeIdentity(provider.Type), typeIdentity, StringComparison.Ordinal));
-
-            if (matchingProvider is not null)
+            foreach (var key in GetBuildableAttributeKeys(attribute))
             {
-                return ShouldWriteProvider(matchingProvider);
+                seen.Add(key);
+            }
+        }
+
+        private static IReadOnlyList<string> GetBuildableAttributeKeys(AttributeStatement attribute)
+        {
+            var typeOf = attribute.Arguments.OfType<TypeOfExpression>().FirstOrDefault();
+            if (typeOf is null)
+            {
+                var display = attribute.ToDisplayString();
+                return [display];
             }
 
-            if (type.Namespace == primaryNamespace || type.Namespace.StartsWith($"{primaryNamespace}.", StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            return IsResolvableBuildableType(type);
+            var identity = GetTypeIdentity(typeOf.Type);
+            return typeOf.Type.Name == identity
+                ? [identity]
+                : [identity, typeOf.Type.Name];
         }
 
         /// <summary>

@@ -1873,6 +1873,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public async Task BuildAttributesForBackCompatibilityDeduplicatesAcrossGeneratedCustomAndLastContractBuildableAttributes()
+        {
+            var generatedModel = InputFactory.Model("GeneratedModel", properties:
+            [
+                InputFactory.Property("Value", InputPrimitiveType.String)
+            ]);
+
+            var outputLibrary = new TestOutputLibrary([new TestClientProvider(generatedModel)]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [generatedModel],
+                createOutputLibrary: () => outputLibrary);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom");
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last");
+            mockGenerator.SetupProperty(
+                p => p.SourceInputModel,
+                new SourceInputModel(compilation, lastContractCompilation));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            contextDefinition.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(contextDefinition).Write().Content;
+
+            Assert.AreEqual(2, content.Split("ModelReaderWriterBuildableAttribute(", StringSplitOptions.None).Length - 1);
+            StringAssert.Contains("ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.GeneratedModel))", content);
+            StringAssert.Contains("ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.LastContractOnlyModel))", content);
+            StringAssert.DoesNotContain("CustomOnlyModel", content);
+        }
+
         private class CustomSerializationProvider : TypeProvider
         {
             private readonly bool _usePersistableModel;

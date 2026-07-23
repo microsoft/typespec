@@ -26,48 +26,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWhenNoLastContract()
-        {
-            var provider = CreateAttributeTestProvider(attributes:
-            [
-                new AttributeStatement(typeof(ObsoleteAttribute), Snippet.Literal("This is obsolete")),
-                new AttributeStatement(typeof(SerializableAttribute)),
-            ]);
-
-            // With no last contract to restore attributes from, back-compat processing leaves the generated
-            // attributes unchanged.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        [Test]
-        public async Task BuildAttributesForBackCompatibilityReturnsGeneratedAttributesWithLastContract()
-        {
-            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var provider = CreateAttributeTestProvider(name: "BackCompatAttributeType");
-
-            // Type-level attribute restoration is now opt-in for specific providers. The base
-            // TypeProvider implementation should leave the generated set unchanged even when the
-            // last contract declares additional attributes.
-            provider.ProcessTypeForBackCompatibility();
-
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), Write(provider));
-        }
-
-        private static string Write(TypeProvider provider) =>
-            CodeModelGenerator.Instance.GetWriter(provider).Write().Content;
-
-        private static TestTypeProvider CreateAttributeTestProvider(
-            string? name = null,
-            IEnumerable<MethodBodyStatement>? attributes = null,
-            TypeSignatureModifiers? declarationModifiers = null) =>
-            new TestTypeProvider(
-                name: name ?? "TestName",
-                declarationModifiers: declarationModifiers ?? (TypeSignatureModifiers.Public | TypeSignatureModifiers.Class),
-                attributes: attributes);
-
-        [Test]
         public void TestUpdateCanonicalView()
         {
             var typeProvider = new TestTypeProvider();

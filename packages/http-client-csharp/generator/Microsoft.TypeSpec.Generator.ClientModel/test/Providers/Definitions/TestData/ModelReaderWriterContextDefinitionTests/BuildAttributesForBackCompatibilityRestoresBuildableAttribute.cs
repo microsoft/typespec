@@ -3,10 +3,11 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using Sample.Models;
 
 namespace Sample
 {
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(object))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.LastContractOnlyModel))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }
