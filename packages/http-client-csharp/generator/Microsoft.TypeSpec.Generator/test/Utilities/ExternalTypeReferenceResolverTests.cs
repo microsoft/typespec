@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -62,32 +64,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        public void TryResolve_LoadsTypeFromNuGetCache()
+        public void TryResolve_LoadsTypeFromRegisteredMetadataReference()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            var referenceDir = Path.Combine(_tempDirectory!, "References");
             const string pkgName = "Test.External.Loadable";
             const string typeName = "Test.External.Loadable.LoadableType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.2.3");
+            var assemblyPath = CreateFakeNuGetPackage(referenceDir, pkgName, "1.2.3");
+            CodeModelGenerator.Instance.AddMetadataReference(
+                Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(assemblyPath));
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
 
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
 
-            Assert.IsNotNull(resolved, "Resolver should locate the type in the fake NuGet cache.");
+            Assert.IsNotNull(resolved, "Resolver should locate the type in registered metadata references.");
             Assert.AreEqual(typeName, resolved!.FullName);
         }
 
         [Test]
-        public void TryResolve_PrefersHighestCachedVersionAtOrAboveMinVersion()
+        public void TryResolve_LoadsDependenciesFromRegisteredMetadataReferences()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            var referenceDir = Path.Combine(_tempDirectory!, "References");
+            Directory.CreateDirectory(referenceDir);
+
+            var dependencyPath = Path.Combine(referenceDir, "Test.External.Dependency.dll");
+            var dependencyCompilation = CSharpCompilation.Create(
+                "Test.External.Dependency",
+                [CSharpSyntaxTree.ParseText(
+                    "namespace Test.External.Dependency { public class BaseType { } }")],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.IsTrue(dependencyCompilation.Emit(dependencyPath).Success);
+
+            const string typeName = "Test.External.Dependent.DerivedType";
+            var dependentPath = Path.Combine(referenceDir, "Test.External.Dependent.dll");
+            var dependentCompilation = CSharpCompilation.Create(
+                "Test.External.Dependent",
+                [CSharpSyntaxTree.ParseText(
+                    $"namespace Test.External.Dependent {{ public class DerivedType : Test.External.Dependency.BaseType {{ }} }}")],
+                [
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    MetadataReference.CreateFromFile(dependencyPath)
+                ],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.IsTrue(dependentCompilation.Emit(dependentPath).Success);
+
+            CodeModelGenerator.Instance.AddMetadataReference(MetadataReference.CreateFromFile(dependentPath));
+            CodeModelGenerator.Instance.AddMetadataReference(MetadataReference.CreateFromFile(dependencyPath));
+
+            var resolved = ExternalTypeReferenceResolver.TryResolve(
+                new InputExternalTypeMetadata(typeName, "Test.External.Dependent", null));
+
+            Assert.IsNotNull(resolved);
+            Assert.AreEqual("Test.External.Dependency.BaseType", resolved!.BaseType!.FullName);
+        }
+
+        [Test]
+        public void TryResolve_UsesRegisteredReferenceWhenPackageMetadataIncludesMinVersion()
+        {
+            var referenceDir = Path.Combine(_tempDirectory!, "References");
             const string pkgName = "Test.MultiVersion.Package";
             const string typeName = "Test.MultiVersion.Package.SomeType";
 
-            // Create three cached versions; MinVersion=2.0.0 must skip 1.0.0 and pick 3.0.0 (highest >= MinVersion).
-            var lowerVersionAssembly = CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "2.5.0");
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "3.0.0");
+            var lowerVersionAssembly = CreateFakeNuGetPackage(referenceDir, pkgName, "1.0.0");
             CodeModelGenerator.Instance.AddMetadataReference(
                 Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(lowerVersionAssembly));
 
@@ -95,21 +134,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
 
             Assert.IsNotNull(resolved);
-            // The assembly's embedded version should match the highest cached version >= MinVersion.
             var assemblyVersion = resolved!.Assembly.GetName().Version;
             Assert.AreEqual(
-                new Version(3, 0, 0, 0),
+                new Version(1, 0, 0, 0),
                 assemblyVersion,
-                $"Expected 3.0.0 to be selected for MinVersion=2.0.0, but got: {assemblyVersion}");
+                "The project metadata reference should be authoritative over package metadata.");
         }
 
         [Test]
-        public void TryResolve_AddsMetadataReferenceOnce()
+        public void TryResolve_DoesNotAddDuplicateMetadataReference()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            var referenceDir = Path.Combine(_tempDirectory!, "References");
             const string pkgName = "Test.MetadataRef.Package";
             const string typeName = "Test.MetadataRef.Package.RefType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+            var assemblyPath = CreateFakeNuGetPackage(referenceDir, pkgName, "1.0.0");
+            CodeModelGenerator.Instance.AddMetadataReference(
+                Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(assemblyPath));
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
 
@@ -122,9 +162,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsNotNull(resolved2);
             Assert.AreSame(resolved1, resolved2, "Cache should return the same Type for repeated lookups.");
             Assert.AreEqual(
-                refsBefore + 1,
+                refsBefore,
                 refsAfter,
-                "Resolver should add the assembly as a metadata reference exactly once.");
+                "Resolver should only consume metadata references registered by the project.");
         }
 
         [Test]
@@ -143,10 +183,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public async Task ResolveAllAsync_ResolvesExternalTypesFromInputLibrary()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            var referenceDir = Path.Combine(_tempDirectory!, "References");
             const string pkgName = "Test.PreWalk.Package";
             const string typeName = "Test.PreWalk.Package.PreWalkType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+            var assemblyPath = CreateFakeNuGetPackage(referenceDir, pkgName, "1.0.0");
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
             var unionWithExternal = InputFactory.Union(
@@ -164,18 +204,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 outputPath: _projectDir,
                 configuration: "{}",
                 inputModelTypes: [model]);
+            CodeModelGenerator.Instance.AddMetadataReference(
+                Microsoft.CodeAnalysis.MetadataReference.CreateFromFile(assemblyPath));
 
             var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await ExternalTypeReferenceResolver.ResolveAllAsync();
 
-            // The pre-walk should populate the cache and add the metadata reference up-front.
+            // The pre-walk should populate the cache from the registered metadata reference.
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
             Assert.IsNotNull(resolved);
             Assert.AreEqual(typeName, resolved!.FullName);
             Assert.AreEqual(
-                refsBefore + 1,
+                refsBefore,
                 CodeModelGenerator.Instance.AdditionalMetadataReferences.Count,
-                "Pre-walk should add the metadata reference exactly once.");
+                "Pre-walk should not add duplicate metadata references.");
         }
 
         private static string CreateFakeNuGetPackage(string nugetCacheDir, string packageName, string version)
