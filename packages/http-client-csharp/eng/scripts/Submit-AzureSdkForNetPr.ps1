@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# cspell:ignore pscustomobject
 
 <#
 .DESCRIPTION
@@ -23,6 +24,18 @@ Path to the build artifacts directory containing the published .tgz and .nupkg f
 The URL of the pipeline run that triggered this PR. When provided, it is included in the PR description for traceability.
 .PARAMETER BuildReason
 The reason the pipeline was triggered (for example, 'Manual', 'Schedule', or 'IndividualCI'). When set to 'Manual', step failures fail the pipeline instead of being downgraded to warnings and opening a PR.
+.PARAMETER AzureSdkCommit
+The azure-sdk-for-net commit to regenerate. Pipeline shards must use the same commit so their patches can be combined.
+.PARAMETER ShardIndex
+The zero-based index of this regeneration shard.
+.PARAMETER ShardCount
+The total number of regeneration shards.
+.PARAMETER SdkPatchOutputPath
+When provided, writes SDK changes to this patch and exits without creating a pull request.
+.PARAMETER SdkPatchDirectory
+When provided, applies all SDK patch files under this directory before creating the pull request.
+.PARAMETER SkipSdkRegeneration
+Skips SDK generation. Used by the final aggregation job, which applies patches produced by generation shards.
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -32,7 +45,7 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$TypeSpecCommitUrl,
 
-  [Parameter(Mandatory = $true)]
+  [Parameter(Mandatory = $false)]
   [string]$AuthToken,
 
   [Parameter(Mandatory = $false)]
@@ -60,8 +73,32 @@ param(
   [switch]$UseTypeSpecNext,
 
   [Parameter(Mandatory = $false)]
-  [string]$BuildReason
+  [string]$BuildReason,
+
+  [Parameter(Mandatory = $false)]
+  [string]$AzureSdkCommit,
+
+  [Parameter(Mandatory = $false)]
+  [ValidateRange(0, [int]::MaxValue)]
+  [int]$ShardIndex = 0,
+
+  [Parameter(Mandatory = $false)]
+  [ValidateRange(1, [int]::MaxValue)]
+  [int]$ShardCount = 1,
+
+  [Parameter(Mandatory = $false)]
+  [string]$SdkPatchOutputPath,
+
+  [Parameter(Mandatory = $false)]
+  [string]$SdkPatchDirectory,
+
+  [Parameter(Mandatory = $false)]
+  [switch]$SkipSdkRegeneration
 )
+
+if ($ShardIndex -ge $ShardCount) {
+    throw "ShardIndex ($ShardIndex) must be less than ShardCount ($ShardCount)."
+}
 
 # When the pipeline is triggered manually, failures should fail the pipeline with an
 # error instead of being downgraded to warnings and still opening a PR, which gives a
@@ -81,7 +118,9 @@ function Register-StepFailure {
 
     $script:StepFailures.Add($Message)
     Write-Warning $Message
-    Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+    if (-not $SdkPatchOutputPath) {
+        Write-Host "##vso[task.complete result=SucceededWithIssues;]"
+    }
 }
 
 # Import the Generation module to use the Invoke helper function
@@ -173,7 +212,9 @@ try {
     # Set the authentication token for gh CLI early so that scripts invoked
     # during the build (e.g. Emitter_Version_Dashboard.ps1) can call the
     # GitHub API to resolve commit hashes in shallow clones.
-    $env:GH_TOKEN = $AuthToken
+    if ($AuthToken) {
+        $env:GH_TOKEN = $AuthToken
+    }
 
     # Configure git user for commits in this repository
     git config user.name "azure-sdk"
@@ -199,17 +240,18 @@ try {
         throw "Failed to set sparse checkout patterns"
     }
     
-    # Fetch only the main branch with depth 1
-    Write-Host "Fetching $BaseBranch branch with sparse checkout..."
-    git fetch --depth 1 origin $BaseBranch
+    # Fetch the pinned commit when sharding so every patch has the same base.
+    $sourceRef = if ($AzureSdkCommit) { $AzureSdkCommit } else { $BaseBranch }
+    Write-Host "Fetching $sourceRef with sparse checkout..."
+    git fetch --depth 1 origin $sourceRef
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to fetch repository"
     }
     
     # Checkout the fetched branch
-    git checkout $BaseBranch
+    git checkout --detach FETCH_HEAD
     if ($LASTEXITCODE -ne 0) {
-        throw "Failed to checkout $BaseBranch"
+        throw "Failed to checkout $sourceRef"
     }
 
     # Create a new branch
@@ -369,7 +411,7 @@ try {
             }
             
             # Run Generate.ps1 from the package root
-            if ($shouldRunGenerate -eq $true)
+            if ($shouldRunGenerate -eq $true -and -not $SdkPatchOutputPath)
             {
                 Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
                 $previousErrorAction = $ErrorActionPreference
@@ -453,7 +495,7 @@ try {
     }
     
     # Regenerate all SDK libraries that use the unbranded emitter
-    if ($installSucceeded) {
+    if ($installSucceeded -and -not $SkipSdkRegeneration) {
         Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
         git sparse-checkout add sdk
         if ($LASTEXITCODE -ne 0) {
@@ -614,6 +656,18 @@ try {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
             } else {
                 $sdkProjects = @($sdkProjects | Sort-Object -Property ProjectPath -Unique)
+                if ($ShardCount -gt 1) {
+                    $allProjects = $sdkProjects
+                    $sdkProjects = @(
+                        for ($i = 0; $i -lt $allProjects.Count; $i++) {
+                            if ($i % $ShardCount -eq $ShardIndex) {
+                                $allProjects[$i]
+                            }
+                        }
+                    )
+                    Write-Host "Shard $ShardIndex/$ShardCount selected $($sdkProjects.Count) of $($allProjects.Count) SDK projects."
+                }
+
                 $setupStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
                 $regenerationSetupSucceeded = $true
                 $previousErrorAction = $ErrorActionPreference
@@ -647,7 +701,7 @@ try {
 
                 if ($regenerationSetupSucceeded) {
                     $cpuCores = [Environment]::ProcessorCount
-                    $throttleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+                    $throttleLimit = if ($ShardCount -gt 1) { 1 } else { [Math]::Max(1, [Math]::Min(8, $cpuCores - 2)) }
                     $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
                     $totalCount = $sdkProjects.Count
                     $regenerationStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -716,6 +770,53 @@ try {
                         ForEach-Object { Write-Host "  $($_.Library): $($_.Elapsed)" }
                 }
             }
+        }
+    }
+
+    if ($SdkPatchOutputPath) {
+        if ($script:StepFailures.Count -gt 0) {
+            $failureSummary = ($script:StepFailures | ForEach-Object { "- $_" }) -join [Environment]::NewLine
+            throw "Regeneration shard failed; no patch will be published:$([Environment]::NewLine)$failureSummary"
+        }
+
+        $patchDirectory = Split-Path -Path $SdkPatchOutputPath -Parent
+        New-Item -ItemType Directory -Path $patchDirectory -Force | Out-Null
+        git add --all sdk
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to stage SDK changes for shard $ShardIndex/$ShardCount"
+        }
+        git diff --cached --binary --output="$SdkPatchOutputPath" -- sdk
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to write SDK patch to $SdkPatchOutputPath"
+        }
+        Write-Host "Wrote SDK patch for shard $ShardIndex/$ShardCount to $SdkPatchOutputPath"
+        return
+    }
+
+    if ($SdkPatchDirectory) {
+        Write-Host "Expanding sparse checkout to apply SDK regeneration patches..."
+        git sparse-checkout add sdk
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to expand sparse checkout before applying SDK patches."
+        }
+
+        $sdkPatches = @(Get-ChildItem -Path $SdkPatchDirectory -Filter "*.patch" -File -Recurse | Sort-Object -Property FullName)
+        if ($sdkPatches.Count -eq 0) {
+            throw "No SDK patches found under $SdkPatchDirectory"
+        }
+
+        Write-Host "##[section]Applying $($sdkPatches.Count) SDK regeneration patches..."
+        foreach ($patch in $sdkPatches) {
+            if ($patch.Length -eq 0) {
+                Write-Host "Skipping empty patch $($patch.FullName)"
+                continue
+            }
+
+            git apply --binary $patch.FullName
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to apply SDK patch $($patch.FullName)"
+            }
+            Write-Host "Applied $($patch.Name)"
         }
     }
 

@@ -1,0 +1,63 @@
+parameters:
+  - name: PackageVersion
+    type: string
+  - name: UseTypeSpecNext
+    type: boolean
+    default: false
+
+steps:
+  - checkout: self
+
+  - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
+  - task: UseNode@1
+    displayName: "Install Node.js"
+    inputs:
+      version: "22.x"
+
+  - task: NuGetAuthenticate@1
+
+  - pwsh: |
+      $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"
+      Write-Host "Creating $npmrcPath for the Azure SDK public npm feed"
+      @(
+        "registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/"
+        "always-auth=true"
+      ) | Set-Content $npmrcPath
+    displayName: "Create C# emitter .npmrc"
+
+  - task: npmAuthenticate@0
+    displayName: Authenticate npm for Azure Artifacts
+    inputs:
+      workingFile: $(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc
+
+  - download: current
+    artifact: build_artifacts_csharp
+    displayName: Download pipeline artifacts
+
+  - pwsh: npm install -g @azure-tools/typespec-client-generator-cli@latest
+    displayName: Install tsp-client
+
+  - pwsh: npm install -g semver
+    displayName: Install semver
+
+  - task: PowerShell@2
+    displayName: Update package.json with injected dependencies
+    inputs:
+      pwsh: true
+      filePath: $(Build.SourcesDirectory)/packages/http-client-csharp/eng/scripts/Update-PackageJson.ps1
+      workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
+      arguments: >
+        -PackageVersion '${{ parameters.PackageVersion }}'
+        -PackageJsonPath '$(Build.SourcesDirectory)/packages/http-client-csharp/package.json'
+
+  - ${{ if parameters.UseTypeSpecNext }}:
+      - pwsh: |
+          Write-Host "##vso[task.setvariable variable=npm_config_force]true"
+          Write-Host "##vso[task.setvariable variable=TSPCLIENT_FORCE_INSTALL]true"
+        displayName: Configure npm for TypeSpec Next
+
+  - task: UseDotNet@2
+    inputs:
+      useGlobalJson: true
+      workingDirectory: $(Build.SourcesDirectory)/packages/http-client-csharp
