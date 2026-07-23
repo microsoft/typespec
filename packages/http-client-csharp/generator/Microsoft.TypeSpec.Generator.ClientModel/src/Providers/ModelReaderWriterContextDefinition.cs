@@ -57,30 +57,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var type = typeOf.Type;
-            var experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
-            var obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
-
-            if (type.IsFrameworkType)
+            MethodBodyStatement statement = attribute;
+            foreach (var componentType in EnumerateTypeComponents(type).Distinct())
             {
-                return ApplyDiagnosticSuppression(
-                    attribute,
-                    type.FrameworkType,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification);
+                var experimentalTypeJustification = $"{componentType} is experimental and may change in future versions.";
+                var obsoleteTypeJustification = $"{componentType} is obsolete and may be removed in future versions.";
+
+                if (componentType.IsFrameworkType)
+                {
+                    statement = ApplyDiagnosticSuppression(
+                        statement,
+                        componentType.FrameworkType,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification);
+                }
+                else if (FindCurrentTypeProvider(componentType) is { } typeProvider)
+                {
+                    statement = ApplyDiagnosticSuppression(
+                        statement,
+                        typeProvider,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification);
+                }
             }
 
-            var typeProvider = FindCurrentTypeProvider(type);
-
-            if (typeProvider is null)
-            {
-                return attribute;
-            }
-
-            return ApplyDiagnosticSuppression(
-                attribute,
-                typeProvider,
-                experimentalTypeJustification,
-                obsoleteTypeJustification);
+            return statement;
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
@@ -140,15 +141,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
         {
-            var attribute = statement switch
+            return GetAttributeStatement(statement)?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
+        }
+
+        private static AttributeStatement? GetAttributeStatement(MethodBodyStatement statement) =>
+            statement switch
             {
-                AttributeStatement directAttribute => directAttribute,
-                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                AttributeStatement attribute => attribute,
+                SuppressionStatement { Inner: { } inner } => GetAttributeStatement(inner),
                 _ => null
             };
-
-            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
-        }
 
         private HashSet<string> GetCustomizedBuildableTypes()
         {
@@ -575,7 +577,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification));
 
         private static MethodBodyStatement ApplyDiagnosticSuppression(
-            AttributeStatement attributeStatement,
+            MethodBodyStatement attributeStatement,
             TypeProvider typeProvider,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
@@ -611,7 +613,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification));
 
         private static MethodBodyStatement ApplyDiagnosticSuppression(
-            AttributeStatement attributeStatement,
+            MethodBodyStatement attributeStatement,
             Type frameworkType,
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
@@ -638,15 +640,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool IsTypeAvailableForWrite(CSharpType type)
         {
-            if (type.IsFrameworkType)
+            foreach (var componentType in EnumerateTypeComponents(type).Distinct())
             {
-                return type.FrameworkType.GetCustomAttribute<ObsoleteAttribute>()?.IsError != true;
+                if (componentType.IsFrameworkType)
+                {
+                    if (componentType.FrameworkType.GetCustomAttribute<ObsoleteAttribute>()?.IsError == true)
+                    {
+                        return false;
+                    }
+                    continue;
+                }
+
+                var typeProvider = FindCurrentTypeProvider(componentType);
+                if (typeProvider is null ||
+                    HasErrorObsoleteAttribute(typeProvider) ||
+                    !IsResolvableBuildableType(componentType))
+                {
+                    return false;
+                }
             }
 
-            var typeProvider = FindCurrentTypeProvider(type);
-            return typeProvider is not null &&
-                !HasErrorObsoleteAttribute(typeProvider) &&
-                IsResolvableBuildableType(type);
+            return true;
         }
 
         private static bool HasErrorObsoleteAttribute(TypeProvider typeProvider) =>
@@ -655,11 +669,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 attribute.Arguments.Count > 1 &&
                 attribute.Arguments[1] is LiteralExpression { Literal: true });
 
+        private static IEnumerable<CSharpType> EnumerateTypeComponents(CSharpType type)
+        {
+            if (type.DeclaringType is not null)
+            {
+                foreach (var declaringType in EnumerateTypeComponents(type.DeclaringType))
+                {
+                    yield return declaringType;
+                }
+            }
+
+            foreach (var argument in type.Arguments)
+            {
+                foreach (var argumentType in EnumerateTypeComponents(argument))
+                {
+                    yield return argumentType;
+                }
+            }
+
+            yield return type;
+        }
+
         private static TypeProvider? FindCurrentTypeProvider(CSharpType type) =>
             FindCurrentTypeProvider(CodeModelGenerator.Instance.OutputLibrary.TypeProviders, type)
             ?? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                 type.Namespace,
-                type.Name,
+                GetTypeMetadataName(type),
                 GetDeclaringTypeMetadataName(type.DeclaringType),
                 includeReferencedAssemblies: true);
 
@@ -696,11 +731,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var parentName = GetDeclaringTypeMetadataName(declaringType.DeclaringType);
-            var metadataName = declaringType.Arguments.Count == 0
-                ? declaringType.Name
-                : $"{declaringType.Name}`{declaringType.Arguments.Count}";
+            var metadataName = GetTypeMetadataName(declaringType);
             return parentName is null ? metadataName : $"{parentName}+{metadataName}";
         }
+
+        private static string GetTypeMetadataName(CSharpType type) =>
+            type.Arguments.Count == 0 ? type.Name : $"{type.Name}`{type.Arguments.Count}";
 
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)
         {

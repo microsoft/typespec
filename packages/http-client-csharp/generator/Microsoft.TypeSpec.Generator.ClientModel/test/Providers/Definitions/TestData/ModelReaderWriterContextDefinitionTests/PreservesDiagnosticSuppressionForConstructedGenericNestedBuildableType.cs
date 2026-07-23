@@ -7,9 +7,11 @@ using Sample.Models;
 
 namespace Sample
 {
-#pragma warning disable CS0618 // global::Sample.Models.Outer<string>.Middle.DeepModel is obsolete and may be removed in future versions.
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.Outer<string>.Middle.DeepModel))]
-#pragma warning restore CS0618 // global::Sample.Models.Outer<string>.Middle.DeepModel is obsolete and may be removed in future versions.
+#pragma warning disable CS0618 // global::Sample.Models.Outer<global::Sample.Models.TypeArgument> is obsolete and may be removed in future versions.
+#pragma warning disable ARG001 // global::Sample.Models.TypeArgument is experimental and may change in future versions.
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.Outer<global::Sample.Models.TypeArgument>.Middle.DeepModel))]
+#pragma warning restore ARG001 // global::Sample.Models.TypeArgument is experimental and may change in future versions.
+#pragma warning restore CS0618 // global::Sample.Models.Outer<global::Sample.Models.TypeArgument> is obsolete and may be removed in future versions.
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

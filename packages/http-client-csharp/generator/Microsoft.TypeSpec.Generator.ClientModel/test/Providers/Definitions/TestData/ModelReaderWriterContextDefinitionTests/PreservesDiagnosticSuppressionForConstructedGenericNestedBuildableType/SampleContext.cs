@@ -2,6 +2,10 @@ using System.ClientModel.Primitives;
 
 namespace Sample.Models
 {
+    public class TypeArgument
+    {
+    }
+
     public class Outer<T>
     {
         public class Middle
@@ -15,7 +19,7 @@ namespace Sample.Models
 
 namespace Sample
 {
-    [ModelReaderWriterBuildable(typeof(Models.Outer<string>.Middle.DeepModel))]
+    [ModelReaderWriterBuildable(typeof(Models.Outer<Models.TypeArgument>.Middle.DeepModel))]
     public partial class SampleContext : ModelReaderWriterContext
     {
     }

@@ -21,4 +21,21 @@ namespace Sample.Models
     public class ErrorObsoleteModel
     {
     }
+
+    [Obsolete("This enclosing type cannot be used.", true)]
+    public class ErrorObsoleteOuter
+    {
+        public class NestedModel
+        {
+        }
+    }
+
+    public class GenericModel<T>
+    {
+    }
+
+    [Obsolete("This type argument cannot be used.", true)]
+    public class ErrorObsoleteTypeArgument
+    {
+    }
 }

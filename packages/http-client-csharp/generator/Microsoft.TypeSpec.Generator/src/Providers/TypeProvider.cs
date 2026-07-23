@@ -429,7 +429,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             statement switch
             {
                 AttributeStatement attribute => attribute,
-                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                SuppressionStatement { Inner: { } inner } => GetAttributeStatement(inner),
                 _ => null
             };
 

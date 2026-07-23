@@ -95,6 +95,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
             StringAssert.DoesNotContain("RemovedModel", file.Content);
             StringAssert.DoesNotContain("ErrorObsoleteModel", file.Content);
+            StringAssert.DoesNotContain("ErrorObsoleteOuter", file.Content);
+            StringAssert.DoesNotContain("ErrorObsoleteTypeArgument", file.Content);
 
             AssertCompilesWithoutWarnings(compilation, file.Content);
         }

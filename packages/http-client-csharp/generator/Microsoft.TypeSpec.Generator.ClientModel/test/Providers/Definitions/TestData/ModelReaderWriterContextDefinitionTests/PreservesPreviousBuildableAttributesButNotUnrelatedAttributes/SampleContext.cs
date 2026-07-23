@@ -22,6 +22,21 @@ namespace Sample.Models
     public class ErrorObsoleteModel
     {
     }
+
+    public class ErrorObsoleteOuter
+    {
+        public class NestedModel
+        {
+        }
+    }
+
+    public class GenericModel<T>
+    {
+    }
+
+    public class ErrorObsoleteTypeArgument
+    {
+    }
 }
 
 namespace Sample
@@ -31,6 +46,8 @@ namespace Sample
     [ModelReaderWriterBuildable(typeof(Models.ExperimentalPreviousModel))]
     [ModelReaderWriterBuildable(typeof(Models.RemovedModel))]
     [ModelReaderWriterBuildable(typeof(Models.ErrorObsoleteModel))]
+    [ModelReaderWriterBuildable(typeof(Models.ErrorObsoleteOuter.NestedModel))]
+    [ModelReaderWriterBuildable(typeof(Models.GenericModel<Models.ErrorObsoleteTypeArgument>))]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public partial class SampleContext : ModelReaderWriterContext
     {
