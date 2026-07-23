@@ -26,7 +26,15 @@ import {
   RouteResolutionOptions,
 } from "./types.js";
 
-const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
+/**
+ * Module-level cache for getHttpOperation results. Uses a WeakMap keyed by
+ * Program to avoid leaking memory when programs are discarded, and an inner
+ * Map keyed by Operation for O(1) lookup.
+ */
+const httpOperationCache = new WeakMap<
+  Program,
+  Map<Operation, [HttpOperation, readonly Diagnostic[]]>
+>();
 
 /**
  * Return the Http Operation details for a given TypeSpec operation.
@@ -38,10 +46,19 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
-  if (!options) {
-    return program.useCache(httpOperationCacheKey, operation, () =>
-      getHttpOperationInternal(program, operation, options, new Map()),
-    );
+  if (!options && program.currentStage === "emitting") {
+    let cache = httpOperationCache.get(program);
+    if (!cache) {
+      cache = new Map();
+      httpOperationCache.set(program, cache);
+    }
+    const existing = cache.get(operation);
+    if (existing) {
+      return existing;
+    }
+    const result = getHttpOperationInternal(program, operation, options, new Map());
+    cache.set(operation, result);
+    return result;
   }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
