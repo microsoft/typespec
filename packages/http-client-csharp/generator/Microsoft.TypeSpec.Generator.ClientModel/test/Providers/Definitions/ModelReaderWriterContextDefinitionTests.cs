@@ -1894,12 +1894,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var contextDefinition = new ModelReaderWriterContextDefinition();
             contextDefinition.ProcessTypeForBackCompatibility();
 
-            var content = new TypeProviderWriter(contextDefinition).Write().Content;
-
-            Assert.AreEqual(2, content.Split("ModelReaderWriterBuildableAttribute(", StringSplitOptions.None).Length - 1);
-            StringAssert.Contains("ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.GeneratedModel))", content);
-            StringAssert.Contains("ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.LastContractOnlyModel))", content);
-            StringAssert.DoesNotContain("CustomOnlyModel", content);
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         private class CustomSerializationProvider : TypeProvider
