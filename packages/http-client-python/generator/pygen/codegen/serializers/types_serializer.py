@@ -88,6 +88,10 @@ class TypesSerializer(BaseSerializer):
         self._enums = enums or []
 
     @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_imported_namespace_for_types(self.client_namespace)
+
+    @property
     def literal_enums(self) -> list[EnumType]:
         """Enums to render as Literal type aliases in typeddict mode."""
         return sorted(self._enums)
@@ -189,9 +193,7 @@ class TypesSerializer(BaseSerializer):
         property — are kept, ensuring no forward reference is left undefined.
         """
         needed = self._types_file_model_names
-        candidates = [
-            m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
-        ]
+        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed]
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:
@@ -294,6 +296,7 @@ class TypesSerializer(BaseSerializer):
                     model.imports(
                         is_operation_file=False,
                         serialize_namespace=self.serialize_namespace,
+                        serialize_client_namespace=self.client_namespace,
                         serialize_namespace_type=NamespaceType.TYPES_FILE,
                     )
                 )
@@ -301,6 +304,7 @@ class TypesSerializer(BaseSerializer):
                     file_import.merge(
                         prop.imports(
                             serialize_namespace=self.serialize_namespace,
+                            serialize_client_namespace=self.client_namespace,
                             serialize_namespace_type=NamespaceType.TYPES_FILE,
                             called_by_property=True,
                         )
@@ -353,6 +357,7 @@ class TypesSerializer(BaseSerializer):
         for prop in model.properties:
             type_annotation = prop.type_annotation(
                 serialize_namespace=self.serialize_namespace,
+                serialize_client_namespace=self.client_namespace,
                 serialize_namespace_type=NamespaceType.TYPES_FILE,
             )
             type_annotation = _qualify_shadowed_builtins(type_annotation, shadowed)
@@ -386,6 +391,7 @@ class TypesSerializer(BaseSerializer):
     def declare_property(self, prop: Property, shadowed_builtins: frozenset[str]) -> str:
         type_annotation = prop.type_annotation(
             serialize_namespace=self.serialize_namespace,
+            serialize_client_namespace=self.client_namespace,
             serialize_namespace_type=NamespaceType.TYPES_FILE,
         )
         type_annotation = _qualify_shadowed_builtins(type_annotation, shadowed_builtins)

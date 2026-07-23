@@ -341,15 +341,20 @@ class GeneratedModelType(ModelType):
                     alias="_Model",
                 )
         elif serialize_namespace_type == NamespaceType.TYPES_FILE:
+            serialize_client_namespace = kwargs.get("serialize_client_namespace", self.code_model.namespace)
             # Don't import models that will be defined in this namespace's types.py —
             # either as TypedDict classes (non-discriminated) or as Union aliases (discriminated bases).
             # Only same-namespace non-json models are in the same types.py file.
-            same_namespace = relative_path == "."
+            same_namespace = self.client_namespace == serialize_client_namespace
             will_be_in_types_file = self.base != "json" and same_namespace
             if not will_be_in_types_file:
                 if same_namespace:
                     # json models from same namespace — import from .models (or .models._models for internal)
-                    import_path = f".models.{self.code_model.models_filename}" if self.internal else ".models"
+                    import_path = self.code_model.get_relative_import_path(
+                        serialize_namespace,
+                        self.client_namespace,
+                        module_name=f"models.{self.code_model.models_filename}" if self.internal else "models",
+                    )
                     file_import.add_submodule_import(
                         import_path,
                         self.name,
@@ -443,7 +448,8 @@ class DPGModelType(GeneratedModelType):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
             alias = self.code_model.get_unique_types_alias(serialize_namespace, self.client_namespace)
-            same_namespace = relative_path == "."
+            serialize_client_namespace = kwargs.get("serialize_client_namespace", self.code_model.namespace)
+            same_namespace = self.client_namespace == serialize_client_namespace
             if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
                 file_import.add_submodule_import(
                     relative_path,
