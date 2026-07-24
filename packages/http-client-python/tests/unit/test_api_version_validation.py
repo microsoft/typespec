@@ -112,7 +112,7 @@ def test_reads_version_attribute_for_non_conventional_param(code_model):
 
     rendered = _render(code_model)
 
-    assert "client_api_version = config.version" in rendered
+    assert "client_api_version = client._config.version" in rendered
     assert "config.api_version" not in rendered
     assert "getattr(" not in rendered
 
@@ -122,7 +122,7 @@ def test_reads_api_version_attribute_for_conventional_param(code_model):
 
     rendered = _render(code_model)
 
-    assert "client_api_version = config.api_version" in rendered
+    assert "client_api_version = client._config.api_version" in rendered
 
 
 def test_defaults_to_api_version_when_no_api_version_param(code_model):
@@ -130,7 +130,7 @@ def test_defaults_to_api_version_when_no_api_version_param(code_model):
 
     rendered = _render(code_model)
 
-    assert "client_api_version = config.api_version" in rendered
+    assert "client_api_version = client._config.api_version" in rendered
 
 
 def test_api_version_config_attr_name_helper(code_model):

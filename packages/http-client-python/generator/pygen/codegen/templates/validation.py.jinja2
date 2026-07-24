@@ -29,8 +29,7 @@ def api_version_validation(**kwargs):
             try:
                 # this assumes the client has an _api_version attribute
                 client = args[0]
-                config = client._config  # pylint: disable=protected-access
-                client_api_version = config.{{ client_api_version_name }}
+                client_api_version = client._config.{{ client_api_version_name }}  # pylint: disable=protected-access
             except AttributeError:
                 return func(*args, **kwargs)
 
