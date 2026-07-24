@@ -49,8 +49,8 @@ def api_version_validation(**kwargs):
             if unsupported:
                 raise ValueError("".join([
                     f"'{param}' is not available in API version {client_api_version}. "
-                    f"Use service API version {param_api_version} or newer.\n"
-                    for param, param_api_version in unsupported.items()
+                    f"Use service API version {version} or newer.\n"
+                    for param, version in unsupported.items()
                 ]))
             return func(*args, **kwargs)
         return wrapper
