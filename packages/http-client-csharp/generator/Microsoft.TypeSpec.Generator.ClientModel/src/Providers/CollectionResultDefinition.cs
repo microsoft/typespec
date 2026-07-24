@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected bool IsAsync { get; }
         protected ClientProvider Client { get; }
         protected FieldProvider ClientField { get; }
+        protected FieldProvider ModelReaderWriterOptionsField { get; }
 
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
@@ -74,6 +75,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 Client.Type,
                 "_client",
+                this);
+            ModelReaderWriterOptionsField = new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(ModelReaderWriterOptions),
+                "_modelReaderWriterOptions",
                 this);
             Operation = serviceMethod.Operation;
             Paging = serviceMethod.PagingMetadata;
@@ -233,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return dependencies;
         }
 
-        protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
+        protected override FieldProvider[] BuildFields() => [ClientField, ModelReaderWriterOptionsField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
          (_modelType: ItemModelType, IsAsync) switch
@@ -250,6 +256,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 "client",
                 $"The {Client.Type.Name} client used to send requests.",
                 Client.Type);
+            var modelReaderWriterOptionsParameter = new ParameterProvider(
+                "modelReaderWriterOptions",
+                $"The options used to serialize and deserialize models.",
+                typeof(ModelReaderWriterOptions));
             return
             [
                 new ConstructorProvider(
@@ -259,16 +269,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
+                            modelReaderWriterOptionsParameter,
                             .. CreateRequestParameters
                         ]),
-                    BuildConstructorBody(clientParameter),
+                    BuildConstructorBody(clientParameter, modelReaderWriterOptionsParameter),
                     this)
             ];
         }
 
         private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
         {
-            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType));
+            var responseModel = Static(typeof(ModelReaderWriter)).Invoke(
+                nameof(ModelReaderWriter.Read),
+                [
+                    response.ToApi<ClientResponseApi>().GetRawResponse().Content(),
+                    ModelReaderWriterOptionsField,
+                    ModelReaderWriterContextSnippets.Default
+                ],
+                [ResponseModelType]).CastTo(ResponseModelType);
+            return BuildGetPropertyExpression(segments, responseModel);
         }
 
         protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
@@ -276,11 +295,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
-        private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
+        private MethodBodyStatement[] BuildConstructorBody(
+            ParameterProvider clientParameter,
+            ParameterProvider modelReaderWriterOptionsParameter)
         {
-            var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
+            var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 2);
 
             statements.Add(ClientField.Assign(clientParameter).Terminate());
+            statements.Add(ModelReaderWriterOptionsField.Assign(modelReaderWriterOptionsParameter).Terminate());
 
             for (int parameterNumber = 0; parameterNumber < CreateRequestParameters.Count; parameterNumber++)
             {

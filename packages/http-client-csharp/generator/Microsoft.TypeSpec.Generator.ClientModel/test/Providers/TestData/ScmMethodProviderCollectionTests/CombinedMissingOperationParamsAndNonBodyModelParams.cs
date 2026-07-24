@@ -1,4 +1,5 @@
 global::Sample.Argument.AssertNotNullOrEmpty(id, nameof(id));
 global::Sample.Argument.AssertNotNull(request, nameof(request));
 
-return this.TestOp(id, request.XCustomHeader, request, request.QueryParam, options: cancellationToken.ToRequestOptions());
+using global::System.ClientModel.BinaryContent content = request.ToBinaryContent(_modelReaderWriterOptions);
+return this.TestOp(id, request.XCustomHeader, content, request.QueryParam, options: cancellationToken.ToRequestOptions());

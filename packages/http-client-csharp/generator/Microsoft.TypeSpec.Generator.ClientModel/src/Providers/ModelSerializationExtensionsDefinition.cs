@@ -582,8 +582,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteObjectValueSwitchCase(new CSharpType(typeof(IJsonModel<>), _t), "jsonModel",
                     jsonModel => new MethodBodyStatement[]
                     {
-                        jsonModel.Invoke(nameof(IJsonModel<object>.Write), writer,
-                            options.NullCoalesce(ModelSerializationExtensionsSnippets.Wire)).Terminate(),
+                        options.As<ModelReaderWriterOptions>()
+                            .Invoke("ResolveProxy", jsonModel)
+                            .Invoke(nameof(IJsonModel<object>.Write), writer, options)
+                            .Terminate(),
                         Break
                     }));
             cases.AddRange(new[]
@@ -678,7 +680,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             cases.Add(SwitchCaseStatement.Default(Throw(New.NotSupportedException(
                 new FormattableStringExpression("Not supported type {0}", [value.InvokeGetType()])))));
 
-            return new MethodProvider(signature, new SwitchStatement(value, cases), this, XmlDocProvider.Empty);
+            return new MethodProvider(
+                signature,
+                new MethodBodyStatement[]
+                {
+                    options.Assign(ModelSerializationExtensionsSnippets.Wire, nullCoalesce: true).Terminate(),
+                    new SwitchStatement(value, cases)
+                },
+                this,
+                XmlDocProvider.Empty);
 
             static SwitchCaseStatement BuildWriteObjectValueSwitchCase(CSharpType type,
                 string varName,

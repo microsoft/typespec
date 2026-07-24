@@ -30,7 +30,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly MethodProvider _createRequestMethod;
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
-        private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
@@ -42,6 +41,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _generateConvenienceMethod;
 
         private ClientProvider Client { get; }
+        private ScopedApi<ModelReaderWriterOptions> ClientModelReaderWriterOptions =>
+            Client.ModelReaderWriterOptionsField.As<ModelReaderWriterOptions>();
         protected InputServiceMethod ServiceMethod { get; }
         protected TypeProvider EnclosingType { get; }
         public IReadOnlyList<ScmMethodProvider> MethodProviders => _methods ??= BuildMethods();
@@ -217,6 +218,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync))
                 ];
             }
+            else if (ContainsModelType(responseBodyType))
+            {
+                methodBody =
+                [
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("data", result.GetRawResponse().Content(), out var data),
+                    Return(result.FromValue(
+                        Static(typeof(ModelReaderWriter)).Invoke(
+                            nameof(ModelReaderWriter.Read),
+                            [data, ClientModelReaderWriterOptions, ModelReaderWriterContextSnippets.Default],
+                            [responseBodyType]).CastTo(responseBodyType),
+                        result.GetRawResponse()))
+                ];
+            }
             else
             {
                 methodBody =
@@ -237,7 +253,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 responseBodyType,
                                 jsonElement,
                                 data,
-                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                ClientModelReaderWriterOptions,
                                 SerializationFormat.Default),
                                 result.GetRawResponse()))
                         },
@@ -297,7 +313,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializationType,
                     value,
                     content.JsonWriter(),
-                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    ClientModelReaderWriterOptions,
                     SerializationFormat.Default));
                 localDeclarations["content"] = content;
             }
@@ -313,25 +329,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (parameter.Type.IsReadOnlyMemory)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span")), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter.Property("Span"), ClientModelReaderWriterOptions), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsList)
                     {
                         if (TryGetXmlCollectionNames(parameter, out var rootName, out var childName))
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName)), out var content));
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, Literal(rootName), Literal(childName), ClientModelReaderWriterOptions), out var content));
                             declarations["content"] = content;
                         }
                         else
                         {
-                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter), out var content));
+                            statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromEnumerable(parameter, ClientModelReaderWriterOptions), out var content));
                             declarations["content"] = content;
                         }
                     }
                     else if (parameter.Type.IsDictionary)
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromDictionary(parameter, ClientModelReaderWriterOptions), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.Equals(typeof(string)))
@@ -352,17 +368,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
-                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
+                        statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter, ClientModelReaderWriterOptions), out var content));
                         declarations["content"] = content;
                     }
                     else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
                     {
                         AddUtf8JsonContent(parameter.Type.FrameworkType, parameter);
                     }
+                    else if (parameter.Type.Equals(typeof(BinaryData)))
+                    {
+                        // BinaryData is already serialized and is wrapped by GetProtocolMethodArguments.
+                    }
                     else
                     {
-                        // Check if this is a dual-format model that needs explicit serialization
-                        ModelProvider? bodyModel = null;
                         InputModelType? bodyInputModel = null;
                         InputMethodParameter? inputParam = null;
                         if (parameter.Type is { IsFrameworkType: false })
@@ -371,27 +389,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             if (inputParam?.Type is InputModelType model)
                             {
                                 bodyInputModel = model;
-                                bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
                             }
                         }
 
-                        if (TryGetFormatArgumentForDualFormatModel(bodyModel, bodyInputModel, out var format))
-                        {
-                            // Create using declaration for BinaryContent
-                            var methodName = $"To{requestContentType.Name}";
-                            statements.Add(UsingDeclare("content", requestContentType, parameter.Invoke(methodName, format), out var content));
-                            declarations["content"] = content;
-                        }
-                        else if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
+                        if (bodyInputModel?.Usage.HasFlag(InputModelTypeUsage.MultipartFormData) == true)
                         {
                             var bodyExpression = inputParam is { IsRequired: false }
                                 ? parameter.NullConditional()
                                 : parameter;
-                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression), out var content));
+                            statements.Add(UsingDeclare("content", MultiPartFormContentSnippets.Type, MultiPartFormContentSnippets.ToMultipartFormContent(bodyExpression, ClientModelReaderWriterOptions), out var content));
                             declarations["content"] = content;
                         }
-                        // else rely on implicit operator to convert to BinaryContent
-                        // For BinaryData we have special handling as well
+                        else
+                        {
+                            var bodyExpression = inputParam is { IsRequired: false }
+                                ? parameter.NullConditional()
+                                : parameter;
+                            statements.Add(UsingDeclare(
+                                "content",
+                                requestContentType,
+                                bodyExpression.Invoke($"To{requestContentType.Name}", ClientModelReaderWriterOptions),
+                                out var content));
+                            declarations["content"] = content;
+                        }
                     }
                 }
             }
@@ -623,7 +643,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     elementType,
                                     item,
                                     null,
-                                    ModelSerializationExtensionsSnippets.Wire))),
+                                    ClientModelReaderWriterOptions))),
                         defaultValue.Assign(arrayVar).Terminate()
                     }
                 });
@@ -685,7 +705,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return AddElement(
                     dictKey,
-                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
+                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ClientModelReaderWriterOptions),
                     value);
             }
         }
@@ -1001,8 +1021,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             }
                             else
                             {
-                                // Use implicit operator as fallback
-                                AddArgument(protocolParam, convenienceParam);
+                                AddArgument(protocolParam, convenienceParam.Invoke(
+                                    $"To{ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType.Name}",
+                                    ClientModelReaderWriterOptions));
                             }
                         }
                     }
@@ -1299,6 +1320,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection.Type,
                         [
                             This,
+                            ClientModelReaderWriterOptions,
                             .. GetProtocolMethodArguments(declarations)
                         ]))
                     ];
@@ -1308,6 +1330,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 collection.Type,
                 [
                     This,
+                    ClientModelReaderWriterOptions,
                     .. parameters
                 ]));
         }
@@ -1450,43 +1473,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Equals(typeof(TimeSpan)) || type.Equals(typeof(BinaryData));
         }
 
-        private bool TryGetFormatArgumentForDualFormatModel(
-            ModelProvider? bodyModel,
-            InputModelType? bodyInputModel,
-            [NotNullWhen(true)] out ScopedApi<string>? format)
+        private static bool ContainsModelType(CSharpType type)
         {
-            format = null;
-
-            // Find the first JSON or XML media type
-            string? matchedMediaType = null;
-            if (ServiceMethod.Operation.RequestMediaTypes != null)
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
+                provider is ModelProvider)
             {
-                foreach (var mediaType in ServiceMethod.Operation.RequestMediaTypes)
-                {
-                    if (mediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase) ||
-                        mediaType.Contains(JsonMediaType, StringComparison.OrdinalIgnoreCase))
-                    {
-                        matchedMediaType = mediaType;
-                        break;
-                    }
-                }
-            }
-
-            // Check if this is a dual-format model
-            if (matchedMediaType != null &&
-                bodyModel != null &&
-                bodyInputModel != null &&
-                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Json) &&
-                bodyInputModel.Usage.HasFlag(InputModelTypeUsage.Xml))
-            {
-                // Determine the format: XML or JSON
-                format = matchedMediaType.Contains(XmlMediaType, StringComparison.OrdinalIgnoreCase)
-                    ? ModelReaderWriterOptionsSnippets.XmlFormat
-                    : ModelReaderWriterOptionsSnippets.JsonFormat;
                 return true;
             }
 
-            return false;
+            if (type.IsList)
+            {
+                return ContainsModelType(type.Arguments[0]);
+            }
+
+            return type.IsDictionary && ContainsModelType(type.Arguments[1]);
         }
 
         /// <summary>

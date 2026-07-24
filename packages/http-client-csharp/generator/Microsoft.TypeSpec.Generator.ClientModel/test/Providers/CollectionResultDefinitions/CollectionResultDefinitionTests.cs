@@ -55,8 +55,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var ctor = constructors[0];
             var ctorParameters = ctor.Signature.Parameters;
 
-            // should now only have the client name parameter
-            Assert.AreEqual(1, ctorParameters.Count);
+            // The generated collection retains the client and its cached MRW options.
+            Assert.AreEqual(2, ctorParameters.Count);
         }
 
         [Test]

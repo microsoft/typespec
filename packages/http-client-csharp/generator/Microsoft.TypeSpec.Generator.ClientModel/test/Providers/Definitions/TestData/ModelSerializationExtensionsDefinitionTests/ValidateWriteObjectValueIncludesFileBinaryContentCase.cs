@@ -14,13 +14,14 @@ namespace Sample
     {
         public static void WriteObjectValue<T>(this global::System.Text.Json.Utf8JsonWriter writer, T value, global::System.ClientModel.Primitives.ModelReaderWriterOptions options = ((global::System.ClientModel.Primitives.ModelReaderWriterOptions)null))
         {
+            options ??= global::Sample.ModelSerializationExtensions.WireOptions;
             switch (value)
             {
                 case null:
                     writer.WriteNullValue();
                     break;
                 case global::System.ClientModel.Primitives.IJsonModel<T> jsonModel:
-                    jsonModel.Write(writer, (options ?? global::Sample.ModelSerializationExtensions.WireOptions));
+                    options.ResolveProxy(jsonModel).Write(writer, options);
                     break;
                 case global::System.Byte[] bytes:
                     writer.WriteBase64StringValue(bytes);
