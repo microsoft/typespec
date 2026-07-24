@@ -17,6 +17,7 @@ import {
   DocumentSymbolParams,
   FileChangeType,
   FoldingRange,
+  FoldingRangeKind,
   FoldingRangeParams,
   Hover,
   HoverParams,
@@ -669,13 +670,29 @@ export function createServer(
           rangeStartSingleLines = comment.pos;
         }
       } else if (rangeStartSingleLines !== -1) {
-        addRange(rangeStartSingleLines, comment.end);
+        addRange(rangeStartSingleLines, comment.end, FoldingRangeKind.Comment);
         rangeStartSingleLines = -1;
       } else {
-        addRange(comment.pos, comment.end);
+        addRange(comment.pos, comment.end, FoldingRangeKind.Comment);
       }
     }
+    addRangesForImports();
     visitChildren(ast, addRangesForNode);
+    function addRangesForImports() {
+      const statements = ast!.statements;
+      let runStart = -1;
+      for (let i = 0; i <= statements.length; i++) {
+        const isImport = i < statements.length && statements[i].kind === SyntaxKind.ImportStatement;
+        if (isImport) {
+          if (runStart === -1) {
+            runStart = i;
+          }
+        } else if (runStart !== -1) {
+          addRange(statements[runStart].pos, statements[i - 1].end, FoldingRangeKind.Imports);
+          runStart = -1;
+        }
+      }
+    }
     function addRangesForNode(node: Node) {
       if (node.kind === SyntaxKind.Doc) {
         return; // fold doc comments as regular comments
@@ -691,16 +708,20 @@ export function createServer(
       visitChildren(node, addRangesForNode);
     }
     return ranges;
-    function addRange(startPos: number, endPos: number) {
+    function addRange(startPos: number, endPos: number, kind?: FoldingRangeKind) {
       const start = file.getLineAndCharacterOfPosition(startPos);
       const end = file.getLineAndCharacterOfPosition(endPos);
       if (start.line !== end.line) {
-        ranges.push({
+        const range: FoldingRange = {
           startLine: start.line,
           startCharacter: start.character,
           endLine: end.line,
           endCharacter: end.character,
-        });
+        };
+        if (kind !== undefined) {
+          range.kind = kind;
+        }
+        ranges.push(range);
       }
     }
   }
