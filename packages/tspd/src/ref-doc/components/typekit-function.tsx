@@ -18,14 +18,14 @@ export function TypekitFunction(props: TypekitFunctionProps) {
       <></>
     ) : (
       <ts.MemberExpression.Part
-        args={props.typekit.parameters!.map((x) => `${x.name}: ${x.typeExcerpt.text}`)}
+        args={props.typekit.parameters!.map((x) => `${x.name}${x.optional ? "?" : ""}: ${x.type}`)}
       />
     );
   return (
     <md.Section heading={props.typekit.name}>
       <List>
         {"```ts"}
-        {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
+        {props.typekit.tsdoc}
         <>
           <ts.MemberExpression>
             {path.map((x) => (
@@ -33,7 +33,7 @@ export function TypekitFunction(props: TypekitFunctionProps) {
             ))}
             {sig}
           </ts.MemberExpression>
-          <>: {props.typekit.returnTypeExcerpt.text};</>
+          <>: {props.typekit.returnType};</>
         </>
         {"```"}
       </List>

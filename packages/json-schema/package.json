@@ -36,7 +36,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library && pnpm api-extractor",
+    "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json && pnpm lint-typespec-library && pnpm check-api-docs",
     "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -46,7 +46,7 @@
     "lint": "oxlint . --deny-warnings",
     "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt  --output-dir ../../website/src/content/docs/docs/emitters/json-schema/reference",
-    "api-extractor": "api-extractor run --local --verbose"
+    "check-api-docs": "tsx ../../eng/tsp-core/scripts/check-api-docs.ts ."
   },
   "files": [
     "lib/*.tsp",

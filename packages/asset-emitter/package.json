@@ -34,7 +34,7 @@
     "test:ui": "vitest --ui",
     "lint": "oxlint . --deny-warnings",
     "lint:fix": "oxlint . --fix",
-    "api-extractor": "api-extractor run --local --verbose"
+    "check-api-docs": "tsx ../../eng/tsp-core/scripts/check-api-docs.ts ."
   },
   "files": [
     "lib/*.tsp",
