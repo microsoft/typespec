@@ -25,6 +25,11 @@ jobs:
       core: ${{ steps.filter.outputs.core }}
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: ./.github/actions/nuget-auth
+
       # cspell:ignore dorny
       - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4
         id: filter

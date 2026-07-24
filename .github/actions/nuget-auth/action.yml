@@ -1,0 +1,20 @@
+name: Authenticate to NuGet
+description: Equivalent of Azure Pipelines' NuGetAuthenticate@1 — authenticates to Azure DevOps feeds referenced in nuget.config via OIDC.
+
+runs:
+  using: composite
+  steps:
+    - uses: azure/login@v2
+      with:
+        client-id: 5786d1fb-187e-4ca9-9a81-ab89ea278986
+        tenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+        allow-no-subscriptions: true
+
+    - name: Export VSS_NUGET_ACCESSTOKEN
+      shell: bash
+      run: |
+        TOKEN=$(az account get-access-token \
+          --resource 499b84ac-1321-427f-aa17-267ca6975798 \
+          --query accessToken -o tsv)
+        echo "::add-mask::$TOKEN"
+        echo "VSS_NUGET_ACCESSTOKEN=$TOKEN" >> "$GITHUB_ENV"

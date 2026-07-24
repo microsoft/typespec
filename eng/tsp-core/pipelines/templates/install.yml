@@ -13,6 +13,9 @@ parameters:
     default: $(Pipeline.Workspace)/.pnpm-store
 
 steps:
+  # Need to authenticate so our pipeline can update packages in the feed.
+  - task: NuGetAuthenticate@1
+  
   - task: UseNode@1
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
