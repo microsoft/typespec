@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
+        private const string ExperimentalAttributeFullName = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
@@ -555,11 +556,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var key = frameworkType.FullName ?? frameworkType.Name;
 
-            var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
-                .FirstOrDefault();
-            if (experimentalAttr != null)
+            // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
+            // target netstandard2.0 polyfill their own System.Diagnostics.CodeAnalysis.ExperimentalAttribute,
+            // which is a distinct Type from the BCL one; an identity-based GetCustomAttributes(typeof(...)) match
+            // misses it, leaving the buildable registration to surface the experimental diagnostic unsuppressed.
+            // Reading the attribute data by name covers both the BCL and polyfilled attributes.
+            var experimentalData = frameworkType.GetCustomAttributesData()
+                .FirstOrDefault(a => string.Equals(a.AttributeType.FullName, ExperimentalAttributeFullName, StringComparison.Ordinal));
+            if (experimentalData != null)
             {
-                var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                var diagnosticId = experimentalData.ConstructorArguments.Count > 0
+                    ? experimentalData.ConstructorArguments[0].Value as string
+                    : null;
                 attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
                 return;
             }

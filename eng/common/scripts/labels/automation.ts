@@ -1,6 +1,6 @@
 import { resolve } from "path";
 import { stringify } from "yaml";
-import { CheckOptions, syncFile } from "../utils/common.js";
+import { CheckOptions, removeFile, syncFile } from "../utils/common.js";
 import { expandFolder } from "../utils/find-area-changed.js";
 import {
   PolicyServiceConfig,
@@ -26,11 +26,15 @@ export interface SyncLabelAutomationOptions extends CheckOptions {}
 export async function syncLabelAutomation(config: RepoConfig, options: SyncLabelAutomationOptions) {
   await syncPolicyFile(createIssueTriageConfig(config), options);
   await syncPolicyFile(createPrTriageConfig(config), options);
-  await syncPolicyFile(
-    createExternalReviewersConfig(config),
-    options,
-    collectExternalOwners(config),
-  );
+
+  const externalOwners = collectExternalOwners(config);
+  if (externalOwners.length > 0) {
+    await syncPolicyFile(createExternalReviewersConfig(config), options, externalOwners);
+  } else {
+    // No external owners to ping means the policy would have no tasks, so avoid
+    // emitting an empty generated file (and remove any stale one).
+    await removeFile(resolve(policyFolder, "prs.external-reviewers.generated.yml"), options);
+  }
 }
 
 async function syncPolicyFile(
