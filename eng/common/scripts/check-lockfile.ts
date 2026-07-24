@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { repoRoot } from "./utils/common.js";
+import { repoRoot } from "./utils/common.ts";
 
 /**
  * Validates that `pnpm-lock.yaml` does not contain explicit `tarball:` URLs in its

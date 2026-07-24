@@ -10,9 +10,9 @@
 import { execSync } from "child_process";
 import { join } from "path";
 import { parseArgs } from "util";
-import { repoRoot } from "../../common/scripts/utils/common.js";
-import { listChangedFilesSince } from "../../common/scripts/utils/git.js";
-import { CRITICAL_PACKAGES, getAllPackages, type PackageInfo } from "./packages.js";
+import { repoRoot } from "../../common/scripts/utils/common.ts";
+import { listChangedFilesSince } from "../../common/scripts/utils/git.ts";
+import { CRITICAL_PACKAGES, getAllPackages, type PackageInfo } from "./packages.ts";
 
 async function getModifiedPackages(since: string): Promise<PackageInfo[]> {
   const files = await listChangedFilesSince(since, { repositoryPath: repoRoot });

@@ -23,8 +23,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsx ./scripts/build.ts",
-    "check": "tsx ./scripts/check.ts",
+    "build": "node ./scripts/build.ts",
+    "check": "node ./scripts/check.ts",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test:skip": "vitest run",
     "test:e2e": "pnpm check",
@@ -47,7 +47,6 @@
     "ora": "catalog:",
     "postject": "catalog:",
     "rimraf": "catalog:",
-    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

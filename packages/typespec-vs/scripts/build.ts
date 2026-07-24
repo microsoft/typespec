@@ -12,10 +12,7 @@ import { tmpdir } from "os";
 import { dirname, join, resolve } from "path";
 import { fileURLToPath } from "url";
 
-// Use a unique NuGet scratch directory to avoid lock contention during parallel builds
-process.env.NUGET_SCRATCH = mkdtempSync(join(tmpdir(), "nuget-scratch-"));
-
-main().catch((e) => {
+main().catch((e: unknown) => {
   console.error(e);
   process.exit(1);
 });
@@ -25,6 +22,9 @@ async function main() {
     console.log("TYPESPEC_SKIP_VS_BUILD is set, skipping build.");
     process.exit(0);
   }
+
+  // Use a unique NuGet scratch directory to avoid lock contention during parallel builds
+  process.env.NUGET_SCRATCH = mkdtempSync(join(tmpdir(), "nuget-scratch-"));
 
   const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
   const file = await readFile(join(pkgRoot, "package.json"), "utf-8");
@@ -44,7 +44,7 @@ async function main() {
   }
 }
 
-async function buildWithMsbuild(msbuildPath, pkgRoot, version) {
+async function buildWithMsbuild(msbuildPath: string, pkgRoot: string, version: string) {
   const msbuildArgs = [
     "/m",
     "/v:m",
@@ -62,7 +62,7 @@ async function buildWithMsbuild(msbuildPath, pkgRoot, version) {
   process.exit(result.exitCode);
 }
 
-async function getBuildTool() {
+async function getBuildTool(): Promise<{ type: "dotnet" } | { type: "msbuild"; path: string }> {
   if (process.platform !== "win32") {
     console.log("Not on windows using 'dotnet' to build");
     return { type: "dotnet" };

@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
-import { writeSeaConfig } from "./sea-config.js";
+import { writeSeaConfig } from "./sea-config.ts";
 // cspell:ignore postject
 
 const [major, minor, patch] = process.versions.node.split(".").map(Number);

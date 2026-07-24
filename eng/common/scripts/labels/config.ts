@@ -1,4 +1,4 @@
-import { RepoConfig } from "./types.js";
+import type { RepoConfig } from "./types.ts";
 
 export function defineConfig(config: RepoConfig) {
   return config;

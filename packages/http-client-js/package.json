@@ -16,14 +16,14 @@
     "test:watch": "vitest -w",
     "test:regen": "cross-env RECORD=true vitest run",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "test:e2e": "pnpm emit:e2e && pnpm build:test && node eng/scripts/run-e2e-tests.js",
+    "test:e2e": "pnpm emit:e2e && pnpm build:test && node eng/scripts/run-e2e-tests.ts",
     "format": "prettier . --write",
     "build:test": "tsc -p tsconfig.test.json",
     "start:server": "npx tsp-spector server start node_modules/@typespec/http-specs/specs --coverageFile ./temp/tsp-spector-coverage-javascript-standard.json --debug",
     "stop:server": "npx tsp-spector server stop",
-    "run:e2e": "node eng/scripts/run-e2e-tests.js",
+    "run:e2e": "node eng/scripts/run-e2e-tests.ts",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/clients/http-client-js/reference --skip-js",
-    "emit:e2e": "node eng/scripts/emit-e2e.js"
+    "emit:e2e": "node eng/scripts/emit-e2e.ts"
   },
   "exports": {
     ".": {

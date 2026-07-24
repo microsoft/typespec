@@ -7,12 +7,8 @@ import ora from "ora";
 import pLimit from "p-limit";
 import { basename, dirname, join, resolve } from "path";
 import pc from "picocolors";
-import { fileURLToPath } from "url";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs/yargs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 async function pathExists(path) {
   return access(path).then(
@@ -21,8 +17,8 @@ async function pathExists(path) {
   );
 }
 
-const projectRoot = join(__dirname, "../..");
-const tspConfig = join(__dirname, "tspconfig.yaml");
+const projectRoot = join(import.meta.dirname, "../..");
+const tspConfig = join(import.meta.dirname, "tspconfig.yaml");
 
 const basePath = join(projectRoot, "node_modules", "@typespec", "http-specs", "specs");
 const ignoreFilePath = join(projectRoot, ".testignore");
