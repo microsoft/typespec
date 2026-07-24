@@ -17,5 +17,27 @@ import type { Type } from "../core/types.js";
  * @experimental
  */
 export function useCache<T>(program: Program, key: symbol, type: Type, compute: () => T): T {
-  return program.useCache(key, type, compute);
+  const stage = program.currentStage;
+  // Only cache from "validating" onward. During "parsing" and "checking",
+  // decorators are still being applied and may not have finished setting up
+  // route options, filters, or other state that affects resolution. By
+  // "validating" all decorators have completed and types are fully resolved.
+  if (stage !== "validating" && stage !== "linting" && stage !== "emitting") {
+    return compute();
+  }
+  // Don't cache results for unfinished types. Types are unfinished during
+  // decorator application (including late template instantiation in the
+  // emitting stage) and inside mutators. Caching at those points risks
+  // storing results computed against an incomplete type graph.
+  if (!type.isFinished) {
+    return compute();
+  }
+  const map = program.stateMap(key);
+  const existing = map.get(type);
+  if (existing !== undefined) {
+    return existing as T;
+  }
+  const value = compute();
+  map.set(type, value);
+  return value;
 }

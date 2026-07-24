@@ -148,7 +148,7 @@ export interface Program {
   /** @internal */
   setCurrentStage(stage: CompilationStage): void;
   /** @internal */
-  useCache<T>(key: symbol, type: Type, compute: () => T): T;
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -292,35 +292,6 @@ async function createProgram(
     resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
-    /** @internal */
-    useCache<T>(key: symbol, type: Type, compute: () => T): T {
-      // Only cache from "validating" onward. During "parsing" and "checking",
-      // decorators are still being applied and may not have finished setting up
-      // route options, filters, or other state that affects resolution. By
-      // "validating" all decorators have completed and types are fully resolved.
-      if (
-        currentStage !== "validating" &&
-        currentStage !== "linting" &&
-        currentStage !== "emitting"
-      ) {
-        return compute();
-      }
-      // Don't cache results for unfinished types. Types are unfinished during
-      // decorator application (including late template instantiation in the
-      // emitting stage) and inside mutators. Caching at those points risks
-      // storing results computed against an incomplete type graph.
-      if (!type.isFinished) {
-        return compute();
-      }
-      const map = program.stateMap(key);
-      const existing = map.get(type);
-      if (existing !== undefined) {
-        return existing as T;
-      }
-      const value = compute();
-      map.set(type, value);
-      return value;
-    },
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
