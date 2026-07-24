@@ -191,7 +191,6 @@ export interface EmitterOptionsDev {
   "generate-tests"?: boolean;
 
   // customization
-  "required-fields-as-ctor-args"?: boolean;
   "partial-update"?: boolean;
   "models-subpackage"?: string;
   "custom-types"?: string;
@@ -204,6 +203,7 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
+  "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
