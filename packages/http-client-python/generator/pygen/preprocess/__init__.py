@@ -94,7 +94,8 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
-            # Skip single-body JSON overload; the TypedDict overload replaces it
+            # Use the flattened JSON overload and skip the single-body JSON overload.
+            # When TypedDict generation is disabled, this JSON overload remains.
             continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
@@ -306,6 +307,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def is_tsp(self) -> bool:
         return self.options.get("tsp_file", False)
 
+    @property
+    def generate_typeddict(self) -> bool:
+        return self.options.get("generate-typeddict", True)
+
     @staticmethod
     def _find_existing_typeddict(
         code_model: dict[str, Any],
@@ -443,7 +448,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
             # Add typeddict overload for non-spread dpg models
-            if self.options["models-mode"] == "dpg" and is_dpg_model:
+            if self.options["models-mode"] == "dpg" and self.generate_typeddict and is_dpg_model:
                 cross_lang_id = model_type.get("crossLanguageDefinitionId")
                 existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
                 self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
@@ -463,7 +468,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                         td_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
                         td_list_or_dict["elementType"] = original
                         body_parameter["type"]["types"].insert(1, td_list_or_dict)
-                else:
+                elif self.generate_typeddict:
                     source = original or model_type
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)

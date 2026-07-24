@@ -29,6 +29,14 @@ def test_constructor_and_setitem_agree():
     assert via_ctor == via_setitem
 
 
+def test_generate_typeddict_defaults_to_true():
+    assert OptionsDict()["generate-typeddict"] is True
+
+
+def test_generate_typeddict_can_be_disabled():
+    assert OptionsDict({"generate-typeddict": False})["generate-typeddict"] is False
+
+
 def test_package_mode_validation_uses_from_typespec_from_constructor_any_order():
     with pytest.raises(ValueError):
         OptionsDict({"from-typespec": True, "package-mode": "dataplane", "package-version": "1.0.0"})

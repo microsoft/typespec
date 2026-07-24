@@ -130,6 +130,12 @@ options:
 
 Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.
 
+### `generate-typeddict`
+
+**Type:** `boolean`
+
+Whether to generate TypedDict request-body overloads in `models-mode: dpg`. Defaults to `true`.
+
 ### `keep-pyproject-fields`
 
 **Type:** `object`

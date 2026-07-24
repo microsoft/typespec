@@ -24,6 +24,7 @@ export interface PythonEmitterOptions {
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
+  "generate-typeddict"?: boolean;
   "keep-pyproject-fields"?: {
     authors?: boolean;
     description?: boolean;
@@ -110,6 +111,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "generate-typeddict": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to generate TypedDict request-body overloads in `models-mode: dpg`. Defaults to `true`.",
     },
     "keep-pyproject-fields": {
       type: "object",

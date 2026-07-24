@@ -14,16 +14,18 @@ instead keep the body as a plain single type so no ``@overload`` is emitted.
 from pygen.preprocess import PreProcessPlugin, add_overloads_for_body_param
 
 
-def _plugin(models_mode: str) -> PreProcessPlugin:
+def _plugin(models_mode: str, **kwargs) -> PreProcessPlugin:
     return PreProcessPlugin(
         output_folder="",
         **{
             "version-tolerant": True,
             "models-mode": models_mode,
+            "generate-typeddict": True,
             "tsp_file": True,
             "show-operations": True,
             "show-send-request": True,
             "builders-visibility": "public",
+            **kwargs,
         },
     )
 
@@ -100,6 +102,47 @@ def test_dpg_mode_still_emits_multiple_overloads():
     # combined type has multiple members and overloads are generated.
     assert body_parameter["type"]["type"] == "combined"
     assert len(yaml_data["overloads"]) >= 2
+
+
+def test_dpg_mode_can_disable_typeddict_autogeneration():
+    """Opting out keeps the dpg model + binary overloads, but skips typeddict generation."""
+    plugin = _plugin("dpg", **{"generate-typeddict": False})
+    code_model, yaml_data, model_type = _json_model_operation()
+    body_parameter = yaml_data["bodyParameter"]
+
+    plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data)
+
+    assert body_parameter["type"]["type"] == "combined"
+    assert body_parameter["type"]["types"] == [model_type, {"type": "binary"}]
+    assert len(yaml_data["overloads"]) == 2
+    assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
+
+
+def test_spread_body_opt_out_keeps_json_overload():
+    """Spread bodies keep the flattened JSON overload when TypedDict generation is disabled."""
+    plugin = _plugin("dpg", **{"generate-typeddict": False})
+    spread_body = _json_spread_body_parameter("CreateRequest", "Contoso.Widget")
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [spread_body["type"]]}
+
+    plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data)
+
+    assert spread_body["type"]["type"] == "combined"
+    assert spread_body["type"]["types"][0]["base"] == "json"
+    assert spread_body["type"]["types"][1] == {"type": "binary"}
+    assert len(yaml_data["overloads"]) == 2
+    json_overload = next(o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json")
+    assert json_overload["bodyParameter"]["flattened"] is True
+    assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
 
 
 def _dpg_body_parameter(name: str, cross_lang_id: str) -> dict:
