@@ -632,6 +632,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if retval:
             if builder.api_versions:
                 retval.append(f"   api_versions_list={builder.api_versions},")
+            api_version_param = next(
+                (p for p in builder.client.config.parameters.parameters if p.is_api_version),
+                None,
+            )
+            if api_version_param and api_version_param.client_name != "api_version":
+                retval.append(f'    client_api_version_name="{api_version_param.client_name}",')
             retval_str = "\n".join(retval)
             return f"@api_version_validation(\n{retval_str}\n)"
         return ""
