@@ -117,9 +117,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 presentSimpleNames.Add(GetSimpleTypeName(key));
             }
+
             foreach (var customizedType in customizedBuildableTypes)
             {
                 presentSimpleNames.Add(GetSimpleTypeName(customizedType));
+            }
+
+            var outputLibraryProviders = new Dictionary<string, TypeProvider>(StringComparer.Ordinal);
+            foreach (var provider in ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders)
+            {
+                outputLibraryProviders.TryAdd(GetTypeIdentity(provider.Type), provider);
             }
 
             foreach (var attribute in lastContractAttributes)
@@ -139,6 +146,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var identity = GetTypeIdentity(targetType);
+                var existsInGeneratedAssembly = outputLibraryProviders.TryGetValue(identity, out var matchingProvider)
+                    ? ShouldWriteProvider(matchingProvider)
+                    : ScmCodeModelGenerator.Instance.SourceInputModel.Customization?.GetTypeByMetadataName(identity) is not null;
+
+                if (!existsInGeneratedAssembly)
+                {
+                    continue;
+                }
+
                 var simpleName = GetSimpleTypeName(identity);
 
                 // Only add the entry when neither the current generation nor customized code already produced it.
@@ -147,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                attributes[identity] = attribute;
+                attributes.TryAdd(identity, attribute);
             }
         }
 

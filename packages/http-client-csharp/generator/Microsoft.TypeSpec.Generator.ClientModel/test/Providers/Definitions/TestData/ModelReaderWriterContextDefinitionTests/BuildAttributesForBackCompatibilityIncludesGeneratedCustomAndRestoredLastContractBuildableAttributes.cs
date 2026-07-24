@@ -9,8 +9,8 @@ namespace Sample
 {
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.GeneratedModelA))]
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.GeneratedModelB))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RemovedModelA))]
-    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RemovedModelB))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RestoredTypeA))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.Models.RestoredTypeB))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

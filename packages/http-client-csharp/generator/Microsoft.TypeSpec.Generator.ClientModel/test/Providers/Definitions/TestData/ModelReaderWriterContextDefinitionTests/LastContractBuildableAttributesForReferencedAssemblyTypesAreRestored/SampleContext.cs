@@ -1,10 +1,10 @@
+using System;
 using System.ClientModel.Primitives;
 
 namespace Sample
 {
     [ModelReaderWriterBuildable(typeof(Sample.Models.RegularModel))]
-    [ModelReaderWriterBuildable(typeof(Sample.Models.RestoredType))]
-    [ModelReaderWriterBuildable(typeof(Sample.Models.RemovedModel))]
+    [ModelReaderWriterBuildable(typeof(System.BinaryData))]
     public partial class SampleContext
     {
     }
@@ -13,14 +13,6 @@ namespace Sample
 namespace Sample.Models
 {
     public partial class RegularModel
-    {
-    }
-
-    public enum RestoredType
-    {
-    }
-
-    public partial class RemovedModel
     {
     }
 }
