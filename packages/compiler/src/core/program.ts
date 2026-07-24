@@ -11,6 +11,12 @@ import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import {
+  DiagnosticCodeResolver,
+  LibraryNameInfo,
+  createDiagnosticCodeResolver,
+  formatShortNameCandidates,
+} from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -44,6 +50,7 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   SuppressionTracker,
   createSuppressionTracker,
+  findAmbiguousSuppressions,
   findDirectiveSuppressingOnNode,
   findDuplicateSuppressions,
 } from "./suppression-tracking.js";
@@ -123,6 +130,9 @@ export interface Program {
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
   /** @internal */
   readonly suppressionTracker: SuppressionTracker | undefined;
+
+  /** @internal Resolver for short/full diagnostic and linter rule codes. */
+  readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -228,6 +238,8 @@ async function createProgram(
   let continueToNextStage = true;
   // eslint-disable-next-line prefer-const -- reassigned after source resolution
   let suppressionTracker: SuppressionTracker | undefined;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -259,6 +271,9 @@ async function createProgram(
     reportDuplicateSymbols,
     get suppressionTracker() {
       return suppressionTracker;
+    },
+    get diagnosticCodeResolver() {
+      return diagnosticCodeResolver;
     },
     hasError() {
       return error;
@@ -305,7 +320,8 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  suppressionTracker = createSuppressionTracker(sourceResolution);
+  diagnosticCodeResolver = createDiagnosticCodeResolver(collectLibraryNameInfos());
+  suppressionTracker = createSuppressionTracker(sourceResolution, diagnosticCodeResolver);
   reportDiagnostics(
     findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
       createDiagnostic({
@@ -315,11 +331,25 @@ async function createProgram(
       }),
     ),
   );
+  reportDiagnostics(
+    findAmbiguousSuppressions(sourceResolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
+    ),
+  );
 
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  const linter = createLinter(
+    program,
+    (name) => loadLibrary(basedir, name),
+    diagnosticCodeResolver,
+  );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
@@ -620,6 +650,29 @@ async function createProgram(
     }
   }
 
+  function collectLibraryNameInfos(): LibraryNameInfo[] {
+    // Read library-declared aliases from each loaded library's `$lib` export.
+    const aliasByName = new Map<string, string>();
+    for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+      const lib = jsFile.esmExports?.$lib as TypeSpecLibrary<any> | undefined;
+      if (lib?.name && lib.alias) {
+        aliasByName.set(lib.name, lib.alias);
+      }
+    }
+
+    const infos: LibraryNameInfo[] = [];
+    const seen = new Set<string>();
+    for (const name of sourceResolution.loadedLibraries.keys()) {
+      seen.add(name);
+      infos.push({ name, alias: aliasByName.get(name) });
+    }
+    // The compiler's built-in linter rules live under `@typespec/compiler`.
+    if (!seen.has(builtInLinterLibraryName)) {
+      infos.push({ name: builtInLinterLibraryName });
+    }
+    return infos;
+  }
+
   function computeLibraryMetadata(
     module: ModuleResolutionResult,
     libDefinition: TypeSpecLibrary<any> | undefined,
@@ -838,7 +891,11 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    const suppressing = findDirectiveSuppressingOnNode(
+      diagnostic.code,
+      node,
+      diagnosticCodeResolver,
+    );
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
