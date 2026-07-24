@@ -1,7 +1,7 @@
 // cspell:ignore bfff
-import { defineConfig, defineLabels } from "../scripts/labels/config.js";
-import { repo } from "../scripts/utils/common.js";
-import { AreaPaths, ExternalOwners } from "./area.js";
+import { defineConfig, defineLabels } from "../scripts/labels/config.ts";
+import { repo } from "../scripts/utils/common.ts";
+import { AreaPaths, ExternalOwners } from "./area.ts";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.

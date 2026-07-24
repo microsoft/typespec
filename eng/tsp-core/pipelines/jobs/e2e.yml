@@ -55,5 +55,5 @@ jobs:
         displayName: Publish trace results
         condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-      - script: node eng/common/scripts/check-for-changed-files.js
+      - script: node eng/common/scripts/check-for-changed-files.ts
         displayName: Check Git Status For Changed Files

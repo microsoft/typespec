@@ -34,7 +34,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
-    "build-samples": "node ./samples/build.js",
+    "build-samples": "node ./samples/build.ts",
     "build": "pnpm build-samples && pnpm build:lib && vite build 2>&1",
     "build:lib": "vite build --config vite.lib.config.ts",
     "preview": "pnpm build && vite preview",

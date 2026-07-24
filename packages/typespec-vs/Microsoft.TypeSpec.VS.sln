@@ -6,7 +6,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.TypeSpec.VS", "sr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{128D9265-5E6B-4C7E-889E-15EE684BEFD6}"
 	ProjectSection(SolutionItems) = preProject
-		scripts\build.js = scripts\build.js
+		scripts\build.ts = scripts\build.ts
 		Directory.Build.rsp = Directory.Build.rsp
 		nuget.config = nuget.config
 		package.json = package.json

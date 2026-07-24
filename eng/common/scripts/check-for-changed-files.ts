@@ -1,7 +1,6 @@
-// @ts-check
-import { spawnSync } from "child_process";
+import { spawnSync, type SpawnSyncReturns } from "child_process";
 
-const proc = spawnSync("git", ["status", "--porcelain"], {
+const proc: SpawnSyncReturns<string> = spawnSync("git", ["status", "--porcelain"], {
   encoding: "utf-8",
   stdio: [null, "pipe", "pipe"],
 });

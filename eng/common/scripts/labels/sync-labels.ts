@@ -1,8 +1,8 @@
 import { resolve } from "path";
 import { parseArgs } from "util";
-import { syncLabelAutomation } from "./automation.js";
-import { syncLabelsDefinitions } from "./definitions.js";
-import { RepoConfig } from "./types.js";
+import { syncLabelAutomation } from "./automation.ts";
+import { syncLabelsDefinitions } from "./definitions.ts";
+import type { RepoConfig } from "./types.ts";
 
 const options = parseArgs({
   args: process.argv.slice(2),

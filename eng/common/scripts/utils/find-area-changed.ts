@@ -1,6 +1,6 @@
 import micromatch from "micromatch";
 import pc from "picocolors";
-import { CIRules } from "../../config/area.js";
+import { CIRules } from "../../config/area.ts";
 
 export function findAreasChanged(files: string[]): (keyof typeof CIRules)[] {
   const result: (keyof typeof CIRules)[] = [];

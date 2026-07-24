@@ -1,6 +1,5 @@
-// @ts-check
-const prTargetBranch = process.env["SYSTEM_PULLREQUEST_TARGETBRANCHNAME"];
-const currentBranch = process.env["BUILD_SOURCEBRANCH"];
+const prTargetBranch: string | undefined = process.env["SYSTEM_PULLREQUEST_TARGETBRANCHNAME"];
+const currentBranch: string | undefined = process.env["BUILD_SOURCEBRANCH"];
 
 console.log("Branches:", {
   prTargetBranch,
@@ -11,7 +10,9 @@ if (prTargetBranch !== undefined) {
   console.log("Target branch is", prTargetBranch);
   console.log(`##vso[task.setvariable variable=TARGET_BRANCH]${prTargetBranch}`);
 } else if (currentBranch) {
-  const match = currentBranch.match(/refs\/heads\/gh-readonly-queue\/(.*)\/pr-.*/);
+  const match: RegExpMatchArray | null = currentBranch.match(
+    /refs\/heads\/gh-readonly-queue\/(.*)\/pr-.*/,
+  );
   if (match !== null) {
     const targetBranch = match[1];
     console.log("Target branch is", targetBranch);

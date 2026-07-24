@@ -1,4 +1,4 @@
-import type { AreaLabels } from "./labels.js";
+import type { AreaLabels } from "./labels.ts";
 
 /**
  * Set the paths that each area applies to.
