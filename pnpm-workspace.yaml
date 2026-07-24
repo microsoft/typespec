@@ -165,11 +165,7 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  # Pinned to 2.9.14: turbo 2.10.1+ ships libghostty-vt built with non-baseline
-  # CPU instructions, causing STATUS_ILLEGAL_INSTRUCTION hard crashes on some
-  # Windows CI runners (vercel/turborepo#13346). Revisit once a fully-fixed
-  # stable (>=2.10.6) is verified on Windows.
-  turbo: 2.9.14
+  turbo: 2.10.5
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2
