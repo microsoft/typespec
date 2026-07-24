@@ -12,6 +12,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
+import { unsafe_useCache as useCache } from "@typespec/compiler/experimental";
 import { getAuthenticationForOperation } from "./auth.js";
 import { getAuthentication } from "./decorators.js";
 import { isSharedRoute } from "./decorators/shared-route.js";
@@ -26,6 +27,8 @@ import {
   RouteResolutionOptions,
 } from "./types.js";
 
+const httpOperationCacheKey = Symbol.for("@typespec/http.httpOperationCache");
+
 /**
  * Return the Http Operation details for a given TypeSpec operation.
  * @param operation Operation
@@ -36,6 +39,11 @@ export function getHttpOperation(
   operation: Operation,
   options?: RouteResolutionOptions,
 ): [HttpOperation, readonly Diagnostic[]] {
+  if (!options) {
+    return useCache(program, httpOperationCacheKey, operation, () =>
+      getHttpOperationInternal(program, operation, options, new Map()),
+    );
+  }
   return getHttpOperationInternal(program, operation, options, new Map());
 }
 
