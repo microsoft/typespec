@@ -33,8 +33,8 @@ catalog:
   "@astrojs/starlight": ^0.41.3
   "@azure/identity": ^4.13.1
   "@azure/storage-blob": ^12.31.0
-  "@babel/code-frame": ^7.29.0
-  "@babel/core": ^7.29.0
+  "@babel/code-frame": ^8.0.0
+  "@babel/core": ^8.0.1
   "@chronus/chronus": ^1.3.1
   "@chronus/github": ^1.0.6
   "@chronus/github-pr-commenter": ^1.0.6
@@ -205,7 +205,7 @@ packageExtensions:
   # toolchain resolves against Babel 7.
   "@alloy-js/rollup-plugin":
     dependencies:
-      "@babel/core": ^7.29.0
+      "@babel/core": ^8.0.1
 
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
