@@ -34,7 +34,15 @@ async function main() {
   if (result.type === "dotnet") {
     await ensureDotnetVersion({ exitWithSuccessInDevBuilds: true });
     await runDotnet(
-      ["build", "--configuration", "Release", `-p:Version=${version}`, "-clp:NoSummary"],
+      [
+        "build",
+        "--configuration",
+        "Release",
+        `-p:Version=${version}`,
+        "-clp:NoSummary",
+        // Restore may fail with NU1900 when vulnerability feed is unavailable.
+        "-p:NuGetAudit=false",
+      ],
       {
         cwd: pkgRoot,
       },
@@ -58,7 +66,9 @@ async function buildWithMsbuild(msbuildPath, pkgRoot, version) {
     msbuildArgs.push("/restore");
   }
   msbuildArgs.push(join(pkgRoot, "Microsoft.TypeSpec.VS.sln"));
-  const result = await run(msbuildPath, msbuildArgs, { throwOnNonZeroExit: false });
+  const result = await run(msbuildPath, msbuildArgs, {
+    throwOnNonZeroExit: false,
+  });
   process.exit(result.exitCode);
 }
 

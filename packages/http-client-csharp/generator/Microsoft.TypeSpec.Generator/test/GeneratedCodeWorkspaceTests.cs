@@ -14,6 +14,7 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {
+    [NonParallelizable]
     public class GeneratedCodeWorkspaceTests
     {
         private const string EvaluatedFrameworkTestCategory = "WithEvaluatedFrameworkValue";

@@ -24,8 +24,28 @@ try {
             # enforce cop static-analysis rules on the generator sources
             Invoke-LoggedCommand "./eng/scripts/Invoke-Cop.ps1" -GroupOutput
 
+            # Use the repo NuGet.Config explicitly so restore always targets the Azure DevOps feed.
+            $repoRoot = (Resolve-Path "$packageRoot/../..").Path
+            $nugetConfigPath = (Join-Path $repoRoot "eng/nuget.config")
+            $ciNugetAuditArg = $env:TF_BUILD ? "-p:NuGetAudit=false" : ""
+            Invoke-LoggedCommand "dotnet nuget list source --configfile `"$nugetConfigPath`"" -GroupOutput
+
             # test the generator
-            Invoke-LoggedCommand "dotnet test ./generator" -GroupOutput
+            # Ensure child dotnet processes spawned from tests use the same restore/audit settings.
+            $previousRestoreConfigFile = $env:RestoreConfigFile
+            $previousNuGetAudit = $env:NuGetAudit
+            try {
+                $env:RestoreConfigFile = $nugetConfigPath
+                if ($env:TF_BUILD) {
+                    $env:NuGetAudit = "false"
+                }
+
+                Invoke-LoggedCommand "dotnet test ./generator -p:RestoreConfigFile=`"$nugetConfigPath`" $ciNugetAuditArg" -GroupOutput
+            }
+            finally {
+                $env:RestoreConfigFile = $previousRestoreConfigFile
+                $env:NuGetAudit = $previousNuGetAudit
+            }
 
             Invoke-LoggedCommand "./eng/scripts/Get-Spector-Coverage.ps1" -GroupOutput
         }

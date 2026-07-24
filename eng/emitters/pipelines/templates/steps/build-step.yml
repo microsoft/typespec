@@ -61,6 +61,10 @@ steps:
 
   - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
 
+  - template: /eng/common/pipelines/templates/steps/pypi-auth-dev-feed.yml
+
+  - template: /eng/common/pipelines/templates/steps/maven-authenticate.yml
+
   - task: NodeTool@0
     displayName: Install Node.js
     retryCountOnTaskFailure: 3

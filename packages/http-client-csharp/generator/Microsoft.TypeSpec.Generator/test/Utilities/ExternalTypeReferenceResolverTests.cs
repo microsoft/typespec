@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
     {
         private string? _tempDirectory;
         private string? _projectDir;
+        private string? _nugetCacheDir;
         private string? _originalNugetPackageDir;
 
         [SetUp]
@@ -27,14 +28,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         {
             _tempDirectory = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
             _projectDir = Path.Combine(_tempDirectory, "ProjectDir");
-            var nugetCacheDir = Path.Combine(_tempDirectory, "NuGetCache");
+            _nugetCacheDir = Path.Combine(_tempDirectory, "NuGetCache");
             Directory.CreateDirectory(Path.Combine(_projectDir, "src"));
-            Directory.CreateDirectory(nugetCacheDir);
+            Directory.CreateDirectory(_nugetCacheDir);
+
+            // Ensure these tests are fully isolated from machine/user NuGet settings and never probe
+            // external feeds when package lookup falls through to source probing.
+            WriteLocalNuGetConfig(_projectDir, _nugetCacheDir);
 
             _originalNugetPackageDir = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("NUGET_PACKAGES", _nugetCacheDir, EnvironmentVariableTarget.Process);
 
-            ExternalTypeReferenceResolver.Reset();
+            ResetResolverIfInitialized();
             MockHelpers.LoadMockGenerator(
                 outputPath: _projectDir,
                 configuration: "{}");
@@ -43,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [TearDown]
         public void Cleanup()
         {
-            ExternalTypeReferenceResolver.Reset();
+            ResetResolverIfInitialized();
             Directory.Delete(_tempDirectory!, true);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", _originalNugetPackageDir, EnvironmentVariableTarget.Process);
         }
@@ -64,10 +69,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void TryResolve_LoadsTypeFromNuGetCache()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string pkgName = "Test.External.Loadable";
             const string typeName = "Test.External.Loadable.LoadableType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.2.3");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.2.3");
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
 
@@ -80,14 +84,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void TryResolve_PrefersHighestCachedVersionAtOrAboveMinVersion()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string pkgName = "Test.MultiVersion.Package";
             const string typeName = "Test.MultiVersion.Package.SomeType";
 
             // Create three cached versions; MinVersion=2.0.0 must skip 1.0.0 and pick 3.0.0 (highest >= MinVersion).
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "2.5.0");
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "3.0.0");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.0.0");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "2.5.0");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "3.0.0");
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, "2.0.0");
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
@@ -104,10 +107,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public void TryResolve_AddsMetadataReferenceOnce()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string pkgName = "Test.MetadataRef.Package";
             const string typeName = "Test.MetadataRef.Package.RefType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.0.0");
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
 
@@ -141,10 +143,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         [Test]
         public async Task ResolveAllAsync_ResolvesExternalTypesFromInputLibrary()
         {
-            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string pkgName = "Test.PreWalk.Package";
             const string typeName = "Test.PreWalk.Package.PreWalkType";
-            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.0.0");
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
             var unionWithExternal = InputFactory.Union(
@@ -187,6 +188,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 .Replace("$PACKAGE$", packageName)
                 .Replace("$VERSION$", version);
             return FakeNuGetPackage.Create(nugetCacheDir, packageName, version, source);
+        }
+
+        private static void WriteLocalNuGetConfig(string projectDir, string nugetCacheDir)
+        {
+            var nugetConfigPath = Path.Combine(projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCacheDir.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key=""local-cache"" value=""{normalizedCachePath}"" />
+    </packageSources>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+</configuration>";
+
+            File.WriteAllText(nugetConfigPath, config);
+        }
+
+        private static void ResetResolverIfInitialized()
+        {
+            try
+            {
+                ExternalTypeReferenceResolver.Reset();
+            }
+            catch (InvalidOperationException)
+            {
+                // CodeModelGenerator may not be initialized yet when this fixture runs in isolation.
+            }
         }
     }
 }

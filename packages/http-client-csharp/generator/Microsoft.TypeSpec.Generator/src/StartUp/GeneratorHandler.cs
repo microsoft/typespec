@@ -304,6 +304,8 @@ namespace Microsoft.TypeSpec.Generator
             process.StartInfo.ArgumentList.Add("Release");
             process.StartInfo.ArgumentList.Add($"-p:BaseOutputPath={binDirectory}");
             process.StartInfo.ArgumentList.Add($"-p:BaseIntermediateOutputPath={objDirectory}");
+            AppendMsBuildPropertyIfSet(process.StartInfo.ArgumentList, "RestoreConfigFile", "RestoreConfigFile");
+            AppendMsBuildPropertyIfSet(process.StartInfo.ArgumentList, "NuGetAudit", "NuGetAudit");
 
             process.Start();
             // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
@@ -344,6 +346,18 @@ namespace Microsoft.TypeSpec.Generator
             process.WaitForExit();
             Task.WaitAll(stdoutTask, stderrTask);
             return (stdoutTask.Result, stderrTask.Result);
+        }
+
+        private static void AppendMsBuildPropertyIfSet(
+            System.Collections.ObjectModel.Collection<string> argumentList,
+            string envVarName,
+            string propertyName)
+        {
+            var value = Environment.GetEnvironmentVariable(envVarName, EnvironmentVariableTarget.Process);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                argumentList.Add($"-p:{propertyName}={value}");
+            }
         }
 
         /// <summary>
