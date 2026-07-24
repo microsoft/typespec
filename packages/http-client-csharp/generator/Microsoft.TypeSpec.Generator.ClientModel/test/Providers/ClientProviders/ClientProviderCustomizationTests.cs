@@ -392,8 +392,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             // Find the client options provider
             var clientOptionsProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientOptionsProvider);
             Assert.IsNotNull(clientOptionsProvider);
-            // The client options were not customized
-            Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(clientOptionsProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
 
             // ClientSettings should not be generated for internal clients
             Assert.IsNull(((ClientProvider)clientProvider).ClientSettings,

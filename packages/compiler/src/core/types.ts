@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
+import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
@@ -29,15 +30,7 @@ export interface DecoratorArgument {
    * Marshalled value for use in Javascript.
    */
   jsValue:
-    | Type
-    | Value
-    | Record<string, unknown>
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | Numeric
-    | null;
+    Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric | null;
   node?: Node;
 }
 
@@ -1515,11 +1508,7 @@ export type Expression =
 export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
 
 export type ReferenceExpression =
-  | TypeReferenceNode
-  | MemberExpressionNode
-  | IdentifierNode
-  | VoidKeywordNode
-  | NeverKeywordNode;
+  TypeReferenceNode | MemberExpressionNode | IdentifierNode | VoidKeywordNode | NeverKeywordNode;
 
 export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
@@ -1554,8 +1543,7 @@ export interface OperationSignatureReferenceNode extends BaseNode {
 }
 
 export type OperationSignature =
-  | OperationSignatureDeclarationNode
-  | OperationSignatureReferenceNode;
+  OperationSignatureDeclarationNode | OperationSignatureReferenceNode;
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.OperationStatement;
@@ -2417,6 +2405,12 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly description?: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   readonly url?: string;
+  /**
+   * Extended documentation for this diagnostic. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  readonly docs?: string | FileRef;
 }
 
 export interface DiagnosticMessages {
@@ -2564,6 +2558,12 @@ interface LinterRuleDefinitionBase<
   description: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   url?: string;
+  /**
+   * Extended documentation for this rule. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  docs?: string | FileRef;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
   /**

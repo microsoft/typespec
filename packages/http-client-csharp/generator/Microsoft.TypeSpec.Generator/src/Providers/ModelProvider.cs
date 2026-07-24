@@ -1355,7 +1355,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsUnion => type,
                 _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
-                _ => CSharpType.FromUnion([type])
+                _ => CSharpType.FromUnion([type], false, UnionItemTypeReferenceKind.MetadataOnly)
             };
         }
 

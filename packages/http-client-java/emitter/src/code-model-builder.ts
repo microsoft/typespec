@@ -71,6 +71,7 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
+  UsageFlags,
   createSdkContext,
   getAllModels,
   getClientNameOverride,
@@ -202,6 +203,7 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
+  "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
@@ -250,6 +252,9 @@ export class CodeModelBuilder {
   // when it has value, its usage is at "getFilteredApiVersions" (to filter the api-versions for
   // the client), and as the constant value of the "api-version" parameter for ARM
   private apiVersion: string | undefined;
+
+  // enum types with UsageFlags.ApiVersionEnum, collected in processVersionEnum()
+  private apiVersionEnums: SdkEnumType[] = [];
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
     this.options = context.options as EmitterOptionsDev;
@@ -361,6 +366,8 @@ export class CodeModelBuilder {
       this.codeModel.arm = true;
       this.options["group-etag-headers"] = false;
     }
+
+    this.processVersionEnum();
 
     this.processClients();
 
@@ -641,6 +648,15 @@ export class CodeModelBuilder {
     }
   }
 
+  private processVersionEnum() {
+    this.apiVersionEnums = [];
+    for (const model of getAllModels(this.sdkContext)) {
+      if (model.kind === "enum" && model.usage & UsageFlags.ApiVersionEnum) {
+        this.apiVersionEnums.push(model);
+      }
+    }
+  }
+
   private processClients() {
     // preprocess group-etag-headers
 
@@ -723,6 +739,17 @@ export class CodeModelBuilder {
         const apiVersion = new ApiVersion();
         apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
+      }
+
+      // if there is exactly 1 api-version enum, use its values to override codeModelClient.apiVersions
+      // this is due to this issue in TCGC https://github.com/Azure/typespec-azure/issues/4914
+      if (codeModelClient.apiVersions.length > 0 && this.apiVersionEnums.length === 1) {
+        codeModelClient.apiVersions = [];
+        for (const enumValue of this.apiVersionEnums[0].values) {
+          const apiVersion = new ApiVersion();
+          apiVersion.version = String(enumValue.value ?? enumValue.name);
+          codeModelClient.apiVersions.push(apiVersion);
+        }
       }
     }
 
@@ -842,9 +869,13 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
+        // Compare the api-version strings, not the ApiVersion object references. Each client
+        // builds its own ApiVersion instances (see `new ApiVersion()` above), so reference
+        // equality ("===") would always be false for clients that in fact share the same
+        // api-versions, incorrectly producing a separate ServiceVersion enum per client.
         apiVersionSameForAllClients =
           sharedApiVersions.length === apiVersions.length &&
-          sharedApiVersions.every((it, index) => it === apiVersions[index]);
+          sharedApiVersions.every((it, index) => it.version === apiVersions[index].version);
       }
       if (!apiVersionSameForAllClients) {
         break;
