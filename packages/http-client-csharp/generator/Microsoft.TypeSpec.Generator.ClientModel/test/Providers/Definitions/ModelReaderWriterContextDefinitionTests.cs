@@ -1419,7 +1419,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 _baseProvider = baseProvider;
             }
 
-            protected override ModelProvider? BuildBaseModelProvider() => _baseProvider;
+            internal override TypeProvider? BaseTypeProvider => _baseProvider;
 
             protected override string BuildName() => "DerivedModel";
         }
@@ -1432,7 +1432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             public ModelProvider? BaseProvider { get; set; }
 
-            protected override ModelProvider? BuildBaseModelProvider() => BaseProvider;
+            internal override TypeProvider? BaseTypeProvider => BaseProvider;
         }
 
         public class FrameworkTypeImplementingOtherFrameworkType : ComplexFrameworkType
