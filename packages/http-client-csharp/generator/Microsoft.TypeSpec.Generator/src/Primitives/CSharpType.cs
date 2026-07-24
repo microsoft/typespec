@@ -181,6 +181,20 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
+
+        /// <summary>
+        /// Returns the CLR metadata name for this type, including the arity suffix for generic types
+        /// (e.g., <c>Type`1</c>) and the <c>+</c>-separated declaring-type chain for nested types
+        /// (e.g., <c>Outer`1+Inner</c>). This format is compatible with
+        /// <see cref="Microsoft.CodeAnalysis.Compilation.GetTypeByMetadataName"/>.
+        /// </summary>
+        public string GetClrMetadataName()
+        {
+            var simpleName = Arguments.Count > 0 ? $"{Name}`{Arguments.Count}" : Name;
+            return DeclaringType is null
+                ? simpleName
+                : $"{DeclaringType.GetClrMetadataName()}+{simpleName}";
+        }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
         public bool IsLiteral => _literal is not null;

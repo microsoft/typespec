@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
         private const string ExperimentalAttributeFullName = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
+        private static readonly CSharpType s_buildableAttributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
@@ -58,9 +59,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(type));
 
                 string experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
                 string obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
@@ -79,20 +78,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(provider.Type));
-
-                string experimentalTypeJustification = $"{provider.Type} is experimental and may change in future versions.";
-                string obsoleteTypeJustification = $"{provider.Type} is obsolete and may be removed in future versions.";
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(provider.Type));
 
                 // If the type is experimental or obsolete, we add a suppression for it
                 AddAttributeForType(
                     attributes,
                     attributeStatement,
-                    provider,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification);
+                    provider);
             }
 
             // Back-compat: restore any ModelReaderWriterBuildableAttribute that was present in the last contract
@@ -122,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!string.Equals(
                     attribute.Type.FullyQualifiedName,
-                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    s_buildableAttributeType.FullyQualifiedName,
                     StringComparison.Ordinal))
                 {
                     continue;
@@ -149,19 +141,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    // Build the CLR metadata name parts (arity suffix for generics, '+'-chain for
-                    // nested types), mirroring NamedTypeSymbolProvider.GetMetadataName, so that
-                    // GetTypeByMetadataName resolves generic (e.g. "Type`1") and nested
-                    // (e.g. "Outer+Inner") types correctly.
-                    var clrSimpleName = GetClrSimpleMetadataName(targetType);
-                    var clrDeclaringChain = targetType.DeclaringType is null
-                        ? null
-                        : GetClrDeclaringTypeChain(targetType.DeclaringType);
-
                     resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                         targetType.Namespace,
-                        clrSimpleName,
-                        clrDeclaringChain,
+                        targetType.GetClrMetadataName(),
+                        null,
                         includeReferencedAssemblies: true);
 
                     if (resolvedProvider is null)
@@ -180,22 +163,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var newAttributeStatement = new AttributeStatement(attributeType, TypeOf(resolvedProvider.Type));
+                var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(resolvedProvider.Type));
 
                 if (isOutputLibraryType)
                 {
                     // For output-library types, reconstruct through the suppression-handling path so that
                     // [Experimental] and [Obsolete] diagnostics are properly suppressed, consistent with
                     // how generated attributes are emitted.
-                    string experimentalTypeJustification = $"{resolvedProvider.Type} is experimental and may change in future versions.";
-                    string obsoleteTypeJustification = $"{resolvedProvider.Type} is obsolete and may be removed in future versions.";
                     AddAttributeForType(
                         attributes,
                         newAttributeStatement,
-                        resolvedProvider,
-                        experimentalTypeJustification,
-                        obsoleteTypeJustification);
+                        resolvedProvider);
                 }
                 else
                 {
@@ -230,7 +208,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _ => null
             };
 
-            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
+            return attribute?.Type.Equals(s_buildableAttributeType) == true;
         }
 
         private HashSet<string> GetCustomizedBuildableTypes()
@@ -240,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!string.Equals(
                     attribute.Type.FullyQualifiedName,
-                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    s_buildableAttributeType.FullyQualifiedName,
                     StringComparison.Ordinal))
                 {
                     continue;
@@ -264,21 +242,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Arguments.Count == 0
                 ? name
                 : $"{name}<{string.Join(",", type.Arguments.Select(GetTypeIdentity))}>";
-        }
-
-        // Returns the CLR metadata simple name with arity suffix for generic types (e.g. "Type`1"),
-        // mirroring NamedTypeSymbolProvider.GetMetadataName which uses symbol.MetadataName.
-        private static string GetClrSimpleMetadataName(CSharpType type)
-            => type.Arguments.Count > 0 ? $"{type.Name}`{type.Arguments.Count}" : type.Name;
-
-        // Returns the full CLR declaring-type chain using '+' separators (e.g. "Outer`1+Middle"),
-        // mirroring the recursive NamedTypeSymbolProvider.GetMetadataName pattern.
-        private static string GetClrDeclaringTypeChain(CSharpType type)
-        {
-            var simpleName = GetClrSimpleMetadataName(type);
-            return type.DeclaringType is null
-                ? simpleName
-                : $"{GetClrDeclaringTypeChain(type.DeclaringType)}+{simpleName}";
         }
 
         /// <summary>
@@ -661,9 +624,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static void AddAttributeForType(
             Dictionary<string, MethodBodyStatement> attributes,
             AttributeStatement attributeStatement,
-            TypeProvider typeProvider,
-            string experimentalTypeJustification,
-            string obsoleteTypeJustification)
+            TypeProvider typeProvider)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
@@ -672,11 +633,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+                string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));
             }
             else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+                string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), justification));
             }
             else
             {
