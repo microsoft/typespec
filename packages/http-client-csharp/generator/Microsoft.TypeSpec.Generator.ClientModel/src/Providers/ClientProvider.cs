@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -40,6 +41,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string TokenProviderFieldName = "_tokenProvider";
         private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
+        private const string ModelReaderWriterOptionsFieldName = "_modelReaderWriterOptions";
         private const string CredentialParamName = "credential";
         private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
@@ -173,6 +175,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(Uri),
                 EndpointFieldName,
+                this);
+            ModelReaderWriterOptionsField = new(
+                FieldModifiers.Private | FieldModifiers.ReadOnly,
+                typeof(ModelReaderWriterOptions),
+                ModelReaderWriterOptionsFieldName,
                 this);
             PipelineProperty = new(
                 description: $"The HTTP pipeline for sending and receiving REST requests and responses.",
@@ -311,7 +318,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var subClientParameters = new List<ParameterProvider>
             {
-                PipelineProperty.AsParameter
+                PipelineProperty.AsParameter,
+                ModelReaderWriterOptionsField.AsParameter
             };
 
             // Auth credentials are NOT included here — the parent passes its authenticated
@@ -422,6 +430,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
+        public FieldProvider ModelReaderWriterOptionsField { get; }
 
         public IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
 
@@ -467,7 +476,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            List<FieldProvider> fields = [EndpointField];
+            List<FieldProvider> fields = [EndpointField, ModelReaderWriterOptionsField];
 
             if (_apiKeyAuthFields != null)
             {
@@ -1022,6 +1031,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.Add(clientOptionsParameter.Assign(clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate());
             body.Add(MethodBodyStatement.EmptyLine);
             body.Add(endpointAssignment.Terminate());
+            var configuredModelReaderWriterOptions = clientOptionsParameter
+                .Property("ModelReaderWriterOptions")
+                .As<ModelReaderWriterOptions>();
+            body.Add(ModelReaderWriterOptionsField.Assign(
+                new TernaryConditionalExpression(
+                    configuredModelReaderWriterOptions.Equal(Null),
+                    ModelSerializationExtensionsSnippets.Wire,
+                    New.Instance(
+                        typeof(ModelReaderWriterOptions),
+                        ModelReaderWriterOptionsSnippets.WireFormat,
+                        configuredModelReaderWriterOptions))).Terminate());
 
             // add other parameter assignments to their corresponding fields
             foreach (var p in primaryConstructorParameters)

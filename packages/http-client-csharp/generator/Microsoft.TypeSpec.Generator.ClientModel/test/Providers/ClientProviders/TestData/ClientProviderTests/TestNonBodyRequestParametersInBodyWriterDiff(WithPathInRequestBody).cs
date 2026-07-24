@@ -15,7 +15,8 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            return await this.TestOperationAsync(body.Foo, body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            using global::System.ClientModel.BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
+            return await this.TestOperationAsync(body.Foo, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

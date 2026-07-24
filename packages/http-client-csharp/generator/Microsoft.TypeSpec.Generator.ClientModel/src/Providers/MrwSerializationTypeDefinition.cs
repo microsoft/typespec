@@ -275,11 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Contains(_inputModel))
                     {
                         methods.Add(BuildImplicitToBinaryContent());
-                        // Add internal ToBinaryContent helper for format-specific serialization
-                        if (_supportsJson && _supportsXml)
-                        {
-                            methods.Add(BuildToBinaryContentMethod());
-                        }
+                        methods.Add(BuildToBinaryContentMethod());
                     }
 
                     if (ScmCodeModelGenerator.Instance.TypeFactory.RootOutputModels.Contains(_inputModel))
@@ -421,18 +417,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildToBinaryContentMethod()
         {
-            var formatParameter = new ParameterProvider("format", $"The format to use for serialization", typeof(string));
+            var optionsParameter = new ParameterProvider(
+                "options",
+                $"The options to use for serialization.",
+                typeof(ModelReaderWriterOptions));
 
-            // ModelReaderWriterOptions options = new ModelReaderWriterOptions(format);
             // return BinaryContent.Create(this, options);
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
             return new MethodProvider(
-                new MethodSignature($"To{requestContentType.Name}", FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified format"), MethodSignatureModifiers.Internal, requestContentType, null, [formatParameter]),
-                new MethodBodyStatement[]
-                {
-                    Declare("options", typeof(ModelReaderWriterOptions), New.Instance(typeof(ModelReaderWriterOptions), formatParameter), out var options),
-                    Return(RequestContentApiSnippets.Create(This, options.As<ModelReaderWriterOptions>()))
-                },
+                new MethodSignature(
+                    $"To{requestContentType.Name}",
+                    FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified options."),
+                    MethodSignatureModifiers.Internal,
+                    requestContentType,
+                    null,
+                    [optionsParameter]),
+                ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi
+                    .ToExpression()
+                    .Create(This, optionsParameter.As<ModelReaderWriterOptions>()),
                 this);
         }
 

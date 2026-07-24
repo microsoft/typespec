@@ -28,14 +28,14 @@ namespace Sample
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
         public virtual global::System.ClientModel.ClientResult Upload(global::Sample.Models.MultiPartRequest body = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent();
+            using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent(_modelReaderWriterOptions);
             return this.Upload(content, content?.MediaType, cancellationToken.ToRequestOptions());
         }
 
         [global::System.Diagnostics.CodeAnalysis.ExperimentalAttribute("SCME0004")]
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::Sample.Models.MultiPartRequest body = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent();
+            using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent(_modelReaderWriterOptions);
             return await this.UploadAsync(content, content?.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }

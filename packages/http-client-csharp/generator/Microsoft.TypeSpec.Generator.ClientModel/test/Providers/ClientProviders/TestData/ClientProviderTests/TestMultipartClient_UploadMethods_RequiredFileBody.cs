@@ -36,7 +36,7 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            using global::System.ClientModel.MultiPartFormContent content = body.ToMultipartFormContent();
+            using global::System.ClientModel.MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
             return this.Upload(content, content.MediaType, cancellationToken.ToRequestOptions());
         }
 
@@ -45,7 +45,7 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            using global::System.ClientModel.MultiPartFormContent content = body.ToMultipartFormContent();
+            using global::System.ClientModel.MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
             return await this.UploadAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
