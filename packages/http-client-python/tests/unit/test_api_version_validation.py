@@ -13,9 +13,9 @@ something other than ``apiVersion`` (e.g. Azure Storage names it ``version`` via
 ``AttributeError`` which the decorator silently swallowed, disabling ALL
 api-version validation for those clients.
 
-The fix threads an accessor for the real config attribute into the decorator via
-a ``client_api_version_getter`` kwarg (``lambda config: config.<client_name>``),
-emitted only when the attribute name differs from the default ``api_version``.
+The fix threads the real config attribute name (the api-version parameter's
+``client_name``) into the decorator via a ``client_api_version_name`` kwarg,
+emitted only when it differs from the default ``api_version``.
 """
 
 import pytest
@@ -130,9 +130,9 @@ def _serializer(code_model):
     return OperationSerializer(code_model, async_mode=False, client_namespace="blah")
 
 
-def test_emits_client_api_version_getter_when_param_is_not_api_version(code_model):
+def test_emits_client_api_version_name_when_param_is_not_api_version(code_model):
     # Storage-like: the versioning parameter is named ``version`` -> config attr
-    # is ``self.version``, so the decorator must read that attribute directly.
+    # is ``self.version``, so the decorator must be told to read that attribute.
     client = _client(code_model)
     client.config.parameters.parameters.append(
         _api_version_config_parameter(code_model, "version")
@@ -141,7 +141,7 @@ def test_emits_client_api_version_getter_when_param_is_not_api_version(code_mode
 
     decorator = _serializer(code_model)._api_version_validation(operation)
 
-    assert "    client_api_version_getter=lambda config: config.version," in decorator
+    assert '    client_api_version_name="version",' in decorator
 
 
 def test_no_kwarg_when_param_is_conventional_api_version(code_model):
@@ -156,7 +156,7 @@ def test_no_kwarg_when_param_is_conventional_api_version(code_model):
     decorator = _serializer(code_model)._api_version_validation(operation)
 
     assert decorator  # decorator is still emitted (operation has addedOn)
-    assert "client_api_version_getter" not in decorator
+    assert "client_api_version_name" not in decorator
 
 
 def test_no_kwarg_when_no_api_version_param(code_model):
@@ -166,4 +166,4 @@ def test_no_kwarg_when_no_api_version_param(code_model):
     decorator = _serializer(code_model)._api_version_validation(operation)
 
     assert decorator
-    assert "client_api_version_getter" not in decorator
+    assert "client_api_version_name" not in decorator
