@@ -95,8 +95,89 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification);
             }
 
+            // Back-compat: restore any ModelReaderWriterBuildableAttribute that was present in the last contract
+            // but is missing from the freshly generated set, without introducing duplicates.
+            AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
+
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        private void AddLastContractBuildableAttributes(
+            Dictionary<string, MethodBodyStatement> attributes,
+            HashSet<string> customizedBuildableTypes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return;
+            }
+
+            var presentSimpleNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var key in attributes.Keys)
+            {
+                presentSimpleNames.Add(GetSimpleTypeName(key));
+            }
+
+            foreach (var customizedType in customizedBuildableTypes)
+            {
+                presentSimpleNames.Add(GetSimpleTypeName(customizedType));
+            }
+
+            var outputLibraryProviders = new Dictionary<string, TypeProvider>(StringComparer.Ordinal);
+            foreach (var provider in ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders)
+            {
+                outputLibraryProviders.TryAdd(GetTypeIdentity(provider.Type), provider);
+            }
+
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (!string.Equals(
+                    attribute.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var targetType = GetBuildableAttributeTargetType(attribute);
+                if (targetType is null)
+                {
+                    continue;
+                }
+
+                var identity = GetTypeIdentity(targetType);
+                var existsInGeneratedAssembly = outputLibraryProviders.TryGetValue(identity, out var matchingProvider)
+                    ? ShouldWriteProvider(matchingProvider)
+                    : ScmCodeModelGenerator.Instance.SourceInputModel.Customization?.GetTypeByMetadataName(identity) is not null;
+
+                if (!existsInGeneratedAssembly)
+                {
+                    continue;
+                }
+
+                var simpleName = GetSimpleTypeName(identity);
+
+                // Only add the entry when neither the current generation nor customized code already produced it.
+                if (!presentSimpleNames.Add(simpleName))
+                {
+                    continue;
+                }
+
+                attributes.TryAdd(identity, attribute);
+            }
+        }
+
+        private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)
+        {
+            foreach (var argument in attribute.Arguments)
+            {
+                if (argument is TypeOfExpression typeOf)
+                {
+                    return typeOf.Type;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
