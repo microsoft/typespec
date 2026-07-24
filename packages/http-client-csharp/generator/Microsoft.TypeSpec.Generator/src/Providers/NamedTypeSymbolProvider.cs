@@ -524,9 +524,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
 
         private static bool IsPublic(SyntaxTokenList modifiers)
-            => modifiers.Any(static modifier =>
-                modifier.IsKind(SyntaxKind.PublicKeyword) ||
-                modifier.IsKind(SyntaxKind.ProtectedKeyword));
+            => modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PublicKeyword)) ||
+                (modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.ProtectedKeyword)) &&
+                 !modifiers.Any(static modifier => modifier.IsKind(SyntaxKind.PrivateKeyword)));
 
         private static bool IsImplicitPublicInterfaceMember(MemberDeclarationSyntax member)
             => member.Parent is InterfaceDeclarationSyntax &&
