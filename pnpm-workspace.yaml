@@ -45,10 +45,6 @@ catalog:
   "@fluentui/react-icons": ^2.0.323
   "@fluentui/react-list": ^9.6.13
   "@inquirer/prompts": ^8.4.1
-  "@microsoft/api-extractor": ^7.58.1
-  "@microsoft/api-extractor-model": ^7.33.5
-  "@microsoft/tsdoc": ^0.16.0
-  "@microsoft/tsdoc-config": ^0.18.1
   "@octokit/core": ^7.0.6
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0

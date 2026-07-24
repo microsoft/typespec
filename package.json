@@ -44,7 +44,6 @@
     "@chronus/chronus": "catalog:",
     "@chronus/github": "catalog:",
     "@chronus/github-pr-commenter": "catalog:",
-    "@microsoft/api-extractor": "catalog:",
     "@octokit/core": "catalog:",
     "@octokit/plugin-paginate-graphql": "catalog:",
     "@octokit/plugin-rest-endpoint-methods": "catalog:",
@@ -66,6 +65,7 @@
     "rimraf": "catalog:",
     "tsx": "catalog:",
     "turbo": "catalog:",
+    "typedoc": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "yaml": "catalog:"

@@ -86,7 +86,7 @@
     "clean": "rimraf ./dist ./temp",
     "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
     "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
-    "api-extractor": "api-extractor run --local --verbose",
+    "check-api-docs": "tsx ../../eng/tsp-core/scripts/check-api-docs.ts .",
     "compile": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",

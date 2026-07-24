@@ -281,9 +281,9 @@ Typekits for working with the top level entity.
  * @param diagnosticTarget - Target for the diagnostic
  */
 $(program).entity
-  .isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+  .isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Node | Entity): boolean;
 $(program).entity.isAssignableTo
-  .withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+  .withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Node | Entity): [boolean, readonly Diagnostic[]];
 ```
 
 ### resolve <Badge variant="note" text="Diagnosable" />
@@ -294,9 +294,9 @@ $(program).entity.isAssignableTo
  *
  * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
  */
-$(program).entity.resolve(): reference: stringEntity | undefined;
+$(program).entity.resolve(reference: string): Entity | undefined;
 $(program).entity.resolve
-  .withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnostic[]];
+  .withDiagnostics(reference: string): [Entity | undefined, readonly Diagnostic[]];
 ```
 
 ## enum
@@ -433,7 +433,7 @@ A Typekit for working with literal types(string, numeric, boolean).
  * @param value - The JavaScript value to turn into a TypeSpec literal type.
  */
 $(program).literal
-  .create(value: string | number | boolean): StringLiteral | NumericLiteral | BooleanLiteral;
+  .create(value: string | number | boolean): BooleanLiteral | NumericLiteral | StringLiteral;
 ```
 
 ### createBoolean
@@ -478,7 +478,7 @@ $(program).literal.createString(value: string): StringLiteral;
  * @param type - The type to check.
  */
 $(program).literal
-  .is(type: Entity): type is StringLiteral | NumericLiteral | BooleanLiteral;
+  .is(type: Entity): type is BooleanLiteral | NumericLiteral | StringLiteral;
 ```
 
 ### isBoolean
@@ -562,7 +562,7 @@ $(program).model.getDiscriminatedUnion
 /**
  * If the input is anonymous (or the provided filter removes properties) and there exists a named model with the same set of properties (ignoring filtered properties), then return that named model. Otherwise, return the input unchanged.
  *
- * This can be used by emitters to find a better name for a set of properties after filtering. For example, given `{  @metadata prop: string} & SomeName`, and an emitter that wishes to discard properties marked with `@metadata`, the emitter can use this to recover that the best name for the remaining properties is `SomeName`.
+ * This can be used by emitters to find a better name for a set of properties after filtering. For example, given `{ @metadata prop: string} & SomeName`, and an emitter that wishes to discard properties marked with `@metadata`, the emitter can use this to recover that the best name for the remaining properties is `SomeName`.
  *
  * @param model - The input model
  *
@@ -570,7 +570,7 @@ $(program).model.getDiscriminatedUnion
  */
 $(program).model.getEffectiveModel(
   model: Model,
-  filter: (property: ModelProperty) => boolean
+  filter?: (property: ModelProperty) => boolean
 ): Model;
 ```
 
@@ -584,9 +584,7 @@ $(program).model.getEffectiveModel(
  */
 $(program).model.getProperties(
   model: Model,
-  options: {
-          includeExtended?: boolean;
-      }
+  options?: { includeExtended?: boolean }
 ): RekeyableMap<string, ModelProperty>;
 ```
 
@@ -1362,7 +1360,7 @@ $(program).scalar.isUtcDateTime(type: Entity): type is Scalar;
  *
  * @param values - The tuple values, if any.
  */
-$(program).tuple.create(values: Type[]): Tuple;
+$(program).tuple.create(values?: Type[]): Tuple;
 ```
 
 ### is
@@ -1414,9 +1412,7 @@ $(program).type.getDoc(type: Type): string | undefined;
  * Get the name of this type in the specified encoding.
  */
 $(program).type.getEncodedName(
-  type: Type & {
-          name: string;
-      },
+  type: Type & { name: string },
   encoding: string
 ): string;
 ```
@@ -1429,7 +1425,7 @@ $(program).type.getEncodedName(
  *
  * @param type - The scalar to get the name of.z
  */
-$(program).type.getPlausibleName(type: Model | Union | Enum | Scalar): string;
+$(program).type.getPlausibleName(type: Enum | Model | Scalar | Union): string;
 ```
 
 ### getSummary
@@ -1482,9 +1478,9 @@ $(program).type.is(entity: Entity): entity is Type;
  * @param diagnosticTarget - Target for the diagnostic
  */
 $(program).type
-  .isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+  .isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Node | Entity): boolean;
 $(program).type.isAssignableTo
-  .withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+  .withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Node | Entity): [boolean, readonly Diagnostic[]];
 ```
 
 ### isError
@@ -1558,8 +1554,6 @@ $(program).type.maxValue(type: Type): number | undefined;
 ```ts
 /**
  * Gets the maximum value this numeric type should be, exclusive of the given value.
- *
- * @param type -
  */
 $(program).type.maxValueExclusive(type: Type): number | undefined;
 ```
@@ -1619,13 +1613,9 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
  */
 $(program).type
-  .resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
-        kind: K;
-    }> : undefined);
+  .resolve(reference: string, kind?: K): K extends "Boolean" | "Decorator" | "FunctionType" | "Enum" | "EnumMember" | "FunctionParameter" | "Interface" | "Intrinsic" | "Model" | "ModelProperty" | "Namespace" | "Number" | "Operation" | "Scalar" | "ScalarConstructor" | "String" | "StringTemplate" | "StringTemplateSpan" | "TemplateParameter" | "TemplateParameterAccess" | "Tuple" | "Union" | "UnionVariant" ? Extract<BooleanLiteral, { kind: K }> | Extract<Decorator, { kind: K }> | Extract<FunctionType, { kind: K }> | Extract<Enum, { kind: K }> | Extract<EnumMember, { kind: K }> | Extract<MixedFunctionParameter, { kind: K }> | Extract<SignatureFunctionParameter, { kind: K }> | Extract<Interface, { kind: K }> | Extract<IntrinsicType, { kind: K }> | Extract<Model, { kind: K }> | Extract<ModelProperty, { kind: K }> | Extract<Namespace, { kind: K }> | Extract<NumericLiteral, { kind: K }> | Extract<Operation, { kind: K }> | Extract<Scalar, { kind: K }> | Extract<ScalarConstructor, { kind: K }> | Extract<StringLiteral, { kind: K }> | Extract<StringTemplate, { kind: K }> | Extract<StringTemplateSpanLiteral, { kind: K }> | Extract<StringTemplateSpanValue, { kind: K }> | Extract<TemplateParameter, { kind: K }> | Extract<TemplateParameterAccess, { kind: K }> | Extract<Tuple, { kind: K }> | Extract<Union, { kind: K }> | Extract<UnionVariant, { kind: K }> : undefined;
 $(program).type.resolve
-  .withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
-        kind: K;
-    }> : undefined), readonly Diagnostic[]];
+  .withDiagnostics(reference: string, kind?: K): [K extends "Boolean" | "Decorator" | "FunctionType" | "Enum" | "EnumMember" | "FunctionParameter" | "Interface" | "Intrinsic" | "Model" | "ModelProperty" | "Namespace" | "Number" | "Operation" | "Scalar" | "ScalarConstructor" | "String" | "StringTemplate" | "StringTemplateSpan" | "TemplateParameter" | "TemplateParameterAccess" | "Tuple" | "Union" | "UnionVariant" ? Extract<BooleanLiteral, { kind: K }> | Extract<Decorator, { kind: K }> | Extract<FunctionType, { kind: K }> | Extract<Enum, { kind: K }> | Extract<EnumMember, { kind: K }> | Extract<MixedFunctionParameter, { kind: K }> | Extract<SignatureFunctionParameter, { kind: K }> | Extract<Interface, { kind: K }> | Extract<IntrinsicType, { kind: K }> | Extract<Model, { kind: K }> | Extract<ModelProperty, { kind: K }> | Extract<Namespace, { kind: K }> | Extract<NumericLiteral, { kind: K }> | Extract<Operation, { kind: K }> | Extract<Scalar, { kind: K }> | Extract<ScalarConstructor, { kind: K }> | Extract<StringLiteral, { kind: K }> | Extract<StringTemplate, { kind: K }> | Extract<StringTemplateSpanLiteral, { kind: K }> | Extract<StringTemplateSpanValue, { kind: K }> | Extract<TemplateParameter, { kind: K }> | Extract<TemplateParameterAccess, { kind: K }> | Extract<Tuple, { kind: K }> | Extract<Union, { kind: K }> | Extract<UnionVariant, { kind: K }> : undefined, readonly Diagnostic[]];
 ```
 
 ## union
@@ -1638,11 +1628,7 @@ Utilities for working with unions.
 /**
  * Create an anonymous union type from an array of types.
  *
- * @param children - The types to create a union from.
- *
- * Any API documentation will be rendered and preserved in the resulting union.
- *
- * No other decorators are copied from the enum to the union.
+ * @param children - The types to create a union from. Any API documentation will be rendered and preserved in the resulting union. No other decorators are copied from the enum to the union.
  */
 $(program).union.create(children: Type[]): Union;
 ```
@@ -1653,15 +1639,7 @@ $(program).union.create(children: Type[]): Union;
 /**
  * Creates a union type from an enum.
  *
- * @remarks
- *
- * @param type - The enum to create a union from.
- *
- * For member without an explicit value, the member name is used as the value.
- *
- * Any API documentation will be rendered and preserved in the resulting union.
- *
- * No other decorators are copied from the enum to the union.
+ * @param type - The enum to create a union from. For member without an explicit value, the member name is used as the value. Any API documentation will be rendered and preserved in the resulting union. No other decorators are copied from the enum to the union.
  */
 $(program).union.createFromEnum(type: Enum): Union;
 ```
@@ -1958,11 +1936,7 @@ $(program).value.isString(type: Entity): type is StringValue;
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
  */
 $(program).value
-  .resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
-        valueKind: K;
-    }> : undefined);
+  .resolve(reference: string, kind?: K): K extends "NumericValue" | "ScalarValue" | "StringValue" | "BooleanValue" | "ObjectValue" | "ArrayValue" | "NullValue" | "EnumValue" | "Function" ? Extract<ScalarValue, { valueKind: K }> | Extract<NumericValue, { valueKind: K }> | Extract<StringValue, { valueKind: K }> | Extract<BooleanValue, { valueKind: K }> | Extract<ObjectValue, { valueKind: K }> | Extract<ArrayValue, { valueKind: K }> | Extract<EnumValue, { valueKind: K }> | Extract<NullValue, { valueKind: K }> | Extract<FunctionValue<never[], unknown>, { valueKind: K }> : undefined;
 $(program).value.resolve
-  .withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
-        valueKind: K;
-    }> : undefined), readonly Diagnostic[]];
+  .withDiagnostics(reference: string, kind?: K): [K extends "NumericValue" | "ScalarValue" | "StringValue" | "BooleanValue" | "ObjectValue" | "ArrayValue" | "NullValue" | "EnumValue" | "Function" ? Extract<ScalarValue, { valueKind: K }> | Extract<NumericValue, { valueKind: K }> | Extract<StringValue, { valueKind: K }> | Extract<BooleanValue, { valueKind: K }> | Extract<ObjectValue, { valueKind: K }> | Extract<ArrayValue, { valueKind: K }> | Extract<EnumValue, { valueKind: K }> | Extract<NullValue, { valueKind: K }> | Extract<FunctionValue<never[], unknown>, { valueKind: K }> : undefined, readonly Diagnostic[]];
 ```
