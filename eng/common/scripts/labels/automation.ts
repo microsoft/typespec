@@ -177,7 +177,7 @@ function createExternalReviewersConfig(config: RepoConfig): PolicyServiceConfig 
               // on every subsequent push (the prs.triage policy also adds it, but adding
               // it here guarantees the guard is set even if that policy hasn't run yet).
               return {
-                if: [includesModifiedFiles(globs), not(hasLabel(area))],
+                if: [includesModifiedFiles(globs), not(hasLabel(area)), not("isDraft")],
                 then: [
                   addReply(
                     `${mentions} — this PR modifies files in the \`${area}\` area, which your team owns. Please take a look. (You can't be added as a formal reviewer because you're not a repository collaborator, so this is a heads-up instead.)`,
