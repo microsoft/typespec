@@ -191,6 +191,7 @@ export interface EmitterOptionsDev {
   "generate-tests"?: boolean;
 
   // customization
+  "required-fields-as-ctor-args"?: boolean;
   "partial-update"?: boolean;
   "models-subpackage"?: string;
   "custom-types"?: string;
