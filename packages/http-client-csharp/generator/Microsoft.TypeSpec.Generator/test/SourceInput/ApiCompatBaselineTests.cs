@@ -38,6 +38,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         }
 
         [Test]
+        public void ParsesXmlSuppressions()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "Baseline");
+
+            Assert.IsTrue(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol"));
+            Assert.IsTrue(baseline.IsMemberSuppressed(
+                "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
+                "ProtocolVersionRecord",
+                2));
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed(
+                "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
+                "ProtocolVersionRecord",
+                [
+                    new CSharpType(typeof(string)),
+                    new CSharpType(typeof(IEnumerable<string>))
+                ]));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", ".ctor", 0));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 0));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 1));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "LegacyField", 0));
+            Assert.IsTrue(baseline.IsTypeSuppressed("Ns.Outer.Inner"));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Outer.Inner", "Reset", 0));
+
+            var genericParameter = new CSharpType(typeof(IEnumerable<>).GetGenericArguments()[0]);
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Generic", [genericParameter]));
+            Assert.IsFalse(baseline.IsMemberSuppressed("Ns.Foo", "ParameterRename", 1));
+        }
+
+        [Test]
         public void TypeSuppressionImpliesAllMembersSuppressed()
         {
             var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
