@@ -462,6 +462,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             check_kwarg_dict=True,
             pop_headers_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.headers) else PopKwargType.NO),
             pop_params_kwarg=(PopKwargType.CASE_INSENSITIVE if bool(builder.parameters.query) else PopKwargType.NO),
+            is_body_optional=builder.parameters.has_body and builder.parameters.body_parameter.optional,
         )
 
     @staticmethod
@@ -491,6 +492,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             for h in builder.parameters.headers
             if not builder.has_form_data_body or h.wire_name.lower() != "content-type"
         ]
+        is_body_optional = builder.parameters.has_body and builder.parameters.body_parameter.optional
         retval = ["# Construct headers"] if headers else []
         for header in headers:
             retval.extend(
@@ -499,6 +501,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
                     "headers",
                     self.serializer_name,
                     self.code_model.is_legacy,
+                    is_body_optional=is_body_optional,
                 )
             )
         return retval
