@@ -652,6 +652,25 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return true;
         }
 
+        /// <summary>
+        /// Checks whether two <see cref="CSharpType"/> instances have equal names, optionally also requiring
+        /// their nullability to match. Unlike <see cref="Equals(CSharpType, bool)"/>, this compares only
+        /// names (and generic argument names), which is useful when comparing against a type read from source
+        /// that may not carry the same metadata (for example an extensible enum, read back as a struct).
+        /// </summary>
+        /// <param name="other">The instance to compare to.</param>
+        /// <param name="checkNullability">When <c>true</c>, the two types must also have the same <see cref="IsNullable"/> value.</param>
+        /// <returns><c>true</c> if the names (and, when requested, nullability) are equal; <c>false</c> otherwise.</returns>
+        internal bool AreNamesEqual(CSharpType? other, bool checkNullability)
+        {
+            if (!AreNamesEqual(other))
+            {
+                return false;
+            }
+
+            return !checkNullability || IsNullable == other!.IsNullable;
+        }
+
         private bool IsNameMatch(CSharpType other)
         {
             if (string.IsNullOrEmpty(Namespace))
