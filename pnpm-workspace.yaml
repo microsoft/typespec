@@ -54,7 +54,6 @@ catalog:
   "@octokit/plugin-rest-endpoint-methods": ^17.0.0
   "@playwright/test": ^1.60.0
   "@pinterest/alloy-graphql": ^1.1.0
-  "@pnpm/workspace.find-packages": ^1000.0.65
   "@scalar/json-magic": ^0.12.15
   "@scalar/openapi-parser": ^0.28.6
   "@scalar/openapi-types": ^0.9.1
@@ -116,7 +115,7 @@ catalog:
   esbuild-plugins-node-modules-polyfill: ^1.8.1
   execa: ^9.6.1
   express: ^5.2.1
-  fast-xml-parser: ^5.7.0
+  fast-xml-parser: ^5.10.1
   graphql: ^17.0.0-alpha.9
   happy-dom: ^20.9.0
   is-unicode-supported: ^2.1.0
@@ -166,7 +165,11 @@ catalog:
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
   tsx: ^4.21.0
-  turbo: 2.10.5
+  # Pinned to 2.9.14: turbo 2.10.1+ ships libghostty-vt built with non-baseline
+  # CPU instructions, causing STATUS_ILLEGAL_INSTRUCTION hard crashes on some
+  # Windows CI runners (vercel/turborepo#13346). Revisit once a fully-fixed
+  # stable (>=2.10.6) is verified on Windows.
+  turbo: 2.9.14
   typedoc: ^0.28.19
   typedoc-plugin-markdown: ^4.11.0
   typescript: ~6.0.2

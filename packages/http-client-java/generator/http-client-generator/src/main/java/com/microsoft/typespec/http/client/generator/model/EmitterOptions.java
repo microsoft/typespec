@@ -28,6 +28,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean enableSyncStack = true;
     private Boolean streamStyleSerialization = true;
     private Boolean partialUpdate;
+    private Boolean requiredFieldsAsConstructorArgs;
     private String customTypes;
     private String customTypeSubpackage;
     private String customizationClass;
@@ -83,6 +84,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getPartialUpdate() {
         return partialUpdate;
+    }
+
+    public Boolean getRequiredFieldsAsConstructorArgs() {
+        return requiredFieldsAsConstructorArgs;
     }
 
     public Boolean getGenerateTests() {
@@ -237,6 +242,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.streamStyleSerialization = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("partial-update".equals(fieldName)) {
                 options.partialUpdate = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("required-fields-as-ctor-args".equals(fieldName)) {
+                options.requiredFieldsAsConstructorArgs = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("custom-types".equals(fieldName)) {
                 options.customTypes = emptyToNull(reader.getString());
             } else if ("custom-types-subpackage".equals(fieldName)) {
