@@ -2075,6 +2075,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public async Task LastContractBuildableAttributesForObsoleteCustomTypeHaveSuppression()
+        {
+            // The last contract declared a buildable attribute for ObsoleteCustomModel. The type is defined
+            // only in the customization layer (not produced by the current generation) with [Obsolete].
+            // The restored attribute must be wrapped in #pragma warning disable CS0618 suppressions.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "RegularModel is produced by the current generation and must appear exactly once");
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("ObsoleteCustomModel")),
+                "ObsoleteCustomModel is in the customization layer and must be restored for back-compat");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
         // match by fully qualified name to cover both generated and restored entries.
         private static List<AttributeStatement> GetBuildableAttributes(ModelReaderWriterContextDefinition contextDefinition)

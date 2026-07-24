@@ -128,7 +128,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var identity = GetTypeIdentity(targetType);
 
-                bool isOutputLibraryType;
                 TypeProvider? resolvedProvider;
                 if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
                 {
@@ -137,13 +136,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         continue;
                     }
                     resolvedProvider = outputLibraryProvider;
-                    isOutputLibraryType = true;
                 }
                 else
                 {
                     resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                         targetType.Namespace,
-                        targetType.GetClrMetadataName(),
+                        targetType.ClrMetadataName,
                         null,
                         includeReferencedAssemblies: true);
 
@@ -151,7 +149,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         continue;
                     }
-                    isOutputLibraryType = false;
                 }
 
                 // Use targetType (the original constructed type from the last contract) for both the key and the
@@ -165,25 +162,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(targetType));
 
-                if (isOutputLibraryType)
-                {
-                    // For output-library types, reconstruct through the suppression-handling path so that
-                    // [Experimental] and [Obsolete] diagnostics are properly suppressed, consistent with
-                    // how generated attributes are emitted.
-                    AddAttributeForType(
-                        attributes,
-                        newAttributeStatement,
-                        resolvedProvider,
-                        typeKey);
-                }
-                else
-                {
-                    // For types resolved from the customization layer or referenced assemblies,
-                    // add the attribute directly; their symbol model may not be fully representable
-                    // through the generator's expression tree (e.g. BCL types), so skip the
-                    // CanonicalView-based suppression path that is designed for output-library types.
-                    attributes.Add(typeKey, newAttributeStatement);
-                }
+                // Route through the suppression-handling path so that [Experimental] and [Obsolete]
+                // diagnostics are properly suppressed. NamedTypeSymbolProvider (returned for customization
+                // and referenced-assembly types) exposes symbol attributes through CanonicalView.Attributes,
+                // so the same suppression check works for all resolved providers.
+                AddAttributeForType(
+                    attributes,
+                    newAttributeStatement,
+                    resolvedProvider,
+                    typeKey);
             }
         }
 
@@ -634,7 +621,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
-            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
+            // Use CanonicalView only when the provider has a custom-code layer, since CanonicalTypeProvider
+            // merges generated and customization attributes. For symbol-backed providers (NamedTypeSymbolProvider,
+            // which have no custom-code layer), use Attributes directly to avoid DeduplicateAttributes invoking
+            // ToDisplayString() on BCL/framework attributes that contain literal argument types not handled by
+            // LiteralExpression.Write (e.g. uint, byte). This is safe because symbol providers never merge
+            // a separate custom-code view.
+            var sourceAttributes = typeProvider.CustomCodeView != null
+                ? typeProvider.CanonicalView.Attributes
+                : typeProvider.Attributes;
+            AttributeStatement? experimentalOrObsoleteAttribute = sourceAttributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
