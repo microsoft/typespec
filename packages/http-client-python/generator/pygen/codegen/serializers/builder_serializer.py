@@ -637,7 +637,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 None,
             )
             if api_version_param and api_version_param.client_name != "api_version":
-                retval.append(f'    client_api_version_name="{api_version_param.client_name}",')
+                retval.append(
+                    f"    client_api_version_getter=lambda config: config.{api_version_param.client_name},"
+                )
             retval_str = "\n".join(retval)
             return f"@api_version_validation(\n{retval_str}\n)"
         return ""
