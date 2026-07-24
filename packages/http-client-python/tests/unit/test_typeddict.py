@@ -7,6 +7,7 @@
 """Tests for TypedDict generation, unions generation, and models-mode interactions."""
 
 from jinja2 import PackageLoader, Environment
+from pygen.codegen.serializers import JinjaSerializer
 
 from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
 from pygen.codegen.models.imports import ImportType
@@ -39,6 +40,16 @@ def _make_code_model(models_mode="dpg"):
             "models-mode": models_mode,
             "flavor": "unbranded",
             "client-side-validation": False,
+            "keep-setup-py": False,
+            "basic-setup-py": False,
+            "clear-output-folder": False,
+            "no-async": True,
+            "package-mode": False,
+            "generate-sample": False,
+            "generate-test": False,
+            "emit-cross-language-definition-file": False,
+            "no-namespace-folders": False,
+            "version-tolerant": False,
         },
     )
 
@@ -684,3 +695,33 @@ def test_type_changing_under_types_file_does_not_cause_spurious_builtins_import(
 
     output = ts.serialize()
     assert "import builtins" not in output
+
+
+def test_jinja_serializer_writes_types_package(tmp_path):
+    """TypedDict generation should emit a patchable types/ package instead of a single types.py file."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_model(code_model, "Foo", model_cls=TypedDictModelType)
+    code_model.model_types = [model]
+
+    JinjaSerializer(code_model=code_model, output_folder=tmp_path).serialize()
+
+    namespace_path = tmp_path / "namespace"
+    assert (namespace_path / "types" / "__init__.py").is_file()
+    assert (namespace_path / "types" / "_types.py").is_file()
+    assert (namespace_path / "types" / "_patch.py").is_file()
+    assert not (namespace_path / "types.py").exists()
+
+
+def test_jinja_serializer_removes_stale_types_py(tmp_path):
+    """Regeneration should remove an old top-level types.py once the types/ package is emitted."""
+    code_model = _make_code_model(models_mode="typeddict")
+    model = _make_model(code_model, "Foo", model_cls=TypedDictModelType)
+    code_model.model_types = [model]
+
+    namespace_path = tmp_path / "namespace"
+    namespace_path.mkdir(parents=True, exist_ok=True)
+    (namespace_path / "types.py").write_text("# stale file", encoding="utf-8")
+
+    JinjaSerializer(code_model=code_model, output_folder=tmp_path).serialize()
+
+    assert not (namespace_path / "types.py").exists()

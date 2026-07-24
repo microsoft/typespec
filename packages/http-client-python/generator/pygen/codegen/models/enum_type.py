@@ -268,13 +268,15 @@ class EnumType(BaseType):
                 if serialize_namespace_type == NamespaceType.TYPES_FILE:
                     # Same file — no import needed for same-namespace enums
                     serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-                    if self.client_namespace != serialize_namespace:
+                    serialize_client_namespace = kwargs.get("serialize_client_namespace", self.code_model.namespace)
+                    if self.client_namespace != serialize_client_namespace:
                         # Cross-namespace: import from sibling types module
-                        relative_path = self.code_model.get_relative_import_path(
-                            serialize_namespace, self.client_namespace
-                        )
                         file_import.add_submodule_import(
-                            f"{relative_path}types" if relative_path != "." else ".types",
+                            self.code_model.get_relative_import_path(
+                                serialize_namespace,
+                                self.client_namespace,
+                                module_name="types",
+                            ),
                             self.name,
                             ImportType.LOCAL,
                             typing_section=TypingSection.REGULAR,
@@ -307,7 +309,11 @@ class EnumType(BaseType):
                 elif serialize_namespace_type == NamespaceType.TYPES_FILE:
                     # Import enum name directly to avoid dotted forward refs in TypedDict annotations
                     file_import.add_submodule_import(
-                        f"{relative_path}models" if relative_path != "." else ".models",
+                        self.code_model.get_relative_import_path(
+                            serialize_namespace,
+                            self.client_namespace,
+                            module_name="models",
+                        ),
                         self.name,
                         ImportType.LOCAL,
                         typing_section=TypingSection.TYPING,

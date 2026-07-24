@@ -1,0 +1,22 @@
+{% import 'keywords.jinja2' as keywords %}
+# coding=utf-8
+{% if code_model.license_header %}
+{{ code_model.license_header }}
+{% endif %}
+{{ keywords.path_type_checking_imports() }}
+{% if types %}
+
+from ._types import (  # type: ignore
+    {% for type_name in types %}
+    {{ type_name }},
+    {% endfor %}
+)
+{% endif %}
+{{ keywords.patch_imports() }}
+__all__ = [
+    {% for type_name in types %}
+    '{{ type_name }}',
+    {% endfor %}
+]
+{{ keywords.extend_all }}
+_patch_sdk()
