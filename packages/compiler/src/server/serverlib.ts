@@ -75,6 +75,7 @@ import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.
 import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
 import {
   AugmentDecoratorStatementNode,
+  CodeFix,
   CodeFixEdit,
   CompilerHost,
   DecoratorDeclarationStatementNode,
@@ -178,6 +179,8 @@ export function createServer(
   });
   let currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;
+  const resolvedCodefixCache = new Map<string, Promise<CodeFix[]>>(); // AI suggestion result cache - declared
+  const resolvedCodefixMap = new Map<string, CodeFix>(); // resolved codefix lookup for resolveCodeAction
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
@@ -880,6 +883,8 @@ export function createServer(
     // Atomically swap the diagnostic index so that in-flight code action resolves
     // referencing old diagnostic IDs can still find their entries until new diagnostics are sent.
     currentDiagnosticIndex = newDiagnosticIndex;
+    resolvedCodefixCache.clear(); // AI suggestion result cache - cleared on recompilation
+    resolvedCodefixMap.clear();
 
     for (const [document, diagnostics] of diagnosticMap) {
       sendDiagnostics(document, diagnostics);
@@ -1396,13 +1401,41 @@ export function createServer(
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
       for (const fix of tspDiag.codefixes ?? []) {
-        const codeAction: CodeAction = {
-          title: fix.label,
-          kind: CodeActionKind.QuickFix,
-          diagnostics: [vsDiag],
-          data: { diagId: vsDiag.data?.id, fixId: fix.id },
-        };
-        actions.push(codeAction);
+        if (fix.resolveCodefixes) {
+          const cacheKey = `${vsDiag.data?.id}:${fix.id}`;
+          if (!resolvedCodefixCache.has(cacheKey)) {
+            // AI suggestion result cache - checked and populated (Promise cached immediately to prevent concurrent duplicates)
+            resolvedCodefixCache.set(cacheKey, fix.resolveCodefixes().catch(() => []));
+          }
+
+          try {
+            const resolved = await resolvedCodefixCache.get(cacheKey)!;
+            for (const resolvedFix of resolved) {
+              // Store in map for resolveCodeAction lookup (not in the diagnostic array)
+              resolvedCodefixMap.set(resolvedFix.id, resolvedFix);
+              actions.push({
+                title: resolvedFix.label,
+                kind: CodeActionKind.QuickFix,
+                diagnostics: [vsDiag],
+                data: { diagId: vsDiag.data?.id, fixId: resolvedFix.id },
+              });
+            }
+          } catch {
+            actions.push({
+              title: fix.label,
+              kind: CodeActionKind.QuickFix,
+              diagnostics: [vsDiag],
+              data: { diagId: vsDiag.data?.id, fixId: fix.id },
+            });
+          }
+        } else {
+          actions.push({
+            title: fix.label,
+            kind: CodeActionKind.QuickFix,
+            diagnostics: [vsDiag],
+            data: { diagId: vsDiag.data?.id, fixId: fix.id },
+          });
+        }
       }
     }
 
@@ -1412,8 +1445,10 @@ export function createServer(
   async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
     const { diagId, fixId } = codeAction.data ?? {};
     if (diagId !== undefined && fixId) {
-      const diag = currentDiagnosticIndex.get(diagId);
-      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
+      // Check resolved codefixes first (from resolveCodefixes), then diagnostic codefixes
+      const codeFix =
+        resolvedCodefixMap.get(fixId) ??
+        currentDiagnosticIndex.get(diagId)?.codefixes?.find((x) => x.id === fixId);
       if (codeFix) {
         const edits = await resolveCodeFix(codeFix);
         codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
