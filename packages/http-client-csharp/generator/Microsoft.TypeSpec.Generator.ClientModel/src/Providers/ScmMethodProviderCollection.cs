@@ -457,10 +457,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Get wire name from the parameter's property if available, otherwise resolve
                 // from the model's properties by matching the parameter name to a property name.
-                var wireName = param.Property?.WireInfo?.SerializedName;
+                var property = param.Property;
+                var wireName = property?.WireInfo?.SerializedName;
                 if (wireName == null)
                 {
                     propertyWireNames.TryGetValue(param.Name, out wireName);
+                }
+
+                if (property == null && wireName != null)
+                {
+                    property = spreadSource.CanonicalView.Properties.FirstOrDefault(
+                        p => string.Equals(p.WireInfo?.SerializedName, wireName, StringComparison.OrdinalIgnoreCase));
                 }
 
                 ParameterProvider? convenienceParam = null;
@@ -473,7 +480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (convenienceParam.Type.IsList)
                     {
-                        var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
+                        var interfaceType = property?.WireInfo?.IsReadOnly == true
                             ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
                             : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
                         expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
