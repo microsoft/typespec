@@ -13,6 +13,7 @@ namespace Sample
     public partial class TestClient
     {
         private readonly global::System.Uri _endpoint;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _subscriptionId;
         private readonly string _serviceAApiVersion;
         private readonly string _serviceBApiVersion;
@@ -35,6 +36,7 @@ namespace Sample
             options ??= new global::Sample.TestClientOptions();
 
             _endpoint = endpoint;
+            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             _subscriptionId = subscriptionId;
             if ((authenticationPolicy != null))
             {
@@ -56,12 +58,12 @@ namespace Sample
 
         public virtual global::Sample.ServiceA.ServiceA GetServiceAClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedServiceA) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceA, new global::Sample.ServiceA.ServiceA(Pipeline, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
+            return (global::System.Threading.Volatile.Read(ref _cachedServiceA) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceA, new global::Sample.ServiceA.ServiceA(Pipeline, _modelReaderWriterOptions, _endpoint, _serviceAApiVersion, _subscriptionId), null) ?? _cachedServiceA));
         }
 
         public virtual global::Sample.ServiceB.ServiceB GetServiceBClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedServiceB) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceB, new global::Sample.ServiceB.ServiceB(Pipeline, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
+            return (global::System.Threading.Volatile.Read(ref _cachedServiceB) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedServiceB, new global::Sample.ServiceB.ServiceB(Pipeline, _modelReaderWriterOptions, _endpoint, _serviceBApiVersion, _subscriptionId), null) ?? _cachedServiceB));
         }
     }
 }

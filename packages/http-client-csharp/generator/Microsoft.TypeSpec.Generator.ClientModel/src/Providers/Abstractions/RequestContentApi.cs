@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -20,5 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public abstract RequestContentApi FromExpression(ValueExpression original);
         public abstract RequestContentApi ToExpression();
         public abstract MethodBodyStatement[] Create(ValueExpression argument);
+        public virtual MethodBodyStatement[] Create(ValueExpression argument, ScopedApi<ModelReaderWriterOptions> options)
+            => Create(argument);
     }
 }
