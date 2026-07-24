@@ -154,16 +154,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     isOutputLibraryType = false;
                 }
 
-                // Deduplicate using the resolved provider's normalized type identity so that both the
-                // attributes dictionary check and the customized-buildable check use the same key source.
-                var typeKey = resolvedProvider.Type.FullyQualifiedName;
-                var resolvedIdentity = GetTypeIdentity(resolvedProvider.Type);
-                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(resolvedIdentity))
+                // Use targetType (the original constructed type from the last contract) for both the key and the
+                // emitted typeof(...) expression, so that generic instantiations such as Foo<string> and Foo<int>
+                // are treated as distinct entries and the emitted attribute preserves the type arguments.
+                var typeKey = GetTypeIdentity(targetType);
+                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(typeKey))
                 {
                     continue;
                 }
 
-                var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(resolvedProvider.Type));
+                var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(targetType));
 
                 if (isOutputLibraryType)
                 {
@@ -173,7 +173,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     AddAttributeForType(
                         attributes,
                         newAttributeStatement,
-                        resolvedProvider);
+                        resolvedProvider,
+                        typeKey);
                 }
                 else
                 {
@@ -625,11 +626,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, MethodBodyStatement> attributes,
             AttributeStatement attributeStatement,
             TypeProvider typeProvider)
+            => AddAttributeForType(attributes, attributeStatement, typeProvider, typeProvider.Type.FullyQualifiedName);
+
+        private static void AddAttributeForType(
+            Dictionary<string, MethodBodyStatement> attributes,
+            AttributeStatement attributeStatement,
+            TypeProvider typeProvider,
+            string key)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
-
-            var key = typeProvider.Type.FullyQualifiedName;
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
