@@ -509,7 +509,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Partial method implementations require all parameters to be required (no default values).
             // The generator's parameters carry the metadata and the declarations referenced by the
             // method body and XML docs; the custom signature only supplies the parameter names.
-            var requiredParameters = PartialMethodCustomization.RenameAndCloneParameters(
+            var requiredParameters = PartialMethodCustomization.RenameParametersInPlace(
                 generatedMethod.Signature.Parameters,
                 customSignature.Parameters,
                 removeDefaults: true);
@@ -517,7 +517,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var partialSignature = PartialMethodCustomization.BuildPartialSignature(
                 customSignature,
                 requiredParameters,
-                generatedMethod.Signature.ReturnType);
+                generatedMethod.Signature.ReturnType,
+                generatedMethod.Signature.Modifiers & MethodSignatureModifiers.Async);
 
             MethodProvider partialMethod = generatedMethod.BodyExpression != null
                 ? new MethodProvider(partialSignature, generatedMethod.BodyExpression, generatedMethod.EnclosingType, generatedMethod.XmlDocs, generatedMethod.Suppressions)

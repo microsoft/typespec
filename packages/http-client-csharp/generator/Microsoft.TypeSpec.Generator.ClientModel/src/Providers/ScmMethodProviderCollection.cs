@@ -156,6 +156,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Detect a partial method declaration in the client's custom code matching this convenience method.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, signatureParameters, out customSignature);
+            var generatedModifiers = GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters);
+            var generatedReturnType = GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _);
 
             // Parameters used to construct the method body. When customizing, we clone the generator's
             // parameter providers with the customer's names but keep all generator metadata so that the
@@ -182,6 +184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = PartialMethodCustomization.BuildPartialSignature(
                     customSignature,
                     renamedSignatureParameters,
+                    generatedReturnType,
                     additionalModifiers: isAsync && _pagingServiceMethod == null
                         ? MethodSignatureModifiers.Async
                         : MethodSignatureModifiers.None);
@@ -192,8 +195,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
-                    GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
-                    GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
+                    generatedModifiers,
+                    generatedReturnType,
                     null,
                     signatureParameters,
                     Attributes: BuildConvenienceMethodAttributes());
@@ -1099,6 +1102,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // generated body using the customized parameter references.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
+            var generatedReturnType = GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _);
 
             MethodSignature methodSignature;
             ParameterProvider[] bodyParameters;
@@ -1114,6 +1118,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodSignature = PartialMethodCustomization.BuildPartialSignature(
                     customSignature,
                     requiredCustomParameters,
+                    generatedReturnType,
                     additionalModifiers: isAsync && _pagingServiceMethod == null
                         ? MethodSignatureModifiers.Async
                         : MethodSignatureModifiers.None);
@@ -1129,7 +1134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
                     methodModifiers,
-                    GetResponseType(ServiceMethod.Operation.Responses, false, isAsync, out _),
+                    generatedReturnType,
                     $"The response returned from the service.",
                     parameters);
                 bodyParameters = parameters;
