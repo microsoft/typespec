@@ -136,10 +136,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 var identity = GetTypeIdentity(targetType);
 
-                // Resolve the TypeProvider for this last-contract target. First check the output library;
-                // if not found there, fall back to the customization and referenced-assembly layer using
-                // Namespace+Name to avoid the CLR-metadata-name conversion issues that arise when passing
-                // a source-style identity string (e.g. "NS.Type<Arg>") to GetTypeByMetadataName directly.
                 bool isOutputLibraryType;
                 TypeProvider? resolvedProvider;
                 if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
@@ -153,10 +149,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
+                    // Build the CLR metadata name parts (arity suffix for generics, '+'-chain for
+                    // nested types), mirroring NamedTypeSymbolProvider.GetMetadataName, so that
+                    // GetTypeByMetadataName resolves generic (e.g. "Type`1") and nested
+                    // (e.g. "Outer+Inner") types correctly.
+                    var clrSimpleName = GetClrSimpleMetadataName(targetType);
+                    var clrDeclaringChain = targetType.DeclaringType is null
+                        ? null
+                        : GetClrDeclaringTypeChain(targetType.DeclaringType);
+
                     resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                         targetType.Namespace,
-                        targetType.Name,
-                        targetType.DeclaringType?.Name,
+                        clrSimpleName,
+                        clrDeclaringChain,
                         includeReferencedAssemblies: true);
 
                     if (resolvedProvider is null)
@@ -166,9 +171,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     isOutputLibraryType = false;
                 }
 
-                // Deduplicate by full type identity across generated, customized, and last-contract entries.
+                // Deduplicate using the resolved provider's normalized type identity so that both the
+                // attributes dictionary check and the customized-buildable check use the same key source.
                 var typeKey = resolvedProvider.Type.FullyQualifiedName;
-                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(identity))
+                var resolvedIdentity = GetTypeIdentity(resolvedProvider.Type);
+                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(resolvedIdentity))
                 {
                     continue;
                 }
@@ -257,6 +264,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return type.Arguments.Count == 0
                 ? name
                 : $"{name}<{string.Join(",", type.Arguments.Select(GetTypeIdentity))}>";
+        }
+
+        // Returns the CLR metadata simple name with arity suffix for generic types (e.g. "Type`1"),
+        // mirroring NamedTypeSymbolProvider.GetMetadataName which uses symbol.MetadataName.
+        private static string GetClrSimpleMetadataName(CSharpType type)
+            => type.Arguments.Count > 0 ? $"{type.Name}`{type.Arguments.Count}" : type.Name;
+
+        // Returns the full CLR declaring-type chain using '+' separators (e.g. "Outer`1+Middle"),
+        // mirroring the recursive NamedTypeSymbolProvider.GetMetadataName pattern.
+        private static string GetClrDeclaringTypeChain(CSharpType type)
+        {
+            var simpleName = GetClrSimpleMetadataName(type);
+            return type.DeclaringType is null
+                ? simpleName
+                : $"{GetClrDeclaringTypeChain(type.DeclaringType)}+{simpleName}";
         }
 
         /// <summary>
