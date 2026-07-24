@@ -189,13 +189,14 @@ namespace SampleTypeSpec
 
         public static void WriteObjectValue<T>(this Utf8JsonWriter writer, T value, ModelReaderWriterOptions options = null)
         {
+            options ??= WireOptions;
             switch (value)
             {
                 case null:
                     writer.WriteNullValue();
                     break;
                 case IJsonModel<T> jsonModel:
-                    jsonModel.Write(writer, options ?? WireOptions);
+                    options.ResolveProxy(jsonModel).Write(writer, options);
                     break;
                 case byte[] bytes:
                     writer.WriteBase64StringValue(bytes);

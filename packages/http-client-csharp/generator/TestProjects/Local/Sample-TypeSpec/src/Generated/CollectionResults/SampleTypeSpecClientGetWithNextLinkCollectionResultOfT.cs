@@ -15,14 +15,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResultOfT : CollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -51,7 +54,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            Uri nextPage = ModelReaderWriter.Read<ListWithNextLinkResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Next;
             if (nextPage != null)
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
@@ -67,7 +70,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((ListWithNextLinkResponse)page).Things;
+            return ModelReaderWriter.Read<ListWithNextLinkResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Things;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>

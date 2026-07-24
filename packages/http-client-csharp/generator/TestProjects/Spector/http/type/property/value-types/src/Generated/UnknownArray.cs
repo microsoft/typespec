@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected UnknownArray() => throw null;
 
-        internal UnknownArray(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal UnknownArray(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

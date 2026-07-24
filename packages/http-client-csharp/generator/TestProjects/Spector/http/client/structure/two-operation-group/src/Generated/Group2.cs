@@ -15,7 +15,7 @@ namespace Client.Structure.TwoOperationGroup
     {
         protected Group2() => throw null;
 
-        internal Group2(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Group2(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

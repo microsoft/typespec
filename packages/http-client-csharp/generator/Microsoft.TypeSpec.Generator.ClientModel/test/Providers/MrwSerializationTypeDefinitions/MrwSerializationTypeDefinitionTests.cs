@@ -1466,6 +1466,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void TestBuildToBinaryContentMethod_DerivedModel_IsNew()
+        {
+            var baseModel = InputFactory.Model("BaseModel", usage: InputModelTypeUsage.Json);
+            var derivedModel = InputFactory.Model("DerivedModel", usage: InputModelTypeUsage.Json, baseModel: baseModel);
+            var (_, serialization) = CreateModelAndSerialization(derivedModel);
+            ScmCodeModelGenerator.Instance.TypeFactory.RootInputModels.Add(baseModel);
+
+            var toBinaryContentMethod = serialization.Methods.Single(m => m.Signature.Name == "ToBinaryContent");
+
+            Assert.IsTrue(toBinaryContentMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.New));
+        }
+
+        [Test]
+        public void TestBuildToBinaryContentMethod_DerivedFromNonRootModel_IsNotNew()
+        {
+            var baseModel = InputFactory.Model("BaseModel", usage: InputModelTypeUsage.Json);
+            var derivedModel = InputFactory.Model("DerivedModel", usage: InputModelTypeUsage.Json, baseModel: baseModel);
+            var (_, serialization) = CreateModelAndSerialization(derivedModel);
+
+            var toBinaryContentMethod = serialization.Methods.Single(m => m.Signature.Name == "ToBinaryContent");
+
+            Assert.IsFalse(toBinaryContentMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.New));
+        }
+
+        [Test]
         public void TestDeserializationOfByteArrayPropertyUsesGetBytesFromBase64()
         {
             var inputModel = InputFactory.Model("TestModel", properties:

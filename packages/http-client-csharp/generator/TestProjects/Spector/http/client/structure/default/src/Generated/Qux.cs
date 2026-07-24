@@ -15,7 +15,7 @@ namespace Client.Structure.Service._Qux
     {
         protected Qux() => throw null;
 
-        internal Qux(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Qux(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

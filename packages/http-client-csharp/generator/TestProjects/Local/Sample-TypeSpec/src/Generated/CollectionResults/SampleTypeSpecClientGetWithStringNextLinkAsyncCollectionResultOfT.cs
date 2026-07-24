@@ -16,14 +16,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -53,7 +56,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithStringNextLinkResponse)page).Next;
+            string nextPage = ModelReaderWriter.Read<ListWithStringNextLinkResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Next;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
@@ -69,7 +72,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithStringNextLinkResponse)page).Things)
+            foreach (Thing item in ModelReaderWriter.Read<ListWithStringNextLinkResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Things)
             {
                 yield return item;
                 await Task.Yield();

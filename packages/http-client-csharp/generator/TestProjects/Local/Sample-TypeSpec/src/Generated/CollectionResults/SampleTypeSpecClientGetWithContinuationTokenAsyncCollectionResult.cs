@@ -16,16 +16,19 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult : AsyncCollectionResult
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _token;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, string token, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _token = token;
             _options = options;
         }
@@ -55,7 +58,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
+            string nextPage = ModelReaderWriter.Read<ListWithContinuationTokenResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));

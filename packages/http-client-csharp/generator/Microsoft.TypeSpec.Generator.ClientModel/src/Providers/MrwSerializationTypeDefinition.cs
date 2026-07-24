@@ -486,11 +486,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // return BinaryContent.Create(this, options);
             var requestContentType = ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
+            var modifiers = MethodSignatureModifiers.Internal;
+            for (var baseModel = _model.BaseModelProvider; baseModel != null; baseModel = baseModel.BaseModelProvider)
+            {
+                if (baseModel.SerializationProviders
+                    .SelectMany(provider => provider.Methods)
+                    .Any(method => method.Signature.Name == $"To{requestContentType.Name}"))
+                {
+                    modifiers |= MethodSignatureModifiers.New;
+                    break;
+                }
+            }
+
             return new MethodProvider(
                 new MethodSignature(
                     $"To{requestContentType.Name}",
                     FormattableStringHelpers.FromString($"Converts the model to {requestContentType.Name} using the specified options."),
-                    MethodSignatureModifiers.Internal,
+                    modifiers,
                     requestContentType,
                     null,
                     [optionsParameter]),
