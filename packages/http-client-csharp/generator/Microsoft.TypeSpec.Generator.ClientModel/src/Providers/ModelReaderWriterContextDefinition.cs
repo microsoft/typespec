@@ -112,17 +112,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return;
             }
 
-            var presentSimpleNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var key in attributes.Keys)
-            {
-                presentSimpleNames.Add(GetSimpleTypeName(key));
-            }
-
-            foreach (var customizedType in customizedBuildableTypes)
-            {
-                presentSimpleNames.Add(GetSimpleTypeName(customizedType));
-            }
-
             var outputLibraryProviders = new Dictionary<string, TypeProvider>(StringComparer.Ordinal);
             foreach (var provider in ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders)
             {
@@ -146,24 +135,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var identity = GetTypeIdentity(targetType);
-                var existsInGeneratedAssembly = outputLibraryProviders.TryGetValue(identity, out var matchingProvider)
-                    ? ShouldWriteProvider(matchingProvider)
-                    : ScmCodeModelGenerator.Instance.SourceInputModel.Customization?.GetTypeByMetadataName(identity) is not null;
 
-                if (!existsInGeneratedAssembly)
+                // Resolve the TypeProvider for this last-contract target. First check the output library;
+                // if not found there, fall back to the customization and referenced-assembly layer using
+                // Namespace+Name to avoid the CLR-metadata-name conversion issues that arise when passing
+                // a source-style identity string (e.g. "NS.Type<Arg>") to GetTypeByMetadataName directly.
+                bool isOutputLibraryType;
+                TypeProvider? resolvedProvider;
+                if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
+                {
+                    if (!ShouldWriteProvider(outputLibraryProvider))
+                    {
+                        continue;
+                    }
+                    resolvedProvider = outputLibraryProvider;
+                    isOutputLibraryType = true;
+                }
+                else
+                {
+                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                        targetType.Namespace,
+                        targetType.Name,
+                        targetType.DeclaringType?.Name,
+                        includeReferencedAssemblies: true);
+
+                    if (resolvedProvider is null)
+                    {
+                        continue;
+                    }
+                    isOutputLibraryType = false;
+                }
+
+                // Deduplicate by full type identity across generated, customized, and last-contract entries.
+                var typeKey = resolvedProvider.Type.FullyQualifiedName;
+                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(identity))
                 {
                     continue;
                 }
 
-                var simpleName = GetSimpleTypeName(identity);
+                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
+                var newAttributeStatement = new AttributeStatement(attributeType, TypeOf(resolvedProvider.Type));
 
-                // Only add the entry when neither the current generation nor customized code already produced it.
-                if (!presentSimpleNames.Add(simpleName))
+                if (isOutputLibraryType)
                 {
-                    continue;
+                    // For output-library types, reconstruct through the suppression-handling path so that
+                    // [Experimental] and [Obsolete] diagnostics are properly suppressed, consistent with
+                    // how generated attributes are emitted.
+                    string experimentalTypeJustification = $"{resolvedProvider.Type} is experimental and may change in future versions.";
+                    string obsoleteTypeJustification = $"{resolvedProvider.Type} is obsolete and may be removed in future versions.";
+                    AddAttributeForType(
+                        attributes,
+                        newAttributeStatement,
+                        resolvedProvider,
+                        experimentalTypeJustification,
+                        obsoleteTypeJustification);
                 }
-
-                attributes.TryAdd(identity, attribute);
+                else
+                {
+                    // For types resolved from the customization layer or referenced assemblies,
+                    // add the attribute directly; their symbol model may not be fully representable
+                    // through the generator's expression tree (e.g. BCL types), so skip the
+                    // CanonicalView-based suppression path that is designed for output-library types.
+                    attributes.Add(typeKey, newAttributeStatement);
+                }
             }
         }
 
