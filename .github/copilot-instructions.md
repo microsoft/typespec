@@ -1,166 +1,54 @@
-# TypeSpec Copilot Instructions
+# TypeSpec development
 
-**ALWAYS follow these instructions first and only fall back to additional search and context gathering if the information here is incomplete or found to be in error.**
+TypeSpec is a monorepo containing the compiler, standard libraries, tools, documentation, and client emitters.
 
-TypeSpec is a language for defining cloud service APIs and shapes. This monorepo contains the TypeSpec compiler, standard library packages, tools, documentation, and various language client emitters.
+## Scope
 
-> [!IMPORTANT]
-> **These instructions do NOT apply to the language emitter packages** (`http-client-csharp`, `http-client-java`, `http-client-python`). Those packages are excluded from the pnpm workspace and do not require using pnpm.
+The root pnpm workflow applies to the workspace except for these independently managed emitters:
 
-## Essential Setup and Build Commands
+- `packages/http-client-csharp`
+- `packages/http-client-java`
+- `packages/http-client-python`
 
-### Prerequisites and Installation
+For those emitters, follow their package-specific instructions and use npm rather than the root pnpm setup.
 
-- Install Node.js LTS:
-- Install pnpm globally: `npm install -g pnpm`
-- Install dependencies: `pnpm install` (takes ~1.5 minutes)
-- Install Playwright browsers (optional for UI testing): `npx playwright install`
+## Workspace workflow
 
-### Building the Project
+- Install dependencies with `pnpm install`.
+- Build the workspace with `pnpm build`, or use `pnpm -r --filter "<package-name>..." build` while iterating on one package and its dependencies.
+- Run the relevant package tests while iterating. Run `pnpm test` when a full workspace test is warranted.
+- Check formatting with `pnpm format:check` and lint with `pnpm lint`. Use `pnpm format` and `pnpm lint:fix` to apply fixes.
+- Prefer scripts declared in the root or package `package.json` over ad hoc commands.
 
-- **CRITICAL**: Build the entire project: `pnpm build` (takes ~7 minutes, NEVER CANCEL - set timeout to 15+ minutes)
-- Build in watch mode for development: `pnpm watch`
-- Build specific package: `pnpm -r --filter "<package-name>..." build`
-- Clean build artifacts: `pnpm clean`
+After changing compiler or library behavior, validate a representative TypeSpec program in addition to its unit tests. Regenerate checked-in samples, documentation, or external signatures when the affected package requires it.
 
-### Testing and Validation
+## Changes
 
-- **CRITICAL**: Run all tests: `pnpm test` (takes ~5 minutes, NEVER CANCEL - set timeout to 10+ minutes)
-- Run E2E tests: `pnpm test:e2e` and `node e2e/e2e-tests.js` (~1 minute)
-- Run tests with coverage: `pnpm test:ci`
-- Run tests in watch mode (in specific package): `pnpm test:watch`
+- Add or update tests for behavior changes.
+- Do not modify unrelated generated files or `pnpm-lock.yaml`.
+- Add a changelog entry for user-facing or package changes with:
 
-### Code Quality
+  ```sh
+  pnpm chronus add "$PACKAGE_NAME" --kind="$KIND" --message="$SUMMARY"
+  ```
 
-- Check formatting: `pnpm format:check` (~1 minute)
-- Format code: `pnpm format`
-- Run linting: `pnpm lint` (~1 minute)
-- Fix lint issues: `pnpm lint:fix`
+  Valid kinds are defined in `.chronus/config.yaml`. Use separate entries when packages have different change kinds. Documentation-only, test-only, and internal repository changes may not require an entry; follow Chronus verification.
 
-### Essential TypeSpec Development Workflow
+- Format and lint before committing.
 
-1. **ALWAYS** run the full build process after repository clone: `pnpm install && pnpm build`
-2. Start watch mode: `pnpm watch`
-3. Test TypeSpec compilation works:
+## Repository map
 
-   ```bash
-   # Create test project
-   mkdir test-tsp && cd test-tsp
-   echo 'import "@typespec/rest"; import "@typespec/openapi3"; op ping(): void;' > main.tsp
-   echo '{"dependencies": {"@typespec/compiler": "latest", "@typespec/rest": "latest", "@typespec/openapi3": "latest"}}' > package.json
-   
-   # Install and compile
-   /path/to/typespec/packages/compiler/cmd/tsp.js install
-   /path/to/typespec/packages/compiler/cmd/tsp.js compile main.tsp --emit @typespec/openapi3
-   ```
+- `packages/compiler`: compiler and CLI
+- `packages/http`, `packages/rest`, `packages/openapi3`: HTTP and API libraries
+- `packages/http-specs`: shared HTTP scenarios and mock APIs
+- `packages/prettier-plugin-typespec`: TypeSpec formatting
+- `packages/typespec-vscode`, `packages/typespec-vs`: editor extensions
+- `website`: documentation and playground
+- `eng`: build and release tooling
 
-4. Always format and lint before completing changes: `pnpm format && pnpm lint:fix`
+## Task-specific guidance
 
-## Repository Structure
-
-### Key Packages (packages/)
-
-- **compiler**: Core TypeSpec compiler and CLI tool
-- **http, rest, openapi3**: Standard HTTP/REST API libraries
-- **versioning**: API versioning support
-- **json-schema**: JSON Schema emitter
-- **prettier-plugin-typespec**: Code formatting support
-- **typespec-vscode, typespec-vs**: Editor extensions
-- **playground**: Interactive TypeSpec playground
-- **website**: Documentation website (typespec.io)
-
-### Important Directories
-
-- `/packages/`: All TypeSpec packages and libraries
-- `/e2e/`: End-to-end integration tests
-- `/website/`: Documentation website source
-- `/eng/`: Build engineering and automation scripts
-- `/.github/workflows/`: CI/CD pipeline definitions
-
-## Manual Validation After Changes
-
-**ALWAYS perform these validation steps after making changes:**
-
-1. **Basic functionality test**: Create and compile a simple TypeSpec file as shown above
-2. **Build validation**: Run full build to ensure no build breaks: `pnpm build`
-3. **Test validation**: Run relevant tests: `pnpm test`
-4. **Code quality**: Ensure formatting and linting pass: `pnpm format:check && pnpm lint`
-
-## Website Development
-
-- Navigate to website: `cd website`
-- Start development server: `pnpm start` (runs on port 4321)
-- Build website: `pnpm build`
-- The website includes documentation, API references, and the playground
-
-## Critical Timing and Performance Notes
-
-- **NEVER CANCEL** long-running commands - builds can take 7+ minutes, tests 5+ minutes
-- Set explicit timeouts: Build commands need 15+ minutes, test commands need 10+ minutes
-- Package installation: ~1.5 minutes
-- Full rebuild from clean state: ~7 minutes
-- Full test suite: ~5 minutes
-- Lint check: ~1 minute
-- E2E tests: ~1 minute
-
-## Common Development Tasks
-
-- Add change description: `pnpm change add`
-- Generate external signatures: `pnpm gen-compiler-extern-signature`
-- Regenerate samples: `pnpm regen-samples`
-- Regenerate docs: `pnpm regen-docs`
-- Check catalog usage: `pnpm check-catalog`
-
-## Troubleshooting
-
-- If builds fail with watch mode conflicts, run: `pnpm clean && pnpm build`
-- For installation issues, try: `pnpm install-conflict`
-- If TypeScript compilation fails, check that compiler built first: `pnpm -r --filter "@typespec/compiler" build`
-- For VS Code extension development, ensure you have the workspace open at the repository root
-
-## Commit instructions
-
-- Always run the linting and the formatting commands before any commit. In particular, always run `pnpm format` before committing.
-- Follow conventional commits.
-- Avoid committing `pnpm-lock.yaml` unless absolutely necessary.
-
-## Pull Request instructions
-
-### Changelog entries
-
-When the work is done, run `pnpm chronus add` to add a changelog entry. The valid change kinds are defined in [`.chronus/config.yaml`](../.chronus/config.yaml). Do **NOT** use `feat`, `docs`, `patch`, `minor`, or `major` — these are not valid change kinds.
-
-**If a PR affects multiple packages with different types of changes, create a separate changelog entry for each.** For example, if the PR adds a feature to `@typespec/http` and fixes a bug in `@typespec/openapi3`, run `pnpm chronus add` twice to create two separate changelog entries — one with `feature` for `@typespec/http` and one with `fix` for `@typespec/openapi3`. Do NOT bundle different change types into a single entry.
-
-### Changelog message guidelines
-
-- Provide a clear description based on the initial issue description.
-- Only add an area tag when the package has multiple areas and the change targets a secondary area; use bracket format like `[converter]` or `[formatter]` (for example, a secondary openapi3 converter change should start with `[converter]`). Avoid generic area prefixes like `core -` and do not add any area tag for single-area packages.
-- For new features, include a short code block in the changelog entry that showcases the new functionality; skip code blocks for simple bug fixes.
-
-### TDD approach
-
-- Always start by defining additional unit tests/updating existing unit tests to fulfill the requirements first. Then make changes to the code accordingly. If you are following the TDD (Test Driven Development) approach, make sure to run the tests and see them fail before implementing the code changes.
-
-## Branch Naming Conventions
-
-### Out-of-sync / hotfix releases
-
-Out-of-sync releases and hotfix releases follow the same flow using a `publish/` branch:
-
-- **Pattern:** `publish/<package>-release-<MM-DD>` (e.g., `publish/python-release-03-26`)
-- These branches skip certain CI checks (consistency, external-integration) and auto-publish on merge
-- For **out-of-sync releases**, the PR targets `main`
-- For **hotfix releases**, the PR targets the corresponding `release/*` branch (e.g., `release/v0.60`) instead of `main`
-
-## Branch and PR Workflow
-
-- When creating new branches or worktrees, base them off the main Microsoft fork's `main` branch (`Microsoft/typespec`). This remote might be called `upstream` or `origin` depending on your local git setup — the key point is to always branch from the main Microsoft fork, not a personal fork.
-- When pushing changes and creating pull requests, push to your personal fork and open PRs against the main Microsoft fork's `main` branch.
-
-## Available Task Instructions
-
-- [Testserver Generation](./prompts/testserver-generation.md): Instructions for generating TypeSpec HTTP spec test servers
-- [http-client-csharp Development](./instructions/http-client-csharp.instructions.md): Instructions for developing the C# HTTP client
-- [http-client-java Development](./instructions/http-client-java.instructions.md): Instructions for developing the TypeSpec library for Java client.
-- [TCGC Upgrade](./prompts/upgrade-tcgc.instructions.md): Instructions for TCGC version on emitters. Activate with: `tcgc upgrade <emitter-name> <new-version>`
+- [HTTP testserver scenarios](./prompts/testserver-generation.md)
+- [C# client emitter](./instructions/http-client-csharp.instructions.md)
+- [Java client emitter](./instructions/http-client-java.instructions.md)
+- [TCGC upgrades](./prompts/upgrade-tcgc.instructions.md)
