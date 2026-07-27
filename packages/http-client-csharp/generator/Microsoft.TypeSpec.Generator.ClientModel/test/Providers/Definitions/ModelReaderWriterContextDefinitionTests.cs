@@ -2172,12 +2172,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
         // match by fully qualified name to cover both generated and restored entries.
         private static List<AttributeStatement> GetBuildableAttributes(ModelReaderWriterContextDefinition contextDefinition)
-            => contextDefinition.Attributes
+        {
+            contextDefinition.ProcessTypeForBackCompatibility();
+            return contextDefinition.Attributes
                 .Where(a => string.Equals(
                     a.Type.FullyQualifiedName,
                     typeof(ModelReaderWriterBuildableAttribute).FullName,
                     StringComparison.Ordinal))
                 .ToList();
+        }
 
         [Test]
         public async Task CustomProjectionPropertiesDoNotAddBuildableTypes()
