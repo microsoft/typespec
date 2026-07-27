@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var derived = new DelayedBaseModelProvider(derivedInputModel);
             var serialization = new MrwSerializationTypeDefinition(derivedInputModel, derived);
 
-            derived.BaseModel = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            derived.BaseModel = new ModelProvider(baseInputModel);
 
             var method = serialization.Methods.Single(method => method.Signature.Name == "XmlModelWriteCore");
 
