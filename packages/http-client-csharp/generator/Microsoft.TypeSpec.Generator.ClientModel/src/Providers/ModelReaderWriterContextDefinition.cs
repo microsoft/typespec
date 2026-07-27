@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -344,7 +345,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Check if the type is a framework type and implements the model reader/writer interface, also skip MRW interface types
             // If the type doesn't implement MRW, we don't need to process its properties, it can't apply MRW anyway
-            return ImplementsModelReaderWriter(type.FrameworkType) && !IsModelReaderWriterInterfaceType(type);
+            return ModelReaderWriterHelpers.ImplementsModelReaderWriter(type.FrameworkType) &&
+                !ModelReaderWriterHelpers.IsModelReaderWriterInterface(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
@@ -385,7 +387,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Unwrap generic framework wrappers such as Response<T>.
-            while (type.IsFrameworkType && type.Arguments.Count == 1 && !ImplementsModelReaderWriter(type.FrameworkType))
+            while (type.IsFrameworkType && type.Arguments.Count == 1 &&
+                !ModelReaderWriterHelpers.ImplementsModelReaderWriter(type.FrameworkType))
             {
                 type = type.Arguments[0];
             }
@@ -415,7 +418,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            if (!type.IsFrameworkType && provider is not null && ImplementsModelReaderWriter(provider))
+            if (!type.IsFrameworkType && provider is not null && ModelReaderWriterHelpers.ImplementsModelReaderWriter(provider))
             {
                 return true;
             }
@@ -460,53 +463,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return buffer.Slice(0, index).ToString();
         }
 
-        private static bool ImplementsModelReaderWriter(Type type)
-        {
-            if (type.IsEnum || type.IsValueType)
-            {
-                return false;
-            }
-
-            return type.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
-        }
-
-        private static bool ImplementsModelReaderWriter(TypeProvider typeProvider)
-        {
-            // skip known serialization as their enclosed models are ensured to be buildable
-            if (typeProvider is MrwSerializationTypeDefinition)
-            {
-                return false;
-            }
-
-            if (typeProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any())
-            {
-                return true;
-            }
-
-            // check if the provider implements IPersistableModel or IJsonModel
-            foreach (var implementedType in typeProvider.Implements)
-            {
-                if (IsModelReaderWriterInterfaceType(implementedType))
-                {
-                    return true;
-                }
-            }
-
-            // Also consider serialization providers that may implement MRW
-            foreach (var serializationProvider in typeProvider.SerializationProviders)
-            {
-                if (ImplementsModelReaderWriter(serializationProvider))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static bool ShouldAddStandaloneBuildableProvider(TypeProvider provider)
             => IsResolvableBuildableType(provider.Type)
-                && ImplementsModelReaderWriter(provider)
+                && ModelReaderWriterHelpers.ImplementsModelReaderWriter(provider)
                 && HasWritableModelReaderWriterSerialization(provider);
 
         private static bool HasWritableModelReaderWriterSerialization(TypeProvider provider)
@@ -583,11 +542,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             attributes.Add(key, attributeStatement);
-        }
-
-        private static bool IsModelReaderWriterInterfaceType(CSharpType type)
-        {
-            return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
         }
 
         /// <summary>

@@ -208,7 +208,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool HasCustomBaseMethod(string methodName)
             => GetCustomSerializationBaseType() is { } baseType &&
-                HasMethodInTypeHierarchy(baseType, methodName);
+                ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    method => method.Signature.Name == methodName,
+                    baseTypesFirst: true) is not null;
 
         private CSharpType? GetCustomBaseMethodReturnType(IReadOnlySet<string> methodNames)
             => GetCustomSerializationBaseType() is { } baseType
@@ -220,13 +223,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (model.BaseModelProvider is null)
             {
                 return model.CustomCodeView?.BaseType is null ||
-                    !HasMethodInTypeHierarchy(model.BaseType!, JsonModelCreateCoreMethodName) &&
-                    !HasMethodInTypeHierarchy(model.BaseType!, PersistableModelCreateCoreMethodName);
+                    ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        model.BaseType!,
+                        method => method.Signature.Name == JsonModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null &&
+                    ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        model.BaseType!,
+                        method => method.Signature.Name == PersistableModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null;
             }
 
             if (model.BaseModelProvider is SystemObjectModelProvider systemBase)
             {
-                return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
+                return !ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase);
             }
 
             return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
@@ -251,101 +260,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return rootBaseType;
         }
 
-        private static bool HasMethodInTypeHierarchy(CSharpType type, string methodName)
-            => GetMethodReturnTypeInHierarchy(type, new HashSet<string> { methodName }) is not null;
-
         private static CSharpType? GetMethodReturnTypeInHierarchy(CSharpType type, IReadOnlySet<string> methodNames)
-        {
-            var visited = new HashSet<string>();
-            return GetMethodReturnTypeInHierarchy(type, methodNames, visited);
-        }
-
-        private static CSharpType? GetMethodReturnTypeInHierarchy(CSharpType type, IReadOnlySet<string> methodNames, HashSet<string> visited)
-        {
-            if (!visited.Add(type.FullyQualifiedName))
-            {
-                return null;
-            }
-
-            if (type.BaseType is not null &&
-                GetMethodReturnTypeInHierarchy(type.BaseType, methodNames, visited) is { } baseReturnType)
-            {
-                return baseReturnType;
-            }
-
-            foreach (var methodName in methodNames)
-            {
-                if (TryGetMethodReturnType(type, methodName) is { } returnType)
-                {
-                    return returnType;
-                }
-            }
-
-            return null;
-        }
-
-        private static CSharpType? TryGetMethodReturnType(CSharpType type, string methodName)
-        {
-            if (TryGetTypeProvider(type) is { } referencedType)
-            {
-                return referencedType.Methods.FirstOrDefault(method => method.Signature.Name == methodName)?.Signature.ReturnType;
-            }
-
-            return null;
-        }
-
-        private static TypeProvider? TryGetTypeProvider(CSharpType type)
-        {
-            if (TryGetMappedTypeProvider(type) is { } provider)
-            {
-                return provider;
-            }
-
-            return TryGetReferencedType(type);
-        }
-
-        private static TypeProvider? TryGetMappedTypeProvider(CSharpType type)
-        {
-            foreach (var (mappedType, provider) in ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
-            {
-                if (mappedType.FullyQualifiedName == type.FullyQualifiedName ||
-                    provider is SystemObjectModelProvider systemProvider &&
-                    systemProvider.SystemType.FullyQualifiedName == type.FullyQualifiedName)
-                {
-                    return provider;
-                }
-            }
-
-            return null;
-        }
-
-        private static TypeProvider? TryGetReferencedType(CSharpType type)
-            => string.IsNullOrEmpty(type.Namespace)
-                ? null
-                : CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                    type.Namespace,
-                    type.Name,
-                    declaringTypeName: type.DeclaringType?.Name,
-                    includeReferencedAssemblies: true);
+            => ModelReaderWriterHelpers.FindMethodInHierarchy(
+                type,
+                method => methodNames.Contains(method.Signature.Name),
+                baseTypesFirst: true)?.Signature.ReturnType;
 
         private static bool IsFrameworkRootType(CSharpType type)
             => (type.IsFrameworkType &&
                 (type.FrameworkType == typeof(object) || type.FrameworkType == typeof(ValueType))) ||
                 (type.Namespace == "System" && (type.Name == "Object" || type.Name == "ValueType"));
-
-        private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
-        {
-            if (TryGetMappedTypeProvider(systemType) is not { } systemTypeProvider)
-            {
-                return false;
-            }
-
-            return systemTypeProvider.Implements.Any(IsModelReaderWriterInterface);
-        }
-
-        private static bool IsModelReaderWriterInterface(CSharpType type)
-            => type.Namespace == typeof(IJsonModel<>).Namespace &&
-                (type.Name == nameof(IJsonModel<object>) || type.Name == nameof(IPersistableModel<object>));
 
         protected override ConstructorProvider[] BuildConstructors()
         {

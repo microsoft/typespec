@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 
@@ -77,6 +79,44 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;
+
+        /// <inheritdoc/>
+        protected internal override CSharpType[] BuildImplements()
+        {
+            if (SystemType.IsFrameworkType)
+            {
+                var frameworkType = SystemType.FrameworkType;
+                var typeArguments = frameworkType.IsGenericTypeDefinition
+                    ? frameworkType.GetGenericArguments()
+                        .Zip(SystemType.Arguments)
+                        .ToDictionary(pair => pair.First, pair => pair.Second)
+                    : [];
+
+                return [.. frameworkType.GetInterfaces().Select(type => CreateInterfaceType(type, typeArguments))];
+            }
+
+            return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    SystemType.Namespace,
+                    SystemType.Name,
+                    declaringTypeName: SystemType.DeclaringType?.Name,
+                    includeReferencedAssemblies: true)?.Implements ?? []];
+        }
+
+        private static CSharpType CreateInterfaceType(
+            Type type,
+            IReadOnlyDictionary<Type, CSharpType> typeArguments)
+        {
+            if (type.IsGenericParameter && typeArguments.TryGetValue(type, out var typeArgument))
+            {
+                return typeArgument;
+            }
+
+            return type.IsGenericType
+                ? new CSharpType(
+                    type.GetGenericTypeDefinition(),
+                    [.. type.GetGenericArguments().Select(argument => CreateInterfaceType(argument, typeArguments))])
+                : new CSharpType(type);
+        }
 
         /// <inheritdoc/>
         public override bool ShouldSkipDerivedSerializationMethodOverrides => true;

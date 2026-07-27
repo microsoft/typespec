@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -51,6 +52,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = new SystemObjectModelProvider(systemType, inputModel);
 
             Assert.IsInstanceOf<ModelProvider>(provider);
+        }
+
+        [Test]
+        public void FrameworkInterfacesArePopulated()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(new CSharpType(typeof(List<string>)), inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<string>))));
+        }
+
+        [Test]
+        public void FrameworkInterfacesUseGeneratedTypeArguments()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var generatedType = CreateSystemCSharpType("GeneratedModel", "Sample.Models");
+            var provider = new SystemObjectModelProvider(
+                new CSharpType(typeof(List<>), generatedType),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<>), generatedType)));
+        }
+
+        [Test]
+        public async Task ReferencedInterfacesArePopulated()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(
+                CreateSystemCSharpType("ReferencedModel", "TestFramework"),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IDisposable))));
         }
 
         [Test]

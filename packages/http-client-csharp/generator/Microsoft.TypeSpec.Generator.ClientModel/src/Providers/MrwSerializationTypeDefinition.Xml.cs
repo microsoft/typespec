@@ -13,6 +13,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -81,14 +82,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool IsXmlModelWriteCoreMethod(MethodProvider method)
             => IsXmlModelWriteCoreSignature(method) &&
-                HasInternalOnlyAccessibility(method.Signature.Modifiers) &&
-                IsOverridable(method.Signature.Modifiers);
-
-        private static bool HasInternalOnlyAccessibility(MethodSignatureModifiers modifiers)
-            => modifiers.HasFlag(MethodSignatureModifiers.Internal) &&
-                !modifiers.HasFlag(MethodSignatureModifiers.Public) &&
-                !modifiers.HasFlag(MethodSignatureModifiers.Protected) &&
-                !modifiers.HasFlag(MethodSignatureModifiers.Private);
+                (method.Signature.Modifiers &
+                    (MethodSignatureModifiers.Public |
+                        MethodSignatureModifiers.Internal |
+                        MethodSignatureModifiers.Protected |
+                        MethodSignatureModifiers.Private)) == MethodSignatureModifiers.Internal &&
+                ModelReaderWriterHelpers.IsOverridable(method.Signature.Modifiers);
 
         private bool IsXmlModelWriteCoreSignature(MethodProvider method)
             => method.Signature.Name == XmlModelWriteCoreMethodName &&
@@ -98,39 +97,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Signature.Parameters[0].Type.Equals(typeof(XmlWriter)) &&
                 method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
-        private static bool IsOverridable(MethodSignatureModifiers modifiers)
-            => !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
-                (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
-                    modifiers.HasFlag(MethodSignatureModifiers.Override) ||
-                    modifiers.HasFlag(MethodSignatureModifiers.Abstract));
-
         private bool HasCustomBaseXmlModelWriteCoreMethod()
             => GetCustomSerializationBaseType() is not null &&
                 _model.BaseType is { } baseType &&
-                HasCompatibleXmlModelWriteCoreInHierarchy(baseType, []);
-
-        private bool HasCompatibleXmlModelWriteCoreInHierarchy(CSharpType type, HashSet<string> visited)
-        {
-            if (!visited.Add(type.FullyQualifiedName))
-            {
-                return false;
-            }
-
-            var provider = TryGetTypeProvider(type);
-            if (provider is not null && GetXmlModelWriteCoreCompatibility(provider) is { } isCompatible)
-            {
-                return isCompatible;
-            }
-
-            var baseType = provider?.BaseType ?? type.BaseType;
-            return baseType is not null && HasCompatibleXmlModelWriteCoreInHierarchy(baseType, visited);
-        }
-
-        private bool? GetXmlModelWriteCoreCompatibility(TypeProvider type)
-        {
-            var sourceMethod = type.Methods.FirstOrDefault(IsXmlModelWriteCoreSignature);
-            return sourceMethod is null ? null : IsXmlModelWriteCoreMethod(sourceMethod);
-        }
+                ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    IsXmlModelWriteCoreSignature,
+                    baseTypesFirst: false) is { } method &&
+                IsXmlModelWriteCoreMethod(method);
 
         private MethodProvider BuildXmlModelWriteCoreMethod()
         {
