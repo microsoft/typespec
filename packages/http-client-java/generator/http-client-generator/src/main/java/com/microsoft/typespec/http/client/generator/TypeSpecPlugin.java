@@ -129,8 +129,9 @@ public class TypeSpecPlugin extends Javagen {
             }
         }
 
-        // XmlSerializer
+        // XmlSerializer, only for the azure-core (v1) data-plane flavor
         final boolean generateXmlSerializer = JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
             && client.getModels().stream().filter(ModelUtil::isGeneratingModel).anyMatch(ClientModel::isUsedInXml);
         if (generateXmlSerializer) {
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
@@ -222,6 +223,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getPartialUpdate() != null) {
             SETTINGS_MAP.put("partial-update", options.getPartialUpdate());
+        }
+        if (options.getRequiredFieldsAsConstructorArgs() != null) {
+            SETTINGS_MAP.put("required-fields-as-ctor-args", options.getRequiredFieldsAsConstructorArgs());
         }
         if (!CoreUtils.isNullOrEmpty(options.getServiceVersions())) {
             SETTINGS_MAP.put("service-versions", options.getServiceVersions());

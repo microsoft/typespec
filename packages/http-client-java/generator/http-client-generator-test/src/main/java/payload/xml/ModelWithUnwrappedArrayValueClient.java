@@ -26,7 +26,7 @@ import payload.xml.models.ModelWithUnwrappedArray;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithUnwrappedArrayValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithUnwrappedArrayValuesImpl serviceClient;
@@ -117,7 +117,7 @@ public final class ModelWithUnwrappedArrayValueClient {
     public ModelWithUnwrappedArray get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(ModelWithUnwrappedArray.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(ModelWithUnwrappedArray.class, XML_SERIALIZER);
     }
 
     /**
@@ -136,6 +136,6 @@ public final class ModelWithUnwrappedArrayValueClient {
     public void put(ModelWithUnwrappedArray input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).getValue();
+        putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).getValue();
     }
 }

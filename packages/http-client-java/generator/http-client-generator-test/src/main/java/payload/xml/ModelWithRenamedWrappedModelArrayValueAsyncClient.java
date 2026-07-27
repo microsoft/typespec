@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 @ServiceClient(builder = XmlClientBuilder.class, isAsync = true)
 public final class ModelWithRenamedWrappedModelArrayValueAsyncClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final ModelWithRenamedWrappedModelArrayValuesImpl serviceClient;
@@ -122,8 +122,8 @@ public final class ModelWithRenamedWrappedModelArrayValueAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(
-                protocolMethodData -> protocolMethodData.toObject(ModelWithRenamedWrappedModelArray.class, SERIALIZER));
+            .map(protocolMethodData -> protocolMethodData.toObject(ModelWithRenamedWrappedModelArray.class,
+                XML_SERIALIZER));
     }
 
     /**
@@ -143,6 +143,6 @@ public final class ModelWithRenamedWrappedModelArrayValueAsyncClient {
     public Mono<Void> put(ModelWithRenamedWrappedModelArray input) {
         // Generated convenience method for putWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return putWithResponse(BinaryData.fromObject(input, SERIALIZER), requestOptions).flatMap(FluxUtil::toMono);
+        return putWithResponse(BinaryData.fromObject(input, XML_SERIALIZER), requestOptions).flatMap(FluxUtil::toMono);
     }
 }

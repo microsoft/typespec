@@ -1,6 +1,6 @@
 import { AzureCliCredential } from "@azure/identity";
-import { findWorkspacePackagesNoCheck } from "@pnpm/workspace.find-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
+import { findWorkspacePackages } from "@typespec/internal-build-utils";
 import { glob, readFile } from "fs/promises";
 import { relative, resolve } from "path";
 import { join as joinUnix } from "path/posix";
@@ -171,7 +171,7 @@ export interface BundleAndUploadPackagesOptions {
 
 /** Return the version of the package in major.minor.x format */
 export async function getPackageVersion(repoRoot: string, pkgName: string) {
-  const projects = await findWorkspacePackagesNoCheck(repoRoot);
+  const projects = await findWorkspacePackages(repoRoot);
 
   const project = projects
     .filter((x) => x.manifest.name && x.manifest.version)
@@ -194,7 +194,7 @@ export async function bundleAndUploadPackages({
   indexName,
   indexVersion,
 }: BundleAndUploadPackagesOptions) {
-  const allProjects = await findWorkspacePackagesNoCheck(repoRoot);
+  const allProjects = await findWorkspacePackages(repoRoot);
   const projects = allProjects.filter((x) => packages.includes(x.manifest.name!));
   logInfo("Current index version:", indexVersion);
 
