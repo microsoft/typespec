@@ -26,9 +26,10 @@ Available ruleSets:
 
 ## Rules
 
-| Name                                                                                                                        | Description                                                                               |
-| --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`@typespec/http/op-reference-container-route`](https://typespec.io/docs/libraries/http/rules/op-reference-container-route) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
+| Name                                                                                                                                        | Description                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [`@typespec/http/op-reference-container-route`](https://typespec.io/docs/libraries/http/rules/op-reference-container-route)                 | Check for referenced (`op is`) operations which have a @route on one of their containers.             |
+| [`@typespec/http/no-content-type-optionality-mismatch`](https://typespec.io/docs/libraries/http/rules/no-content-type-optionality-mismatch) | The optionality of the Content-Type header must match the optionality of the associated request body. |
 
 ## Decorators
 
