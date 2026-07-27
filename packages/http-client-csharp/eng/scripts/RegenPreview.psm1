@@ -160,7 +160,21 @@ function Update-EmitterPackageArtifact {
         Push-Location $tempDir
         try {
             if ($usePublishedVersion) {
-                Invoke "npm install $PackageName@$PublishVersion --save-exact --package-lock-only --registry $Registry" $tempDir
+                $installCommand = "npm install $PackageName@$PublishVersion --save-exact --package-lock-only --registry $Registry"
+                $maxAttempts = 5
+                for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+                    Invoke $installCommand $tempDir
+                    if ($LASTEXITCODE -eq 0) {
+                        break
+                    }
+
+                    if ($attempt -eq $maxAttempts) {
+                        break
+                    }
+
+                    Write-Host "Published package $PackageName@$PublishVersion is not available yet. Retrying in 15 seconds ($attempt/$maxAttempts)..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds 15
+                }
             } else {
                 Invoke "npm install `"`"file:$PackagePath`"`" --package-lock-only" $tempDir
             }
@@ -454,6 +468,10 @@ function Update-MgmtGenerator {
 
     .PARAMETER NpmrcPath
         Optional path to an authenticated .npmrc file used when publishing to $PublishRegistry.
+
+    .PARAMETER SkipEmitterPackageArtifactUpdate
+        When specified, skips rewriting the eng-folder mgmt emitter-package artifacts so a split CI flow
+        can update them only after the packed mgmt package has been published to the feed.
     #>
     param(
         [Parameter(Mandatory=$true)]
@@ -478,7 +496,10 @@ function Update-MgmtGenerator {
         [string]$UnbrandedVersion,
 
         [Parameter(Mandatory=$false)]
-        [string]$NpmrcPath
+        [string]$NpmrcPath,
+
+        [Parameter(Mandatory=$false)]
+        [switch]$SkipEmitterPackageArtifactUpdate
     )
 
     $ErrorActionPreference = 'Stop'
@@ -541,30 +562,35 @@ function Update-MgmtGenerator {
         } `
         -NpmrcPath $NpmrcPath
 
-    # Update eng folder mgmt emitter package artifacts.
-    # The emitter package only declares @azure-typespec/http-client-csharp-mgmt directly;
-    # the Azure + unbranded packages are pulled in transitively from the mgmt package. When
-    # publishing, the emitter references the published mgmt version so CI can restore it;
-    # otherwise it points at the local mgmt tgz for host-only validation loops.
-    Write-Host "Updating mgmt emitter package artifacts..." -ForegroundColor Gray
+    if ($SkipEmitterPackageArtifactUpdate) {
+        Write-Host "Deferring mgmt emitter package artifact update until after publish completes." -ForegroundColor Gray
+        Write-Host ""
+    } else {
+        # Update eng folder mgmt emitter package artifacts.
+        # The emitter package only declares @azure-typespec/http-client-csharp-mgmt directly;
+        # the Azure + unbranded packages are pulled in transitively from the mgmt package. When
+        # publishing, the emitter references the published mgmt version so CI can restore it;
+        # otherwise it points at the local mgmt tgz for host-only validation loops.
+        Write-Host "Updating mgmt emitter package artifacts..." -ForegroundColor Gray
 
-    $mgmtEmitterJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-    $mgmtLockJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+        $mgmtEmitterJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+        $mgmtLockJson = Join-Path $EngFolder "azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
 
-    $updateEmitterArgs = @{
-        EmitterJsonPath = $mgmtEmitterJson
-        LockJsonPath    = $mgmtLockJson
-        PackagePath     = $mgmtPackagePath
+        $updateEmitterArgs = @{
+            EmitterJsonPath = $mgmtEmitterJson
+            LockJsonPath    = $mgmtLockJson
+            PackagePath     = $mgmtPackagePath
+        }
+        if ($PublishRegistry) {
+            $updateEmitterArgs.PackageName = '@azure-typespec/http-client-csharp-mgmt'
+            $updateEmitterArgs.PublishVersion = $mgmtNpmVersion
+            $updateEmitterArgs.Registry = $PublishRegistry
+        }
+        Update-EmitterPackageArtifact @updateEmitterArgs
+        Write-Host "  Mgmt emitter package artifacts updated" -ForegroundColor Green
+
+        Write-Host ""
     }
-    if ($PublishRegistry) {
-        $updateEmitterArgs.PackageName = '@azure-typespec/http-client-csharp-mgmt'
-        $updateEmitterArgs.PublishVersion = $mgmtNpmVersion
-        $updateEmitterArgs.Registry = $PublishRegistry
-    }
-    Update-EmitterPackageArtifact @updateEmitterArgs
-    Write-Host "  Mgmt emitter package artifacts updated" -ForegroundColor Green
-
-    Write-Host ""
 
     # Return the package path for potential further use
     return $mgmtPackagePath

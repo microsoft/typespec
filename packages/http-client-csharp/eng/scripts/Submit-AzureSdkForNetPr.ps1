@@ -240,6 +240,7 @@ $httpClientDir = Join-Path $tempDir "eng/packages/http-client-csharp"
 # resolved value to a sibling state file so the later phase processes can honor the same gating.
 $installSucceeded = $true
 $prepareStateFile = "$tempDir.prepare-state.json"
+$buildGeneratorsStateFile = "$tempDir.build-generators-state.json"
 if (-not $runPrepare -and (Test-Path $prepareStateFile)) {
     try {
         $installSucceeded = [bool]((Get-Content $prepareStateFile -Raw | ConvertFrom-Json).InstallSucceeded)
@@ -613,23 +614,21 @@ try {
             -NpmrcPath $PublishNpmrcPath
         Write-Host "Azure generator built successfully"
 
-        # Update Azure emitter package artifacts. When publishing, reference the published
-        # version so CI can restore it; otherwise pin to the local tgz via a "file:" path.
-        Write-Host "Updating Azure emitter package artifacts..."
-        $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
-        $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
-
-        $updateAzureEmitterArgs = @{
-            EmitterJsonPath = $azureEmitterJson
-            LockJsonPath    = $azureLockJson
-            PackagePath     = $azurePackagePath
-        }
+        # Update Azure emitter package artifacts. In publish mode this must wait until after the packed
+        # Azure package has been published to the feed; otherwise npm install will 404 on the not-yet-
+        # published version while regenerating the lock file.
         if ($PublishRegistry) {
-            $updateAzureEmitterArgs.PackageName = '@azure-typespec/http-client-csharp'
-            $updateAzureEmitterArgs.PublishVersion = $azurePublishVersion
-            $updateAzureEmitterArgs.Registry = $PublishRegistry
+            Write-Host "Deferring Azure emitter package artifact update until after publish completes..."
+        } else {
+            Write-Host "Updating Azure emitter package artifacts..."
+            $azureEmitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
+            $azureLockJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json"
+
+            Update-EmitterPackageArtifact `
+                -EmitterJsonPath $azureEmitterJson `
+                -LockJsonPath $azureLockJson `
+                -PackagePath $azurePackagePath
         }
-        Update-EmitterPackageArtifact @updateAzureEmitterArgs
 
         # Add NuGet source for local packages
         $nugetConfigPath = Join-Path $tempDir "NuGet.Config"
@@ -638,6 +637,7 @@ try {
         }
 
         # Build and package management plane generator (only when mgmt is requested)
+        $mgmtPublishVersion = $null
         if ($RegenerateMgmtLibraries) {
             $mgmtGeneratorPath = Join-Path $tempDir "eng" "packages" "http-client-csharp-mgmt"
             if (-not (Test-Path $mgmtGeneratorPath)) {
@@ -662,13 +662,64 @@ try {
                 -PublishVersion $mgmtPublishVersion `
                 -AzureVersion $azurePublishVersion `
                 -UnbrandedVersion $PackageVersion `
-                -NpmrcPath $PublishNpmrcPath
+                -NpmrcPath $PublishNpmrcPath `
+                -SkipEmitterPackageArtifactUpdate:$([bool]$PublishRegistry)
             Write-Host "Management plane generator built successfully"
+        }
+
+        if ($PublishRegistry) {
+            @{
+                AzurePublishVersion = $azurePublishVersion
+                MgmtPublishVersion  = $mgmtPublishVersion
+            } | ConvertTo-Json | Set-Content $buildGeneratorsStateFile -Encoding utf8
+
+            # The shared publish template publishes every *.tgz found in DebugFolder. Remove the staged
+            # unbranded package now that the Azure/mgmt builds are done so the pipeline doesn't try to
+            # republish the already-published unbranded emitter from the earlier stage.
+            if (Test-Path $unbrandedPackagePath) {
+                Remove-Item $unbrandedPackagePath -Force
+            }
         }
     }
 
     # Regenerate phase: regenerate all SDK libraries that consume the (now published) emitters.
     if ($runRegenerate -and $installSucceeded) {
+        if ($PublishRegistry -and ($RegenerateAzureLibraries -or $RegenerateMgmtLibraries)) {
+            if (-not (Test-Path $buildGeneratorsStateFile)) {
+                throw "Build generator state file '$buildGeneratorsStateFile' was not found. The BuildGenerators phase must run before Regenerate when publishing generator packages."
+            }
+
+            $buildGeneratorsState = Get-Content $buildGeneratorsStateFile -Raw | ConvertFrom-Json -AsHashtable
+            $engFolder = Join-Path $tempDir "eng"
+            $azurePublishVersion = $buildGeneratorsState.AzurePublishVersion
+            if (-not $azurePublishVersion) {
+                throw "Build generator state file '$buildGeneratorsStateFile' did not contain AzurePublishVersion."
+            }
+
+            Write-Host "Updating Azure emitter package artifacts..."
+            Update-EmitterPackageArtifact `
+                -EmitterJsonPath (Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json") `
+                -LockJsonPath (Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json") `
+                -PackageName '@azure-typespec/http-client-csharp' `
+                -PublishVersion $azurePublishVersion `
+                -Registry $PublishRegistry
+
+            if ($RegenerateMgmtLibraries) {
+                $mgmtPublishVersion = $buildGeneratorsState.MgmtPublishVersion
+                if (-not $mgmtPublishVersion) {
+                    throw "Build generator state file '$buildGeneratorsStateFile' did not contain MgmtPublishVersion."
+                }
+
+                Write-Host "Updating mgmt emitter package artifacts..."
+                Update-EmitterPackageArtifact `
+                    -EmitterJsonPath (Join-Path $engFolder "azure-typespec-http-client-csharp-mgmt-emitter-package.json") `
+                    -LockJsonPath (Join-Path $engFolder "azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json") `
+                    -PackageName '@azure-typespec/http-client-csharp-mgmt' `
+                    -PublishVersion $mgmtPublishVersion `
+                    -Registry $PublishRegistry
+            }
+        }
+
         Write-Host "Expanding sparse checkout to include sdk directory for SDK regeneration..."
         git sparse-checkout add sdk
         if ($LASTEXITCODE -ne 0) {
@@ -897,5 +948,6 @@ try {
     if ($Phase -in @('All', 'Regenerate') -and (Test-Path $tempDir)) {
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
         Remove-Item $prepareStateFile -Force -ErrorAction SilentlyContinue
+        Remove-Item $buildGeneratorsStateFile -Force -ErrorAction SilentlyContinue
     }
 }
