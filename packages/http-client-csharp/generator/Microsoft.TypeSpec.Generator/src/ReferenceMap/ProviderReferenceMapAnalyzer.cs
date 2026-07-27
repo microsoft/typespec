@@ -56,9 +56,32 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         private static bool IsResolvableBuildableProvider(TypeProvider provider) =>
-            provider is not SystemObjectModelProvider &&
-            provider is not ModelProvider { IsExternal: true } &&
-            ShouldWriteProvider(provider);
+            provider switch
+            {
+                // A system type is not generated, but generated serialization code still reads it through
+                // ModelReaderWriter.Read<T>(..., Context.Default), so it stays buildable when it supports MRW.
+                SystemObjectModelProvider systemModel => SupportsModelReaderWriter(systemModel.SystemType),
+                ModelProvider { IsExternal: true } => false,
+                _ => ShouldWriteProvider(provider)
+            };
+
+        private static bool SupportsModelReaderWriter(CSharpType type)
+        {
+            if (!type.IsFrameworkType)
+            {
+                return false;
+            }
+
+            foreach (var @interface in type.FrameworkType.GetInterfaces())
+            {
+                if (@interface.Name is "IPersistableModel`1" or "IJsonModel`1")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static bool TryGetProvider(CSharpType type, bool exact, out TypeProvider provider)
         {

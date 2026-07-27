@@ -227,6 +227,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void SystemObjectModelProvidersSupportingMrwRemainBuildable()
+        {
+            // A framework type represented by a SystemObjectModelProvider (e.g. an ARM common type such as
+            // ManagedServiceIdentity) is still deserialized by generated serialization code through
+            // ModelReaderWriter.Read<T>(..., Context.Default), so it must keep its buildable entry.
+            var systemInputModel = InputFactory.Model("SystemMrwModel", properties: []);
+            var referencingInputModel = InputFactory.Model("ReferencingModel", properties: []);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(
+            [
+                new SystemTypeReferencingProvider(referencingInputModel),
+                new SystemObjectModelProvider(new CSharpType(typeof(SystemMrwModel)), systemInputModel)
+            ]));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = contextDefinition.Attributes
+                .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(a => a.Arguments.First().ToDisplayString())
+                .ToList();
+
+            Assert.IsTrue(
+                buildableAttributes.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.SystemMrwModel)"),
+                "Framework types wrapped by a SystemObjectModelProvider must remain buildable when the wrapped system type supports MRW.");
+        }
+
+        [Test]
+        public void SystemObjectModelProvidersWithoutMrwSupportAreNotBuildable()
+        {
+            var systemInputModel = InputFactory.Model("SystemNonMrwModel", properties: []);
+            var referencingInputModel = InputFactory.Model("ReferencingModel", properties: []);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(
+            [
+                new SystemTypeReferencingProvider(referencingInputModel, useMrwSystemType: false),
+                new SystemObjectModelProvider(new CSharpType(typeof(SystemNonMrwModel)), systemInputModel)
+            ]));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = contextDefinition.Attributes
+                .Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(a => a.Arguments.First().ToDisplayString())
+                .ToList();
+
+            Assert.IsFalse(
+                buildableAttributes.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.SystemNonMrwModel)"),
+                "System types that do not support MRW must not get a buildable entry.");
+        }
+
+        [Test]
         public void ValidateModelReaderWriterBuildableAttributesIncludeNestedModels()
         {
             // Create a model with a property that references another model
@@ -2082,6 +2129,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
                 return [new MethodProvider(signature, Statements.MethodBodyStatement.Empty, this)];
             }
+        }
+    }
+
+    internal class SystemTypeReferencingProvider : ModelProvider
+    {
+        private readonly bool _useMrwSystemType;
+
+        public SystemTypeReferencingProvider(InputModelType inputModelType, bool useMrwSystemType = true) : base(inputModelType)
+        {
+            _useMrwSystemType = useMrwSystemType;
+        }
+
+        protected override string BuildName() => "SystemTypeReferencingModel";
+
+        protected internal override PropertyProvider[] BuildProperties() =>
+        [
+            new PropertyProvider(
+                null,
+                MethodSignatureModifiers.Public,
+                new CSharpType(_useMrwSystemType ? typeof(SystemMrwModel) : typeof(SystemNonMrwModel)),
+                "SystemProperty",
+                new AutoPropertyBody(false),
+                this)
+        ];
+    }
+
+    public class SystemNonMrwModel
+    {
+        public string Value { get; set; } = string.Empty;
+    }
+
+    public class SystemMrwModel : IJsonModel<SystemMrwModel>, IPersistableModel<SystemMrwModel>
+    {
+        public string Value { get; set; } = string.Empty;
+
+        SystemMrwModel? IJsonModel<SystemMrwModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        SystemMrwModel? IPersistableModel<SystemMrwModel>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        string IPersistableModel<SystemMrwModel>.GetFormatFromOptions(ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IJsonModel<SystemMrwModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        BinaryData IPersistableModel<SystemMrwModel>.Write(ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
         }
     }
 
