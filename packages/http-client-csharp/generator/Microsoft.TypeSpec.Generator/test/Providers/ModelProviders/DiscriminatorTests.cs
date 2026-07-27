@@ -120,19 +120,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedSummary, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
-        [Test]
-        public void DiscriminatedBaseDescriptionIsBuiltEvenWhenNotAbstract()
+        [TestCase(true, "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        [TestCase(false, "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        public void DiscriminatedBaseDescriptionReflectsAbstractness(bool isAbstract, string expectedDescription)
         {
             MockHelpers.LoadMockGenerator();
-            // Simulate a downstream emitter that does not model the discriminated base type as abstract.
-            var baseModel = new NonAbstractModelProvider(_baseModel);
-            Assert.IsFalse(baseModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+            // When not abstract, simulate a downstream emitter that does not model the discriminated base type as abstract.
+            var baseModel = isAbstract
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(_baseModel)!
+                : new NonAbstractModelProvider(_baseModel);
+            Assert.AreEqual(isAbstract, baseModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
 
-            // The discriminated base description should still reference derived models.
+            // The discriminated base description should reference derived models regardless of abstractness.
             Assert.IsNotNull(baseModel.XmlDocs.Summary);
-            StringAssert.Contains(
-                "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.",
-                baseModel.XmlDocs.Summary!.ToDisplayString());
+            StringAssert.Contains(expectedDescription, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
         private class NonAbstractModelProvider : ModelProvider
