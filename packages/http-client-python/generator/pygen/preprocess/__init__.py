@@ -94,11 +94,12 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
-            # When a TypedDict overload was inserted, it replaces the single-body JSON
-            # overload, so skip it. When TypedDict generation is disabled, no TypedDict
-            # overload exists and we keep the single-body raw-JSON overload (pre-TypedDict
-            # behavior) by falling through.
-            if any(t.get("base") == "typeddict" for t in body_parameter["type"]["types"]):
+            # When a TypedDict-style overload was inserted, it replaces the single-body
+            # JSON overload, so skip it. add_body_param_type sets this flag for both
+            # models-mode: dpg (generate-typeddict on) and models-mode: typeddict. When
+            # TypedDict generation is disabled the flag is absent and we keep the
+            # single-body raw-JSON overload (pre-TypedDict behavior) by falling through.
+            if body_parameter["type"].get("jsonOverloadReplacedByTypeddict"):
                 continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
@@ -389,6 +390,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         existing_td: Optional[dict[str, Any]],
     ) -> None:
         """Insert a typeddict type into the body parameter's combined types."""
+        # Mark that a TypedDict-style overload now stands in for the single-body JSON
+        # overload, so add_overloads_for_body_param knows to skip re-adding it.
+        body_parameter["type"]["jsonOverloadReplacedByTypeddict"] = True
         if origin_type == "model":
             td_type = existing_td or {**source, "base": "typeddict"}
             body_parameter["type"]["types"].insert(1, td_type)
@@ -487,7 +491,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
 
                 if is_typeddict_only and original:
                     # In typeddict-only mode, the original dpg model already renders
-                    # as a TypedDict — reference it directly, no copy needed.
+                    # as a TypedDict — reference it directly, no copy needed. It also
+                    # replaces the single-body JSON overload.
+                    body_parameter["type"]["jsonOverloadReplacedByTypeddict"] = True
                     if origin_type == "model":
                         body_parameter["type"]["types"].insert(1, original)
                     else:

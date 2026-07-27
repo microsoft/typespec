@@ -150,6 +150,70 @@ def test_spread_body_opt_out_keeps_json_overload():
     assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
 
 
+def test_spread_body_dpg_typeddict_on_skips_single_json_overload():
+    """dpg + generate-typeddict on: the TypedDict overload replaces the single-body JSON one."""
+    plugin = _plugin("dpg")
+    clid = "Contoso.Widget"
+    original = _dpg_body_parameter("Widget", clid)["type"]
+    spread_body = _json_spread_body_parameter("CreateRequest", clid)
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data)
+
+    # Combined types: [json_model, typeddict, binary]; the single-body JSON overload is
+    # replaced by the TypedDict, so only the flattened JSON overload remains.
+    assert spread_body["type"].get("jsonOverloadReplacedByTypeddict") is True
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    assert all(o["bodyParameter"].get("flattened") for o in json_overloads)
+    assert not any(not o["bodyParameter"].get("flattened") for o in json_overloads)
+
+
+def test_spread_body_typeddict_mode_skips_single_json_overload():
+    """models-mode: typeddict spread bodies must NOT keep the single-body JSON overload.
+
+    The inserted overload is the original ``base: dpg`` model (it renders as a TypedDict
+    via models-mode), so a ``base == "typeddict"`` sniff would miss it. The flag set by
+    ``add_body_param_type`` ensures the single-body JSON overload is still skipped.
+    """
+    plugin = _plugin("typeddict")
+    clid = "Contoso.Widget"
+    original = _dpg_body_parameter("Widget", clid)["type"]
+    spread_body = _json_spread_body_parameter("CreateRequest", clid)
+    yaml_data = {
+        "name": "create",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data)
+
+    assert spread_body["type"]["type"] == "combined"
+    assert spread_body["type"].get("jsonOverloadReplacedByTypeddict") is True
+    # typeddict-only mode omits the binary overload; the inserted overload is the
+    # original dpg model referenced directly.
+    assert spread_body["type"]["types"][0]["base"] == "json"
+    assert spread_body["type"]["types"][1] is original
+    # Exactly the flattened JSON overload plus the original-model overload; the
+    # single-body JSON overload must be absent.
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    assert len(json_overloads) == 1
+    assert json_overloads[0]["bodyParameter"].get("flattened") is True
+
+
 def _dpg_body_parameter(name: str, cross_lang_id: str) -> dict:
     """A JSON dpg-model body parameter for the given model name and cross-language id."""
     model_type = {
