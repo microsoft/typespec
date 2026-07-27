@@ -105,7 +105,7 @@ def test_dpg_mode_still_emits_multiple_overloads():
 
 
 def test_dpg_mode_can_disable_typeddict_autogeneration():
-    """Opting out keeps the dpg model + binary overloads, but skips typeddict generation."""
+    """Opting out reverts to the pre-TypedDict overloads: model + raw-JSON + binary."""
     plugin = _plugin("dpg", **{"generate-typeddict": False})
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
@@ -114,13 +114,16 @@ def test_dpg_mode_can_disable_typeddict_autogeneration():
     add_overloads_for_body_param(yaml_data)
 
     assert body_parameter["type"]["type"] == "combined"
-    assert body_parameter["type"]["types"] == [model_type, {"type": "binary"}]
-    assert len(yaml_data["overloads"]) == 2
+    # The dict-body overload is the raw-JSON ``any-object`` (not a TypedDict).
+    assert body_parameter["type"]["types"] == [model_type, {"type": "any-object"}, {"type": "binary"}]
+    assert len(yaml_data["overloads"]) == 3
+    overload_types = [o["bodyParameter"]["type"]["type"] for o in yaml_data["overloads"]]
+    assert overload_types == ["model", "any-object", "binary"]
     assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
 
 
 def test_spread_body_opt_out_keeps_json_overload():
-    """Spread bodies keep the flattened JSON overload when TypedDict generation is disabled."""
+    """Spread bodies revert to pre-TypedDict: flattened + single-body JSON + binary."""
     plugin = _plugin("dpg", **{"generate-typeddict": False})
     spread_body = _json_spread_body_parameter("CreateRequest", "Contoso.Widget")
     yaml_data = {
@@ -139,9 +142,11 @@ def test_spread_body_opt_out_keeps_json_overload():
     assert spread_body["type"]["type"] == "combined"
     assert spread_body["type"]["types"][0]["base"] == "json"
     assert spread_body["type"]["types"][1] == {"type": "binary"}
-    assert len(yaml_data["overloads"]) == 2
-    json_overload = next(o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json")
-    assert json_overload["bodyParameter"]["flattened"] is True
+    assert len(yaml_data["overloads"]) == 3
+    json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
+    # Both a flattened (keyword params) overload AND a single-body raw-JSON overload.
+    assert any(o["bodyParameter"].get("flattened") for o in json_overloads)
+    assert any(not o["bodyParameter"].get("flattened") for o in json_overloads)
     assert not any(t for t in code_model["types"] if t.get("base") == "typeddict")
 
 
