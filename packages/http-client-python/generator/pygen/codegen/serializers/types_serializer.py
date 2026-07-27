@@ -40,13 +40,38 @@ _BUILTIN_TYPE_NAMES = frozenset(
 )
 
 
+# Matches a single- or double-quoted string literal (escape-aware). Used to split an
+# annotation so that bare-identifier rewriting/detection skips text inside string literals
+# such as ``Literal["type"]`` values or quoted forward references like ``"SomeModel"``.
+_STRING_LITERAL_RE = re.compile(r"""('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")""")
+
+
+def _annotation_references_builtin(annotation: str, name: str) -> bool:
+    """Whether ``name`` appears as a bare (non-dotted) identifier outside any string literal."""
+    pattern = re.compile(rf"(?<!\.)\b{name}\b")
+    # re.split with a single capturing group yields code/string/code/string/... segments.
+    for index, segment in enumerate(_STRING_LITERAL_RE.split(annotation)):
+        if index % 2 == 0 and pattern.search(segment):
+            return True
+    return False
+
+
 def _qualify_shadowed_builtins(annotation: str, shadowed: frozenset[str]) -> str:
-    """Replace bare builtin type references with builtins.X when shadowed by a field name."""
+    """Replace bare builtin type references with builtins.X when shadowed by a field name.
+
+    Only bare identifiers in real type-expression positions are rewritten; identifiers
+    inside string literals (e.g. ``Literal["type"]`` values, quoted forward references)
+    and already-dotted names are left untouched.
+    """
     if not shadowed:
         return annotation
-    for name in shadowed:
-        annotation = re.sub(rf"\b{name}\b", f"builtins.{name}", annotation)
-    return annotation
+    segments = _STRING_LITERAL_RE.split(annotation)
+    for index in range(0, len(segments), 2):  # even indices are code, odd are string literals
+        segment = segments[index]
+        for name in shadowed:
+            segment = re.sub(rf"(?<!\.)\b{name}\b", f"builtins.{name}", segment)
+        segments[index] = segment
+    return "".join(segments)
 
 
 class TypesSerializer(BaseSerializer):
@@ -225,22 +250,27 @@ class TypesSerializer(BaseSerializer):
         """Whether any property wire_name is a Python keyword or requires functional TypedDict form."""
         return any(keyword.iskeyword(p.wire_name) or not p.wire_name.isidentifier() for p in model.properties)
 
-    @staticmethod
-    def get_shadowed_builtins(model: ModelType) -> frozenset[str]:
+    def get_shadowed_builtins(self, model: ModelType) -> frozenset[str]:
         """Return the set of builtin type names shadowed by property wire_names in this model.
 
-        Only includes a builtin if it is both used as a wire_name AND referenced
-        in a type annotation within the same model (otherwise no shadowing occurs).
+        Only includes a builtin if it is both used as a wire_name AND referenced as a bare
+        type in an annotation within the same model (otherwise no shadowing occurs). Detection
+        uses the exact ``TYPES_FILE`` annotation emitted for each property so that types which
+        change under the types-file serialization (e.g. ``bytes``/``datetime`` -> ``str``,
+        ``decimal`` -> ``float``) are evaluated as they actually appear in the output.
         """
         wire_builtins = {p.wire_name for p in model.properties if p.wire_name in _BUILTIN_TYPE_NAMES}
         if not wire_builtins:
             return frozenset()
-        # Check which of these builtins actually appear in type annotations
+        # Check which of these builtins actually appear in emitted type annotations
         used = set()
         for prop in model.properties:
-            annotation = prop.type_annotation()
+            annotation = prop.type_annotation(
+                serialize_namespace=self.serialize_namespace,
+                serialize_namespace_type=NamespaceType.TYPES_FILE,
+            )
             for name in wire_builtins:
-                if re.search(rf"\b{name}\b", annotation):
+                if _annotation_references_builtin(annotation, name):
                     used.add(name)
         return frozenset(used)
 

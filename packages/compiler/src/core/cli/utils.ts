@@ -6,13 +6,33 @@ import { Colors, ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { createTracer } from "../logger/tracer.js";
+import { createDiagnostic } from "../messages.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
-import { Diagnostic } from "../types.js";
+import { Diagnostic, NoTarget } from "../types.js";
 import { CliCompilerHost } from "./types.js";
 
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];
+
+/**
+ * Emit the `cli-command-deprecated` warning for a deprecated CLI command.
+ *
+ * Logged eagerly via the logger (instead of returned as a diagnostic) so the notice is always
+ * shown, even when the underlying command later exits the process on failure.
+ */
+export function reportDeprecatedCommand(
+  host: CliCompilerHost,
+  command: string,
+  docsUrl: string,
+): void {
+  const diagnostic = createDiagnostic({
+    code: "cli-command-deprecated",
+    format: { command, docsUrl },
+    target: NoTarget,
+  });
+  host.logger.warn(diagnostic.message);
+}
 
 export interface RunOptions extends Partial<SpawnSyncOptionsWithStringEncoding> {
   readonly debug?: boolean;

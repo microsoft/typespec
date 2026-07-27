@@ -150,11 +150,11 @@ options:
 # Extending config (child/tspconfig.yaml)
 extends: ../tspconfig.yaml
 emit:
-  - emitter3  # Completely replaces the emit array
+  - emitter3 # Completely replaces the emit array
 options:
-  emitter1:   # Completely replaces emitter1 options
+  emitter1: # Completely replaces emitter1 options
     option-c: value-c
-  emitter3:   # Added alongside emitter2 from parent
+  emitter3: # Added alongside emitter2 from parent
     option-y: value-y
 
 # Resulting merged config:

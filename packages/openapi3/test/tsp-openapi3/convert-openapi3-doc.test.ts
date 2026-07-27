@@ -1146,4 +1146,72 @@ describe("convertOpenAPI3Document tag metadata", () => {
       );
     }
   });
+
+  it("converts OpenAPI 3.1 license with identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          identifier: "MIT",
+        },
+      },
+      openapi: "3.1.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
+
+  it("converts OpenAPI 3.0 license with x-oai-license-identifier extension to identifier field", async () => {
+    const tsp = await convertOpenAPI3Document({
+      info: {
+        title: "My API",
+        version: "1.0.0",
+        license: {
+          name: "MIT",
+          "x-oai-license-identifier": "MIT",
+        } as any,
+      },
+      openapi: "3.0.0",
+      paths: {},
+    });
+
+    strictEqual(
+      tsp,
+      await formatTypeSpec(
+        `
+        import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "My API" })
+        @info(#{ version: "1.0.0", license: #{ name: "MIT", identifier: "MIT" } })
+        namespace MyAPI;
+        `,
+        { printWidth: 100, tabWidth: 2 },
+      ),
+    );
+  });
 });

@@ -1,10 +1,4 @@
-try {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await import("source-map-support/register.js");
-} catch {
-  // package only present in dev.
-}
+process.setSourceMapsEnabled(true);
 
 import yargs from "yargs";
 import { installTypeSpecDependencies } from "../../install/install.js";
@@ -195,6 +189,8 @@ async function main() {
           withCliHostAndDiagnostics<CliHostArgs & InstallVSCodeExtensionOptions>((host, args) =>
             installVSCodeExtension(host, args),
           ),
+          [],
+          "Install the extension from the Visual Studio Marketplace instead.",
         )
         .command(
           "uninstall",
@@ -203,6 +199,8 @@ async function main() {
           withCliHostAndDiagnostics<CliHostArgs & UninstallVSCodeExtensionOptions>((host, args) =>
             uninstallVSCodeExtension(host, args),
           ),
+          [],
+          "Uninstall the extension from VS Code directly instead.",
         );
     })
     .command("vs", "Manage Visual Studio Extension.", (cmd) => {
@@ -213,12 +211,16 @@ async function main() {
           "Install Visual Studio Extension.",
           () => {},
           withCliHostAndDiagnostics((host) => installVSExtension(host)),
+          [],
+          "Install the extension from the Visual Studio Marketplace instead.",
         )
         .command(
           "uninstall",
           "Uninstall VS Extension",
           () => {},
           withCliHostAndDiagnostics((host) => uninstallVSExtension(host)),
+          [],
+          "Uninstall the extension from Visual Studio directly instead.",
         );
     })
     .command(

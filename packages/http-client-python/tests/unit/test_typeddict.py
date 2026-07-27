@@ -8,11 +8,12 @@
 
 from jinja2 import PackageLoader, Environment
 
-from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType
+from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
+from pygen.codegen.models.imports import ImportType
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
 from pygen.codegen.models.list_type import ListType
-from pygen.codegen.serializers.types_serializer import TypesSerializer
+from pygen.codegen.serializers.types_serializer import TypesSerializer, _qualify_shadowed_builtins
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
@@ -475,3 +476,211 @@ def test_typed_dict_only_docstring_type():
     docstring = model.docstring_type()
     assert "types.Foo" in docstring
     assert "models.Foo" not in docstring
+
+
+# ---------- constant enum value (EnumValue) annotation & imports ----------
+
+
+def _make_enum_value(code_model, enum_name="Color", member_name="RED", value="red"):
+    """Build a single constant EnumValue attached to code_model."""
+    value_type_yaml = {"type": "string"}
+    enum_yaml = {
+        "type": "enum",
+        "name": enum_name,
+        "valueType": value_type_yaml,
+        "values": [],
+    }
+    enum_value_yaml = {
+        "type": "enumvalue",
+        "name": member_name,
+        "value": value,
+        "enumType": enum_yaml,
+        "valueType": value_type_yaml,
+    }
+    return build_type(enum_value_yaml, code_model)
+
+
+def _local_import_modules(file_import):
+    """Collect all LOCAL import module names from a FileImport."""
+    modules = set()
+    for section in file_import.to_dict().values():
+        modules.update(section.get(ImportType.LOCAL, {}).keys())
+    return modules
+
+
+def test_enum_value_dpg_annotation_uses_enum_member():
+    """In dpg mode a constant enum value annotates as ``Literal[Color.RED]``."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(code_model)
+    assert enum_value.type_annotation() == "Literal[Color.RED]"
+
+
+def test_enum_value_typeddict_annotation_uses_literal_value():
+    """In typeddict mode a constant enum value annotates with its literal value.
+
+    Enums are ``Literal`` aliases in types.py with no member attributes, so the
+    annotation must be ``Literal["red"]`` rather than ``Literal[Color.RED]``.
+    """
+    code_model = _make_code_model(models_mode="typeddict")
+    enum_value = _make_enum_value(code_model)
+    assert enum_value.type_annotation() == 'Literal["red"]'
+
+
+def test_enum_value_typeddict_does_not_import_enums_module():
+    """In typeddict mode ``_enums.py`` is never generated, so no import of it."""
+    code_model = _make_code_model(models_mode="typeddict")
+    enum_value = _make_enum_value(code_model)
+    modules = _local_import_modules(enum_value.imports())
+    assert not any("_enums" in module for module in modules)
+
+
+def test_enum_value_dpg_imports_enums_module():
+    """In dpg mode a constant enum value imports the enum from ``_enums.py``."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(code_model)
+    modules = _local_import_modules(enum_value.imports())
+    assert any("_enums" in module for module in modules)
+
+
+# ---------- builtin-shadowing qualification (Literal-value false positives) ----------
+
+
+def _make_required_property(code_model, name, prop_type):
+    """Create a required Property named ``name`` whose type is ``prop_type``."""
+    return Property(
+        yaml_data={"wireName": name, "clientName": name, "optional": False},
+        code_model=code_model,
+        type=prop_type,
+    )
+
+
+def test_qualify_shadowed_builtins_ignores_literal_value():
+    """A builtin name that only appears inside a ``Literal[...]`` value must not be rewritten."""
+    # ``type`` is a builtin, but here it is a literal string value, not a type reference.
+    assert _qualify_shadowed_builtins('Required[Literal["type"]]', frozenset({"type"})) == 'Required[Literal["type"]]'
+
+
+def test_qualify_shadowed_builtins_ignores_quoted_forward_reference():
+    """A builtin name inside a quoted forward reference must not be rewritten."""
+    assert _qualify_shadowed_builtins('list["type"]', frozenset({"type"})) == 'list["type"]'
+
+
+def test_qualify_shadowed_builtins_rewrites_genuine_bare_reference():
+    """A genuine bare builtin type reference is qualified as ``builtins.X``."""
+    assert _qualify_shadowed_builtins("bytes", frozenset({"bytes"})) == "builtins.bytes"
+    # Only the bare reference is rewritten; the quoted forward reference is left untouched.
+    assert _qualify_shadowed_builtins('Union["Model", bytes]', frozenset({"bytes"})) == 'Union["Model", builtins.bytes]'
+
+
+def test_qualify_shadowed_builtins_skips_already_dotted_names():
+    """An already-qualified ``builtins.X`` reference must not be double-qualified."""
+    assert _qualify_shadowed_builtins("builtins.bytes", frozenset({"bytes"})) == "builtins.bytes"
+
+
+def test_qualify_shadowed_builtins_mixes_real_and_literal():
+    """Within one annotation, a real reference is rewritten while a Literal value is preserved."""
+    assert (
+        _qualify_shadowed_builtins('dict[str, Literal["type"]]', frozenset({"type", "str"}))
+        == 'dict[builtins.str, Literal["type"]]'
+    )
+
+
+def test_literal_value_matching_builtin_not_detected_as_shadowed():
+    """A ``Literal["type"]`` value must not make ``type`` count as a shadowed builtin.
+
+    Regression: ``TypeParam`` has a ``type: Literal["type"]`` field and no sibling annotated
+    with the bare builtin ``type``, so no shadowing occurs.
+    """
+    code_model = _make_code_model(models_mode="typeddict")
+    const = build_type({"type": "constant", "value": "type", "valueType": {"type": "string"}}, code_model)
+    text = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "TypeParam", "type": "model", "snakeCaseName": "typeparam", "usage": 2},
+        code_model=code_model,
+        properties=[
+            _make_required_property(code_model, "type", const),
+            _make_required_property(code_model, "text", text),
+        ],
+    )
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[model])
+    assert ts.get_shadowed_builtins(model) == frozenset()
+
+
+def test_literal_value_false_positive_no_builtins_import_and_value_preserved():
+    """The reported bug: ``Literal["type"]`` must stay intact and no ``import builtins`` is added."""
+    code_model = _make_code_model(models_mode="typeddict")
+    const = build_type({"type": "constant", "value": "type", "valueType": {"type": "string"}}, code_model)
+    text = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "TypeParam", "type": "model", "snakeCaseName": "typeparam", "usage": 2},
+        code_model=code_model,
+        properties=[
+            _make_required_property(code_model, "type", const),
+            _make_required_property(code_model, "text", text),
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+    assert 'Literal["type"]' in output
+    assert "builtins.type" not in output
+    assert "import builtins" not in output
+
+
+def test_genuine_sibling_builtin_is_detected_and_qualified():
+    """A field whose wire name shadows a builtin used bare by a sibling annotation must qualify.
+
+    ``Numbers`` has ``int: str`` (wire name ``int``) and ``count: int``. The bare ``int`` in
+    ``count`` is emitted as-is in the types file, so pyright would resolve it to the earlier
+    field; it must be qualified as ``builtins.int``.
+    """
+    code_model = _make_code_model(models_mode="typeddict")
+    str_type = build_type({"type": "string"}, code_model)
+    int_type = build_type({"type": "integer"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Numbers", "type": "model", "snakeCaseName": "numbers", "usage": 2},
+        code_model=code_model,
+        properties=[
+            _make_required_property(code_model, "int", str_type),
+            _make_required_property(code_model, "count", int_type),
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[model])
+    assert ts.get_shadowed_builtins(model) == frozenset({"int"})
+
+    output = ts.serialize()
+    assert "import builtins" in output
+    assert "count: Required[builtins.int]" in output
+
+
+def test_type_changing_under_types_file_does_not_cause_spurious_builtins_import():
+    """Detection must use the emitted annotation: a ``bytes`` field renders as ``str`` in types.py.
+
+    ``Blob`` has ``bytes: int`` (wire name ``bytes``) and ``content: bytes``. In the types file a
+    bytes type is emitted as ``str``, so nothing genuinely references the bare builtin ``bytes``
+    and no ``import builtins`` should be added.
+    """
+    code_model = _make_code_model(models_mode="typeddict")
+    int_type = build_type({"type": "integer"}, code_model)
+    bytes_type = build_type({"type": "bytes", "encode": "base64"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Blob", "type": "model", "snakeCaseName": "blob", "usage": 2},
+        code_model=code_model,
+        properties=[
+            _make_required_property(code_model, "bytes", int_type),
+            _make_required_property(code_model, "content", bytes_type),
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    ts = TypesSerializer(code_model=code_model, env=env, models=[model])
+    assert ts.get_shadowed_builtins(model) == frozenset()
+
+    output = ts.serialize()
+    assert "import builtins" not in output

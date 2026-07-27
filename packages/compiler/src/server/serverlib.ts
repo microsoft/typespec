@@ -1588,9 +1588,7 @@ export function createServer(
 }
 
 type SignatureHelpNode =
-  | DecoratorExpressionNode
-  | AugmentDecoratorStatementNode
-  | TypeReferenceNode;
+  DecoratorExpressionNode | AugmentDecoratorStatementNode | TypeReferenceNode;
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,

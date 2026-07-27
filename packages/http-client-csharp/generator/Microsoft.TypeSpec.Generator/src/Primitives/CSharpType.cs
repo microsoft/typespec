@@ -11,6 +11,12 @@ using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
+    internal enum UnionItemTypeReferenceKind
+    {
+        PublicSurface,
+        MetadataOnly
+    }
+
     /// <summary>
     /// CSharpType represents the C# type of an input type.
     /// It is constructed from a <see cref="Type"/> and its properties.
@@ -19,8 +25,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
     {
         private readonly Type? _type;
         private object? _literal;
-        private readonly Type? _underlyingType;
+        private Type? _underlyingType;
         private IReadOnlyList<CSharpType>? _unionItemTypes;
+        private UnionItemTypeReferenceKind _unionItemTypeReferenceKind;
 
         private bool? _isReadOnlyMemory;
         private bool? _isList;
@@ -221,6 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public CSharpType InputType => _inputType ??= GetInputType();
         public CSharpType OutputType => _outputType ??= GetOutputType();
         public IReadOnlyList<CSharpType> UnionItemTypes => _unionItemTypes ?? throw new InvalidOperationException("Not a union type");
+        internal UnionItemTypeReferenceKind UnionItemTypeReferenceKind => _unionItemTypeReferenceKind;
 
         private bool TypeIsReadOnlyMemory()
             => IsFrameworkType && _type == typeof(ReadOnlyMemory<>);
@@ -549,8 +557,41 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 ? new CSharpType(FrameworkType, Arguments, isNullable)
                 : new CSharpType(Name, Namespace, IsValueType, isNullable, DeclaringType, Arguments, IsPublic, IsStruct, BaseType, _underlyingType);
 
+            // Preserve explicit enum semantics for framework types (e.g. referenced extensible enums,
+            // which are structs and are not recognized as enums via reflection). The framework constructor
+            // recomputes the underlying type from reflection and would otherwise drop it.
+            if (IsFrameworkType && _underlyingType is not null)
+            {
+                type._underlyingType = _underlyingType;
+            }
+
             type._literal = _literal;
             type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
+
+            return type;
+        }
+
+        /// <summary>
+        /// Returns a framework-backed copy of this <see cref="CSharpType"/> that carries explicit enum
+        /// semantics. This is used for referenced (external) extensible enums, which are implemented as
+        /// value-type structs and therefore are not recognized as enums via reflection
+        /// (<see cref="Type.IsEnum"/> is <c>false</c>). Preserving the underlying enum type lets downstream
+        /// serialization treat the type as an enum (inline construction) instead of falling back to a model read.
+        /// </summary>
+        /// <param name="underlyingEnumType">The underlying value type of the enum (e.g. <see cref="string"/> or <see cref="int"/>).</param>
+        internal CSharpType WithUnderlyingEnumType(Type underlyingEnumType)
+        {
+            if (!IsFrameworkType)
+            {
+                throw new InvalidOperationException("WithUnderlyingEnumType is only valid for framework types.");
+            }
+
+            var type = new CSharpType(FrameworkType, Arguments, IsNullable);
+            type._underlyingType = underlyingEnumType;
+            type._literal = _literal;
+            type._unionItemTypes = _unionItemTypes;
+            type._unionItemTypeReferenceKind = _unionItemTypeReferenceKind;
 
             return type;
         }
@@ -621,16 +662,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return FullyQualifiedName == other.FullyQualifiedName;
         }
 
-        // TO-DO: Implement this once SystemObjectType is implemented: https://github.com/Azure/autorest.csharp/issues/4198
-        // internal static CSharpType FromSystemType(Type type, string defaultNamespace, SourceInputModel? sourceInputModel, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        // {
-        //     var systemObjectType = SystemObjectType.Create(type, defaultNamespace, sourceInputModel, backingProperties);
-        //     return systemObjectType.Type;
-        // }
-
-        // internal static CSharpType FromSystemType(BuildContext context, Type type, IEnumerable<ObjectTypeProperty>? backingProperties = null)
-        //     => FromSystemType(type, context.DefaultNamespace, context.SourceInputModel, backingProperties);
-
         /// <summary>
         /// This function is used to create a new CSharpType instance with a literal value.
         /// If the type is a framework type, the CSharpType will be created with the literal value Constant
@@ -670,9 +701,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// <param name="isNullable">Flag used to determine if a type is nullable.</param>
         /// <returns>A <see cref="CSharpType"/> instance representing those unioned types.</returns>
         public static CSharpType FromUnion(IReadOnlyList<CSharpType> unionItemTypes, bool isNullable = false)
+            => FromUnion(unionItemTypes, isNullable, UnionItemTypeReferenceKind.PublicSurface);
+
+        internal static CSharpType FromUnion(
+            IReadOnlyList<CSharpType> unionItemTypes,
+            bool isNullable,
+            UnionItemTypeReferenceKind referenceKind)
         {
             var type = new CSharpType(typeof(BinaryData), isNullable);
             type._unionItemTypes = unionItemTypes;
+            type._unionItemTypeReferenceKind = referenceKind;
 
             return type;
         }

@@ -39,4 +39,9 @@ await buildSamples_experimental(packageRoot, resolve(__dirname, "dist/samples.ts
     preferredEmitter: "@typespec/json-schema",
     description: "Emit JSON Schema from TypeSpec type definitions.",
   },
+  GraphQL: {
+    filename: "samples/graphql.tsp",
+    preferredEmitter: "@typespec/graphql",
+    description: "Generate GraphQL schemas with queries, mutations, and types.",
+  },
 });

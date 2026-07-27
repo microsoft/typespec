@@ -73,6 +73,30 @@ Rule names are user-facing in diagnostics, `tspconfig.yaml`, docs URLs, and supp
 - Use `use-<preferred-thing>` when the rule guides users toward a standard or preferred TypeSpec pattern.
 - For domain-specific validation where `no-`/`use-` does not fit, use short subject-oriented names such as `<subject>-missing-<thing>` or `<subject>-invalid-<condition>`.
 
+#### Provide extended documentation
+
+The `description` field is a short, one-line summary. To provide richer reference documentation for a rule — which `tspd doc` renders into a dedicated page per rule (`reference/rules/<rule-name>.md`) — set the `docs` field. It accepts either an inline markdown string or a reference to a co-located markdown file via `fileRef.fromPackageRoot`:
+
+```ts
+import { createRule, fileRef } from "@typespec/compiler";
+
+export const requiredDocRule = createRule({
+  name: "no-model-doc",
+  severity: "warning",
+  description: "Enforce documentation on models.",
+  // Extended documentation rendered on the generated reference page.
+  docs: fileRef.fromPackageRoot("src/rules/no-model-doc.md"),
+  messages: {
+    default: `Must be documented.`,
+  },
+  create(context) {
+    /* ... */
+  },
+});
+```
+
+`fileRef.fromPackageRoot(path)` points at a markdown file relative to the package root (the directory containing your `package.json`). The same `docs` field is available on diagnostic definitions. When generating docs, `tspd` reports a `documentation-missing` warning for any rule or diagnostic that does not provide `docs`.
+
 #### Define rules with options
 
 Rules can accept user-configurable options via `defaultOptions` and `context.options`. When enabled with `true`, the rule uses the default options. When enabled with an object, the provided values override the defaults.

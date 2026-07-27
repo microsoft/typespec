@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Bug Fixes
+
+- [#10921](https://github.com/microsoft/typespec/pull/10921) Fix html program viewer crash when rendering search results with missing type kind.
+
+
 ## 0.83.0
 
 No changes, version bump only.

@@ -92,11 +92,7 @@ export interface TypeSpecAugmentation extends TypeSpecDecorator {
 }
 
 export type TypeSpecDataTypes =
-  | TypeSpecAlias
-  | TypeSpecEnum
-  | TypeSpecModel
-  | TypeSpecScalar
-  | TypeSpecUnion;
+  TypeSpecAlias | TypeSpecEnum | TypeSpecModel | TypeSpecScalar | TypeSpecUnion;
 
 export interface TypeSpecModel extends TypeSpecDeclaration {
   kind: "model";

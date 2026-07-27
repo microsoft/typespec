@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -95,6 +96,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             var updatedMethod = method.Accept(visitor);
             Assert.IsNotNull(updatedMethod);
             Assert.AreEqual("replacedVariable = \"foo\";\n", updatedMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void CanChangeArgumentExpression()
+        {
+            ValidateArgumentExpression("change");
+        }
+
+        [Test]
+        public void CanUpdateArgumentExpression()
+        {
+            ValidateArgumentExpression("update");
+        }
+
+        private static void ValidateArgumentExpression(string variableName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var type = new TestTypeProvider();
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, type.Type, $"", []),
+                Array.Empty<MethodBodyStatement>(),
+                type);
+            var argument = new ArgumentExpression(new VariableExpression(type.Type, variableName), IsRef: true);
+            var visitor = new TestLibraryVisitor();
+            var updatedExpression = argument.Accept(visitor, method);
+
+            Assert.IsNotNull(updatedExpression);
+            Assert.IsInstanceOf<ArgumentExpression>(updatedExpression);
+            var updatedArgument = (ArgumentExpression)updatedExpression!;
+            Assert.AreEqual("replacedVariable", ((VariableExpression)updatedArgument.Expression).Declaration.RequestedName);
+            Assert.IsTrue(updatedArgument.IsRef);
         }
 
         [Test]
@@ -205,6 +237,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
                 if (expression.Declaration.RequestedName == "update")
                 {
                     expression.Update(name: "replacedVariable");
+                }
+
+                return expression;
+            }
+
+            protected internal override ValueExpression? VisitArgumentExpression(ArgumentExpression expression,
+                MethodProvider methodProvider)
+            {
+                if (((VariableExpression)expression.Expression).Declaration.RequestedName == "change")
+                {
+                    return new ArgumentExpression(new VariableExpression(typeof(string), "replacedVariable"), IsRef: true);
+                }
+
+                if (((VariableExpression)expression.Expression).Declaration.RequestedName == "update")
+                {
+                    expression.Update(expression: new VariableExpression(typeof(string), "replacedVariable"), isRef: true);
+                    return expression;
                 }
 
                 return expression;
