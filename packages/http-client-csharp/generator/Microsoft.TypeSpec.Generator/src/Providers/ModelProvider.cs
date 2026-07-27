@@ -27,7 +27,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            // Whether the model is a discriminated base type is not tied to whether it is declared abstract.
+            // Downstream emitters may choose not to model discriminated base types as abstract, but the
+            // description referencing the available derived classes should still be built.
+            if (IsDiscriminatedBaseType)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
@@ -65,6 +68,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
+
+        /// <summary>
+        /// Gets whether this model is a discriminated base type, i.e. it defines a discriminator property
+        /// but does not itself carry a discriminator value. This is independent of whether the type is
+        /// declared abstract, since downstream emitters may choose not to model discriminated base types
+        /// as abstract.
+        /// </summary>
+        private bool IsDiscriminatedBaseType => _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
+
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
@@ -324,7 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (_inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null)
+            if (IsDiscriminatedBaseType)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
