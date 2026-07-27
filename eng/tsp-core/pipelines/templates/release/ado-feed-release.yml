@@ -22,9 +22,9 @@ steps:
 
   # This is a 1ES release (deployment) job, which forbids `checkout`, so publish-npm-packages.ts is
   # shipped inside the packages artifact (copied there by the pack step) and run from there.
-  - task: NodeTool@0
+  - task: UseNode@1
     inputs:
-      versionSpec: ${{ parameters.nodeVersion }}
+      version: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
 

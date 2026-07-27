@@ -1,5 +1,19 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.15
+
+### Features
+
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+
+
 ## 0.1.0-alpha.14
 
 ### Features

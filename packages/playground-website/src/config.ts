@@ -10,6 +10,7 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/versioning",
     "@typespec/openapi3",
     "@typespec/json-schema",
+    "@typespec/graphql",
     "@typespec/protobuf",
     "@typespec/streams",
     "@typespec/events",

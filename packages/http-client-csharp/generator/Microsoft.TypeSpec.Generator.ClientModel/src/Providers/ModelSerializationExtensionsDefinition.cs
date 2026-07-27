@@ -27,7 +27,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public sealed partial class ModelSerializationExtensionsDefinition : TypeProvider
+    public sealed partial class ModelSerializationExtensionsDefinition : InternalHelperProvider
     {
         public const string WireOptionsFieldName = "WireOptions";
         public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
@@ -96,17 +96,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
-
         internal FieldProvider WireOptionsField { get; }
         private readonly FieldProvider _jsonDocumentOptionsField;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "ModelSerializationExtensions";
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.TypeFormattersDefinition.Type];
 
         protected override FieldProvider[] BuildFields()
         {
@@ -759,6 +757,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(ReadOnlySpanSnippets.Empty())
                 },
                 new IfStatement(indexable[Int(0)].NotEqual(Literal('$'))) { Return(ReadOnlySpanSnippets.Empty()) },
+                new IfStatement(indexable[Int(1)].Equal(Literal('.'))) { Return(ReadOnlySpanSnippets.Slice(local, Int(2))) },
                 Return(new TernaryConditionalExpression(
                     ReadOnlySpanSnippets.Length(local).GreaterThanOrEqual(Int(4))
                         .And(indexable[Int(1)].Equal(Literal('[')))

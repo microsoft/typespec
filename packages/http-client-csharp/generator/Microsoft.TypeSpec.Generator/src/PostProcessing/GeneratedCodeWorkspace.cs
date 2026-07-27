@@ -116,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator
             }
             var docs = await Task.WhenAll(documents);
 
-            LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+            LoggingHelpers.LogElapsedTime("Roslyn document processing complete");
 
             foreach (var doc in docs)
             {
@@ -261,33 +261,6 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
-        /// </summary>
-        public async Task PostProcessAsync()
-        {
-            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
-            var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
-            var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
-                modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeNames: nonRootTypes);
-
-            switch (Configuration.UnreferencedTypesHandling)
-            {
-                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    _project = await postProcessor.RemoveAsync(_project);
-                    break;
-            }
-        }
-
-        /// <summary>
         /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
         /// as metadata references so that custom code referencing external NuGet types compiles correctly.
         /// </summary>
@@ -375,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static ApiCompatBaseline LoadApiCompatBaseline()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
 
             while (directory != null)
@@ -395,7 +368,7 @@ namespace Microsoft.TypeSpec.Generator
 
         internal static async Task<Compilation?> LoadBaselineContract()
         {
-            var packageName = CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace;
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
             string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
 
             if (!File.Exists(projectFilePath))

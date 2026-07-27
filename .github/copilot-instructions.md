@@ -120,8 +120,9 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 
 ## Commit instructions
 
-- Always run the linting and the formatting commands before any commit.
+- Always run the linting and the formatting commands before any commit. In particular, always run `pnpm format` before committing.
 - Follow conventional commits.
+- Avoid committing `pnpm-lock.yaml` unless absolutely necessary.
 
 ## Pull Request instructions
 
@@ -151,6 +152,11 @@ Out-of-sync releases and hotfix releases follow the same flow using a `publish/`
 - These branches skip certain CI checks (consistency, external-integration) and auto-publish on merge
 - For **out-of-sync releases**, the PR targets `main`
 - For **hotfix releases**, the PR targets the corresponding `release/*` branch (e.g., `release/v0.60`) instead of `main`
+
+## Branch and PR Workflow
+
+- When creating new branches or worktrees, base them off the main Microsoft fork's `main` branch (`Microsoft/typespec`). This remote might be called `upstream` or `origin` depending on your local git setup — the key point is to always branch from the main Microsoft fork, not a personal fork.
+- When pushing changes and creating pull requests, push to your personal fork and open PRs against the main Microsoft fork's `main` branch.
 
 ## Available Task Instructions
 

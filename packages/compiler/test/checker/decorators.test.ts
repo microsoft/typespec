@@ -276,6 +276,25 @@ describe("compiler: checker: decorators", () => {
       deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
     });
 
+    it("setAutoDecorator programmatically marks a target read back by the accessors", async () => {
+      const { program } = await Tester.using("TypeSpec.Reflection").compile(`model Foo {}`);
+
+      const Foo = program.getGlobalNamespaceType().models.get("Foo")!;
+      const { setAutoDecorator, hasAutoDecorator, getAutoDecoratorValue } =
+        await import("../../src/core/auto-decorator.js");
+
+      // No decorator written in source yet.
+      strictEqual(hasAutoDecorator(program, "MyLib.myLabel", Foo), false);
+
+      setAutoDecorator(program, "MyLib.myLabel", Foo, { label: "world" });
+      strictEqual(hasAutoDecorator(program, "MyLib.myLabel", Foo), true);
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myLabel", Foo), { label: "world" });
+
+      // Defaults to an empty record for a no-arg mark.
+      setAutoDecorator(program, "MyLib.myFlag", Foo);
+      deepStrictEqual(getAutoDecoratorValue(program, "MyLib.myFlag", Foo), {});
+    });
+
     it("internal auto dec is valid", async () => {
       const diagnostics = await Tester.using("TypeSpec.Reflection").diagnose(
         `

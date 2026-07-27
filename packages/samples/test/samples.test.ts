@@ -1,6 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
 import { findTestPackageRoot } from "@typespec/compiler/testing";
-import { describe } from "vitest";
+import {} from "vitest";
 import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 
 const excludedSamples = [
@@ -12,10 +12,8 @@ const pkgRoot = await findTestPackageRoot(import.meta.url);
 const samplesRoot = resolvePath(pkgRoot, "specs");
 const rootOutputDir = resolvePath(pkgRoot, "test/output");
 
-describe("TypeSpec Samples", () => {
-  defineSampleSnaphotTests({
-    sampleDir: samplesRoot,
-    outputDir: rootOutputDir,
-    exclude: excludedSamples,
-  });
+defineSampleSnaphotTests({
+  sampleDir: samplesRoot,
+  outputDir: rootOutputDir,
+  exclude: excludedSamples,
 });

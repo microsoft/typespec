@@ -659,7 +659,15 @@ function extractHttpAuthentication(
   const auth =
     result.type === "oauth2"
       ? extractOAuth2Auth(modelType, result)
-      : { ...result, model: modelType };
+      : {
+          ...result,
+          // OpenID Connect requirement scopes come from the `scopes` tuple on the
+          // model. Normalize to an array so downstream resolution can rely on it.
+          ...(result.type === "openIdConnect" && {
+            scopes: Array.isArray((result as any).scopes) ? (result as any).scopes : [],
+          }),
+          model: modelType,
+        };
   return [
     {
       ...auth,

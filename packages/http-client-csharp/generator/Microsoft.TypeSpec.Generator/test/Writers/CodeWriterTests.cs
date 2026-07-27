@@ -11,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -96,6 +97,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             var expected = Helpers.GetExpectedFromFile($"{type.Name}, {isNullable}");
 
             Assert.AreEqual(expected, writer.ToString());
+        }
+
+        [Test]
+        public void RemovedGeneratedTypeIsNotWrittenAsCref()
+        {
+            var removedType = new TestTypeProvider("RemovedType", ns: "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(removedType),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                includeXmlDocs: true);
+            ProviderReferenceMapAnalyzer.Analyze([removedType]);
+
+            using var writer = new CodeWriter();
+            var summary = new XmlDocSummaryStatement([$"Some {removedType.Type:C} summary."]);
+            summary.Write(writer);
+
+            Assert.AreEqual("/// <summary> Some <c>global::Sample.RemovedType</c> summary. </summary>\n", writer.ToString(false));
+        }
+
+        [Test]
+        public void RemovedGeneratedGenericArgumentIsNotWrittenAsCref()
+        {
+            var removedType = new TestTypeProvider("RemovedType", ns: "Sample");
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(removedType),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                includeXmlDocs: true);
+            ProviderReferenceMapAnalyzer.Analyze([removedType]);
+
+            using var writer = new CodeWriter();
+            var genericType = new CSharpType(typeof(List<>), [removedType.Type]);
+            var summary = new XmlDocSummaryStatement([$"Some {genericType:C} summary."]);
+            summary.Write(writer);
+
+            Assert.AreEqual(
+                "/// <summary> Some <see cref=\"global::System.Collections.Generic.List{T}\"/> where <c>T</c> is of type <c>global::Sample.RemovedType</c> summary. </summary>\n",
+                writer.ToString(false));
         }
 
         [Test]

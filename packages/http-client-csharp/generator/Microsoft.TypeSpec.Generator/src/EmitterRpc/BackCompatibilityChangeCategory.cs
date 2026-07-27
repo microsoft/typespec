@@ -45,5 +45,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A back-compat change was skipped because the removal was accepted in the ApiCompat baseline.</summary>
         BaselineAcceptedRemovalSkipped,
+
+        /// <summary>A fixed enum member was re-added to preserve a member that existed in the last contract but is no longer produced by the current spec.</summary>
+        EnumMemberAddedFromLastContract,
     }
 }

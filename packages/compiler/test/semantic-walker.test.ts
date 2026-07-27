@@ -25,138 +25,137 @@ import {
 import { mockFile, t } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
 
-describe("compiler: semantic walker", () => {
-  const NavigatorTester = Tester.files({
-    "main.js": mockFile.js({
-      $functions: {
-        Extern: {
-          foo() {},
-        },
+const NavigatorTester = Tester.files({
+  "main.js": mockFile.js({
+    $functions: {
+      Extern: {
+        foo() {},
       },
-    }),
-  }).import("./main.js");
+    },
+  }),
+}).import("./main.js");
 
-  function createCollector(customListener?: SemanticNodeListener) {
-    const result = {
-      enums: [] as Enum[],
-      exitEnums: [] as Enum[],
-      interfaces: [] as Interface[],
-      exitInterfaces: [] as Interface[],
-      models: [] as Model[],
-      exitModels: [] as Model[],
-      modelProperties: [] as ModelProperty[],
-      exitModelProperties: [] as ModelProperty[],
-      namespaces: [] as Namespace[],
-      exitNamespaces: [] as Namespace[],
-      operations: [] as Operation[],
-      functions: [] as FunctionValue[],
-      exitOperations: [] as Operation[],
-      tuples: [] as Tuple[],
-      exitTuples: [] as Tuple[],
-      unions: [] as Union[],
-      exitUnions: [] as Union[],
-      unionVariants: [] as UnionVariant[],
-      exitUnionVariants: [] as UnionVariant[],
-    };
+function createCollector(customListener?: SemanticNodeListener) {
+  const result = {
+    enums: [] as Enum[],
+    exitEnums: [] as Enum[],
+    interfaces: [] as Interface[],
+    exitInterfaces: [] as Interface[],
+    models: [] as Model[],
+    exitModels: [] as Model[],
+    modelProperties: [] as ModelProperty[],
+    exitModelProperties: [] as ModelProperty[],
+    namespaces: [] as Namespace[],
+    exitNamespaces: [] as Namespace[],
+    operations: [] as Operation[],
+    functions: [] as FunctionValue[],
+    exitOperations: [] as Operation[],
+    tuples: [] as Tuple[],
+    exitTuples: [] as Tuple[],
+    unions: [] as Union[],
+    exitUnions: [] as Union[],
+    unionVariants: [] as UnionVariant[],
+    exitUnionVariants: [] as UnionVariant[],
+  };
 
-    const listener: SemanticNodeListener = {
-      namespace: (x) => {
-        result.namespaces.push(x);
-        return customListener?.namespace?.(x);
-      },
-      exitNamespace: (x) => {
-        result.exitNamespaces.push(x);
-        return customListener?.exitNamespace?.(x);
-      },
-      operation: (x) => {
-        result.operations.push(x);
-        return customListener?.operation?.(x);
-      },
-      function: (x) => {
-        result.functions.push(x);
-        return customListener?.function?.(x);
-      },
-      exitOperation: (x) => {
-        result.exitOperations.push(x);
-        return customListener?.exitOperation?.(x);
-      },
-      model: (x) => {
-        result.models.push(x);
-        return customListener?.model?.(x);
-      },
-      exitModel: (x) => {
-        result.exitModels.push(x);
-        return customListener?.exitModel?.(x);
-      },
-      modelProperty: (x) => {
-        result.modelProperties.push(x);
-        return customListener?.modelProperty?.(x);
-      },
-      exitModelProperty: (x) => {
-        result.exitModelProperties.push(x);
-        return customListener?.exitModelProperty?.(x);
-      },
-      enum: (x) => {
-        result.enums.push(x);
-        return customListener?.enum?.(x);
-      },
-      exitEnum: (x) => {
-        result.exitEnums.push(x);
-        return customListener?.exitEnum?.(x);
-      },
-      union: (x) => {
-        result.unions.push(x);
-        return customListener?.union?.(x);
-      },
-      exitUnion: (x) => {
-        result.exitUnions.push(x);
-        return customListener?.exitUnion?.(x);
-      },
-      interface: (x) => {
-        result.interfaces.push(x);
-        return customListener?.interface?.(x);
-      },
-      exitInterface: (x) => {
-        result.exitInterfaces.push(x);
-        return customListener?.exitInterface?.(x);
-      },
-      tuple: (x) => {
-        result.tuples.push(x);
-        return customListener?.tuple?.(x);
-      },
-      exitTuple: (x) => {
-        result.exitTuples.push(x);
-        return customListener?.exitTuple?.(x);
-      },
-      unionVariant: (x) => {
-        result.unionVariants.push(x);
-        return customListener?.unionVariant?.(x);
-      },
-      exitUnionVariant: (x) => {
-        result.exitUnionVariants.push(x);
-        return customListener?.exitUnionVariant?.(x);
-      },
-    };
-    return [result, listener] as const;
-  }
+  const listener: SemanticNodeListener = {
+    namespace: (x) => {
+      result.namespaces.push(x);
+      return customListener?.namespace?.(x);
+    },
+    exitNamespace: (x) => {
+      result.exitNamespaces.push(x);
+      return customListener?.exitNamespace?.(x);
+    },
+    operation: (x) => {
+      result.operations.push(x);
+      return customListener?.operation?.(x);
+    },
+    function: (x) => {
+      result.functions.push(x);
+      return customListener?.function?.(x);
+    },
+    exitOperation: (x) => {
+      result.exitOperations.push(x);
+      return customListener?.exitOperation?.(x);
+    },
+    model: (x) => {
+      result.models.push(x);
+      return customListener?.model?.(x);
+    },
+    exitModel: (x) => {
+      result.exitModels.push(x);
+      return customListener?.exitModel?.(x);
+    },
+    modelProperty: (x) => {
+      result.modelProperties.push(x);
+      return customListener?.modelProperty?.(x);
+    },
+    exitModelProperty: (x) => {
+      result.exitModelProperties.push(x);
+      return customListener?.exitModelProperty?.(x);
+    },
+    enum: (x) => {
+      result.enums.push(x);
+      return customListener?.enum?.(x);
+    },
+    exitEnum: (x) => {
+      result.exitEnums.push(x);
+      return customListener?.exitEnum?.(x);
+    },
+    union: (x) => {
+      result.unions.push(x);
+      return customListener?.union?.(x);
+    },
+    exitUnion: (x) => {
+      result.exitUnions.push(x);
+      return customListener?.exitUnion?.(x);
+    },
+    interface: (x) => {
+      result.interfaces.push(x);
+      return customListener?.interface?.(x);
+    },
+    exitInterface: (x) => {
+      result.exitInterfaces.push(x);
+      return customListener?.exitInterface?.(x);
+    },
+    tuple: (x) => {
+      result.tuples.push(x);
+      return customListener?.tuple?.(x);
+    },
+    exitTuple: (x) => {
+      result.exitTuples.push(x);
+      return customListener?.exitTuple?.(x);
+    },
+    unionVariant: (x) => {
+      result.unionVariants.push(x);
+      return customListener?.unionVariant?.(x);
+    },
+    exitUnionVariant: (x) => {
+      result.exitUnionVariants.push(x);
+      return customListener?.exitUnionVariant?.(x);
+    },
+  };
+  return [result, listener] as const;
+}
 
-  async function runNavigator(
-    typespec: string,
-    customListener?: SemanticNodeListener,
-    options?: NavigationOptions,
-  ) {
-    const [{ program }] = await NavigatorTester.compileAndDiagnose(typespec, {
-      compilerOptions: { nostdlib: true },
-    });
+async function runNavigator(
+  typespec: string,
+  customListener?: SemanticNodeListener,
+  options?: NavigationOptions,
+) {
+  const [{ program }] = await NavigatorTester.compileAndDiagnose(typespec, {
+    compilerOptions: { nostdlib: true },
+  });
 
-    const [result, listener] = createCollector(customListener);
-    navigateProgram(program, listener, options);
+  const [result, listener] = createCollector(customListener);
+  navigateProgram(program, listener, options);
 
-    return result;
-  }
+  return result;
+}
 
-  it("finds derived models", async () => {
-    const { Bird } = await Tester.compile(t.code`
+it("finds derived models", async () => {
+  const { Bird } = await Tester.compile(t.code`
       namespace Test;
 
       @discriminator("kind")
@@ -185,26 +184,26 @@ describe("compiler: semantic walker", () => {
       }
       `);
 
-    const visitedModels: Model[] = [];
-    navigateType(
-      Bird,
-      {
-        model(model) {
-          visitedModels.push(model);
-        },
+  const visitedModels: Model[] = [];
+  navigateType(
+    Bird,
+    {
+      model(model) {
+        visitedModels.push(model);
       },
-      { visitDerivedTypes: true },
-    );
+    },
+    { visitDerivedTypes: true },
+  );
 
-    const expectedModels = ["Bird", "SeaGull", "Sparrow", "Goose", "Eagle"];
-    strictEqual(
-      expectedModels.every((element) => visitedModels.map((m) => m.name).includes(element)),
-      true,
-    );
-  });
+  const expectedModels = ["Bird", "SeaGull", "Sparrow", "Goose", "Eagle"];
+  strictEqual(
+    expectedModels.every((element) => visitedModels.map((m) => m.name).includes(element)),
+    true,
+  );
+});
 
-  it("doesn't visit derived models without the option", async () => {
-    const { Bird } = await Tester.compile(t.code`
+it("doesn't visit derived models without the option", async () => {
+  const { Bird } = await Tester.compile(t.code`
       namespace Test;
 
       @discriminator("kind")
@@ -233,22 +232,22 @@ describe("compiler: semantic walker", () => {
       }
       `);
 
-    const visitedModels: Model[] = [];
-    navigateType(
-      Bird,
-      {
-        model(model) {
-          visitedModels.push(model);
-        },
+  const visitedModels: Model[] = [];
+  navigateType(
+    Bird,
+    {
+      model(model) {
+        visitedModels.push(model);
       },
-      { visitDerivedTypes: false },
-    );
+    },
+    { visitDerivedTypes: false },
+  );
 
-    strictEqual(visitedModels.length, 1);
-  });
+  strictEqual(visitedModels.length, 1);
+});
 
-  it("finds models", async () => {
-    const result = await runNavigator(`
+it("finds models", async () => {
+  const result = await runNavigator(`
       model Foo {
         nested: {
           inline: true
@@ -260,14 +259,14 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.models.length, 3);
-    strictEqual(result.models[0].name, "Foo");
-    strictEqual(result.models[1].name, "", "Inline models don't have name");
-    strictEqual(result.models[2].name, "Bar");
-  });
+  strictEqual(result.models.length, 3);
+  strictEqual(result.models[0].name, "Foo");
+  strictEqual(result.models[1].name, "", "Inline models don't have name");
+  strictEqual(result.models[2].name, "Bar");
+});
 
-  it("finds exit models", async () => {
-    const result = await runNavigator(`
+it("finds exit models", async () => {
+  const result = await runNavigator(`
       model Foo {
         nested: {
           inline: true
@@ -279,14 +278,14 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.exitModels.length, 3);
-    strictEqual(result.exitModels[0].name, "", "Inline models don't have name");
-    strictEqual(result.exitModels[1].name, "Foo");
-    strictEqual(result.exitModels[2].name, "Bar");
-  });
+  strictEqual(result.exitModels.length, 3);
+  strictEqual(result.exitModels[0].name, "", "Inline models don't have name");
+  strictEqual(result.exitModels[1].name, "Foo");
+  strictEqual(result.exitModels[2].name, "Bar");
+});
 
-  it("finds operations", async () => {
-    const result = await runNavigator(`
+it("finds operations", async () => {
+  const result = await runNavigator(`
       op foo(): true;
 
       namespace Nested {
@@ -294,13 +293,13 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.operations.length, 2);
-    strictEqual(result.operations[0].name, "foo");
-    strictEqual(result.operations[1].name, "bar");
-  });
+  strictEqual(result.operations.length, 2);
+  strictEqual(result.operations[0].name, "foo");
+  strictEqual(result.operations[1].name, "bar");
+});
 
-  it("finds exit operations", async () => {
-    const result = await runNavigator(`
+it("finds exit operations", async () => {
+  const result = await runNavigator(`
       op foo(): true;
 
       namespace Nested {
@@ -308,13 +307,13 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.exitOperations.length, 2);
-    strictEqual(result.exitOperations[0].name, "foo");
-    strictEqual(result.exitOperations[1].name, "bar");
-  });
+  strictEqual(result.exitOperations.length, 2);
+  strictEqual(result.exitOperations[0].name, "foo");
+  strictEqual(result.exitOperations[1].name, "bar");
+});
 
-  it("finds namespaces", async () => {
-    const result = await runNavigator(`
+it("finds namespaces", async () => {
+  const result = await runNavigator(`
       namespace Global.My;
       namespace Simple {
       }
@@ -324,22 +323,22 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    deepStrictEqual(
-      result.namespaces.map((x) => getNamespaceFullName(x)),
-      [
-        "",
-        "TypeSpec",
-        "Global",
-        "Global.My",
-        "Global.My.Simple",
-        "Global.My.Parent",
-        "Global.My.Parent.Child",
-      ],
-    );
-  });
+  deepStrictEqual(
+    result.namespaces.map((x) => getNamespaceFullName(x)),
+    [
+      "",
+      "TypeSpec",
+      "Global",
+      "Global.My",
+      "Global.My.Simple",
+      "Global.My.Parent",
+      "Global.My.Parent.Child",
+    ],
+  );
+});
 
-  it("finds exit namespaces", async () => {
-    const result = await runNavigator(`
+it("finds exit namespaces", async () => {
+  const result = await runNavigator(`
       namespace Global.My;
       namespace Simple {
       }
@@ -349,22 +348,22 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    deepStrictEqual(
-      result.exitNamespaces.map((x) => getNamespaceFullName(x)),
-      [
-        "TypeSpec",
-        "Global.My.Simple",
-        "Global.My.Parent.Child",
-        "Global.My.Parent",
-        "Global.My",
-        "Global",
-        "",
-      ],
-    );
-  });
+  deepStrictEqual(
+    result.exitNamespaces.map((x) => getNamespaceFullName(x)),
+    [
+      "TypeSpec",
+      "Global.My.Simple",
+      "Global.My.Parent.Child",
+      "Global.My.Parent",
+      "Global.My",
+      "Global",
+      "",
+    ],
+  );
+});
 
-  it("finds model properties", async () => {
-    const result = await runNavigator(`
+it("finds model properties", async () => {
+  const result = await runNavigator(`
       model Foo {
         nested: {
           inline: true
@@ -376,14 +375,14 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.modelProperties.length, 3);
-    strictEqual(result.modelProperties[0].name, "nested");
-    strictEqual(result.modelProperties[1].name, "inline");
-    strictEqual(result.modelProperties[2].name, "name");
-  });
+  strictEqual(result.modelProperties.length, 3);
+  strictEqual(result.modelProperties[0].name, "nested");
+  strictEqual(result.modelProperties[1].name, "inline");
+  strictEqual(result.modelProperties[2].name, "name");
+});
 
-  it("finds exit model properties", async () => {
-    const result = await runNavigator(`
+it("finds exit model properties", async () => {
+  const result = await runNavigator(`
       model Foo {
         nested: {
           inline: true
@@ -395,14 +394,14 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.exitModelProperties.length, 3);
-    strictEqual(result.exitModelProperties[0].name, "inline");
-    strictEqual(result.exitModelProperties[1].name, "nested");
-    strictEqual(result.exitModelProperties[2].name, "name");
-  });
+  strictEqual(result.exitModelProperties.length, 3);
+  strictEqual(result.exitModelProperties[0].name, "inline");
+  strictEqual(result.exitModelProperties[1].name, "nested");
+  strictEqual(result.exitModelProperties[2].name, "name");
+});
 
-  it("finds enums", async () => {
-    const result = await runNavigator(`
+it("finds enums", async () => {
+  const result = await runNavigator(`
       enum Direction {
         North: "north",
         East: "east",
@@ -417,13 +416,13 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.enums.length, 2);
-    strictEqual(result.enums[0].name, "Direction");
-    strictEqual(result.enums[1].name, "Metric");
-  });
+  strictEqual(result.enums.length, 2);
+  strictEqual(result.enums[0].name, "Direction");
+  strictEqual(result.enums[1].name, "Metric");
+});
 
-  it("finds exit enums", async () => {
-    const result = await runNavigator(`
+it("finds exit enums", async () => {
+  const result = await runNavigator(`
       enum Direction {
         North: "north",
         East: "east",
@@ -438,13 +437,13 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.exitEnums.length, 2);
-    strictEqual(result.exitEnums[0].name, "Direction");
-    strictEqual(result.exitEnums[1].name, "Metric");
-  });
+  strictEqual(result.exitEnums.length, 2);
+  strictEqual(result.exitEnums[0].name, "Direction");
+  strictEqual(result.exitEnums[1].name, "Metric");
+});
 
-  it("finds tuples with model", async () => {
-    const result = await runNavigator(`
+it("finds tuples with model", async () => {
+  const result = await runNavigator(`
       model Foo {
         bar: [Direction, Color]
       }
@@ -461,13 +460,13 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.tuples.length, 1);
-    strictEqual(result.enums[0].name, "Direction");
-    strictEqual(result.models[1].name, "Color");
-  });
+  strictEqual(result.tuples.length, 1);
+  strictEqual(result.enums[0].name, "Direction");
+  strictEqual(result.models[1].name, "Color");
+});
 
-  it("finds exit tuples with model", async () => {
-    const result = await runNavigator(`
+it("finds exit tuples with model", async () => {
+  const result = await runNavigator(`
       model Foo {
         bar: [Direction, Color]
       }
@@ -484,89 +483,89 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.exitTuples.length, 1);
-    strictEqual(result.exitEnums[0].name, "Direction");
-    strictEqual(result.exitModels[0].name, "Color");
-  });
+  strictEqual(result.exitTuples.length, 1);
+  strictEqual(result.exitEnums[0].name, "Direction");
+  strictEqual(result.exitModels[0].name, "Color");
+});
 
-  it("finds unions", async () => {
-    const result = await runNavigator(`
+it("finds unions", async () => {
+  const result = await runNavigator(`
       union A {
         x: true;
       }
     `);
 
-    strictEqual(result.unions.length, 1);
-    strictEqual(result.unions[0].name!, "A");
-    strictEqual(result.unionVariants.length, 1);
-    strictEqual(result.unionVariants[0].name!, "x");
-  });
+  strictEqual(result.unions.length, 1);
+  strictEqual(result.unions[0].name!, "A");
+  strictEqual(result.unionVariants.length, 1);
+  strictEqual(result.unionVariants[0].name!, "x");
+});
 
-  it("finds tuples", async () => {
-    const result = await runNavigator(`
+it("finds tuples", async () => {
+  const result = await runNavigator(`
       model ContainsTuple {
         tuple: [string];
       }
     `);
 
-    strictEqual(result.tuples.length, 1);
-    strictEqual(result.tuples[0].values.length, 1);
-  });
+  strictEqual(result.tuples.length, 1);
+  strictEqual(result.tuples[0].values.length, 1);
+});
 
-  it("finds exit tuples", async () => {
-    const result = await runNavigator(`
+it("finds exit tuples", async () => {
+  const result = await runNavigator(`
       model ContainsTuple {
         tuple: [string];
       }
     `);
 
-    strictEqual(result.exitTuples.length, 1);
-    strictEqual(result.exitTuples[0].values.length, 1);
-  });
+  strictEqual(result.exitTuples.length, 1);
+  strictEqual(result.exitTuples[0].values.length, 1);
+});
 
-  it("finds exit unions", async () => {
-    const result = await runNavigator(`
+it("finds exit unions", async () => {
+  const result = await runNavigator(`
       union A {
         x: true;
       }
     `);
 
-    strictEqual(result.exitUnions.length, 1);
-    strictEqual(result.exitUnions[0].name!, "A");
-    strictEqual(result.exitUnionVariants.length, 1);
-    strictEqual(result.exitUnionVariants[0].name!, "x");
-  });
+  strictEqual(result.exitUnions.length, 1);
+  strictEqual(result.exitUnions[0].name!, "A");
+  strictEqual(result.exitUnionVariants.length, 1);
+  strictEqual(result.exitUnionVariants[0].name!, "x");
+});
 
-  it("finds interfaces", async () => {
-    const result = await runNavigator(`
+it("finds interfaces", async () => {
+  const result = await runNavigator(`
       model B { };
       interface A {
         a(): true;
       }
     `);
 
-    strictEqual(result.interfaces.length, 1, "finds interfaces");
-    strictEqual(result.interfaces[0].name, "A");
-    strictEqual(result.operations.length, 1, "finds operations");
-    strictEqual(result.operations[0].name, "a");
-  });
+  strictEqual(result.interfaces.length, 1, "finds interfaces");
+  strictEqual(result.interfaces[0].name, "A");
+  strictEqual(result.operations.length, 1, "finds operations");
+  strictEqual(result.operations[0].name, "a");
+});
 
-  it("finds exit interfaces", async () => {
-    const result = await runNavigator(`
+it("finds exit interfaces", async () => {
+  const result = await runNavigator(`
       model B { };
       interface A {
         a(): true;
       }
     `);
 
-    strictEqual(result.exitInterfaces.length, 1, "finds interfaces");
-    strictEqual(result.exitInterfaces[0].name, "A");
-    strictEqual(result.exitOperations.length, 1, "finds operations");
-    strictEqual(result.exitOperations[0].name, "a");
-  });
+  strictEqual(result.exitInterfaces.length, 1, "finds interfaces");
+  strictEqual(result.exitInterfaces[0].name, "A");
+  strictEqual(result.exitOperations.length, 1, "finds operations");
+  strictEqual(result.exitOperations[0].name, "a");
+});
 
-  it("finds owned or inherited properties", async () => {
-    const result = await runNavigator(`
+it("finds owned or inherited properties", async () => {
+  const result = await runNavigator(`
       model Pet {
         name: true;
       }
@@ -576,17 +575,17 @@ describe("compiler: semantic walker", () => {
       }
     `);
 
-    strictEqual(result.models.length, 2);
-    strictEqual(result.models[0].name, "Pet");
-    strictEqual(result.models[1].name, "Cat");
-    ok(getProperty(result.models[1], "meow"));
-    ok(getProperty(result.models[1], "name"));
-    strictEqual(getProperty(result.models[1], "bark"), undefined);
-  });
+  strictEqual(result.models.length, 2);
+  strictEqual(result.models[0].name, "Pet");
+  strictEqual(result.models[1].name, "Cat");
+  ok(getProperty(result.models[1], "meow"));
+  ok(getProperty(result.models[1], "name"));
+  strictEqual(getProperty(result.models[1], "bark"), undefined);
+});
 
-  it("stop navigation of children when returning NoRecursion from callback", async () => {
-    const result = await runNavigator(
-      `
+it("stop navigation of children when returning NoRecursion from callback", async () => {
+  const result = await runNavigator(
+    `
       model A {
         shouldNotNavigate: true;
       }
@@ -595,29 +594,29 @@ describe("compiler: semantic walker", () => {
         shouldNavigate: true;
       }
     `,
-      { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) },
-    );
+    { model: (x) => (x.name === "A" ? ListenerFlow.NoRecursion : undefined) },
+  );
 
-    strictEqual(result.modelProperties.length, 1);
-    strictEqual(result.modelProperties[0].name, "shouldNavigate");
-  });
+  strictEqual(result.modelProperties.length, 1);
+  strictEqual(result.modelProperties[0].name, "shouldNavigate");
+});
 
-  describe("findInNamespace", () => {
-    async function runFindInNamespace(code: string) {
-      const { program } = await Tester.compile(code, {
-        compilerOptions: { nostdlib: true },
-      });
+describe("findInNamespace", () => {
+  async function runFindInNamespace(code: string) {
+    const { program } = await Tester.compile(code, {
+      compilerOptions: { nostdlib: true },
+    });
 
-      const TargetNs = program.getGlobalNamespaceType().namespaces.get("TargetNs");
-      ok(TargetNs, "Should have a namespace called TargetNs");
-      const [result, listener] = createCollector();
-      navigateTypesInNamespace(TargetNs, listener);
+    const TargetNs = program.getGlobalNamespaceType().namespaces.get("TargetNs");
+    ok(TargetNs, "Should have a namespace called TargetNs");
+    const [result, listener] = createCollector();
+    navigateTypesInNamespace(TargetNs, listener);
 
-      return result;
-    }
+    return result;
+  }
 
-    it("find models only in given namespace", async () => {
-      const results = await runFindInNamespace(`
+  it("find models only in given namespace", async () => {
+    const results = await runFindInNamespace(`
         namespace TargetNs {
           model A {}
         }
@@ -628,12 +627,12 @@ describe("compiler: semantic walker", () => {
           model C {}
         }
       `);
-      strictEqual(results.models.length, 1);
-      strictEqual(results.models[0].name, "A");
-    });
+    strictEqual(results.models.length, 1);
+    strictEqual(results.models[0].name, "A");
+  });
 
-    it("find models in sub namespace", async () => {
-      const results = await runFindInNamespace(`
+  it("find models in sub namespace", async () => {
+    const results = await runFindInNamespace(`
         namespace TargetNs {
           model A {}
 
@@ -642,42 +641,42 @@ describe("compiler: semantic walker", () => {
           }
         }
       `);
-      strictEqual(results.models.length, 2);
-      strictEqual(results.models[0].name, "A");
-      strictEqual(results.models[1].name, "B");
-    });
+    strictEqual(results.models.length, 2);
+    strictEqual(results.models[0].name, "A");
+    strictEqual(results.models[1].name, "B");
   });
+});
 
-  describe("template declarations", () => {
-    it("doesn't include by default", async () => {
-      const result = await runNavigator(`
+describe("template declarations", () => {
+  it("doesn't include by default", async () => {
+    const result = await runNavigator(`
         model Foo<T> {}
         model Bar {}
       `);
 
-      strictEqual(result.models.length, 1);
-      strictEqual(result.models[0].name, "Bar");
-    });
+    strictEqual(result.models.length, 1);
+    strictEqual(result.models[0].name, "Bar");
+  });
 
-    it("include when includeTemplateDeclaration is set to true", async () => {
-      const result = await runNavigator(
-        `
+  it("include when includeTemplateDeclaration is set to true", async () => {
+    const result = await runNavigator(
+      `
         model Foo<T> {}
         model Bar {}
       `,
-        undefined,
-        { includeTemplateDeclaration: true },
-      );
+      undefined,
+      { includeTemplateDeclaration: true },
+    );
 
-      strictEqual(result.models.length, 4);
-      strictEqual(result.models[0].name, "Foo");
-      strictEqual(result.models[1].name, "Bar");
-      strictEqual(result.models[2].name, "Array");
-      strictEqual(result.models[3].name, "Record");
-    });
+    strictEqual(result.models.length, 4);
+    strictEqual(result.models[0].name, "Foo");
+    strictEqual(result.models[1].name, "Bar");
+    strictEqual(result.models[2].name, "Array");
+    strictEqual(result.models[3].name, "Record");
+  });
 
-    it("by default only include the template instantiations", async () => {
-      const results = await runNavigator(`
+  it("by default only include the template instantiations", async () => {
+    const results = await runNavigator(`
         namespace Foo;
       
         model Bar<T> {
@@ -693,69 +692,68 @@ describe("compiler: semantic walker", () => {
         op getOperation(): Bar<Qux>;
       `);
 
-      expect(results.models).toHaveLength(2);
-    });
+    expect(results.models).toHaveLength(2);
+  });
 
-    it("include functions", async () => {
-      const results = await runNavigator(`
+  it("include functions", async () => {
+    const results = await runNavigator(`
         namespace Extern;
 
         #suppress "experimental-feature"
         extern fn foo(): string;
       `);
 
-      expect(results.functions).toHaveLength(1);
-      expect(results.functions[0].name).toBe("foo");
-    });
+    expect(results.functions).toHaveLength(1);
+    expect(results.functions[0].name).toBe("foo");
+  });
 
-    it("emits exit events for template parameter access types", () => {
-      const templateParameter: TemplateParameter = {
-        entityKind: "Type",
-        kind: "TemplateParameter",
-        node: undefined as never,
-        isFinished: true,
-      };
-      const templateAccess: TemplateParameterAccess = {
-        entityKind: "Type",
-        kind: "TemplateParameterAccess",
-        node: undefined as never,
-        base: templateParameter,
-        path: "T.id",
-        isFinished: true,
-      };
+  it("emits exit events for template parameter access types", () => {
+    const templateParameter: TemplateParameter = {
+      entityKind: "Type",
+      kind: "TemplateParameter",
+      node: undefined as never,
+      isFinished: true,
+    };
+    const templateAccess: TemplateParameterAccess = {
+      entityKind: "Type",
+      kind: "TemplateParameterAccess",
+      node: undefined as never,
+      base: templateParameter,
+      path: "T.id",
+      isFinished: true,
+    };
 
-      const events: string[] = [];
-      navigateType(
-        templateParameter,
-        {
-          templateParameter() {
-            events.push("templateParameter");
-          },
-          exitTemplateParameter() {
-            events.push("exitTemplateParameter");
-          },
+    const events: string[] = [];
+    navigateType(
+      templateParameter,
+      {
+        templateParameter() {
+          events.push("templateParameter");
         },
-        {},
-      );
-      navigateType(
-        templateAccess,
-        {
-          templateParameterAccess() {
-            events.push("templateParameterAccess");
-          },
-          exitTemplateParameterAccess() {
-            events.push("exitTemplateParameterAccess");
-          },
+        exitTemplateParameter() {
+          events.push("exitTemplateParameter");
         },
-        {},
-      );
+      },
+      {},
+    );
+    navigateType(
+      templateAccess,
+      {
+        templateParameterAccess() {
+          events.push("templateParameterAccess");
+        },
+        exitTemplateParameterAccess() {
+          events.push("exitTemplateParameterAccess");
+        },
+      },
+      {},
+    );
 
-      deepStrictEqual(events, [
-        "templateParameter",
-        "exitTemplateParameter",
-        "templateParameterAccess",
-        "exitTemplateParameterAccess",
-      ]);
-    });
+    deepStrictEqual(events, [
+      "templateParameter",
+      "exitTemplateParameter",
+      "templateParameterAccess",
+      "exitTemplateParameterAccess",
+    ]);
   });
 });

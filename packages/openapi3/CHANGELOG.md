@@ -1,5 +1,58 @@
 # Change Log - @typespec/openapi3
 
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Features
+
+- [#10892](https://github.com/microsoft/typespec/pull/10892) Add opt-in `enum-strategy` emitter option to emit TypeSpec enums as [annotated enumerations](https://spec.openapis.org/oas/v3.1.1.html#annotated-enumerations) (a `oneOf` of `const` subschemas with per-member `title`/`description`). Supported for OpenAPI 3.1.0 and above; emitting with OpenAPI 3.0.0 falls back to the default form and reports a warning.
+  
+  ```yaml
+  options:
+    "@typespec/openapi3":
+      enum-strategy: annotated
+  ```
+  
+  For example, the following TypeSpec:
+  
+  ```typespec
+  /** Type of pet. */
+  enum PetType {
+    /** A loyal canine companion. */
+    @summary("Dog")
+    Dog: "dog",
+  
+    /** A self-sufficient feline. */
+    @summary("Cat")
+    Cat: "cat",
+  }
+  ```
+  
+  emits:
+  
+  ```yaml
+  PetType:
+    description: Type of pet.
+    oneOf:
+      - const: dog
+        title: Dog
+        description: A loyal canine companion.
+      - const: cat
+        title: Cat
+        description: A self-sufficient feline.
+  ```
+- [#11185](https://github.com/microsoft/typespec/pull/11185) Stop wrapping `$ref` in an unnecessary `allOf` when emitting OpenAPI 3.1 (and 3.2). When a referenced schema carries sibling keywords (for example `description`, `default`, `readOnly`, or `externalDocs`), those keywords are now placed directly next to the `$ref`, as allowed by JSON Schema 2020-12. OpenAPI 3.0 output is unchanged, since it does not permit sibling keywords next to a `$ref`.
+
+### Bug Fixes
+
+- [#10995](https://github.com/microsoft/typespec/pull/10995) Fix OpenAPI import to emit `@cookie` decorators for cookie parameters, including nullable and type-null schema variants.
+- [#11204](https://github.com/microsoft/typespec/pull/11204) Fix `@extension` being duplicated on both the parameter object and its `schema` in OpenAPI output. Parameter extensions are now emitted only on the parameter object.
+- [#11203](https://github.com/microsoft/typespec/pull/11203) Fix stray `items` being emitted on a property whose array type is encoded to a scalar via `@encode` (e.g. `ArrayEncoding.commaDelimited`).
+
+
 ## 1.13.0
 
 ### Features

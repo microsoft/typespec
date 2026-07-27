@@ -123,6 +123,7 @@ function createTestFileSystemInternal(
     jsImports.set(key, exports);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   async function addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary) {
     assertNotFrozen();
 

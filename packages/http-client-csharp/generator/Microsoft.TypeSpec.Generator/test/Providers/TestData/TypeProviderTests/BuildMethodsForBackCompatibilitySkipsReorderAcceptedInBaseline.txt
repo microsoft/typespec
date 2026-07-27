@@ -1,0 +1,1 @@
+MembersMustExist : Member 'public System.String Test.SkipReorderType.Foo(System.String, System.Int32)' does not exist in the implementation but it does exist in the contract.

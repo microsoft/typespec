@@ -184,6 +184,9 @@ export const AZURE_EMITTER_OPTIONS: Record<
   "client/overload": {
     namespace: "client.overload",
   },
+  "encode/boolean": {
+    namespace: "encode.boolean",
+  },
   "encode/duration": {
     namespace: "encode.duration",
   },

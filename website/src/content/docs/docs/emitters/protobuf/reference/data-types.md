@@ -40,9 +40,9 @@ model Widget is Extern<"path/to/test.proto", "test.Widget">;
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description |
+| ------- | ------- | ----------- |
+| _extern | `never` |             |
 
 ### `Map` {#TypeSpec.Protobuf.Map}
 
@@ -190,9 +190,9 @@ model TypeSpec.Protobuf.WellKnown.Any
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description |
+| ------- | ------- | ----------- |
+| _extern | `never` |             |
 
 ### `Empty` {#TypeSpec.Protobuf.WellKnown.Empty}
 
@@ -206,9 +206,9 @@ model TypeSpec.Protobuf.WellKnown.Empty
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description |
+| ------- | ------- | ----------- |
+| _extern | `never` |             |
 
 ### `LatLng` {#TypeSpec.Protobuf.WellKnown.LatLng}
 
@@ -222,9 +222,9 @@ model TypeSpec.Protobuf.WellKnown.LatLng
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description |
+| ------- | ------- | ----------- |
+| _extern | `never` |             |
 
 ### `Timestamp` {#TypeSpec.Protobuf.WellKnown.Timestamp}
 
@@ -238,6 +238,6 @@ model TypeSpec.Protobuf.WellKnown.Timestamp
 
 #### Properties
 
-| Name     | Type    | Description |
-| -------- | ------- | ----------- |
-| \_extern | `never` |             |
+| Name    | Type    | Description |
+| ------- | ------- | ----------- |
+| _extern | `never` |             |

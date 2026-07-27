@@ -142,8 +142,8 @@ Which manually customized `[project]` fields to preserve in an existing `pyproje
 
 Whether to clear the output folder before generating the code. Defaults to `false`.
 
-### `emit-yaml-only`
+### `emit-codemodel-only`
 
 **Type:** `boolean`
 
-Emit YAML code model only, without running Python generator. For batch processing.
+Emit the serialized code model only, without running the Python generator. For batch processing.

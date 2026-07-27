@@ -16,7 +16,7 @@ import {
   SdkUnionType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
+import { getEncode, Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { PythonSdkContext } from "./lib.js";
 import {
@@ -262,6 +262,10 @@ function emitProperty(
     addDisableGenerationMap(context, property.type);
   }
   const isNullable = !isMultipartFileInput && sourceType.kind === "nullable";
+  const booleanEncode =
+    property.type.kind === "boolean" && property.__raw
+      ? getEncode(context.program, property.__raw)
+      : undefined;
   return {
     clientName: getClientName(property),
     isExactName: property.isExactName,
@@ -280,7 +284,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
-    encode: property.encode,
+    encode: property.encode ?? (booleanEncode?.type.name === "string" ? "str" : undefined),
     clientDefaultValue: property.clientDefaultValue,
   };
 }
