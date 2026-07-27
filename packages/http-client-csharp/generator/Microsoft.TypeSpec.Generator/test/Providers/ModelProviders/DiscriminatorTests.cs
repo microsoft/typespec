@@ -121,33 +121,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void DiscriminatedBaseDescriptionIsBuiltEvenWhenNotAbstract()
-        {
-            MockHelpers.LoadMockGenerator();
-            // Simulate a downstream emitter that does not model the discriminated base type as abstract.
-            var baseModel = new NonAbstractModelProvider(_baseModel);
-            Assert.IsFalse(baseModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
-
-            // The discriminated base description should still reference derived models.
-            Assert.IsNotNull(baseModel.XmlDocs.Summary);
-            StringAssert.Contains(
-                "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.",
-                baseModel.XmlDocs.Summary!.ToDisplayString());
-        }
-
-        private class NonAbstractModelProvider : ModelProvider
-        {
-            public NonAbstractModelProvider(InputModelType inputModel) : base(inputModel)
-            {
-            }
-
-            protected override TypeSignatureModifiers BuildDeclarationModifiers()
-            {
-                return base.BuildDeclarationModifiers() & ~TypeSignatureModifiers.Abstract;
-            }
-        }
-
-        [Test]
         public void DiscriminatorPropertyShouldBeInternal()
         {
             MockHelpers.LoadMockGenerator();

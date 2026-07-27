@@ -27,10 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            // Whether the model is a discriminated base type is not tied to whether it is declared abstract.
-            // Downstream emitters may choose not to model discriminated base types as abstract, but the
-            // description referencing the available derived classes should still be built.
-            if (IsDiscriminatedBaseType)
+            if (_isDiscriminatedBaseType)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
@@ -69,19 +66,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
-        /// <summary>
-        /// Gets whether this model is a discriminated base type, i.e. it defines a discriminator property
-        /// but does not itself carry a discriminator value. This is independent of whether the type is
-        /// declared abstract, since downstream emitters may choose not to model discriminated base types
-        /// as abstract.
-        /// </summary>
-        private bool IsDiscriminatedBaseType => _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
+        private readonly bool _isDiscriminatedBaseType;
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
+            _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
@@ -336,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (IsDiscriminatedBaseType)
+            if (_isDiscriminatedBaseType)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
