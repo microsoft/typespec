@@ -3,7 +3,7 @@
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
 import { readdir } from "fs/promises";
 import { join } from "path";
-import { repoRoot } from "../eng/common/scripts/helpers.js";
+import { repoRoot } from "../eng/common/scripts/helpers.ts";
 import { runOrExit } from "../packages/internal-build-utils/dist/src/index.js";
 
 const e2eTestDir = join(repoRoot, "e2e");

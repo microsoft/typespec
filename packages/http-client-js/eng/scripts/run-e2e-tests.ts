@@ -8,8 +8,8 @@ import pc from "picocolors";
 import { promisify } from "util";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { calculateCoverage } from "./calculate-coverage.js";
-import { runCoverageUpload } from "./upload-spector-results.js";
+import { calculateCoverage } from "./calculate-coverage.ts";
+import { runCoverageUpload } from "./upload-spector-results.ts";
 
 const execPromise = promisify(exec);
 const spinner = ora();
@@ -18,7 +18,7 @@ const SERVER_URL = "http://localhost:3000/routes/in-interface/fixed";
 // ✅ Setup logging to a file
 const logFile = path.join(process.cwd(), "script.log");
 const logStream = fs.createWriteStream(logFile, { flags: "a" });
-const log = (message) => {
+const log = (message: string): void => {
   console.log(message);
   logStream.write(`${new Date().toISOString()} - ${message}\n`);
 };
@@ -53,10 +53,10 @@ if (testPath) {
 /**
  * Waits until the mock server responds with HTTP 204 on /routes
  */
-const waitForServer = async (url, retries = 20, delay = 2000) => {
+const waitForServer = async (url: string, retries = 20, delay = 2000): Promise<void> => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const res = await new Promise((resolve, reject) => {
+      const res = await new Promise<http.IncomingMessage>((resolve, reject) => {
         http.get(url, resolve).on("error", reject);
       });
 
@@ -66,7 +66,7 @@ const waitForServer = async (url, retries = 20, delay = 2000) => {
       } else {
         log(pc.yellow(`⚠️ Attempt ${attempt}: Received ${res.statusCode}, retrying...`));
       }
-    } catch (error) {
+    } catch {
       log(pc.gray(`🔄 Attempt ${attempt}: Server not ready yet...`));
     }
 
@@ -80,7 +80,7 @@ const waitForServer = async (url, retries = 20, delay = 2000) => {
 /**
  * Main function to start the server, run tests, and stop the server
  */
-const runE2eTests = async () => {
+const runE2eTests = async (): Promise<void> => {
   log(pc.blue(pc.bold("\n🚀 Starting mock server...")));
   spinner.start("Launching mock server...");
 
@@ -97,12 +97,12 @@ const runE2eTests = async () => {
   );
 
   // ✅ Ensure cleanup on exit
-  const stopServer = async () => {
+  const stopServer = async (): Promise<void> => {
     spinner.start("Shutting down mock server...");
     try {
       await execPromise("pnpm stop:server");
       spinner.succeed(pc.green("✅ Mock server stopped successfully."));
-    } catch (err) {
+    } catch {
       spinner.fail(pc.red("❌ Failed to stop the server gracefully."));
     }
   };
@@ -121,7 +121,7 @@ const runE2eTests = async () => {
     log(pc.cyan(`> ${vitestArgs.join(" ")}`));
 
     // ✅ Run Vitest and stream output live
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       const testProcess = spawn("npx", vitestArgs, { stdio: "inherit", shell: true });
 
       testProcess.on("exit", async (code) => {
@@ -137,11 +137,15 @@ const runE2eTests = async () => {
       });
     });
   } catch (err) {
-    log(pc.red("\n❌ Error:"), err.message);
+    log(pc.red(`\n❌ Error: ${getErrorMessage(err)}`));
     await stopServer();
     process.exit(1);
   }
 };
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 const startTime = process.hrtime.bigint(); // ✅ High precision time tracking
 let exitCode = 0; // ✅ Track exit status
 
@@ -149,7 +153,7 @@ try {
   await runE2eTests();
   await runCoverageUpload({ force: forceUpload });
 } catch (error) {
-  log(pc.red(`❌ Fatal Error: ${error.message}`));
+  log(pc.red(`❌ Fatal Error: ${getErrorMessage(error)}`));
   exitCode = 1; // ✅ Mark as failure but do NOT exit yet
 } finally {
   // ✅ Ensure time is always logged

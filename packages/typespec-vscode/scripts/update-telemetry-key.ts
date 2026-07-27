@@ -13,7 +13,7 @@ if (!newKey) {
   console.log(`Updating package.json at ${targetPackageJsonFile}`);
   const packageJson = JSON.parse(fs.readFileSync(targetPackageJsonFile, "utf8"));
   const oldKey = packageJson.telemetryKey ?? "";
-  const keyToString = (key) =>
+  const keyToString = (key: string) =>
     `'${key.substring(0, 8)}...${key.substring(Math.max(0, key.length - 17))}'(length: ${key.length})`;
 
   console.log(`Updating telemetry key from ${keyToString(oldKey)} to ${keyToString(newKey)}`);
