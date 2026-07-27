@@ -87,8 +87,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     provider);
             }
 
-            // Back-compat: restore any ModelReaderWriterBuildableAttribute that was present in the last contract
-            // but is missing from the freshly generated set, without introducing duplicates.
             AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
@@ -151,26 +149,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                // Use targetType (the original constructed type from the last contract) for both the key and the
-                // emitted typeof(...) expression, so that generic instantiations such as Foo<string> and Foo<int>
-                // are treated as distinct entries and the emitted attribute preserves the type arguments.
-                var typeKey = GetTypeIdentity(targetType);
-                if (attributes.ContainsKey(typeKey) || customizedBuildableTypes.Contains(typeKey))
+                if (attributes.ContainsKey(identity) || customizedBuildableTypes.Contains(identity))
                 {
                     continue;
                 }
 
                 var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(targetType));
 
-                // Route through the suppression-handling path so that [Experimental] and [Obsolete]
-                // diagnostics are properly suppressed. NamedTypeSymbolProvider (returned for customization
-                // and referenced-assembly types) exposes symbol attributes through CanonicalView.Attributes,
-                // so the same suppression check works for all resolved providers.
                 AddAttributeForType(
                     attributes,
                     newAttributeStatement,
                     resolvedProvider,
-                    typeKey);
+                    identity);
             }
         }
 
@@ -621,16 +611,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
-            // Use CanonicalView only when the provider has a custom-code layer, since CanonicalTypeProvider
-            // merges generated and customization attributes. For symbol-backed providers (NamedTypeSymbolProvider,
-            // which have no custom-code layer), use Attributes directly to avoid DeduplicateAttributes invoking
-            // ToDisplayString() on BCL/framework attributes that contain literal argument types not handled by
-            // LiteralExpression.Write (e.g. uint, byte). This is safe because symbol providers never merge
-            // a separate custom-code view.
-            var sourceAttributes = typeProvider.CustomCodeView != null
-                ? typeProvider.CanonicalView.Attributes
-                : typeProvider.Attributes;
-            AttributeStatement? experimentalOrObsoleteAttribute = sourceAttributes
+            AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
