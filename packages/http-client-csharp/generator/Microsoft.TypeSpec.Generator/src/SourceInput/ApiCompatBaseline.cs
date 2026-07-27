@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         private const string EnumValuesMustMatch = "EnumValuesMustMatch";
         private const string TypeMustExistDiagnostic = "CP0001";
         private const string MemberMustExistDiagnostic = "CP0002";
+        private const string EnumValueMustMatchDiagnostic = "CP0011";
 
         private readonly HashSet<string> _suppressedTypes;
         private readonly HashSet<MemberKey> _suppressedMembers;
@@ -177,6 +178,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                         }
                         break;
                     case MemberMustExistDiagnostic:
+                    case EnumValueMustMatchDiagnostic:
                         if (TryParseXmlMember(target, out var memberKey, out var methodKey))
                         {
                             suppressedMembers.Add(memberKey);

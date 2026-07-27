@@ -10,8 +10,17 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
 {
+    [TestFixture(".txt")]
+    [TestFixture(".xml")]
     public class ApiCompatBaselineTests
     {
+        private readonly string _fileExtension;
+
+        public ApiCompatBaselineTests(string fileExtension)
+        {
+            _fileExtension = fileExtension;
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -31,45 +40,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesTypesMustExist()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol"));
             Assert.IsFalse(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.SomethingElse"));
         }
 
         [Test]
-        public void ParsesXmlSuppressions()
+        public void ParsesSuppressions()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsTypeSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol"));
             Assert.IsTrue(baseline.IsMemberSuppressed(
                 "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
                 "ProtocolVersionRecord",
                 2));
-            Assert.IsTrue(baseline.IsMethodRemovalSuppressed(
-                "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
-                "ProtocolVersionRecord",
-                [
-                    new CSharpType(typeof(string)),
-                    new CSharpType(typeof(IEnumerable<string>))
-                ]));
-            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", ".ctor", 0));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", ".ctor", 2));
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 0));
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 1));
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "LegacyField", 0));
-            Assert.IsTrue(baseline.IsTypeSuppressed("Ns.Outer.Inner"));
-            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Outer.Inner", "Reset", 0));
-
-            var genericParameter = new CSharpType(typeof(IEnumerable<>).GetGenericArguments()[0]);
-            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Generic", [genericParameter]));
-            Assert.IsFalse(baseline.IsMemberSuppressed("Ns.Foo", "ParameterRename", 1));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.CapacityLevel", "FiftyThousand", 0));
         }
 
         [Test]
         public void TypeSuppressionImpliesAllMembersSuppressed()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Azure.AI.Projects.Agents.ProjectsAgentProtocol", "AnyMember", 3));
         }
@@ -77,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesMembersMustExistMethod()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed(
                 "Azure.AI.Projects.Agents.ProjectsAgentsModelFactory",
@@ -98,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesParameterlessMember()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Reset", 0));
         }
@@ -106,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesConstructor()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", ".ctor", 2));
         }
@@ -114,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesPropertyAccessorOntoOwner()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 0));
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Kind", 1));
@@ -123,7 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void CountsGenericParametersAsSingleArgument()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "Configure", 2));
         }
@@ -131,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesMembersMustExistField()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // A removed field/enum member has no parameter list; it is recorded with arity 0.
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Foo", "LegacyField", 0));
@@ -140,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ParsesEnumValuesMustMatch()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // An accepted enum value difference suppresses back-compat handling for that member.
             Assert.IsTrue(baseline.IsMemberSuppressed("Ns.CapacityLevel", "FiftyThousand", 0));
@@ -151,7 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IgnoresUnknownRulesAndMalformedLines()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile();
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension);
 
             Assert.IsTrue(baseline.IsEmpty);
         }
@@ -159,7 +156,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedDistinguishesOverloadsByParameterType()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // The baseline accepts removal of Get(string). Only that overload is suppressed; a Get(int)
             // overload with the same arity must NOT be treated as suppressed.
@@ -174,7 +171,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesGenericParameterTypes()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Foo.Configure(IDictionary<string, int>, string) is suppressed; the query builds the same
             // canonical signature from CSharpType parameters (including nested generic arguments).
@@ -195,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedHonorsTypeSuppression()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // The whole type is suppressed via TypesMustExist, so any method on it is suppressed
             // regardless of parameter types.
@@ -208,7 +205,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesNullableValueTypeParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithNullable(System.Nullable<System.Int32>) is suppressed. A nullable value type
             // is rendered as System.Nullable<T> on both sides.
@@ -221,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesArrayParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithArray(System.String[]) is suppressed.
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Types", "WithArray", [new CSharpType(typeof(string[]))]));
@@ -236,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesGenericListParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithList(System.Collections.Generic.List<System.String>) is suppressed.
             var listOfString = new CSharpType(typeof(List<>), new CSharpType(typeof(string)));
@@ -250,7 +247,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesNestedGenericParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithNestedGeneric(IList<IDictionary<string, int>>) is suppressed; nested generic
             // arguments are rendered recursively on both sides.
@@ -269,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesMultipleParametersInOrder()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithMany(int, string, bool) is suppressed.
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed(
@@ -293,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesParameterlessOverload()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Foo.Reset() has no parameters; the canonical signature is empty on both sides.
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Reset", []));
@@ -305,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesEnumParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithEnum(Sample.Models.MyKind) is suppressed. The enum's output type is produced
             // by the TypeFactory from the input enum and renders as its fully-qualified name.
@@ -321,7 +318,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesNullableEnumParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithNullableEnum(System.Nullable<Sample.Models.MyKind>) is suppressed. A nullable
             // enum renders as System.Nullable<Sample.Models.MyKind>.
@@ -338,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesModelParameter()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithModel(Sample.Models.MyModel) is suppressed. The model's output type is produced
             // by the TypeFactory and renders as its fully-qualified name.
@@ -354,7 +351,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void IsMethodRemovalSuppressedMatchesDictionaryWithModelValue()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "Baseline");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
 
             // Ns.Types.WithDictionary(Dictionary<string, Sample.Models.MyModel>) is suppressed. The model
             // appears as a generic argument and is rendered recursively.
@@ -371,7 +368,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ReferencesSuppressedTypeMatchesDirectType()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "SuppressedString");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "SuppressedString");
 
             Assert.IsTrue(baseline.ReferencesSuppressedType(new CSharpType(typeof(string))));
             Assert.IsFalse(baseline.ReferencesSuppressedType(new CSharpType(typeof(int))));
@@ -380,7 +377,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         [Test]
         public void ReferencesSuppressedTypeMatchesNestedGenericArgument()
         {
-            var baseline = Helpers.GetApiCompatBaselineFromFile(method: "SuppressedString");
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "SuppressedString");
 
             // IList<string> -- the suppressed type is nested as a generic argument.
             var listOfString = new CSharpType(typeof(IList<>), new CSharpType(typeof(string)));
@@ -395,6 +392,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         {
             Assert.IsFalse(ApiCompatBaseline.Empty.ReferencesSuppressedType(new CSharpType(typeof(string))));
             Assert.IsFalse(ApiCompatBaseline.Empty.ReferencesSuppressedType(null));
+        }
+    }
+
+    public class ApiCompatBaselineXmlTests
+    {
+        [SetUp]
+        public void Setup()
+        {
+            MockHelpers.LoadMockGenerator();
+        }
+
+        [Test]
+        public void ParsesXmlDocumentationSymbolFormats()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml", method: "XmlDocumentationSymbols");
+
+            Assert.IsTrue(baseline.IsTypeSuppressed("Ns.Outer.Inner"));
+            Assert.IsTrue(baseline.IsMemberSuppressed("Ns.Outer.Inner", "Reset", 0));
+
+            var genericParameter = new CSharpType(typeof(IEnumerable<>).GetGenericArguments()[0]);
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Foo", "Generic", [genericParameter]));
+            Assert.IsFalse(baseline.IsMemberSuppressed("Ns.Foo", "ParameterRename", 1));
         }
     }
 }

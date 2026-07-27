@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Suppressions>
+  <Suppression>
+    <DiagnosticId>CP0014</DiagnosticId>
+    <Target>T:Azure.AI.Projects.Agents.HostedAgentDefinition</Target>
+  </Suppression>
   <Suppression>
     <DiagnosticId>CP0001</DiagnosticId>
     <Target>T:Azure.AI.Projects.Agents.ProjectsAgentProtocol</Target>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
-    <Target>M:Azure.AI.Projects.Agents.ProjectsAgentsModelFactory.ProtocolVersionRecord(System.String,System.Collections.Generic.IEnumerable{System.String})</Target>
+    <Target>M:Azure.AI.Projects.Agents.ProjectsAgentsModelFactory.ProtocolVersionRecord(Azure.AI.Projects.Agents.ProjectsAgentProtocol,System.String)</Target>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
-    <Target>M:Ns.Foo.#ctor</Target>
+    <Target>M:Ns.Foo.Reset</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Foo.#ctor(Ns.Kind,System.String)</Target>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
@@ -22,22 +30,54 @@
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Foo.Configure(System.Collections.Generic.IDictionary{System.String,System.Int32},System.String)</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
     <Target>F:Ns.Foo.LegacyField</Target>
   </Suppression>
   <Suppression>
-    <DiagnosticId>CP0001</DiagnosticId>
-    <Target>T:Ns.Outer`1+Inner</Target>
+    <DiagnosticId>CP0011</DiagnosticId>
+    <Target>F:Ns.CapacityLevel.FiftyThousand</Target>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
-    <Target>M:Ns.Outer`1+Inner.Reset</Target>
+    <Target>M:Ns.Overloads.Get(System.String)</Target>
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
-    <Target>M:Ns.Foo.Generic`1(`0)</Target>
+    <Target>M:Ns.Types.WithNullable(System.Nullable{System.Int32})</Target>
   </Suppression>
   <Suppression>
-    <DiagnosticId>CP0017</DiagnosticId>
-    <Target>M:Ns.Foo.ParameterRename(System.String)$0</Target>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithArray(System.String[])</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithList(System.Collections.Generic.List{System.String})</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithNestedGeneric(System.Collections.Generic.IList{System.Collections.Generic.IDictionary{System.String,System.Int32}})</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithMany(System.Int32,System.String,System.Boolean)</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithEnum(Sample.Models.MyKind)</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithNullableEnum(System.Nullable{Sample.Models.MyKind})</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithModel(Sample.Models.MyModel)</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Types.WithDictionary(System.Collections.Generic.Dictionary{System.String,Sample.Models.MyModel})</Target>
   </Suppression>
 </Suppressions>
