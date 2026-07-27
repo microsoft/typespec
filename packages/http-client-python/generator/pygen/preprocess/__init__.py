@@ -81,8 +81,17 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     return overload
 
 
-def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
-    """If we added a body parameter type, add overloads for that type"""
+def add_overloads_for_body_param(yaml_data: dict[str, Any], skip_single_body_json: bool = False) -> None:
+    """If we added a body parameter type, add overloads for that type.
+
+    ``skip_single_body_json`` is the authoritative signal, computed by
+    ``add_body_param_type``, for whether a TypedDict-style overload was inserted
+    to replace the single-body raw-JSON overload on the spread (``base: json``)
+    path. It is True for both models-mode: dpg (generate-typeddict on) and
+    models-mode: typeddict, and False when TypedDict generation is disabled (in
+    which case the single-body raw-JSON overload is kept, matching pre-TypedDict
+    behavior).
+    """
     body_parameter = yaml_data["bodyParameter"]
     if not (
         body_parameter["type"]["type"] == "combined"
@@ -94,12 +103,7 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
-            # When a TypedDict-style overload was inserted, it replaces the single-body
-            # JSON overload, so skip it. add_body_param_type sets this flag for both
-            # models-mode: dpg (generate-typeddict on) and models-mode: typeddict. When
-            # TypedDict generation is disabled the flag is absent and we keep the
-            # single-body raw-JSON overload (pre-TypedDict behavior) by falling through.
-            if body_parameter["type"].get("jsonOverloadReplacedByTypeddict"):
+            if skip_single_body_json:
                 continue
         yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
@@ -390,9 +394,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
         existing_td: Optional[dict[str, Any]],
     ) -> None:
         """Insert a typeddict type into the body parameter's combined types."""
-        # Mark that a TypedDict-style overload now stands in for the single-body JSON
-        # overload, so add_overloads_for_body_param knows to skip re-adding it.
-        body_parameter["type"]["jsonOverloadReplacedByTypeddict"] = True
         if origin_type == "model":
             td_type = existing_td or {**source, "base": "typeddict"}
             body_parameter["type"]["types"].insert(1, td_type)
@@ -429,7 +430,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
         self,
         code_model: dict[str, Any],
         body_parameter: dict[str, Any],
-    ):
+    ) -> bool:
+        """Build the combined body-parameter type and its overload variants.
+
+        Returns whether a TypedDict-style overload was inserted in place of the
+        single-body raw-JSON overload on the spread (``base: json``) path. The
+        caller passes this to ``add_overloads_for_body_param`` as
+        ``skip_single_body_json``. It is False when TypedDict generation is
+        disabled, so the pre-TypedDict single-body raw-JSON overload is kept.
+        """
+        skip_single_body_json = False
         # For a binary `bytes` body (e.g. content type application/octet-stream or a custom
         # binary media type), add an IO overload alongside the `bytes` one. This keeps backward
         # compatibility for services migrating from swagger, whose binary bodies were typed as IO.
@@ -447,7 +457,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 "types": [body_parameter["type"], KNOWN_TYPES["binary"]],
             }
             code_model["types"].append(body_parameter["type"])
-            return
+            return skip_single_body_json
 
         # only add overload for special content type
         if (  # pylint: disable=too-many-boolean-expressions
@@ -480,6 +490,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     cross_lang_id = model_type.get("crossLanguageDefinitionId")
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id, model_type.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, model_type, origin_type, existing_td)
+                    skip_single_body_json = True
                 else:
                     self._insert_json_overload(body_parameter, origin_type)
 
@@ -493,7 +504,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     # In typeddict-only mode, the original dpg model already renders
                     # as a TypedDict — reference it directly, no copy needed. It also
                     # replaces the single-body JSON overload.
-                    body_parameter["type"]["jsonOverloadReplacedByTypeddict"] = True
+                    skip_single_body_json = True
                     if origin_type == "model":
                         body_parameter["type"]["types"].insert(1, original)
                     else:
@@ -504,6 +515,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     source = original or model_type
                     existing_td = self._find_existing_typeddict(code_model, cross_lang_id, source.get("name"))
                     self._insert_typeddict_overload(code_model, body_parameter, source, origin_type, existing_td)
+                    skip_single_body_json = True
 
             if len(body_parameter["type"]["types"]) == 1:
                 # Only one body variant remains (e.g. typeddict-only mode where the
@@ -511,9 +523,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 # wrapper back to the single type so we don't emit a lone
                 # ``@overload`` (mypy rejects a single overload definition).
                 body_parameter["type"] = body_parameter["type"]["types"][0]
-                return
+                return skip_single_body_json
 
             code_model["types"].append(body_parameter["type"])
+
+        return skip_single_body_json
 
     def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
@@ -686,8 +700,8 @@ class PreProcessPlugin(YamlUpdatePlugin):
             response["discriminator"] = "operation"
         if body_parameter and not is_overload:
             # if we have a JSON body, we add a binary overload
-            self.add_body_param_type(code_model, body_parameter)
-            add_overloads_for_body_param(yaml_data)
+            skip_single_body_json = self.add_body_param_type(code_model, body_parameter)
+            add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     def _update_lro_operation_helper(self, yaml_data: dict[str, Any]) -> None:
         for response in yaml_data.get("responses", []):

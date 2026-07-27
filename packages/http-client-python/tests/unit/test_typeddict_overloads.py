@@ -79,10 +79,13 @@ def test_typeddict_only_single_body_emits_no_overload():
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
-    plugin.add_body_param_type(code_model, body_parameter)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     # A single overload is illegal for mypy; we expect none at all.
+    assert len(yaml_data["overloads"]) == 0
+    # No TypedDict replacement is inserted when the body collapses to a single type.
+    assert skip_single_body_json is False
     assert len(yaml_data["overloads"]) == 0
     # The body stays a plain single type rather than a one-member combined type.
     assert body_parameter["type"] is model_type
@@ -95,8 +98,8 @@ def test_dpg_mode_still_emits_multiple_overloads():
     code_model, yaml_data, _ = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
-    plugin.add_body_param_type(code_model, body_parameter)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     # dpg mode adds at least the binary overload alongside the model, so the
     # combined type has multiple members and overloads are generated.
@@ -110,10 +113,12 @@ def test_dpg_mode_can_disable_typeddict_autogeneration():
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
-    plugin.add_body_param_type(code_model, body_parameter)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     assert body_parameter["type"]["type"] == "combined"
+    # Opting out inserts no TypedDict replacement, so the single-body JSON overload is kept.
+    assert skip_single_body_json is False
     # The dict-body overload is the raw-JSON ``any-object`` (not a TypedDict).
     assert body_parameter["type"]["types"] == [model_type, {"type": "any-object"}, {"type": "binary"}]
     assert len(yaml_data["overloads"]) == 3
@@ -136,10 +141,12 @@ def test_spread_body_opt_out_keeps_json_overload():
     }
     code_model = {"types": [spread_body["type"]]}
 
-    plugin.add_body_param_type(code_model, spread_body)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     assert spread_body["type"]["type"] == "combined"
+    # Opting out inserts no TypedDict replacement, so the single-body JSON overload is kept.
+    assert skip_single_body_json is False
     assert spread_body["type"]["types"][0]["base"] == "json"
     assert spread_body["type"]["types"][1] == {"type": "binary"}
     assert len(yaml_data["overloads"]) == 3
@@ -166,12 +173,12 @@ def test_spread_body_dpg_typeddict_on_skips_single_json_overload():
     }
     code_model = {"types": [original, spread_body["type"]]}
 
-    plugin.add_body_param_type(code_model, spread_body)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     # Combined types: [json_model, typeddict, binary]; the single-body JSON overload is
     # replaced by the TypedDict, so only the flattened JSON overload remains.
-    assert spread_body["type"].get("jsonOverloadReplacedByTypeddict") is True
+    assert skip_single_body_json is True
     json_overloads = [o for o in yaml_data["overloads"] if o["bodyParameter"]["type"].get("base") == "json"]
     assert all(o["bodyParameter"].get("flattened") for o in json_overloads)
     assert not any(not o["bodyParameter"].get("flattened") for o in json_overloads)
@@ -181,8 +188,9 @@ def test_spread_body_typeddict_mode_skips_single_json_overload():
     """models-mode: typeddict spread bodies must NOT keep the single-body JSON overload.
 
     The inserted overload is the original ``base: dpg`` model (it renders as a TypedDict
-    via models-mode), so a ``base == "typeddict"`` sniff would miss it. The flag set by
-    ``add_body_param_type`` ensures the single-body JSON overload is still skipped.
+    via models-mode), so a ``base == "typeddict"`` sniff would miss it. The
+    ``skip_single_body_json`` signal returned by ``add_body_param_type`` ensures the
+    single-body JSON overload is still skipped.
     """
     plugin = _plugin("typeddict")
     clid = "Contoso.Widget"
@@ -198,11 +206,11 @@ def test_spread_body_typeddict_mode_skips_single_json_overload():
     }
     code_model = {"types": [original, spread_body["type"]]}
 
-    plugin.add_body_param_type(code_model, spread_body)
-    add_overloads_for_body_param(yaml_data)
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
 
     assert spread_body["type"]["type"] == "combined"
-    assert spread_body["type"].get("jsonOverloadReplacedByTypeddict") is True
+    assert skip_single_body_json is True
     # typeddict-only mode omits the binary overload; the inserted overload is the
     # original dpg model referenced directly.
     assert spread_body["type"]["types"][0]["base"] == "json"
