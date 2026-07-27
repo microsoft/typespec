@@ -84,7 +84,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AddAttributeForType(
                     attributes,
                     attributeStatement,
-                    provider);
+                    provider,
+                    provider.Type.FullyQualifiedName);
             }
 
             AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
@@ -598,12 +599,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .OfType<MrwSerializationTypeDefinition>()
                 .Any(ShouldWriteProvider);
         }
-
-        private static void AddAttributeForType(
-            Dictionary<string, MethodBodyStatement> attributes,
-            AttributeStatement attributeStatement,
-            TypeProvider typeProvider)
-            => AddAttributeForType(attributes, attributeStatement, typeProvider, typeProvider.Type.FullyQualifiedName);
 
         private static void AddAttributeForType(
             Dictionary<string, MethodBodyStatement> attributes,
