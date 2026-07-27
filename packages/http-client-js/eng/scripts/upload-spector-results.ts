@@ -5,7 +5,15 @@ import path from "path";
 import pc from "picocolors";
 
 /* eslint-disable no-console */
-export async function runCoverageUpload({ force = false } = {}) {
+
+type CoverageUploadOptions = {
+  force?: boolean;
+};
+
+/** Uploads Spector coverage when CI environment conditions allow it. */
+export async function runCoverageUpload({
+  force = false,
+}: CoverageUploadOptions = {}): Promise<void> {
   console.log(pc.blue("\n🔍 Checking conditions before uploading coverage..."));
 
   // Retrieve environment variables
@@ -46,7 +54,10 @@ export async function runCoverageUpload({ force = false } = {}) {
   }
 
   // Extract generator details
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")) as {
+    name?: string;
+    version?: string;
+  };
   const generatorName = packageJson.name;
   const generatorVersion = packageJson.version;
 
@@ -88,15 +99,19 @@ export async function runCoverageUpload({ force = false } = {}) {
   }).start();
 
   try {
-    await new Promise((resolve, reject) => {
-      const process = spawn("npx", args, { stdio: "pipe", shell: true });
+    await new Promise<void>((resolve, reject) => {
+      const uploadProcess = spawn("npx", args, { stdio: "pipe", shell: true });
 
       // Capture output and errors
-      process.stdout.on("data", (data) => console.log(pc.gray(`📄 ${data.toString().trim()}`)));
-      process.stderr.on("data", (data) => console.error(pc.red(`❌ ${data.toString().trim()}`)));
+      uploadProcess.stdout.on("data", (data) =>
+        console.log(pc.gray(`📄 ${data.toString().trim()}`)),
+      );
+      uploadProcess.stderr.on("data", (data) =>
+        console.error(pc.red(`❌ ${data.toString().trim()}`)),
+      );
 
       // Handle process completion
-      process.on("close", (code) => {
+      uploadProcess.on("close", (code) => {
         if (code === 0) {
           spinner.succeed(pc.green("🎉 Coverage upload successful!"));
           resolve();
@@ -107,14 +122,18 @@ export async function runCoverageUpload({ force = false } = {}) {
       });
 
       // Handle unexpected errors
-      process.on("error", (error) => {
+      uploadProcess.on("error", (error) => {
         spinner.fail(pc.red("❌ An error occurred while uploading coverage."));
         console.error(pc.red(error.message));
         reject(error);
       });
     });
   } catch (error) {
-    console.error(pc.red(`❌ Error: ${error.message}`));
+    console.error(pc.red(`❌ Error: ${getErrorMessage(error)}`));
     process.exit(1);
   }
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

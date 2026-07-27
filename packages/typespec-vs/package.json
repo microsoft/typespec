@@ -25,7 +25,7 @@
     "Microsoft.TypeSpec.VS.vsix"
   ],
   "scripts": {
-    "build": "node scripts/build.js"
+    "build": "node scripts/build.ts"
   },
   "devDependencies": {
     "@typespec/internal-build-utils": "workspace:^",

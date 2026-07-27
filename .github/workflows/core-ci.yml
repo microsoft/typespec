@@ -58,7 +58,7 @@ jobs:
           retention-days: 5
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   website:
     name: Website
@@ -79,7 +79,7 @@ jobs:
         run: pnpm --filter "@typespec/website..." run build
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   e2e:
     name: E2E Tests
@@ -139,7 +139,7 @@ jobs:
           retention-days: 5
 
       - name: Check for changed files
-        run: node eng/common/scripts/check-for-changed-files.js
+        run: node eng/common/scripts/check-for-changed-files.ts
 
   docker:
     name: Docker Build
