@@ -15,6 +15,7 @@ SIMPLE_ARM_ID = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROU
 ARM_ID_WITH_TYPE = SIMPLE_ARM_ID
 ARM_ID_WITH_TYPE_AND_SCOPE = SIMPLE_ARM_ID
 ARM_ID_WITH_ALL_SCOPES = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/virtualMachines/myVm"
+ARM_ID_WITH_GROUP_SCOPE = f"/providers/Microsoft.Management/serviceGroups/test-sg/providers/Microsoft.Authorization/roleDefinitions/{SUBSCRIPTION_ID}"
 
 
 @pytest.fixture
@@ -104,6 +105,7 @@ def test_arm_resource_identifiers_get(client):
     assert result.properties.arm_id_with_type == ARM_ID_WITH_TYPE
     assert result.properties.arm_id_with_type_and_scope == ARM_ID_WITH_TYPE_AND_SCOPE
     assert result.properties.arm_id_with_all_scopes == ARM_ID_WITH_ALL_SCOPES
+    assert result.properties.arm_id_with_group_scope == ARM_ID_WITH_GROUP_SCOPE
 
 
 def test_arm_resource_identifiers_create_or_replace(client):
@@ -117,6 +119,7 @@ def test_arm_resource_identifiers_create_or_replace(client):
                 arm_id_with_type=ARM_ID_WITH_TYPE,
                 arm_id_with_type_and_scope=ARM_ID_WITH_TYPE_AND_SCOPE,
                 arm_id_with_all_scopes=ARM_ID_WITH_ALL_SCOPES,
+                arm_id_with_group_scope=ARM_ID_WITH_GROUP_SCOPE,
             ),
         ),
     )
@@ -126,3 +129,4 @@ def test_arm_resource_identifiers_create_or_replace(client):
     assert result.properties.arm_id_with_type == ARM_ID_WITH_TYPE
     assert result.properties.arm_id_with_type_and_scope == ARM_ID_WITH_TYPE_AND_SCOPE
     assert result.properties.arm_id_with_all_scopes == ARM_ID_WITH_ALL_SCOPES
+    assert result.properties.arm_id_with_group_scope == ARM_ID_WITH_GROUP_SCOPE
