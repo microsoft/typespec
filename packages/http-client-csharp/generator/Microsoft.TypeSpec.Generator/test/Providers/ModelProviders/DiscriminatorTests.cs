@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The discriminated base description should still reference derived models.
             Assert.IsNotNull(baseModel.XmlDocs.Summary);
             StringAssert.Contains(
-                "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.",
+                "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.",
                 baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 

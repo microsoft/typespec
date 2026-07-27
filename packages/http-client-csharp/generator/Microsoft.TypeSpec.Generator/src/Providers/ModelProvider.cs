@@ -31,8 +31,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
-                var derivedClassesDescription =
-                    "Please note this is the abstract base class. The derived classes available for instantiation are: ";
+                var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
+                    : "Please note this is the base class. The derived classes available for instantiation are: ";
                 bool addComma = publicDerivedModels.Count > 2;
                 for (int i = 0; i < publicDerivedModels.Count; i++)
                 {
