@@ -15,8 +15,7 @@
 
 import { compile, NodeHost } from "@typespec/compiler";
 import { existsSync, rmSync } from "fs";
-import { access, cp, mkdir, mkdtemp, readdir, writeFile } from "fs/promises";
-import { tmpdir } from "os";
+import { access, mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "path";
 import pc from "picocolors";
 
@@ -654,16 +653,10 @@ export async function runParallel(
   return results;
 }
 
-/**
- * Resets the `tests/generated/{azure,unbranded}` baseline while preserving the
- * tracked fixture folders that contain hand-authored/customized code required by tests.
- *
- * `generatedFolder` is the per-repo `generator/` directory; baseline lands at
- * `<generatedFolder>/../tests/generated`.
- */
-export async function prepareBaselineOfGeneratedCode(generatedFolder: string): Promise<void> {
+/** Removes generated SDK packages except tracked fixtures with customized code required by tests. */
+export async function cleanGeneratedCodePreservingFixtures(generatedFolder: string): Promise<void> {
   const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
-  const legacyCodePathNeededForTests = [
+  const preservedFixturePaths = new Set([
     "azure/authentication-api-key",
     "unbranded/authentication-api-key",
     "azure/authentication-union",
@@ -672,59 +665,24 @@ export async function prepareBaselineOfGeneratedCode(generatedFolder: string): P
     "unbranded/generation-subdir",
     "unbranded/generation-subdir2",
     "azure/azure-client-generator-core-alternate-type",
-  ];
+  ]);
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
-  console.log(pc.cyan(`Preparing generated test baseline`));
+  console.log(pc.cyan(`Cleaning generated test packages`));
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
-  const tempDir = await mkdtemp(join(tmpdir(), "typespec-python-baseline-"));
-  try {
-    for (const subPath of legacyCodePathNeededForTests) {
-      const segments = subPath.split("/");
-      const src = join(testsGeneratedDir, ...segments);
-      const dest = join(tempDir, ...segments);
-      if (!existsSync(src)) {
-        console.warn(pc.yellow(`Baseline folder not found: ${src}`));
-        continue;
-      }
-      await mkdir(dirname(dest), { recursive: true });
-      await cp(src, dest, { recursive: true });
-    }
+  for (const flavor of ["azure", "unbranded"]) {
+    const flavorDir = join(testsGeneratedDir, flavor);
+    if (!existsSync(flavorDir)) continue;
 
-    if (existsSync(testsGeneratedDir)) {
-      console.log(pc.dim(`Removing ${testsGeneratedDir}`));
-      rmSync(testsGeneratedDir, { recursive: true, force: true });
-    }
-
-    for (const subPath of legacyCodePathNeededForTests) {
-      const segments = subPath.split("/");
-      const src = join(tempDir, ...segments);
-      const dest = join(testsGeneratedDir, ...segments);
-      if (!existsSync(src)) continue;
-      console.log(pc.dim(`Restoring ${subPath} -> ${dest}`));
-      await mkdir(dirname(dest), { recursive: true });
-      await cp(src, dest, { recursive: true });
-    }
-  } finally {
-    rmSync(tempDir, { recursive: true, force: true });
-  }
-
-  const deleteIfExists = (path: string) => {
-    if (!existsSync(path)) return;
-    console.log(pc.dim(`Deleting ${path}`));
-    rmSync(path, { recursive: true, force: true });
-  };
-
-  deleteIfExists(join(testsGeneratedDir, "azure", "authentication-http-custom"));
-  deleteIfExists(join(testsGeneratedDir, "unbranded", "encode-array"));
-
-  if (existsSync(testsGeneratedDir)) {
-    const entries = await readdir(testsGeneratedDir, { recursive: true, withFileTypes: true });
+    const entries = await readdir(flavorDir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.isFile() && entry.name === "README.md") {
-        deleteIfExists(join(entry.parentPath, entry.name));
-      }
+      const relativePath = `${flavor}/${entry.name}`;
+      if (preservedFixturePaths.has(relativePath)) continue;
+
+      const path = join(flavorDir, entry.name);
+      console.log(pc.dim(`Deleting ${path}`));
+      rmSync(path, { recursive: true, force: true });
     }
   }
 }
