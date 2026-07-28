@@ -554,5 +554,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 Assert.AreEqual("MrwBase", method.Signature.ReturnType!.Name);
             }
         }
+
+        // A hand-authored base only supports being overridden when it declares a JsonModelWriteCore that is
+        // protected, overridable and has the exact generated signature. Anything else must keep the generated
+        // method virtual, otherwise the emitted `override` fails to compile.
+        [TestCase("JsonModelWriteCoreDoesNotOverrideNonVirtualCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverrideSealedCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverrideMismatchedSignatureCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverridePrivateCustomBase")]
+        public async Task JsonModelWriteCoreDoesNotOverrideIncompatibleCustomBase(string testName)
+        {
+            var writeCore = await GetJsonModelWriteCoreWithCustomBaseAsync(testName);
+
+            Assert.IsTrue(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [Test]
+        public async Task JsonModelWriteCoreOverridesVirtualCustomBase()
+        {
+            var writeCore = await GetJsonModelWriteCoreWithCustomBaseAsync(nameof(JsonModelWriteCoreOverridesVirtualCustomBase));
+
+            Assert.IsTrue(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
+        private static async Task<MethodProvider> GetJsonModelWriteCoreWithCustomBaseAsync(string testName)
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: testName));
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            return serializationProvider.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
+        }
     }
 }

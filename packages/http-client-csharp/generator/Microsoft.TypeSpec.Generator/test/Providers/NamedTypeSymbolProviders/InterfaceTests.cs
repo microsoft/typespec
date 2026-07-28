@@ -12,6 +12,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 {
     public class InterfaceTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            MockHelpers.LoadMockGenerator();
+        }
+
         [Test]
         public void ValidateMethods()
         {

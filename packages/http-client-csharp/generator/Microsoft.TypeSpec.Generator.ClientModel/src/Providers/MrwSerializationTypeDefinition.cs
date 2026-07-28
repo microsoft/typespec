@@ -80,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // Flag to determine if the model should override the serialization methods
         private bool? _shouldOverrideMethods;
         private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
-            (_model.BaseModelProvider != null || HasCustomBaseMethod(JsonModelWriteCoreMethodName));
+            (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
         private bool? _shouldSkipSerializationMethodOverrides;
         private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
@@ -215,12 +215,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType? GetCustomMrwBaseRootType()
             => GetCustomBaseMethodReturnType(s_createCoreMethodNames);
 
-        private bool HasCustomBaseMethod(string methodName)
+        /// <summary>
+        /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
+        /// generated one can legally override.
+        /// </summary>
+        /// <remarks>
+        /// Matching on the name alone is not enough: a base method that is non-virtual, sealed, declared with a
+        /// different signature, or not accessible as <c>protected</c> cannot be overridden, and emitting
+        /// <c>override</c> against it produces CS0506/CS0115/CS0507.
+        /// </remarks>
+        private bool HasCustomBaseJsonModelWriteCoreMethod()
             => GetCustomSerializationBaseType() is { } baseType &&
                 ModelReaderWriterHelpers.FindMethodInHierarchy(
                     baseType,
-                    method => method.Signature.Name == methodName,
-                    baseTypesFirst: true) is not null;
+                    IsJsonModelWriteCoreSignature,
+                    baseTypesFirst: false) is { } method &&
+                IsJsonModelWriteCoreMethod(method);
+
+        private static bool IsJsonModelWriteCoreMethod(MethodProvider method)
+            => IsJsonModelWriteCoreSignature(method) &&
+                (method.Signature.Modifiers &
+                    (MethodSignatureModifiers.Public |
+                        MethodSignatureModifiers.Internal |
+                        MethodSignatureModifiers.Protected |
+                        MethodSignatureModifiers.Private)) == MethodSignatureModifiers.Protected &&
+                ModelReaderWriterHelpers.IsOverridable(method.Signature.Modifiers);
+
+        private static bool IsJsonModelWriteCoreSignature(MethodProvider method)
+            => method.Signature.Name == JsonModelWriteCoreMethodName &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(Utf8JsonWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
         private CSharpType? GetCustomBaseMethodReturnType(IReadOnlySet<string> methodNames)
             => GetCustomSerializationBaseType() is { } baseType
