@@ -14,3 +14,27 @@ alpha
 # pip component detection reports (generated during build)
 component-detection-pip-report.json
 generator/component-detection-pip-report.json
+
+# Generated SDK fixtures with hand-authored/customized code required by tests.
+!tests/**/generated/
+tests/**/generated/*
+!tests/generated/azure/
+tests/generated/azure/*
+!tests/generated/azure/authentication-api-key/
+!tests/generated/azure/authentication-api-key/**
+!tests/generated/azure/authentication-union/
+!tests/generated/azure/authentication-union/**
+!tests/generated/azure/generation-subdir/
+!tests/generated/azure/generation-subdir/**
+!tests/generated/azure/generation-subdir2/
+!tests/generated/azure/generation-subdir2/**
+!tests/generated/azure/azure-client-generator-core-alternate-type/
+!tests/generated/azure/azure-client-generator-core-alternate-type/**
+!tests/generated/unbranded/
+tests/generated/unbranded/*
+!tests/generated/unbranded/authentication-api-key/
+!tests/generated/unbranded/authentication-api-key/**
+!tests/generated/unbranded/generation-subdir/
+!tests/generated/unbranded/generation-subdir/**
+!tests/generated/unbranded/generation-subdir2/
+!tests/generated/unbranded/generation-subdir2/**
