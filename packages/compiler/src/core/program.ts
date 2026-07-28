@@ -75,6 +75,12 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
+
 export interface Program {
   compilerOptions: CompilerOptions;
   /** @internal */
@@ -138,6 +144,11 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -192,6 +203,7 @@ export async function compile(
   };
   const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
@@ -229,6 +241,8 @@ async function createProgram(
   // eslint-disable-next-line prefer-const -- reassigned after source resolution
   let suppressionTracker: SuppressionTracker | undefined;
 
+  let currentStage: CompilationStage = "parsing";
+
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
@@ -259,6 +273,12 @@ async function createProgram(
     reportDuplicateSymbols,
     get suppressionTracker() {
       return suppressionTracker;
+    },
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage: CompilationStage) {
+      currentStage = stage;
     },
     hasError() {
       return error;
@@ -326,6 +346,7 @@ async function createProgram(
   }
 
   program.checker = createChecker(program, resolver);
+  currentStage = "checking";
   runtimeStats.checker = perf.time(() => program.checker.checkProgram());
 
   complexityStats.createdTypes = program.checker.stats.createdTypes;
@@ -336,6 +357,7 @@ async function createProgram(
   }
 
   // onValidate stage
+  currentStage = "validating";
   await runValidators();
 
   validateRequiredImports();
@@ -347,6 +369,7 @@ async function createProgram(
   }
 
   // Linter stage
+  currentStage = "linting";
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);

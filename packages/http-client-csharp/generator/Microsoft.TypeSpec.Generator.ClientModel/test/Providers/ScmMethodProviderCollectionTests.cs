@@ -217,6 +217,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        [Test]
+        public async Task SpreadListUsesCanonicalPropertyWhenCustomConstructorParameterHasNoProperty()
+        {
+            var spreadModel = InputFactory.Model(
+                "listSpreadModel",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModel,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "items",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        isRequired: true,
+                        scope: InputParameterScope.Spread),
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var method in convenienceMethods)
+            {
+                StringAssert.Contains(
+                    "global::Sample.Models.ListSpreadModel spreadModel = new global::Sample.Models.ListSpreadModel((items?.ToList() as global::System.Collections.Generic.IList<string> ?? new global::Sample.ChangeTrackingList<string>()), default);",
+                    method.BodyStatements!.ToDisplayString());
+            }
+        }
+
         // Validate that spread model correctly instantiates optional dictionary properties
         [Test]
         public async Task SpreadModelWithOptionalDictionaryIsNotNull()
