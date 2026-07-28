@@ -1050,6 +1050,29 @@ export class CodeModelBuilder {
           codeModelOperation.convenienceApi.language.java ?? new Language();
         codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
       }
+
+      // opt-in: return significant response headers as a strongly-typed model from the convenience method
+      const responseHeadersAsModel =
+        sdkMethod.__raw !== undefined
+          ? (getClientOptions(
+              sdkMethod.__raw as unknown as DecoratedType,
+              "responseHeadersAsModel",
+            ) as boolean | undefined)
+          : undefined;
+      if (responseHeadersAsModel === true) {
+        if (sdkMethod.response.type !== undefined) {
+          // the model is built purely from response headers, hence the operation must not have a response body
+          this.program.reportDiagnostic(
+            createDiagnostic({
+              code: "response-headers-as-model-with-body",
+              format: { operationName: operationName },
+              target: sdkMethod.__raw ?? NoTarget,
+            }),
+          );
+        } else {
+          codeModelOperation.convenienceApi.responseHeadersAsModel = true;
+        }
+      }
     }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
