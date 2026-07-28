@@ -69,6 +69,23 @@ The code generator has two connected parts, linked by a `code-model.yaml`:
 
 After a compile, inspect `tsp-output/**/code-model.yaml` in the test module to see what the emitter passed to the generator.
 
+## Inspect the TCGC output (SDK model) for a spec
+
+The emitter is built on top of TCGC (`@azure-tools/typespec-client-generator-core`), which turns the raw TypeSpec compiler output into an SDK model (`SdkPackage`: clients, operation groups, methods, parameters, responses, models, enums, …). When you need to understand what TCGC hands to the emitter — for example, to check how a type is named, whether a response has a body vs. only headers, or how an operation is nested under a client — dump the TCGC output and read it directly, rather than adding debug logging in the emitter.
+
+Run TCGC as the emitter for the spec (TCGC is already installed in the test module's `node_modules`, so no extra install is needed):
+
+```
+npx tsp compile <path-to-tsp> --emit @azure-tools/typespec-client-generator-core --option "@azure-tools/typespec-client-generator-core.emitter-output-dir=$PWD/tcgc-output"
+```
+
+This writes `tcgc-output/tcgc-output.yaml` — the serialized `SdkPackage` (keys starting with `__` are omitted). Notes:
+
+- This is the same SDK model the http-client-java emitter consumes; it is upstream of `code-model.yaml`. Use `tcgc-output.yaml` to inspect the TCGC/SDK view and `code-model.yaml` to inspect what the emitter produced from it.
+- It requires no changes to the http-client-java emitter or generator — it invokes TCGC's own emitter directly.
+- The dump is generated for verification only. Do NOT commit `tcgc-output.yaml` (or its output folder); delete it when done.
+- The mechanism is TCGC's `exportTCGCoutput` (see `packages/typespec-client-generator-core/src/context.ts` in the `microsoft/typespec-azure` repo, typically checked out as a sibling folder).
+
 ## Edit → update emitter → test loop
 
 1. Make the emitter (TypeScript) and/or generator (Java) changes.
