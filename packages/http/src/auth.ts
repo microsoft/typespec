@@ -122,7 +122,12 @@ function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
   } else if (reference.type === "noAuth") {
     return { kind: "noAuth", auth: reference };
   } else {
-    return { kind: "any", auth: reference };
+    // Requirement scopes are read from the per-option (`local`) scheme so that
+    // operation-level `@useAuth` can request a different scope subset than the
+    // service default. Only openIdConnect currently surfaces scopes; the ref is
+    // scheme-agnostic so other scheme types can opt in without a new ref kind.
+    const scopes = local.type === "openIdConnect" ? (local.scopes ?? []) : [];
+    return { kind: "any", auth: reference, scopes };
   }
 }
 
@@ -160,6 +165,13 @@ function authsAreEqual(scheme1: HttpAuth, scheme2: HttpAuth): boolean {
   const { model: _model2, ...withoutModel2 } = scheme2;
   if (withoutModel1.type === "oauth2" && withoutModel2.type === "oauth2") {
     return deepEquals(ignoreScopes(withoutModel1), ignoreScopes(withoutModel2));
+  }
+  // Scopes live on the security requirement, not on the scheme identity, so two
+  // openIdConnect schemes that differ only by scopes are the same scheme and
+  // must dedupe to a single id (per-requirement scopes are still carried on the
+  // auth ref). No scope merge is needed because the scheme object lists no scopes.
+  if (withoutModel1.type === "openIdConnect" && withoutModel2.type === "openIdConnect") {
+    return deepEquals({ ...withoutModel1, scopes: [] }, { ...withoutModel2, scopes: [] });
   }
   return deepEquals(withoutModel1, withoutModel2);
 }

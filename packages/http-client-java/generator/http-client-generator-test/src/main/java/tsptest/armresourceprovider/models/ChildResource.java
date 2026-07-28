@@ -16,77 +16,77 @@ import tsptest.armresourceprovider.fluent.models.ChildResourceInner;
 public interface ChildResource {
     /**
      * Gets the id property: Fully qualified resource Id for the resource.
-     *
+     * 
      * @return the id value.
      */
     String id();
 
     /**
      * Gets the name property: The name of the resource.
-     *
+     * 
      * @return the name value.
      */
     String name();
 
     /**
      * Gets the type property: The type of the resource.
-     *
+     * 
      * @return the type value.
      */
     String type();
 
     /**
      * Gets the location property: The geo-location where the resource lives.
-     *
+     * 
      * @return the location value.
      */
     String location();
 
     /**
      * Gets the tags property: Resource tags.
-     *
+     * 
      * @return the tags value.
      */
     Map<String, String> tags();
 
     /**
      * Gets the systemData property: Azure Resource Manager metadata containing createdBy and modifiedBy information.
-     *
+     * 
      * @return the systemData value.
      */
     SystemData systemData();
 
     /**
      * Gets the provisioningState property: Provisioning State of Top Level Arm Resource.
-     *
+     * 
      * @return the provisioningState value.
      */
     ProvisioningState provisioningState();
 
     /**
      * Gets the region of the resource.
-     *
+     * 
      * @return the region of the resource.
      */
     Region region();
 
     /**
      * Gets the name of the resource region.
-     *
+     * 
      * @return the name of the resource region.
      */
     String regionName();
 
     /**
      * Gets the name of the resource group.
-     *
+     * 
      * @return the name of the resource group.
      */
     String resourceGroupName();
 
     /**
      * Gets the inner tsptest.armresourceprovider.fluent.models.ChildResourceInner object.
-     *
+     * 
      * @return the inner object.
      */
     ChildResourceInner innerModel();
@@ -114,7 +114,7 @@ public interface ChildResource {
         interface WithLocation {
             /**
              * Specifies the region for the resource.
-             *
+             * 
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -122,7 +122,7 @@ public interface ChildResource {
 
             /**
              * Specifies the region for the resource.
-             *
+             * 
              * @param location The geo-location where the resource lives.
              * @return the next definition stage.
              */
@@ -135,7 +135,7 @@ public interface ChildResource {
         interface WithParentResource {
             /**
              * Specifies resourceGroupName, topLevelArmResourceName.
-             *
+             * 
              * @param resourceGroupName The name of the resource group. The name is case insensitive.
              * @param topLevelArmResourceName arm resource name for path.
              * @return the next definition stage.
@@ -150,14 +150,14 @@ public interface ChildResource {
         interface WithCreate extends DefinitionStages.WithTags {
             /**
              * Executes the create request.
-             *
+             * 
              * @return the created resource.
              */
             ChildResource create();
 
             /**
              * Executes the create request.
-             *
+             * 
              * @param context The context to associate with this operation.
              * @return the created resource.
              */
@@ -170,7 +170,7 @@ public interface ChildResource {
         interface WithTags {
             /**
              * Specifies the tags property: Resource tags..
-             *
+             * 
              * @param tags Resource tags.
              * @return the next definition stage.
              */
@@ -180,7 +180,7 @@ public interface ChildResource {
 
     /**
      * Begins update for the ChildResource resource.
-     *
+     * 
      * @return the stage of resource update.
      */
     ChildResource.Update update();
@@ -191,14 +191,14 @@ public interface ChildResource {
     interface Update extends UpdateStages.WithTags {
         /**
          * Executes the update request.
-         *
+         * 
          * @return the updated resource.
          */
         ChildResource apply();
 
         /**
          * Executes the update request.
-         *
+         * 
          * @param context The context to associate with this operation.
          * @return the updated resource.
          */
@@ -215,7 +215,7 @@ public interface ChildResource {
         interface WithTags {
             /**
              * Specifies the tags property: Resource tags..
-             *
+             * 
              * @param tags Resource tags.
              * @return the next definition stage.
              */
@@ -225,14 +225,14 @@ public interface ChildResource {
 
     /**
      * Refreshes the resource to sync with Azure.
-     *
+     * 
      * @return the refreshed resource.
      */
     ChildResource refresh();
 
     /**
      * Refreshes the resource to sync with Azure.
-     *
+     * 
      * @param context The context to associate with this operation.
      * @return the refreshed resource.
      */
@@ -240,7 +240,7 @@ public interface ChildResource {
 
     /**
      * The actionWithoutBody operation.
-     *
+     * 
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -248,7 +248,7 @@ public interface ChildResource {
 
     /**
      * The actionWithoutBody operation.
-     *
+     * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.

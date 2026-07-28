@@ -3,13 +3,7 @@ import { MutationOptions } from "@typespec/mutator-framework";
 import type { HttpCanonicalization } from "./http-canonicalization-classes.js";
 
 export type HttpCanonicalizationLocation =
-  | "header"
-  | "header-explode"
-  | "query"
-  | "query-explode"
-  | "path"
-  | "path-explode"
-  | "body";
+  "header" | "header-explode" | "query" | "query-explode" | "path" | "path-explode" | "body";
 
 export interface HttpCanonicalizationOptionsInit {
   visibility?: Visibility;

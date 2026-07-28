@@ -1107,8 +1107,7 @@ export function createResolver(program: Program): NameResolver {
         if (binding) {
           if (binding.flags & SymbolFlags.Using && binding.symbolSource) {
             const fileNode = getFirstAncestor(node, (n) => n.kind === SyntaxKind.TypeSpecScript) as
-              | TypeSpecScriptNode
-              | undefined;
+              TypeSpecScriptNode | undefined;
             if (fileNode) {
               usedUsingSym.get(fileNode)?.add(binding.symbolSource) ??
                 usedUsingSym.set(fileNode, new Set([binding.symbolSource]));

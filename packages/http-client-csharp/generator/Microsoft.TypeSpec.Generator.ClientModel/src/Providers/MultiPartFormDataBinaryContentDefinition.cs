@@ -21,7 +21,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    public class MultiPartFormDataBinaryContentDefinition : TypeProvider
+    public class MultiPartFormDataBinaryContentDefinition : InternalHelperProvider
     {
         private readonly ScopedApi<MultipartFormDataContent> _multipartContentExpression;
         private readonly FieldProvider _multipartContentField;
@@ -77,7 +77,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => $"MultiPartFormData{_requestContentType.Name}";
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
         protected override CSharpType BuildBaseType() => _requestContentType;
 

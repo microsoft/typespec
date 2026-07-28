@@ -1,5 +1,19 @@
 # Change Log - @typespec/http-client-python
 
+## 0.35.0
+
+### Features
+
+- [#11087](https://github.com/microsoft/typespec/pull/11087) Add mock API test coverage for `@encode(string)` on boolean properties (`encode/boolean` Spector scenarios). Fix Python generator to correctly serialize and deserialize boolean values encoded as strings (case-insensitive `true`/`false`)
+
+### Bug Fixes
+
+- [#11268](https://github.com/microsoft/typespec/pull/11268) Fix a bug where a TypedDict literal value that coincides with a Python builtin type name (e.g. `type: "type"`) was corrupted into `Literal["builtins.type"]` in the generated `types.py`. The builtin-shadowing workaround now ignores identifiers inside string literals (literal values and quoted forward references are left untouched) and detects shadowing against the actually-emitted annotation, so genuine sibling-builtin shadowing is still qualified while spurious `import builtins` statements are no longer emitted.
+- [#11233](https://github.com/microsoft/typespec/pull/11233) Add an `IO[bytes]` overload alongside `bytes` for binary `bytes` bodies, keeping backward compatibility for services migrating from swagger whose binary bodies were typed as `IO`.
+- [#11289](https://github.com/microsoft/typespec/pull/11289) [Python] Fix duplicate `:keyword:`/`:paramtype:` lines in generated DPG model docstrings that duplicated the existing `:ivar:`/`:vartype:` entries
+- [#11197](https://github.com/microsoft/typespec/pull/11197) [Python] Generate model/client/config docstrings and targeted pylint suppressions that satisfy the updated `azure-pylint-guidelines-checker` docstring checks (`docstring-keyword-should-match-keyword-only`, `docstring-missing-param`)
+
+
 ## 0.34.2
 
 ### Bug Fixes

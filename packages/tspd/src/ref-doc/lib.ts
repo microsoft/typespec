@@ -23,6 +23,8 @@ export const libDef = {
         interfaceOperation: paramMessage`Missing documentation for interface operation '${"name"}'.`,
         operation: paramMessage`Missing documentation for operation '${"name"}'.`,
         scalar: paramMessage`Missing documentation for scalar '${"name"}'.`,
+        rule: paramMessage`Missing documentation for linter rule '${"name"}'.`,
+        diagnostic: paramMessage`Missing documentation for diagnostic '${"name"}'.`,
       },
     },
   },

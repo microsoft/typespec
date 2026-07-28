@@ -29,7 +29,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -39,7 +39,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -56,7 +56,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -73,7 +73,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -90,7 +90,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The model operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -107,7 +107,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -126,7 +126,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -145,7 +145,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -164,7 +164,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The model operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.

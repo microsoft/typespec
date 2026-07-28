@@ -1,0 +1,75 @@
+{
+  "name": "@typespec/graphql",
+  "version": "0.1.0",
+  "author": "Microsoft Corporation",
+  "description": "TypeSpec library for emitting GraphQL",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "tspMain": "lib/main.tsp",
+  "main": "dist/src/index.js",
+  "exports": {
+    ".": {
+      "typespec": "./lib/main.tsp",
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@alloy-js/core": "catalog:",
+    "@alloy-js/typescript": "catalog:",
+    "@pinterest/alloy-graphql": "catalog:",
+    "change-case": "catalog:",
+    "graphql": "catalog:"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "pnpm gen-extern-signature && alloy build",
+    "watch": "alloy build --watch",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix",
+    "regen-docs": "tspd doc . --enable-experimental --output-dir ../../website/src/content/docs/docs/emitters/graphql/reference"
+  },
+  "files": [
+    "lib/*.tsp",
+    "tspconfig.yaml",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/emitter-framework": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/mutator-framework": "workspace:~"
+  },
+  "devDependencies": {
+    "@alloy-js/cli": "catalog:",
+    "@alloy-js/rollup-plugin": "catalog:",
+    "@types/node": "catalog:",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/emitter-framework": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/mutator-framework": "workspace:~",
+    "@typespec/tspd": "workspace:~",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

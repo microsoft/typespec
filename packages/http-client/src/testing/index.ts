@@ -3,6 +3,7 @@ import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testi
 import { fileURLToPath } from "url";
 
 /** @deprecated Use `createTester` from `@typespec/compiler/testing` instead */
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const HttpClientTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "@typespec/http-client",
   packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),

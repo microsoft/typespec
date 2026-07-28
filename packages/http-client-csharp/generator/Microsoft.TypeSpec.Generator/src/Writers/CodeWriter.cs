@@ -573,6 +573,14 @@ namespace Microsoft.TypeSpec.Generator
 
         private void AppendTypeForCRef(CSharpType type)
         {
+            if (ProviderReferenceMapAnalyzer.IsRemovedTypeReference(type))
+            {
+                AppendRaw("<c>");
+                AppendType(type, false, false);
+                AppendRaw("</c>");
+                return;
+            }
+
             // Because of the limitations of type cref in XmlDoc
             // we add "?" nullability operator after `cref` block
             var isNullable = type is { IsNullable: true, IsValueType: true };
