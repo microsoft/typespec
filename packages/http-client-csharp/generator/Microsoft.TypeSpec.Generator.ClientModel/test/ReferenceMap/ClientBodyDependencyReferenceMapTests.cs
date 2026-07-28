@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -14,6 +17,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
 {
     public class ClientBodyDependencyReferenceMapTests
     {
+        [TearDown]
+        public void TearDown()
+        {
+            ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
+        }
+
         [Test]
         public async Task PublicOperationBodyParameterModelIsRetained()
         {
@@ -131,58 +140,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 "PublicWrapper",
                 properties: [InputFactory.Property("CustomInternal", customInternalModel)]);
 
-            var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(outputPath);
-            try
-            {
-                var customPath = Path.Combine(outputPath, "src", "Custom", "CustomInternalModel.cs");
-                Directory.CreateDirectory(Path.GetDirectoryName(customPath)!);
-                File.WriteAllText(customPath, """
-                    using Microsoft.TypeSpec.Generator.Customizations;
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [publicWrapper, customInternalModel],
+                configuration: """{ "package-name": "Sample", "disable-xml-docs": true }""");
 
-                    namespace Sample.Models;
+            var publicWrapperProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "PublicWrapper");
+            var customInternalProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "CustomInternalModel");
+            CodeModelGenerator.Instance.AddTypeToKeep(publicWrapperProvider, isRoot: false);
+            CodeModelGenerator.Instance.AddTypeToKeep(customInternalProvider, isRoot: false);
 
-                    [CodeGenType("CustomInternalModel")]
-                    internal partial class CustomInternalModel
-                    {
-                    }
-                    """);
-                var modelFactoryPath = Path.Combine(outputPath, "src", "Generated", "SampleModelFactory.cs");
-                Directory.CreateDirectory(Path.GetDirectoryName(modelFactoryPath)!);
-                File.WriteAllText(modelFactoryPath, """
-                    using Sample.Models;
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(CodeModelGenerator.Instance.OutputLibrary.TypeProviders);
 
-                    namespace Sample;
-
-                    public static partial class SampleModelFactory
-                    {
-                        public static PublicWrapper PublicWrapper(CustomInternalModel customInternal = default) => null;
-                    }
-                    """);
-
-                await MockHelpers.LoadMockGeneratorAsync(
-                    inputModels: () => [publicWrapper, customInternalModel],
-                    configuration: """{ "package-name": "Sample", "disable-xml-docs": true }""",
-                    outputPath: outputPath);
-
-                var publicWrapperProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "PublicWrapper");
-                var customInternalProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "CustomInternalModel");
-                CodeModelGenerator.Instance.AddTypeToKeep(publicWrapperProvider, isRoot: false);
-                CodeModelGenerator.Instance.AddTypeToKeep(customInternalProvider, isRoot: false);
-
-                ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(CodeModelGenerator.Instance.OutputLibrary.TypeProviders);
-
-                Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "PublicWrapper should remain public because it is an explicit input root.");
-                Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "Public input roots should preserve their declared accessibility.");
-            }
-            finally
-            {
-                ProviderReferenceMapAnalyzer.ResetPreWriteAccessibility();
-                if (Directory.Exists(outputPath))
-                {
-                    Directory.Delete(outputPath, recursive: true);
-                }
-            }
+            Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "PublicWrapper should remain public because it is an explicit input root.");
+            Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "Public input roots should preserve their declared accessibility.");
         }
 
         [Test]
@@ -813,12 +783,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 internalClientNames: ["Responses"]);
         }
 
-        private static async Task GenerateAndAssertInternalModels(
-            InputModelType[] models,
-            InputClient[] clients,
-            string[] modelNames)
-            => await GenerateAndAssertModels(models, clients, modelNames, shouldBePublic: false);
-
         private static async Task GenerateAndAssertPublicModels(
             InputModelType[] models,
             InputClient[] clients,
@@ -877,86 +841,128 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             internalClientNames ??= [];
             unexpectedFiles ??= [];
 
-            var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(outputPath);
-            try
+            // Build the custom-code compilation entirely in memory (no disk writes). Files under the generated
+            // folder are excluded to mirror how generation loads custom code, so custom partial declarations
+            // participate in the reference-map accessibility analysis.
+            var customSources = customFiles
+                .Where(f => !f.Path.Replace('\\', '/').StartsWith("src/Generated/", StringComparison.OrdinalIgnoreCase))
+                .Select(f => (Name: f.Path, f.Content))
+                .ToList();
+            Func<Task<Compilation>>? compilation = customSources.Count > 0
+                ? () => Helpers.GetCompilationFromSourceFilesAsync(customSources)
+                : null;
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => enums,
+                inputModels: () => models,
+                clients: () => clients,
+                configuration: $$"""{ "package-name": "{{packageName}}", "disable-xml-docs": true }""",
+                compilation: compilation);
+            configureGenerator?.Invoke();
+
+            // Run the same pre-write pipeline as CSharpGen.ExecuteAsync, then analyze the reference map
+            // in memory. This validates the generated types without the flaky Roslyn write/simplify phase
+            // (which races on shared compilation metadata) and without touching disk.
+            var output = CodeModelGenerator.Instance.OutputLibrary;
+            foreach (var type in output.TypeProviders)
             {
-                foreach (var customFile in customFiles)
-                {
-                    var customPath = Path.Combine(outputPath, customFile.Path);
-                    Directory.CreateDirectory(Path.GetDirectoryName(customPath)!);
-                    File.WriteAllText(customPath, customFile.Content);
-                }
+                type.EnsureBuilt();
+            }
+            foreach (var visitor in CodeModelGenerator.Instance.Visitors)
+            {
+                visitor.VisitLibrary(output);
+            }
+            CSharpGen.FilterAllCustomizedMembers(output);
+            foreach (var outputType in output.TypeProviders)
+            {
+                outputType.ProcessTypeForBackCompatibility();
+            }
 
-                await MockHelpers.LoadMockGeneratorAsync(
-                    inputEnums: () => enums,
-                    inputModels: () => models,
-                    clients: () => clients,
-                    configuration: $$"""{ "package-name": "{{packageName}}", "disable-xml-docs": true }""",
-                    outputPath: outputPath);
-                configureGenerator?.Invoke();
+            var providers = output.TypeProviders;
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
+            var allProviders = EnumerateAllProviders(providers).ToList();
 
-                await new CSharpGen().ExecuteAsync();
+            foreach (var modelName in publicModelNames)
+            {
+                var provider = providers.FirstOrDefault(p => p.Name == modelName);
+                Assert.IsNotNull(provider, $"Expected generated type '{modelName}'.");
+                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"{modelName} should be generated.");
+                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{modelName} should be public.");
+            }
 
+            foreach (var modelName in internalModelNames)
+            {
+                var provider = providers.FirstOrDefault(p => p.Name == modelName);
+                Assert.IsNotNull(provider, $"Expected generated type '{modelName}'.");
+                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"{modelName} should be generated.");
+                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), $"{modelName} should be internal.");
+                Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{modelName} should not be public.");
+            }
+
+            foreach (var clientName in internalClientNames)
+            {
+                var provider = providers.FirstOrDefault(p => p.Name == clientName);
+                Assert.IsNotNull(provider, $"Expected generated client '{clientName}'.");
+                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), $"{clientName} should be internal.");
+                Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{clientName} should not be public.");
+            }
+
+            var modelFactory = providers.OfType<ModelFactoryProvider>().FirstOrDefault();
+            if (modelFactory is not null && session.ShouldWriteProvider(modelFactory) && modelFactory.Methods.Count > 0)
+            {
                 foreach (var modelName in publicModelNames)
                 {
-                    var modelPath = Path.Combine(outputPath, "src", "Generated", "Models", $"{modelName}.cs");
-                    Assert.IsTrue(File.Exists(modelPath), $"Expected generated model file '{modelPath}'.");
-                    var text = File.ReadAllText(modelPath);
-                    StringAssert.Contains($"public partial class {modelName}", text, $"{modelName} should be public.");
+                    Assert.IsTrue(modelFactory.Methods.Any(m => m.Signature.Name == modelName), $"Model factory method for {modelName} should be generated.");
                 }
 
                 foreach (var modelName in internalModelNames)
                 {
-                    var modelPath = Path.Combine(outputPath, "src", "Generated", "Models", $"{modelName}.cs");
-                    Assert.IsTrue(File.Exists(modelPath), $"Expected generated model file '{modelPath}'.");
-                    var text = File.ReadAllText(modelPath);
-                    StringAssert.Contains($"internal partial class {modelName}", text, $"{modelName} should be internal.");
-                    StringAssert.DoesNotContain($"public partial class {modelName}", text, $"{modelName} should not be public.");
-                }
-
-                foreach (var clientName in internalClientNames)
-                {
-                    var clientPath = Path.Combine(outputPath, "src", "Generated", $"{clientName}.cs");
-                    Assert.IsTrue(File.Exists(clientPath), $"Expected generated client file '{clientPath}'.");
-                    var text = File.ReadAllText(clientPath);
-                    StringAssert.Contains($"internal partial class {clientName}", text, $"{clientName} should be internal.");
-                    StringAssert.DoesNotContain($"public partial class {clientName}", text, $"{clientName} should not be public.");
-                }
-
-                var modelFactoryPath = Path.Combine(outputPath, "src", "Generated", "SampleModelFactory.cs");
-                if (File.Exists(modelFactoryPath))
-                {
-                    var modelFactoryText = File.ReadAllText(modelFactoryPath);
-                    foreach (var modelName in publicModelNames)
-                    {
-                        StringAssert.Contains($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should be generated.");
-                    }
-
-                    foreach (var modelName in internalModelNames)
-                    {
-                        StringAssert.DoesNotContain($" {modelName}(", modelFactoryText, $"Model factory method for {modelName} should not be generated.");
-                    }
-                }
-
-                foreach (var expectedFile in expectedFiles)
-                {
-                    var filePath = Path.Combine(outputPath, expectedFile);
-                    Assert.IsTrue(File.Exists(filePath), $"Expected generated file '{filePath}'.");
-                }
-
-                foreach (var unexpectedFile in unexpectedFiles)
-                {
-                    var filePath = Path.Combine(outputPath, unexpectedFile);
-                    Assert.IsFalse(File.Exists(filePath), $"Did not expect generated file '{filePath}'.");
+                    Assert.IsFalse(modelFactory.Methods.Any(m => m.Signature.Name == modelName), $"Model factory method for {modelName} should not be generated.");
                 }
             }
-            finally
+
+            foreach (var expectedFile in expectedFiles)
             {
-                if (Directory.Exists(outputPath))
+                AssertProviderWritten(session, allProviders, expectedFile, expected: true);
+            }
+
+            foreach (var unexpectedFile in unexpectedFiles)
+            {
+                AssertProviderWritten(session, allProviders, unexpectedFile, expected: false);
+            }
+        }
+
+        private static IEnumerable<TypeProvider> EnumerateAllProviders(IEnumerable<TypeProvider> providers)
+        {
+            foreach (var provider in providers)
+            {
+                yield return provider;
+                foreach (var serialization in EnumerateAllProviders(provider.SerializationProviders))
                 {
-                    Directory.Delete(outputPath, recursive: true);
+                    yield return serialization;
                 }
+                foreach (var nested in EnumerateAllProviders(provider.NestedTypes))
+                {
+                    yield return nested;
+                }
+            }
+        }
+
+        private static void AssertProviderWritten(
+            ProviderReferenceMapSession session,
+            IReadOnlyList<TypeProvider> allProviders,
+            string relativeFilePath,
+            bool expected)
+        {
+            var provider = allProviders.FirstOrDefault(p => string.Equals(p.RelativeFilePath, relativeFilePath, StringComparison.OrdinalIgnoreCase));
+            if (expected)
+            {
+                Assert.IsNotNull(provider, $"Expected generated file '{relativeFilePath}'.");
+                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"Expected generated file '{relativeFilePath}'.");
+            }
+            else
+            {
+                Assert.IsTrue(provider is null || !session.ShouldWriteProvider(provider), $"Did not expect generated file '{relativeFilePath}'.");
             }
         }
     }

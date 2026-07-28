@@ -62,8 +62,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             [CallerFilePath] string filePath = "")
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
+            return await GetCompilationFromDirectoriesAsync([directory], Path.Combine(directory, "Generated"));
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Compilation"/> from the source files in the given <paramref name="directories"/>
+        /// (recursively), skipping files under <paramref name="generatedDirectory"/>. The generated CodeGen
+        /// customization attributes are always included so custom code using them compiles.
+        /// </summary>
+        public static async Task<Compilation> GetCompilationFromDirectoriesAsync(
+            IReadOnlyList<string> directories,
+            string generatedDirectory)
+        {
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
-            var project = CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
+            var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory);
+            var compilation = await project.GetCompilationAsync();
+            Assert.IsNotNull(compilation);
+            return compilation!;
+        }
+
+        /// <summary>
+        /// Builds a <see cref="Compilation"/> from in-memory source files without writing anything to disk.
+        /// The generated CodeGen customization attributes are always included so custom code using them compiles.
+        /// </summary>
+        public static async Task<Compilation> GetCompilationFromSourceFilesAsync(
+            IEnumerable<(string Name, string Content)> sourceFiles)
+        {
+            var workspace = new AdhocWorkspace();
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+            workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
+            Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
+
+            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
+            project = GeneratedCodeWorkspace.AddDirectory(project, Path.GetFullPath(codeGenAttributeFiles));
+
+            foreach (var (name, content) in sourceFiles)
+            {
+                project = project.AddDocument(name, content).Project;
+            }
+
+            project = project
+                .AddMetadataReferences([
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    .. CodeModelGenerator.Instance.AdditionalMetadataReferences
+                ])
+                .WithCompilationOptions(new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: new WorkspaceMetadataReferenceResolver(), nullableContextOptions: NullableContextOptions.Disable));
+
             var compilation = await project.GetCompilationAsync();
             Assert.IsNotNull(compilation);
             return compilation!;
