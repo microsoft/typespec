@@ -26,7 +26,7 @@ try {
     // Running from node_modules without pre-compiled JS — this shouldn't
     // happen for a properly built package, but fail gracefully rather than
     // blocking the install.
-    console.log("Python environment setup skipped: run 'npm run build' first.");
+    console.log("Python environment setup skipped: run 'npm run build' first."); // eslint-disable-line no-console
   } else {
     throw err;
   }
