@@ -659,6 +659,8 @@ export async function cleanGeneratedCodePreservingFixtures(generatedFolder: stri
   const preservedFixturePaths = new Set([
     // Keeps patch_added_operation in _operations/_patch.py for shared patch tests.
     "azure/authentication-api-key",
+    // Keeps pyright disabled in the custom [tool.azure-sdk-build] configuration.
+    "azure/authentication-union",
     // Keeps the same operation patch for the unbranded test run.
     "unbranded/authentication-api-key",
     // Keeps the hand-authored CustomizedClient wrapper outside _generated.

@@ -1,0 +1,10 @@
+{
+    "CrossLanguagePackageId": "Authentication.Union",
+    "CrossLanguageDefinitionId": {
+        "authentication.union.UnionClient.valid_key": "Authentication.Union.validKey",
+        "authentication.union.aio.UnionClient.valid_key": "Authentication.Union.validKey",
+        "authentication.union.UnionClient.valid_token": "Authentication.Union.validToken",
+        "authentication.union.aio.UnionClient.valid_token": "Authentication.Union.validToken"
+    },
+    "CrossLanguageVersion": "9aecad8f2900"
+}
