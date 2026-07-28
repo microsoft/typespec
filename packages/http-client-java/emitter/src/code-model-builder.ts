@@ -1052,10 +1052,8 @@ export class CodeModelBuilder {
       }
 
       // opt-in: return significant response headers as a strongly-typed model from the convenience method
-      const responseHeadersAsModel = getClientOptions(
-        sdkMethod,
-        "responseHeadersAsModel",
-      ) as boolean | undefined;
+      const responseHeadersAsModel = getClientOptions(sdkMethod, "responseHeadersAsModel") as
+        boolean | undefined;
       if (responseHeadersAsModel === true) {
         if (sdkMethod.response.type !== undefined) {
           // the model is built purely from response headers, hence the operation must not have a response body
