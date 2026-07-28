@@ -194,12 +194,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap
             = new LinkedHashMap<>();
 
-        boolean multipleClientsWithOperationsPresent = codeModel.getClients()
-            .stream()
-            .flatMap(client -> client.getOperationGroups().stream())
-            .flatMap(og -> og.getOperations().stream())
-            .findAny()
-            .isPresent();
+        boolean multipleClientsWithOperationsPresent = !CoreUtils.isNullOrEmpty(codeModel.getClients())
+            && codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .flatMap(og -> og.getOperations().stream())
+                .findAny()
+                .isPresent();
 
         boolean singleClientOperationsPresent
             = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).findAny().isPresent();
