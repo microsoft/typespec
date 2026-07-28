@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // Add sentinel before construction to prevent re-entrant creation of the same model
-            // (e.g., when BuildBaseModelProvider triggers CreateModel for all input models).
+            // (e.g., when base type resolution triggers CreateModel for all input models).
             InputTypeToModelProvider[model] = null;
 
             // A model marked as external maps to a type that already exists in a framework or

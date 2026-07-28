@@ -13,15 +13,9 @@ using NUnit.Framework;
 namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     /// <summary>
-    /// Tests for <see cref="SystemObjectModelProvider"/> that demonstrate capabilities
-    /// missing from the existing <see cref="SystemObjectTypeProvider"/>.
-    /// <para>
-    /// <see cref="SystemObjectTypeProvider"/> extends <see cref="TypeProvider"/> and cannot
-    /// serve as a <see cref="ModelProvider.BaseModelProvider"/>. <see cref="SystemObjectModelProvider"/>
-    /// extends <see cref="ModelProvider"/> to fill this gap — enabling derived models to inherit
+    /// Tests for <see cref="SystemObjectModelProvider"/>, which enables derived models to inherit
     /// from framework/system types while getting proper property deduplication, raw data field, and
     /// serialization handling.
-    /// </para>
     /// </summary>
     public class SystemObjectModelProviderTests
     {
@@ -53,19 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsInstanceOf<ModelProvider>(provider);
         }
 
-        [Test]
-        public void SystemObjectTypeProvider_IsNotModelProvider()
-        {
-            var systemType = CreateSystemCSharpType("ResourceData", "TestFramework");
-            var provider = new SystemObjectTypeProvider(systemType);
-
-            Assert.IsNotInstanceOf<ModelProvider>(provider);
-            Assert.IsInstanceOf<TypeProvider>(provider);
-        }
-
         // -------------------------------------------------------------------
         // 2. Can serve as BaseModelProvider for derived models
-        //    (SystemObjectTypeProvider cannot because it's not a ModelProvider)
         // -------------------------------------------------------------------
 
         [Test]
@@ -93,7 +76,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var derivedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel) as ModelProvider;
             Assert.IsNotNull(derivedProvider);
 
-            // The base should be a SystemObjectModelProvider — impossible with SystemObjectTypeProvider
             Assert.IsNotNull(derivedProvider!.BaseModelProvider);
             Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider.BaseModelProvider);
         }
@@ -385,8 +367,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         // -------------------------------------------------------------------
         // 9. A derived discriminated model forwards its discriminator value to a
-        //    SystemObjectModelProvider base constructor. This is impossible with
-        //    SystemObjectTypeProvider because it cannot serve as a BaseModelProvider.
+        //    SystemObjectModelProvider base constructor.
         // -------------------------------------------------------------------
 
         [Test]

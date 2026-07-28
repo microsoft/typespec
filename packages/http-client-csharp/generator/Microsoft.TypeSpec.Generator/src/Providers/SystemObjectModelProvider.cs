@@ -9,8 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     /// <summary>
     /// Represents a model type from an external assembly (system or referenced assembly) that is mapped
-    /// from an input model type. Unlike <see cref="SystemObjectTypeProvider"/> which extends <see cref="TypeProvider"/>,
-    /// this class extends <see cref="ModelProvider"/> so it can serve as a <see cref="ModelProvider.BaseModelProvider"/>
+    /// from an input model type. This class can serve as a <see cref="ModelProvider.BaseModelProvider"/>
     /// for derived models that inherit from system types.
     /// <para>
     /// This is used when a code generator maps an input model (e.g., an ARM Resource type) to an existing

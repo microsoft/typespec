@@ -320,7 +320,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 inputModels: () => [inputModel, baseModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(declareBaseTypeInCustomCode.ToString()));
 
-            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreSame(modelProvider.BaseModelProvider, modelProvider.BaseTypeProvider);
 
             // should not have the additionalProperties dictionary
             Assert.AreEqual(0, modelProvider.Fields.Count);
