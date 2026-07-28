@@ -501,5 +501,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        // A hand-authored base that does not take part in MRW serialization must not widen the
+        // return type of the generated *Core methods. Doing so makes derived overrides covariant,
+        // which fails to compile on runtimes without covariant return support (e.g. netstandard2.0).
+        [Test]
+        public async Task JsonModelCreateCoreIgnoresNonMrwCustomBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("PlainBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            foreach (var methodName in new[] { "JsonModelCreateCore", "PersistableModelCreateCore" })
+            {
+                var method = serializationProvider.Methods.Single(m => m.Signature.Name == methodName);
+                Assert.AreEqual(modelProvider.Type.Name, method.Signature.ReturnType!.Name);
+                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+                Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            }
+        }
+
+        // When the hand-authored base does take part in MRW, the generated *Core methods must match
+        // the base signature so that they override rather than hide it.
+        [Test]
+        public async Task JsonModelCreateCoreUsesMrwCustomBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("MrwBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            foreach (var methodName in new[] { "JsonModelCreateCore", "PersistableModelCreateCore" })
+            {
+                var method = serializationProvider.Methods.Single(m => m.Signature.Name == methodName);
+                Assert.AreEqual("MrwBase", method.Signature.ReturnType!.Name);
+            }
+        }
     }
 }

@@ -42,6 +42,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DeserializationMethodNamePrefix = "Deserialize";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
+        private static readonly IReadOnlySet<string> s_createCoreMethodNames = new HashSet<string>
+        {
+            JsonModelCreateCoreMethodName,
+            PersistableModelCreateCoreMethodName
+        };
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -163,13 +168,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
             var returnType = _model.BaseModelProvider?.Type ??
-                GetCustomBaseRootType() ??
-                GetCustomBaseMethodReturnType(new HashSet<string>
-                {
-                    JsonModelCreateCoreMethodName,
-                    PersistableModelCreateCoreMethodName
-                }) ??
-                GetCustomSerializationBaseType() ??
+                GetCustomMrwBaseRootType() ??
                 Type;
             while (returnType.BaseType != null
                    && IsModelType(returnType.BaseType))
@@ -203,8 +202,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? _model.BaseType
                 : null;
 
-        private CSharpType? GetCustomBaseRootType()
-            => GetCustomSerializationBaseType() is { } baseType ? GetRootBaseType(baseType) : null;
+        /// <summary>
+        /// Gets the return type the generated <c>*Core</c> creation methods must use when this model derives
+        /// from a hand-authored base, or <c>null</c> when the custom base does not declare those methods.
+        /// </summary>
+        /// <remarks>
+        /// A hand-authored base only dictates the <c>*Core</c> return type when it declares the methods being
+        /// overridden, in which case the signatures have to match. A plain base class that merely groups models
+        /// together must be ignored, otherwise the generated base declares a wider return type than its derived
+        /// overrides and the result only compiles on runtimes that support covariant returns.
+        /// </remarks>
+        private CSharpType? GetCustomMrwBaseRootType()
+            => GetCustomBaseMethodReturnType(s_createCoreMethodNames);
 
         private bool HasCustomBaseMethod(string methodName)
             => GetCustomSerializationBaseType() is { } baseType &&
@@ -245,35 +254,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
 
-        private static CSharpType? GetRootBaseType(CSharpType baseType)
-        {
-            var visited = new HashSet<string>();
-            CSharpType? rootBaseType = null;
-            var current = baseType;
-
-            while (current is not null && visited.Add(current.FullyQualifiedName))
-            {
-                if (!IsFrameworkRootType(current))
-                {
-                    rootBaseType = current;
-                }
-
-                current = current.BaseType;
-            }
-
-            return rootBaseType;
-        }
-
         private static CSharpType? GetMethodReturnTypeInHierarchy(CSharpType type, IReadOnlySet<string> methodNames)
             => ModelReaderWriterHelpers.FindMethodInHierarchy(
                 type,
                 method => methodNames.Contains(method.Signature.Name),
                 baseTypesFirst: true)?.Signature.ReturnType;
-
-        private static bool IsFrameworkRootType(CSharpType type)
-            => (type.IsFrameworkType &&
-                (type.FrameworkType == typeof(object) || type.FrameworkType == typeof(ValueType))) ||
-                (type.Namespace == "System" && (type.Name == "Object" || type.Name == "ValueType"));
 
         protected override ConstructorProvider[] BuildConstructors()
         {
