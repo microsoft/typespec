@@ -953,6 +953,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public async Task PrivateProtectedCustomSignatureDoesNotPublicizeGeneratedType()
+        {
+            MockHelpers.LoadMockGenerator();
+            var customization = await Helpers.GetCompilationFromDirectoryAsync();
+            var customSymbol = CompilationHelper.GetSymbol(
+                customization.Assembly.Modules.First().GlobalNamespace,
+                "AdvancedFilter");
+            Assert.IsNotNull(customSymbol);
+
+            var customCodeView = new NamedTypeSymbolProvider(customSymbol!, customization);
+            var publicSignatureDependencies = customCodeView.SignatureDependencyTypes.Select(type => type.Name).ToArray();
+            CollectionAssert.DoesNotContain(publicSignatureDependencies, "AdvancedFilterOperatorType");
+            CollectionAssert.Contains(publicSignatureDependencies, "PublicFilterOperatorType");
+
+            var customType = new CustomizableTestTypeProvider(
+                "AdvancedFilter",
+                TypeSignatureModifiers.Public,
+                customCodeView,
+                ns: "Sample");
+            var privateProtectedParameterType = new TestTypeProvider(
+                "AdvancedFilterOperatorType",
+                TypeSignatureModifiers.Internal,
+                ns: "Sample");
+            var protectedParameterType = new TestTypeProvider(
+                "PublicFilterOperatorType",
+                TypeSignatureModifiers.Internal,
+                ns: "Sample");
+            await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(customType, privateProtectedParameterType, protectedParameterType),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}",
+                compilation: () => Task.FromResult<Compilation>(customization));
+            CodeModelGenerator.Instance.AddTypeToKeep(customType);
+            CodeModelGenerator.Instance.AddTypeToKeep(privateProtectedParameterType.Type.FullyQualifiedName, isRoot: false);
+            CodeModelGenerator.Instance.AddTypeToKeep(protectedParameterType.Type.FullyQualifiedName, isRoot: false);
+
+            ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(
+                [customType, privateProtectedParameterType, protectedParameterType]);
+
+            Assert.IsTrue(privateProtectedParameterType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+            Assert.IsFalse(privateProtectedParameterType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(protectedParameterType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsFalse(protectedParameterType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+        }
+
+        [Test]
         public void InternalizeModeDoesNotRemoveUnreferencedProviders()
         {
             var context = new TestTypeProvider("SampleContext", TypeSignatureModifiers.Public);

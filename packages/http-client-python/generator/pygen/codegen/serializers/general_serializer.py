@@ -320,7 +320,27 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_validation_file(self) -> str:
         template = self.env.get_template("validation.py.jinja2")
-        return template.render(code_model=self.code_model)
+        return template.render(
+            code_model=self.code_model,
+            client_api_version_name=self._api_version_config_attr_name(),
+        )
+
+    def _api_version_config_attr_name(self) -> str:
+        """Name of the config attribute that stores the API version.
+
+        The attribute name is derived from the API-version parameter's ``client_name``
+        (e.g. ``apiVersion`` -> ``api_version``, or Storage's ``version`` -> ``version``).
+        ``_validation.py`` holds a single shared decorator for the whole package, so when
+        every client agrees on the name we bake it in directly; otherwise we fall back to
+        the conventional ``api_version``.
+        """
+        names = {
+            parameter.client_name
+            for client in self.code_model.clients
+            for parameter in client.config.parameters.parameters
+            if parameter.is_api_version
+        }
+        return next(iter(names)) if len(names) == 1 else "api_version"
 
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {
