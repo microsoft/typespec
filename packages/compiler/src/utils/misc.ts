@@ -220,12 +220,23 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 
 /**
  * Extract package.json's tspMain entry point in a given path.
- * @param path Path that contains package.json
- * @param reportDiagnostic optional diagnostic handler.
+ * Checks `tspMain` field first, then falls back to `exports["."]["typespec"]`.
+ * @param packageJson Parsed package.json object.
  */
 export function resolveTspMain(packageJson: any): string | undefined {
   if (packageJson?.tspMain !== undefined) {
     return packageJson.tspMain;
+  }
+  // Fall back to `exports["."]["typespec"]` condition
+  const exports = packageJson?.exports;
+  if (exports !== undefined && exports !== null && typeof exports === "object") {
+    const rootExport = exports["."];
+    if (rootExport !== undefined && rootExport !== null && typeof rootExport === "object") {
+      const typespecCondition = rootExport["typespec"];
+      if (typeof typespecCondition === "string") {
+        return typespecCondition;
+      }
+    }
   }
   return undefined;
 }
