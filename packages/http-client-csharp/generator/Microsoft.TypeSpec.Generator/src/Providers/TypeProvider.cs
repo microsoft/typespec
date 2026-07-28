@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
+        private Lazy<string?> _declaringTypeName;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -30,6 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
             _specView = new(BuildSpecView);
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _inputType = inputType;
         }
 
@@ -44,14 +46,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
                 generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
-                // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
-                DeclaringTypeProvider?.Type.Name);
+                _declaringTypeName.Value);
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
                 generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
-                DeclaringTypeProvider?.Type.Name);
+                _declaringTypeName.Value);
+
+        private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
+        {
+            if (declaringTypeProvider is null)
+            {
+                return null;
+            }
+
+            var parentName = GetDeclaringTypeName(declaringTypeProvider.DeclaringTypeProvider);
+            return parentName is null
+                ? declaringTypeProvider.Type.Name
+                : $"{parentName}+{declaringTypeProvider.Type.Name}";
+        }
 
         private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
 
@@ -141,6 +155,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             get => _xmlDocs ??= BuildXmlDocs();
             private set => _xmlDocs = value;
+        }
+
+        internal bool PreserveTypeXmlDocs { get; private set; }
+
+        protected internal virtual bool ShouldWriteTypeXmlDocs => false;
+
+        protected internal virtual bool IsClientProvider => false;
+
+        internal void PreserveXmlDocs()
+        {
+            PreserveTypeXmlDocs = true;
         }
 
         public string? Deprecated
@@ -300,7 +325,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<TypeProvider>? _serializationProviders;
 
-        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
+        public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProvidersInternal();
+
+        internal TypeProvider? SerializationProviderOwner { get; private set; }
+
+        private IReadOnlyList<CSharpType>? _helperDependencyTypes;
+        internal IReadOnlyList<CSharpType> HelperDependencyTypes => _helperDependencyTypes ??= BuildHelperDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _bodyDependencyTypes;
+        public IReadOnlyList<CSharpType> BodyDependencyTypes => _bodyDependencyTypes ??= BuildBodyDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildBodyDependencyTypes() => [];
+
+        private IReadOnlyList<CSharpType>? _signatureDependencyTypes;
+        public IReadOnlyList<CSharpType> SignatureDependencyTypes => _signatureDependencyTypes ??= BuildSignatureDependencyTypes();
+        protected internal virtual IReadOnlyList<CSharpType> BuildSignatureDependencyTypes() => [];
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
@@ -322,6 +361,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite() => BuildAttributesForWrite();
+
+        /// <summary>
+        /// Builds the attributes emitted by the writer. Providers whose generated attributes depend on final
+        /// generation decisions can override this without replacing attributes updated by visitors.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite() => GetAttributes();
+
+        /// <summary>
+        /// Indicates whether this provider's attributes should contribute to reference-map analysis.
+        /// </summary>
+        protected internal virtual bool ShouldAnalyzeAttributesInReferenceMap => true;
+
+        /// <summary>
+        /// Determines whether a provider remains in the generated output after reference-map analysis.
+        /// </summary>
+        protected static bool ShouldWriteProvider(TypeProvider provider) =>
+            ProviderReferenceMapAnalyzer.ShouldWriteProvider(provider);
+
+        /// <summary>
+        /// Determines whether a type remains resolvable after reference-map analysis.
+        /// </summary>
+        protected static bool IsResolvableBuildableType(CSharpType type) =>
+            ProviderReferenceMapAnalyzer.IsResolvableBuildableType(type);
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
@@ -505,6 +569,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual TypeProvider[] BuildSerializationProviders() => [];
 
+        private IReadOnlyList<TypeProvider> BuildSerializationProvidersInternal()
+            => AssignSerializationProviderOwners(BuildSerializationProviders());
+
+        private IReadOnlyList<TypeProvider> AssignSerializationProviderOwners(IEnumerable<TypeProvider> serializationProviders)
+        {
+            var providers = (serializationProviders as IReadOnlyList<TypeProvider>) ?? [.. serializationProviders];
+            foreach (var serializationProvider in providers)
+            {
+                serializationProvider.SerializationProviderOwner = this;
+            }
+
+            return providers;
+        }
+
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
         protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
@@ -548,8 +626,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _serializationProviders = null;
             _nestedTypes = null;
             _xmlDocs = null;
+            PreserveTypeXmlDocs = false;
             _declarationModifiers = null;
             _relativeFilePath = null;
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
@@ -622,7 +702,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (serializations != null)
             {
-                _serializationProviders = (serializations as IReadOnlyList<TypeProvider>) ?? serializations.ToList();
+                _serializationProviders = AssignSerializationProviderOwners(serializations);
             }
             if (nestedTypes != null)
             {
@@ -642,7 +722,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                _attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [.. attributes];
+                _attributes = [.. attributes];
             }
 
             if (name != null)
@@ -661,6 +741,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
             name = _customCodeView.Value?.Name ?? name ?? Type.Name;

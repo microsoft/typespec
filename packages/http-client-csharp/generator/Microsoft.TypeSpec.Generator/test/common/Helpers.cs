@@ -27,16 +27,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         }
 
         /// <summary>
-        /// Loads an <see cref="ApiCompatBaseline"/> from a <c>.txt</c> baseline asset file located at
-        /// <c>TestData/&lt;CallingClass&gt;/&lt;method&gt;.txt</c> next to the calling test.
+        /// Loads an <see cref="ApiCompatBaseline"/> from a baseline asset file located under
+        /// <c>TestData/&lt;CallingClass&gt;</c> next to the calling test.
         /// </summary>
         public static ApiCompatBaseline GetApiCompatBaselineFromFile(
             string? parameters = null,
+            string fileExtension = ".txt",
             [CallerMemberName] string method = "",
             [CallerFilePath] string filePath = "")
         {
             return ApiCompatBaseline.FromFile(
-                GetAssetFileOrDirectoryPath(true, parameters, method, filePath, fileExtension: ".txt"));
+                GetAssetFileOrDirectoryPath(true, parameters, method, filePath, fileExtension));
         }
 
         public static string GetAssetFileOrDirectoryPath(

@@ -4,8 +4,9 @@ import { execFileSync } from "node:child_process";
 import { copyFile, mkdir, readdir } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
-import { resolveCompilerRoot, writeCompilerAssets } from "./compiler-assets.js";
-import { writeSeaConfig } from "./sea-config.js";
+import { resolveCompilerRoot, writeCompilerAssets } from "./compiler-assets.ts";
+import { writeSeaConfig } from "./sea-config.ts";
+// cspell:ignore postject
 
 const [major, minor] = process.versions.node.split(".").map(Number);
 // The executable is produced with `node --build-sea`, which was added in Node.js 25.5.0. This
