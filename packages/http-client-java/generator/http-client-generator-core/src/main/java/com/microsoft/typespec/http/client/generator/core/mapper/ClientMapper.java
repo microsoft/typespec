@@ -574,6 +574,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         String name = CodeNamer.getPlural(operation.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(operation.getLanguage().getJava().getName()) + "Headers";
+        // Honor the "rename-model" option for this synthesized header model. The schema is created here,
+        // after the SchemaRenamer preprocessor pass (which only visits schemas in the code model), so the
+        // rename must be applied explicitly, keyed by the generated header model name.
+        String renamedName = settings.getJavaNamesForRenameModel().get(name);
+        if (!CoreUtils.isNullOrEmpty(renamedName)) {
+            name = renamedName;
+        }
         Map<String, Schema> headerMap = new LinkedHashMap<>();
         Map<String, String> headerClientNameMap = new LinkedHashMap<>();
         Map<String, XmsExtensions> headerExtensions = new LinkedHashMap<>();
