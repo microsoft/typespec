@@ -220,9 +220,9 @@ and `--option` flags. The `flavor` option controls branded behavior:
 
 ### Common additional options the user may request
 
-| User request   | Option to add                                                   |
-| -------------- | --------------------------------------------------------------- |
-| TypedDict only | `--option "@typespec/http-client-python.models-mode=none"`      |
+| User request   | Option to add                                                      |
+| -------------- | ------------------------------------------------------------------ |
+| TypedDict only | `--option "@typespec/http-client-python.models-mode=none"`         |
 | No TypedDicts  | `--option "@typespec/http-client-python.generate-typeddict=false"` |
-| No tests       | `--option "@typespec/http-client-python.generate-test=false"`   |
-| No samples     | `--option "@typespec/http-client-python.generate-sample=false"` |
+| No tests       | `--option "@typespec/http-client-python.generate-test=false"`      |
+| No samples     | `--option "@typespec/http-client-python.generate-sample=false"`    |
