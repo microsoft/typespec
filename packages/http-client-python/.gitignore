@@ -15,7 +15,7 @@ alpha
 component-detection-pip-report.json
 generator/component-detection-pip-report.json
 
-# Generated SDK fixtures with hand-authored/customized code required by tests.
+# Generated SDK fixtures with hand-authored/customized code required by tests. (begin)
 !tests/**/generated/
 tests/**/generated/*
 !tests/generated/azure/
@@ -36,3 +36,4 @@ tests/generated/unbranded/*
 !tests/generated/unbranded/generation-subdir/**
 !tests/generated/unbranded/generation-subdir2/
 !tests/generated/unbranded/generation-subdir2/**
+# Generated SDK fixtures with hand-authored/customized code required by tests. (end)
