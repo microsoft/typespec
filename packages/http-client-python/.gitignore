@@ -22,8 +22,6 @@ tests/**/generated/*
 tests/generated/azure/*
 !tests/generated/azure/authentication-api-key/
 !tests/generated/azure/authentication-api-key/**
-!tests/generated/azure/authentication-union/
-!tests/generated/azure/authentication-union/**
 !tests/generated/azure/generation-subdir/
 !tests/generated/azure/generation-subdir/**
 !tests/generated/azure/generation-subdir2/

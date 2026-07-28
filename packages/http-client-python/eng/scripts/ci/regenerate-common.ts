@@ -657,13 +657,19 @@ export async function runParallel(
 export async function cleanGeneratedCodePreservingFixtures(generatedFolder: string): Promise<void> {
   const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
   const preservedFixturePaths = new Set([
+    // Keeps patch_added_operation in _operations/_patch.py for shared patch tests.
     "azure/authentication-api-key",
+    // Keeps the same operation patch for the unbranded test run.
     "unbranded/authentication-api-key",
-    "azure/authentication-union",
+    // Keeps the hand-authored CustomizedClient wrapper outside _generated.
     "azure/generation-subdir",
+    // Keeps the hand-authored AddedClient wrapper outside _generated.
     "azure/generation-subdir2",
+    // Keeps the CustomizedClient wrapper for the unbranded test run.
     "unbranded/generation-subdir",
+    // Keeps the AddedClient wrapper for the unbranded test run.
     "unbranded/generation-subdir2",
+    // Keeps custom GeoJSON serializers and deserializers registered in models/_patch.py.
     "azure/azure-client-generator-core-alternate-type",
   ]);
 
