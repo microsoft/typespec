@@ -56,7 +56,7 @@ it("uses package.json exports['.']['typespec'] when there is no tspMain", async 
   expect(entrypoint).toBe(resolveVirtualPath("my-lib/lib/main.tsp"));
 });
 
-it("tspMain takes precedence over exports['.']['typespec']", async () => {
+it("exports['.']['typespec'] takes precedence over tspMain", async () => {
   fs.add(
     "my-lib/package.json",
     JSON.stringify({
@@ -66,7 +66,7 @@ it("tspMain takes precedence over exports['.']['typespec']", async () => {
     }),
   );
   const entrypoint = await resolveTypeSpecEntrypointForDir(host, dir, () => {});
-  expect(entrypoint).toBe(resolveVirtualPath("my-lib/lib/main.tsp"));
+  expect(entrypoint).toBe(resolveVirtualPath("my-lib/lib/other.tsp"));
 });
 
 it("an explicit entrypoint in tspconfig.yaml takes precedence over exports['.']['typespec']", async () => {
