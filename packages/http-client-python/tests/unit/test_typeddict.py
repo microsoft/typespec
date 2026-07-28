@@ -368,6 +368,36 @@ def test_models_mode_typeddict_serialize_contains_class():
     assert "TypedDict" in output
 
 
+def test_models_mode_typeddict_docstring_uses_wire_name():
+    """TypedDict docstrings in types.py should document the on-the-wire property name."""
+    code_model = _make_code_model(models_mode="typeddict")
+    string_type = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Foo", "type": "model", "snakeCaseName": "foo", "usage": 2},
+        code_model=code_model,
+        properties=[
+            Property(
+                yaml_data={
+                    "wireName": "paramName",
+                    "clientName": "param_name",
+                    "optional": True,
+                },
+                code_model=code_model,
+                type=string_type,
+            )
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+
+    assert ":ivar paramName:" in output
+    assert ":vartype paramName: str" in output
+    assert ":ivar param_name:" not in output
+    assert ":vartype param_name:" not in output
+
+
 def test_types_file_has_no_named_unions():
     """Serialized types.py should not contain named union definitions."""
     code_model = _make_code_model(models_mode="dpg")

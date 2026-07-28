@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Moq;
@@ -81,6 +82,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsTrue(csharpType.IsFrameworkType);
             Assert.AreEqual(typeof(Guid), csharpType.FrameworkType);
             Assert.IsFalse(csharpType.IsNullable);
+        }
+
+        [Test]
+        public async Task TypeParameterDoesNotResolveContainingGenericType()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var typeSymbol = compilation.GetTypeByMetadataName("Sample.GenericContainer`1");
+            Assert.IsNotNull(typeSymbol, "Failed to resolve generic type symbol from compiled source.");
+
+            var csharpType = typeSymbol!.TypeParameters[0].GetCSharpType();
+
+            Assert.AreEqual("T", csharpType.Name);
+            Assert.IsNull(csharpType.DeclaringType);
+        }
+
+        [Test]
+        public void CollectionGenericSymbolWithoutAngleBracketDisplayNameGetsFullyQualifiedMetadataName()
+        {
+            var compilation = CSharpCompilation.Create(
+                "TestAssembly",
+                [CSharpSyntaxTree.ParseText("""
+                using System.Collections.Generic;
+
+                namespace Sample
+                {
+                    public class Container
+                    {
+                        public IReadOnlyList<string> GetResult() => null;
+                    }
+                }
+                """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var method = compilation.GetTypeByMetadataName("Sample.Container")!
+                .GetMembers("GetResult")
+                .OfType<IMethodSymbol>()
+                .Single();
+
+            var name = method.ReturnType.GetFullyQualifiedName();
+
+            Assert.AreEqual("System.Collections.Generic.IReadOnlyList`1", name);
         }
 
         private static IPropertySymbol GetPropertySymbol(Compilation compilation, string containerName, string propertyName)
