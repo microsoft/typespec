@@ -1,0 +1,11 @@
+{
+    "CrossLanguagePackageId": "Type.Model.Inheritance.Recursive",
+    "CrossLanguageDefinitionId": {
+        "generation.subdir.models.Element": "Type.Model.Inheritance.Recursive.Element",
+        "generation.subdir.models.Extension": "Type.Model.Inheritance.Recursive.Extension",
+        "generation.subdir.RecursiveClient.put": "Type.Model.Inheritance.Recursive.put",
+        "generation.subdir.aio.RecursiveClient.put": "Type.Model.Inheritance.Recursive.put",
+        "generation.subdir.RecursiveClient.get": "Type.Model.Inheritance.Recursive.get",
+        "generation.subdir.aio.RecursiveClient.get": "Type.Model.Inheritance.Recursive.get"
+    }
+}

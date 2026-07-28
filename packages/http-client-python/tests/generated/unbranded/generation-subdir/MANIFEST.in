@@ -1,0 +1,6 @@
+include *.md
+include LICENSE
+include generation/subdir/py.typed
+recursive-include tests *.py
+recursive-include samples *.py *.md
+include generation/__init__.py

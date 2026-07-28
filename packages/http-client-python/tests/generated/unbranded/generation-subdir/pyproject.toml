@@ -1,0 +1,50 @@
+
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "generation-subdir"
+authors = [
+  { name = "" },
+]
+description = " Generation Subdir Client Library for Python"
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+requires-python = ">=3.10"
+
+dependencies = [
+    "isodate>=0.6.1",
+    "corehttp[requests]>=1.0.0b6",
+    "typing-extensions>=4.6.0",
+]
+dynamic = [
+"version", "readme"
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "generation.subdir._version.VERSION"}
+readme = {file = ["README.md", "CHANGELOG.md"], content-type = "text/markdown"}
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests*",
+    "generated_tests*",
+    "samples*",
+    "generated_samples*",
+    "doc*",
+    "generation",
+]
+
+[tool.setuptools.package-data]
+pytyped = ["py.typed"]
