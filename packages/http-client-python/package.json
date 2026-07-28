@@ -34,10 +34,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
-    "build": "tsc -p ./emitter/tsconfig.build.json && node ./eng/scripts/setup/build.ts",
+    "build": "tsc -p ./emitter/tsconfig.build.json && node ./eng/scripts/setup/build.ts && tsc -p ./eng/scripts/setup/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
-    "install": "node ./eng/scripts/setup/install.ts",
-    "prepare": "node ./eng/scripts/setup/prepare.ts",
+    "install": "node ./eng/scripts/setup/install-runner.js",
+    "prepare": "node ./eng/scripts/setup/prepare-runner.js",
     "setup": "npm run build && npm run install",
     "test": "node ./eng/scripts/ci/run-tests.ts",
     "test:emitter": "node ./eng/scripts/ci/run-tests.ts --emitter",
