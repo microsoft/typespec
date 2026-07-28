@@ -6,8 +6,8 @@ import { fileURLToPath } from "url";
 
 export const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const distFolder = resolve(root, "dist");
-main().catch((err) => {
-  console.error(err.stack);
+main().catch((err: unknown) => {
+  console.error(err instanceof Error ? err.stack : err);
   process.exit(1);
 });
 

@@ -342,8 +342,10 @@ namespace Microsoft.TypeSpec.Generator
 
         /// <summary>
         /// Locates and parses the ApiCompat baseline (suppression) file for the current library, if
-        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c>
-        /// relative to a repository root discovered by walking up from the project directory.
+        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.xml</c> or
+        /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c> relative to a repository root
+        /// discovered by walking up from the project directory. The XML format is preferred when both
+        /// files exist.
         /// Returns <see cref="ApiCompatBaseline.Empty"/> when no baseline file is found.
         /// </summary>
         internal static ApiCompatBaseline LoadApiCompatBaseline()
@@ -353,11 +355,15 @@ namespace Microsoft.TypeSpec.Generator
 
             while (directory != null)
             {
-                var candidate = Path.Combine(directory.FullName, "eng", "apicompatbaselines", $"{packageName}.txt");
-                if (File.Exists(candidate))
+                var baselineDirectory = Path.Combine(directory.FullName, "eng", "apicompatbaselines");
+                foreach (var extension in new[] { ".xml", ".txt" })
                 {
-                    CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
-                    return ApiCompatBaseline.FromFile(candidate);
+                    var candidate = Path.Combine(baselineDirectory, $"{packageName}{extension}");
+                    if (File.Exists(candidate))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
+                        return ApiCompatBaseline.FromFile(candidate);
+                    }
                 }
 
                 directory = directory.Parent;

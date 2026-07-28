@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { resolve } from "path/posix";
 import type { InitTemplate } from "../src/init/init-template.js";
-import { localDir, packageRoot } from "./helpers.js";
+import { localDir, packageRoot } from "./helpers.ts";
 
 const pkgJson = JSON.parse(
   (await readFile(resolve(packageRoot, "package.json"))).toString("utf-8"),

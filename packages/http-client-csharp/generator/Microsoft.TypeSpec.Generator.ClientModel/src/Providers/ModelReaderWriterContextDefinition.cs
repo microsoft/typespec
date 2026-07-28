@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
         private const string ExperimentalAttributeFullName = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
+        private static readonly CSharpType s_buildableAttributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
@@ -59,9 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(type));
 
                 string experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
                 string obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
@@ -80,24 +79,104 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(provider.Type));
-
-                string experimentalTypeJustification = $"{provider.Type} is experimental and may change in future versions.";
-                string obsoleteTypeJustification = $"{provider.Type} is obsolete and may be removed in future versions.";
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(provider.Type));
 
                 // If the type is experimental or obsolete, we add a suppression for it
                 AddAttributeForType(
                     attributes,
                     attributeStatement,
                     provider,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification);
+                    provider.Type.FullyQualifiedName);
             }
+
+            AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        private void AddLastContractBuildableAttributes(
+            Dictionary<string, MethodBodyStatement> attributes,
+            HashSet<string> customizedBuildableTypes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return;
+            }
+
+            var outputLibraryProviders = new Dictionary<string, TypeProvider>(StringComparer.Ordinal);
+            foreach (var provider in ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders)
+            {
+                outputLibraryProviders.TryAdd(GetTypeIdentity(provider.Type), provider);
+            }
+
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (!string.Equals(
+                    attribute.Type.FullyQualifiedName,
+                    s_buildableAttributeType.FullyQualifiedName,
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var targetType = GetBuildableAttributeTargetType(attribute);
+                if (targetType is null)
+                {
+                    continue;
+                }
+
+                var identity = GetTypeIdentity(targetType);
+
+                TypeProvider? resolvedProvider;
+                if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
+                {
+                    if (!ShouldWriteProvider(outputLibraryProvider))
+                    {
+                        continue;
+                    }
+                    resolvedProvider = outputLibraryProvider;
+                }
+                else
+                {
+                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                        targetType.Namespace,
+                        targetType.ClrMetadataName,
+                        null,
+                        includeReferencedAssemblies: true);
+
+                    if (resolvedProvider is null)
+                    {
+                        continue;
+                    }
+                }
+
+                if (attributes.ContainsKey(identity) || customizedBuildableTypes.Contains(identity))
+                {
+                    continue;
+                }
+
+                var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(targetType));
+
+                AddAttributeForType(
+                    attributes,
+                    newAttributeStatement,
+                    resolvedProvider,
+                    identity);
+            }
+        }
+
+        private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)
+        {
+            foreach (var argument in attribute.Arguments)
+            {
+                if (argument is TypeOfExpression typeOf)
+                {
+                    return typeOf.Type;
+                }
+            }
+
+            return null;
         }
 
         private static bool IsBuildableAttribute(MethodBodyStatement statement)
@@ -109,7 +188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _ => null
             };
 
-            return attribute?.Type.Equals(typeof(ModelReaderWriterBuildableAttribute)) == true;
+            return attribute?.Type.Equals(s_buildableAttributeType) == true;
         }
 
         private HashSet<string> GetCustomizedBuildableTypes()
@@ -119,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!string.Equals(
                     attribute.Type.FullyQualifiedName,
-                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    s_buildableAttributeType.FullyQualifiedName,
                     StringComparison.Ordinal))
                 {
                     continue;
@@ -484,21 +563,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, MethodBodyStatement> attributes,
             AttributeStatement attributeStatement,
             TypeProvider typeProvider,
-            string experimentalTypeJustification,
-            string obsoleteTypeJustification)
+            string key)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            var key = typeProvider.Type.FullyQualifiedName;
-
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+                string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));
             }
             else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+                string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), justification));
             }
             else
             {
