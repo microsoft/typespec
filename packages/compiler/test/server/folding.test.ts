@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { FoldingRange } from "vscode-languageserver";
+import { FoldingRange, FoldingRangeKind } from "vscode-languageserver";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 it("includes consecutive single line comments separated by whitespaces in folding range", async () => {
@@ -9,7 +9,15 @@ it("includes consecutive single line comments separated by whitespaces in foldin
     //bar
 
     //test`);
-  deepStrictEqual(ranges, [{ endCharacter: 10, endLine: 4, startCharacter: 0, startLine: 0 }]);
+  deepStrictEqual(ranges, [
+    {
+      endCharacter: 10,
+      endLine: 4,
+      startCharacter: 0,
+      startLine: 0,
+      kind: FoldingRangeKind.Comment,
+    },
+  ]);
 });
 
 it("doesn't fold consecutive single and multi-line comment together", async () => {
@@ -21,7 +29,13 @@ it("doesn't fold consecutive single and multi-line comment together", async () =
 
     //test`);
   deepStrictEqual(ranges, [
-    { endCharacter: 10, endLine: 6, startCharacter: 4, startLine: 4 },
+    {
+      endCharacter: 10,
+      endLine: 6,
+      startCharacter: 4,
+      startLine: 4,
+      kind: FoldingRangeKind.Comment,
+    },
     { endCharacter: 6, endLine: 2, startCharacter: 0, startLine: 0 },
   ]);
 });
@@ -46,7 +60,15 @@ it("includes comments in folding range", async () => {
   const ranges = await getFoldingRanges(`/**
     description of model foo
     **/`);
-  deepStrictEqual(ranges, [{ endCharacter: 7, endLine: 2, startCharacter: 0, startLine: 0 }]);
+  deepStrictEqual(ranges, [
+    {
+      endCharacter: 7,
+      endLine: 2,
+      startCharacter: 0,
+      startLine: 0,
+      kind: FoldingRangeKind.Comment,
+    },
+  ]);
 });
 
 it("does not include one line comments in folding range", async () => {
@@ -123,6 +145,33 @@ it("includes decorator before namespace in folding range", async () => {
 
 it("folding range with one line", async () => {
   const ranges = await getFoldingRanges(`@doc("Delete Foo")`);
+  deepStrictEqual(ranges, []);
+});
+
+it("folds consecutive import statements as an imports range", async () => {
+  const ranges = await getFoldingRanges(`import "@typespec/http";
+import "@typespec/rest";
+import "@typespec/openapi";`);
+  deepStrictEqual(ranges, [
+    {
+      endCharacter: 27,
+      endLine: 2,
+      startCharacter: 0,
+      startLine: 0,
+      kind: FoldingRangeKind.Imports,
+    },
+  ]);
+});
+
+it("does not fold a single import statement", async () => {
+  const ranges = await getFoldingRanges(`import "@typespec/http";`);
+  deepStrictEqual(ranges, []);
+});
+
+it("does not fold imports separated by another statement", async () => {
+  const ranges = await getFoldingRanges(`import "@typespec/http";
+namespace Foo;
+import "@typespec/rest";`);
   deepStrictEqual(ranges, []);
 });
 
