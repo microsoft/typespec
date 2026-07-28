@@ -25,8 +25,8 @@ import {
   getSubdirectories,
   prepareBaselineOfGeneratedCode,
   preprocess,
-  RegenerateContext,
-  RegenerateFlags,
+  type RegenerateContext,
+  type RegenerateFlags,
   runParallel,
 } from "./regenerate-common.ts";
 

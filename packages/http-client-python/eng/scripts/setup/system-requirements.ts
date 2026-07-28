@@ -1,4 +1,4 @@
-import { ChildProcess, spawn, SpawnOptions } from "child_process";
+import { ChildProcess, spawn, type SpawnOptions } from "child_process";
 
 /*
  * Copied from @autorest/system-requirements
