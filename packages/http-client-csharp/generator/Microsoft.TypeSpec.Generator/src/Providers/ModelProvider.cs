@@ -218,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
-        protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
+        private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
         /// </summary>

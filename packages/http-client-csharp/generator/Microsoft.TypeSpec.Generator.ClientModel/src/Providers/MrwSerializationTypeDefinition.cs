@@ -222,13 +222,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (model.BaseModelProvider is null)
             {
-                return model.CustomCodeView?.BaseType is null ||
-                    ModelReaderWriterHelpers.FindMethodInHierarchy(
-                        model.BaseType!,
+                if (model.CustomCodeView?.BaseType is null || model.BaseType is not { } baseType)
+                {
+                    return true;
+                }
+
+                return ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        baseType,
                         method => method.Signature.Name == JsonModelCreateCoreMethodName,
                         baseTypesFirst: true) is null &&
                     ModelReaderWriterHelpers.FindMethodInHierarchy(
-                        model.BaseType!,
+                        baseType,
                         method => method.Signature.Name == PersistableModelCreateCoreMethodName,
                         baseTypesFirst: true) is null;
             }

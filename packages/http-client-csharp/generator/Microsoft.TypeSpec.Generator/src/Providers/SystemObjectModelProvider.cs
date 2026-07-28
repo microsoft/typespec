@@ -75,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
 
         /// <inheritdoc/>
-        protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
+        private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;

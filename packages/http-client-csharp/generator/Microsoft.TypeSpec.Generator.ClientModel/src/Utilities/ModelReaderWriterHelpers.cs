@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
                 return null;
             }
 
-            var provider = TryGetTypeProvider(type);
+            var provider = GetTypeProvider(type);
             var method = provider?.Methods.FirstOrDefault(predicate);
             if (!baseTypesFirst && method is not null)
             {
@@ -79,17 +79,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
                     modifiers.HasFlag(MethodSignatureModifiers.Override) ||
                     modifiers.HasFlag(MethodSignatureModifiers.Abstract));
 
-        public static TypeProvider? TryGetTypeProvider(CSharpType type)
+        public static TypeProvider? GetTypeProvider(CSharpType type)
         {
-            if (TryGetMappedTypeProvider(type) is { } provider)
+            if (GetMappedTypeProvider(type) is { } provider)
             {
                 return provider;
             }
 
-            return TryGetReferencedType(type);
+            return GetReferencedType(type);
         }
 
-        private static TypeProvider? TryGetMappedTypeProvider(CSharpType type)
+        private static TypeProvider? GetMappedTypeProvider(CSharpType type)
         {
             foreach (var (mappedType, provider) in ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
             {
@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
             return null;
         }
 
-        private static TypeProvider? TryGetReferencedType(CSharpType type)
+        private static TypeProvider? GetReferencedType(CSharpType type)
             => string.IsNullOrEmpty(type.Namespace)
                 ? null
                 : CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(

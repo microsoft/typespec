@@ -336,9 +336,9 @@ namespace Microsoft.TypeSpec.Generator
 
             var modifiers = property.Modifiers;
             AppendRawIf("public ", modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("protected ", modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 .AppendRawIf("internal ", modifiers.HasFlag(MethodSignatureModifiers.Internal))
-                .AppendRawIf("private ", modifiers.HasFlag(MethodSignatureModifiers.Private))
                 .AppendRawIf("new ", modifiers.HasFlag(MethodSignatureModifiers.New))
                 .AppendRawIf("sealed ", modifiers.HasFlag(MethodSignatureModifiers.Sealed))
                 .AppendRawIf("override ", modifiers.HasFlag(MethodSignatureModifiers.Override))
