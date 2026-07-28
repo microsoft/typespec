@@ -50,7 +50,7 @@
     "typecheck": "tsx ./eng/scripts/ci/typecheck.ts",
     "typecheck:generated": "tsx ./eng/scripts/ci/typecheck.ts --generated",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "check-unstaged": "git diff --exit-code HEAD -- .",
+    "check-unstaged": "git -c core.safecrlf=false diff --ignore-space-at-eol --exit-code HEAD -- .",
     "ci": "npm run check-unstaged && npm run test:emitter && npm run ci:generated",
     "ci:generated": "tsx ./eng/scripts/ci/run-tests.ts --generator --env=ci",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
