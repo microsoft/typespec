@@ -134,7 +134,7 @@ Whether to keep the existing `setup.py` when `generate-packaging-files` is `true
 
 **Type:** `boolean`
 
-Whether to generate TypedDict request-body overloads in `models-mode: dpg`. Defaults to `true`.
+Whether to generate `TypedDict` types for request bodies. Defaults to `true`. With `models-mode: dpg` this adds `TypedDict` request-body overloads alongside the model classes; with `models-mode: none` it generates `TypedDict`-only types. Set to `false` to opt out of `TypedDict` generation.
 
 ### `keep-pyproject-fields`
 

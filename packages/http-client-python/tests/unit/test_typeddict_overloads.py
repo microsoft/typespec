@@ -92,6 +92,26 @@ def test_typeddict_only_single_body_emits_no_overload():
     assert body_parameter["type"]["type"] == "model"
 
 
+def test_models_mode_none_maps_to_typeddict_only():
+    """User-facing ``models-mode: none`` (TypeSpec) behaves as typeddict-only.
+
+    ``generate-typeddict`` defaults to ``True``, so ``none`` is remapped to the
+    internal typeddict-only mode by ``OptionsDict``. A lone TypedDict body variant
+    must still NOT emit a single ``@overload``.
+    """
+    plugin = _plugin("none")
+    # OptionsDict normalizes none + generate-typeddict -> internal typeddict mode.
+    assert plugin.options["models-mode"] == "typeddict"
+    code_model, yaml_data, model_type = _json_model_operation()
+    body_parameter = yaml_data["bodyParameter"]
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, body_parameter)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert len(yaml_data["overloads"]) == 0
+    assert body_parameter["type"] is model_type
+
+
 def test_dpg_mode_still_emits_multiple_overloads():
     """Regression guard: dpg mode keeps its binary + typeddict overloads."""
     plugin = _plugin("dpg")

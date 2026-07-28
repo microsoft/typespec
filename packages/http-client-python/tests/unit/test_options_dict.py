@@ -37,6 +37,39 @@ def test_generate_typeddict_can_be_disabled():
     assert OptionsDict({"generate-typeddict": False})["generate-typeddict"] is False
 
 
+def test_models_mode_none_with_tsp_generates_typeddict_by_default():
+    # For TypeSpec input, models-mode=none keeps TypedDict generation on by
+    # default, represented internally as the typeddict-only mode.
+    options = OptionsDict({"models-mode": "none", "tsp_file": "main.tsp"})
+    assert options["models-mode"] == "typeddict"
+
+
+def test_models_mode_none_with_tsp_and_generate_typeddict_false_is_nothing():
+    # Opting out of TypedDicts on top of models-mode=none produces no models.
+    options = OptionsDict({"models-mode": "none", "tsp_file": "main.tsp", "generate-typeddict": False})
+    assert options["models-mode"] is False
+
+
+def test_models_mode_none_without_tsp_stays_false():
+    # Swagger input: models-mode=none must remain "no models", untouched by the
+    # generate-typeddict default.
+    assert OptionsDict({"models-mode": "none"})["models-mode"] is False
+
+
+def test_models_mode_dpg_with_tsp_is_unchanged():
+    options = OptionsDict({"models-mode": "dpg", "tsp_file": "main.tsp"})
+    assert options["models-mode"] == "dpg"
+
+
+def test_models_mode_typeddict_is_deprecated_but_accepted(caplog):
+    import logging
+
+    with caplog.at_level(logging.WARNING):
+        options = OptionsDict({"models-mode": "typeddict", "tsp_file": "main.tsp"})
+    assert options["models-mode"] == "typeddict"
+    assert any("deprecated" in record.getMessage() for record in caplog.records)
+
+
 def test_package_mode_validation_uses_from_typespec_from_constructor_any_order():
     with pytest.raises(ValueError):
         OptionsDict({"from-typespec": True, "package-mode": "dataplane", "package-version": "1.0.0"})
