@@ -28,8 +28,4 @@ interface ResponseHeaderOp {
   };
 }
 
-@@clientOption(ResponseHeaderOp.getResourceMetadata,
-  "responseHeadersAsModel",
-  true,
-  "java"
-);
+@@clientOption(ResponseHeaderOp.getResourceMetadata, "responseHeadersAsModel", true, "java");
