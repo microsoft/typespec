@@ -30,14 +30,8 @@ public class FluentProject extends Project {
 
     private final ServiceDescription serviceDescription = new ServiceDescription();
 
-    private Map<String, String> apiVersionMap = null;
-
     private Changelog changelog;
     private final List<CodeSample> codeSamples = new ArrayList<>();
-
-    public void setApiVersionInTypeSpec(Map<String, String> apiVersionMap) {
-        this.apiVersionMap = apiVersionMap;
-    }
 
     private static class ServiceDescription {
         private String simpleDescription;

@@ -106,8 +106,7 @@ public class Main {
 
     private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
         // initialize plugin
-        TypeSpecFluentPlugin fluentPlugin
-            = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration, codeModel.getInfo().getTitle());
+        TypeSpecFluentPlugin fluentPlugin = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration);
 
         codeModel = fluentPlugin.preProcess(codeModel);
 
