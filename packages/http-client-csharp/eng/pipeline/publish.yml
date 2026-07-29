@@ -116,7 +116,7 @@ extends:
           os: linux
         jobs:
           - job: CreatePR
-            timeoutInMinutes: 90
+            timeoutInMinutes: 120
             variables:
               # Redirect temp and cache directories to Agent.TempDirectory (a separate, larger partition)
               # to avoid running out of disk space on the root partition during generation
