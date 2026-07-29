@@ -328,11 +328,11 @@ namespace Microsoft.TypeSpec.Generator
         private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null)
         {
             // Resolve the type: first as a framework type from the fully qualified name (free, no I/O, and the
-            // source of truth for BCL types), then, on a miss, dynamically from the NuGet package named in the
-            // metadata. ExternalTypeReferenceResolver consults a process-wide cache populated by the eager
-            // pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
+            // source of truth for BCL types), then, on a miss, dynamically from registered project/package
+            // metadata references. ExternalTypeReferenceResolver consults a per-generator
+            // cache populated by the eager pre-walk in CSharpGen.ExecuteAsync, resolving on-demand when the cache misses.
             var resolvedType = CreateFrameworkType(externalProperties.Identity);
-            if (resolvedType == null && !string.IsNullOrEmpty(externalProperties.Package))
+            if (resolvedType == null)
             {
                 resolvedType = ExternalTypeReferenceResolver.TryResolve(externalProperties);
             }
@@ -360,15 +360,9 @@ namespace Microsoft.TypeSpec.Generator
             // Neither path resolved the type — emit a diagnostic that explains what was attempted.
             // Each branch is a self-contained sentence so the final message reads naturally and
             // doesn't repeat "could not be resolved".
-            var details = string.IsNullOrEmpty(externalProperties.Package)
-                ? "no package metadata was provided"
-                : string.IsNullOrEmpty(externalProperties.MinVersion)
-                    ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
-                    : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";
-
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalProperties.Identity}' could not be resolved: {details}.");
+                $"External type '{externalProperties.Identity}' could not be found in framework, package, or project metadata references.");
 
             return null;
         }

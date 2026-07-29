@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Construction;
@@ -18,7 +19,6 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NuGet.Configuration;
-using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -261,8 +261,8 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
-        /// as metadata references so that custom code referencing external NuGet types compiles correctly.
+        /// Resolves the project's evaluated compiler references and adds their assemblies as metadata
+        /// references so custom code and alternate types compile correctly.
         /// </summary>
         internal static async Task AddPackageReferencesFromProject()
         {
@@ -275,8 +275,6 @@ namespace Microsoft.TypeSpec.Generator
                 return;
             }
 
-            var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
-
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
 
@@ -288,39 +286,50 @@ namespace Microsoft.TypeSpec.Generator
                     .Where(n => !string.IsNullOrEmpty(n)),
                 StringComparer.OrdinalIgnoreCase);
 
-            foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
+            foreach (var resolvedAssemblyPath in await FindEvaluatedMetadataReferences(projectFilePath))
             {
-                var refPackageName = item.Include;
+                AddMetadataReference(resolvedAssemblyPath, existingRefs);
+            }
+
+            // Fall back to direct project and package discovery when the project has not been restored and
+            // ResolveReferences cannot produce the evaluated compiler reference graph.
+            foreach (var resolvedAssemblyPath in await FindProjectReferenceAssemblies(projectFilePath))
+            {
+                AddMetadataReference(resolvedAssemblyPath, existingRefs);
+            }
+
+            foreach (var packageReference in await FindPackageReferences(projectFilePath))
+            {
+                var refPackageName = packageReference.Name;
 
                 if (string.IsNullOrEmpty(refPackageName))
                 {
                     continue;
                 }
 
-                // Skip packages already added as metadata references (e.g., by a plugin)
-                if (existingRefs.Contains(refPackageName))
-                {
-                    continue;
-                }
-
                 // Search the NuGet global packages folder for any cached version of this package.
-                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName);
+                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(
+                    globalPackagesFolder,
+                    refPackageName,
+                    packageReference.Version);
 
                 // If not found in cache, download the latest version from NuGet feeds
                 if (resolvedAssemblyPath == null)
                 {
                     try
                     {
-                        var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
-                        if (latestVersion != null)
+                        var resolvedVersion = await NugetPackageResolver.ResolvePackageVersion(
+                            refPackageName,
+                            nugetSettings,
+                            packageReference.Version);
+                        if (resolvedVersion != null)
                         {
-                            var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
+                            var downloader = new NugetPackageDownloader(refPackageName, resolvedVersion, null, nugetSettings);
                             var downloadedPath = await downloader.DownloadAndInstallPackage();
-                            var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
-                            if (File.Exists(downloadedAssembly))
-                            {
-                                resolvedAssemblyPath = downloadedAssembly;
-                            }
+                            resolvedAssemblyPath = Directory.EnumerateFiles(
+                                downloadedPath,
+                                "*.dll",
+                                SearchOption.TopDirectoryOnly).FirstOrDefault();
                         }
                     }
                     catch (Exception ex)
@@ -332,12 +341,357 @@ namespace Microsoft.TypeSpec.Generator
 
                 if (resolvedAssemblyPath != null)
                 {
-                    CodeModelGenerator.Instance.AddMetadataReference(
-                        MetadataReference.CreateFromFile(resolvedAssemblyPath));
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
+                    foreach (var assemblyPath in Directory.EnumerateFiles(
+                        Path.GetDirectoryName(resolvedAssemblyPath)!,
+                        "*.dll",
+                        SearchOption.TopDirectoryOnly))
+                    {
+                        AddMetadataReference(assemblyPath, existingRefs);
+                    }
                 }
             }
+        }
+
+        private static void AddMetadataReference(string assemblyPath, ISet<string> existingRefs)
+        {
+            if (IsFrameworkFacadeReference(assemblyPath))
+            {
+                return;
+            }
+
+            var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+            if (!existingRefs.Add(assemblyName))
+            {
+                return;
+            }
+
+            CodeModelGenerator.Instance.AddMetadataReference(
+                MetadataReference.CreateFromFile(assemblyPath));
+            CodeModelGenerator.Instance.Emitter.Debug(
+                $"Added metadata reference: {assemblyName} from {assemblyPath}");
+        }
+
+        internal static bool IsFrameworkFacadeReference(string assemblyPath)
+        {
+            var normalizedPath = assemblyPath.Replace('\\', '/');
+            return normalizedPath.Contains("/netstandard.library/", StringComparison.OrdinalIgnoreCase)
+                && normalizedPath.Contains("/build/", StringComparison.OrdinalIgnoreCase)
+                && normalizedPath.Contains("/ref/", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static async Task<IEnumerable<string>> FindEvaluatedMetadataReferences(string projectFilePath)
+        {
+            var targetFrameworks = await GetTargetFrameworks(projectFilePath);
+            var candidates = new Dictionary<string, (string Path, bool IsCopyLocal)>(
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var configuration in new[] { "Debug", "Release" })
+            {
+                foreach (var targetFramework in targetFrameworks)
+                {
+                    var arguments = new List<string>
+                    {
+                        $"-property:Configuration={configuration}",
+                        "-property:BuildProjectReferences=false",
+                        "-target:ResolveReferences",
+                        "-getItem:ReferenceCopyLocalPaths,ReferencePath"
+                    };
+                    if (!string.IsNullOrEmpty(targetFramework))
+                    {
+                        arguments.Insert(1, $"-property:TargetFramework={targetFramework}");
+                    }
+
+                    var referencesJson = await RunMSBuildQuery(projectFilePath, [.. arguments]);
+                    if (referencesJson == null)
+                    {
+                        continue;
+                    }
+
+                    using var references = JsonDocument.Parse(referencesJson);
+                    if (!references.RootElement.TryGetProperty("Items", out var items))
+                    {
+                        continue;
+                    }
+
+                    foreach (var itemName in new[] { "ReferenceCopyLocalPaths", "ReferencePath" })
+                    {
+                        var isCopyLocal = itemName == "ReferenceCopyLocalPaths";
+                        if (!items.TryGetProperty(itemName, out var referencePaths))
+                        {
+                            continue;
+                        }
+
+                        foreach (var reference in referencePaths.EnumerateArray())
+                        {
+                            if (reference.TryGetProperty("FrameworkReferenceName", out var frameworkReference)
+                                && !string.IsNullOrEmpty(frameworkReference.GetString()))
+                            {
+                                continue;
+                            }
+
+                            if (reference.TryGetProperty("Identity", out var identity)
+                                && identity.GetString() is { } assemblyPath
+                                && File.Exists(assemblyPath))
+                            {
+                                var assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+                                if (!candidates.TryGetValue(assemblyName, out var current)
+                                    || (isCopyLocal && !current.IsCopyLocal)
+                                    || (isCopyLocal == current.IsCopyLocal
+                                        && File.GetLastWriteTimeUtc(assemblyPath)
+                                            > File.GetLastWriteTimeUtc(current.Path)))
+                                {
+                                    candidates[assemblyName] = (assemblyPath, isCopyLocal);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return candidates.Values.Select(candidate => candidate.Path);
+        }
+
+        private static async Task<IEnumerable<string>> GetTargetFrameworks(string projectFilePath)
+        {
+            var propertiesJson = await RunMSBuildQuery(
+                projectFilePath,
+                "-getProperty:TargetFramework,TargetFrameworks");
+            if (propertiesJson == null)
+            {
+                return [string.Empty];
+            }
+
+            using var properties = JsonDocument.Parse(propertiesJson);
+            if (!properties.RootElement.TryGetProperty("Properties", out var propertyValues))
+            {
+                return [string.Empty];
+            }
+
+            var targetFrameworks = propertyValues.GetProperty(TargetFrameworksPropertyName).GetString();
+            if (!string.IsNullOrEmpty(targetFrameworks))
+            {
+                return targetFrameworks.Split(
+                    ';',
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            }
+
+            var targetFramework = propertyValues.GetProperty(TargetFrameworkPropertyName).GetString();
+            return string.IsNullOrEmpty(targetFramework) ? [string.Empty] : [targetFramework];
+        }
+
+        private static async Task<IEnumerable<(string Name, string? Version)>> FindPackageReferences(
+            string projectFilePath)
+        {
+            var packageReferencesJson = await RunMSBuildQuery(
+                projectFilePath,
+                "-getItem:PackageReference,PackageVersion");
+            if (packageReferencesJson == null)
+            {
+                return [];
+            }
+
+            using var packageReferences = JsonDocument.Parse(packageReferencesJson);
+            if (!packageReferences.RootElement.TryGetProperty("Items", out var items)
+                || !items.TryGetProperty("PackageReference", out var references))
+            {
+                return [];
+            }
+
+            var centralPackageVersions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (items.TryGetProperty("PackageVersion", out var packageVersions))
+            {
+                foreach (var packageVersion in packageVersions.EnumerateArray())
+                {
+                    if (packageVersion.TryGetProperty("Identity", out var identity)
+                        && packageVersion.TryGetProperty("Version", out var version)
+                        && identity.GetString() is { } packageName
+                        && version.GetString() is { } packageVersionValue)
+                    {
+                        centralPackageVersions[packageName] = packageVersionValue;
+                    }
+                }
+            }
+
+            var result = new List<(string Name, string? Version)>();
+            foreach (var packageReference in references.EnumerateArray())
+            {
+                if (!packageReference.TryGetProperty("Identity", out var identity)
+                    || string.IsNullOrEmpty(identity.GetString()))
+                {
+                    continue;
+                }
+
+                var version = packageReference.TryGetProperty("VersionOverride", out var versionOverride)
+                    && !string.IsNullOrEmpty(versionOverride.GetString())
+                        ? versionOverride.GetString()
+                        : packageReference.TryGetProperty("Version", out var packageVersion)
+                            ? packageVersion.GetString()
+                            : null;
+                var packageName = identity.GetString()!;
+                if (string.IsNullOrEmpty(version))
+                {
+                    centralPackageVersions.TryGetValue(packageName, out version);
+                }
+                result.Add((packageName, version));
+            }
+
+            return result;
+        }
+
+        private static Task<IEnumerable<string>> FindProjectReferenceAssemblies(string projectFilePath) =>
+            FindProjectReferenceAssemblies(
+                projectFilePath,
+                new HashSet<string>(StringComparer.OrdinalIgnoreCase));
+
+        private static async Task<IEnumerable<string>> FindProjectReferenceAssemblies(
+            string projectFilePath,
+            ISet<string> visitedProjects)
+        {
+            projectFilePath = Path.GetFullPath(projectFilePath);
+            if (!visitedProjects.Add(projectFilePath))
+            {
+                return [];
+            }
+
+            var candidates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var configuration in new[] { "Debug", "Release" })
+            {
+                var projectReferencesJson = await RunMSBuildQuery(
+                    projectFilePath,
+                    $"-property:Configuration={configuration}",
+                    "-getItem:ProjectReference");
+                if (projectReferencesJson == null)
+                {
+                    continue;
+                }
+
+                using var projectReferences = JsonDocument.Parse(projectReferencesJson);
+                if (!projectReferences.RootElement.TryGetProperty("Items", out var items)
+                    || !items.TryGetProperty("ProjectReference", out var references))
+                {
+                    continue;
+                }
+
+                foreach (var projectReference in references.EnumerateArray())
+                {
+                    if (projectReference.TryGetProperty("ReferenceOutputAssembly", out var referenceOutputAssembly)
+                        && string.Equals(
+                            referenceOutputAssembly.GetString(),
+                            "false",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (!projectReference.TryGetProperty("FullPath", out var fullPath)
+                        || string.IsNullOrEmpty(fullPath.GetString()))
+                    {
+                        continue;
+                    }
+
+                    foreach (var targetPath in await GetProjectTargetPaths(
+                        fullPath.GetString()!,
+                        configuration))
+                    {
+                        candidates.Add(targetPath);
+                    }
+
+                    foreach (var transitiveReference in await FindProjectReferenceAssemblies(
+                        fullPath.GetString()!,
+                        visitedProjects))
+                    {
+                        candidates.Add(transitiveReference);
+                    }
+                }
+            }
+
+            return candidates.OrderByDescending(File.GetLastWriteTimeUtc);
+        }
+
+        private static async Task<IEnumerable<string>> GetProjectTargetPaths(
+            string projectFilePath,
+            string configuration)
+        {
+            if (!File.Exists(projectFilePath))
+            {
+                return [];
+            }
+
+            var propertiesJson = await RunMSBuildQuery(
+                projectFilePath,
+                $"-property:Configuration={configuration}",
+                "-getProperty:TargetPath,TargetFrameworks");
+            if (propertiesJson == null)
+            {
+                return [];
+            }
+
+            using var properties = JsonDocument.Parse(propertiesJson);
+            var propertyValues = properties.RootElement.GetProperty("Properties");
+            var targetFrameworks = propertyValues.GetProperty(TargetFrameworksPropertyName).GetString();
+            if (string.IsNullOrEmpty(targetFrameworks))
+            {
+                var targetPath = propertyValues.GetProperty("TargetPath").GetString();
+                return !string.IsNullOrEmpty(targetPath) && File.Exists(targetPath)
+                    ? [targetPath]
+                    : [];
+            }
+
+            var candidates = new List<string>();
+            foreach (var targetFramework in targetFrameworks.Split(
+                ';',
+                StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var targetPath = await RunMSBuildQuery(
+                    projectFilePath,
+                    $"-property:Configuration={configuration}",
+                    $"-property:TargetFramework={targetFramework}",
+                    "-getProperty:TargetPath");
+                var normalizedTargetPath = targetPath?.Trim();
+                if (!string.IsNullOrEmpty(normalizedTargetPath) && File.Exists(normalizedTargetPath))
+                {
+                    candidates.Add(normalizedTargetPath);
+                }
+            }
+
+            return candidates;
+        }
+
+        private static async Task<string?> RunMSBuildQuery(string projectFilePath, params string[] arguments)
+        {
+            var startInfo = new ProcessStartInfo("dotnet")
+            {
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+            startInfo.ArgumentList.Add("msbuild");
+            startInfo.ArgumentList.Add(projectFilePath);
+            startInfo.ArgumentList.Add("-nologo");
+            startInfo.ArgumentList.Add("-verbosity:quiet");
+            foreach (var argument in arguments)
+            {
+                startInfo.ArgumentList.Add(argument);
+            }
+
+            using var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                return null;
+            }
+
+            var standardOutput = process.StandardOutput.ReadToEndAsync();
+            var standardError = process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            if (process.ExitCode != 0)
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    $"Could not evaluate project references for {projectFilePath}: {await standardError}");
+                return null;
+            }
+
+            return await standardOutput;
         }
 
         /// <summary>

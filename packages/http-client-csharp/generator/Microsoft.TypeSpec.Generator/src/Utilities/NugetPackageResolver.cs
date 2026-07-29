@@ -21,13 +21,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     {
         /// <summary>
         /// Searches the NuGet global packages folder for an assembly belonging to <paramref name="packageName"/>.
-        /// When <paramref name="minVersion"/> is provided, only versions greater than or equal to it are considered
-        /// (so directory names that do not parse as <see cref="NuGetVersion"/> are skipped). When it is omitted, all
-        /// version directories are probed: parseable names first in semantic-descending order, then any remaining
-        /// directories in lexicographic-descending order so callers that pre-date the SemVer-aware overload (e.g.
-        /// the package-reference walker) keep their original probe set.
+        /// Version directories are probed in semantic-descending order, followed by any non-SemVer directories
+        /// in lexicographic-descending order.
         /// </summary>
-        public static string? FindPackageAssembly(string globalPackagesFolder, string packageName, string? minVersion = null)
+        public static string? FindPackageAssembly(
+            string globalPackagesFolder,
+            string packageName,
+            string? packageVersionSpec = null)
         {
             var packageDir = Path.Combine(globalPackagesFolder, packageName.ToLowerInvariant());
             if (!Directory.Exists(packageDir))
@@ -35,44 +35,40 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return null;
             }
 
-            NuGetVersion? minParsed = null;
-            if (!string.IsNullOrEmpty(minVersion) && !NuGetVersion.TryParse(minVersion, out minParsed))
+            var allDirs = Directory.GetDirectories(packageDir);
+            VersionRange? versionRange = null;
+            if (!string.IsNullOrEmpty(packageVersionSpec))
             {
-                minParsed = null;
+                VersionRange.TryParse(packageVersionSpec, out versionRange);
             }
 
-            var allDirs = Directory.GetDirectories(packageDir);
-
-            var parseableDirs = allDirs
+            var matchingDirs = allDirs
                 .Select(dir => (Dir: dir, Version: NuGetVersion.TryParse(Path.GetFileName(dir), out var v) ? v : null))
-                .Where(t => t.Version != null && (minParsed == null || t.Version >= minParsed))
-                .OrderByDescending(t => t.Version)
-                .Select(t => t.Dir);
+                .Where(t => t.Version != null && IsVersionMatch(versionRange, t.Version));
+            var parseableDirs = versionRange?.Float != null
+                ? matchingDirs.OrderByDescending(t => t.Version)
+                : versionRange != null
+                    ? matchingDirs.OrderBy(t => t.Version)
+                    : matchingDirs.OrderByDescending(t => t.Version);
 
-            foreach (var dir in parseableDirs)
+            foreach (var candidate in parseableDirs)
             {
-                var found = TryFindAssemblyInVersionDir(dir, packageName);
+                var found = TryFindAssemblyInVersionDir(candidate.Dir, packageName);
                 if (found != null)
                 {
                     return found;
                 }
             }
 
-            // Back-compat fallback: when no MinVersion was supplied, also probe directories whose names do
-            // not parse as NuGetVersion (e.g. exotic pre-release labels) in lexicographic-descending order
-            // so the original PR #10229 behavior for AddPackageReferencesFromProject is preserved.
-            if (minParsed == null)
+            var notParseableDirs = allDirs
+                .Where(d => !NuGetVersion.TryParse(Path.GetFileName(d), out _))
+                .OrderByDescending(Path.GetFileName, StringComparer.Ordinal);
+            foreach (var dir in notParseableDirs)
             {
-                var notParseableDirs = allDirs
-                    .Where(d => !NuGetVersion.TryParse(Path.GetFileName(d), out _))
-                    .OrderByDescending(Path.GetFileName, StringComparer.Ordinal);
-                foreach (var dir in notParseableDirs)
+                var found = TryFindAssemblyInVersionDir(dir, packageName);
+                if (found != null)
                 {
-                    var found = TryFindAssemblyInVersionDir(dir, packageName);
-                    if (found != null)
-                    {
-                        return found;
-                    }
+                    return found;
                 }
             }
 
@@ -88,21 +84,36 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 {
                     return assemblyPath;
                 }
+
+                var frameworkDirectory = Path.GetDirectoryName(assemblyPath)!;
+                if (Directory.Exists(frameworkDirectory))
+                {
+                    var firstAssembly = Directory.EnumerateFiles(
+                        frameworkDirectory,
+                        "*.dll",
+                        SearchOption.TopDirectoryOnly).FirstOrDefault();
+                    if (firstAssembly != null)
+                    {
+                        return firstAssembly;
+                    }
+                }
             }
             return null;
         }
 
         /// <summary>
-        /// Queries the configured NuGet feeds for the latest stable version of <paramref name="packageName"/>.
-        /// When <paramref name="minVersion"/> is provided, the latest stable version greater than or equal to it
-        /// is returned (or <c>null</c> if no qualifying version exists on any reachable feed).
+        /// Resolves a stable version of <paramref name="packageName"/> from the configured NuGet feeds
+        /// using the project's version specification when provided.
         /// </summary>
-        public static async Task<string?> ResolveLatestPackageVersion(string packageName, ISettings nugetSettings, string? minVersion = null)
+        public static async Task<string?> ResolvePackageVersion(
+            string packageName,
+            ISettings nugetSettings,
+            string? packageVersionSpec)
         {
-            NuGetVersion? minParsed = null;
-            if (!string.IsNullOrEmpty(minVersion) && !NuGetVersion.TryParse(minVersion, out minParsed))
+            VersionRange? versionRange = null;
+            if (!string.IsNullOrEmpty(packageVersionSpec))
             {
-                minParsed = null;
+                VersionRange.TryParse(packageVersionSpec, out versionRange);
             }
 
             var sources = SettingsUtility.GetEnabledSources(nugetSettings);
@@ -115,11 +126,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
                     var versions = await resource.GetAllVersionsAsync(
                         packageName, cacheContext, NuGet.Common.NullLogger.Instance, CancellationToken.None);
-                    var latest = versions?
-                        .Where(v => !v.IsPrerelease)
-                        .Where(v => minParsed == null || v >= minParsed)
-                        .OrderByDescending(v => v)
-                        .FirstOrDefault();
+                    var allowPrerelease = versionRange?.MinVersion?.IsPrerelease == true
+                        || versionRange?.MaxVersion?.IsPrerelease == true
+                        || versionRange?.Float?.IncludePrerelease == true;
+                    var matchingVersions = versions?
+                        .Where(v => (!v.IsPrerelease || allowPrerelease) && IsVersionMatch(versionRange, v));
+                    var latest = versionRange?.Float != null
+                        ? matchingVersions?.OrderByDescending(v => v).FirstOrDefault()
+                        : versionRange != null
+                            ? matchingVersions?.OrderBy(v => v).FirstOrDefault()
+                            : matchingVersions?.OrderByDescending(v => v).FirstOrDefault();
                     if (latest != null)
                     {
                         return latest.ToString();
@@ -133,5 +149,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             return null;
         }
+
+        private static bool IsVersionMatch(VersionRange? versionRange, NuGetVersion version) =>
+            versionRange == null
+            || (versionRange.Satisfies(version)
+                && (versionRange.Float?.Satisfies(version) ?? true));
     }
 }

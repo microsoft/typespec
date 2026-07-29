@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -1828,26 +1829,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test, NonParallelizable]
-        public async Task ExternalTypePropertyResolvedFromNuGetCache()
+        public async Task ExternalTypePropertyResolvedFromMetadataReference()
         {
-            // External type whose Identity is not a framework type but whose Package can be located in the
-            // NuGet cache: the dynamic-loading fallback resolves the type and the property is emitted.
-            // Marked NonParallelizable because the test mutates the process-wide NUGET_PACKAGES env var
-            // and the static external-type resolver state.
             var tempDir = Path.Combine(Path.GetTempPath(), "TestArtifacts", Guid.NewGuid().ToString());
             var nugetCacheDir = Path.Combine(tempDir, "NuGetCache");
             Directory.CreateDirectory(nugetCacheDir);
 
             const string pkgName = "Test.ModelProvider.External";
             const string typeName = "Test.ModelProvider.External.MyExternalType";
-            FakeNuGetPackage.Create(
+            var assemblyPath = FakeNuGetPackage.Create(
                 nugetCacheDir,
                 pkgName,
                 "1.0.0",
                 $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
 
-            var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
-            Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
             ExternalTypeReferenceResolver.Reset();
             try
             {
@@ -1862,6 +1857,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     ]);
 
                 MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                CodeModelGenerator.Instance.AddMetadataReference(MetadataReference.CreateFromFile(assemblyPath));
                 await ExternalTypeReferenceResolver.ResolveAllAsync();
 
                 var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -1879,7 +1875,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             finally
             {
                 ExternalTypeReferenceResolver.Reset();
-                Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
                 Directory.Delete(tempDir, true);
             }
         }
