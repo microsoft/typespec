@@ -134,8 +134,11 @@ namespace Microsoft.TypeSpec.Generator
 
                 if (namedTypeSymbol.IsGenericType)
                 {
-                    // Handle nullable types
-                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
+                    // Handle nullable value types (System.Nullable<T>). A nullable annotation on a
+                    // generic reference type (e.g. BicepValue<string>?) must not be treated as
+                    // System.Nullable<T>; otherwise we would build an invalid Nullable<referenceType>
+                    // that violates Nullable<T>'s value-type constraint.
+                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && typeSymbol.IsValueType && !IsCollectionType(namedTypeSymbol))
                     {
                         var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
 
