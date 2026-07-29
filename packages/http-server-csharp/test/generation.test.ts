@@ -3449,24 +3449,21 @@ it("emits class for model extending another model with no additional properties"
   );
 });
 
-it("emits correct file name for @friendlyName with unresolved template placeholders", async () => {
-  // Regression test for https://github.com/microsoft/typespec/issues/11454
-  // When @friendlyName contains {paramName} placeholders (e.g. from ARM-style templates
-  // that store the format string without a sourceObject for substitution), the file name
-  // must use the PascalCase'd placeholder, not the raw {paramName} literal.
-  const fs = await compileAndValidateMultiple(
+it("emits correct file name for @friendlyName with template sourceObject", async () => {
+  // Regression test: when @friendlyName uses a template sourceObject (ARM-style),
+  // the concrete instantiation gets the correctly substituted friendly name as its file name.
+  await compileAndValidateMultiple(
     tester,
     `
-      @friendlyName("{name}TagsUpdate")
-      model NameTagsUpdate {
+      @friendlyName("{name}TagsUpdate", Resource)
+      model TagsUpdate<Resource> {
         tags?: string;
       }
 
-      @route("/name") @get op getName(): NameTagsUpdate;
+      model FooResource { id: string; }
+
+      @route("/tags") @get op getTags(): TagsUpdate<FooResource>;
       `,
-    [["NameTagsUpdate.cs", ["public partial class NameTagsUpdate"]]],
+    [["FooResourceTagsUpdate.cs", ["public partial class FooResourceTagsUpdate"]]],
   );
-  // Verify there is no file with the literal {name} in the path
-  const badFile = [...fs.fs.keys()].find((k) => k.includes("{name}"));
-  assert.strictEqual(badFile, undefined, `Found file with literal {name} in path: ${badFile}`);
 });

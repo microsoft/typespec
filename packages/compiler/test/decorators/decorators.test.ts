@@ -369,6 +369,23 @@ describe("@friendlyName", () => {
     strictEqual(getFriendlyName(program, B), "BModel");
   });
 
+  it("does not store friendly name on template declaration when sourceObject is a TemplateParameter", async () => {
+    const { TemplatedModel, FooModel, program } = await Tester.compile(t.code`
+        @friendlyName("{name}Updated", T)
+        model ${t.model("TemplatedModel")}<T> { }
+
+        model ${t.model("FooModel")} extends TemplatedModel<FooModel> {}
+      `);
+    // Template declaration should NOT have a friendly name stored
+    // (the sourceObject was a TemplateParameter at decoration time)
+    strictEqual(getFriendlyName(program, TemplatedModel), undefined);
+
+    // The instantiation (accessible as the base of FooModel) should have the correct friendly name
+    const instantiation = FooModel.baseModel;
+    ok(instantiation, "FooModel should have a baseModel");
+    strictEqual(getFriendlyName(program, instantiation), "FooModelUpdated");
+  });
+
   it(" @friendlyName doesn't carry over to derived models", async () => {
     const { A, B, program } = await Tester.compile(t.code`
         @friendlyName("MyNameIsA")
