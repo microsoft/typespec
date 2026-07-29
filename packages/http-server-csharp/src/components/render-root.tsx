@@ -94,17 +94,17 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
                 <CSharpFile
                   path={`${iface.name}Controller.cs`}
                   using={[
-                    "System",
                     "Microsoft.AspNetCore.Mvc",
+                    "System",
                     "System.Net",
-                    "System.Threading.Tasks",
                     "System.Text.Json",
                     "System.Text.Json.Nodes",
                     "System.Text.Json.Serialization",
+                    "System.Threading.Tasks",
                     ...(hasMultipart
                       ? [
-                          "Microsoft.AspNetCore.WebUtilities",
                           "Microsoft.AspNetCore.Http.Extensions",
+                          "Microsoft.AspNetCore.WebUtilities",
                         ]
                       : []),
                     ...(parentNamespace ? [parentNamespace] : []),
