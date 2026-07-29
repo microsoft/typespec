@@ -32,7 +32,9 @@ function runCommand(command: string, cwd: string): void {
 
 function buildPnpmFilterArgs(packages: PackageInfo[]): string {
   const criticalFilters = CRITICAL_PACKAGES.map((name) => `--filter "${name}..."`);
-  const criticalDirNames = new Set(CRITICAL_PACKAGES.map((name) => name.replace(/^@typespec\//, "")));
+  const criticalDirNames = new Set(
+    CRITICAL_PACKAGES.map((name) => name.replace(/^@typespec\//, "")),
+  );
   const restFilters = packages
     .filter((p) => !criticalDirNames.has(p.name))
     .map((p) => `--filter "./${p.name}..."`);
@@ -62,7 +64,10 @@ try {
 }
 
 try {
-  runCommand(`pnpx pkg-pr-new publish ${modifiedPaths.map((x) => `'${x}'`).join(" ")} --pnpm`, repoRoot);
+  runCommand(
+    `pnpx pkg-pr-new publish ${modifiedPaths.map((x) => `'${x}'`).join(" ")} --pnpm`,
+    repoRoot,
+  );
 } catch (e: any) {
   // eslint-disable-next-line no-console
   console.error("Failed to run pkg-pr-new publish");
