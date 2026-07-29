@@ -54,7 +54,7 @@ describe("@surfaceDoc", () => {
     expect(doc.doc).toBe("Exposed to clients as ClientExtensibleEnum.");
   });
 
-  it("resolves the scenario name from the annotated element, shared by all its checks", async () => {
+  it("resolves the scenario name from the annotated element", async () => {
     const doc = await docOf(`
       enum ServerExtensibleEnum {
         value1,
@@ -102,7 +102,8 @@ describe("@surfaceDoc", () => {
   // --- validation: must be grounded in a scenario doc ---------------------
 
   it("flags a surface doc whose target has no @scenarioDoc", async () => {
-    const { program } = await Tester.compile(`
+    const { program } = await Tester.compile(
+      `
       model Widget {
         id: string;
       }
@@ -110,13 +111,15 @@ describe("@surfaceDoc", () => {
       @scenario
       @surfaceDoc("access", Widget, "internal")
       op get(): Widget;
-    `);
+    `,
+    );
     const missing = listSurfaceDocsMissingScenarioDoc(program);
     expect(missing).toHaveLength(1);
   });
 
   it("does not flag a surface doc whose target also has @scenarioDoc", async () => {
-    const { program } = await Tester.compile(`
+    const { program } = await Tester.compile(
+      `
       model Widget {
         id: string;
       }
@@ -125,7 +128,8 @@ describe("@surfaceDoc", () => {
       @scenarioDoc("Get a widget.")
       @surfaceDoc("access", Widget, "internal")
       op get(): Widget;
-    `);
+    `,
+    );
     expect(listSurfaceDocsMissingScenarioDoc(program)).toHaveLength(0);
   });
 
@@ -203,7 +207,8 @@ describe("@surfaceDoc", () => {
   // --- rendering ----------------------------------------------------------
 
   it("renders a single Markdown table that carries every routable field", async () => {
-    const { program } = await Tester.compile(`
+    const { program } = await Tester.compile(
+      `
       model Widget {
         id: string;
       }
@@ -212,7 +217,8 @@ describe("@surfaceDoc", () => {
       @scenarioDoc("Get a widget.")
       @surfaceDoc("naming", Widget, "WidgetInternal", "Hidden | renamed to WidgetInternal.")
       op get(): Widget;
-    `);
+    `,
+    );
     const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
     const md = await createSurfaceChecksSummary(manifest);
 
@@ -234,7 +240,8 @@ describe("@surfaceDoc", () => {
   // --- per-language exact names (scope → value dict) ----------------------
 
   it("expands a `scope → value` dict into one verbatim check per scope", async () => {
-    const { program } = await Tester.compile(`
+    const { program } = await Tester.compile(
+      `
       model IOThing {
         id: string;
       }
@@ -243,7 +250,8 @@ describe("@surfaceDoc", () => {
       @scenarioDoc("Get the thing.")
       @surfaceDoc("naming", IOThing, #{ python: "io_thing", csharp: "IOThing" })
       op get(): IOThing;
-    `);
+    `,
+    );
     const docs = listSurfaceDocs(program);
     expect(docs).toHaveLength(2);
     const byScope = Object.fromEntries(docs.map((d) => [d.scope, d]));
@@ -267,7 +275,8 @@ describe("@surfaceDoc", () => {
   });
 
   it("includes the scope in the manifest id and renders a scope column", async () => {
-    const { program } = await Tester.compile(`
+    const { program } = await Tester.compile(
+      `
       model IOThing {
         id: string;
       }
@@ -276,7 +285,8 @@ describe("@surfaceDoc", () => {
       @scenarioDoc("Get the thing.")
       @surfaceDoc("naming", IOThing, #{ python: "io_thing" })
       op get(): IOThing;
-    `);
+    `,
+    );
     const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
     const item = manifest.items.find((i) => i.id === "get_naming_python");
     expect(item).toBeDefined();
@@ -285,39 +295,5 @@ describe("@surfaceDoc", () => {
     const md = await createSurfaceChecksSummary(manifest);
     expect(md).toContain("io_thing");
     expect(md).toContain("python");
-  });
-
-  it("records multiple @surfaceDocs on one scenario, sharing its name with distinct ids", async () => {
-    const { program } = await Tester.compile(`
-      model Widget {
-        id: string;
-      }
-
-      @scenario
-      @scenarioDoc("Get a widget.")
-      @surfaceDoc("naming", Widget, "WidgetClient")
-      @surfaceDoc("access", Widget, "internal")
-      op get(): Widget;
-    `);
-    const docs = listSurfaceDocs(program);
-    expect(docs).toHaveLength(2);
-    expect(docs.map((d) => d.category).sort()).toEqual(["access", "naming"]);
-    // Every check on the scenario shares its resolved scenario name...
-    expect(docs.map((d) => d.scenario)).toEqual(["get", "get"]);
-
-    // ...and each surfaces as its own check, keyed `<scenario>_<category>`.
-    const items = await manifestItems(`
-      model Widget {
-        id: string;
-      }
-
-      @scenario
-      @scenarioDoc("Get a widget.")
-      @surfaceDoc("naming", Widget, "WidgetClient")
-      @surfaceDoc("access", Widget, "internal")
-      op get(): Widget;
-    `);
-    expect(items["get_naming"].scenario).toBe("get");
-    expect(items["get_access"].scenario).toBe("get");
   });
 });

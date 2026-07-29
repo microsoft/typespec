@@ -87,45 +87,30 @@ union SurfaceCategory {
  * relocated to another client, or a reshaped inheritance hierarchy. Mirrors
  * `@scenarioDoc`, but for the surface instead of the wire.
  *
- * To keep surface checks deterministic and grounded in a real scenario,
  * `@surfaceDoc` may only be applied to an element that also carries
- * `@scenarioDoc` (a `@scenario` namespace/interface/operation). The check itself
- * is fully explicit: the author states the `category`, the `subject` the check
- * is about (a type/member reference — which may differ from the annotated
- * operation), and the `expected` client-surface output. Nothing is inferred from
- * other decorators, so adding or reading a check needs no knowledge of the
- * client-generator vocabulary.
- *
- * The precompute step (`listSurfaceDocs`) records these language-agnostically;
- * each emitter's `verifiers.json` decides how to check a category using the
- * generic `{target}` (subject name), `{expected}`, `{kind}` (subject kind) and
- * `{origin}` (subject's declaring container) placeholders. A category with no
- * verifier for an emitter is verified against the prose by AI — so introducing a
- * new category never requires any emitter to change.
- *
- * By default `expected` is a single canonical, language-agnostic string and each
- * emitter recasts it to its idiomatic form (e.g. `{expected:byKind}`). When a
- * name can't be derived by casing (a reserved-word escape, an acronym, a hard
- * rename), pass a **dict mapping scope → exact value** instead — keyed the same
- * way the client-generator decorators are scoped (`"python"`, `"python,csharp"`,
- * `"!java"`). A dict value is matched **verbatim** for its scope; a language not
- * listed in the dict is not checked.
+ * `@scenarioDoc`, so every surface check is grounded in a documented scenario.
+ * Like `@scenarioDoc`, each target gets exactly one `@surfaceDoc`.
  *
  * ```tsp
- * // idiomatic: one canonical name, every emitter recasts it
- * @surfaceDoc("naming", widgetName, "widgetName")
- *
- * // exact per language: each scope matched verbatim
- * @surfaceDoc("naming", ioThing, #{ python: "io_thing", csharp: "IOThing" })
+ * @surfaceDoc(#{
+ *   category: "naming",
+ *   subject: widgetName,
+ *   expected: "widgetName",
+ * })
  * ```
  *
- * @param category The kind of surface assertion. See {@link SurfaceCategory}.
- * @param subject The type or member the check is about (may differ from `target`).
- * @param expected The expected client-surface output: a single string (recast per
- *   language) or a `scope → value` dict (each value matched verbatim for its scope).
- * @param doc Optional extra natural-language description. Markdown.
+ * `expected` is a single canonical, language-agnostic string by default, recast
+ * by each emitter. For exact per-language names, pass a `scope → value` dict:
+ *
+ * ```tsp
+ * @surfaceDoc(#{
+ *   category: "naming",
+ *   subject: ioThing,
+ *   expected: #{ python: "io_thing", csharp: "IOThing" },
+ * })
+ * ```
  */
-extern dec surfaceDoc(
+auto dec surfaceDoc(
   target: Namespace | Interface | Operation,
   category: valueof SurfaceCategory,
   subject: unknown,

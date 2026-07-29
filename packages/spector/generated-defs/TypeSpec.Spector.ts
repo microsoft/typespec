@@ -1,11 +1,14 @@
-import type {
-  DecoratorContext,
-  DecoratorValidatorCallbacks,
-  Interface,
-  Model,
-  Namespace,
-  Operation,
-  Type,
+import {
+  type DecoratorContext,
+  type DecoratorValidatorCallbacks,
+  getAutoDecoratorValue,
+  type Interface,
+  type Model,
+  type Namespace,
+  type Operation,
+  type Program,
+  setAutoDecorator,
+  type Type,
 } from "@typespec/compiler";
 
 /**
@@ -45,3 +48,46 @@ export type TypeSpecSpectorDecorators = {
   scenario: ScenarioDecorator;
   scenarioDoc: ScenarioDocDecorator;
 };
+
+export function getSurfaceDoc(
+  program: Program,
+  target: Namespace | Interface | Operation,
+):
+  | {
+      category:
+        | string
+        | "naming"
+        | "access"
+        | "client-location"
+        | "hierarchy"
+        | "flatten"
+        | "paging"
+        | "other";
+      subject: Type;
+      expected: string | Record<string, string>;
+      doc: string;
+    }
+  | undefined {
+  return getAutoDecoratorValue(program, "TypeSpec.Spector.surfaceDoc", target) as any;
+}
+
+export function setSurfaceDoc(
+  program: Program,
+  target: Namespace | Interface | Operation,
+  value: {
+    category:
+      | string
+      | "naming"
+      | "access"
+      | "client-location"
+      | "hierarchy"
+      | "flatten"
+      | "paging"
+      | "other";
+    subject: Type;
+    expected: string | Record<string, string>;
+    doc: string;
+  },
+): void {
+  setAutoDecorator(program, "TypeSpec.Spector.surfaceDoc", target, value);
+}

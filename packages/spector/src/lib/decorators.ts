@@ -2,6 +2,8 @@ import {
   $service,
   Enum,
   EnumMember,
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
   getNamespaceFullName,
   getTypeName,
   Interface,
@@ -27,7 +29,6 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
-  SurfaceDocDecorator,
 } from "../../generated-defs/TypeSpec.Spector.js";
 import { SpectorStateKeys } from "./lib.js";
 
@@ -39,39 +40,6 @@ export const $scenarioDoc: ScenarioDocDecorator = (context, target, doc, formatA
   const formattedDoc = formatArgs ? replaceTemplatedStringFromProperties(doc, formatArgs) : doc;
   context.program.stateMap(SpectorStateKeys.ScenarioDoc).set(target, formattedDoc);
 };
-
-export const $surfaceDoc: SurfaceDocDecorator = (
-  context,
-  target,
-  category,
-  subject,
-  expected,
-  doc?,
-) => {
-  const map = context.program.stateMap(SpectorStateKeys.SurfaceDoc);
-  const existing: StoredSurfaceDoc[] = map.get(target) ?? [];
-  existing.push({
-    category,
-    subject: subject as SurfaceSubject,
-    expected: expected as string | Record<string, string>,
-    doc,
-  });
-  // A target can carry several `@surfaceDoc`s (different categories), so store a
-  // list — never overwrite a previously recorded check.
-  map.set(target, existing);
-};
-
-/**
- * What a single `@surfaceDoc` application records. `expected` is either one
- * canonical string (recast per language) or a `scope → value` dict (each value
- * matched verbatim for its scope).
- */
-interface StoredSurfaceDoc {
-  category: string;
-  subject: SurfaceSubject;
-  expected: string | Record<string, string>;
-  doc?: string;
-}
 
 export const $scenarioService: ScenarioServiceDecorator = (context, target, route, options?) => {
   const properties = new Map().set("title", {
@@ -378,6 +346,21 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
   return undefined;
 }
 
+/** The FQN used by the auto dec for `@surfaceDoc`. */
+const SURFACE_DOC_FQN = "TypeSpec.Spector.surfaceDoc";
+
+/**
+ * What the auto dec stores for `@surfaceDoc`. With positional params
+ * `category`, `subject`, `expected`, `doc?`, the auto dec stores:
+ * `{ category, subject, expected, doc }`.
+ */
+interface StoredSurfaceDoc {
+  category: string;
+  subject: SurfaceSubject;
+  expected: string | Record<string, string>;
+  doc?: string;
+}
+
 /**
  * Collect every `@surfaceDoc` in the program into a list of language-agnostic
  * surface docs. Analogous to {@link listScenarios}, but for the generated
@@ -386,22 +369,24 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
  * decorators. Feeds the `surface-checks.md` checks doc.
  */
 export function listSurfaceDocs(program: Program): SurfaceDoc[] {
-  const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
+  const targets = getAutoDecoratorTargets(program, SURFACE_DOC_FQN);
   const result: SurfaceDoc[] = [];
-  for (const [target, storedList] of map as Map<SurfaceDocTarget, StoredSurfaceDoc[]>) {
-    for (const stored of storedList) {
-      const scenario = getEnclosingScenarioName(program, target);
-      for (const { expected, scope } of expandExpected(stored.expected)) {
-        result.push({
-          scenario,
-          target,
-          subject: stored.subject,
-          category: stored.category,
-          expected,
-          scope,
-          doc: stored.doc ?? synthesizeDoc(stored.category, stored.subject, expected),
-        });
-      }
+  for (const [target] of targets) {
+    const stored = getAutoDecoratorValue(program, SURFACE_DOC_FQN, target) as
+      StoredSurfaceDoc | undefined;
+    if (!stored) continue;
+    const docTarget = target as SurfaceDocTarget;
+    const scenario = getEnclosingScenarioName(program, docTarget);
+    for (const { expected, scope } of expandExpected(stored.expected)) {
+      result.push({
+        scenario,
+        target: docTarget,
+        subject: stored.subject,
+        category: stored.category,
+        expected,
+        scope,
+        doc: stored.doc ?? synthesizeDoc(stored.category, stored.subject, expected),
+      });
     }
   }
   return result.sort(
@@ -422,11 +407,12 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
  * currently-dormant scenario validations for consumers that only compile specs.
  */
 export function listSurfaceDocsMissingScenarioDoc(program: Program): SurfaceDocTarget[] {
-  const map = program.stateMap(SpectorStateKeys.SurfaceDoc);
+  const targets = getAutoDecoratorTargets(program, SURFACE_DOC_FQN);
   const result: SurfaceDocTarget[] = [];
-  for (const target of map.keys() as Iterable<SurfaceDocTarget>) {
-    if (getScenarioDoc(program, target) === undefined) {
-      result.push(target);
+  for (const [target] of targets) {
+    const docTarget = target as SurfaceDocTarget;
+    if (getScenarioDoc(program, docTarget) === undefined) {
+      result.push(docTarget);
     }
   }
   return result;

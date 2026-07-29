@@ -2,7 +2,6 @@ export {
   $scenario,
   $scenarioDoc,
   $scenarioService,
-  $surfaceDoc,
   Scenario,
   ScenarioEndpoint,
   SurfaceDetails,
