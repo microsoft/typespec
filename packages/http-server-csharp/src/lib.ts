@@ -30,6 +30,7 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
     "skip-format": {
       type: "boolean",
       nullable: true,
+      default: false,
       description:
         "Skips formatting of generated C# Types.  By default, C# files are formatted using 'dotnet format'.",
     },
