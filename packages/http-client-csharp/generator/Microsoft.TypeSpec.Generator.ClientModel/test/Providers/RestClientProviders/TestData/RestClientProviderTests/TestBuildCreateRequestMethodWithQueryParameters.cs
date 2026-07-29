@@ -75,14 +75,14 @@ namespace Sample
             {
                 foreach (var @param in p6Explode)
                 {
-                    uri.AppendQuery(@param.Key, @param.ToSerialString(), true);
+                    uri.AppendQuery(@param.Key, @param.Value.ToSerialString(), true);
                 }
             }
             if (((p7Explode != null) && !((p7Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
             {
                 foreach (var @param in p7Explode)
                 {
-                    uri.AppendQuery(@param.Key, ((int)@param), true);
+                    uri.AppendQuery(@param.Key, ((int)@param.Value), true);
                 }
             }
             if (((p8Explode != null) && !((p8Explode is global::Sample.ChangeTrackingList<global::Sample.Models.FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
@@ -113,9 +113,9 @@ namespace Sample
             {
                 foreach (var @param in p11Explode)
                 {
-                    if (!string.IsNullOrEmpty(@param.ToString()))
+                    if (!string.IsNullOrEmpty(@param.Value.ToString()))
                     {
-                        uri.AppendQuery(@param.Key, @param.ToString(), true);
+                        uri.AppendQuery(@param.Key, @param.Value.ToString(), true);
                     }
                 }
             }

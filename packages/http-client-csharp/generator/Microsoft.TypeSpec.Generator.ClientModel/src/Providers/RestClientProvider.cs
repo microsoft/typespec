@@ -637,7 +637,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         valueExpression.AsDictionary(paramType),
                         out KeyValuePairExpression item);
                     var convertedItem = paramType.ElementType.IsEnum
-                        ? paramType.ElementType.ToSerial(item)
+                        ? paramType.ElementType.ToSerial(item.Value)
                         : item.Value;
                     MethodBodyStatement appendItemStatement = uri.AppendQuery(item.Key, convertedItem, true).Terminate();
                     // A string-backed extensible enum serializes via `ToString()`, which returns null for a
