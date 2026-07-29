@@ -50,7 +50,8 @@
     "typecheck": "tsx ./eng/scripts/ci/typecheck.ts",
     "typecheck:generated": "tsx ./eng/scripts/ci/typecheck.ts --generated",
     "regenerate": "tsx ./eng/scripts/ci/regenerate.ts",
-    "ci": "npm run test:emitter && npm run ci:generated",
+    "check-unstaged": "git -c core.safecrlf=false diff --ignore-space-at-eol --exit-code HEAD -- .",
+    "ci": "npm run check-unstaged && npm run test:emitter && npm run ci:generated",
     "ci:generated": "tsx ./eng/scripts/ci/run-tests.ts --generator --env=ci",
     "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
     "change:add": "pnpm chronus add",
@@ -129,6 +130,7 @@
     "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.49.0",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "prettier": "^3.9.5"
   }
 }
