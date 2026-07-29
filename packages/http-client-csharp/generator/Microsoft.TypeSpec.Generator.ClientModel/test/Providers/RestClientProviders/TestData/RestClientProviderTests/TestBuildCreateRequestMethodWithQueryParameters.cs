@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.ExtensibleFoo> p10Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.ExtensibleFoo> p11Explode, string p12, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.ExtensibleFoo> p10Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.ExtensibleFoo> p11Explode, string p12, string optionalParam, string p13, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
@@ -122,6 +122,10 @@ namespace Sample
                 }
             }
             uri.AppendQuery("p12", p12, true);
+            if ((p13 != null))
+            {
+                uri.AppendQuery("p13", p13, true);
+            }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);

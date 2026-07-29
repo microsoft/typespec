@@ -1085,6 +1085,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.QueryParameter("p10Explode", InputFactory.Array(inputExtensibleStringEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p11Explode", InputFactory.Dictionary(inputExtensibleStringEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p12", inputExtensibleStringEnum, isRequired: true),
+                InputFactory.QueryParameter("p13", new InputNullableType(inputExtensibleStringEnum), isRequired: false),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",
