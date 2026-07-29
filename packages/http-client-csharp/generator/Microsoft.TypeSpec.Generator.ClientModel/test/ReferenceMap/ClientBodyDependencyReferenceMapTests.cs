@@ -151,8 +151,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(CodeModelGenerator.Instance.OutputLibrary.TypeProviders);
 
-            Assert.IsTrue(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "PublicWrapper should remain public because it is an explicit input root.");
-            Assert.IsTrue(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), "Public input roots should preserve their declared accessibility.");
+            Assert.That(publicWrapperProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), Is.True, "PublicWrapper should remain public because it is an explicit input root.");
+            Assert.That(customInternalProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), Is.True, "Public input roots should preserve their declared accessibility.");
         }
 
         [Test]
@@ -885,26 +885,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             foreach (var modelName in publicModelNames)
             {
                 var provider = providers.FirstOrDefault(p => p.Name == modelName);
-                Assert.IsNotNull(provider, $"Expected generated type '{modelName}'.");
-                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"{modelName} should be generated.");
-                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{modelName} should be public.");
+                Assert.That(provider, Is.Not.Null, $"Expected generated type '{modelName}'.");
+                Assert.That(session.ShouldWriteProvider(provider!), Is.True, $"{modelName} should be generated.");
+                Assert.That(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), Is.True, $"{modelName} should be public.");
             }
 
             foreach (var modelName in internalModelNames)
             {
                 var provider = providers.FirstOrDefault(p => p.Name == modelName);
-                Assert.IsNotNull(provider, $"Expected generated type '{modelName}'.");
-                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"{modelName} should be generated.");
-                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), $"{modelName} should be internal.");
-                Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{modelName} should not be public.");
+                Assert.That(provider, Is.Not.Null, $"Expected generated type '{modelName}'.");
+                Assert.That(session.ShouldWriteProvider(provider!), Is.True, $"{modelName} should be generated.");
+                Assert.That(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), Is.True, $"{modelName} should be internal.");
+                Assert.That(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), Is.False, $"{modelName} should not be public.");
             }
 
             foreach (var clientName in internalClientNames)
             {
                 var provider = providers.FirstOrDefault(p => p.Name == clientName);
-                Assert.IsNotNull(provider, $"Expected generated client '{clientName}'.");
-                Assert.IsTrue(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), $"{clientName} should be internal.");
-                Assert.IsFalse(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), $"{clientName} should not be public.");
+                Assert.That(provider, Is.Not.Null, $"Expected generated client '{clientName}'.");
+                Assert.That(provider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), Is.True, $"{clientName} should be internal.");
+                Assert.That(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), Is.False, $"{clientName} should not be public.");
             }
 
             var modelFactory = providers.OfType<ModelFactoryProvider>().FirstOrDefault();
@@ -912,12 +912,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             {
                 foreach (var modelName in publicModelNames)
                 {
-                    Assert.IsTrue(modelFactory.Methods.Any(m => m.Signature.Name == modelName), $"Model factory method for {modelName} should be generated.");
+                    Assert.That(modelFactory.Methods.Any(m => m.Signature.Name == modelName), Is.True, $"Model factory method for {modelName} should be generated.");
                 }
 
                 foreach (var modelName in internalModelNames)
                 {
-                    Assert.IsFalse(modelFactory.Methods.Any(m => m.Signature.Name == modelName), $"Model factory method for {modelName} should not be generated.");
+                    Assert.That(modelFactory.Methods.Any(m => m.Signature.Name == modelName), Is.False, $"Model factory method for {modelName} should not be generated.");
                 }
             }
 
@@ -957,12 +957,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             var provider = allProviders.FirstOrDefault(p => string.Equals(p.RelativeFilePath, relativeFilePath, StringComparison.OrdinalIgnoreCase));
             if (expected)
             {
-                Assert.IsNotNull(provider, $"Expected generated file '{relativeFilePath}'.");
-                Assert.IsTrue(session.ShouldWriteProvider(provider!), $"Expected generated file '{relativeFilePath}'.");
+                Assert.That(provider, Is.Not.Null, $"Expected generated file '{relativeFilePath}'.");
+                Assert.That(session.ShouldWriteProvider(provider!), Is.True, $"Expected generated file '{relativeFilePath}'.");
             }
             else
             {
-                Assert.IsTrue(provider is null || !session.ShouldWriteProvider(provider), $"Did not expect generated file '{relativeFilePath}'.");
+                Assert.That(provider is null || !session.ShouldWriteProvider(provider), Is.True, $"Did not expect generated file '{relativeFilePath}'.");
             }
         }
     }

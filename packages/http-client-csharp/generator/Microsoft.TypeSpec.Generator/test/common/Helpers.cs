@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
     public static class Helpers
     {
-        private static readonly string _assemblyLocation = Path.GetDirectoryName(typeof(Helpers).Assembly.Location)!;
+        private static readonly string _assemblyLocation = TrimExtendedLengthPrefix(Path.GetDirectoryName(typeof(Helpers).Assembly.Location)!);
+
+        // Assembly.Location can be returned with a "\\?\" extended-length prefix when the assembly lives under a
+        // long path. Path.GetFullPath does not collapse ".." segments while that prefix is present, which breaks
+        // any relative path built from the assembly location (e.g. Directory.GetFiles throws ERROR_INVALID_NAME).
+        // Trimming the prefix lets the framework normalize the path (and re-add the prefix internally if needed).
+        private static string TrimExtendedLengthPrefix(string path)
+        {
+            const string extendedLengthPrefix = @"\\?\";
+            return path.StartsWith(extendedLengthPrefix, StringComparison.Ordinal)
+                ? path.Substring(extendedLengthPrefix.Length)
+                : path;
+        }
 
         public static string GetExpectedFromFile(
             string? parameters = null,
@@ -77,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Sample-TypeSpec", "src", "Generated", "Internal");
             var project = CreateExistingCodeProject([.. directories, codeGenAttributeFiles], generatedDirectory);
             var compilation = await project.GetCompilationAsync();
-            Assert.IsNotNull(compilation);
+            Assert.That(compilation, Is.Not.Null);
             return compilation!;
         }
 
@@ -110,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: new WorkspaceMetadataReferenceResolver(), nullableContextOptions: NullableContextOptions.Disable));
 
             var compilation = await project.GetCompilationAsync();
-            Assert.IsNotNull(compilation);
+            Assert.That(compilation, Is.Not.Null);
             return compilation!;
         }
 
