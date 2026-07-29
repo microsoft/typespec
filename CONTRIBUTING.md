@@ -4,25 +4,34 @@ This section goes over the setup of the repo for development.
 
 ## Repo setup
 
-[mise](https://mise.jdx.dev/getting-started.html) is the recommended way to
-install the repository's development tools consistently across platforms.
-Install mise and [activate it for your shell](https://mise.jdx.dev/getting-started.html#activate-mise),
+You need [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/). Pick
+whichever of the following options you prefer to install them.
+
+### Option 1: Use mise (recommended)
+
+[mise](https://mise.jdx.dev/getting-started.html) installs the repository's
+development tools consistently across platforms. Install mise and
+[activate it for your shell](https://mise.jdx.dev/getting-started.html#activate-mise),
 then, from the repository root, run:
 
 ```bash
 mise install
-pnpm install
 ```
 
-`mise install` installs the tool versions recorded in `mise.toml` and
-`mise.lock` (Node.js and pnpm). Using mise is recommended but not required; if
-you use another version manager, install [Node.js](https://nodejs.org/) as
-declared in `mise.toml` and the pnpm version declared by the `packageManager`
-field in `package.json`:
+This installs the exact tool versions recorded in `mise.toml` and `mise.lock`
+(Node.js and pnpm).
+
+### Option 2: Install the tools yourself
+
+If you prefer to manage tools yourself (or use another version manager), install
+[Node.js](https://nodejs.org/) as declared in `mise.toml` and pnpm at the
+version declared by the `packageManager` field in `package.json`:
 
 ```bash
 npm install -g pnpm
 ```
+
+### Install and build
 
 - Install dependencies
 
