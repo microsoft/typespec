@@ -55,7 +55,7 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())

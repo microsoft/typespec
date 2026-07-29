@@ -140,6 +140,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Client option 'clientRequired' can only be set to 'true'.",
       },
     },
+    "response-headers-as-model-with-body": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Client option 'responseHeadersAsModel' cannot be used on operation '${"operationName"}', because it has a response body. It is only applicable to operations that have response headers but no response body.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,
