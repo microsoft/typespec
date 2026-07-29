@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -1872,6 +1873,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task ResetRecalculatesCustomizedBuildableTypes()
+        {
+            var clientProvider = new TestClientProviderWithResponseErrorReturnType();
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            // The initial customization declares a buildable attribute for Azure.ResponseError, so the generated
+            // buildable attribute for that type is suppressed.
+            var suppressedCompilation = await Helpers.GetCompilationFromDirectoryAsync("Suppressed");
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(suppressedCompilation, null));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var suppressedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Suppressed"), suppressedContent);
+
+            // Change the customization view so it no longer suppresses the buildable attribute, then reset the
+            // provider. Reset must clear the customized buildable types so they are recalculated from the current
+            // customization view instead of reusing the stale suppression.
+            var emptyCompilation = await Helpers.GetCompilationFromDirectoryAsync("Empty");
+            mockGenerator.Object.SourceInputModel = new SourceInputModel(emptyCompilation, null);
+
+            contextDefinition.Reset();
+
+            var recalculatedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Empty"), recalculatedContent);
+        }
+
+        [Test]
         public async Task LastContractBuildableAttributesAreRestoredWhenMissing()
         {
             // The last contract declared buildable attributes for RegularModel, RestoredType, and RemovedModel.
@@ -1905,6 +1934,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 "RestoredType is still part of the output library and must be restored for back-compat");
             Assert.AreEqual(0, removedModelCount,
                 "RemovedModel is no longer part of the output library and must not be restored");
+
+            var writer = new TypeProviderWriter(contextDefinition);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task VisitorTypeValuedAttributeDoesNotOverwriteBuildableAttribute()
+        {
+            // The last contract declares a buildable attribute for RegularModel (so back-compat re-keying runs),
+            // RegularModel is emitted by the current generation, and a visitor appends a non-buildable attribute
+            // that carries a typeof(RegularModel) argument. Back-compat re-keying must key by the buildable
+            // attribute's target type only, so the visitor attribute cannot displace the generated buildable entry
+            // and is instead preserved alongside it in the final generated context.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            // Reuse the exact CSharpType from the generated buildable attribute so the visitor attribute shares the
+            // same type identity as the buildable attribute it must not overwrite.
+            var modelType = contextDefinition.Attributes
+                .Where(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                .SelectMany(a => a.Arguments.OfType<TypeOfExpression>())
+                .Select(argument => argument.Type)
+                .First(t => t.Name == "RegularModel");
+
+            // Simulate a library visitor appending [TypeConverter(typeof(RegularModel))] after the generated
+            // attributes, mirroring how visitor additions are attached on top of the generated set.
+            var visitorAttribute = new AttributeStatement(
+                new CSharpType(typeof(System.ComponentModel.TypeConverterAttribute)),
+                Snippet.TypeOf(modelType));
+            contextDefinition.Update(attributes: [.. contextDefinition.Attributes, visitorAttribute]);
 
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
@@ -2172,12 +2243,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         // Buildable attributes restored from the last contract are symbol-based (IsFrameworkType == false), so
         // match by fully qualified name to cover both generated and restored entries.
         private static List<AttributeStatement> GetBuildableAttributes(ModelReaderWriterContextDefinition contextDefinition)
-            => contextDefinition.Attributes
+        {
+            contextDefinition.ProcessTypeForBackCompatibility();
+            return contextDefinition.Attributes
                 .Where(a => string.Equals(
                     a.Type.FullyQualifiedName,
                     typeof(ModelReaderWriterBuildableAttribute).FullName,
                     StringComparison.Ordinal))
                 .ToList();
+        }
 
         [Test]
         public async Task CustomProjectionPropertiesDoNotAddBuildableTypes()

@@ -40,16 +40,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // They are rebuilt at write time while non-buildable attributes, including visitor updates, are preserved.
         protected override bool ShouldAnalyzeAttributesInReferenceMap => false;
 
-        protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite()
-        {
-            var visitorAttributes = base.BuildAttributesForWrite().Where(static attribute => !IsBuildableAttribute(attribute));
-            return [.. BuildAttributes(), .. visitorAttributes];
-        }
-
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
-            var customizedBuildableTypes = GetCustomizedBuildableTypes();
+            var customizedBuildableTypes = BuildCustomizedBuildableTypes();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
@@ -89,10 +83,60 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     provider.Type.FullyQualifiedName);
             }
 
-            AddLastContractBuildableAttributes(attributes, customizedBuildableTypes);
-
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 })
+            {
+                return originalAttributes;
+            }
+
+            // Re-key the generated buildable attributes so last-contract entries can be deduplicated against
+            // them and the combined set can be re-sorted; any non-buildable attributes are preserved as-is.
+            var attributes = new Dictionary<string, MethodBodyStatement>();
+            var others = new List<MethodBodyStatement>();
+            foreach (var attribute in originalAttributes)
+            {
+                var identity = GetBuildableAttributeIdentity(attribute);
+                if (identity != null)
+                {
+                    attributes[identity] = attribute;
+                }
+                else
+                {
+                    others.Add(attribute);
+                }
+            }
+
+            AddLastContractBuildableAttributes(attributes, BuildCustomizedBuildableTypes());
+
+            return [.. attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value), .. others];
+        }
+
+        private static string? GetBuildableAttributeIdentity(MethodBodyStatement attribute)
+        {
+            var attributeStatement = attribute switch
+            {
+                AttributeStatement direct => direct,
+                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                _ => null
+            };
+
+            if (attributeStatement is null || !string.Equals(
+                attributeStatement.Type.FullyQualifiedName,
+                s_buildableAttributeType.FullyQualifiedName,
+                StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var targetType = GetBuildableAttributeTargetType(attributeStatement);
+            return targetType is null
+                ? null
+                : GetTypeIdentity(targetType);
         }
 
         private void AddLastContractBuildableAttributes(
@@ -179,19 +223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return null;
         }
 
-        private static bool IsBuildableAttribute(MethodBodyStatement statement)
-        {
-            var attribute = statement switch
-            {
-                AttributeStatement directAttribute => directAttribute,
-                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
-                _ => null
-            };
-
-            return attribute?.Type.Equals(s_buildableAttributeType) == true;
-        }
-
-        private HashSet<string> GetCustomizedBuildableTypes()
+        private HashSet<string> BuildCustomizedBuildableTypes()
         {
             var customizedTypes = new HashSet<string>(StringComparer.Ordinal);
             foreach (var attribute in CustomCodeView?.Attributes ?? [])
