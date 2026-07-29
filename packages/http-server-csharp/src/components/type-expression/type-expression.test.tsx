@@ -1,12 +1,19 @@
 import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
 import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
-import type { ModelProperty } from "@typespec/compiler";
-import { type TesterInstance } from "@typespec/compiler/testing";
+import { resolvePath, type ModelProperty } from "@typespec/compiler";
+import { createTester, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverrides, Output } from "@typespec/emitter-framework";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createServerScalarOverrides, TypeExpression } from "./type-expression.jsx";
+
+// Separate tester that also loads @typespec/json-schema so @uniqueItems is available.
+const JsonSchemaTester = createTester(resolvePath(import.meta.dirname, "../../.."), {
+  libraries: ["@typespec/http", "@typespec/rest", "@typespec/json-schema"],
+})
+  .importLibraries()
+  .using("Http", "Rest", "JsonSchema");
 
 let runner: TesterInstance;
 
@@ -188,5 +195,177 @@ describe("literal types", () => {
         <TypeExpression type={type} />
       </Wrapper>,
     ).toRenderTo("bool");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Ported from the string-matching TYPE assertions in test/generation.test.ts.
+// Each case below asserts the exact C# type expression rendered for a type,
+// collapsing the redundant property-declaration noise (get/set, nullability
+// markers, JSON attributes) that belongs to other components.
+// ---------------------------------------------------------------------------
+
+async function compileTypeWithDefs(defs: string, ref: string) {
+  const { test } = await runner.compile(`${defs}
+    model Test {
+      @test test: ${ref};
+    }`);
+  return (test as ModelProperty).type;
+}
+
+// Ported from "generates standard scalar properties" (generation.test.ts:97).
+// Only the CLR / extended scalar mappings not already covered by the tables above.
+describe("CLR and extended scalar mappings", () => {
+  it.each([
+    ["bytes", "byte[]"],
+    ["int8", "SByte"],
+    ["uint8", "Byte"],
+    ["int16", "Int16"],
+    ["uint16", "UInt16"],
+    ["uint32", "UInt32"],
+    ["uint64", "UInt64"],
+    ["safeint", "long"],
+    ["offsetDateTime", "DateTimeOffset"],
+    ["unixTimestamp32", "DateTimeOffset"],
+  ])("%s => %s", async (tspType, csType) => {
+    const type = await compileType(tspType);
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(csType);
+  });
+});
+
+// Ported from "handles scalar extensions" (240) and "handles scalar templates" (259).
+describe("scalar extensions and templates", () => {
+  it("scalar extending string => string", async () => {
+    const type = await compileTypeWithDefs("@secret scalar password extends string;", "password");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("string");
+  });
+
+  it("ResourceLocation<T> => string", async () => {
+    const type = await compileTypeWithDefs("model Foo {}", "ResourceLocation<Foo>");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("string");
+  });
+
+  // Ported from "generates appropriate types for literals" (1560): string template -> string.
+  it("string template => string", async () => {
+    const type = await compileTypeWithDefs("model Foo { s: string; }", '"${Foo.s} and then some"');
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("string");
+  });
+});
+
+// Ported from "generates standard scalar array properties" (396) and
+// "generates bytes array properties" (568). Byte arrays (uint8/int8) stay T[].
+describe("scalar array mappings", () => {
+  it.each([
+    ["int8[]", "SByte[]"],
+    ["uint8[]", "Byte[]"],
+    ["int16[]", "Int16[]"],
+    ["int64[]", "long[]"],
+    ["uint16[]", "UInt16[]"],
+    ["uint32[]", "UInt32[]"],
+    ["uint64[]", "UInt64[]"],
+    ["float32[]", "float[]"],
+    ["float64[]", "double[]"],
+    ["boolean[]", "bool[]"],
+    ["plainDate[]", "DateTime[]"],
+    ["plainTime[]", "DateTime[]"],
+    ["utcDateTime[]", "DateTimeOffset[]"],
+    ["offsetDateTime[]", "DateTimeOffset[]"],
+    ["duration[]", "TimeSpan[]"],
+  ])("%s => %s", async (tspType, csType) => {
+    const type = await compileType(tspType);
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(csType);
+  });
+});
+
+// Ported from "generates standard scalar array for uniqueItems model" (523 / 3242).
+// @uniqueItems on the Array model itself is a TypeExpression concern (-> ISet<T>).
+describe("uniqueItems array model", () => {
+  it("@uniqueItems model is Array<string> => ISet<string>", async () => {
+    // Needs @typespec/json-schema for the @uniqueItems decorator.
+    runner = await JsonSchemaTester.createInstance();
+    const type = await compileTypeWithDefs("@uniqueItems model U is Array<string>;", "U");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("ISet<string>");
+  });
+});
+
+// Ported from "Coalesces union types" (921).
+describe("union coalescing", () => {
+  it("int32 | string => object", async () => {
+    const type = await compileType("int32 | string");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("object");
+  });
+
+  it('"foo" | "bar" | "baz" => string', async () => {
+    const type = await compileType('"foo" | "bar" | "baz"');
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("string");
+  });
+});
+
+// Ported from "generates literal properties" (324) and
+// "generates appropriate types for literals" (1560): the remaining literal kinds.
+describe("additional literal mappings", () => {
+  it.each([
+    ["8", "int"],
+    ["false", "bool"],
+  ])("%s => %s", async (tspType, csType) => {
+    const type = await compileType(tspType);
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(csType);
+  });
+});
+
+// Ported from "generates appropriate types for records" (1656).
+describe("record mappings", () => {
+  it("Record<string> => IDictionary<string, string>", async () => {
+    const type = await compileType("Record<string>");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("IDictionary<string, string>");
+  });
+
+  it("Record<unknown> => JsonObject", async () => {
+    const type = await compileType("Record<unknown>");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("JsonObject");
   });
 });

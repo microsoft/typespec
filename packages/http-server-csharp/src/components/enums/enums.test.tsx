@@ -310,3 +310,103 @@ describe("union-as-enum rendering", () => {
     `);
   });
 });
+
+// Cases ported from the legacy string-matching suite (test/generation.test.ts).
+describe("ported from generation.test.ts", () => {
+  // Ports generation.test.ts:677 "handles integer enums" (the enum-render part).
+  // A named-integer enum renders as a plain C# enum: member names + doc comments,
+  // and the integer values are intentionally dropped (no `= 1`). The property-side
+  // mapping (`IntegerEnum?` / `IntegerEnum` on a model) is a model concern and is
+  // covered by e2e/models tests.
+  it("renders an integer-valued enum, dropping the numeric values", async () => {
+    const { IntegerEnum } = await runner.compile(t.code`
+      /** An integer enum */
+      enum ${t.enum("IntegerEnum")} {
+        /** one */ One: 1,
+        /** three */ Three: 3,
+        /** five */ Five: 5,
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <EnumDeclaration type={IntegerEnum} />
+      </Wrapper>,
+    ).toRenderTo(`
+      /// <summary>
+      /// An integer enum
+      /// </summary>
+      enum IntegerEnum
+      {
+          /// <summary>
+          /// one
+          /// </summary>
+          One,
+          /// <summary>
+          /// three
+          /// </summary>
+          Three,
+          /// <summary>
+          /// five
+          /// </summary>
+          Five
+      }
+    `);
+  });
+
+  // Ports generation.test.ts:740 "handles extensible enums ..." (the enum-render
+  // part). PetType is an *extensible* string union (open `string` variant) whose
+  // C# member names (`Dog`, `Cat`) differ from their JSON serialized values
+  // (`"dog"`, `"cat"`). The open `string` variant is dropped from the enum.
+  it("renders an extensible string union with name != serialized value", async () => {
+    const { PetType } = await runner.compile(t.code`
+      /** An extensible string union */
+      union ${t.union("PetType")} {
+        /** Dog */ Dog: "dog",
+        /** Cat */ Cat: "cat",
+        string,
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <UnionEnumDecl union={PetType} />
+      </Wrapper>,
+    ).toRenderTo(`
+      public enum PetType
+      {
+          [JsonStringEnumMemberName("dog")]
+          Dog,
+          [JsonStringEnumMemberName("cat")]
+          Cat
+      }
+    `);
+  });
+
+  // Ports generation.test.ts:740 "handles extensible enums ..." (the enum-render
+  // part). AnimalType is a *fixed* string union (no open `string` variant); its
+  // members likewise map capitalized C# names to lowercase JSON values.
+  it("renders a fixed string union with name != serialized value", async () => {
+    const { AnimalType } = await runner.compile(t.code`
+      /** A fixed string union */
+      union ${t.union("AnimalType")} {
+        /** Wolf */ Wolf: "wolf",
+        /** Bear */ Bear: "bear",
+      }
+    `);
+
+    expect(
+      <Wrapper>
+        <UnionEnumDecl union={AnimalType} />
+      </Wrapper>,
+    ).toRenderTo(`
+      public enum AnimalType
+      {
+          [JsonStringEnumMemberName("wolf")]
+          Wolf,
+          [JsonStringEnumMemberName("bear")]
+          Bear
+      }
+    `);
+  });
+});
