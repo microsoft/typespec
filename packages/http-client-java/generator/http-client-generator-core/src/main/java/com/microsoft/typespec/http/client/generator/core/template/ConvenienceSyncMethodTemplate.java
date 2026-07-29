@@ -90,6 +90,14 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync && isResponseHeadersAsModel(convenienceMethod)) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers of the protocol method (which returns Response<Void>).
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.methodReturn(String.format("new %1$s(protocolMethodResponse.getHeaders())", responseBodyType));
+            return;
+        }
+
         String convertFromResponse
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
 
