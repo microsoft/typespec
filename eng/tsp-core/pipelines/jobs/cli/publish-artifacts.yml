@@ -61,7 +61,6 @@ jobs:
                 set -e
                 mkdir release
                 tar -cvzf release/tsp-darwin-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64 tsp
-                tar -cvzf release/tsp-darwin-x64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64 tsp
 
                 tar -cvzf release/tsp-linux-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-arm64 tsp
                 tar -cvzf release/tsp-linux-x64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-x64 tsp

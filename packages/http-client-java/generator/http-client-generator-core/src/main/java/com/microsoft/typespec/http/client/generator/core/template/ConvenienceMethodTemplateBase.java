@@ -199,6 +199,23 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     /**
+     * Whether the convenience method returns the significant response headers as a strongly-typed model (opt-in via
+     * the "responseHeadersAsModel" client option). In this case the model has no serialization and is constructed
+     * directly from the response headers.
+     *
+     * @param method the convenience method.
+     * @return whether the convenience method returns response headers as a strongly-typed model.
+     */
+    protected static boolean isResponseHeadersAsModel(ClientMethod method) {
+        final IType bodyType = getConvenienceResponseBodyType(method);
+        if (bodyType instanceof ClassType) {
+            final ClientModel model = ClientModelUtil.getClientModel(((ClassType) bodyType).getName());
+            return model != null && model.isStronglyTypedHeader();
+        }
+        return false;
+    }
+
+    /**
      * Gets the client type of the request body (BODY location) parameter of a convenience method, or {@code null} if
      * the method has no request body.
      *

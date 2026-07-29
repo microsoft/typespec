@@ -2482,6 +2482,14 @@ export interface TypeSpecLibraryDef<
    */
   readonly name: string;
 
+  /**
+   * Optional short alias for this library used in diagnostic and linter rule codes.
+   * When provided, diagnostic/linter codes can be referenced as `${alias}/${code}`
+   * in addition to the full `${name}/${code}` form (e.g. `tcgc/no-foo`).
+   * Overrides the automatically scope-stripped short name.
+   */
+  readonly alias?: string;
+
   /** Optional registration of capabilities the library/emitter provides */
   readonly capabilities?: TypeSpecLibraryCapabilities;
 
