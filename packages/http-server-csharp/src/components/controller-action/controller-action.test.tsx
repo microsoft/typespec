@@ -51,8 +51,6 @@ it("renders a GET action", async () => {
       <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
     </Wrapper>,
   ).toRenderTo(`
-    using Microsoft.AspNetCore.Mvc;
-
     class TestController
     {
         [HttpGet]
@@ -81,8 +79,6 @@ it("renders a DELETE action with path param", async () => {
       <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
     </Wrapper>,
   ).toRenderTo(`
-    using Microsoft.AspNetCore.Mvc;
-
     class TestController
     {
         [HttpDelete]

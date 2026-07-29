@@ -48,8 +48,6 @@ it("renders a controller class with an action method", async () => {
       <Controller type={PetStore} operations={[canonOp]} />
     </Wrapper>,
   ).toRenderTo(`
-    using Microsoft.AspNetCore.Mvc;
-
     public interface IPetStore
     {
         Task<string[]> ListPetsAsync();

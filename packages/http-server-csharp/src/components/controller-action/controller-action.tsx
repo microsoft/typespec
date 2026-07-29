@@ -4,7 +4,6 @@ import { Attribute } from "@alloy-js/csharp";
 import { isErrorModel, isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
-import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getHttpVerbAttribute, getRouteTemplate } from "../../utils/http-helpers.js";
 import type { RequestModelInfo } from "../request-models.jsx";
@@ -129,14 +128,14 @@ export function ControllerAction(props: ControllerActionProps): Children {
     parameters.push({
       name: "body",
       type: <TypeExpression type={body!.bodies[0].type.sourceType} />,
-      attributes: [{ name: AspNetMvc.FromBodyAttribute }],
+      attributes: [{ name: "FromBody" }],
     });
     callArgs = parameters.map((p) => p.name).join(", ");
   } else if (body?.bodyKind === "single" && body.bodies.length > 0) {
     parameters.push({
       name: "body",
       type: <TypeExpression type={body.bodies[0].type.sourceType} />,
-      attributes: [{ name: AspNetMvc.FromBodyAttribute }],
+      attributes: [{ name: "FromBody" }],
     });
     callArgs = parameters.map((p) => p.name).join(", ");
   } else {
@@ -172,17 +171,15 @@ export function ControllerAction(props: ControllerActionProps): Children {
 
   const attributes: Children[] = [
     <Attribute name={verb} />,
-    <Attribute name={AspNetMvc.RouteAttribute} args={[`"${route}"`]} />,
+    <Attribute name="Route" args={[`"${route}"`]} />,
   ];
   if (isMultipart) {
-    attributes.push(
-      <Attribute name={AspNetMvc.ConsumesAttribute} args={[`"multipart/form-data"`]} />,
-    );
+    attributes.push(<Attribute name="Consumes" args={[`"multipart/form-data"`]} />);
   }
   if (responseTypeExpr) {
     attributes.push(
       <Attribute
-        name={AspNetMvc.ProducesResponseTypeAttribute}
+        name="ProducesResponseType"
         args={[
           code`(int)HttpStatusCode.${responseStatusCode}`,
           code`Type = typeof(${responseTypeExpr})`,
@@ -192,7 +189,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
   } else {
     attributes.push(
       <Attribute
-        name={AspNetMvc.ProducesResponseTypeAttribute}
+        name="ProducesResponseType"
         args={[code`(int)HttpStatusCode.${responseStatusCode}`, `Type = typeof(void)`]}
       />,
     );

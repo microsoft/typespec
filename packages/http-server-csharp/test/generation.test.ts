@@ -1075,6 +1075,33 @@ it("Generates types and controllers in a service subnamespace", async () => {
   );
 });
 
+it("uses Microsoft.AspNetCore.Mvc using and short attribute names in Microsoft.* namespaces", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    [
+      `
+      @route("/widgets")
+      interface Widgets {
+        @get list(): string;
+      }
+      `,
+      "Microsoft.Contoso",
+    ],
+    [
+      [
+        "WidgetsController.cs",
+        ["using Microsoft.AspNetCore.Mvc;", "[ApiController]", "[HttpGet]", '[Route("/widgets")]'],
+      ],
+    ],
+    [
+      [
+        "WidgetsController.cs",
+        ["[AspNetCore.Mvc.", "ApiControllerAttribute", "HttpGetAttribute", "RouteAttribute"],
+      ],
+    ],
+  );
+});
+
 it("Handles MergePatchUpdate", async () => {
   await compileAndValidateMultiple(
     tester,

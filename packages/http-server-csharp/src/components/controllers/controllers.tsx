@@ -3,7 +3,6 @@ import * as cs from "@alloy-js/csharp";
 import { Attribute, Reference } from "@alloy-js/csharp";
 import type { Interface } from "@typespec/compiler";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
-import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { ControllerAction } from "../controller-action/controller-action.jsx";
 import { businessLogicInterfaceRefkey } from "../interfaces/interfaces.jsx";
 import type { RequestModelInfo } from "../request-models.jsx";
@@ -29,7 +28,7 @@ export function Controller(props: ControllerProps): Children {
 
   const interfaceRef = <Reference refkey={businessLogicInterfaceRefkey(props.type)} />;
 
-  const attributes = [<Attribute name={AspNetMvc.ApiControllerAttribute} />];
+  const attributes = [<Attribute name="ApiController" />];
 
   return (
     <cs.ClassDeclaration

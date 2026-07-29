@@ -95,6 +95,7 @@ export function ControllersAndInterfaces(props: ControllersAndInterfacesProps): 
                   path={`${iface.name}Controller.cs`}
                   using={[
                     "System",
+                    "Microsoft.AspNetCore.Mvc",
                     "System.Net",
                     "System.Threading.Tasks",
                     "System.Text.Json",
