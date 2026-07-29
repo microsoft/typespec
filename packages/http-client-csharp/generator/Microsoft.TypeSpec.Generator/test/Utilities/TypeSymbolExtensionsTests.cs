@@ -100,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.AreNotEqual(SpecialType.System_Nullable_T, propertyTypeSymbol.ConstructedFrom.SpecialType);
 
             var fullyQualifiedName = propertySymbol.Type.GetFullyQualifiedName();
-            Assert.AreEqual("Sample.BicepValue`1[[System.String]]", fullyQualifiedName);
+            Assert.AreEqual("Sample.BicepValue`1[System.String]", fullyQualifiedName);
 
             var csharpType = propertySymbol.Type.GetCSharpType();
 
