@@ -350,15 +350,17 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
 const SURFACE_DOC_FQN = "TypeSpec.Spector.surfaceDoc";
 
 /**
- * What the auto dec stores for `@surfaceDoc`. With positional params
- * `category`, `subject`, `expected`, `doc?`, the auto dec stores:
- * `{ category, subject, expected, doc }`.
+ * What the auto dec stores for `@surfaceDoc`. With params
+ * `subject: unknown, check: valueof { category, expected, doc? }`,
+ * the auto dec stores: `{ subject: Type, check: { category, expected, doc } }`.
  */
 interface StoredSurfaceDoc {
-  category: string;
   subject: SurfaceSubject;
-  expected: string | Record<string, string>;
-  doc?: string;
+  check: {
+    category: string;
+    expected: string | Record<string, string>;
+    doc?: string;
+  };
 }
 
 /**
@@ -377,15 +379,16 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
     if (!stored) continue;
     const docTarget = target as SurfaceDocTarget;
     const scenario = getEnclosingScenarioName(program, docTarget);
-    for (const { expected, scope } of expandExpected(stored.expected)) {
+    const { category, expected, doc } = stored.check;
+    for (const { expected: exp, scope } of expandExpected(expected)) {
       result.push({
         scenario,
         target: docTarget,
         subject: stored.subject,
-        category: stored.category,
-        expected,
+        category,
+        expected: exp,
         scope,
-        doc: stored.doc ?? synthesizeDoc(stored.category, stored.subject, expected),
+        doc: doc ?? synthesizeDoc(category, stored.subject, exp),
       });
     }
   }

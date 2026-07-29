@@ -54,18 +54,20 @@ export function getSurfaceDoc(
   target: Namespace | Interface | Operation,
 ):
   | {
-      category:
-        | string
-        | "naming"
-        | "access"
-        | "client-location"
-        | "hierarchy"
-        | "flatten"
-        | "paging"
-        | "other";
       subject: Type;
-      expected: string | Record<string, string>;
-      doc: string;
+      check: {
+        readonly category:
+          | string
+          | "naming"
+          | "access"
+          | "client-location"
+          | "hierarchy"
+          | "flatten"
+          | "paging"
+          | "other";
+        readonly expected: string | Record<string, string>;
+        readonly doc?: string;
+      };
     }
   | undefined {
   return getAutoDecoratorValue(program, "TypeSpec.Spector.surfaceDoc", target) as any;
@@ -75,18 +77,20 @@ export function setSurfaceDoc(
   program: Program,
   target: Namespace | Interface | Operation,
   value: {
-    category:
-      | string
-      | "naming"
-      | "access"
-      | "client-location"
-      | "hierarchy"
-      | "flatten"
-      | "paging"
-      | "other";
     subject: Type;
-    expected: string | Record<string, string>;
-    doc: string;
+    check: {
+      readonly category:
+        | string
+        | "naming"
+        | "access"
+        | "client-location"
+        | "hierarchy"
+        | "flatten"
+        | "paging"
+        | "other";
+      readonly expected: string | Record<string, string>;
+      readonly doc?: string;
+    };
   },
 ): void {
   setAutoDecorator(program, "TypeSpec.Spector.surfaceDoc", target, value);

@@ -52,10 +52,8 @@ namespace ServerDrivenPagination {
     ```
     """)
   @surfaceDoc(
-    "paging",
     Pageable.ServerDrivenPagination.link,
-    "Pet",
-    "The paginated operation yields `Pet` elements."
+    #{ category: "paging", expected: "Pet", doc: "The paginated operation yields `Pet` elements." }
   )
   @route("/link")
   @list
@@ -525,10 +523,12 @@ namespace PageSize {
     ```
     """)
   @surfaceDoc(
-    "paging",
     Pageable.PageSize.listWithoutContinuation,
-    "Pet",
-    "Single-page pageable operation yielding `Pet` elements, no continuation."
+    #{
+      category: "paging",
+      expected: "Pet",
+      doc: "Single-page pageable operation yielding `Pet` elements, no continuation.",
+    }
   )
   @route("/without-continuation")
   @list
@@ -569,10 +569,12 @@ namespace PageSize {
     ```
     """)
   @surfaceDoc(
-    "paging",
     Pageable.PageSize.listWithPageSize,
-    "Pet",
-    "Page-size-driven pageable operation yielding `Pet` elements."
+    #{
+      category: "paging",
+      expected: "Pet",
+      doc: "Page-size-driven pageable operation yielding `Pet` elements.",
+    }
   )
   @route("/list")
   @list

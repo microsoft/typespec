@@ -45,7 +45,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc("naming", ServerExtensibleEnum, "ClientExtensibleEnum", "Exposed to clients as ClientExtensibleEnum.")
+      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed to clients as ClientExtensibleEnum." })
       op getKind(): ServerExtensibleEnum;
     `);
     expect(doc.category).toBe("naming");
@@ -63,7 +63,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc("naming", ServerExtensibleEnum, "ClientExtensibleEnum")
+      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum" })
       op getKind(): ServerExtensibleEnum;
     `);
     expect(doc.scenario).toBe("getKind");
@@ -77,7 +77,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("access", Widget, "internal")
+      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
       op get(): Widget;
     `);
     expect(doc.doc).toContain("access");
@@ -93,7 +93,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("brand-new-category", Widget, "whatever")
+      @surfaceDoc(Widget, #{ category: "brand-new-category", expected: "whatever" })
       op get(): Widget;
     `);
     expect(doc.category).toBe("brand-new-category");
@@ -109,7 +109,7 @@ describe("@surfaceDoc", () => {
       }
 
       @scenario
-      @surfaceDoc("access", Widget, "internal")
+      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
       op get(): Widget;
     `,
     );
@@ -126,7 +126,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("access", Widget, "internal")
+      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
       op get(): Widget;
     `,
     );
@@ -144,7 +144,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc("naming", ServerExtensibleEnum, "ClientExtensibleEnum", "Exposed as ClientExtensibleEnum.")
+      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed as ClientExtensibleEnum." })
       op getKind(): ServerExtensibleEnum;
     `);
     const item = items["getKind_naming"];
@@ -167,7 +167,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("naming", Widget.id, "identifier", "Renamed to identifier.")
+      @surfaceDoc(Widget.id, #{ category: "naming", expected: "identifier", doc: "Renamed to identifier." })
       op get(): Widget;
     `);
     const item = items["get_naming"];
@@ -180,7 +180,7 @@ describe("@surfaceDoc", () => {
     const items = await manifestItems(`
       @scenario
       @scenarioDoc("List items.")
-      @surfaceDoc("paging", listItems, "")
+      @surfaceDoc(listItems, #{ category: "paging", expected: "" })
       op listItems(): string[];
     `);
     const item = items["listItems_paging"];
@@ -196,7 +196,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("other", Widget, "strongly typed", "The response body is a strongly typed model.")
+      @surfaceDoc(Widget, #{ category: "other", expected: "strongly typed", doc: "The response body is a strongly typed model." })
       op get(): Widget;
     `);
     const item = items["get_other"];
@@ -215,7 +215,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("naming", Widget, "WidgetInternal", "Hidden | renamed to WidgetInternal.")
+      @surfaceDoc(Widget, #{ category: "naming", expected: "WidgetInternal", doc: "Hidden | renamed to WidgetInternal." })
       op get(): Widget;
     `,
     );
@@ -248,7 +248,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get the thing.")
-      @surfaceDoc("naming", IOThing, #{ python: "io_thing", csharp: "IOThing" })
+      @surfaceDoc(IOThing, #{ category: "naming", expected: #{ python: "io_thing", csharp: "IOThing" } })
       op get(): IOThing;
     `,
     );
@@ -268,7 +268,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc("naming", Widget, "Widget")
+      @surfaceDoc(Widget, #{ category: "naming", expected: "Widget" })
       op get(): Widget;
     `);
     expect(doc.scope).toBeUndefined();
@@ -283,7 +283,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get the thing.")
-      @surfaceDoc("naming", IOThing, #{ python: "io_thing" })
+      @surfaceDoc(IOThing, #{ category: "naming", expected: #{ python: "io_thing" } })
       op get(): IOThing;
     `,
     );

@@ -66,10 +66,12 @@ model Fish {
   ```
   """)
 @surfaceDoc(
-  "hierarchy",
   Sparrow,
-  "Bird",
-  "The `Sparrow` model extends `Bird` as its base type on the client surface."
+  #{
+    category: "hierarchy",
+    expected: "Bird",
+    doc: "The `Sparrow` model extends `Bird` as its base type on the client surface.",
+  }
 )
 @get
 op getModel(): Bird;
