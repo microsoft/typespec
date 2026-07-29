@@ -933,6 +933,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Build constructor parameters first so we can use them for initializer
             foreach (var property in CanonicalView.Properties)
             {
+                if (ShouldOmitDiscriminatorParameterFromPublicConstructor(property, isInitializationConstructor))
+                {
+                    continue;
+                }
+
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
@@ -958,6 +963,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
                         var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
+                        var baseOmitsDiscriminator = baseDiscriminatorParam?.Property is not null &&
+                            BaseInitializationConstructorOmitsDiscriminator(baseDiscriminatorParam.Property);
 
                         ValueExpression discriminatorExpression = (hasDiscriminatorProperty && baseDiscriminatorParam is not null && includeDiscriminatorParameter)
                             ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
@@ -966,12 +973,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
                             .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
-                        constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
+                        constructorInitializer = baseOmitsDiscriminator
+                            ? new ConstructorInitializer(true, [.. args])
+                            : new ConstructorInitializer(true, [discriminatorExpression, .. args]);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
+                        var baseConstructorParameters = baseParameters.Where(p =>
+                            p.Property is null ||
+                            !(isInitializationConstructor && BaseInitializationConstructorOmitsDiscriminator(p.Property)));
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseConstructorParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                     }
                 }
                 else
@@ -997,6 +1009,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return (constructorParameters, constructorInitializer);
         }
+
+        private bool ShouldOmitDiscriminatorParameterFromPublicConstructor(PropertyProvider property, bool isInitializationConstructor)
+            => isInitializationConstructor
+                && property.IsDiscriminator
+                && _inputModel.DiscriminatorProperty is not null
+                && _inputModel.DiscriminatorValue is null
+                && _inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
+                && !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract);
+
+        private bool BaseInitializationConstructorOmitsDiscriminator(PropertyProvider property)
+            => BaseModelProvider?.ShouldOmitDiscriminatorParameterFromPublicConstructor(property, true) == true;
 
         private bool HasBaseModelProviderCycle()
         {
@@ -1183,14 +1206,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
             }
 
-            // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the
-            // primary constructor body.
+            // Assign a discriminator that the base initialization constructor does not initialize.
             if (isPrimaryConstructor && DiscriminatorValueExpression != null)
             {
                 var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
-                if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
+                if (baseDiscriminatorProperty is not null &&
+                    (baseDiscriminatorProperty.WireInfo?.IsRequired != true ||
+                    BaseInitializationConstructorOmitsDiscriminator(baseDiscriminatorProperty)))
                 {
-                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate());
+                    var discriminatorValue = parameterMap.TryGetValue(baseDiscriminatorProperty.AsParameter.Name, out var discriminatorParameter)
+                        ? discriminatorParameter
+                        : DiscriminatorValueExpression;
+                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(discriminatorValue).Terminate());
                 }
             }
 
