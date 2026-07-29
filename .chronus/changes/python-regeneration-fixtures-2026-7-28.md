@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Track customized generated test fixtures locally and preserve them during regeneration.
+Track only hand-authored test fixture files instead of whole generated packages, and clean generated test code with `git clean` during regeneration.

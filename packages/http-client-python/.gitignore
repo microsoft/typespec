@@ -16,18 +16,54 @@ component-detection-pip-report.json
 generator/component-detection-pip-report.json
 
 # Generated SDK fixtures with hand-authored/customized code required by tests. (begin)
+#
+# Generated SDK packages under `tests/generated/` are recreated from the specs by
+# `npm run regenerate`, so they are not committed. Only the hand-authored files
+# that regeneration deliberately preserves are tracked; every exception below
+# documents why the file cannot be regenerated.
+#
+# The repo-root .gitignore excludes `tests/**/generated/` as a whole directory,
+# which would stop git from ever descending into it, so re-include the directory
+# itself first and then ignore its contents.
 !tests/**/generated/
-tests/**/generated/*
-!tests/generated/azure/
-tests/generated/azure/*
-!tests/generated/azure/authentication-api-key/
-!tests/generated/azure/authentication-union/
-!tests/generated/azure/generation-subdir/
-!tests/generated/azure/generation-subdir2/
-!tests/generated/azure/azure-client-generator-core-alternate-type/
-!tests/generated/unbranded/
-tests/generated/unbranded/*
-!tests/generated/unbranded/authentication-api-key/
-!tests/generated/unbranded/generation-subdir/
-!tests/generated/unbranded/generation-subdir2/
+tests/generated/**
+# Re-include directories so the exceptions below are reachable (git does not
+# descend into an ignored directory).
+!tests/generated/**/
+
+# `_operations/_patch.py` adds `patch_added_operation`, asserted by
+# tests/mock_api/shared/test_patch.py.
+!tests/generated/azure/authentication-api-key/authentication/apikey/_operations/_patch.py
+!tests/generated/azure/authentication-api-key/authentication/apikey/aio/_operations/_patch.py
+!tests/generated/unbranded/authentication-api-key/authentication/apikey/_operations/_patch.py
+!tests/generated/unbranded/authentication-api-key/authentication/apikey/aio/_operations/_patch.py
+
+# `models/_patch.py` registers the custom GeoJSON serializer/deserializer used by
+# tests/mock_api/azure/test_client_generator_core_alternate_type.py.
+!tests/generated/azure/azure-client-generator-core-alternate-type/specs/azure/clientgenerator/core/alternatetype/models/_patch.py
+
+# `pyproject.toml` carries a hand-added `[tool.azure-sdk-build]` section. It is
+# the fixture for the emitter behavior that keeps existing `[tool.*]` fields when
+# it rewrites `pyproject.toml`, so the file has to exist before regeneration.
+!tests/generated/azure/authentication-union/pyproject.toml
+
+# `generation-subdir`/`generation-subdir2` emit into a `_generated/` subfolder;
+# the surrounding package is a hand-written wrapper (`CustomizedClient` /
+# `AddedClient`) that regeneration must leave untouched.
+!tests/generated/azure/generation-subdir/generation/subdir/__init__.py
+!tests/generated/azure/generation-subdir/generation/subdir/_client.py
+!tests/generated/azure/generation-subdir/generation/subdir/aio/__init__.py
+!tests/generated/azure/generation-subdir/generation/subdir/aio/_client.py
+!tests/generated/unbranded/generation-subdir/generation/subdir/__init__.py
+!tests/generated/unbranded/generation-subdir/generation/subdir/_client.py
+!tests/generated/unbranded/generation-subdir/generation/subdir/aio/__init__.py
+!tests/generated/unbranded/generation-subdir/generation/subdir/aio/_client.py
+!tests/generated/azure/generation-subdir2/generation/subdir2/__init__.py
+!tests/generated/azure/generation-subdir2/generation/subdir2/_client.py
+!tests/generated/azure/generation-subdir2/generation/subdir2/aio/__init__.py
+!tests/generated/azure/generation-subdir2/generation/subdir2/aio/_client.py
+!tests/generated/unbranded/generation-subdir2/generation/subdir2/__init__.py
+!tests/generated/unbranded/generation-subdir2/generation/subdir2/_client.py
+!tests/generated/unbranded/generation-subdir2/generation/subdir2/aio/__init__.py
+!tests/generated/unbranded/generation-subdir2/generation/subdir2/aio/_client.py
 # Generated SDK fixtures with hand-authored/customized code required by tests. (end)

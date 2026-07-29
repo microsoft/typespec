@@ -14,6 +14,7 @@
  */
 
 import { compile, NodeHost } from "@typespec/compiler";
+import { execSync } from "child_process";
 import { existsSync, rmSync } from "fs";
 import { access, mkdir, readdir, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "path";
@@ -653,46 +654,26 @@ export async function runParallel(
   return results;
 }
 
-/** Removes generated SDK packages except tracked fixtures with customized code required by tests. */
-export async function cleanGeneratedCodePreservingFixtures(generatedFolder: string): Promise<void> {
-  const testsGeneratedDir = resolve(generatedFolder, "../tests/generated");
-  const preservedFixturePaths = new Set([
-    // Keeps patch_added_operation in _operations/_patch.py for shared patch tests.
-    "azure/authentication-api-key",
-    // Keeps pyright disabled in the custom [tool.azure-sdk-build] configuration.
-    "azure/authentication-union",
-    // Keeps the same operation patch for the unbranded test run.
-    "unbranded/authentication-api-key",
-    // Keeps the hand-authored CustomizedClient wrapper outside _generated.
-    "azure/generation-subdir",
-    // Keeps the hand-authored AddedClient wrapper outside _generated.
-    "azure/generation-subdir2",
-    // Keeps the CustomizedClient wrapper for the unbranded test run.
-    "unbranded/generation-subdir",
-    // Keeps the AddedClient wrapper for the unbranded test run.
-    "unbranded/generation-subdir2",
-    // Keeps custom GeoJSON serializers and deserializers registered in models/_patch.py.
-    "azure/azure-client-generator-core-alternate-type",
-  ]);
+/**
+ * Removes every generated file under `tests/generated`, keeping only the
+ * hand-authored files that are tracked in git. `git clean -xdf` deletes ignored
+ * and untracked files but never tracked ones, so `.gitignore` stays the single
+ * source of truth for which fixtures survive regeneration (each exception there
+ * documents why it cannot be regenerated).
+ */
+export async function cleanGeneratedCode(generatedFolder: string): Promise<void> {
+  const repoDir = resolve(generatedFolder, "..");
+  const testsGeneratedDir = resolve(repoDir, "tests/generated");
+  if (!existsSync(testsGeneratedDir)) return;
 
   console.log(pc.cyan(`\n${"=".repeat(60)}`));
   console.log(pc.cyan(`Cleaning generated test packages`));
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
-  for (const flavor of ["azure", "unbranded"]) {
-    const flavorDir = join(testsGeneratedDir, flavor);
-    if (!existsSync(flavorDir)) continue;
-
-    const entries = await readdir(flavorDir, { withFileTypes: true });
-    for (const entry of entries) {
-      const relativePath = `${flavor}/${entry.name}`;
-      if (preservedFixturePaths.has(relativePath)) continue;
-
-      const path = join(flavorDir, entry.name);
-      console.log(pc.dim(`Deleting ${path}`));
-      rmSync(path, { recursive: true, force: true });
-    }
-  }
+  execSync(`git clean -xdfq -- "${testsGeneratedDir}"`, {
+    cwd: repoDir,
+    stdio: ["ignore", "inherit", "inherit"],
+  });
 }
 
 /**
