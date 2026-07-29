@@ -287,7 +287,12 @@ export function getCSharpTypeString(program: Program, type: Type): string {
 export function getModelEmitName(program: Program, model: Model): string {
   // Check for @friendlyName first
   const friendlyName = getFriendlyName(program, model);
-  if (friendlyName) return friendlyName;
+  if (friendlyName) {
+    // Replace any unresolved template parameter placeholders like {name} with PascalCase'd names.
+    // This happens when @friendlyName is applied with a TemplateParameter sourceObject that
+    // couldn't be resolved (e.g. @@friendlyName(TagsUpdate<Resource, Props>, "{name}TagsUpdate", Resource)).
+    return friendlyName.replace(/\{(\w+)\}/g, (_, n) => n.charAt(0).toUpperCase() + n.slice(1));
+  }
 
   // Anonymous models get sequential names
   if (!model.name || model.name === "") {
