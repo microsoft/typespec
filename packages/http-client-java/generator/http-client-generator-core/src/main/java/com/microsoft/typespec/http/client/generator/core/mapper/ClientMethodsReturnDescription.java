@@ -389,6 +389,16 @@ public final class ClientMethodsReturnDescription {
      * @return the response body type.
      */
     private static IType getResponseBodyType(Operation operation, boolean isProtocolMethod, JavaSettings settings) {
+        if (!isProtocolMethod
+            && operation.getConvenienceApi() != null
+            && operation.getConvenienceApi().isResponseHeadersAsModel()) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers. The protocol method (isProtocolMethod == true) is unaffected and still returns the raw response.
+            final ObjectSchema headerSchema = Mappers.getClientMapper().parseHeader(operation, settings);
+            if (headerSchema != null) {
+                return Mappers.getSchemaMapper().map(headerSchema);
+            }
+        }
         final IType expectedResponseBodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         if (isProtocolMethod && settings.isAzureV1()) {
             return SchemaUtil.tryMapToBinaryData(expectedResponseBodyType, operation);
