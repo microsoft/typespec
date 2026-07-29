@@ -85,6 +85,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
+        public async Task NullableReferenceGenericTypeDoesNotResolveToNullable()
+        {
+            // Regression: a nullable annotation on a generic reference type (e.g. BicepValue<string>?)
+            // must not be treated as System.Nullable<T>. Previously GetFullyQualifiedName produced
+            // "System.Nullable`1[[System.String]]", which caused TypeFactory.CreateFrameworkType to
+            // attempt building Nullable<string> and crash because string is not a value type.
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var propertySymbol = GetPropertySymbol(compilation, "Container", "Nullable");
+
+            // Sanity: the property symbol is a nullable-annotated reference type, not System.Nullable<T>.
+            var propertyTypeSymbol = (INamedTypeSymbol)propertySymbol.Type;
+            Assert.AreEqual(NullableAnnotation.Annotated, propertyTypeSymbol.NullableAnnotation);
+            Assert.AreNotEqual(SpecialType.System_Nullable_T, propertyTypeSymbol.ConstructedFrom.SpecialType);
+
+            var fullyQualifiedName = propertySymbol.Type.GetFullyQualifiedName();
+            Assert.AreEqual("Sample.BicepValue`1[System.String]", fullyQualifiedName);
+
+            var csharpType = propertySymbol.Type.GetCSharpType();
+
+            Assert.AreEqual("BicepValue", csharpType.Name);
+            Assert.AreEqual("Sample", csharpType.Namespace);
+            Assert.IsFalse(csharpType.IsNullable, "A nullable reference annotation must not be modeled as Nullable<T>.");
+            Assert.AreEqual(1, csharpType.Arguments.Count);
+            Assert.AreEqual("String", csharpType.Arguments[0].Name);
+        }
+
+        [Test]
         public async Task TypeParameterDoesNotResolveContainingGenericType()
         {
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();

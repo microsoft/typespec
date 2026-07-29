@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator
                 if (namedTypeSymbol.IsGenericType)
                 {
                     // Handle nullable types
-                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && !IsCollectionType(namedTypeSymbol))
+                    if (typeSymbol.NullableAnnotation == NullableAnnotation.Annotated && typeSymbol.IsValueType && !IsCollectionType(namedTypeSymbol))
                     {
                         var argTypeSymbol = namedTypeSymbol.TypeArguments.FirstOrDefault();
 
