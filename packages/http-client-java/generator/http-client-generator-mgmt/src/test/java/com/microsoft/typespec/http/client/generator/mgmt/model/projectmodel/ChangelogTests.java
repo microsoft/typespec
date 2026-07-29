@@ -36,7 +36,7 @@ public class ChangelogTests {
     }
 
     @Test
-    public void testChangelog() {
+    public void testChangelogForLite() {
         FluentProject mockProject = new MockProject();
         String dateUtc = Changelog.getDateUtc();
 
@@ -104,7 +104,7 @@ public class ChangelogTests {
     }
 
     @Test
-    public void testChangelogForApiVersion() {
+    public void testChangelogForPremium() {
         String apiVersionDescription = FluentProject.apiVersionDescription(java.util.Map.of("Client", "2023-01-01"));
         Assertions.assertEquals("Package api-version 2023-01-01.", apiVersionDescription);
         String apiVersionLine = "- " + apiVersionDescription;
@@ -167,7 +167,7 @@ public class ChangelogTests {
     }
 
     @Test
-    public void testChangelogForApiVersionRealSample() {
+    public void testChangelogForPremiumRealSample() {
         // Based on a real CHANGELOG.md (azure-resourcemanager-compute), top 2 sections.
         String existingChangelog = "# Release History\n" + "\n" + "## 2.60.0-beta.1 (Unreleased)\n" + "\n"
             + "### Features Added\n" + "\n" + "### Breaking Changes\n" + "\n" + "### Bugs Fixed\n" + "\n"
