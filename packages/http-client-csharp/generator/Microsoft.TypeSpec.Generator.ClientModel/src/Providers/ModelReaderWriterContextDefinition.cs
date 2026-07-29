@@ -26,10 +26,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal static readonly string s_name = $"{RemovePeriods(ScmCodeModelGenerator.Instance.TypeFactory.PrimaryNamespace)}Context";
 
-        // Customized buildable types come from custom code, which is stable, so compute them once.
-        private HashSet<string>? _customizedBuildableTypes;
-        private HashSet<string> CustomizedBuildableTypes => _customizedBuildableTypes ??= BuildCustomizedBuildableTypes();
-
         protected override string BuildName() => s_name;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
@@ -46,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
-            var customizedBuildableTypes = CustomizedBuildableTypes;
+            var customizedBuildableTypes = BuildCustomizedBuildableTypes();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
@@ -114,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            AddLastContractBuildableAttributes(attributes, CustomizedBuildableTypes);
+            AddLastContractBuildableAttributes(attributes, BuildCustomizedBuildableTypes());
 
             return [.. attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value), .. others];
         }

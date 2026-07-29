@@ -1873,6 +1873,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task ResetRecalculatesCustomizedBuildableTypes()
+        {
+            var clientProvider = new TestClientProviderWithResponseErrorReturnType();
+            var outputLibrary = new TestOutputLibrary([clientProvider]);
+            var mockGenerator = MockHelpers.LoadMockGenerator(createOutputLibrary: () => outputLibrary);
+
+            // The initial customization declares a buildable attribute for Azure.ResponseError, so the generated
+            // buildable attribute for that type is suppressed.
+            var suppressedCompilation = await Helpers.GetCompilationFromDirectoryAsync("Suppressed");
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(suppressedCompilation, null));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var suppressedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Suppressed"), suppressedContent);
+
+            // Change the customization view so it no longer suppresses the buildable attribute, then reset the
+            // provider. Reset must clear the customized buildable types so they are recalculated from the current
+            // customization view instead of reusing the stale suppression.
+            var emptyCompilation = await Helpers.GetCompilationFromDirectoryAsync("Empty");
+            mockGenerator.Object.SourceInputModel = new SourceInputModel(emptyCompilation, null);
+
+            contextDefinition.Reset();
+
+            var recalculatedContent = new TypeProviderWriter(contextDefinition).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Empty"), recalculatedContent);
+        }
+
+        [Test]
         public async Task LastContractBuildableAttributesAreRestoredWhenMissing()
         {
             // The last contract declared buildable attributes for RegularModel, RestoredType, and RemovedModel.
