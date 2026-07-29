@@ -23,9 +23,11 @@ This installs the exact tool versions recorded in `mise.toml` and `mise.lock`
 
 ### Option 2: Install the tools yourself
 
-If you prefer to manage tools yourself (or use another version manager), install
-[Node.js](https://nodejs.org/) as declared in `mise.toml` and pnpm at the
-version declared by the `packageManager` field in `package.json`:
+If you prefer to manage tools yourself (or use another version manager), just
+install [Node.js](https://nodejs.org/). We support all active
+[Node.js LTS](https://nodejs.org/en/about/previous-releases) versions, so any of
+them works. pnpm self-manages its version from the `packageManager` field in
+`package.json`, so you only need to install pnpm itself:
 
 ```bash
 npm install -g pnpm
