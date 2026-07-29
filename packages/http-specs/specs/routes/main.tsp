@@ -332,6 +332,12 @@ namespace PathParameters {
   }
 }
 
+@doc("A named model used to verify explode expansion of a model-valued query parameter.")
+model ExpandParameters {
+  field: string;
+  value: string;
+}
+
 @route("query")
 namespace QueryParameters {
   @scenario
@@ -409,6 +415,18 @@ namespace QueryParameters {
         """)
       @route("record{?param*}")
       op `record`(param: Record<int32>): void;
+
+      @scenario
+      @scenarioDoc("""
+        Test query expansion with explode: true when passed a named model value.
+        Per RFC 6570 form explode, each property of the model is expanded into its own
+        query parameter using the property name as the key (the parameter name itself
+        is not emitted).
+            Param value: {field: "status", value: "active"}
+            Expected path: /routes/query/query-expansion/explode/model?field=status&value=active
+        """)
+      @route("model{?param*}")
+      op `model`(param: ExpandParameters): void;
     }
   }
 

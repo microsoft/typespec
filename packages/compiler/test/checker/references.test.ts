@@ -5,56 +5,55 @@ import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js
 import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
-describe("compiler: references", () => {
-  function itCanReference({
-    code,
-    ref,
-    resolveTarget,
-  }: {
-    code: string;
-    ref: string;
-    resolveTarget?: (target: any) => Type | undefined;
-  }) {
-    async function runTest(codeBefore: string, codeAfter: string) {
-      const { RefContainer, target } = (await Tester.compile(
-        t.code`
+function itCanReference({
+  code,
+  ref,
+  resolveTarget,
+}: {
+  code: string;
+  ref: string;
+  resolveTarget?: (target: any) => Type | undefined;
+}) {
+  async function runTest(codeBefore: string, codeAfter: string) {
+    const { RefContainer, target } = (await Tester.compile(
+      t.code`
           ${codeBefore}
           model ${t.model("RefContainer")} { y: ${ref} }
           ${codeAfter}
         `,
-      )) as any;
-      const expectedTarget = resolveTarget ? resolveTarget(target) : target;
-      expectTypeEquals(RefContainer.properties.get("y")!.type, expectedTarget);
-    }
-    it("reference before declaration", () => runTest("", code));
-    it("reference after declaration", () => runTest(code, ""));
+    )) as any;
+    const expectedTarget = resolveTarget ? resolveTarget(target) : target;
+    expectTypeEquals(RefContainer.properties.get("y")!.type, expectedTarget);
   }
+  it("reference before declaration", () => runTest("", code));
+  it("reference after declaration", () => runTest(code, ""));
+}
 
-  describe("model properties", () => {
-    describe("simple property", () =>
-      itCanReference({
-        code: `
+describe("model properties", () => {
+  describe("simple property", () =>
+    itCanReference({
+      code: `
       model MyModel {
         @test("target") x: string;
       }`,
-        ref: "MyModel.x",
-      }));
+      ref: "MyModel.x",
+    }));
 
-    describe("member of alias of alias of model", () =>
-      itCanReference({
-        code: `
+  describe("member of alias of alias of model", () =>
+    itCanReference({
+      code: `
           model MyModel {
             @test("target") x: string;
           }
           alias Alias1  = MyModel;
           alias MyModelAlias  = Alias1;
         `,
-        ref: "MyModelAlias.x",
-      }));
+      ref: "MyModelAlias.x",
+    }));
 
-    describe("spread property from model defined before", () =>
-      itCanReference({
-        code: `
+  describe("spread property from model defined before", () =>
+    itCanReference({
+      code: `
           model Spreadable {
             y: string;
           }
@@ -63,13 +62,13 @@ describe("compiler: references", () => {
             x: string;
             ... Spreadable;
           }`,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property from model defined after", () =>
-      itCanReference({
-        code: `
+  describe("spread property from model defined after", () =>
+    itCanReference({
+      code: `
           @test("target") model MyModel {
             x: string;
             ... Spreadable;
@@ -78,13 +77,13 @@ describe("compiler: references", () => {
           model Spreadable {
             y: string;
           }`,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property via alias", () =>
-      itCanReference({
-        code: `
+  describe("spread property via alias", () =>
+    itCanReference({
+      code: `
           model Spreadable {
             y: string;
           }
@@ -96,13 +95,13 @@ describe("compiler: references", () => {
             ... SpreadAlias;
           }
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property via alias of alias", () =>
-      itCanReference({
-        code: `
+  describe("spread property via alias of alias", () =>
+    itCanReference({
+      code: `
           model Spreadable {
             y: string;
           }
@@ -116,13 +115,13 @@ describe("compiler: references", () => {
             ... SpreadAlias3;
           }
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property from a templated model", () =>
-      itCanReference({
-        code: `
+  describe("spread property from a templated model", () =>
+    itCanReference({
+      code: `
           model Spreadable<T> {
             y: T;
           }
@@ -133,13 +132,13 @@ describe("compiler: references", () => {
             ... Spreadable<string>;
           }
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property from a template parameter", () =>
-      itCanReference({
-        code: `
+  describe("spread property from a template parameter", () =>
+    itCanReference({
+      code: `
           model B {
             b: string;
           }
@@ -151,13 +150,13 @@ describe("compiler: references", () => {
     
           alias Spread = Spreadable<B>;
         `,
-        ref: "Spread.b",
-        resolveTarget: (target: Model) => target.properties.get("b"),
-      }));
+      ref: "Spread.b",
+      resolveTarget: (target: Model) => target.properties.get("b"),
+    }));
 
-    describe("property from `model is`", () =>
-      itCanReference({
-        code: `
+  describe("property from `model is`", () =>
+    itCanReference({
+      code: `
           model Base {
             y: string;
           }
@@ -165,13 +164,13 @@ describe("compiler: references", () => {
           @test("target") model MyModel is Base {
             x: string;
           }`,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("inherited property", () =>
-      itCanReference({
-        code: `
+  describe("inherited property", () =>
+    itCanReference({
+      code: `
           // Here the base model property is what ends up being referenced.
           @test("target") model Base {
             y: string;
@@ -180,26 +179,26 @@ describe("compiler: references", () => {
           model MyModel extends Base {
             x: string;
           }`,
-        ref: "MyModel.y",
-        resolveTarget: (base: Model) => base.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (base: Model) => base.properties.get("y"),
+    }));
 
-    describe("property from template instance alias", () =>
-      itCanReference({
-        code: `
+  describe("property from template instance alias", () =>
+    itCanReference({
+      code: `
           @test("target") model Template<T> {
             y: T;
           }
     
           alias MyModel = Template<string>;
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("spread property from template instance alias", () =>
-      itCanReference({
-        code: `
+  describe("spread property from template instance alias", () =>
+    itCanReference({
+      code: `
           model Base<T> {
             y: T
           }
@@ -210,64 +209,64 @@ describe("compiler: references", () => {
     
           alias MyModel = Template<string>;
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("sibling property", () => {
-      it("can reference sibling property defined before", async () => {
-        const { Foo } = await Tester.compile(t.code`
+  describe("sibling property", () => {
+    it("can reference sibling property defined before", async () => {
+      const { Foo } = await Tester.compile(t.code`
           model ${t.model("Foo")} {
             a: string;
             b: Foo.a;
           }
         `);
 
-        expectTypeEquals(Foo.properties.get("b")!.type, Foo.properties.get("a")!);
-      });
+      expectTypeEquals(Foo.properties.get("b")!.type, Foo.properties.get("a")!);
+    });
 
-      it("can reference sibling property defined after", async () => {
-        const { Foo } = await Tester.compile(t.code`
+    it("can reference sibling property defined after", async () => {
+      const { Foo } = await Tester.compile(t.code`
           model ${t.model("Foo")} {
             a: Foo.b;
             b: string;
           }
         `);
 
-        strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
-      });
+      strictEqual(Foo.properties.get("a")!.type, Foo.properties.get("b"));
     });
+  });
 
-    it("member reference via templated alias with default parameters", async () => {
-      const { X } = await Tester.compile(t.code`
+  it("member reference via templated alias with default parameters", async () => {
+    const { X } = await Tester.compile(t.code`
         model M<T = string> { prop: T; } 
         alias A<T = string> = M<T>;
 
         model ${t.model("X")} { y: A.prop; }
       `);
 
-      const y = X.properties.get("y")!;
-      strictEqual(y.type.kind, "ModelProperty");
-      strictEqual(y.type.type.kind, "Scalar");
-      strictEqual(y.type.type.name, "string");
-    });
+    const y = X.properties.get("y")!;
+    strictEqual(y.type.kind, "ModelProperty");
+    strictEqual(y.type.type.kind, "Scalar");
+    strictEqual(y.type.type.name, "string");
+  });
 
-    it("member reference via templated alias with different alias defaults", async () => {
-      const { X } = await Tester.compile(t.code`
+  it("member reference via templated alias with different alias defaults", async () => {
+    const { X } = await Tester.compile(t.code`
           model M<T = string> { prop: T; }
           alias A<U = boolean> = M<U>;
 
           model ${t.model("X")} { y: A.prop; }
       `);
 
-      const y = X.properties.get("y")!;
-      strictEqual(y.type.kind, "ModelProperty");
-      strictEqual(y.type.type.kind, "Scalar");
-      strictEqual(y.type.type.name, "boolean");
-    });
+    const y = X.properties.get("y")!;
+    strictEqual(y.type.kind, "ModelProperty");
+    strictEqual(y.type.type.kind, "Scalar");
+    strictEqual(y.type.type.name, "boolean");
+  });
 
-    it("member reference via alias-of-alias (templated, defaultable)", async () => {
-      const { X } = await Tester.compile(t.code`
+  it("member reference via alias-of-alias (templated, defaultable)", async () => {
+    const { X } = await Tester.compile(t.code`
           model M<T> { prop: T; }
 
           alias A<T> = M<T>;
@@ -276,116 +275,116 @@ describe("compiler: references", () => {
           model ${t.model("X")} { y: B.prop; }
       `);
 
-      const y = X.properties.get("y")!;
-      strictEqual(y.type.kind, "ModelProperty");
-      strictEqual(y.type.type.kind, "Scalar");
-      strictEqual(y.type.type.name, "boolean");
-    });
+    const y = X.properties.get("y")!;
+    strictEqual(y.type.kind, "ModelProperty");
+    strictEqual(y.type.type.kind, "Scalar");
+    strictEqual(y.type.type.name, "boolean");
+  });
 
-    it("member reference via templated alias to model literal with default argument", async () => {
-      const { Example } = await Tester.compile(t.code`
+  it("member reference via templated alias to model literal with default argument", async () => {
+    const { Example } = await Tester.compile(t.code`
         alias A<T = string> = { t: T; };
         model ${t.model("Example")} { prop: A.t }
       `);
 
-      const prop = Example.properties.get("prop")!;
-      strictEqual(prop.type.kind, "ModelProperty");
-      strictEqual(prop.type.type.kind, "Scalar");
-      strictEqual(prop.type.type.name, "string");
-    });
+    const prop = Example.properties.get("prop")!;
+    strictEqual(prop.type.kind, "ModelProperty");
+    strictEqual(prop.type.type.kind, "Scalar");
+    strictEqual(prop.type.type.name, "string");
+  });
 
-    it("reports an error when referencing an uninstantiated alias", async () => {
-      const diagnostics = await Tester.diagnose(`
+  it("reports an error when referencing an uninstantiated alias", async () => {
+    const diagnostics = await Tester.diagnose(`
         alias A<T> = { t: T; };
         model Example { prop: A.t }
       `);
 
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-template-args",
-          message: "Template argument 'T' is required and not specified.",
-        },
-      ]);
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-template-args",
+        message: "Template argument 'T' is required and not specified.",
+      },
+    ]);
+  });
 
-    describe("late-bound member from template spread via `is`", () =>
-      itCanReference({
-        code: `
+  describe("late-bound member from template spread via `is`", () =>
+    itCanReference({
+      code: `
           model Template<T> {...T}
           @test("target") model MyModel is Template<{y: string}> {}
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("late-bound member from template spread via `is` (forward reference)", () =>
-      itCanReference({
-        code: `
+  describe("late-bound member from template spread via `is` (forward reference)", () =>
+    itCanReference({
+      code: `
           @test("target") model MyModel is Template<{y: string}> {}
           model Template<T> {...T}
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("late-bound member from template parameter spread", () =>
-      itCanReference({
-        code: `
+  describe("late-bound member from template parameter spread", () =>
+    itCanReference({
+      code: `
           model Template<T> {...T}
           @test("target") model MyModel { ...Template<{y: string}> }
         `,
-        ref: "MyModel.y",
-        resolveTarget: (target: Model) => target.properties.get("y"),
-      }));
+      ref: "MyModel.y",
+      resolveTarget: (target: Model) => target.properties.get("y"),
+    }));
 
-    describe("circular reference with late-bound members", () => {
-      it("model referencing its own late-bound member doesn't crash", async () => {
-        const diagnostics = await Tester.diagnose(`
+  describe("circular reference with late-bound members", () => {
+    it("model referencing its own late-bound member doesn't crash", async () => {
+      const diagnostics = await Tester.diagnose(`
           model Template<T> {...T}
           model A is Template<{self: A}> {}
           alias Test = A.self;
         `);
-        // Should resolve without crashing — self-referencing is allowed
-        expectDiagnostics(diagnostics, []);
-      });
+      // Should resolve without crashing — self-referencing is allowed
+      expectDiagnostics(diagnostics, []);
+    });
 
-      it("mutual reference between late-bound models", async () => {
-        const { A, B } = await Tester.compile(t.code`
+    it("mutual reference between late-bound models", async () => {
+      const { A, B } = await Tester.compile(t.code`
           model Template<T> {...T}
           model ${t.model("A")} is Template<{b: B}> {}
           model ${t.model("B")} is Template<{a: A}> {}
         `);
-        ok(A.properties.has("b"), "A should have property b");
-        ok(B.properties.has("a"), "B should have property a");
-        strictEqual(A.properties.get("b")!.type, B);
-        strictEqual(B.properties.get("a")!.type, A);
-      });
+      ok(A.properties.has("b"), "A should have property b");
+      ok(B.properties.has("a"), "B should have property a");
+      strictEqual(A.properties.get("b")!.type, B);
+      strictEqual(B.properties.get("a")!.type, A);
+    });
 
-      it("accessing late-bound member that refers back to the container", async () => {
-        const { A } = await Tester.compile(t.code`
+    it("accessing late-bound member that refers back to the container", async () => {
+      const { A } = await Tester.compile(t.code`
           model Template<T> {...T}
           model ${t.model("A")} is Template<{self: A}> {}
           model Ref { prop: A.self }
         `);
-        strictEqual(A.properties.get("self")!.type, A);
-      });
+      strictEqual(A.properties.get("self")!.type, A);
     });
   });
+});
 
-  describe("enum members", () => {
-    describe("simple enum member", () =>
-      itCanReference({
-        code: `
+describe("enum members", () => {
+  describe("simple enum member", () =>
+    itCanReference({
+      code: `
           enum MyEnum {
             @test("target") x, y, z
           }
         `,
-        ref: "MyEnum.x",
-      }));
+      ref: "MyEnum.x",
+    }));
 
-    describe("spread member", () =>
-      itCanReference({
-        code: `
+  describe("spread member", () =>
+    itCanReference({
+      code: `
           enum Spreadable {
             x, y
           }
@@ -394,30 +393,30 @@ describe("compiler: references", () => {
             ... Spreadable,
             z
           }`,
-        ref: "MyEnum.y",
-        resolveTarget: (target: Enum) => target.members.get("y"),
-      }));
+      ref: "MyEnum.y",
+      resolveTarget: (target: Enum) => target.members.get("y"),
+    }));
 
-    describe("alias enum, member", () =>
-      itCanReference({
-        code: `
+  describe("alias enum, member", () =>
+    itCanReference({
+      code: `
           enum MyEnum {
             x, @test("target") y
           }
     
           alias MyEnumAlias = MyEnum;
         `,
-        ref: "MyEnumAlias.y",
-      }));
+      ref: "MyEnumAlias.y",
+    }));
 
-    describe("reference in namespace decorator", () => {
-      it("can reference enum resolved in a namespace decorator", async () => {
-        let taggedValue: Model | undefined;
-        const { MyEnum } = await Tester.files({
-          "collect.js": mockFile.js({
-            $collect: (_: any, _t: any, value: any) => (taggedValue = value),
-          }),
-        }).import("./collect.js").compile(t.code`
+  describe("reference in namespace decorator", () => {
+    it("can reference enum resolved in a namespace decorator", async () => {
+      let taggedValue: Model | undefined;
+      const { MyEnum } = await Tester.files({
+        "collect.js": mockFile.js({
+          $collect: (_: any, _t: any, value: any) => (taggedValue = value),
+        }),
+      }).import("./collect.js").compile(t.code`
             enum ${t.enum("MyEnum")} { a, b }
 
             model Template<T extends AorB> {
@@ -442,20 +441,20 @@ describe("compiler: references", () => {
             namespace Test { }
           `);
 
-        ok(taggedValue);
-        const tagType = taggedValue.properties.get("t")?.type;
-        strictEqual(tagType?.kind, "Model" as const);
-        strictEqual(tagType.properties.get("type")?.type.kind, "EnumMember" as const);
-        strictEqual(tagType.properties.get("type")?.type, MyEnum.members.get("b"));
-      });
+      ok(taggedValue);
+      const tagType = taggedValue.properties.get("t")?.type;
+      strictEqual(tagType?.kind, "Model" as const);
+      strictEqual(tagType.properties.get("type")?.type.kind, "EnumMember" as const);
+      strictEqual(tagType.properties.get("type")?.type, MyEnum.members.get("b"));
+    });
 
-      it("alias don't conflict", async () => {
-        let taggedValue: Model | undefined;
-        const { Foo } = await Tester.files({
-          "collect.js": mockFile.js({
-            $collect: (_: any, _t: any, value: any) => (taggedValue = value),
-          }),
-        }).import("./collect.js").compile(t.code`
+    it("alias don't conflict", async () => {
+      let taggedValue: Model | undefined;
+      const { Foo } = await Tester.files({
+        "collect.js": mockFile.js({
+          $collect: (_: any, _t: any, value: any) => (taggedValue = value),
+        }),
+      }).import("./collect.js").compile(t.code`
             @collect(Foo.a)
             namespace MyService;
 
@@ -471,37 +470,37 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(taggedValue, Foo.members.get("a"));
-      });
+      strictEqual(taggedValue, Foo.members.get("a"));
     });
   });
+});
 
-  describe("union variants", () => {
-    describe("simple variant", () =>
-      itCanReference({
-        code: `
+describe("union variants", () => {
+  describe("simple variant", () =>
+    itCanReference({
+      code: `
           union MyUnion {
             @test("target") x: string;
           }
         `,
-        ref: "MyUnion.x",
-      }));
+      ref: "MyUnion.x",
+    }));
 
-    describe("variant in alias union", () =>
-      itCanReference({
-        code: `
+  describe("variant in alias union", () =>
+    itCanReference({
+      code: `
           union MyUnion {
             @test("target") x: string;
           }
 
           alias MyUnionAlias = MyUnion;
         `,
-        ref: "MyUnionAlias.x",
-      }));
+      ref: "MyUnionAlias.x",
+    }));
 
-    describe("variant in template union instance", () =>
-      itCanReference({
-        code: `
+  describe("variant in template union instance", () =>
+    itCanReference({
+      code: `
           union MyUnion<T> {
             @test("target") x: T;
           }
@@ -509,58 +508,58 @@ describe("compiler: references", () => {
           alias MyUnionT = MyUnion<string>;
 
         `,
-        ref: "MyUnionT.x",
-      }));
-  });
+      ref: "MyUnionT.x",
+    }));
+});
 
-  describe("interface members", () => {
-    describe("simple member", () =>
-      itCanReference({
-        code: `
+describe("interface members", () => {
+  describe("simple member", () =>
+    itCanReference({
+      code: `
           interface MyInterface {
             @test("target") operation(): void;
           }
         `,
-        ref: "MyInterface.operation",
-      }));
+      ref: "MyInterface.operation",
+    }));
 
-    describe("member of alias interface", () =>
-      itCanReference({
-        code: `
+  describe("member of alias interface", () =>
+    itCanReference({
+      code: `
           interface MyInterface {
             @test("target") operation(): void;
           }
           alias MyInterfaceAlias  = MyInterface;
         `,
-        ref: "MyInterfaceAlias.operation",
-      }));
+      ref: "MyInterfaceAlias.operation",
+    }));
 
-    describe("member of alias of alias of interface", () =>
-      itCanReference({
-        code: `
+  describe("member of alias of alias of interface", () =>
+    itCanReference({
+      code: `
           interface MyInterface {
             @test("target") operation(): void;
           }
           alias MyInterfaceAlias1  = MyInterface;
           alias MyInterfaceAlias  = MyInterfaceAlias1;
         `,
-        ref: "MyInterfaceAlias.operation",
-      }));
+      ref: "MyInterfaceAlias.operation",
+    }));
 
-    describe("member of templated interface instance", () =>
-      itCanReference({
-        code: `
+  describe("member of templated interface instance", () =>
+    itCanReference({
+      code: `
           interface MyInterface<T> {
             @test("target") operation(): T;
           }
           alias MyInterfaceT  = MyInterface<string>;
         `,
-        ref: "MyInterfaceT.operation",
-      }));
+      ref: "MyInterfaceT.operation",
+    }));
 
-    describe("member from `interface extends`", () =>
-      itCanReference({
-        code: `
+  describe("member from `interface extends`", () =>
+    itCanReference({
+      code: `
           interface Base {
             operation(): void;
           }
@@ -569,21 +568,21 @@ describe("compiler: references", () => {
             x(): void;
           }
         `,
-        ref: "MyInterface.operation",
-        resolveTarget: (target: Interface) => target.operations.get("operation"),
-      }));
+      ref: "MyInterface.operation",
+      resolveTarget: (target: Interface) => target.operations.get("operation"),
+    }));
 
-    describe("reference sibling members", () => {
-      let linkedValue: Operation | undefined;
+  describe("reference sibling members", () => {
+    let linkedValue: Operation | undefined;
 
-      it("defined before", async () => {
-        const { Foo } = await Tester.files({
-          "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {
-              linkedValue = value;
-            },
-          }),
-        }).import("./test-link.js").compile(t.code`
+    it("defined before", async () => {
+      const { Foo } = await Tester.files({
+        "test-link.js": mockFile.js({
+          $testLink: (_: any, _t: any, value: Operation) => {
+            linkedValue = value;
+          },
+        }),
+      }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
               one(): void;
               @testLink(Foo.one)
@@ -591,17 +590,17 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("one"));
-      });
+      strictEqual(linkedValue, Foo.operations.get("one"));
+    });
 
-      it("defined after", async () => {
-        const { Foo } = await Tester.files({
-          "test-link.js": mockFile.js({
-            $testLink: (_: any, _t: any, value: Operation) => {
-              linkedValue = value;
-            },
-          }),
-        }).import("./test-link.js").compile(t.code`
+    it("defined after", async () => {
+      const { Foo } = await Tester.files({
+        "test-link.js": mockFile.js({
+          $testLink: (_: any, _t: any, value: Operation) => {
+            linkedValue = value;
+          },
+        }),
+      }).import("./test-link.js").compile(t.code`
             interface ${t.interface("Foo")} {
               @testLink(Foo.two) 
               one(): void;
@@ -609,37 +608,37 @@ describe("compiler: references", () => {
             }
           `);
 
-        strictEqual(linkedValue, Foo.operations.get("two"));
-      });
+      strictEqual(linkedValue, Foo.operations.get("two"));
     });
+  });
 
-    it("operation reference via templated alias with default parameters", async () => {
-      const { example } = await Tester.compile(t.code`
+  it("operation reference via templated alias with default parameters", async () => {
+    const { example } = await Tester.compile(t.code`
           interface I<T = string> { o(): T; }
           alias A<T = string> = I<T>;
 
           op ${t.op("example")} is A.o;
       `);
-      strictEqual(example.kind, "Operation");
-      strictEqual(example.returnType.kind, "Scalar");
-      strictEqual(example.returnType.name, "string");
-    });
+    strictEqual(example.kind, "Operation");
+    strictEqual(example.returnType.kind, "Scalar");
+    strictEqual(example.returnType.name, "string");
+  });
 
-    it("operation reference via templated alias with different alias defaults", async () => {
-      const { example } = await Tester.compile(t.code`
+  it("operation reference via templated alias with different alias defaults", async () => {
+    const { example } = await Tester.compile(t.code`
           interface I<T = string> { o(): T; }
           alias A<U = boolean> = I<U>;
 
           op ${t.op("example")} is A.o;
       `);
 
-      strictEqual(example.kind, "Operation");
-      strictEqual(example.returnType.kind, "Scalar");
-      strictEqual(example.returnType.name, "boolean");
-    });
+    strictEqual(example.kind, "Operation");
+    strictEqual(example.returnType.kind, "Scalar");
+    strictEqual(example.returnType.name, "boolean");
+  });
 
-    it("operation reference via alias-of-alias (templated, defaultable)", async () => {
-      const { example } = await Tester.compile(t.code`
+  it("operation reference via alias-of-alias (templated, defaultable)", async () => {
+    const { example } = await Tester.compile(t.code`
           interface I<T> { o(): T; }
           alias A<T> = I<T>;
           alias B<T = boolean> = A<T>;
@@ -647,14 +646,14 @@ describe("compiler: references", () => {
           op ${t.op("example")} is B.o;
       `);
 
-      strictEqual(example.kind, "Operation");
-      strictEqual(example.returnType.kind, "Scalar");
-      strictEqual(example.returnType.name, "boolean");
-    });
+    strictEqual(example.kind, "Operation");
+    strictEqual(example.returnType.kind, "Scalar");
+    strictEqual(example.returnType.name, "boolean");
   });
+});
 
-  it("throws proper diagnostics", async () => {
-    const diagnostics = await Tester.diagnose(`
+it("throws proper diagnostics", async () => {
+  const diagnostics = await Tester.diagnose(`
       model M { }
       interface I { }
       union U { }
@@ -668,87 +667,87 @@ describe("compiler: references", () => {
       }
     `);
 
-    expectDiagnostics(diagnostics, [
-      {
-        code: "invalid-ref",
-        message: `Model doesn't have member x`,
-      },
-      {
-        code: "invalid-ref",
-        message: `Interface doesn't have member x`,
-      },
-      {
-        code: "invalid-ref",
-        message: `Union doesn't have member x`,
-      },
-      {
-        code: "invalid-ref",
-        message: `Enum doesn't have member x`,
-      },
-    ]);
-  });
+  expectDiagnostics(diagnostics, [
+    {
+      code: "invalid-ref",
+      message: `Model doesn't have member x`,
+    },
+    {
+      code: "invalid-ref",
+      message: `Interface doesn't have member x`,
+    },
+    {
+      code: "invalid-ref",
+      message: `Union doesn't have member x`,
+    },
+    {
+      code: "invalid-ref",
+      message: `Enum doesn't have member x`,
+    },
+  ]);
+});
 
-  it("referencing alias that reference an invalid ref should emit diagnostic", async () => {
-    const diagnostics = await Tester.diagnose(`
+it("referencing alias that reference an invalid ref should emit diagnostic", async () => {
+  const diagnostics = await Tester.diagnose(`
       alias A = NotDefined;
       alias B = A;
     `);
 
-    expectDiagnostics(diagnostics, [
-      {
-        code: "invalid-ref",
-        message: `Unknown identifier NotDefined`,
-      },
-    ]);
-  });
+  expectDiagnostics(diagnostics, [
+    {
+      code: "invalid-ref",
+      message: `Unknown identifier NotDefined`,
+    },
+  ]);
+});
 
-  describe("Meta types", () => {
-    describe("ModelProperty::type that is an expression", () =>
-      itCanReference({
-        code: `
+describe("Meta types", () => {
+  describe("ModelProperty::type that is an expression", () =>
+    itCanReference({
+      code: `
           model Person {
             address: {
               @test("target") city: string
             }
           }
         `,
-        ref: "Person.address::type.city",
-      }));
+      ref: "Person.address::type.city",
+    }));
 
-    describe("ModelProperty::type that is an anonymous model", () =>
-      itCanReference({
-        code: `
+  describe("ModelProperty::type that is an anonymous model", () =>
+    itCanReference({
+      code: `
           model A {  a: string }
           model B { b: string }
           model Person {
             @test("target") address: { ...A, ...B };
           }
         `,
-        ref: "Person.address::type.a",
-        resolveTarget: (prop) => {
-          // Abc
-          return prop.type.properties.get("a");
-        },
-      }));
+      ref: "Person.address::type.a",
+      resolveTarget: (prop) => {
+        // Abc
+        return prop.type.properties.get("a");
+      },
+    }));
 
-    describe("ModelProperty::type that is an intersection", () =>
-      itCanReference({
-        code: `
+  describe("ModelProperty::type that is an intersection", () =>
+    itCanReference({
+      code: `
           model A { a: string }
           model B { b: string }
           model Person {
             @test("target") address: A & B;
           }
         `,
-        ref: "Person.address::type.a",
-        resolveTarget: (prop) => {
-          // Abc
-          return prop.type.properties.get("a");
-        },
-      }));
-    describe("ModelProperty::type that is a type reference", () =>
-      itCanReference({
-        code: `
+      ref: "Person.address::type.a",
+      resolveTarget: (prop) => {
+        // Abc
+        return prop.type.properties.get("a");
+      },
+    }));
+  describe("ModelProperty::type that is a type reference", () =>
+    itCanReference({
+      code: `
           model Person {
             address: Address
           }
@@ -756,12 +755,12 @@ describe("compiler: references", () => {
             @test("target") city: string
           }
         `,
-        ref: "Person.address::type.city",
-      }));
+      ref: "Person.address::type.city",
+    }));
 
-    describe("ModelProperty::type through template parameter constrained to Reflection.ModelProperty", () =>
-      itCanReference({
-        code: `
+  describe("ModelProperty::type through template parameter constrained to Reflection.ModelProperty", () =>
+    itCanReference({
+      code: `
           model Person {
             address: Address
           }
@@ -773,12 +772,12 @@ describe("compiler: references", () => {
           }
           alias Wrapped = Wrapper<Person.address>;
         `,
-        ref: "Wrapped.value::type.city",
-      }));
+      ref: "Wrapped.value::type.city",
+    }));
 
-    describe("ModelProperty::type through template member access constrained to a concrete model", () =>
-      itCanReference({
-        code: `
+  describe("ModelProperty::type through template member access constrained to a concrete model", () =>
+    itCanReference({
+      code: `
           model X {
             @test("target") a: string;
           }
@@ -787,32 +786,32 @@ describe("compiler: references", () => {
           }
           alias YOfX = Y<X>;
         `,
-        ref: "YOfX.p::type",
-        resolveTarget: (target: any) => target.type,
-      }));
-    describe("Operation::returnType", () =>
-      itCanReference({
-        code: `
+      ref: "YOfX.p::type",
+      resolveTarget: (target: any) => target.type,
+    }));
+  describe("Operation::returnType", () =>
+    itCanReference({
+      code: `
           op testOp(): {@test("target")status: 200};
         `,
-        ref: "testOp::returnType.status",
-      }));
+      ref: "testOp::returnType.status",
+    }));
 
-    describe("Operation::returnType through template parameter constrained to Reflection.Operation", () =>
-      itCanReference({
-        code: `
+  describe("Operation::returnType through template parameter constrained to Reflection.Operation", () =>
+    itCanReference({
+      code: `
           op testOp(): { @test("target") status: 200 };
           model ReturnWrapper<T extends Reflection.Operation> {
             value: T::returnType;
           }
           alias WrappedReturn = ReturnWrapper<testOp>;
         `,
-        ref: "WrappedReturn.value::type.status",
-      }));
+      ref: "WrappedReturn.value::type.status",
+    }));
 
-    describe("Operation::returnType through template parameter constrained to Reflection.Operation with templated operation", () =>
-      itCanReference({
-        code: `
+  describe("Operation::returnType through template parameter constrained to Reflection.Operation with templated operation", () =>
+    itCanReference({
+      code: `
             model X<s extends Reflection.Scalar> {
               @test("target") y: s;
             }
@@ -822,44 +821,44 @@ describe("compiler: references", () => {
             }
             alias WrappedReturn = ReturnWrapper<foo<string>>;
           `,
-        ref: "WrappedReturn.value::type.y",
-      }));
+      ref: "WrappedReturn.value::type.y",
+    }));
 
-    describe("Operation::parameters", () =>
-      itCanReference({
-        code: `
+  describe("Operation::parameters", () =>
+    itCanReference({
+      code: `
           op testOp(@test("target") select: string, other: string): void;
         `,
-        ref: "testOp::parameters.select",
-      }));
+      ref: "testOp::parameters.select",
+    }));
 
-    describe("Operation::parameters through template parameter constrained to Reflection.Operation", () =>
-      itCanReference({
-        code: `
+  describe("Operation::parameters through template parameter constrained to Reflection.Operation", () =>
+    itCanReference({
+      code: `
           op testOp(@test("target") select: string, other: string): void;
           model ParametersWrapper<T extends Reflection.Operation> {
             value: T::parameters;
           }
           alias WrappedParameters = ParametersWrapper<testOp>;
         `,
-        ref: "WrappedParameters.value::type.select",
-      }));
+      ref: "WrappedParameters.value::type.select",
+    }));
 
-    describe("Operation::parameters through wrappers over templated operation instances", () =>
-      itCanReference({
-        code: `
+  describe("Operation::parameters through wrappers over templated operation instances", () =>
+    itCanReference({
+      code: `
           op testOp<T>(@test("target") wrappedSelection: T, other: string): void;
           model ParametersWrapper<O extends Reflection.Operation> {
             value: O::parameters;
           }
           alias WrappedParameters = ParametersWrapper<testOp<string>>;
         `,
-        ref: "WrappedParameters.value::type.wrappedSelection",
-      }));
+      ref: "WrappedParameters.value::type.wrappedSelection",
+    }));
 
-    describe("Operation::parameters through nested wrappers over templated operation instances", () =>
-      itCanReference({
-        code: `
+  describe("Operation::parameters through nested wrappers over templated operation instances", () =>
+    itCanReference({
+      code: `
           op testOp<T>(@test("target") wrappedSelection: T, other: string): void;
           model ParametersWrapper<O extends Reflection.Operation> {
             value: O::parameters;
@@ -870,11 +869,11 @@ describe("compiler: references", () => {
           alias WrappedParameters = ParametersWrapper<testOp<string>>;
           alias WrappedAgain = ModelWrapper<WrappedParameters.value::type>;
         `,
-        ref: "WrappedAgain.value::type.wrappedSelection",
-      }));
+      ref: "WrappedAgain.value::type.wrappedSelection",
+    }));
 
-    it("emits a diagnostic when referencing a non-existent meta type property", async () => {
-      const diagnostics = await Tester.diagnose(`
+  it("emits a diagnostic when referencing a non-existent meta type property", async () => {
+    const diagnostics = await Tester.diagnose(`
         model A {
           name: string;
         }
@@ -886,29 +885,29 @@ describe("compiler: references", () => {
         op testOp(...B::foo): void;
       `);
 
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-ref",
-          message: `Model doesn't have meta property foo`,
-        },
-      ]);
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: `Model doesn't have meta property foo`,
+      },
+    ]);
+  });
 
-    it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
-      const diagnostics = await Tester.diagnose(`
+  it("emits a diagnostic when template access is not guaranteed by the constraint", async () => {
+    const diagnostics = await Tester.diagnose(`
         model Y<M extends Reflection.Model> {
           p: M.a::type;
         }
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-ref",
-        message: `Model doesn't have member a`,
-      });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: `Model doesn't have member a`,
     });
+  });
 
-    it("allows spreading meta type property", async () => {
-      const { Spread } = await Tester.compile(t.code`
+  it("allows spreading meta type property", async () => {
+    const { Spread } = await Tester.compile(t.code`
         model A {
           name: string;
         }
@@ -922,12 +921,12 @@ describe("compiler: references", () => {
         }
       `);
 
-      strictEqual(Spread.properties.size, 1);
-      ok(Spread.properties.get("name"));
-    });
+    strictEqual(Spread.properties.size, 1);
+    ok(Spread.properties.get("name"));
+  });
 
-    it("the Johan test case", async () => {
-      const { azureVersion } = await Tester.compile(t.code`
+  it("the Johan test case", async () => {
+    const { azureVersion } = await Tester.compile(t.code`
         model Completion { 
           choices: string[];
         }
@@ -937,11 +936,10 @@ describe("compiler: references", () => {
         op ${t.op("azureVersion")}(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
       `);
 
-      const existingNames = [...azureVersion.parameters.properties.values()].map((v) => v.name);
-      strictEqual(existingNames.length, 3);
-      ok(existingNames.includes("model"));
-      ok(existingNames.includes("top_n"));
-      ok(existingNames.includes("dataSources"));
-    });
+    const existingNames = [...azureVersion.parameters.properties.values()].map((v) => v.name);
+    strictEqual(existingNames.length, 3);
+    ok(existingNames.includes("model"));
+    ok(existingNames.includes("top_n"));
+    ok(existingNames.includes("dataSources"));
   });
 });

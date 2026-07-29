@@ -155,6 +155,9 @@ Scenarios.Routes_QueryParameters_QueryExpansion_Explode_array = createTests(
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_record = createTests(
   "/routes/query/query-expansion/explode/record?a=1&b=2",
 );
+Scenarios.Routes_QueryParameters_QueryExpansion_Explode_model = createTests(
+  "/routes/query/query-expansion/explode/model?field=status&value=active",
+);
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_primitive = createTests(
   "/routes/query/query-continuation/standard/primitive?fixed=true&param=a",
 );

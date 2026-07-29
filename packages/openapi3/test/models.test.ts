@@ -5,7 +5,11 @@ import { describe, expect, it } from "vitest";
 import { emitOpenApiWithDiagnostics } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, version }) => {
+  // OpenAPI 3.0 does not allow sibling keywords next to a `$ref`, so it is wrapped in an
+  // `allOf`; 3.1+ (JSON Schema 2020-12) places the keywords directly alongside the `$ref`.
+  const refWithSiblings = (ref: string, siblings: Record<string, unknown>) =>
+    version === "3.0.0" ? { allOf: [{ $ref: ref }], ...siblings } : { $ref: ref, ...siblings };
   it("defines models", async () => {
     const res = await oapiForModel(
       "Foo",
@@ -228,10 +232,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
       properties: {
-        optionalEnum: {
-          allOf: [{ $ref: "#/components/schemas/MyEnum" }],
-          default: "a-value",
-        },
+        optionalEnum: refWithSiblings("#/components/schemas/MyEnum", { default: "a-value" }),
       },
     });
   });
@@ -254,10 +255,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
       properties: {
-        optionalUnion: {
-          allOf: [{ $ref: "#/components/schemas/MyUnion" }],
-          default: "a-value",
-        },
+        optionalUnion: refWithSiblings("#/components/schemas/MyUnion", { default: "a-value" }),
       },
     });
   });
@@ -1020,7 +1018,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
     });
   });
 
-  describe("wraps property $ref in allOf when extra attributes", () => {
+  describe("referenced property with extra attributes", () => {
     it("with doc", async () => {
       const res = await openApiFor(
         `
@@ -1031,10 +1029,10 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
         `,
       );
 
-      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
-        allOf: [{ $ref: "#/components/schemas/Bar" }],
-        description: "Some doc",
-      });
+      deepStrictEqual(
+        res.components.schemas.Foo.properties.prop,
+        refWithSiblings("#/components/schemas/Bar", { description: "Some doc" }),
+      );
     });
 
     it("circular reference", async () => {
@@ -1046,10 +1044,10 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
         `,
       );
 
-      deepStrictEqual(res.components.schemas.Foo.properties.prop, {
-        allOf: [{ $ref: "#/components/schemas/Foo" }],
-        description: "Some doc",
-      });
+      deepStrictEqual(
+        res.components.schemas.Foo.properties.prop,
+        refWithSiblings("#/components/schemas/Foo", { description: "Some doc" }),
+      );
     });
   });
 

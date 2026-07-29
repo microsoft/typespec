@@ -38,6 +38,7 @@ export interface TestFileSystem {
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
   addRealJsFile(path: string, realPath: string): Promise<void>;
   addRealFolder(path: string, realPath: string): Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
 
   /** @internal */
@@ -220,6 +221,8 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 // #endregion
 
 // #region Legacy Test host
+/* eslint-disable @typescript-eslint/no-deprecated -- defining deprecated APIs for backward compatibility */
+/** @deprecated Use {@link Tester} */
 export interface TestHost extends Pick<
   TestFileSystem,
   | "addTypeSpecFile"
@@ -243,12 +246,14 @@ export interface TestHost extends Pick<
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestFiles {
   realDir: string;
   pattern: string;
   virtualPath: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibraryInit {
   name: string;
   packageRoot: string;
@@ -263,16 +268,19 @@ export interface TypeSpecTestLibraryInit {
   jsFileFolder?: string;
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibrary {
   name: string;
   packageRoot: string;
   files: TestFiles[];
 }
 
+/** @deprecated Use {@link Tester} */
 export interface TestHostConfig {
   libraries?: TypeSpecTestLibrary[];
 }
 
+/** @deprecated Use {@link Tester} */
 export class TestHostError extends Error {
   constructor(
     message: string,
@@ -282,6 +290,7 @@ export class TestHostError extends Error {
   }
 }
 
+/** @deprecated Use {@link TesterInstance} */
 export interface BasicTestRunner {
   readonly program: Program;
   readonly fs: Map<string, string>;
@@ -309,4 +318,5 @@ export interface BasicTestRunner {
     options?: CompilerOptions,
   ): Promise<[Record<string, Type>, readonly Diagnostic[]]>;
 }
+/* eslint-enable @typescript-eslint/no-deprecated */
 // #endregion

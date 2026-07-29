@@ -6,7 +6,8 @@ import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const markdownPluginOptions: Partial<PluginOptions> = {
     entryFileName: "index.md",
-    propertiesFormat: "table",
+    interfacePropertiesFormat: "table",
+    classPropertiesFormat: "table",
     parametersFormat: "table",
     enumMembersFormat: "table",
     typeDeclarationFormat: "table",

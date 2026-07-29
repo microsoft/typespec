@@ -2,7 +2,7 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { expect, it } from "vitest";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor, version }) => {
   it("supports summary and description", async () => {
     const openApi = await openApiFor(`
       @summary("This is a summary")
@@ -60,12 +60,22 @@ worksFor(supportedVersions, ({ openApiFor }) => {
       }
       model Bar {}
       `);
-    expect(openApi.components.schemas.Foo.properties.name).toEqual({
-      allOf: [{ $ref: "#/components/schemas/Bar" }],
-      externalDocs: {
-        url: "https://example.com",
-        description: "more info",
-      },
-    });
+    const externalDocs = {
+      url: "https://example.com",
+      description: "more info",
+    };
+    if (version === "3.0.0") {
+      // OpenAPI 3.0 does not allow keywords next to a `$ref`, so the reference is
+      // wrapped in an `allOf`.
+      expect(openApi.components.schemas.Foo.properties.name).toEqual({
+        allOf: [{ $ref: "#/components/schemas/Bar" }],
+        externalDocs,
+      });
+    } else {
+      expect(openApi.components.schemas.Foo.properties.name).toEqual({
+        $ref: "#/components/schemas/Bar",
+        externalDocs,
+      });
+    }
   });
 });

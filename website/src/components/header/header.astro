@@ -15,17 +15,39 @@ const { noLinks } = Astro.props;
   .navbar {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
     background-color: var(--colorNeutralBackground3);
     padding: 0.5rem 1rem;
     margin: 0;
     box-shadow: var(--shadow4);
-    height: var(--header-height);
+    min-height: var(--header-height);
+    box-sizing: border-box;
   }
   #header-drawer-button {
     display: flex;
     align-items: center;
     background: none;
     border: none;
+  }
+
+  /* On documentation pages Starlight renders its own sidebar menu button in the
+     same corner. Hide this site menu button there so the two hamburger controls
+     don't overlap. The site links stay reachable from the Starlight menu (see
+     Sidebar override). (#10795 Reflow / #10796 Resize Text) */
+  :global([data-has-sidebar]) #header-drawer-button {
+    display: none;
+  }
+
+  /* Below 50rem Starlight overlays a fixed sidebar menu button in the top-right
+     corner. Reserve room for it (mirrors Starlight's own header padding) so it
+     doesn't overlap the search button. (#10795 Reflow / #10796 Resize Text) */
+  @media (max-width: 50rem) {
+    :global([data-has-sidebar]) .navbar {
+      padding-inline-end: calc(
+        var(--sl-nav-gap) + var(--sl-nav-pad-x) + var(--sl-menu-button-size)
+      );
+    }
   }
 
   .nav-content {
@@ -143,6 +165,9 @@ const { noLinks } = Astro.props;
     .nav-content {
       display: flex;
       flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem 0.5rem;
       position: relative;
     }
 
@@ -158,7 +183,8 @@ const { noLinks } = Astro.props;
     .items {
       display: flex;
       align-items: center;
-      flex: 1;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
       min-width: 0;
     }
 

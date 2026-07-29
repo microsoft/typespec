@@ -265,6 +265,11 @@ namespace Microsoft.TypeSpec.Generator
             return expression;
         }
 
+        protected internal virtual ValueExpression? VisitArgumentExpression(ArgumentExpression expression, MethodProvider method)
+        {
+            return expression;
+        }
+
         protected internal virtual VariableExpression VisitVariableExpression(VariableExpression expression, MethodProvider method)
         {
             return expression;

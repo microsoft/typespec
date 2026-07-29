@@ -218,9 +218,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var ifPatchIsNotRemoved = new IfStatement(Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(LiteralU8(jsonPath))))
             {
                 _utf8JsonWriterSnippet.WritePropertyName(serializedName),
-                _utf8JsonWriterSnippet.WriteRawValue(
-                    JsonPatchSnippets.GetJson(_jsonPatchProperty!.As<JsonPatch>(),
-                    LiteralU8(jsonPath)))
+                JsonPatchSnippets.WriteTo(
+                    _jsonPatchProperty!.As<JsonPatch>(),
+                    _utf8JsonWriterSnippet,
+                    LiteralU8(jsonPath)).Terminate()
             };
             var ifPatchContainsJson = new IfStatement(_jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8(jsonPath)))
             {
@@ -418,7 +419,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         statements.Add(new IfStatement(ReadOnlySpanSnippets.IsEmpty(currentSlice))
                         {
                             Return(new InvokeMethodExpression(null, tryResolveMethodName,
-                                [new VariableExpression(valueVar.Type, valueVar.Declaration, IsOut: true)]))
+                                [new ArgumentExpression(valueVar, IsOut: true)]))
                         });
                     }
 

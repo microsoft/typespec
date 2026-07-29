@@ -12,6 +12,10 @@
     - [New Property Added Together with a Rename](#scenario-new-property-added-together-with-a-rename)
   - [Model Properties](#model-properties)
   - [AdditionalProperties Type Preservation](#additionalproperties-type-preservation)
+  - [Fixed Enum Members](#fixed-enum-members)
+    - [Explicit (Non-contiguous) Values Preserved](#scenario-explicit-non-contiguous-values-preserved)
+    - [Removed Integer Enum Member Re-added](#scenario-removed-integer-enum-member-re-added)
+    - [Baseline-Accepted Removal Honored](#scenario-baseline-accepted-removal-honored)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
@@ -42,13 +46,14 @@ When generating code, the generator can optionally receive a compiled assembly f
 
 Sometimes a breaking change (such as removing a model or a model factory method) is intentional and has already been reviewed and accepted. In the Azure SDK, such accepted breaking changes are recorded in an [ApiCompat](https://github.com/dotnet/sdk/tree/main/src/Compatibility) baseline (suppression) file, conventionally located at `eng/apicompatbaselines/<AssemblyName>.txt`.
 
-Without awareness of these files, the back-compat system would resurrect every member present in the last contract — re-introducing the very API that was intentionally removed (and potentially referencing types that no longer exist). To prevent this, the generator discovers the baseline file by walking up from the project directory and parses its `TypesMustExist` and `MembersMustExist` suppressions. The back-compat code then consults the baseline in two ways:
+Without awareness of these files, the back-compat system would resurrect every member present in the last contract — re-introducing the very API that was intentionally removed (and potentially referencing types that no longer exist). To prevent this, the generator discovers the baseline file by walking up from the project directory and parses its `TypesMustExist`, `MembersMustExist`, and `EnumValuesMustMatch` suppressions. The back-compat code then consults the baseline in the following ways:
 
 - **Skipping resurrected members:** before regenerating a compatibility shim for a removed member, it checks whether the removal has been accepted in the baseline (matched by declaring-type full name, member name, and parameter count) and, if so, skips it.
 - **Allowing property type changes:** the back-compat system normally preserves a property's previous (last-contract) type to avoid a breaking change. When that previous type — or a type nested within it (e.g. the element type of a collection) — has itself been intentionally removed and accepted in the baseline, preserving it would reference a now-deleted type. In that case the generator allows the property to take its current (spec) type instead.
+- **Skipping re-added enum members:** before re-adding a fixed enum member that exists in the last contract but was dropped from the current spec, it checks whether that removal — or an accepted value difference recorded as `EnumValuesMustMatch` — has been accepted in the baseline (matched by the declaring enum's fully-qualified name and the member name) and, if so, omits the member.
 
 > [!NOTE]
-> Baseline awareness is currently wired into the model factory back-compat path (`ModelFactoryProvider`) and the model property type-preservation path (`ModelProvider`). The other back-compat consumers (`ModelProvider` constructors, the enum providers, `ClientProvider`, and `RestClientProvider`) can be made baseline-aware in the same way as a follow-up.
+> Baseline awareness is currently wired into the base method back-compat path in `TypeProvider` (the parameter reorder/removal loop, inherited by `ClientProvider` and also used directly by `ModelFactoryProvider`), the model property type-preservation path (`ModelProvider`), and the fixed enum member path (`FixedEnumProvider`). The remaining back-compat consumers (`ModelProvider` constructors and `RestClientProvider`) can be made baseline-aware in the same way as a follow-up.
 
 ## Supported Scenarios
 
@@ -362,6 +367,85 @@ public partial class MyModel
 - For object types, deserialization uses `JsonElement.GetObject()` instead of wrapping in `BinaryData`
 - For object types, serialization uses `Utf8JsonWriter.WriteObjectValue<object>()` to handle arbitrary values
 - Binary compatibility is fully maintained - existing client code continues to work without recompilation
+
+### Fixed Enum Members
+
+Fixed enums (C# `enum` types) preserve their previously shipped members and values by comparing the current spec against the last contract. Because the underlying value of an integer-backed enum member is part of its public API, the generator keeps those values stable across regenerations, aligns member order to the last contract, and re-adds members that were dropped from the current spec.
+
+> [!NOTE]
+> These behaviors apply to **integer-backed** fixed enums (`int`/`long`).
+
+#### Scenario: Explicit (Non-contiguous) Values Preserved
+
+**Description:** When an integer enum's members carry explicit, non-contiguous values, the generator preserves each member's exact value from the last contract instead of reassigning positional ordinals.
+
+**Example:**
+
+Previous version (GA surface):
+
+```csharp
+public enum CapacityReservationLevel
+{
+    OneHundred = 100,
+    TwoHundred = 200,
+    FiveHundred = 500,
+}
+```
+
+**Generated Result:** The members keep their exact values (`100`, `200`, `500`) rather than being reassigned to `0`, `1`, `2`.
+
+#### Scenario: Removed Integer Enum Member Re-added
+
+**Description:** When an integer enum member present in the last contract is dropped from the current spec, the generator re-adds it — at its original position and with its original explicit value — to avoid removing a previously shipped member.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Beta = 1,
+    Gamma = 2,
+}
+```
+
+Current TypeSpec removes `Beta`:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Gamma = 2,
+}
+```
+
+**Generated Result:** `Beta` is re-added at its original position with its original value:
+
+```csharp
+public enum SampleEnum
+{
+    Alpha = 0,
+    Beta = 1,
+    Gamma = 2,
+}
+```
+
+**Key Points:**
+
+- Members shared between the current spec and the last contract are ordered to match the last contract and keep their last-contract values
+- New members introduced by the current spec are appended after the last-contract members, keeping their spec values
+- The re-added member's underlying value is read from the previously published assembly's metadata (no debug symbols required)
+
+#### Scenario: Baseline-Accepted Removal Honored
+
+**Description:** When the removal of an enum member has been intentionally accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) — recorded as a `MembersMustExist` removal or an `EnumValuesMustMatch` value-difference suppression — the generator honors that decision and does **not** re-add the member.
+
+**Key Points:**
+
+- Suppressed members are matched by the declaring enum's fully-qualified name and the member name
+- This lets a library intentionally drop a previously shipped enum member once the removal is reviewed and recorded in the baseline
 
 ### API Version Enum
 

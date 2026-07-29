@@ -355,10 +355,10 @@ export interface Checker {
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T extends Type extends any ? CreateTypeProps : never>(
+  createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
-  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
@@ -7959,7 +7959,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  function createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" } {
     createType(typeDef);
@@ -7983,7 +7983,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
    */
-  function createType<T extends Type extends any ? CreateTypeProps : never>(
+  function createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
     stats.createdTypes++;

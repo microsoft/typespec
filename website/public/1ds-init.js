@@ -13,6 +13,13 @@ function ensureCookieBannerPlaceholder() {
   if (!el) {
     el = document.createElement("div");
     el.id = "cookie-banner";
+    // Pin the banner to the bottom of the viewport, above all other content,
+    // so it stays visible and doesn't fight with the fixed page header.
+    el.style.position = "fixed";
+    el.style.left = "0";
+    el.style.right = "0";
+    el.style.bottom = "0";
+    el.style.zIndex = "9999";
     document.body.appendChild(el);
   }
   return el;

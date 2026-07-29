@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "type": "module",
   "main": "dist/index.js",
   "repository": {
@@ -16,8 +16,8 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
-    "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
+    "prepack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
+    "postpack": "node ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
     "lint": "oxlint . --deny-warnings",
     "lint:fix": "oxlint . --fix"
   },

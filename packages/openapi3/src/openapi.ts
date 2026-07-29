@@ -1632,6 +1632,15 @@ function createOAPIEmitter(
     // Description is already provided in the parameter itself.
     delete schema.description;
 
+    const extensions = getExtensions(program, param);
+    if (extensions && !("$ref" in schema)) {
+      for (const key of extensions.keys()) {
+        if (key in schema) {
+          delete schema[key];
+        }
+      }
+    }
+
     const oaiParam: OpenAPI3ParameterBase = {
       required: !param.optional,
       description: getDoc(program, param),
@@ -1985,7 +1994,9 @@ function createOAPIEmitter(
             securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
             continue;
           default:
-            securityOption[httpAuthRef.auth.id] = [];
+            // Requirement scopes for any scheme that carries them (e.g.
+            // openIdConnect). Schemes without scopes resolve to an empty array.
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
         }
       }
       return securityOption;

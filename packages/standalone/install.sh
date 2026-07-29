@@ -74,11 +74,12 @@ case $platform in
 esac
 
 if [[ $target = darwin-x64 ]]; then
-  # Is this process running in Rosetta?
-  # redirect stderr to devnull to avoid error message when not running in Rosetta
+  # Is this process running in Rosetta? (redirect stderr to avoid an error when not in Rosetta)
   if [[ $(sysctl -n sysctl.proc_translated 2> /dev/null) = 1 ]]; then
-    target=darwin-aarch64
+    target=darwin-arm64
     info "Your shell is running in Rosetta 2. Downloading tsp for $target instead"
+  else
+    error "The standalone tsp executable is not available for Intel (x64) macOS because Node.js does not support single-executable applications on this platform (nodejs/node#62893).\nInstall the TypeSpec compiler from npm instead: npm install -g @typespec/compiler"
   fi
 fi
 

@@ -46,6 +46,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
 
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         protected override string BuildRelativeFilePath()
         {
             return Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.Multipart.cs");
@@ -53,6 +56,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => [new SuppressionStatement(null, Literal(ScmModelProvider.FileBinaryContentDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)];
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override ConstructorProvider[] BuildConstructors()
         {
