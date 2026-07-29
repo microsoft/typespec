@@ -679,10 +679,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        /// <summary>
-        /// Returns <c>true</c> when <paramref name="type"/> is a string-backed extensible enum, which is
-        /// generated as a struct whose <c>ToString()</c> returns the internal (possibly null) string value.
-        /// </summary>
         private static bool IsExtensibleStringEnum(CSharpType type)
             => type.IsEnum && type.IsStruct && type.UnderlyingEnumType == typeof(string);
 
