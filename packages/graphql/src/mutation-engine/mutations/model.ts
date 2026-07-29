@@ -94,6 +94,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
         program.checker.createType({
           kind: "Scalar",
           name: scalarName,
+          expression: false,
           decorators: [],
           derivedScalars: [],
           constructors: new Map(),
