@@ -42,17 +42,17 @@ public class FluentProject extends Project {
     private static class ServiceDescription {
         private String simpleDescription;
         private String clientDescription;
-        private String tagDescription;
+        private String apiVersionDescription;
 
         private String getServiceDescription() {
-            return String.format("%1$s %2$s %3$s", simpleDescription, clientDescription, tagDescription).trim();
+            return String.format("%1$s %2$s %3$s", simpleDescription, clientDescription, apiVersionDescription).trim();
         }
 
         public String getServiceDescriptionForPom() {
             return String
                 .format("%1$s %2$s %3$s %4$s", simpleDescription,
                     "For documentation on how to use this package, please see https://aka.ms/azsdk/java/mgmt.",
-                    clientDescription, tagDescription)
+                    clientDescription, apiVersionDescription)
                 .trim();
         }
 
@@ -87,22 +87,19 @@ public class FluentProject extends Project {
 
         this.serviceDescription.simpleDescription = String.format(simpleDescriptionTemplate, serviceName);
         this.serviceDescription.clientDescription = clientDescription;
-        String autorestTag = JavaSettings.getInstance().getAutorestSettings().getTag();
-        // SDK from TypeSpec does not contain autorest tag.
-        if (autorestTag != null) {
-            this.serviceDescription.tagDescription = "Package tag " + autorestTag + ".";
-        } else if (apiVersionMap != null) {
+        // SDK from TypeSpec does not contain autorest tag, use api-version instead.
+        if (apiVersionMap != null) {
             if (apiVersionMap.size() == 1) {
-                this.serviceDescription.tagDescription
+                this.serviceDescription.apiVersionDescription
                     = "Package api-version " + apiVersionMap.values().iterator().next() + ".";
             } else {
-                this.serviceDescription.tagDescription = "Package api-version " + apiVersionMap.entrySet()
+                this.serviceDescription.apiVersionDescription = "Package api-version " + apiVersionMap.entrySet()
                     .stream()
                     .map(e -> e.getKey() + ": " + e.getValue())
                     .collect(Collectors.joining(", ")) + ".";
             }
         } else {
-            this.serviceDescription.tagDescription = "";
+            this.serviceDescription.apiVersionDescription = "";
         }
 
         this.changelog = new Changelog(this);
@@ -129,7 +126,7 @@ public class FluentProject extends Project {
     }
 
     private void updateChangelog() {
-        String outputFolder = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+        String outputFolder = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path changelogPath = Paths.get(outputFolder, "CHANGELOG.md");
 
@@ -150,7 +147,7 @@ public class FluentProject extends Project {
     }
 
     private void findCodeSamples() {
-        String outputFolder = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+        String outputFolder = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path srcTestJavaPath = Paths.get(outputFolder).resolve(Paths.get("src", "test", "java"));
             if (Files.isDirectory(srcTestJavaPath)) {
