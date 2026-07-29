@@ -311,68 +311,80 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static void VisitType(InputType? type, HashSet<InputType> visited, IDictionary<string, InputExternalTypeMetadata> collected)
         {
-            if (type == null || !visited.Add(type))
+            while (true)
             {
-                return;
-            }
-
-            if (type.External != null
-                && !string.IsNullOrEmpty(type.External.Identity)
-                && !string.IsNullOrEmpty(type.External.Package))
-            {
-                var key = $"{type.External.Package}|{type.External.Identity}|{type.External.MinVersion ?? string.Empty}";
-                if (!collected.ContainsKey(key))
+                if (type == null || !visited.Add(type))
                 {
-                    collected[key] = type.External;
+                    return;
                 }
-            }
 
-            switch (type)
-            {
-                case InputModelType model:
-                    foreach (var prop in model.Properties)
+                if (type.External != null && !string.IsNullOrEmpty(type.External.Identity) && !string.IsNullOrEmpty(type.External.Package))
+                {
+                    var key = $"{type.External.Package}|{type.External.Identity}|{type.External.MinVersion ?? string.Empty}";
+                    if (!collected.ContainsKey(key))
                     {
-                        VisitType(prop.Type, visited, collected);
+                        collected[key] = type.External;
                     }
-                    if (model.AdditionalProperties != null)
-                    {
-                        VisitType(model.AdditionalProperties, visited, collected);
-                    }
-                    if (model.BaseModel != null)
-                    {
-                        VisitType(model.BaseModel, visited, collected);
-                    }
-                    foreach (var derived in model.DerivedModels)
-                    {
-                        VisitType(derived, visited, collected);
-                    }
-                    foreach (var subtype in model.DiscriminatedSubtypes.Values)
-                    {
-                        VisitType(subtype, visited, collected);
-                    }
-                    break;
-                case InputArrayType array:
-                    VisitType(array.ValueType, visited, collected);
-                    break;
-                case InputDictionaryType dictionary:
-                    VisitType(dictionary.KeyType, visited, collected);
-                    VisitType(dictionary.ValueType, visited, collected);
-                    break;
-                case InputUnionType union:
-                    foreach (var variant in union.VariantTypes)
-                    {
-                        VisitType(variant, visited, collected);
-                    }
-                    break;
-                case InputNullableType nullable:
-                    VisitType(nullable.Type, visited, collected);
-                    break;
-                case InputLiteralType literal:
-                    VisitType(literal.ValueType, visited, collected);
-                    break;
-                case InputEnumType enumType:
-                    VisitType(enumType.ValueType, visited, collected);
-                    break;
+                }
+
+                switch (type)
+                {
+                    case InputModelType model:
+                        foreach (var prop in model.Properties)
+                        {
+                            VisitType(prop.Type, visited, collected);
+                        }
+
+                        if (model.AdditionalProperties != null)
+                        {
+                            VisitType(model.AdditionalProperties, visited, collected);
+                        }
+
+                        if (model.BaseModel != null)
+                        {
+                            VisitType(model.BaseModel, visited, collected);
+                        }
+
+                        foreach (var derived in model.DerivedModels)
+                        {
+                            VisitType(derived, visited, collected);
+                        }
+
+                        foreach (var subtype in model.DiscriminatedSubtypes.Values)
+                        {
+                            VisitType(subtype, visited, collected);
+                        }
+
+                        break;
+                    case InputArrayType array:
+                        type = array.ValueType;
+                        continue;
+                    case InputStreamingType streaming:
+                        type = streaming.ValueType;
+                        continue;
+                    case InputDictionaryType dictionary:
+                        VisitType(dictionary.KeyType, visited, collected);
+                        type = dictionary.ValueType;
+                        continue;
+                    case InputUnionType union:
+                        foreach (var variant in union.VariantTypes)
+                        {
+                            VisitType(variant, visited, collected);
+                        }
+
+                        break;
+                    case InputNullableType nullable:
+                        type = nullable.Type;
+                        continue;
+                    case InputLiteralType literal:
+                        type = literal.ValueType;
+                        continue;
+                    case InputEnumType enumType:
+                        type = enumType.ValueType;
+                        continue;
+                }
+
+                break;
             }
         }
     }

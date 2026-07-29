@@ -79,6 +79,7 @@ export type InputType =
   | InputEnumType
   | InputEnumValueType
   | InputArrayType
+  | InputStreamingType
   | InputDictionaryType
   | InputNullableType;
 
@@ -305,6 +306,17 @@ export interface InputArrayType extends InputTypeBase {
   kind: "array";
   name: string;
   valueType: InputType;
+  crossLanguageDefinitionId: string;
+}
+
+export interface InputStreamingType extends InputTypeBase {
+  kind: "streaming";
+  name: string;
+  valueType: InputType;
+  streamKind: "jsonl" | "sse";
+  contentTypes: string[];
+  terminalEventType?: string;
+  terminalEventValue?: string;
   crossLanguageDefinitionId: string;
 }
 

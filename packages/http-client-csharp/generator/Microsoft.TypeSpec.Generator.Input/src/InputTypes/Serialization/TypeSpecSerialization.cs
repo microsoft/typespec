@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
                     new InputTypeConverter(referenceHandler),
                     new InputArrayTypeConverter(referenceHandler),
+                    new InputStreamingTypeConverter(referenceHandler),
                     new InputDictionaryTypeConverter(referenceHandler),
                     new InputEnumTypeConverter(referenceHandler),
                     new InputEnumTypeValueConverter(referenceHandler),

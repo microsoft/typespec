@@ -215,6 +215,95 @@ describe("Operation Converter", () => {
   });
 
   describe("Operation response type conversion", () => {
+    it("preserves JSONL stream item types", async () => {
+      const program = await typeSpecCompile(
+        `
+          model Info {
+            desc: string;
+          }
+
+          @post op send(stream: JsonlStream<Info>): void;
+          op receive(): JsonlStream<Info>;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const send = root.clients[0].methods.find((method) => method.name === "send");
+      ok(send);
+      const sendParameter = send.parameters.find((parameter) => parameter.name === "stream");
+      ok(sendParameter);
+      ok(sendParameter.type.kind === "streaming");
+      ok(sendParameter.type.valueType.kind === "model");
+      strictEqual(sendParameter.type.valueType.name, "Info");
+
+      const bodyParameter = send.operation.parameters.find(
+        (parameter) => parameter.kind === "body",
+      );
+      ok(bodyParameter);
+      ok(bodyParameter.type.kind === "streaming");
+      ok(bodyParameter.type.valueType.kind === "model");
+      strictEqual(bodyParameter.type.valueType.name, "Info");
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      ok(receive.response.type.valueType.kind === "model");
+      strictEqual(receive.response.type.valueType.name, "Info");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      ok(receive.operation.responses[0].bodyType.valueType.kind === "model");
+      strictEqual(receive.operation.responses[0].bodyType.valueType.name, "Info");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
+    it("preserves SSE event unions and terminal events", async () => {
+      const program = await typeSpecCompile(
+        `
+          model ResponseCreated {
+            id: string;
+          }
+
+          model ResponseDelta {
+            delta: string;
+          }
+
+          @events
+          union ResponseEvents {
+            @Events.contentType("application/json")
+            responseCreated: ResponseCreated,
+
+            @Events.contentType("application/json")
+            responseDelta: ResponseDelta,
+
+            @Events.contentType("text/plain")
+            @terminalEvent
+            "[DONE]",
+          }
+
+          op receive(): SSEStream<ResponseEvents>;
+        `,
+        runner,
+        { IsSseNeeded: true },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+
+      const receive = root.clients[0].methods.find((method) => method.name === "receive");
+      ok(receive);
+      ok(receive.response.type?.kind === "streaming");
+      strictEqual(receive.response.type.streamKind, "sse");
+      ok(receive.response.type.valueType.kind === "union");
+      strictEqual(receive.response.type.valueType.name, "ResponseEvents");
+      strictEqual(receive.response.type.terminalEventType, undefined);
+      strictEqual(receive.response.type.terminalEventValue, "[DONE]");
+      ok(receive.operation.responses[0].bodyType?.kind === "streaming");
+      strictEqual(receive.operation.responses[0].bodyType.streamKind, "sse");
+      strictEqual(receive.operation.bufferResponse, false);
+    });
+
     describe("With anonymous union enum response type", () => {
       it("should convert anonymous union enum response type to value type", async () => {
         const program = await typeSpecCompile(

@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.ServerSentEvents;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -29,6 +30,235 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
             ]);
+
+        [Test]
+        public void JsonLinesRequestGeneratesAsyncStreamingConvenienceMethod()
+        {
+            var itemType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                itemType,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("stream", streamType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([204])],
+                requestMediaTypes: ["application/jsonl"],
+                httpMethod: "POST");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "stream",
+                        streamType,
+                        location: InputRequestLocation.Body,
+                        isRequired: true)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(3, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method =>
+                method.Signature.Name == "Send" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content")));
+
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "SendAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content"));
+            Assert.IsTrue(convenienceMethod.Signature.Parameters[0].Type.IsIAsyncEnumerableOfT);
+            StringAssert.Contains(
+                "using global::System.ClientModel.BinaryContent content = new global::Sample.JsonLinesBinaryContent<global::Sample.Models.Info>(stream);",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "return await this.SendAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void JsonLinesResponseGeneratesUnbufferedAsyncStreamingResult()
+        {
+            var itemType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                itemType,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(3, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method =>
+                method.Signature.Name == "Receive" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options")));
+
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            var expectedReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemType)!));
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+
+            foreach (var protocolMethod in methodCollection.Where(method =>
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
+            {
+                StringAssert.Contains(
+                    "message.BufferResponse = false;",
+                    protocolMethod.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
+        public void SseResponseGeneratesUnbufferedAsyncStreamingResult()
+        {
+            var eventType = InputFactory.Model(
+                "Info",
+                properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var streamType = new InputStreamingType(
+                "SseStream",
+                "Streaming.Sse.SseStream",
+                eventType,
+                ["text/event-stream"],
+                streamKind: "sse",
+                terminalEventValue: "[DONE]");
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [eventType], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            var expectedReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    new CSharpType(typeof(SseItem<>), typeof(BinaryData))));
+            Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
+            var body = convenienceMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                body);
+            StringAssert.Contains(
+                "item.Data.ToString() == \"[DONE]\"",
+                body);
+
+            foreach (var protocolMethod in methodCollection.Where(method =>
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
+            {
+                StringAssert.Contains(
+                    "message.BufferResponse = false;",
+                    protocolMethod.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
+        public void JsonLinesPrimitiveResponseUsesValueDeserializer()
+        {
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                InputPrimitiveType.String,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "options"));
+            StringAssert.Contains(
+                "global::Sample.JsonLinesBinaryContent<string>.DeserializeValue",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void OptionalJsonLinesRequestPreservesNullBody()
+        {
+            var streamType = new InputStreamingType(
+                "JsonlStream",
+                "Streaming.Jsonl.JsonlStream",
+                InputPrimitiveType.String,
+                ["application/jsonl"]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("stream", streamType, isRequired: false)],
+                responses: [InputFactory.OperationResponse([204])],
+                requestMediaTypes: ["application/jsonl"],
+                httpMethod: "POST");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "stream",
+                        streamType,
+                        location: InputRequestLocation.Body,
+                        isRequired: false)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var convenienceMethod = methodCollection.Single(method =>
+                method.Signature.Name == "SendAsync" &&
+                method.Signature.Parameters.All(parameter => parameter.Name != "content"));
+            StringAssert.Contains(
+                "(stream == null) ? null : new global::Sample.JsonLinesBinaryContent<string>(stream)",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
 
         // Validate that the default method collection consists of the expected method kind(s)
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
