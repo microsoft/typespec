@@ -14,8 +14,8 @@ public class BuiltinOpRead {
         SpecialCharsClient specialCharsClient
             = new SpecialCharsClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildClient();
-        // BEGIN:tsptest.specialchars.generated.builtinopread.builtinopread
+        // BEGIN:tsptest.specialchars.generated.builtin-op-read.builtin-op-read
         Resource response = specialCharsClient.read(null);
-        // END:tsptest.specialchars.generated.builtinopread.builtinopread
+        // END:tsptest.specialchars.generated.builtin-op-read.builtin-op-read
     }
 }

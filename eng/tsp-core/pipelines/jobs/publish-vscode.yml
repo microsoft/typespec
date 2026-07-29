@@ -42,8 +42,12 @@ jobs:
 
       - template: /eng/tsp-core/pipelines/templates/install.yml
 
-      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix
+      - task: AzureCLI@2
         displayName: Publish
-        workingDirectory: packages/typespec-vscode
-        env:
-          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
+        inputs:
+          azureSubscription: azure-sdk-vsmarketplace
+          scriptType: pscore
+          scriptLocation: inlineScript
+          workingDirectory: packages/typespec-vscode
+          inlineScript: |
+            npm run deploy -- --azure-credential --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix

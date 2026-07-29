@@ -1,12 +1,8 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { XmlTestLibrary } from "../src/testing/index.js";
+import { resolvePath } from "@typespec/compiler";
+import { createTester } from "@typespec/compiler/testing";
 
-export async function createXmlTestHost() {
-  return createTestHost({
-    libraries: [XmlTestLibrary],
-  });
-}
-export async function createXmlTestRunner() {
-  const host = await createXmlTestHost();
-  return createTestWrapper(host, { autoUsings: ["TypeSpec.Xml"] });
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/xml"],
+})
+  .importLibraries()
+  .using("Xml");

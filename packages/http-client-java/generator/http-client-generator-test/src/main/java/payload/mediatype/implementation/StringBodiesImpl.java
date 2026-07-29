@@ -57,7 +57,7 @@ public final class StringBodiesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MediaTypeClientStrin")
+    @ServiceInterface(name = "MediaTypeClientStringBodies")
     public interface StringBodiesService {
         @Post("/payload/media-type/string-body/sendAsText")
         @ExpectedResponses({ 200 })

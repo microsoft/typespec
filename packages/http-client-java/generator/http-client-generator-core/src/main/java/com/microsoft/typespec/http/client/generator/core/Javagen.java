@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ApiVersion;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -11,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
-import com.microsoft.typespec.http.client.generator.core.mapper.PomMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientBuilder;
@@ -39,7 +37,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import java.util.Collections;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,6 +64,7 @@ public class Javagen extends NewPlugin {
 
     private boolean generateJava(JavaSettings settings) {
         try {
+
             // Step 1: Parse input yaml as CodeModel
             CodeModel codeModel = new Preprocessor(this, connection, pluginName, sessionId).processCodeModel();
 
@@ -73,7 +72,7 @@ public class Javagen extends NewPlugin {
             Client client = Mappers.getClientMapper().map(codeModel);
 
             // Step 3: Write to templates
-            JavaPackage javaPackage = writeToTemplates(codeModel, client, settings, true);
+            JavaPackage javaPackage = writeToTemplates(codeModel, client, settings);
 
             // Step 4: Print to files
             // Then for each formatted file write the file. This is done synchronously as there is potential race
@@ -101,8 +100,7 @@ public class Javagen extends NewPlugin {
         return true;
     }
 
-    protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings,
-        boolean generateSwaggerMarkdown) {
+    protected JavaPackage writeToTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
         JavaPackage javaPackage = new JavaPackage(this);
         if (client.getServiceClient() != null || !CoreUtils.isNullOrEmpty(client.getServiceClients())) {
             // Service client
@@ -166,7 +164,7 @@ public class Javagen extends NewPlugin {
                     && client.getSyncClients().stream().anyMatch(c -> c.getClientBuilder() != null)) {
                     List<ServiceClient> serviceClients = client.getServiceClients();
                     if (CoreUtils.isNullOrEmpty(serviceClients)) {
-                        serviceClients = Collections.singletonList(client.getServiceClient());
+                        serviceClients = List.of(client.getServiceClient());
                     }
                     TestContext<Void> testContext = new TestContext<>(serviceClients, client.getSyncClients());
 
@@ -188,7 +186,7 @@ public class Javagen extends NewPlugin {
             }
 
             // Service version
-            if (settings.isDataPlaneClient()) {
+            if (settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2()) {
                 String packageName = settings.getPackage();
                 if (CoreUtils.isNullOrEmpty(client.getServiceClients())) {
                     List<String> serviceVersions = settings.getServiceVersions();
@@ -254,7 +252,7 @@ public class Javagen extends NewPlugin {
             javaPackage.addPackageInfo(packageInfo.getPackage(), "package-info", packageInfo);
         }
 
-        if (settings.isDataPlaneClient()) {
+        if (settings.isDataPlaneClient() || settings.isUnbranded() || settings.isAzureV2()) {
             Project project = new Project(client, ClientModelUtil.getApiVersions(codeModel));
             if (settings.isSdkIntegration()) {
                 project.integrateWithSdk();
@@ -274,23 +272,23 @@ public class Javagen extends NewPlugin {
 
             // POM
             if (settings.isRegeneratePom()) {
-                Pom pom = new PomMapper().map(project);
+                Pom pom = Mappers.getPomMapper().map(project);
                 javaPackage.addPom("pom.xml", pom);
             }
 
             // Readme, Changelog
             if (settings.isSdkIntegration()) {
                 javaPackage.addReadmeMarkdown(project);
-                if (generateSwaggerMarkdown) {
-                    javaPackage.addSwaggerReadmeMarkdown(project);
+
+                if (!settings.isUnbranded()) {
+                    javaPackage.addChangelogMarkdown(project);
+
+                    // test proxy asserts.json
+                    javaPackage.addTestProxyAssetsJson(project);
+
+                    // Blank readme sample
+                    javaPackage.addProtocolExamplesBlank();
                 }
-                javaPackage.addChangelogMarkdown(project);
-
-                // test proxy asserts.json
-                javaPackage.addTestProxyAssetsJson(project);
-
-                // Blank readme sample
-                javaPackage.addProtocolExamplesBlank();
             }
         }
         return javaPackage;

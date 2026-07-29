@@ -19,7 +19,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
-        private const string PropertySerializationName = "PropertySerializationName";
+        private const string SerializationName = "SerializationName";
 
         private const string SerializationValueHook = "SerializationValueHook";
 
@@ -29,7 +29,9 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
+            {
                 return false;
+            }
 
             name = attributeData.ConstructorArguments.FirstOrDefault().Value as string;
             return name != null;
@@ -66,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             {
                 switch (key)
                 {
-                    case nameof(PropertySerializationName):
+                    case nameof(SerializationName):
                         serializationName = namedArgument.Value as string;
                         break;
                     case nameof(SerializationValueHook):

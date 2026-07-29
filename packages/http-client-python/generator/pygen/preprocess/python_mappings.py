@@ -56,7 +56,6 @@ class PadType(str, Enum):
     ENUM_CLASS = "Enum"
     METHOD = "_method"
     PARAMETER = "_parameter"
-    ENUM_VALUE = "_enum"
     PROPERTY = "_property"
     OPERATION_GROUP = "Operations"
 
@@ -97,7 +96,7 @@ _always_reserved = [
     "int",
 ]
 
-RESERVED_MODEL_PROPERTIES = [
+RESERVED_TSP_MODEL_PROPERTIES = [
     "keys",
     "items",
     "values",
@@ -109,6 +108,8 @@ RESERVED_MODEL_PROPERTIES = [
     "get",
     "copy",
     "as_dict",
+    # following are reserved special words for TSP models
+    "datetime",
 ]
 
 RESERVED_WORDS = {
@@ -181,13 +182,12 @@ RESERVED_WORDS = {
     PadType.MODEL: ["enum", *_always_reserved],
     PadType.PROPERTY: ["self", *_always_reserved],
     PadType.ENUM_CLASS: ["enum", *_always_reserved],
-    PadType.ENUM_VALUE: ["mro", *_always_reserved],
     PadType.OPERATION_GROUP: [*_always_reserved],
 }
 
 TSP_RESERVED_WORDS = {
     PadType.PARAMETER: ["stream"],
-    PadType.PROPERTY: RESERVED_MODEL_PROPERTIES,
+    PadType.PROPERTY: RESERVED_TSP_MODEL_PROPERTIES,
 }
 
 REDEFINED_BUILTINS = [  # we don't pad, but we need to do lint ignores

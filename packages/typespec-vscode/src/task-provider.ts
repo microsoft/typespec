@@ -1,9 +1,10 @@
 import { resolve } from "path";
 import vscode, { workspace } from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
+import { Executable } from "vscode-languageclient/node";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { normalizeSlashes } from "./path-utils.js";
+import { resolveTaskCommand } from "./task-command.js";
 import { resolveTypeSpecCli } from "./tsp-executable-resolver.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
@@ -11,14 +12,23 @@ export function createTaskProvider() {
   return vscode.tasks.registerTaskProvider("typespec", {
     provideTasks: async () => {
       logger.info("Providing tsp tasks");
+      // Give it a limit for the built-in task to create when starting because some project may have a large number of
+      // tsp proj (like the spec repo contains 600+...). User can still create the task manually if needed
+      const MAX_BUILTIN_RESULT = 10;
       const targetPathes = await vscode.workspace
-        .findFiles(`**/${StartFileName}`, "**/node_modules/**")
+        .findFiles(`**/${StartFileName}`, "**/node_modules/**", MAX_BUILTIN_RESULT)
         .then((uris) =>
           uris
             .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
             .map((uri) => normalizeSlashes(uri.fsPath)),
         );
-      logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
+      if (targetPathes.length === MAX_BUILTIN_RESULT) {
+        logger.warning(
+          `Reached maximum built-in task limit of ${MAX_BUILTIN_RESULT}. Tsp tasks will be created only for the first ${MAX_BUILTIN_RESULT} ${StartFileName} files automatically, but you can still create task manually in the tasks.json for other projects if needed.`,
+        );
+      } else {
+        logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
+      }
       const tasks: vscode.Task[] = [];
       for (const targetPath of targetPathes) {
         tasks.push(...(await createBuiltInTasks(targetPath)));
@@ -61,21 +71,26 @@ function getTaskPath(targetPath: string): { absoluteTargetPath: string; workspac
   return { absoluteTargetPath: targetPath, workspaceFolder };
 }
 
+/**
+ * Create a tsp compile {@link vscode.Task} that runs via {@link vscode.ProcessExecution}
+ * (no shell) so workspace paths and task arguments cannot be interpreted as shell
+ * commands.
+ */
 function createTaskInternal(
   name: string,
   absoluteTargetPath: string,
-  args: string,
+  args: string[],
   cli: Executable,
   workspaceFolder: string,
 ) {
-  let cmd = `${cli.command} ${cli.args?.join(" ") ?? ""} compile "${absoluteTargetPath}" ${args}`;
-  const variableResolver = new VSCodeVariableResolver({
+  const { command, args: commandArgs } = resolveTaskCommand(
+    absoluteTargetPath,
+    args,
+    cli,
     workspaceFolder,
-    workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.
-  });
-  cmd = variableResolver.resolve(cmd);
+  );
   logger.debug(
-    `Command of tsp compile task "${name}" is resolved to: ${cmd} with cwd "${workspaceFolder}"`,
+    `Command of tsp compile task "${name}" is resolved to: ${command} ${commandArgs.join(" ")} with cwd "${workspaceFolder}"`,
   );
   return new vscode.Task(
     {
@@ -87,18 +102,18 @@ function createTaskInternal(
     name,
     "tsp",
     workspaceFolder
-      ? new vscode.ShellExecution(cmd, { cwd: workspaceFolder })
-      : new vscode.ShellExecution(cmd),
+      ? new vscode.ProcessExecution(command, commandArgs, { cwd: workspaceFolder })
+      : new vscode.ProcessExecution(command, commandArgs),
   );
 }
 
-async function createTask(name: string, targetPath: string, args?: string) {
+async function createTask(name: string, targetPath: string, args?: string[]) {
   const { absoluteTargetPath, workspaceFolder } = getTaskPath(targetPath);
   const cli = await resolveTypeSpecCli(absoluteTargetPath);
   if (!cli) {
     return undefined;
   }
-  return await createTaskInternal(name, absoluteTargetPath, args ?? "", cli, workspaceFolder);
+  return await createTaskInternal(name, absoluteTargetPath, args ?? [], cli, workspaceFolder);
 }
 
 async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
@@ -108,8 +123,8 @@ async function createBuiltInTasks(targetPath: string): Promise<vscode.Task[]> {
     return [];
   }
   return [
-    { name: `compile - ${targetPath}`, args: "" },
-    { name: `watch - ${targetPath}`, args: "--watch" },
+    { name: `compile - ${targetPath}`, args: [] },
+    { name: `watch - ${targetPath}`, args: ["--watch"] },
   ].map(({ name, args }) => {
     return createTaskInternal(name, absoluteTargetPath, args, cli, workspaceFolder);
   });

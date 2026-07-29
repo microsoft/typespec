@@ -1,4 +1,4 @@
-import type { Diagnostic, RuleRef } from "../core/types.js";
+import type { Diagnostic, LinterRuleEnableValue, RuleRef } from "../core/types.js";
 import type { YamlScript } from "../yaml/types.js";
 
 /**
@@ -9,6 +9,23 @@ export interface TypeSpecConfig {
    * Project root.
    */
   projectRoot: string;
+
+  /**
+   * Kind of the config. When set to "project", this config marks a project boundary.
+   */
+  kind?: "project";
+
+  /**
+   * Main TypeSpec file for this project, relative to the config directory.
+   * Only meaningful when `kind` is `"project"`. Defaults to `"main.tsp"`.
+   */
+  entrypoint?: string;
+
+  /**
+   * Compiler features enabled for this project.
+   * Only meaningful when `kind` is `"project"`.
+   */
+  features?: string[];
 
   /** Yaml file used in this configuration. */
   file?: YamlScript;
@@ -76,6 +93,24 @@ export interface TypeSpecConfig {
  */
 export interface TypeSpecRawConfig {
   extends?: string;
+
+  /**
+   * Kind of the config. When set to "project", this config marks a project boundary.
+   */
+  kind?: "project";
+
+  /**
+   * Main TypeSpec file for this project, relative to the config directory.
+   * Only meaningful when `kind` is `"project"`. Defaults to `"main.tsp"`.
+   */
+  entrypoint?: string;
+
+  /**
+   * Compiler features enabled for this project.
+   * Only meaningful when `kind` is `"project"`.
+   */
+  features?: string[];
+
   "environment-variables"?: Record<string, ConfigEnvironmentVariable>;
   parameters?: Record<string, ConfigParameter>;
 
@@ -104,6 +139,6 @@ export type EmitterOptions = Record<string, unknown> & {
 
 export interface LinterConfig {
   extends?: RuleRef[];
-  enable?: Record<RuleRef, boolean>;
+  enable?: Record<RuleRef, LinterRuleEnableValue>;
   disable?: Record<RuleRef, string>;
 }

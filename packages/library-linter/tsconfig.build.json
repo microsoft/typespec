@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "references": [
+    { "path": "../compiler/tsconfig.build.json" },
+    { "path": "../rest/tsconfig.build.json" },
+    { "path": "../openapi/tsconfig.build.json" }
+  ]
+}

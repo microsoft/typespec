@@ -57,7 +57,7 @@ public final class StringOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "FixedClientStringOpe")
+    @ServiceInterface(name = "FixedClientStringOperations")
     public interface StringOperationsService {
         @Get("/type/enum/fixed/string/known-value")
         @ExpectedResponses({ 200 })

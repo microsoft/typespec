@@ -3,6 +3,8 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Resiliency.ServiceDriven
 {
@@ -11,6 +13,9 @@ namespace Resiliency.ServiceDriven
         private const ServiceVersion LatestVersion = ServiceVersion.V1;
 
         public ResiliencyServiceDrivenClientOptions(ServiceVersion version = LatestVersion) => throw null;
+
+        [Experimental("SCME0002")]
+        internal ResiliencyServiceDrivenClientOptions(IConfigurationSection section) : base(section) => throw null;
 
         public enum ServiceVersion
         {

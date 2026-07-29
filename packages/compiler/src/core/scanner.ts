@@ -126,7 +126,6 @@ export enum Token {
   ElseKeyword,
   IfKeyword,
   DecKeyword,
-  FnKeyword,
   ConstKeyword,
   InitKeyword,
   // Add new statement keyword above
@@ -139,6 +138,8 @@ export enum Token {
   /** @internal */ __StartModifierKeyword = __EndStatementKeyword,
 
   ExternKeyword = __StartModifierKeyword,
+  InternalKeyword,
+  AutoKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -147,6 +148,7 @@ export enum Token {
   // Other keywords
 
   ExtendsKeyword = __EndModifierKeyword,
+  FnKeyword,
   TrueKeyword,
   FalseKeyword,
   ReturnKeyword,
@@ -193,12 +195,10 @@ export enum Token {
   ImplKeyword,
   SatisfiesKeyword,
   FlagKeyword,
-  AutoKeyword,
   PartialKeyword,
   PrivateKeyword,
   PublicKeyword,
   ProtectedKeyword,
-  InternalKeyword,
   SealedKeyword,
   LocalKeyword,
   AsyncKeyword,
@@ -224,9 +224,7 @@ export type DocToken =
   | Token.EndOfFile;
 
 export type StringTemplateToken =
-  | Token.StringTemplateHead
-  | Token.StringTemplateMiddle
-  | Token.StringTemplateTail;
+  Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail;
 
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([
@@ -310,6 +308,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.NeverKeyword, "'never'"],
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
+  [Token.AutoKeyword, "'auto'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -342,7 +341,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ImplKeyword, "'impl'"],
   [Token.SatisfiesKeyword, "'satisfies'"],
   [Token.FlagKeyword, "'flag'"],
-  [Token.AutoKeyword, "'auto'"],
   [Token.PartialKeyword, "'partial'"],
   [Token.PrivateKeyword, "'private'"],
   [Token.PublicKeyword, "'public'"],
@@ -383,6 +381,8 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["never", Token.NeverKeyword],
   ["unknown", Token.UnknownKeyword],
   ["extern", Token.ExternKeyword],
+  ["auto", Token.AutoKeyword],
+  ["internal", Token.InternalKeyword],
 
   // Reserved keywords
   ["statemachine", Token.StatemachineKeyword],
@@ -415,12 +415,10 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
@@ -455,12 +453,10 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["auto", Token.AutoKeyword],
   ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
-  ["internal", Token.InternalKeyword],
   ["sealed", Token.SealedKeyword],
   ["local", Token.LocalKeyword],
   ["async", Token.AsyncKeyword],
@@ -1274,6 +1270,7 @@ export function createScanner(
       if (isCrlf(end - 2, 0, end)) {
         end--;
       }
+      // eslint-disable-next-line no-useless-assignment
       end--;
     }
 
@@ -1473,7 +1470,6 @@ export function createScanner(
 
   function scanIdentifierOrKeyword(): Token {
     let count = 0;
-    let ch = input.charCodeAt(position);
 
     while (true) {
       position++;
@@ -1483,7 +1479,7 @@ export function createScanner(
         break;
       }
 
-      ch = input.charCodeAt(position);
+      const ch = input.charCodeAt(position);
       if (count < KeywordLimit.MaxLength && isLowercaseAsciiLetter(ch)) {
         continue;
       }
@@ -1622,7 +1618,7 @@ export function skipTriviaBackward(
     // it's possible if the pos is at the end of the file, just treat it as trivia
     position--;
   } else if (position > input.length) {
-    compilerAssert(false, "position out of range");
+    compilerAssert(false, `position out of range: ${position}, text length: ${input.length}`);
   }
 
   while (position > endPosition) {

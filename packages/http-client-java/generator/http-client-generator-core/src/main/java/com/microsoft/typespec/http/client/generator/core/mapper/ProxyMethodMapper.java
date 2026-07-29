@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
@@ -21,9 +19,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,9 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static final List<IType> RETURN_VALUE_WIRE_TYPE_OPTIONS
         = Arrays.asList(ClassType.BASE_64_URL, ClassType.DATE_TIME_RFC_1123, PrimitiveType.DURATION_LONG,
             PrimitiveType.DURATION_DOUBLE, ClassType.DURATION_LONG, ClassType.DURATION_DOUBLE,
-            PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
+            PrimitiveType.DURATION_MILLISECONDS_LONG, PrimitiveType.DURATION_MILLISECONDS_DOUBLE,
+            ClassType.DURATION_MILLISECONDS_LONG, ClassType.DURATION_MILLISECONDS_DOUBLE, PrimitiveType.UNIX_TIME_LONG,
+            ClassType.UNIX_TIME_LONG, ClassType.UNIX_TIME_DATE_TIME);
     private static final ProxyMethodMapper INSTANCE = new ProxyMethodMapper();
 
     private final Logger logger = new PluginLogger(Javagen.getPluginInstance(), ProxyMethodMapper.class);
@@ -142,7 +143,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         final boolean isDataPlaneClient = settings.isDataPlaneClient();
         final IType bodyType = MapperUtils.getExpectedResponseBodyType(operation, settings);
         final IType bodyTypeMapped;
-        if (isDataPlaneClient && settings.isBranded()) {
+        if (isDataPlaneClient && settings.isAzureV1()) {
             builder.rawResponseBodyType(bodyType);
             // branded (azure) Data Plane Generator uses BinaryData as return type not the model.
             bodyTypeMapped = SchemaUtil.tryMapToBinaryData(bodyType, operation);
@@ -210,7 +211,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         expectedStatusCodes.forEach(mergedExceptionTypeMapping::remove);
 
         // Convert the exception type mapping into what code generation uses elsewhere.
-        final Map<ClassType, List<Integer>> processedMapping = new HashMap<>();
+        final Map<ClassType, List<Integer>> processedMapping = new LinkedHashMap<>();
         for (Map.Entry<Integer, ClassType> kvp : mergedExceptionTypeMapping.entrySet()) {
             processedMapping.compute(kvp.getValue(), (errorType, statuses) -> {
                 if (statuses == null) {
@@ -275,8 +276,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
      * Create proxy methods for a request in an operation.
      *
      * @param builderSource the proxy method to use as the source to create a builder for the base proxy method (all
-     * other
-     * proxy method variants may derive from the base method).
+     * other proxy method variants may derive from the base method).
      * @param operation the parent operation of the request.
      * @param operationName the operation name.
      * @param request the request to create the proxy methods for.
@@ -414,9 +414,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
     private static List<ProxyMethod> createSyncProxyMethods(List<ProxyMethod> asyncProxyMethods) {
         List<ProxyMethod> syncMethods = new ArrayList<>();
         for (ProxyMethod asyncMethod : asyncProxyMethods) {
-            if (asyncMethod.getParameters()
-                .stream()
-                .anyMatch(param -> param.getClientType() == GenericType.FLUX_BYTE_BUFFER)) {
+            if (asyncMethod.hasParameterOfType(GenericType.FLUX_BYTE_BUFFER)) {
                 continue;
             }
             syncMethods.add(asyncMethod.toSync());
@@ -527,7 +525,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         private SwaggerExceptionDefinitions() {
             defaultExceptionType = null;
-            exceptionTypeMapping = new HashMap<>();
+            exceptionTypeMapping = new LinkedHashMap<>();
         }
 
         ClassType getDefaultExceptionType() {
@@ -540,8 +538,11 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
 
         static SwaggerExceptionDefinitions create(ProxyMethodMapper mapper, Operation operation,
             JavaSettings settings) {
-            if (settings.isDataPlaneClient() && settings.isBranded()) {
-                // LLC does not use model, hence exception from swagger
+            if (settings.isDataPlaneClient()
+                && settings.isAzureV1()
+                && settings.isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
+                // for DPG, the default is to use HttpResponseException
+                // when the setting is false, it would still use the Error/Exception defined in source
                 final SwaggerExceptionDefinitions definitions = new SwaggerExceptionDefinitions();
                 definitions.defaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
                 return definitions;
@@ -585,7 +586,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
             }
             // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
             if (definitions.defaultExceptionType == null
-                && settings.isBranded()
+                && settings.isAzureV1()
                 && !CoreUtils.isNullOrEmpty(operation.getExceptions())
                 && operation.getExceptions().get(0).getSchema() != null) {
                 // no default error, use the 1st to keep backward compatibility

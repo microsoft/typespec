@@ -7,6 +7,7 @@ using OpenAPI;
 
 @service(#{ title: "Swagger Petstore" })
 @info(#{ version: "1.0.0", license: #{ name: "MIT" } })
+@server("http://petstore.swagger.io/v1")
 namespace SwaggerPetstore;
 
 model Pet {
@@ -27,36 +28,31 @@ model Error {
 @get
 @summary("List all pets")
 op listPets(
-  /**
-   * How many items to return at one time (max 100)
-   */
+  /** How many items to return at one time (max 100) */
   @query(#{ explode: true }) limit?: int32,
-): {
-  /**
-   * A link to the next page of responses
-   */
-  @header("x-next") xNext?: string;
+):
+  | {
+      /** A link to the next page of responses */
+      @header("x-next") xNext?: string;
 
-  @body body: Pets;
-} | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
+      @body body: Pets;
+    }
+  | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 
 @tag("pets")
 @route("/pets")
 @post
 @summary("Create a pet")
-op createPets(): CreatedResponse | GeneratedHelpers.DefaultResponse<
-  Description = "unexpected error",
-  Body = Error
->;
+op createPets():
+  | CreatedResponse
+  | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 
 @tag("pets")
 @route("/pets/{petId}")
 @get
 @summary("Info for a specific pet")
 op showPetById(
-  /**
-   * The id of the pet to retrieve
-   */
+  /** The id of the pet to retrieve */
   @path petId: string,
 ): Pet | GeneratedHelpers.DefaultResponse<Description = "unexpected error", Body = Error>;
 

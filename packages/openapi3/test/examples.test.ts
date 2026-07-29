@@ -1,7 +1,8 @@
+import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
+import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("schema examples", () => {
   it("apply example on model", async () => {
@@ -53,7 +54,7 @@ describe("schema examples", () => {
   });
 });
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("set example on the request body", async () => {
     const res: OpenAPI3Document = await openApiFor(
       `
@@ -115,7 +116,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {name: string, age: int32};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -141,19 +147,95 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         };
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { name: "Fluffy", age: 2 },
         },
       });
-      expect(res.paths["/"].get?.responses[404].content["application/json"].examples).toEqual({
+      ok("404" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["404"]);
+      ok(res.paths["/"].get.responses["404"].content);
+      expect(res.paths["/"].get?.responses["404"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
           value: {
             error: "No user with this name",
           },
         },
+      });
+    });
+
+    it("set examples on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } }, #{ title: "ExampleA" })
+        @opExample(#{ returnType: #{ b: "B" } }, #{ title: "ExampleB" })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].examples).toEqual({
+        ExampleA: {
+          summary: "ExampleA",
+          value: { a: "A" },
+        },
+        ExampleB: {
+          summary: "ExampleB",
+          value: { b: "B" },
+        },
+      });
+    });
+
+    it("set single example on union response with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        model ModelA { a: string; }
+        model ModelB { b: string; }
+
+        @opExample(#{ returnType: #{ a: "A" } })
+        op getUnion(): ModelA | ModelB;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      const resp200 = res.paths["/"].get.responses["200"];
+      ok(typeof resp200 === "object" && "content" in resp200);
+      expect(resp200.content?.["application/json"].example).toEqual({
+        a: "A",
+      });
+    });
+
+    it("set example on union of response envelopes with same status code", async () => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+        @error model Error { @statusCode _: 400; }
+        model Error1 is Error { @body body: { error1: string } }
+        model Error2 is Error { @body body: { error2: string } }
+
+        @opExample(#{ returnType: #{ _: 400, body: #{ error1: "abc" } } })
+        op bad(): Error1 | Error2;
+        `,
+      );
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      const resp400 = (res.paths["/"].get.responses as Record<string, any>)["400"];
+      ok(typeof resp400 === "object" && "content" in resp400);
+      expect(resp400.content?.["application/json"].example).toEqual({
+        error1: "abc",
       });
     });
 
@@ -178,12 +260,20 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { data: "Ok" },
         },
       });
+      ok("4XX" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["4XX"]);
+      ok(res.paths["/"].get.responses["4XX"].content);
       expect(res.paths["/"].get?.responses["4XX"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
@@ -209,7 +299,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@body pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -229,9 +324,710 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@bodyRoot pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
+  });
+
+  it("does not set examples on parameters by default", async () => {
+    const res = await openApiFor(
+      `
+                @opExample(#{
+                  parameters: #{
+                    color: "blue",
+                  },
+                })
+                @route("/")
+                op getColors(@query color: string): void;
+              `,
+    );
+    expect((res.paths["/"].get?.parameters[0] as OpenAPI3Parameter).example).toBeUndefined();
+    expect((res.paths["/"].get?.parameters[0] as OpenAPI3Parameter).examples).toBeUndefined();
+  });
+
+  describe.each(["path", "query", "header", "cookie"])(
+    "set example on the %s parameter without serialization",
+    (paramType) => {
+      it.each([
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `null`,
+          expectedExample: null,
+        },
+        {
+          param: `@${paramType} color: string | null`,
+          paramExample: `"blue"`,
+          expectedExample: "blue",
+        },
+        {
+          param: `@${paramType} color: string[]`,
+          paramExample: `#["blue", "black", "brown"]`,
+          expectedExample: ["blue", "black", "brown"],
+        },
+        {
+          param: `@${paramType} color: Record<int32>`,
+          paramExample: `#{R: 100, G: 200, B: 150}`,
+          expectedExample: { R: 100, G: 200, B: 150 },
+        },
+      ])("$paramExample", async ({ param, paramExample, expectedExample }) => {
+        const path = paramType === "path" ? "/{color}" : "/";
+        const res = await openApiFor(
+          `
+                @opExample(#{
+                  parameters: #{
+                    color: ${paramExample},
+                  },
+                })
+                @route("/")
+                op getColors(${param}): void;
+              `,
+          { "experimental-parameter-examples": "data" },
+        );
+        expect((res.paths[path].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+          expectedExample,
+        );
+      });
+    },
+  );
+
+  describe("set example on the query parameter with serialization enabled", () => {
+    it.each([
+      {
+        desc: "form (undefined)",
+        param: `@query color: string | null`,
+        paramExample: `null`,
+        expectedExample: "color=",
+      },
+      {
+        desc: "form (string)",
+        param: `@query color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "color=blue",
+      },
+      {
+        desc: "form (array) explode: false",
+        param: `@query color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue,black,brown",
+      },
+      {
+        desc: "form (array) explode: true",
+        param: `@query(#{ explode: true }) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue&color=black&color=brown",
+      },
+      {
+        desc: "form (object) explode: false",
+        param: `@query color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R,100,G,200,B,150",
+      },
+      {
+        desc: "form (object) explode: true",
+        param: `@query(#{ explode: true }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R=100&G=200&B=150",
+      },
+      {
+        desc: "spaceDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (string)",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%20black%20brown",
+      },
+      {
+        desc: "spaceDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.spaceDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "spaceDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.spaceDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%20100%20G%20200%20B%20150",
+      },
+      {
+        desc: "spaceDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.spaceDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (string)",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        // cspell:disable-next-line
+        expectedExample: "color=blue%7Cblack%7Cbrown",
+      },
+      {
+        desc: "pipeDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "pipeDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%7C100%7CG%7C200%7CB%7C150",
+      },
+      {
+        desc: "pipeDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (string)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%2Cblack%2Cbrown",
+      },
+      {
+        desc: "commaDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%2C100%2CG%2C200%2CB%2C150",
+      },
+      {
+        desc: "commaDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (string)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%0Ablack%0Abrown",
+      },
+      {
+        desc: "newlineDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%0A100%0AG%0A200%0AB%0A150",
+      },
+      {
+        desc: "newlineDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res = await openApiFor(
+        `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        { "experimental-parameter-examples": "serialized" },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
+
+  describe("set example on the path parameter with serialization enabled", () => {
+    it.each([
+      {
+        desc: "simple (undefined)",
+        route: "/{color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: "",
+      },
+      {
+        desc: "simple (string)",
+        route: "/{color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "blue",
+      },
+      {
+        desc: "simple (array) explode: false",
+        route: "/{color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (array) explode: true",
+        route: "/{color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (object) explode: false",
+        route: "/{color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R,100,G,200,B,150",
+      },
+      {
+        desc: "simple (object) explode: true",
+        route: "/{color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R=100,G=200,B=150",
+      },
+      {
+        desc: "matrix (undefined)",
+        route: "/{;color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: ";color",
+      },
+      {
+        desc: "matrix (string)",
+        route: "/{;color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: ";color=blue",
+      },
+      {
+        desc: "matrix (array) explode: false",
+        route: "/{;color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ";color=blue,black,brown",
+      },
+      {
+        desc: "matrix (array) explode: true",
+        route: "/{;color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ";color=blue;color=black;color=brown",
+      },
+      {
+        desc: "matrix (object) explode: false",
+        route: "/{;color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ";color=R,100,G,200,B,150",
+      },
+      {
+        desc: "matrix (object) explode: true",
+        route: "/{;color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ";R=100;G=200;B=150",
+      },
+      {
+        desc: "label (undefined)",
+        route: "/{.color}",
+        param: `@path color: string | null`,
+        paramExample: `null`,
+        expectedExample: ".",
+      },
+      {
+        desc: "label (string)",
+        route: "/{.color}",
+        param: `@path color: string`,
+        paramExample: `"blue"`,
+        expectedExample: ".blue",
+      },
+      {
+        desc: "label (array) explode: false",
+        route: "/{.color}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ".blue,black,brown",
+      },
+      {
+        desc: "label (array) explode: true",
+        route: "/{.color*}",
+        param: `@path color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: ".blue.black.brown",
+      },
+      {
+        desc: "label (object) explode: false",
+        route: "/{.color}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ".R,100,G,200,B,150",
+      },
+      {
+        desc: "label (object) explode: true",
+        route: "/{.color*}",
+        param: `@path color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: ".R=100.G=200.B=150",
+      },
+    ])("$desc", async ({ param, route, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("${route}")
+          op getColors(${param}): void;
+          `,
+        { "experimental-parameter-examples": "serialized" },
+      );
+      expect((res.paths[`/{color}`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
+
+  describe("set example on the header parameter with serialization enabled", () => {
+    it.each([
+      {
+        desc: "simple (undefined)",
+        param: `@header color: string | null`,
+        paramExample: `null`,
+        expectedExample: "",
+      },
+      {
+        desc: "simple (string)",
+        param: `@header color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "blue",
+      },
+      {
+        desc: "simple (array) explode: false",
+        param: `@header color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (array) explode: true",
+        param: `@header(#{ explode: true }) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "blue,black,brown",
+      },
+      {
+        desc: "simple (object) explode: false",
+        param: `@header color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R,100,G,200,B,150",
+      },
+      {
+        desc: "simple (object) explode: true",
+        param: `@header(#{ explode: true }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "R=100,G=200,B=150",
+      },
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        { "experimental-parameter-examples": "serialized" },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
+
+  describe("set example on the cookie parameter with serialization enabled", () => {
+    it.each([
+      {
+        desc: "form (undefined)",
+        param: `@cookie color: string | null`,
+        paramExample: `null`,
+        expectedExample: "color=",
+      },
+      {
+        desc: "form (string)",
+        param: `@cookie color: string`,
+        paramExample: `"blue"`,
+        expectedExample: "color=blue",
+      },
+      {
+        desc: "form (array) explode: false",
+        param: `@cookie color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue,black,brown",
+      },
+      {
+        desc: "form (object) explode: false",
+        param: `@cookie color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R,100,G,200,B,150",
+      },
+    ])("$desc", async ({ param, paramExample, expectedExample }) => {
+      const res: OpenAPI3Document = await openApiFor(
+        `
+          @opExample(#{
+            parameters: #{
+              color: ${paramExample},
+            },
+          })
+          @route("/")
+          op getColors(${param}): void;
+          `,
+        { "experimental-parameter-examples": "serialized" },
+      );
+      expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).example).toEqual(
+        expectedExample,
+      );
+    });
+  });
+
+  it("supports multiple examples on parameter with serialization enabled", async () => {
+    const res = await openApiFor(
+      `
+          @opExample(#{
+            parameters: #{
+              color: "green",
+            },
+          }, #{ title: "MyExample" })
+          @opExample(#{
+            parameters: #{
+              color: "red",
+            },
+          }, #{ title: "MyExample2" })
+          @route("/")
+          op getColors(@query color: string): void;
+          `,
+      { "experimental-parameter-examples": "serialized" },
+    );
+    expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
+      MyExample: {
+        summary: "MyExample",
+        value: "color=green",
+      },
+      MyExample2: {
+        summary: "MyExample2",
+        value: "color=red",
+      },
+    });
+  });
+
+  it("supports multiple examples on parameter without serialization enabled", async () => {
+    const res = await openApiFor(
+      `
+          @opExample(#{
+            parameters: #{
+              color: "green",
+            },
+          }, #{ title: "MyExample" })
+          @opExample(#{
+            parameters: #{
+              color: "red",
+            },
+          }, #{ title: "MyExample2" })
+          @route("/")
+          op getColors(@query color: string): void;
+          `,
+      { "experimental-parameter-examples": "data" },
+    );
+    expect((res.paths[`/`].get?.parameters[0] as OpenAPI3Parameter).examples).toEqual({
+      MyExample: {
+        summary: "MyExample",
+        value: "green",
+      },
+      MyExample2: {
+        summary: "MyExample2",
+        value: "red",
+      },
+    });
+  });
+
+  it("supports encoding in examples", async () => {
+    const res = await openApiFor(
+      `
+      @opExample(#{
+        parameters: #{
+          dob: plainDate.fromISO("2021-01-01"),
+          utc: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          utcAsUnix: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          dur: duration.fromISO("PT1H"),
+          defaultHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          encodedHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+        }
+      }, #{ title: "Test Example"})
+      @route("/")
+      op getDates(...Test): void;
+
+      model Test {
+        @query
+        dob: plainDate;
+        
+        @query
+        utc: utcDateTime;
+
+        @query
+        @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+        utcAsUnix: utcDateTime;
+
+        @query
+        @encode(DurationKnownEncoding.seconds, int32)
+        dur: duration;
+
+        @header
+        defaultHeader: utcDateTime;
+
+        @header
+        @encode(DateTimeKnownEncoding.rfc3339)
+        encodedHeader: utcDateTime;
+      }
+    `,
+      { "experimental-parameter-examples": "data" },
+    );
+    expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: "2021-01-01" },
+    });
+    expect((res.components.parameters["Test.utc"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: "2021-01-01T00:00:00Z" },
+    });
+    expect((res.components.parameters["Test.utcAsUnix"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: 1609459200 },
+    });
+    expect((res.components.parameters["Test.dur"] as OpenAPI3Parameter).examples).toEqual({
+      "Test Example": { summary: "Test Example", value: 3600 },
+    });
+    expect((res.components.parameters["Test.defaultHeader"] as OpenAPI3Parameter).examples).toEqual(
+      {
+        "Test Example": { summary: "Test Example", value: "Fri, 01 Jan 2021 00:00:00 GMT" },
+      },
+    );
+    expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).examples).toEqual(
+      {
+        "Test Example": { summary: "Test Example", value: "2021-01-01T00:00:00Z" },
+      },
+    );
+  });
+
+  it("supports encoding in example", async () => {
+    const res = await openApiFor(
+      `
+      @opExample(#{
+        parameters: #{
+          dob: plainDate.fromISO("2021-01-01"),
+          utc: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          utcAsUnix: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          dur: duration.fromISO("PT1H"),
+          defaultHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+          encodedHeader: utcDateTime.fromISO("2021-01-01T00:00:00Z"),
+        }
+      })
+      @route("/")
+      op getDates(...Test): void;
+
+      model Test {
+        @query
+        dob: plainDate;
+        
+        @query
+        utc: utcDateTime;
+
+        @query
+        @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+        utcAsUnix: utcDateTime;
+
+        @query
+        @encode(DurationKnownEncoding.seconds, int32)
+        dur: duration;
+
+        @header
+        defaultHeader: utcDateTime;
+
+        @header
+        @encode(DateTimeKnownEncoding.rfc3339)
+        encodedHeader: utcDateTime;
+      }
+    `,
+      { "experimental-parameter-examples": "data" },
+    );
+    expect((res.components.parameters["Test.dob"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01",
+    );
+    expect((res.components.parameters["Test.utc"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01T00:00:00Z",
+    );
+    expect((res.components.parameters["Test.utcAsUnix"] as OpenAPI3Parameter).example).toEqual(
+      1609459200,
+    );
+    expect((res.components.parameters["Test.dur"] as OpenAPI3Parameter).example).toEqual(3600);
+    expect((res.components.parameters["Test.defaultHeader"] as OpenAPI3Parameter).example).toEqual(
+      "Fri, 01 Jan 2021 00:00:00 GMT",
+    );
+    expect((res.components.parameters["Test.encodedHeader"] as OpenAPI3Parameter).example).toEqual(
+      "2021-01-01T00:00:00Z",
+    );
   });
 });

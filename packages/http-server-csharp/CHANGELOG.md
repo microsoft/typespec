@@ -1,5 +1,144 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.30
+
+### Bug Fixes
+
+- [#10999](https://github.com/microsoft/typespec/pull/10999) Update the union definition to include unnamed string literals and null
+
+
+## 0.58.0-alpha.29
+
+### Features
+
+- [#10372](https://github.com/microsoft/typespec/pull/10372) Rewrite using emitter framework and alloy engine
+
+
+## 0.58.0-alpha.28
+
+### Bug Fixes
+
+- [#10327](https://github.com/microsoft/typespec/pull/10327) add arrayDeclarationContext
+
+
+## 0.58.0-alpha.27
+
+### Bug Fixes
+
+- [#10175](https://github.com/microsoft/typespec/pull/10175) Emit C# class for models that extend another model with no additional properties
+
+
+## 0.58.0-alpha.26
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9896](https://github.com/microsoft/typespec/pull/9896) Fix missing `using` namespace imports in C# files generated from `MergePatchUpdate<T>` when model properties reference enum or named types from a different namespace
+- [#9895](https://github.com/microsoft/typespec/pull/9895) Fix controller generation to use correct ASP.NET Core result methods for non-200/204 status codes. Previously all operations returned `Ok(...)` or `NoContent()` regardless of the declared status code. Now operations returning 202 use `Accepted(...)`, and other status codes use `StatusCode(code, ...)`.
+- [#9894](https://github.com/microsoft/typespec/pull/9894) Fix crash when emitting interfaces that contain template operations. Template operations (e.g. `getItem<T>(): T`) within interfaces will simply be skipped when emitting the interface.
+
+
+## 0.58.0-alpha.25
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.58.0-alpha.24
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.58.0-alpha.23
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.58.0-alpha.22
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.58.0-alpha.21
+
+No changes, version bump only.
+
+## 0.58.0-alpha.20
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.58.0-alpha.19
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.58.0-alpha.18
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.58.0-alpha.17
+
+No changes, version bump only.
+
+## 0.58.0-alpha.16
+
+### Bug Fixes
+
+- Fix reference issues with some declared types
+
+## 0.58.0-alpha.15
+
+### Breaking Changes
+
+- [#6428](https://github.com/microsoft/typespec/pull/6428) ### Change in Array Scaffolding from TypeSpec to C#
+  
+  The default behavior for scaffolding arrays remains unchanged: arrays will continue to be scaffolded as `T[]` by default. However, for arrays decorated with the `@uniqueItems` decorator, they will now be scaffolded as `ISet<T>`, with `HashSet<T>` as the default implementation.
+  
+  Additionally, a new emitter option, `collection-type`, has been introduced to provide flexibility in how collections are generated:
+  - **`collection-type`**:
+    - **`array` (default)**: Generates arrays (`T[]`).
+    - **`enumerable`**: Generates `IEnumerable<T>` for collections, with `List<T>` used as the default implementation when needed.
+  
+  #### Unique Items
+  For arrays decorated with the `@uniqueItems` decorator, they will be scaffolded as `ISet<T>`, regardless of the `collection-type` option, with `HashSet<T>` as the default implementation.
+  
+  #### Byte Arrays
+  The `bytes` type will always be treated as an array of bytes (`byte[]`) in C#, regardless of the `collection-type` option selected.
+
+### Bug Fixes
+
+- [#7196](https://github.com/microsoft/typespec/pull/7196) Fix issues with string union defaults and namespace management
+- [#6845](https://github.com/microsoft/typespec/pull/6845) - Mirror namespaces from typespec document
+  - Make many usings dynamic
+  - Update management of scopes
+  - Detect and substitute many language reserved words
+
+
+## 0.58.0-alpha.14
+
+### Bug Fixes
+
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+
+
 ## 0.58.0-alpha.13
 
 ### Features

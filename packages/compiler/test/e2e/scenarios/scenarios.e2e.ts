@@ -130,6 +130,11 @@ describe("compiler: entrypoints", () => {
       expectDiagnosticEmpty(program.diagnostics);
     });
 
+    it("succeed with relative .ts module import", async () => {
+      const program = await compileScenario("import-relative-ts");
+      expectDiagnosticEmpty(program.diagnostics);
+    });
+
     it("succeed if loading different install of the same library at the same version", async () => {
       const program = await compileScenario("same-library-same-version", {
         emit: ["@typespec/lib2"],

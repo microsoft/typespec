@@ -1,0 +1,45 @@
+{
+    "$id": "1",
+    "kind": "model",
+    "name": "XmlOnlyModel",
+    "namespace": "SampleTypeSpec",
+    "crossLanguageDefinitionId": "SampleTypeSpec.XmlOnlyModel",
+    "usage": "Input,Xml",
+    "doc": "A model that only supports XML serialization",
+    "decorators": [],
+    "serializationOptions": {
+        "xml": {
+            "name": "XmlOnlyModel"
+        }
+    },
+    "properties": [
+        {
+            "$id": "2",
+            "kind": "property",
+            "name": "name",
+            "serializedName": "name",
+            "doc": "name property",
+            "type": {
+                "$id": "3",
+                "kind": "string",
+                "name": "string",
+                "crossLanguageDefinitionId": "TypeSpec.string",
+                "decorators": []
+            },
+            "optional": false,
+            "readOnly": false,
+            "discriminator": false,
+            "flatten": false,
+            "decorators": [],
+            "crossLanguageDefinitionId": "SampleTypeSpec.XmlOnlyModel.name",
+            "serializationOptions": {
+                "xml": {
+                    "name": "name",
+                    "attribute": false,
+                    "unwrapped": false
+                }
+            },
+            "isHttpMetadata": false
+        }
+    ]
+}

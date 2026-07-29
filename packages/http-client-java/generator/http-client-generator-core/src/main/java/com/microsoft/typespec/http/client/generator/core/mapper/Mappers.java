@@ -106,4 +106,8 @@ public class Mappers {
     public static GraalVmConfigMapper getGraalVmConfigMapper() {
         return factory.getGraalVmConfigMapper();
     }
+
+    public static PomMapper getPomMapper() {
+        return factory.getPomMapper();
+    }
 }

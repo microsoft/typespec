@@ -1,5 +1,7 @@
 ---
 title: "Data types"
+description: "Data types exported by @typespec/rest"
+llmstxt: true
 ---
 
 ## TypeSpec.Rest
@@ -158,7 +160,7 @@ model TypeSpec.Rest.Resource.ResourceDeletedResponse
 
 | Name | Type  | Description      |
 | ---- | ----- | ---------------- |
-| \_   | `200` | The status code. |
+| _    | `200` | The status code. |
 
 ### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 

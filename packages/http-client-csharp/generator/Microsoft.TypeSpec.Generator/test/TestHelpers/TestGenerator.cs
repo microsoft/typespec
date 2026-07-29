@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Tests
 {
@@ -10,5 +11,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
         public TestGenerator()
         {
         }
+
+        public void AddCustomCodeAttributeProviderForTest(CustomCodeAttributeDefinition provider)
+            => AddCustomCodeAttributeProvider(provider);
     }
 }

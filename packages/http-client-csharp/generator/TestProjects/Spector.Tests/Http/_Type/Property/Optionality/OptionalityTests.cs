@@ -367,7 +367,7 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.Optionality
         {
             FloatLiteralProperty data = new()
             {
-                Property = new FloatLiteralPropertyProperty(1.25f)
+                Property = 1.25f
             };
             var response = await new OptionalClient(host, null).GetFloatLiteralClient().PutAllAsync(data);
             Assert.AreEqual(204, response.GetRawResponse().Status);

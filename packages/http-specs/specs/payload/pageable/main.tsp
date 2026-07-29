@@ -51,12 +51,6 @@ namespace ServerDrivenPagination {
     }
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    link,
-    "Pet",
-    "The client surfaces this operation as a pageable collection that yields `Pet` items across pages."
-  )
   @route("/link")
   @list
   op link(): {
@@ -93,12 +87,6 @@ namespace ServerDrivenPagination {
     }
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    linkString,
-    "Pet",
-    "The client surfaces this operation as a pageable collection that yields `Pet` items, following a string next-link."
-  )
   @route("/link-string")
   @list
   op linkString(): {
@@ -141,12 +129,6 @@ namespace ServerDrivenPagination {
     }
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    nestedLink,
-    "Pet",
-    "The client surfaces this operation as a pageable collection of `Pet`, flattening the nested items/next-link envelope."
-  )
   @route("/nested-link")
   @list
   op nestedLink(): {
@@ -245,12 +227,6 @@ namespace ServerDrivenPagination {
       }
       ```
       """)
-    @surfaceDoc(
-      "paging",
-      requestQueryResponseBody,
-      "Pet",
-      "The client surfaces this operation as a pageable collection of `Pet`, transparently threading the continuation token across pages."
-    )
     @route("/request-query-response-body")
     @list
     op requestQueryResponseBody(@continuationToken @query token?: string, ...HeaderAndQuery): {
@@ -542,12 +518,6 @@ namespace PageSize {
     }
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    listWithoutContinuation,
-    "Pet",
-    "The client surfaces this single-page operation as a pageable collection of `Pet`."
-  )
   @route("/without-continuation")
   @list
   op listWithoutContinuation(): {
@@ -586,12 +556,6 @@ namespace PageSize {
     }
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    listWithPageSize,
-    "Pet",
-    "The client surfaces this operation as a pageable collection of `Pet` with a page-size parameter."
-  )
   @route("/list")
   @list
   op listWithPageSize(@pageSize @query pageSize?: int32): {
@@ -706,12 +670,6 @@ namespace XmlPagination {
     </PetListResult>
     ```
     """)
-  @surfaceDoc(
-    "paging",
-    listWithNextLink,
-    "XmlPet",
-    "The client surfaces this XML operation as a pageable collection that yields `XmlPet` items across pages."
-  )
   @route("/list-with-next-link")
   @list
   op listWithNextLink(): {

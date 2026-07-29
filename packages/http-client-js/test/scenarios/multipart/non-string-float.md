@@ -22,7 +22,12 @@ op float(
 ```ts src/api/testClientOperations.ts function float
 export async function float(
   client: TestClientContext,
-  body: { temperature: { body: number; contentType: "text/plain" } },
+  body: {
+    temperature: {
+      body: number;
+      contentType: "text/plain";
+    };
+  },
   options?: FloatOptions,
 ): Promise<void> {
   const path = parse("/non-string-float").expand({});

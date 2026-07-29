@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -11,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayEncoding;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -127,7 +128,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         }
 
         XmlSerializationFormat xmlSerializationFormat = null;
-        if (property.getSchema().getSerialization() != null) {
+        if (property.getSerialization() != null) {
+            // TypeSpec sets "serialization" to property
+            xmlSerializationFormat = property.getSerialization().getXml();
+        } else if (property.getSchema().getSerialization() != null) {
+            // m4 sets "serialization" to schema of the property
             xmlSerializationFormat = property.getSchema().getSerialization().getXml();
         }
 
@@ -189,9 +194,21 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
         Schema autoRestPropertyModelType = property.getSchema();
         if (autoRestPropertyModelType instanceof ArraySchema) {
             ArraySchema sequence = (ArraySchema) autoRestPropertyModelType;
-            if (sequence.getElementType().getSerialization() != null
+            if (property.getSerialization() != null) {
+                // TypeSpec sets "serialization" to property
+                if (isXmlWrapper) {
+                    builder.xmlListElementName(property.getSerialization().getXml().getItemsName());
+                    builder.xmlListElementNamespace(property.getSerialization().getXml().getItemsNamespace());
+                    builder.xmlListElementPrefix(property.getSerialization().getXml().getItemsPrefix());
+                } else {
+                    builder.xmlListElementName(property.getSerialization().getXml().getName());
+                    builder.xmlListElementNamespace(property.getSerialization().getXml().getNamespace());
+                    builder.xmlListElementPrefix(property.getSerialization().getXml().getPrefix());
+                }
+            } else if (sequence.getElementType().getSerialization() != null
                 && sequence.getElementType().getSerialization().getXml() != null
                 && sequence.getElementType().getSerialization().getXml().getName() != null) {
+                // m4 sets "serialization" to the element type of the array schema of the property
                 builder.xmlListElementName(sequence.getElementType().getSerialization().getXml().getName());
                 builder.xmlListElementNamespace(sequence.getElementType().getSerialization().getXml().getNamespace());
                 builder.xmlListElementPrefix(sequence.getElementType().getSerialization().getXml().getPrefix());
@@ -230,6 +247,11 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             String autoRestPropertyDefaultValueExpression
                 = propertyWireType.defaultValueExpression(property.getClientDefaultValue());
             builder.defaultValue(autoRestPropertyDefaultValueExpression);
+        }
+
+        // array encoding
+        if (property.getArrayEncoding() != null) {
+            builder.arrayEncoding(ArrayEncoding.fromValue(property.getArrayEncoding()));
         }
 
         return builder.build();

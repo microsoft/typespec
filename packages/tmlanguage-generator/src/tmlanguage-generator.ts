@@ -1,7 +1,12 @@
 import { readFile } from "fs/promises";
-import { loadWASM, OnigRegExp } from "onigasm";
+import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import plist from "plist";
+import * as plist from "plist";
+import vscodeOniguruma from "vscode-oniguruma";
+
+const require = createRequire(import.meta.url);
+
+const { loadWASM, createOnigScanner } = vscodeOniguruma;
 
 export const schema =
   "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json";
@@ -35,9 +40,7 @@ export type Captures<Scope extends string = string> = Record<
 >;
 
 export type Rule<Scope extends string = string> =
-  | MatchRule<Scope>
-  | BeginEndRule<Scope>
-  | IncludeRule<Scope>;
+  MatchRule<Scope> | BeginEndRule<Scope> | IncludeRule<Scope>;
 
 export interface MatchRule<Scope extends string = string> extends RuleScope<Scope>, RuleKey {
   match: string;
@@ -45,9 +48,7 @@ export interface MatchRule<Scope extends string = string> extends RuleScope<Scop
 }
 
 export interface BeginEndRule<Scope extends string = string>
-  extends RuleKey,
-    RuleScope<Scope>,
-    Partial<RulePatterns<Scope>> {
+  extends RuleKey, RuleScope<Scope>, Partial<RulePatterns<Scope>> {
   begin: string;
   end: string;
   beginCaptures?: Captures<Scope>;
@@ -66,10 +67,10 @@ export interface Grammar<Scope extends string = string> extends RulePatterns<Sco
 let initialized = false;
 async function initialize() {
   if (!initialized) {
-    const onigasmPath = require.resolve("onigasm");
-    const wasmPath = resolve(dirname(onigasmPath), "onigasm.wasm");
+    const onigurumaPath = require.resolve("vscode-oniguruma");
+    const wasmPath = resolve(dirname(onigurumaPath), "onig.wasm");
     const wasm = await readFile(wasmPath);
-    await loadWASM(wasm.buffer as any);
+    await loadWASM({ data: wasm.buffer as ArrayBuffer });
     initialized = true;
   }
 }
@@ -174,14 +175,9 @@ async function processGrammar(grammar: Grammar, options: EmitOptions): Promise<a
 
   function validateRegexp(regexp: string, node: any, prop: string, options: EmitOptions) {
     try {
-      new OnigRegExp(regexp).testSync("");
+      const scanner = createOnigScanner([regexp]);
+      scanner.findNextMatchSync("", 0);
     } catch (err: any) {
-      if (/^[0-9,]+$/.test(err.message)) {
-        // Work around for https://github.com/NeekSandhu/onigasm/issues/26
-        const array = new Uint8Array(err.message.split(",").map((s: string) => Number(s)));
-        const buffer = Buffer.from(array);
-        err = new Error(buffer.toString("utf-8"));
-      }
       const sourceFile = options.errorSourceFilePath ?? "unknown_file";
       //prettier-ignore
       // eslint-disable-next-line no-console

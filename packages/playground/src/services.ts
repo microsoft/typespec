@@ -1,5 +1,6 @@
 import {
   TypeSpecLanguageConfiguration,
+  type Diagnostic,
   type DiagnosticTarget,
   type NoTarget,
   type ServerHost,
@@ -9,7 +10,26 @@ import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
+import { MonacoToLsp } from "./lsp/monaco-to-lsp.js";
 import type { BrowserHost } from "./types.js";
+
+// Module-level store for diagnostics used by the code action provider.
+// Updated on each playground compilation via updateDiagnosticsForCodeFixes().
+let _currentDiagnostics: readonly Diagnostic[] = [];
+let _currentCompiler: typeof import("@typespec/compiler") | undefined;
+
+/**
+ * Update the current diagnostics so the Monaco code action provider can
+ * surface codefixes for the playground's own compilation results.
+ * Call this after every compilation.
+ */
+export function updateDiagnosticsForCodeFixes(
+  compiler: typeof import("@typespec/compiler"),
+  diagnostics: readonly Diagnostic[],
+) {
+  _currentDiagnostics = diagnostics;
+  _currentCompiler = compiler;
+}
 
 function getIndentAction(
   value: "none" | "indent" | "indentOutdent" | "outdent",
@@ -48,6 +68,10 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   monaco.languages.register({ id: "typespec", extensions: [".tsp"] });
   monaco.languages.setLanguageConfiguration("typespec", getTypeSpecLanguageConfiguration());
 
+  // tspconfig.yaml is edited as a `yaml` model and gets LSP completion from the
+  // TypeSpec language server (see the completion provider registered below).
+  monaco.languages.register({ id: "yaml", extensions: [".yaml", ".yml"] });
+
   if ((window as any).registeredServices) {
     return;
   }
@@ -57,9 +81,29 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     compilerHost: host,
     getOpenDocumentByURL(url: string) {
       const model = monaco.editor.getModel(monaco.Uri.parse(url));
-      return model ? textDocumentForModel(model) : undefined;
+      return model ? MonacoToLsp.textDocumentForModel(model) : undefined;
     },
-    sendDiagnostics() {},
+    sendDiagnostics({ uri, diagnostics }) {
+      const model = monaco.editor.getModel(monaco.Uri.parse(uri));
+      if (!model) return;
+
+      // Apply visual tag markers (e.g., dim unused code, strikethrough deprecated) from LSP diagnostics.
+      // Regular error/warning markers are managed by the playground's own compilation.
+      // The LSP DiagnosticTag values (Unnecessary=1, Deprecated=2) match Monaco's MarkerTag values.
+      const taggedMarkers: monaco.editor.IMarkerData[] = diagnostics
+        .filter((d) => d.tags !== undefined && d.tags.length > 0)
+        .map((d) => ({
+          severity: monaco.MarkerSeverity.Hint,
+          message: LspToMonaco.markupContentToString(d.message),
+          startLineNumber: d.range.start.line + 1,
+          startColumn: d.range.start.character + 1,
+          endLineNumber: d.range.end.line + 1,
+          endColumn: d.range.end.character + 1,
+          tags: d.tags?.map((t) => t as number as monaco.MarkerTag),
+        }));
+
+      monaco.editor.setModelMarkers(model, "lsp-tags", taggedMarkers);
+    },
     log: (log) => {
       switch (log.level) {
         case "error":
@@ -93,25 +137,32 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   const { createServer } = host.compiler;
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
-    capabilities: {},
+    capabilities: { workspace: { workspaceFolders: true } },
     processId: 1,
-    workspaceFolders: [],
-    rootUri: "inmemory://",
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
+    workspaceFolders: [{ name: "<root>", uri: "inmemory://" }],
   });
   serverLib.initialized({});
 
-  function textDocumentForModel(model: monaco.editor.IModel) {
-    return TextDocument.create(
-      model.uri.toString(),
-      "typespec",
-      model.getVersionId(),
-      model.getValue(),
-    );
+  monaco.editor.onDidCreateModel((model) => {
+    if (model.getLanguageId() !== "typespec") return;
+    model.onDidChangeContent(async (changes) => {
+      serverLib.checkChange(monacoToLspChangeEvent(model));
+    });
+  });
+
+  function monacoToLspChangeEvent(
+    model: monaco.editor.ITextModel,
+  ): lsp.TextDocumentChangeEvent<TextDocument> {
+    return {
+      document: MonacoToLsp.textDocumentForModel(model),
+    };
   }
 
   function lspDocumentArgs(model: monaco.editor.ITextModel) {
     return {
-      textDocument: textDocumentForModel(model),
+      textDocument: MonacoToLsp.textDocumentForModel(model),
     };
   }
 
@@ -299,17 +350,110 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
   });
 
-  // This doesn't actually work because the lsp is not aware of the diagnostics here as we make our own compilation in the playground.
-  // monaco.languages.registerCodeActionProvider("typespec", {
-  //   async provideCodeActions(model, range, context, token) {
-  //     const result = await serverLib.getCodeActions({
-  //       range: MonacoToLsp.range(range),
-  //       context: MonacoToLsp.codeActionContext(context),
-  //       textDocument: textDocumentForModel(model),
-  //     });
-  //     return { actions: result.map(LspToMonaco.codeAction), dispose: () => {} };
-  //   },
-  // });
+  // tspconfig.yaml completion backed by the TypeSpec language server. Scoped to
+  // `tspconfig.yaml` documents only (not every yaml file) via the language filter
+  // pattern. The server routes config-specific completions based on the document URI.
+  monaco.languages.registerCompletionItemProvider(
+    { language: "yaml", pattern: "**/tspconfig.yaml" },
+    {
+      triggerCharacters: [":", " ", "/", "-", ".", '"'],
+      async provideCompletionItems(model, position) {
+        const result = await serverLib.complete(lspArgs(model, position));
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
+
+        const suggestions: monaco.languages.CompletionItem[] = [];
+        for (const item of result.items) {
+          let itemRange: monaco.IRange = range;
+          let insertText = item.insertText ?? item.label;
+          if (item.textEdit && "range" in item.textEdit) {
+            itemRange = LspToMonaco.range(item.textEdit.range);
+            insertText = item.textEdit.newText;
+          }
+          suggestions.push({
+            label: item.label,
+            kind: item.kind as any,
+            documentation: item.documentation,
+            insertText,
+            range: itemRange,
+            commitCharacters: item.commitCharacters,
+            tags: item.tags,
+          });
+        }
+
+        return { suggestions };
+      },
+    },
+  );
+  // diagnostics (which include codefixes) rather than the LSP server diagnostics.
+  monaco.languages.registerCodeActionProvider("typespec", {
+    async provideCodeActions(model, range) {
+      const compiler = _currentCompiler;
+      if (!compiler) return { actions: [], dispose: () => {} };
+
+      const actions: monaco.languages.CodeAction[] = [];
+      for (const diag of _currentDiagnostics) {
+        if (!diag.codefixes?.length) continue;
+        const loc = compiler.getSourceLocation(diag.target, { locateId: true });
+        if (!loc || loc.file.path !== "/test/main.tsp") continue;
+        const monacoRange = getMonacoRange(compiler, diag.target);
+        if (!monacoRangesOverlap(monacoRange, range)) continue;
+
+        for (const fix of diag.codefixes) {
+          const edits = await compiler.resolveCodeFix(fix);
+          const workspaceEdits: monaco.languages.IWorkspaceTextEdit[] = edits
+            .filter((edit) => edit.file.path === "/test/main.tsp")
+            .map((edit) => {
+              const start = edit.file.getLineAndCharacterOfPosition(edit.pos);
+              if (edit.kind === "insert-text") {
+                return {
+                  resource: model.uri,
+                  textEdit: {
+                    range: {
+                      startLineNumber: start.line + 1,
+                      startColumn: start.character + 1,
+                      endLineNumber: start.line + 1,
+                      endColumn: start.character + 1,
+                    },
+                    text: edit.text,
+                  },
+                  versionId: undefined,
+                };
+              } else {
+                const end = edit.file.getLineAndCharacterOfPosition(edit.end);
+                return {
+                  resource: model.uri,
+                  textEdit: {
+                    range: {
+                      startLineNumber: start.line + 1,
+                      startColumn: start.character + 1,
+                      endLineNumber: end.line + 1,
+                      endColumn: end.character + 1,
+                    },
+                    text: edit.text,
+                  },
+                  versionId: undefined,
+                };
+              }
+            });
+
+          if (workspaceEdits.length > 0) {
+            actions.push({
+              title: fix.label,
+              kind: "quickfix",
+              edit: { edits: workspaceEdits },
+            });
+          }
+        }
+      }
+      return { actions, dispose: () => {} };
+    },
+  });
 
   monaco.editor.defineTheme("typespec", {
     base: "vs",
@@ -370,7 +514,7 @@ export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
   target: DiagnosticTarget | typeof NoTarget,
 ): monaco.IRange {
-  const loc = typespecCompiler.getSourceLocation(target);
+  const loc = typespecCompiler.getSourceLocation(target, { locateId: true });
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {
     return {
       startLineNumber: 1,
@@ -387,4 +531,17 @@ export function getMonacoRange(
     endLineNumber: end.line + 1,
     endColumn: end.character + 1,
   };
+}
+
+function monacoRangesOverlap(a: monaco.IRange, b: monaco.IRange): boolean {
+  if (a.endLineNumber < b.startLineNumber || b.endLineNumber < a.startLineNumber) {
+    return false;
+  }
+  if (a.endLineNumber === b.startLineNumber && a.endColumn < b.startColumn) {
+    return false;
+  }
+  if (b.endLineNumber === a.startLineNumber && b.endColumn < a.startColumn) {
+    return false;
+  }
+  return true;
 }

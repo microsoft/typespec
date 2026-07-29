@@ -12,22 +12,23 @@ import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
 import tsptest.armstreamstyleserialization.fluent.models.FunctionInner;
 import tsptest.armstreamstyleserialization.models.Function;
 import tsptest.armstreamstyleserialization.models.Functions;
+import tsptest.armstreamstyleserialization.models.FunctionsCreateFunctionResponse;
 
 public final class FunctionsImpl implements Functions {
     private static final ClientLogger LOGGER = new ClientLogger(FunctionsImpl.class);
 
     private final FunctionsClient innerClient;
 
-    private final tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager;
+    private final tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager;
 
     public FunctionsImpl(FunctionsClient innerClient,
-        tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager serviceManager) {
+        tsptest.armstreamstyleserialization.ArmResourceProviderManager serviceManager) {
         this.innerClient = innerClient;
         this.serviceManager = serviceManager;
     }
 
     public Response<Function> createFunctionWithResponse(FunctionInner function, Context context) {
-        Response<FunctionInner> inner = this.serviceClient().createFunctionWithResponse(function, context);
+        FunctionsCreateFunctionResponse inner = this.serviceClient().createFunctionWithResponse(function, context);
         if (inner != null) {
             return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
                 new FunctionImpl(inner.getValue(), this.manager()));
@@ -49,7 +50,7 @@ public final class FunctionsImpl implements Functions {
         return this.innerClient;
     }
 
-    private tsptest.armstreamstyleserialization.ArmStreamStyleSerializationManager manager() {
+    private tsptest.armstreamstyleserialization.ArmResourceProviderManager manager() {
         return this.serviceManager;
     }
 }

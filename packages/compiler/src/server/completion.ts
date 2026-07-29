@@ -10,6 +10,7 @@ import {
 import { getSymNode } from "../core/binder.js";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
+import { getLocationContext } from "../core/helpers/location-context.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getFirstAncestor, positionInRange } from "../core/parser.js";
 import {
@@ -27,6 +28,7 @@ import {
   NodeFlags,
   PositionDetail,
   StringLiteralNode,
+  Sym,
   SymbolFlags,
   SyntaxKind,
   Type,
@@ -176,7 +178,7 @@ async function AddCompletionNonTrivia(
         break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
-        addIdentifierCompletion(context, node);
+        await addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
@@ -186,7 +188,7 @@ async function AddCompletionNonTrivia(
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ObjectLiteral:
       case SyntaxKind.ModelExpression:
-        addModelCompletion(context, posDetail);
+        await addModelCompletion(context, posDetail);
         break;
     }
   }
@@ -238,6 +240,7 @@ const keywords = [
 
   // Modifiers
   ["extern", { root: true, namespace: true }],
+  ["internal", { root: true, namespace: true }],
 
   // Scalars
   ["init", { scalarBody: true }],
@@ -363,7 +366,7 @@ async function addRelativePathCompletion(
   }
 }
 
-function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
+async function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
   const node = posDetail.node;
   if (
     !node ||
@@ -395,14 +398,14 @@ function addModelCompletion(context: CompletionContext, posDetail: PositionDetai
       flags: NodeFlags.None,
       parent: fakeProp,
     };
-    addIdentifierCompletion(context, fakeId as IdentifierNode);
+    await addIdentifierCompletion(context, fakeId as IdentifierNode);
   }
 }
 
 /**
  * Add completion options for an identifier.
  */
-function addIdentifierCompletion(
+async function addIdentifierCompletion(
   { program, completions }: CompletionContext,
   node: IdentifierNode,
 ) {
@@ -410,26 +413,30 @@ function addIdentifierCompletion(
   if (result.size === 0) {
     return;
   }
+  const sourceLocation = getLocationContext(program, node);
   for (const [key, { sym, label, suffix }] of result) {
+    if (!canAccessCompletionSymbol(sym, sourceLocation)) {
+      continue;
+    }
     let kind: CompletionItemKind;
     let deprecated = false;
     const symNode = getSymNode(sym);
-    const type = sym.type ?? program.checker.getTypeForNode(symNode);
+    const type = sym.type ?? (symNode ? program.checker.getTypeForNode(symNode) : undefined);
     if (sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator)) {
       kind = CompletionItemKind.Function;
     } else if (
       sym.flags & SymbolFlags.Namespace &&
-      symNode.kind !== SyntaxKind.NamespaceStatement
+      symNode?.kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
     } else if (symNode?.kind === SyntaxKind.AliasStatement) {
       kind = CompletionItemKind.Variable;
       deprecated = getDeprecationDetails(program, symNode) !== undefined;
     } else {
-      kind = getCompletionItemKind(program, type);
-      deprecated = getDeprecationDetails(program, type) !== undefined;
+      kind = type ? getCompletionItemKind(program, type) : CompletionItemKind.Variable;
+      deprecated = type ? getDeprecationDetails(program, type) !== undefined : false;
     }
-    const documentation = getSymbolDetails(program, sym);
+    const documentation = await getSymbolDetails(program, sym);
 
     const item: CompletionItem = {
       label: label ?? key,
@@ -442,16 +449,32 @@ function addIdentifierCompletion(
       kind,
     };
 
-    if (sym.name.startsWith("$")) {
-      const targetNode = getSourceLocation(node);
-      const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
-      item.textEdit = TextEdit.replace(
-        // Specifying replacement in the current location can avoid the problem of $ duplication
-        Range.create(lineAndChar, lineAndChar),
-        printIdentifier(key) + (suffix ?? ""),
-      );
+    // skip indexer/docFromComment functions under TypeSpec namespace
+    // these are internal only functions(decorators) that should not be exposed to users
+    if (
+      (item.label === "indexer" || item.label === "docFromComment") &&
+      item.kind === CompletionItemKind.Function &&
+      sym.parent?.name === "TypeSpec" &&
+      item.documentation === undefined
+    ) {
+      continue;
+    }
+
+    const identifierContext = getIdentifierPrintContext(node);
+    const insertionText = printIdentifier(key, identifierContext) + (suffix ?? "");
+    if (node.pos === node.end) {
+      // Synthetic/missing identifier node — just use insertText
+      item.insertText = insertionText;
     } else {
-      item.insertText = printIdentifier(key) + (suffix ?? "");
+      const targetNode = getSourceLocation(node);
+      const start = targetNode.file.getLineAndCharacterOfPosition(node.pos);
+      const end = targetNode.file.getLineAndCharacterOfPosition(node.end);
+      if (sym.name.startsWith("$")) {
+        // Insert before the identifier to avoid $ duplication
+        item.textEdit = TextEdit.replace(Range.create(start, start), insertionText);
+      } else {
+        item.textEdit = TextEdit.replace(Range.create(start, end), insertionText);
+      }
     }
 
     if (deprecated) {
@@ -465,6 +488,43 @@ function addIdentifierCompletion(
 
   if (node.parent?.kind === SyntaxKind.TypeReference) {
     addKeywordCompletion("identifier", completions);
+  }
+
+  function canAccessCompletionSymbol(
+    sym: Sym,
+    sourceLocation: ReturnType<typeof getLocationContext>,
+  ) {
+    const isInternalDeclaration =
+      (sym.flags & (SymbolFlags.Internal | SymbolFlags.Declaration)) ===
+      (SymbolFlags.Internal | SymbolFlags.Declaration);
+
+    if (!isInternalDeclaration) return true;
+    if (sourceLocation.type === "synthetic" || sourceLocation.type === "compiler") return true;
+
+    return sym.declarations.some((decl) => {
+      const declLocation = getLocationContext(program, decl);
+
+      if (declLocation.type !== sourceLocation.type) return false;
+      if (declLocation.type === "project") return true;
+
+      return declLocation === sourceLocation;
+    });
+  }
+}
+
+/**
+ * Determine the print context for an identifier in completion.
+ * In certain positions (model property names, object literal property names, member expressions),
+ * keywords can be used as identifiers without backticks.
+ */
+function getIdentifierPrintContext(node: IdentifierNode): "allow-reserved" | "disallow-reserved" {
+  switch (node.parent?.kind) {
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.ModelProperty:
+    case SyntaxKind.ObjectLiteralProperty:
+      return "allow-reserved";
+    default:
+      return "disallow-reserved";
   }
 }
 

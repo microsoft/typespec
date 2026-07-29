@@ -1,7 +1,7 @@
 package type.property.additionalproperties;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * The model extends from a model that spread Record&lt;ModelForRecord[]&gt; with the different known property type.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DifferentSpreadModelArrayDerived extends DifferentSpreadModelArrayRecord {
     /*
      * The index property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<ModelForRecord> derivedProp;
 
     /**
@@ -27,7 +27,7 @@ public final class DifferentSpreadModelArrayDerived extends DifferentSpreadModel
      * @param knownProp the knownProp value to set.
      * @param derivedProp the derivedProp value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DifferentSpreadModelArrayDerived(String knownProp, List<ModelForRecord> derivedProp) {
         super(knownProp);
         this.derivedProp = derivedProp;
@@ -38,7 +38,7 @@ public final class DifferentSpreadModelArrayDerived extends DifferentSpreadModel
      * 
      * @return the derivedProp value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public List<ModelForRecord> getDerivedProp() {
         return this.derivedProp;
     }
@@ -46,7 +46,7 @@ public final class DifferentSpreadModelArrayDerived extends DifferentSpreadModel
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -69,7 +69,7 @@ public final class DifferentSpreadModelArrayDerived extends DifferentSpreadModel
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the DifferentSpreadModelArrayDerived.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DifferentSpreadModelArrayDerived fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String knownProp = null;

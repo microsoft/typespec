@@ -58,7 +58,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "RoutesClientPathPara")
+    @ServiceInterface(name = "RoutesClientPathParametersSimpleExpansionStandards")
     public interface PathParametersSimpleExpansionStandardsService {
         @Get("/routes/path/simple/standard/primitive{param}")
         @ExpectedResponses({ 204 })

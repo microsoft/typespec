@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, Optional, List, Any, TYPE_CHECKING, Union
+from typing import Optional, Any, TYPE_CHECKING, Union
 
 from .base import BaseModel
 from .base import BaseType
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class ResponseHeader(BaseModel):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:
@@ -33,7 +33,7 @@ class ResponseHeader(BaseModel):
         return self.type.serialization_type(**kwargs)
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
         from . import build_type
 
         return cls(
@@ -46,14 +46,14 @@ class ResponseHeader(BaseModel):
 class Response(BaseModel):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         *,
-        headers: Optional[List[ResponseHeader]] = None,
+        headers: Optional[list[ResponseHeader]] = None,
         type: Optional[BaseType] = None,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
-        self.status_codes: List[Union[int, str, List[int]]] = yaml_data["statusCodes"]
+        self.status_codes: list[Union[int, str, list[int]]] = yaml_data["statusCodes"]
         self.headers = headers or []
         self.type = type
         self.nullable = yaml_data.get("nullable")
@@ -66,9 +66,14 @@ class Response(BaseModel):
             return "".join([f'.get("{field}", {{}})' for field in field.split(".")])
         return ""
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
         if self.type:
-            self.type.get_polymorphic_subtypes(polymorphic_subtypes)
+            if isinstance(self.type, CombinedType):
+                target = self.type.target_model_subtype((ModelType,))
+                if target:
+                    target.get_polymorphic_subtypes(polymorphic_subtypes)
+            else:
+                self.type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         if not self.type:
@@ -95,6 +100,7 @@ class Response(BaseModel):
     def type_annotation(self, **kwargs: Any) -> str:
         if self.type:
             kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
             type_annotation = self.type.type_annotation(**kwargs)
             if self.nullable:
                 return f"Optional[{type_annotation}]"
@@ -102,16 +108,18 @@ class Response(BaseModel):
         return "None"
 
     def docstring_text(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
 
     def docstring_type(self, **kwargs: Any) -> str:
+        kwargs["is_response"] = True
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
+    def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         if self.type:
             file_import.merge(self.type.imports(**kwargs))
@@ -121,17 +129,11 @@ class Response(BaseModel):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
         return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
 
     def _get_import_type(self, input_path: str) -> ImportType:
         # helper function to return imports for responses based off
@@ -140,7 +142,7 @@ class Response(BaseModel):
         return ImportType.SDKCORE if self.code_model.core_library.split(".")[0] in input_path else ImportType.THIRDPARTY
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "Response":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Response":
         type = code_model.lookup_type(id(yaml_data["type"])) if yaml_data.get("type") else None
         # use ByteIteratorType if we are returning a binary type
         default_content_type = yaml_data.get("defaultContentType", "application/json")
@@ -170,8 +172,13 @@ class PagingResponse(Response):
             or f"{self.code_model.core_library}.{default_paging_submodule}.AsyncItemPaged"
         )
 
-    def get_polymorphic_subtypes(self, polymorphic_subtypes: List["ModelType"]) -> None:
-        return self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
+    def get_polymorphic_subtypes(self, polymorphic_subtypes: list["ModelType"]) -> None:
+        if isinstance(self.item_type, CombinedType):
+            target = self.item_type.target_model_subtype((ModelType,))
+            if target:
+                target.get_polymorphic_subtypes(polymorphic_subtypes)
+        else:
+            self.item_type.get_polymorphic_subtypes(polymorphic_subtypes)
 
     def get_json_template_representation(self) -> Any:
         return self.item_type.get_json_template_representation()
@@ -186,29 +193,39 @@ class PagingResponse(Response):
         return self.get_pager_path(async_mode).split(".")[-1]
 
     def type_annotation(self, **kwargs: Any) -> str:
-        iterable = "AsyncIterable" if kwargs["async_mode"] else "Iterable"
-        return f"{iterable}[{self.item_type.type_annotation(**kwargs)}]"
+        iterable = "AsyncItemPaged" if kwargs["async_mode"] else "ItemPaged"
+        return f"{iterable}[{self._item_type_annotation(**kwargs)}]"
+
+    def _item_type_annotation(self, **kwargs: Any) -> str:
+        # When the page item is a ListType, render the outer `List`/`list`
+        # wrapper here using the operation-file alias decision so a list page
+        # item rendered inside an operation file named `list` uses the `List`
+        # alias (avoiding the built-in `list` shadowed by `List = list`).
+        # Recurse into the element type without is_operation_file so nested
+        # generated model types keep their forward-reference quoting
+        # (e.g. ItemPaged[List["_models.Product"]]).
+        if isinstance(self.item_type, ListType):
+            use_list_import = self.code_model.has_operation_named_list
+            list_type = "List" if use_list_import else "list"
+            return f"{list_type}[{self.item_type.element_type.type_annotation(**kwargs)}]"
+        return self.item_type.type_annotation(**kwargs)
 
     def docstring_text(self, **kwargs: Any) -> str:
         base_description = "An iterator like instance of "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + self.item_type.docstring_text(**kwargs)
 
     def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.get_pager_path(kwargs['async_mode'])}[{self.item_type.docstring_type(**kwargs)}]"
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(**kwargs)
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
         async_mode = kwargs.get("async_mode", False)
         pager = self.get_pager(async_mode)
         pager_path = self.get_pager_import_path(async_mode)
 
         file_import.add_submodule_import(pager_path, pager, self._get_import_type(pager_path))
-        return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(**kwargs)
         async_mode = kwargs.get("async_mode")
         if async_mode:
             file_import.add_submodule_import(
@@ -218,9 +235,6 @@ class PagingResponse(Response):
             )
 
         return file_import
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
 
 
 class LROResponse(Response):
@@ -246,7 +260,7 @@ class LROResponse(Response):
 
     def get_no_polling_method(self, async_mode: bool) -> str:
         """Get the default no polling method"""
-        return self.get_no_polling_method_path(async_mode).split(".")[-1]
+        return self.get_no_polling_method_path(async_mode).rsplit(".", maxsplit=1)[-1]
 
     @staticmethod
     def get_base_polling_method_path(async_mode: bool) -> str:
@@ -255,7 +269,7 @@ class LROResponse(Response):
 
     def get_base_polling_method(self, async_mode: bool) -> str:
         """Get the base polling method."""
-        return self.get_base_polling_method_path(async_mode).split(".")[-1]
+        return self.get_base_polling_method_path(async_mode).rsplit(".", maxsplit=1)[-1]
 
     def type_annotation(self, **kwargs: Any) -> str:
         return f"{self.get_poller(kwargs.get('async_mode', False))}[{super().type_annotation(**kwargs)}]"
@@ -266,20 +280,16 @@ class LROResponse(Response):
     def docstring_text(self, **kwargs) -> str:
         super_text = super().docstring_text(**kwargs)
         base_description = f"An instance of {self.get_poller(kwargs.get('async_mode', False))} that returns "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + super_text
 
-    def _imports_shared(self, **kwargs: Any) -> FileImport:
-        file_import = super()._imports_shared(**kwargs)
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
         async_mode = kwargs["async_mode"]
         poller_import_path = ".".join(self.get_poller_path(async_mode).split(".")[:-1])
         poller = self.get_poller(async_mode)
         file_import.add_submodule_import(poller_import_path, poller, self._get_import_type(poller_import_path))
-        return file_import
-
-    def imports(self, **kwargs: Any) -> FileImport:
-        file_import = self._imports_shared(**kwargs)
         async_mode = kwargs["async_mode"]
 
         default_polling_method_import_path = ".".join(self.get_polling_method_path(async_mode).split(".")[:-1])
@@ -306,9 +316,6 @@ class LROResponse(Response):
         )
         return file_import
 
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        return self._imports_shared(**kwargs)
-
 
 class LROPagingResponse(LROResponse, PagingResponse):
     def type_annotation(self, **kwargs: Any) -> str:
@@ -321,14 +328,9 @@ class LROPagingResponse(LROResponse, PagingResponse):
 
     def docstring_text(self, **kwargs) -> str:
         base_description = "An instance of LROPoller that returns an iterator like instance of "
-        if not self.code_model.options["version_tolerant"]:
+        if not self.code_model.options["version-tolerant"]:
             base_description += "either "
         return base_description + Response.docstring_text(self)
-
-    def imports_for_multiapi(self, **kwargs: Any) -> FileImport:
-        file_import = LROResponse.imports_for_multiapi(self, **kwargs)
-        file_import.merge(PagingResponse.imports_for_multiapi(self, **kwargs))
-        return file_import
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = LROResponse.imports(self, **kwargs)
@@ -336,7 +338,7 @@ class LROPagingResponse(LROResponse, PagingResponse):
         return file_import
 
 
-def get_response(yaml_data: Dict[str, Any], code_model: "CodeModel") -> Response:
+def get_response(yaml_data: dict[str, Any], code_model: "CodeModel") -> Response:
     if yaml_data["discriminator"] == "lropaging":
         return LROPagingResponse.from_yaml(yaml_data, code_model)
     if yaml_data["discriminator"] == "lro":

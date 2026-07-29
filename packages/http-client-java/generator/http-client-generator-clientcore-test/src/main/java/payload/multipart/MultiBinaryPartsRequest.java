@@ -1,23 +1,23 @@
 package payload.multipart;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 
 /**
  * The MultiBinaryPartsRequest model.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class MultiBinaryPartsRequest {
     /*
      * The profileImage property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final ProfileImageFileDetails profileImage;
 
     /*
      * The picture property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private PictureFileDetails picture;
 
     /**
@@ -25,7 +25,7 @@ public final class MultiBinaryPartsRequest {
      * 
      * @param profileImage the profileImage value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public MultiBinaryPartsRequest(ProfileImageFileDetails profileImage) {
         this.profileImage = profileImage;
     }
@@ -35,7 +35,7 @@ public final class MultiBinaryPartsRequest {
      * 
      * @return the profileImage value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public ProfileImageFileDetails getProfileImage() {
         return this.profileImage;
     }
@@ -45,7 +45,7 @@ public final class MultiBinaryPartsRequest {
      * 
      * @return the picture value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public PictureFileDetails getPicture() {
         return this.picture;
     }
@@ -56,7 +56,7 @@ public final class MultiBinaryPartsRequest {
      * @param picture the picture value to set.
      * @return the MultiBinaryPartsRequest object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public MultiBinaryPartsRequest setPicture(PictureFileDetails picture) {
         this.picture = picture;
         return this;

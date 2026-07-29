@@ -7,13 +7,16 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public class InputEnumType : InputType
     {
-        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? accessibility, string? deprecated, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
+        // We always call the Values setter so we know the field will not be null.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        public InputEnumType(string name, string @namespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, InputPrimitiveType valueType, IReadOnlyList<InputEnumTypeValue> values, bool isExtensible)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             : base(name)
         {
             Namespace = @namespace;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
-            Accessibility = accessibility;
-            Deprecated = deprecated;
+            Access = access;
+            Deprecation = deprecation;
             Summary = summary;
             Doc = doc;
             Usage = usage;
@@ -22,15 +25,27 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsExtensible = isExtensible;
         }
 
-        public string Namespace { get; }
-        public string CrossLanguageDefinitionId { get; }
-        public string? Accessibility { get; }
-        public string? Deprecated { get; }
-        public string? Summary { get; }
-        public string? Doc { get; }
-        public InputModelTypeUsage Usage { get; }
-        public InputPrimitiveType ValueType { get; }
-        public IReadOnlyList<InputEnumTypeValue> Values { get; }
-        public bool IsExtensible { get; }
+        public string Namespace { get; internal set; }
+        public string CrossLanguageDefinitionId { get; internal set; }
+        public string? Access { get; internal set; }
+        public string? Deprecation { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
+        public InputModelTypeUsage Usage { get; internal set; }
+        public InputPrimitiveType ValueType { get; internal set; }
+        private IReadOnlyList<InputEnumTypeValue> _values;
+        public IReadOnlyList<InputEnumTypeValue> Values
+        {
+            get => _values;
+            internal set
+            {
+                foreach (var enumValue in value)
+                {
+                    enumValue.EnumType = this;
+                }
+                _values = value;
+            }
+        }
+        public bool IsExtensible { get; internal set; }
     }
 }

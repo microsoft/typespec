@@ -3,16 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents the version of the dictionary API.
  */
-public class DictionaryApiVersion implements JsonSerializable<DictionaryApiVersion> {
+public class DictionaryApiVersion {
 
     /**
      * Creates a new instance of the DictionaryApiVersion class.
@@ -37,21 +31,5 @@ public class DictionaryApiVersion implements JsonSerializable<DictionaryApiVersi
         }
 
         return other instanceof DictionaryApiVersion;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject().writeEndObject();
-    }
-
-    /**
-     * Deserializes a DictionaryApiVersion instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A DictionaryApiVersion instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static DictionaryApiVersion fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readEmptyObject(jsonReader, DictionaryApiVersion::new);
     }
 }

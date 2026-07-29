@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 
-import { Namespace } from "@typespec/compiler";
+import type { Namespace } from "@typespec/compiler";
 
 /**
  * This module describes an AST for Protobuf.
@@ -58,9 +58,7 @@ export interface WellKnownFileOptions {
  * A top-level declaration.
  */
 export type ProtoTopLevelDeclaration =
-  | ProtoServiceDeclaration
-  | ProtoMessageDeclaration
-  | ProtoEnumDeclaration;
+  ProtoServiceDeclaration | ProtoMessageDeclaration | ProtoEnumDeclaration;
 
 /**
  * A declaration. One of `service`, `message`, a field within a message, `one_of`, `enum`, or an `rpc` method.
@@ -237,10 +235,7 @@ export interface ProtoMethodDeclaration extends ProtoDeclarationCommon {
  * A declaration that can fit within the body of a message declaration.
  */
 export type ProtoMessageBodyDeclaration =
-  | ProtoFieldDeclaration
-  | ProtoMessageDeclaration
-  | ProtoOneOfDeclaration
-  | ProtoEnumDeclaration;
+  ProtoFieldDeclaration | ProtoMessageDeclaration | ProtoOneOfDeclaration | ProtoEnumDeclaration;
 
 /**
  * A `message` declaration.
@@ -262,6 +257,10 @@ export interface ProtoFieldDeclaration extends ProtoDeclarationCommon {
    * Whether or not the field is repeated (i.e. an array).
    */
   repeated?: boolean;
+  /**
+   * Whether or not the field uses the proto3 `optional` label.
+   */
+  optional?: boolean;
   options?: Partial<DefaultFieldOptions>;
   type: ProtoType;
   index: number;

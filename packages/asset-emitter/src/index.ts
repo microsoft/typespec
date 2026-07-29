@@ -1,6 +1,6 @@
 export { createAssetEmitter } from "./asset-emitter.js";
 export { ArrayBuilder } from "./builders/array-builder.js";
-export { ObjectBuilder } from "./builders/object-builder.js";
+export { ObjectBuilder, setProperty } from "./builders/object-builder.js";
 export { StringBuilder, code } from "./builders/string-builder.js";
 export { Placeholder } from "./placeholder.js";
 export { ReferenceCycle } from "./reference-cycle.js";

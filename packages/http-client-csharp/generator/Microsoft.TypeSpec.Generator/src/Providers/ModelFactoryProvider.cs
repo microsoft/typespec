@@ -3,13 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -18,34 +21,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
+        private const string JsonPatchParameterName = "patch";
 
         private readonly IEnumerable<InputModelType> _models;
 
-        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
+        protected internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }
 
-        protected override string BuildName()
-        {
-            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
-            if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
+        internal bool PreserveLeadingMethodSeparator { get; set; }
 
-            Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
-            int j = 0;
-
-            for (int i = 0; i < span.Length; i++)
-            {
-                if (span[i] != '.')
-                {
-                    dest[j] = span[i];
-                    j++;
-                }
-            }
-            ModelFactorySuffix.AsSpan().CopyTo(dest.Slice(j));
-            return dest.Slice(0, j + ModelFactorySuffix.Length).ToString();
-        }
+        protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -56,13 +43,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override XmlDocProvider BuildXmlDocs()
         {
-            var docs = new XmlDocProvider();
-            docs.Summary = new XmlDocSummaryStatement(
-                [$"A factory class for creating instances of the models for mocking."]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement(
+                [$"A factory class for creating instances of the models for mocking."]));
+
             return docs;
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
@@ -70,43 +57,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
 
                 if (modelProvider is null)
-                    continue;
-
-                var fullConstructor = modelProvider.FullConstructor;
-                if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
-                    || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
                 {
                     continue;
                 }
 
-                var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
-                    ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
-                    : modelProvider;
+                var typeToInstantiate = GetModelToInstantiateForFactoryMethod(modelProvider);
                 if (typeToInstantiate is null)
-                    continue;
-
-                var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
-
-                // Use a custom constructor if the generated full constructor was suppressed or customized
-                if (!modelProvider.Constructors.Contains(fullConstructor))
                 {
-                    foreach (var constructor in modelProvider.CanonicalView.Constructors)
-                    {
-                        var customCtorParamCount = constructor.Signature.Parameters.Count;
-                        var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
-
-                        if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
-                            && customCtorParamCount >= fullCtorParamCount)
-                        {
-                            binaryDataParam = constructor.Signature.Parameters
-                                .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
-
-                            fullConstructor = constructor;
-                            break;
-                        }
-                    }
+                    continue;
                 }
 
+                var (_, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
@@ -115,24 +76,254 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"A new {modelProvider.Type:C} instance for mocking.",
                     GetParameters(modelProvider, fullConstructor));
 
-                var docs = new XmlDocProvider();
-                docs.Summary = modelProvider.XmlDocs?.Summary;
-                docs.Returns = new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking.");
+                var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)
                 {
-                    docs.Params.Add(new XmlDocParamStatement(param));
+                    parameters.Add(new XmlDocParamStatement(param));
                 }
 
-                var statements = new MethodBodyStatements(
-                [
-                    .. GetCollectionInitialization(signature),
-                    MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature, fullConstructor, binaryDataParam)]))
-                ]);
+                var docs = new XmlDocProvider(
+                    modelProvider.XmlDocs.Summary,
+                    parameters,
+                    returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
+
+                MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
             }
+
             return [.. methods];
+        }
+
+        protected internal sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        {
+            if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
+            {
+                return [.. originalMethods];
+            }
+
+            List<MethodProvider> factoryMethods = [.. originalMethods];
+
+            // Preserve the original parameter names on current factory methods when the only
+            // change between the previous and current contract is a parameter rename. This
+            // avoids source-breaking changes for callers using named arguments (e.g. when a
+            // property is renamed via @@clientName, spec rename, or naming-rule change).
+            BackCompatHelper.RestorePreviousParameterNames(this, factoryMethods);
+
+            HashSet<MethodSignature> currentMethodSignatures = new List<MethodProvider>([.. factoryMethods, .. CustomCodeView?.Methods ?? []])
+               .Select(m => m.Signature)
+               .ToHashSet(MethodSignature.MethodSignatureComparer);
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                // If the removal of this factory method has already been accepted in the ApiCompat
+                // baseline, honor that decision and do not resurrect a compatibility shim for it.
+                if (BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
+                {
+                    continue;
+                }
+
+                List<MethodSignature> currentOverloads = [];
+                bool foundCompatibleOverload = false;
+
+                // Attempt to find an updated method in the current contract to call
+                foreach (var currentMethodSignature in currentMethodSignatures)
+                {
+                    if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
+                    {
+                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
+                        {
+                            foundCompatibleOverload = true;
+                            break;
+                        }
+
+                        currentOverloads.Add(currentMethodSignature);
+                    }
+                }
+
+                if (foundCompatibleOverload)
+                {
+                    continue;
+                }
+
+                foreach (var currentOverload in currentOverloads)
+                {
+                    // If the parameter ordering is the only difference, just use the previous method
+                    if (MethodSignatureHelper.ContainsSameParameters(previousMethod.Signature, currentOverload)
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, false, out MethodProvider? replacedMethod))
+                    {
+                        factoryMethods.Add(replacedMethod);
+
+                        var factoryMethodToRemove = factoryMethods
+                            .FirstOrDefault(m => MethodSignature.MethodSignatureComparer.Equals(m.Signature, currentOverload));
+                        if (factoryMethodToRemove != null)
+                        {
+                            factoryMethods.Remove(factoryMethodToRemove);
+                        }
+
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Replaced model factory method '{Name}.{currentOverload.Name}' with previous parameter order from last contract.",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodReplaced);
+
+                        foundCompatibleOverload = true;
+                        break;
+                    }
+
+                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
+                    {
+                        factoryMethods.Add(replacedMethod);
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Added back-compat overload for model factory method '{Name}.{previousMethod.Signature.Name}' delegating to '{currentOverload.Name}'.",
+                            BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
+                        foundCompatibleOverload = true;
+                        break;
+                    }
+                }
+
+                if (foundCompatibleOverload)
+                {
+                    continue;
+                }
+
+                // If no compatible overload found, try to add the previous method by instantiating the model directly.
+                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
+                {
+                    factoryMethods.Add(builtMethod);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added back-compat model factory method '{Name}.{previousMethod.Signature.Name}' from last contract.",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodAdded);
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Unable to create a backward compatible model factory method for '{previousMethod.Signature.FullMethodName}'.",
+                        BackCompatibilityChangeCategory.ModelFactoryMethodSkipped);
+                }
+            }
+
+            return [.. factoryMethods];
+        }
+
+        private bool TryBuildCompatibleMethodForPreviousContract(
+            MethodProvider previousMethod,
+            MethodSignature? currentMethodSignature,
+            bool hideMethod,
+            [NotNullWhen(true)] out MethodProvider? builtMethod)
+        {
+            builtMethod = null;
+            var previousMethodReturnType = previousMethod.Signature.ReturnType;
+            if (previousMethodReturnType is null)
+            {
+                return false;
+            }
+
+            ModelProvider? modelToInstantiate = null;
+            foreach (var inputModel in _models)
+            {
+                var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+                if (modelProvider is null)
+                {
+                    continue;
+                }
+
+                var model = GetModelToInstantiateForFactoryMethod(modelProvider);
+                if (model != null && previousMethodReturnType.AreNamesEqual(model.Type))
+                {
+                    modelToInstantiate = model;
+                    break;
+                }
+            }
+
+            if (modelToInstantiate is null)
+            {
+                return false;
+            }
+
+            if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
+            {
+                var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
+                builtMethod = new MethodProvider(
+                    MethodSignatureHelper.BuildBackCompatMethodSignature(previousMethod.Signature, hideMethod),
+                    callToOverload,
+                    this,
+                    previousMethod.XmlDocs);
+
+                return true;
+            }
+
+            MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
+
+            builtMethod = new MethodProvider(
+                MethodSignatureHelper.BuildBackCompatMethodSignature(previousMethod.Signature, hideMethod),
+                body,
+                this,
+                previousMethod.XmlDocs);
+
+            return true;
+        }
+
+        private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
+        {
+            var collectionInitialization = GetCollectionInitialization(signature);
+            var (binaryDataParam, fullCtor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelToInstantiate);
+            var body = new MethodBodyStatements(
+            [
+                .. collectionInitialization,
+                collectionInitialization.Count > 0 ? MethodBodyStatement.EmptyLine : MethodBodyStatement.Empty,
+                Return(New.Instance(
+                    modelToInstantiate.Type,
+                    [ ..GetCtorArgs(modelToInstantiate, signature, fullCtor, binaryDataParam)]))
+            ]);
+            return body;
+        }
+
+        private static bool TryBuildMethodArgumentsForOverload(
+            MethodSignature previousMethod,
+            MethodSignature currentMethod,
+            [NotNullWhen(true)] out IReadOnlyList<ValueExpression>? overloadArguments)
+        {
+            overloadArguments = null;
+            var currentMethodParameterCount = currentMethod.Parameters.Count;
+            var previousParameterCount = previousMethod.Parameters.Count;
+
+            if (currentMethodParameterCount <= previousParameterCount || !Equals(previousMethod.ReturnType, currentMethod.ReturnType))
+            {
+                return false;
+            }
+
+            var currentParameters = currentMethod.Parameters.ToHashSet();
+            foreach (var parameter in previousMethod.Parameters)
+            {
+                if (!currentParameters.Contains(parameter))
+                {
+                    return false;
+                }
+            }
+
+            // Build the arguments for the overload
+            var previousParameters = previousMethod.Parameters.ToHashSet();
+            List<ValueExpression> arguments = new(currentMethodParameterCount);
+
+            foreach (var parameter in currentMethod.Parameters)
+            {
+                if (!previousParameters.TryGetValue(parameter, out var previousParameter))
+                {
+                    // Parameter not in previous method, use default value
+                    arguments.Add(Snippet.PositionalReference(parameter, parameter.DefaultValue ?? Default));
+                }
+                else
+                {
+                    arguments.Add(parameter.PositionalReference(previousParameter));
+                }
+            }
+
+            overloadArguments = arguments;
+            return true;
         }
 
         private static IReadOnlyList<ValueExpression> GetCtorArgs(
@@ -154,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
-
+                var defaultExpression = ctorParam.DefaultValue ?? Default;
                 if (factoryParam == null)
                 {
                     // Check if the param's property has an auto-property initializer.
@@ -166,16 +357,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         expressions.Add(initExpression);
                     }
-                    else if (ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+                    else if (ctorParam.Property?.IsDiscriminator == true)
                     {
-                        expressions.Add(modelProvider.DiscriminatorValueExpression);
+                        expressions.Add(GetDiscriminatorExpression(ctorParam.Property, modelProvider) ?? defaultExpression);
+                    }
+                    else
+                    {
+                        expressions.Add(defaultExpression);
                     }
                 }
                 else
                 {
                     if (IsNonReadOnlyMemoryList(factoryParam))
                     {
-                        expressions.Add(factoryParam.NullConditional().ToList());
+                        expressions.Add(factoryParam.ToList());
                     }
                     else if (IsEnumDiscriminator(ctorParam))
                     {
@@ -189,6 +384,77 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. expressions];
+        }
+
+        private static ValueExpression? GetDiscriminatorExpression(PropertyProvider property, ModelProvider? model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            // Make sure we are getting the expression for the correct discriminator property as models may have multiple discriminator
+            // from different levels in the hierarchy.
+            // The DiscriminatorValueExpression is based on the direct parent model provider discriminator.
+            if (model.BaseModelProvider?.DiscriminatorProperty == property)
+            {
+                return model.DiscriminatorValueExpression;
+            }
+
+            return GetDiscriminatorExpression(property, model.BaseModelProvider);
+        }
+
+        private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
+        {
+            // Externally-linked models are reused from another shipped package (e.g. the OpenAI .NET
+            // SDK), so this library does not own or emit their constructors. Their real constructor
+            // surface (accessibility and parameter set) is unknown here; emitting a
+            // `new ExternalType(...)` mocking factory produces calls that may be inaccessible
+            // (protected/internal) or have a non-matching arity. Skip factory generation for them.
+            if (modelProvider.IsExternal)
+            {
+                return null;
+            }
+
+            var fullConstructor = modelProvider.FullConstructor;
+            if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic && !IsEnumDiscriminator(p)))
+            {
+                return null;
+            }
+
+            return modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
+                : modelProvider;
+        }
+
+        private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(
+            ModelProvider modelProvider)
+        {
+            var fullConstructor = modelProvider.FullConstructor;
+            var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
+
+            // Use a custom constructor if the generated full constructor was suppressed or customized
+            if (!modelProvider.Constructors.Contains(fullConstructor))
+            {
+                foreach (var constructor in modelProvider.CanonicalView.Constructors)
+                {
+                    var customCtorParamCount = constructor.Signature.Parameters.Count;
+                    var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
+
+                    if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
+                        && customCtorParamCount >= fullCtorParamCount)
+                    {
+                        binaryDataParam = constructor.Signature.Parameters
+                            .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
+
+                        fullConstructor = constructor;
+                        break;
+                    }
+                }
+            }
+
+            return (binaryDataParam, fullConstructor);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetCollectionInitialization(MethodSignature signature)
@@ -217,12 +483,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool isBinaryDataParam = param.Name.Equals(AdditionalBinaryDataParameterName)
                     || (isCustomConstructor && param.Type.Equals(typeof(IDictionary<string, BinaryData>)));
 
-                if (isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                if ((isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties) ||
+                    param.Name.Equals(JsonPatchParameterName) && param.IsIn)
+                {
                     continue;
+                }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
                 if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                {
                     continue;
+                }
+
+                // Skip required literal and enum parameters as they will have default values assigned in the model constructors
+                if (param.Property?.InputProperty is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
+                {
+                    continue;
+                }
 
                 parameters.Add(GetModelFactoryParam(param));
             }
@@ -239,6 +516,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsIn,
                 parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,

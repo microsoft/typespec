@@ -5,8 +5,10 @@ using System;
 using System.ClientModel;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -15,27 +17,28 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class BinaryContentHelperDefinition : TypeProvider
+    public class BinaryContentHelperDefinition : InternalHelperProvider
     {
         private const string _fromEnumerableName = "FromEnumerable";
         private const string _fromDictionaryName = "FromDictionary";
         private const string _fromObjectName = "FromObject";
 
-        private readonly CSharpType _requestBodyType = typeof(BinaryContent);
+        private readonly CSharpType _requestBodyType =
+            ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 
         protected override string BuildName() => "BinaryContentHelper";
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override MethodProvider[] BuildMethods()
         {
-            return
-            [
+            var methods = new List<MethodProvider>
+            {
                 BuildFromEnumerableTMethod(),
                 BuildFromEnumerableBinaryDataMethod(),
                 BuildFromReadOnlySpanMethod(),
@@ -43,7 +46,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildFromDictionaryBinaryDataMethod(),
                 BuildFromObjectMethod(),
                 BuildFromBinaryDataMethod()
-            ];
+            };
+
+            if (ScmCodeModelGenerator.Instance.InputLibrary.HasXmlModelSerialization)
+            {
+                methods.Add(BuildFromEnumerableXmlMethod());
+            }
+
+            return [.. methods];
         }
 
         private MethodProvider BuildFromEnumerableTMethod()
@@ -69,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartArray(),
-                new ForeachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
+                new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
                 {
                     writer.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire)
                 },
@@ -100,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartArray(),
-                new ForeachStatement("item", enumerableParameter.As<IEnumerable<BinaryData>>(), out var item)
+                new ForEachStatement("item", enumerableParameter.As<IEnumerable<BinaryData>>(), out var item)
                 {
                     new IfElseStatement(
                         item.Equal(Null),
@@ -174,7 +184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartObject(),
-                new ForeachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
+                new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
                     writer.WriteObjectValue(item.Property("Value").As(valueType), ModelSerializationExtensionsSnippets.Wire)
@@ -206,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             body.AddRange(
             [
                 writer.WriteStartObject(),
-                new ForeachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
+                new ForEachStatement("item", dictionaryParameter.As(dictionaryParameter.Type), out var item)
                 {
                     writer.WritePropertyName(item.Property("Key")),
                     new IfElseStatement(
@@ -236,7 +246,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement[] body =
             [
                 Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content),
-                content.JsonWriter().WriteObjectValue(valueParameter.As<object>(), ModelSerializationExtensionsSnippets.Wire),
+                ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(typeof(object), valueParameter, content.JsonWriter(), ModelSerializationExtensionsSnippets.Wire, SerializationFormat.Default),
                 Return(content)
             ];
 
@@ -264,6 +274,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 writer.WriteBinaryData(valueParameter),
                 Return(content)
             ]);
+
+            return new MethodProvider(signature, body, this);
+        }
+
+        private MethodProvider BuildFromEnumerableXmlMethod()
+        {
+            var enumerableTType = typeof(IEnumerable<>);
+            CSharpType tType = enumerableTType.GetGenericArguments()[0];
+            var enumerableParameter = new ParameterProvider("enumerable", FormattableStringHelpers.Empty, enumerableTType);
+            var rootNameHintParameter = new ParameterProvider("rootNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var childNameHintParameter = new ParameterProvider("childNameHint", FormattableStringHelpers.Empty, typeof(string));
+            var signature = new MethodSignature(
+                Name: _fromEnumerableName,
+                Modifiers: _methodModifiers,
+                Parameters: [enumerableParameter, rootNameHintParameter, childNameHintParameter],
+                ReturnType: _requestBodyType,
+                GenericArguments: [tType],
+                GenericParameterConstraints: [Where.NotNull(tType)],
+                Description: null,
+                ReturnDescription: null);
+
+            var outerUsing = new UsingScopeStatement(typeof(MemoryStream), "stream", New.Instance(typeof(MemoryStream), Int(256)), out var streamVar);
+            var innerUsing = new UsingScopeStatement(typeof(XmlWriter), "writer",
+                XmlWriterSnippets.Create(streamVar, ModelSerializationExtensionsSnippets.XmlWriterSettings), out var writerVar);
+            var xmlWriter = writerVar.As<XmlWriter>();
+
+            innerUsing.AddRange([
+                xmlWriter.WriteStartElement(rootNameHintParameter),
+                new ForEachStatement("item", enumerableParameter.As(enumerableParameter.Type), out var item)
+                {
+                    xmlWriter.WriteObjectValue(item.As(tType), ModelSerializationExtensionsSnippets.Wire, childNameHintParameter)
+                },
+                xmlWriter.WriteEndElement(),
+            ]);
+            outerUsing.AddRange([
+                innerUsing,
+                MethodBodyStatement.EmptyLine,
+                new IfElseStatement(
+                    streamVar.Property(nameof(MemoryStream.Position)).GreaterThan(new MemberExpression(typeof(int), nameof(int.MaxValue))),
+                    Return(RequestContentApiSnippets.Create(BinaryDataSnippets.FromStream(streamVar, false))),
+                    Return(RequestContentApiSnippets.Create(New.Instance(typeof(BinaryData),
+                        streamVar.Invoke(nameof(MemoryStream.GetBuffer)).Invoke(nameof(System.MemoryExtensions.AsMemory),
+                            [Int(0), streamVar.Property(nameof(MemoryStream.Position)).CastTo(typeof(int))])))))
+            ]);
+
+            var body = new MethodBodyStatement[] { outerUsing };
 
             return new MethodProvider(signature, body, this);
         }

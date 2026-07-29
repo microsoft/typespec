@@ -16,7 +16,7 @@ export function getPopupAction(loglevel: LogLevel) {
   switch (loglevel) {
     case "error":
       return vscode.window.showErrorMessage;
-    case "warn":
+    case "warning":
       return vscode.window.showWarningMessage;
     case "debug":
     case "info":
@@ -52,7 +52,7 @@ export class ExtensionLogListener implements LogListener {
         this.outputChannel?.info(log.message, ...(log.details ?? []));
         popupAction = getPopupAction(log.level);
         break;
-      case "warn":
+      case "warning":
         this.outputChannel?.warn(log.message, ...(log.details ?? []));
         popupAction = getPopupAction(log.level);
         break;

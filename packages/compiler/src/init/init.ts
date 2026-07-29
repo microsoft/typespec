@@ -3,21 +3,36 @@ import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
 import { CliCompilerHost } from "../core/cli/types.js";
+import { parseCliArgsArgOption } from "../core/cli/utils.js";
 import { createDiagnostic } from "../core/messages.js";
-import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
-import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
+import { getBaseFileName } from "../core/path-utils.js";
+import { Diagnostic, NoTarget } from "../core/types.js";
 import { installTypeSpecDependencies } from "../install/install.js";
 import { MANIFEST } from "../manifest.js";
-import { readUrlOrPath } from "../utils/misc.js";
-import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
-import { EmitterTemplate, InitTemplate } from "./init-template.js";
+import { EmitterTemplate, InitTemplate, InitTemplateInput } from "./init-template.js";
 import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
+import {
+  defaultInternalTemplateSource,
+  UriTemplateSource,
+  type LoadedTemplateIndex,
+  type TemplateSource,
+} from "./template-source/index.js";
 
 export interface InitTypeSpecProjectOptions {
   readonly templatesUrl?: string;
   readonly template?: string;
+  readonly "no-prompt"?: boolean;
+  readonly args?: string[];
+  readonly "project-name"?: string;
+  readonly emitters?: string[];
+  /**
+   * Provider that the `internal:` scheme resolves to (the built-in templates). Defaults to the
+   * compiler's on-disk `templates/` directory; the standalone single-executable injects an in-memory
+   * bundle instead.
+   */
+  readonly internalTemplateSource?: TemplateSource;
 }
 
 export async function initTypeSpecProject(
@@ -41,41 +56,63 @@ export async function initTypeSpecProjectWorker(
   directory: string,
   options: InitTypeSpecProjectOptions = {},
 ) {
+  const skipPrompts = options["no-prompt"] ?? false;
   whiteline();
 
-  if (!(await confirmDirectoryEmpty(directory))) {
+  if (!skipPrompts && !(await confirmDirectoryEmpty(directory))) {
     return;
   }
 
   const folderName = getBaseFileName(directory);
 
-  // Download template configuration and prompt user to select a template
-  // No validation is done until one has been selected
-  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(host);
-  const result =
-    options.templatesUrl === undefined
-      ? (typeSpecCoreTemplates as LoadedTemplate)
-      : await downloadTemplates(host, options.templatesUrl);
-  const templateName = options.template ?? (await promptTemplateSelection(result.templates));
+  const isRemote = options.templatesUrl !== undefined;
+  // A `templatesUrl` points at a filesystem path or URL; otherwise use the built-in ("internal")
+  // templates, either an injected provider (e.g. bundled in the standalone executable) or the
+  // compiler's on-disk `templates/` directory.
+  const source: TemplateSource =
+    options.templatesUrl !== undefined
+      ? new UriTemplateSource(host, options.templatesUrl)
+      : (options.internalTemplateSource ?? defaultInternalTemplateSource(host));
+
+  if (isRemote) {
+    warning(
+      `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
+    );
+    if (!skipPrompts && !(await confirm("Continue"))) {
+      process.exit(1);
+    }
+  }
+
+  // No validation is done until a template has been selected.
+  const index = await loadTemplateIndex(source, options.templatesUrl);
+  if (skipPrompts && !options.template) {
+    // A template has to be defined if we're skipping prompts
+    throw new Error(
+      `A template must be specified when --no-prompt is used. Specify one of the following templates via --template: ${Object.keys(
+        index.templates,
+      )
+        .map((t) => `"${t}"`)
+        .join(", ")}`,
+    );
+  }
+  const templateName = options.template ?? (await promptTemplateSelection(index.templates));
+
+  if (!index.templates[templateName]) {
+    throw new Error(`Unexpected error: Cannot find template ${templateName}`);
+  }
 
   // Validate minimum compiler version for non built-in templates
-  if (
-    result !== typeSpecCoreTemplates &&
-    !(await validateTemplate(result.templates[templateName], result))
-  ) {
+  if (!skipPrompts && isRemote && !(await validateTemplate(index.templates[templateName], index))) {
     return;
   }
 
-  const template = result.templates[templateName] as InitTemplate;
-  const name = await input({
-    message: `Enter a project name:`,
-    default: folderName,
-  });
+  const template = index.templates[templateName] as InitTemplate;
+  const name = await resolveProjectName(folderName, options);
 
-  const emitters = await selectEmitters(template);
-  const parameters = await promptCustomParameters(template);
+  const emitters = await selectEmitters(template, options);
+  const parameters = await promptCustomParameters(template, options);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
-    baseUri: result.baseUri,
+    source,
     name,
     directory,
     parameters,
@@ -132,22 +169,61 @@ export async function initTypeSpecProjectWorker(
   }
 }
 
-async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
+async function resolveProjectName(
+  defaultName: string,
+  options: InitTypeSpecProjectOptions,
+): Promise<string> {
+  defaultName = options["project-name"] ?? defaultName;
+
+  if (options["no-prompt"]) return defaultName;
+  return input({
+    message: `Enter a project name:`,
+    default: defaultName,
+  });
+}
+
+async function promptCustomParameters(
+  template: InitTemplate,
+  options: InitTypeSpecProjectOptions,
+): Promise<Record<string, any>> {
   if (!template.inputs) {
     return {};
   }
 
+  const skipPrompts = options["no-prompt"] ?? false;
+
   const results: Record<string, string> = {};
+
   for (const [name, templateInput] of Object.entries(template.inputs)) {
-    if (templateInput.type === "text") {
-      results[name] = await input({
-        message: templateInput.description,
-        default: templateInput.initialValue,
-      });
+    const value = await resolveCustomParameter(templateInput, name, options);
+    if (typeof value === "undefined") {
+      throw new Error(
+        `Missing value for parameter "${name}".${skipPrompts ? ` Provide it using --args ${name}=value` : ""}`,
+      );
     }
+
+    results[name] = value;
   }
 
   return results;
+}
+
+async function resolveCustomParameter(
+  templateInput: InitTemplateInput,
+  name: string,
+  options: InitTypeSpecProjectOptions,
+): Promise<string> {
+  const suppliedArgs = parseCliArgsArgOption(options.args);
+  const defaultValue = suppliedArgs[name] ?? templateInput.initialValue;
+
+  if (options["no-prompt"]) {
+    return defaultValue;
+  }
+
+  return input({
+    message: templateInput.description,
+    default: defaultValue,
+  });
 }
 
 async function isDirectoryEmpty(directory: string) {
@@ -189,45 +265,26 @@ async function confirm(message: string): Promise<boolean> {
   });
 }
 
-export interface LoadedTemplate {
-  readonly baseUri: string;
-  readonly templates: Record<string, InitTemplate>;
-  readonly file: SourceFile;
-}
-async function downloadTemplates(host: CompilerHost, url: string): Promise<LoadedTemplate> {
-  warning(
-    `Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.`,
-  );
-  if (!(await confirm("Continue"))) {
-    process.exit(1);
-  }
-  let file: SourceFile;
+async function loadTemplateIndex(
+  source: TemplateSource,
+  url: string | undefined,
+): Promise<LoadedTemplateIndex> {
   try {
-    file = await readUrlOrPath(host, url);
+    return await source.loadIndex();
   } catch (e: any) {
+    if (url === undefined) {
+      throw e;
+    }
+    const code =
+      e instanceof SyntaxError ? "init-template-invalid-json" : "init-template-download-failed";
     throw new InitTemplateError([
       createDiagnostic({
-        code: "init-template-download-failed",
+        code,
         target: NoTarget,
-        format: { url: url, message: e.message },
+        format: { url, message: e.message },
       }),
     ]);
   }
-
-  let json: unknown;
-  try {
-    json = JSON.parse(file.text);
-  } catch (e: any) {
-    throw new InitTemplateError([
-      createDiagnostic({
-        code: "init-template-invalid-json",
-        target: NoTarget,
-        format: { url: url, message: e.message },
-      }),
-    ]);
-  }
-
-  return { templates: json as any, baseUri: getDirectoryPath(file.path), file };
 }
 
 function getTemplateName(template: InitTemplate) {
@@ -259,11 +316,6 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
     process.exit(1);
   }
 
-  const template = templates[templateName];
-  if (!template) {
-    throw new Error(`Unexpected error: Cannot find template ${templateName}`);
-  }
-
   return templateName;
 }
 
@@ -275,17 +327,17 @@ function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
   );
 }
 
-async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
+async function validateTemplate(template: any, index: LoadedTemplateIndex): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
   if (isTemplateCompatibleWithTspVersion(template)) {
-    validationResult = validateTemplateDefinitions(template, loaded.file, true);
+    validationResult = validateTemplateDefinitions(template, index.indexFile, true);
 
     // 1.1 If strict validation fails, try relaxed validation
     if (!validationResult.valid) {
-      validationResult = validateTemplateDefinitions(template, loaded.file, false);
+      validationResult = validateTemplateDefinitions(template, index.indexFile, false);
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
@@ -296,7 +348,7 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
       )
     ) {
       // 2.1 If user choose to continue, proceed with relaxed validation
-      validationResult = validateTemplateDefinitions(template, loaded.file, false);
+      validationResult = validateTemplateDefinitions(template, index.indexFile, false);
     } else {
       return false;
     }
@@ -313,41 +365,52 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
   return true;
 }
 
-async function selectEmitters(template: InitTemplate): Promise<Record<string, EmitterTemplate>> {
+async function selectEmitters(
+  template: InitTemplate,
+  options: InitTypeSpecProjectOptions,
+): Promise<Record<string, EmitterTemplate>> {
   if (!template.emitters) {
     return {};
   }
 
   const emittersList = Object.entries(template.emitters);
+  const suppliedEmitters = options.emitters ?? [];
 
-  const maxLabelLength = emittersList.reduce(
-    (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
-    0,
-  );
-  const emitters = await checkbox({
-    message: "What emitters do you want to use?:",
-    choices: emittersList.map(([name, emitter]) => {
-      return {
-        value: name,
-        name: emitter.label
-          ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
-          : name,
-        description: emitter.description,
-        checked: emitter.selected ?? false,
-      };
-    }),
-    theme: {
-      style: {
-        renderSelectedChoices: (choices: ReadonlyArray<any>) => {
-          if (choices.length === 0) {
-            return "None selected.";
-          } else {
-            return `${choices.map((x) => x.value).join(", ")}`;
-          }
+  let emitters: string[] = [];
+  if (options["no-prompt"]) {
+    emitters = emittersList
+      .filter(([name, emitter]) => emitter.selected || suppliedEmitters.includes(name))
+      .map(([name]) => name);
+  } else {
+    const maxLabelLength = emittersList.reduce(
+      (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
+      0,
+    );
+    emitters = await checkbox({
+      message: "What emitters do you want to use?:",
+      choices: emittersList.map(([name, emitter]) => {
+        return {
+          value: name,
+          name: emitter.label
+            ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
+            : name,
+          description: emitter.description,
+          checked: emitter.selected ?? suppliedEmitters.includes(name),
+        };
+      }),
+      theme: {
+        style: {
+          renderSelectedChoices: (choices: ReadonlyArray<any>) => {
+            if (choices.length === 0) {
+              return "None selected.";
+            } else {
+              return `${choices.map((x) => x.value).join(", ")}`;
+            }
+          },
         },
       },
-    },
-  });
+    });
+  }
 
   const selectedEmitters = [...Object.entries(template.emitters)].filter(([key, value], index) =>
     emitters.includes(key),

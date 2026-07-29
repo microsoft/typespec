@@ -20,6 +20,17 @@ model Dog {
   breed: "Husky" | "Corgi" | "Terrier";
 }
 
+@oneOf
+union One {
+  Dog,
+  Cat,
+}
+
+union Any {
+  Dog,
+  Cat,
+}
+
 model Pet {
   age: int32;
 }
@@ -34,5 +45,17 @@ model Pet {
   @body body: {
     @oneOf
     pet: Dog | Cat;
+  },
+): NoContentResponse;
+
+@route("/any/schema") @post op putAnySchema(
+  @body body: {
+    pet: Any;
+  },
+): NoContentResponse;
+
+@route("/one/schema") @post op putOneSchema(
+  @body body: {
+    pet: One;
   },
 ): NoContentResponse;

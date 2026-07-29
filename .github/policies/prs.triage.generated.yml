@@ -19,10 +19,11 @@ configuration:
                   label: compiler:core
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/emitter-framework/**/*
             then:
               - addLabel:
-                  label: compiler:emitter-framework
+                  label: emitter-framework
           - if:
               - includesModifiedFiles:
                   files:

@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ChangeTrackingDictionaryDefinition : TypeProvider
+    internal sealed class ChangeTrackingDictionaryDefinition : InternalHelperProvider
     {
         private class ChangeTrackingDictionaryTemplate<TKey, TValue> { }
         private readonly CSharpType _tKey = typeof(ChangeTrackingDictionaryTemplate<,>).GetGenericArguments()[0];
@@ -34,7 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public ChangeTrackingDictionaryDefinition()
         {
-            WhereClause = Where.NotNull(_tKey);
             _indexParam = new ParameterProvider("key", $"The key.", _tKey);
             _IDictionary = new CSharpType(typeof(IDictionary<,>), _tKey, _tValue);
             _dictionary = new CSharpType(typeof(Dictionary<,>), _tKey, _tValue);
@@ -47,10 +46,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal;
-        }
+        protected override WhereExpression BuildWhereClause() => Where.NotNull(_tKey);
+
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
@@ -61,17 +59,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [_tKey, _tValue];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_innerDictionaryField];
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
         {
             return [_IDictionary, _IReadOnlyDictionary];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             return
             [
@@ -93,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     Return()
                 },
                 _innerDictionary.Assign(New.Instance(_dictionary)).Terminate(),
-                new ForeachStatement("pair", dictionary, out var pair)
+                new ForEachStatement("pair", dictionary, out var pair)
                 {
                     _innerDictionary.Add(pair)
                 }
@@ -122,7 +120,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new ConstructorProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return new PropertyProvider[]
             {
@@ -226,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(name, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return new MethodProvider[]
             {
@@ -257,7 +255,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     value.Assign(Default).Terminate(),
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))
+                Return(EnsureDictionary.Invoke("TryGetValue", key, value.AsArgument()))
             },
             this);
         }

@@ -21,6 +21,11 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public string Name { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public InputExternalTypeMetadata? External { get; internal set; }
+        /// <summary>
+        /// Whether the name should be used exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {
@@ -49,7 +54,10 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputType WithNullable(bool isNullable)
         {
             if (isNullable)
+            {
                 return new InputNullableType(this);
+            }
+
             return this;
         }
         public InputType GetImplementType() => this switch

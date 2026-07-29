@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -12,7 +11,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import java.util.HashSet;
+import io.clientcore.core.utils.CoreUtils;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class JsonMergePatchHelperTemplate implements IJavaTemplate<List<ClientMo
     public void write(List<ClientModel> models, JavaFile javaFile) {
         // imports
         JavaSettings settings = JavaSettings.getInstance();
-        Set<String> imports = new HashSet<>();
+        Set<String> imports = new LinkedHashSet<>();
         addImports(imports, models, settings);
         javaFile.declareImport(imports);
 

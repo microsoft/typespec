@@ -15,9 +15,6 @@ For more details, refer to the TypeSpec documentation: [Oauth2Auth](https://type
 
 This constructor initializes a new instance of the `SampleTypeSpecClient` class and sets a client pipeline with OAuth2 bearer token authentication using the provided `AuthenticationTokenProvider` and endpoint URI.
 
-Note: Currently the `OAuth2BearerTokenAuthenticationPolicy` type is available in the `Azure.Core.Experimental` package.
-It will migrate to the `System.ClientModel` package in the future.
-
 ```csharp
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -27,14 +24,14 @@ using System.ClientModel.Primitives;
 /// </summary>
 public partial class SampleTypeSpecClient
 {
-  public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider credential)
+  public SampleTypeSpecClient(Uri uri, AuthenticationTokenProvider tokenProvider)
   {
       _endpoint = uri;
       var options = new ClientPipelineOptions();
       Pipeline = ClientPipeline.Create(
           options,
           perCallPolicies: ReadOnlySpan<PipelinePolicy>.Empty,
-          perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(credential, flows)],
+          perTryPolicies: [new OAuth2BearerTokenAuthenticationPolicy(tokenProvider, flows)],
           beforeTransportPolicies: ReadOnlySpan<PipelinePolicy>.Empty
       );
   }
@@ -61,32 +58,33 @@ public class ClientCredentialTokenProvider : AuthenticationTokenProvider
         _client = new HttpClient();
     }
 
-    public override AccessToken GetToken(GetTokenOptions properties, CancellationToken cancellationToken)
+    public override AuthenticationToken GetToken(GetTokenOptions properties, CancellationToken cancellationToken)
     {
         return GetAccessTokenInternal(false, properties, cancellationToken).GetAwaiter().GetResult();
     }
 
-    public override async ValueTask<AccessToken> GetTokenAsync(GetTokenOptions properties, CancellationToken cancellationToken)
+    public override async ValueTask<AuthenticationToken> GetTokenAsync(GetTokenOptions properties, CancellationToken cancellationToken)
     {
         return await GetAccessTokenInternal(true, properties, cancellationToken).ConfigureAwait(false);
     }
 
-    public override GetTokenOptions CreateTokenOptions(IReadOnlyDictionary<string, object> properties)
+    public override GetTokenOptions? CreateTokenOptions(IReadOnlyDictionary<string, object> properties)
     {
         if (properties.TryGetValue(GetTokenOptions.ScopesPropertyName, out var scopes) && scopes is string[] scopeArray &&
             properties.TryGetValue(GetTokenOptions.TokenUrlPropertyName, out var tokenUri) && tokenUri is string tokenUriValue &&
             properties.TryGetValue(GetTokenOptions.RefreshUrlPropertyName, out var refreshUri) && refreshUri is string refreshUriValue)
         {
-            return new GetTokenOptions(scopeArray, new Dictionary<string, object>
+            return new GetTokenOptions(new Dictionary<string, object>
             {
+                { GetTokenOptions.ScopesPropertyName, new ReadOnlyMemory<string>(scopeArray) },
                 { GetTokenOptions.TokenUrlPropertyName, tokenUriValue },
-                { GetTokenOptions.RefreshUrlPropertyName, refreshUriValue }
+                { GetTokenOptions.RefreshUrlPropertyName, refreshUriValue },
             });
         }
         return null;
     }
 
-    internal async ValueTask<AccessToken> GetAccessTokenInternal(bool async, GetTokenOptions properties, CancellationToken cancellationToken)
+    internal async ValueTask<AuthenticationToken> GetAccessTokenInternal(bool async, GetTokenOptions properties, CancellationToken cancellationToken)
     {
         if (!properties.Properties.TryGetValue("tokenUrl", out var tokenUri) || tokenUri is not string tokenUriValue)
         {
@@ -98,12 +96,13 @@ public class ClientCredentialTokenProvider : AuthenticationTokenProvider
         var authBytes = System.Text.Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}");
         var authHeader = Convert.ToBase64String(authBytes);
         request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
+        var scopes = ExtractScopes(properties.Properties);
 
         // Create form content
         var formContent = new FormUrlEncodedContent(
         [
             new KeyValuePair<string, string>("grant_type", "client_credentials"),
-            new KeyValuePair<string, string>("scope", string.Join(" ", properties.Scopes.Span.ToArray()))
+            new KeyValuePair<string, string>("scope", string.Join(" ", scopes.ToArray()))
         ]);
 
         request.Content = formContent;
@@ -119,8 +118,8 @@ public class ClientCredentialTokenProvider : AuthenticationTokenProvider
         using JsonDocument jsonDoc = await JsonDocument.ParseAsync(responseStream);
         JsonElement root = jsonDoc.RootElement;
 
-        string accessToken = root.GetProperty("access_token").GetString();
-        string tokenType = root.GetProperty("token_type").GetString();
+        string? accessToken = root.GetProperty("access_token").GetString();
+        string? tokenType = root.GetProperty("token_type").GetString();
         int expiresIn = root.GetProperty("expires_in").GetInt32();
 
         // Calculate expiration and refresh times based on current UTC time
@@ -128,7 +127,25 @@ public class ClientCredentialTokenProvider : AuthenticationTokenProvider
         DateTimeOffset expiresOn = now.AddSeconds(expiresIn);
         DateTimeOffset refreshOn = now.AddSeconds(expiresIn * 0.85);
 
-        return new AccessToken(accessToken, tokenType, expiresOn, refreshOn);
+        return new AuthenticationToken(accessToken!, tokenType!, expiresOn, refreshOn);
+    }
+
+    private static ReadOnlyMemory<string> ExtractScopes(IReadOnlyDictionary<string, object> properties)
+    {
+        if (!properties.TryGetValue(GetTokenOptions.ScopesPropertyName, out var scopesValue) || scopesValue is null)
+        {
+            return ReadOnlyMemory<string>.Empty;
+        }
+
+        return scopesValue switch
+        {
+            ReadOnlyMemory<string> memory => memory,
+            Memory<string> memory => memory,
+            string[] array => new ReadOnlyMemory<string>(array),
+            ICollection<string> collection => new ReadOnlyMemory<string>([.. collection]),
+            IEnumerable<string> enumerable => new ReadOnlyMemory<string>([.. enumerable]),
+            _ => ReadOnlyMemory<string>.Empty
+        };
     }
 }
 ```

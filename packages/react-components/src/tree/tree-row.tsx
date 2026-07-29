@@ -14,10 +14,19 @@ export interface TreeViewRowProps {
   readonly active: boolean;
   readonly columns?: Array<TreeRowColumn<any>>;
   readonly icon?: FC<{ node: TreeNode }>;
+  readonly label?: FC<{ node: TreeNode }>;
   readonly activate: (row: TreeRow<any>) => void;
 }
 
-export function TreeViewRow({ id, row, active, focussed, activate, icon: Icon }: TreeViewRowProps) {
+export function TreeViewRow({
+  id,
+  row,
+  active,
+  focussed,
+  activate,
+  icon: Icon,
+  label: Label,
+}: TreeViewRowProps) {
   const paddingLeft = row.depth * INDENT_SIZE;
 
   const onClick = useCallback(() => activate(row), [activate, row]);
@@ -46,7 +55,7 @@ export function TreeViewRow({ id, row, active, focussed, activate, icon: Icon }:
         </span>
       )}
       <span className="label" title={row.item.name}>
-        {row.item.name}
+        {Label ? <Label node={row.item} /> : row.item.name}
       </span>
     </div>
   );

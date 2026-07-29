@@ -101,3 +101,31 @@ Scenarios.Type_Model_Inheritance_SingleDiscriminator_getLegacyModel = passOnSucc
   },
   kind: "MockApiDefinition",
 });
+
+const noSubtypesBody = {
+  kind: "salmon",
+  size: 10,
+};
+
+Scenarios.Type_Model_Inheritance_SingleDiscriminator_getNoSubtypesModel = passOnSuccess({
+  uri: "/type/model/inheritance/single-discriminator/no-subtypes/model",
+  method: "get",
+  request: {},
+  response: {
+    status: 200,
+    body: json(noSubtypesBody),
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Type_Model_Inheritance_SingleDiscriminator_putNoSubtypesModel = passOnSuccess({
+  uri: "/type/model/inheritance/single-discriminator/no-subtypes/model",
+  method: "put",
+  request: {
+    body: json(noSubtypesBody),
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});

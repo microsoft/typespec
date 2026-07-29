@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.HttpHeader;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.logging.ClientLogger;
-import com.azure.core.util.serializer.JacksonAdapter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.PolymorphicDiscriminatorHandler;
@@ -21,7 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
@@ -35,6 +30,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -43,9 +39,13 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -75,7 +75,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         JavaSettings settings = JavaSettings.getInstance();
         ClientModelPropertiesManager propertiesManager = new ClientModelPropertiesManager(model, settings);
-        Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new HashSet<>();
+        Set<String> imports = settings.isStreamStyleSerialization() ? new StreamStyleImports() : new LinkedHashSet<>();
 
         addImports(imports, model, settings);
 
@@ -108,7 +108,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         List<JavaModifier> classModifiers = null;
         if (!hasDerivedModels && !model.getNeedsFlatten()) {
-            classModifiers = Collections.singletonList(JavaModifier.Final);
+            classModifiers = List.of(JavaModifier.Final);
         }
 
         String classNameWithBaseType = model.getName();
@@ -156,7 +156,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             JavaVisibility modelConstructorVisibility = immutableModel
                 ? (hasDerivedModels ? JavaVisibility.Protected : JavaVisibility.Private)
                 : JavaVisibility.Public;
-            addModelConstructor(model, modelConstructorVisibility, settings, classBlock);
+            addModelConstructor(model, propertiesManager, modelConstructorVisibility, settings, classBlock);
 
             boolean streamStyle = settings.isStreamStyleSerialization();
 
@@ -260,9 +260,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     ClientModelProperty targetProperty = propertyReference.getTargetProperty();
 
                     IType propertyClientType = property.getClientType();
-                    final boolean propertyIsReadOnly = immutableModel || property.isReadOnly();
+                    final boolean propertyIsReadOnly = immutableModel || propertyReference.isReadOnly();
 
-                    if (propertyClientType instanceof PrimitiveType && !targetProperty.isRequired()) {
+                    if (propertyClientType instanceof PrimitiveType && !propertyReference.isRequired()) {
                         // since the property to flattened client model is optional, the flattened property should be
                         // optional
                         propertyClientType = propertyClientType.asNullable();
@@ -430,23 +430,23 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         // Add HttpHeaders as an import when strongly-typed HTTP header objects use that as a constructor parameter.
         if (model.isStronglyTypedHeader()) {
             ClassType.HTTP_HEADERS.addImportsTo(imports, false);
+            ClassType.HTTP_HEADER.addImportsTo(imports, false);
             ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
             // Also add any potential imports needed to convert the header to the strong type.
             // If the import isn't used it will be removed later on.
             imports.add(Base64.class.getName());
             imports.add(LinkedHashMap.class.getName());
-            imports.add(HttpHeader.class.getName());
             imports.add(UUID.class.getName());
             imports.add(URL.class.getName());
             imports.add(IOException.class.getName());
             imports.add(UncheckedIOException.class.getName());
-            imports.add(ClientLogger.class.getName());
+            imports.add(ClassType.CLIENT_LOGGER.getFullName());
 
             // JacksonAdapter will be removed in the future once model types are converted to using stream-style
             // serialization. For now, it's needed to handle the rare scenario where the strong type is a non-Java
             // base type.
-            imports.add(JacksonAdapter.class.getName());
+            imports.add(ClassType.JACKSON_ADAPTER.getFullName());
         }
 
         String lastParentName = model.getName();
@@ -465,6 +465,11 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         addGeneratedImport(imports);
+
+        if (model.isUsedInXml()) {
+            // Used in XML getter of unwrapped arrays
+            imports.add(Collections.class.getName());
+        }
 
         model.addImportsTo(imports, settings);
 
@@ -552,7 +557,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             && Stream.concat(model.getProperties().stream(), propertyReferences.stream())
                 .anyMatch(p -> ClientModelUtil.needsPublicSetter(p, settings));
 
-        if (JavaSettings.getInstance().isBranded()) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             if (fluent) {
                 javaFile.annotation("Fluent");
             } else {
@@ -560,9 +565,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             }
         } else {
             if (fluent) {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.FLUENT})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.FLUENT})");
             } else {
-                javaFile.annotation("Metadata(conditions = {TypeConditions.IMMUTABLE})");
+                javaFile.annotation("Metadata(properties = {MetadataProperties.IMMUTABLE})");
             }
         }
     }
@@ -619,8 +624,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 } else {
                     fieldSignature = propertyType + " " + propertyName;
                 }
-            } else if (propertyType instanceof ListType) {
-                fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+            } else if (propertyType instanceof IterableType) {
+                if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                    // required property is initialized via constructor
+                    fieldSignature = propertyType + " " + propertyName;
+                } else {
+                    fieldSignature = propertyType + " " + propertyName + " = new ArrayList<>()";
+                }
             } else {
                 // handle x-ms-client-default
                 // Only set the property to a default value if the property isn't included in the constructor.
@@ -664,7 +674,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         addFieldAnnotations(model, property, classBlock, settings);
 
-        if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
+        if (model.isStronglyTypedHeader() && ClientModelUtil.isImmutableOutputModel(model, settings)) {
+            // a shortcut for Headers class
+            classBlock.privateFinalMemberVariable(fieldSignature);
+        } else if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
             classBlock.privateFinalMemberVariable(fieldSignature);
         } else {
             classBlock.privateMemberVariable(fieldSignature);
@@ -762,7 +775,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 classBlock.annotation("JacksonXmlText");
             } else if (property.isAdditionalProperties()) {
                 classBlock.annotation("JsonIgnore");
-            } else if (treatAsXml && property.getWireType() instanceof ListType && !property.isXmlWrapper()) {
+            } else if (treatAsXml && property.getWireType() instanceof IterableType && !property.isXmlWrapper()) {
                 classBlock.annotation("JsonProperty(\"" + property.getXmlListElementName() + "\")");
             } else if (!CoreUtils.isNullOrEmpty(property.getAnnotationArguments())) {
                 classBlock.annotation("JsonProperty(" + property.getAnnotationArguments() + ")");
@@ -774,12 +787,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      * Adds the model constructor to the Java class file.
      *
      * @param model The model.
+     * @param propertiesManager the model properties manager.
      * @param constructorVisibility The visibility of constructor.
      * @param settings AutoRest settings.
      * @param classBlock The Java class file.
      */
-    private void addModelConstructor(ClientModel model, JavaVisibility constructorVisibility, JavaSettings settings,
-        JavaClass classBlock) {
+    private void addModelConstructor(ClientModel model, ClientModelPropertiesManager propertiesManager,
+        JavaVisibility constructorVisibility, JavaSettings settings, JavaClass classBlock) {
         final boolean requireSerialization = modelRequireSerialization(model);
 
         // Early out on custom strongly typed headers constructor as this has different handling that doesn't require
@@ -789,56 +803,37 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             return;
         }
 
-        // Get the required properties from the super class structure.
-        List<ClientModelProperty> requiredParentProperties
-            = ClientModelUtil.getParentConstructorProperties(model, settings);
-
-        // Required properties are those that are required but not constant.
-        List<ClientModelProperty> requiredProperties = new ArrayList<>();
-
-        for (ClientModelProperty property : model.getProperties()) {
-            // Property isn't required and won't be bucketed into either constant or required properties.
-            if (!property.isConstant() && !ClientModelUtil.includePropertyInConstructor(property, settings)) {
-                continue;
-            }
-
-            // Property matches a parent property, don't need to include it twice.
-            if (requiredParentProperties.stream().anyMatch(p -> p.getName().equals(property.getName()))) {
-                continue;
-            }
-
-            // Only include non-constant properties.
-            if (!property.isConstant()) {
-                requiredProperties.add(property);
-            }
-        }
-
         // Jackson requires a constructor with @JsonCreator, with parameters in wire type. Ref
         // https://github.com/Azure/autorest.java/issues/2170
         boolean generatePrivateConstructorForJackson = false;
 
         // Description for the class is always the same, not matter whether there are required properties.
         // If there are required properties, the required properties will extend the consumer to add param Javadocs.
-        Consumer<JavaJavadocComment> javadocCommentConsumer
-            = comment -> comment.description("Creates an instance of " + model.getName() + " class.");
-
-        final int constructorPropertiesStringBuilderCapacity
-            = 128 * (requiredProperties.size() + requiredParentProperties.size());
+        AtomicReference<Consumer<JavaJavadocComment>> javadocCommentConsumer = new AtomicReference<>(
+            comment -> comment.description("Creates an instance of " + model.getName() + " class."));
 
         // Use a StringBuilder with an initial capacity of 128 times the total number of required constructor
         // properties.
         // If there are no required constructor properties this will simply be zero and result in a no-args constructor
         // being generated.
-        StringBuilder constructorProperties = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+        StringBuilder constructorProperties = new StringBuilder();
 
-        StringBuilder superProperties = new StringBuilder(64 * requiredParentProperties.size());
+        StringBuilder superProperties = new StringBuilder();
 
         if (settings.isRequiredFieldsAsConstructorArgs()) {
-            final boolean constructorParametersContainsMismatchWireType
-                = requiredProperties.stream().anyMatch(p -> ClientModelUtil.isWireTypeMismatch(p, true))
-                    || requiredParentProperties.stream().anyMatch(p -> ClientModelUtil.isWireTypeMismatch(p, true));
+            AtomicBoolean constructorParametersContainsMismatchWireType = new AtomicBoolean(false);
+            propertiesManager.forEachSuperConstructorProperty(p -> {
+                if (ClientModelUtil.isWireTypeMismatch(p, true)) {
+                    constructorParametersContainsMismatchWireType.set(true);
+                }
+            });
+            propertiesManager.forEachConstructorProperty(p -> {
+                if (ClientModelUtil.isWireTypeMismatch(p, true)) {
+                    constructorParametersContainsMismatchWireType.set(true);
+                }
+            });
 
-            if (constructorParametersContainsMismatchWireType && !settings.isStreamStyleSerialization()) {
+            if (constructorParametersContainsMismatchWireType.get() && !settings.isStreamStyleSerialization()) {
                 generatePrivateConstructorForJackson = requireSerialization;
             }
 
@@ -847,38 +842,87 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 || !requireSerialization);
 
             // Properties required by the super class structure come first.
-            for (ClientModelProperty property : requiredParentProperties) {
-                if (constructorProperties.length() > 0) {
-                    constructorProperties.append(", ");
-                }
+            ClientModel parentModel = ClientModelUtil.getClientModel(model.getParentModelName());
+            if (parentModel != null) {
+                Set<String> superConstructorPropertiesSerializedNames = new LinkedHashSet<>();
+                propertiesManager.forEachSuperConstructorProperty(
+                    p -> superConstructorPropertiesSerializedNames.add(p.getSerializedName()));
 
-                addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
+                ClientModelPropertiesManager parentPropertiesManager
+                    = new ClientModelPropertiesManager(parentModel, settings);
+                List<ClientModelProperty> superConstructorProperties = new ArrayList<>();
+                parentPropertiesManager.forEachSuperConstructorProperty(superConstructorProperties::add);
+                parentPropertiesManager.forEachConstructorProperty(superConstructorProperties::add);
+                superConstructorProperties.forEach(property -> {
+                    if (superProperties.length() > 0) {
+                        superProperties.append(", ");
+                    }
 
-                javadocCommentConsumer = javadocCommentConsumer.andThen(
-                    comment -> comment.param(property.getName(), "the " + property.getName() + " value to set"));
+                    boolean propertyInConstructor
+                        = superConstructorPropertiesSerializedNames.contains(property.getSerializedName());
+                    if (propertyInConstructor) {
+                        if (constructorProperties.length() > 0) {
+                            constructorProperties.append(", ");
+                        }
 
-                if (superProperties.length() > 0) {
-                    superProperties.append(", ");
-                }
+                        addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
 
-                superProperties.append(property.getName());
+                        javadocCommentConsumer.set(javadocCommentConsumer.get()
+                            .andThen(comment -> comment.param(property.getName(),
+                                "the " + property.getName() + " value to set")));
+
+                        superProperties.append(property.getName());
+                    } else {
+                        /*
+                         * here because the property in superclass constructor is overwritten in this model
+                         * one example is
+                         *
+                         * model ParentModel {
+                         * property: string;
+                         * }
+                         * model Model extends ParentModel {
+                         * property: "constant";
+                         * }
+                         *
+                         * we use the property in this model to initiate the superclass
+                         */
+                        ClientModelProperty propertyInThisModel = model.getProperties()
+                            .stream()
+                            .filter(p -> Objects.equals(p.getSerializedName(), property.getSerializedName()))
+                            .findFirst()
+                            .orElse(null);
+                        if (propertyInThisModel != null) {
+                            if (propertyInThisModel.isConstant() && !property.isConstant()) {
+                                // property changed to constant in this model, use constant value to initiate super
+                                // class
+                                superProperties.append(propertyInThisModel.getDefaultValue());
+                            } else {
+                                superProperties.append(propertyInThisModel.getName());
+                            }
+                        } else {
+                            // this should not happen
+                            superProperties.append(property.getName());
+                        }
+                    }
+                });
             }
 
             // Then properties required by this class come next.
-            for (ClientModelProperty property : requiredProperties) {
+            propertiesManager.forEachConstructorProperty(property -> {
                 if (constructorProperties.length() > 0) {
                     constructorProperties.append(", ");
                 }
 
                 addModelConstructorParameter(property, constructorProperties, addJsonPropertyAnnotation);
 
-                javadocCommentConsumer = javadocCommentConsumer.andThen(
-                    comment -> comment.param(property.getName(), "the " + property.getName() + " value to set"));
-            }
+                javadocCommentConsumer.set(javadocCommentConsumer.get()
+                    .andThen(
+                        comment -> comment.param(property.getName(), "the " + property.getName() + " value to set")));
+            });
         }
 
         // Add the Javadocs for the constructor.
-        classBlock.javadocComment(javadocCommentConsumer);
+        classBlock.javadocComment(javadocCommentConsumer.get());
 
         addGeneratedAnnotation(classBlock);
         // If there are any constructor arguments indicate that this is the JsonCreator. No args constructors are
@@ -925,7 +969,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
                 // Finally, add all required properties.
                 if (settings.isRequiredFieldsAsConstructorArgs()) {
-                    for (ClientModelProperty property : requiredProperties) {
+                    propertiesManager.forEachConstructorProperty(property -> {
                         if (property.getClientType() != property.getWireType()) {
                             // If the property needs to be converted and the passed value is null, set the field to null
                             // as the
@@ -941,7 +985,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                             constructor.line("this." + property.getName() + " = "
                                 + property.getWireType().convertFromClientType(property.getName()) + ";");
                         }
-                    }
+                    });
                 }
 
                 PolymorphicDiscriminatorHandler.initializeInConstructor(model, constructor, settings);
@@ -951,11 +995,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("JsonCreator");
 
-            StringBuilder constructorPropertiesAsWireType
-                = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+            StringBuilder constructorPropertiesAsWireType = new StringBuilder();
 
-            StringBuilder constructorPropertiesInvokePublicConstructor
-                = new StringBuilder(constructorPropertiesStringBuilderCapacity);
+            StringBuilder constructorPropertiesInvokePublicConstructor = new StringBuilder();
 
             final Consumer<ClientModelProperty> addParameterInvokePublicConstructor = p -> {
                 if (constructorPropertiesInvokePublicConstructor.length() > 0) {
@@ -970,7 +1012,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 }
             };
 
-            for (ClientModelProperty property : requiredParentProperties) {
+            propertiesManager.forEachSuperConstructorProperty(property -> {
                 if (constructorPropertiesAsWireType.length() > 0) {
                     constructorPropertiesAsWireType.append(", ");
                 }
@@ -978,8 +1020,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 addModelConstructorParameterAsWireType(property, constructorPropertiesAsWireType);
 
                 addParameterInvokePublicConstructor.accept(property);
-            }
-            for (ClientModelProperty property : requiredProperties) {
+            });
+            propertiesManager.forEachConstructorProperty(property -> {
                 if (constructorPropertiesAsWireType.length() > 0) {
                     constructorPropertiesAsWireType.append(", ");
                 }
@@ -987,12 +1029,10 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 addModelConstructorParameterAsWireType(property, constructorPropertiesAsWireType);
 
                 addParameterInvokePublicConstructor.accept(property);
-            }
+            });
 
             classBlock.privateConstructor(model.getName() + "(" + constructorPropertiesAsWireType + ")",
-                constructor -> {
-                    constructor.line("this(" + constructorPropertiesInvokePublicConstructor + ");");
-                });
+                constructor -> constructor.line("this(" + constructorPropertiesInvokePublicConstructor + ");"));
         }
     }
 
@@ -1053,18 +1093,32 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         if (sourceTypeName.equals(targetTypeName)) {
-            if (treatAsXml && property.isXmlWrapper() && (property.getWireType() instanceof IterableType)) {
-                String thisGetName = "this." + property.getName();
+            if (settings.isAzureV1()
+                && treatAsXml
+                && property.isXmlWrapper()
+                && (property.getWireType() instanceof IterableType)) {
+                // this logic only apply to azure v1, for backward-compatibility
                 if (settings.isStreamStyleSerialization()) {
-                    methodBlock.ifBlock(thisGetName + " == null",
-                        ifBlock -> ifBlock.line(thisGetName + " = new ArrayList<>();"));
-                    methodBlock.methodReturn("this." + property.getName());
+                    // this always returns a List
+                    if (property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) {
+                        // the property is "final" and cannot be changed in setter
+                        // hence, return "Collections.emptyList()" (but no change to the property), if it is null
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.methodReturn("Collections.emptyList()"));
+                        methodBlock.methodReturn(expression);
+                    } else {
+                        // assign a new ArrayList to the property, if it is null
+                        final String assignNewArrayListExpression = expression + " = new ArrayList<>();";
+                        methodBlock.ifBlock(expression + " == null",
+                            ifBlock -> ifBlock.line(assignNewArrayListExpression));
+                        methodBlock.methodReturn(expression);
+                    }
                 } else {
-                    methodBlock.ifBlock(thisGetName + " == null",
+                    methodBlock.ifBlock(expression + " == null",
                         ifBlock -> ifBlock.line("this.%s = new %s(new ArrayList<%s>());", property.getName(),
                             getPropertyXmlWrapperClassName(property),
                             ((GenericType) property.getWireType()).getTypeArguments()[0]));
-                    methodBlock.methodReturn(thisGetName + ".items");
+                    methodBlock.methodReturn(expression + ".items");
                 }
             } else {
                 methodBlock.methodReturn(expression);
@@ -1327,22 +1381,19 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     }
 
     protected void addGeneratedImport(Set<String> imports) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                Annotation.GENERATED.addImportsTo(imports);
-            } else {
-                Annotation.METADATA.addImportsTo(imports);
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            Annotation.GENERATED.addImportsTo(imports);
+        } else {
+            Annotation.METADATA.addImportsTo(imports);
+            Annotation.METADATA_PROPERTIES.addImportsTo(imports);
         }
     }
 
     protected void addGeneratedAnnotation(JavaContext classBlock) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
-            if (JavaSettings.getInstance().isBranded()) {
-                classBlock.annotation(Annotation.GENERATED.getName());
-            } else {
-                classBlock.annotation(Annotation.METADATA.getName() + "(generated = true)");
-            }
+        if (JavaSettings.getInstance().isAzureV1()) {
+            classBlock.annotation(Annotation.GENERATED.getName());
+        } else {
+            classBlock.annotation(Annotation.METADATA.getName() + "(properties = {MetadataProperties.GENERATED})");
         }
     }
 
@@ -1371,7 +1422,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         });
     }
 
-    private static final class StreamStyleImports extends HashSet<String> {
+    private static final class StreamStyleImports extends LinkedHashSet<String> {
         @Override
         public boolean add(String s) {
             if (s != null && s.contains("fasterxml")) {
@@ -1406,7 +1457,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         }
 
         List<ClientModelProperty> setterProperties = !model.isPolymorphic()
-            ? Collections.emptyList()
+            ? List.of()
             : model.getProperties()
                 .stream()
                 .filter(property -> !property.isConstant() && !property.isPolymorphicDiscriminator())

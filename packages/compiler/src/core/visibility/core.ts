@@ -540,6 +540,12 @@ export interface VisibilityFilter {
   none?: Set<EnumMember>;
 }
 
+const VISIBILITY_FILTER = Symbol.for("TypeSpec.Core.VisibilityFilter");
+
+interface VisibilityFilterCache {
+  [VISIBILITY_FILTER]?: VisibilityFilter;
+}
+
 export const VisibilityFilter = {
   /**
    * Convert a TypeSpec `GeneratedVisibilityFilter` value to a `VisibilityFilter`.
@@ -548,11 +554,11 @@ export const VisibilityFilter = {
    * @returns a `VisibilityFilter` object that can be consumed by the visibility APIs
    */
   fromDecoratorArgument(filter: GeneratedVisibilityFilter): VisibilityFilter {
-    return {
+    return ((filter as VisibilityFilterCache)[VISIBILITY_FILTER] ??= {
       all: filter.all && new Set(filter.all.map((v) => v.value)),
       any: filter.any && new Set(filter.any.map((v) => v.value)),
       none: filter.none && new Set(filter.none.map((v) => v.value)),
-    };
+    });
   },
   /**
    * Extracts the unique visibility classes referred to by the modifiers in a
@@ -568,7 +574,95 @@ export const VisibilityFilter = {
     if (filter.none) filter.none.forEach((v) => classes.add(v.enum));
     return classes;
   },
+  /**
+   * Converts a visibility filter into a stable string representation.
+   *
+   * This can be used as a cache key for the filter that will be stable for filters that are not object-identical but
+   * are semantically identical.
+   */
+  toCacheKey(program: Program, filter: VisibilityFilter): string {
+    return visibilityFilterToCacheKey(program, filter);
+  },
 };
+
+const ENUM_INTERN_TABLE = Symbol.for("TypeSpec.Core.enumInternTable");
+
+interface EnumInternTable {
+  [ENUM_INTERN_TABLE]?: {
+    idx: number;
+    map: WeakMap<Enum, number>;
+  };
+}
+
+function internEnum(program: Program, enumType: Enum): number {
+  const enumInternTable = ((program as EnumInternTable)[ENUM_INTERN_TABLE] ??= {
+    idx: 0,
+    map: new WeakMap(),
+  });
+
+  let idx = enumInternTable.map.get(enumType);
+  if (idx === undefined) {
+    idx = enumInternTable.idx++;
+    enumInternTable.map.set(enumType, idx);
+  }
+
+  return idx;
+}
+
+const VISIBILITY_FILTER_TO_STRING_CACHE = Symbol.for("TypeSpec.Core.visibilityFilterToStringCache");
+
+interface VisibilityFilterToStringCache {
+  [VISIBILITY_FILTER_TO_STRING_CACHE]?: WeakMap<VisibilityFilter, string>;
+}
+
+/**
+ * Converts a visibility filter into a stable string representation.
+ *
+ * @param program - the program in which the filter is defined
+ * @param filter - the visibility filter to convert
+ * @returns a string representation of the visibility filter to use as a cache key
+ */
+function visibilityFilterToCacheKey(program: Program, filter: VisibilityFilter): string {
+  const visibilityFilterToStringCache = ((program as VisibilityFilterToStringCache)[
+    VISIBILITY_FILTER_TO_STRING_CACHE
+  ] ??= new WeakMap());
+
+  let str = visibilityFilterToStringCache.get(filter);
+
+  if (str) {
+    return str;
+  }
+
+  str = "{";
+
+  for (const [key, modifierSet] of Object.entries(filter).sort(([keyA], [keyB]) =>
+    keyA.localeCompare(keyB),
+  ) as [keyof VisibilityFilter, VisibilityFilter[keyof VisibilityFilter]][]) {
+    if (!modifierSet) continue;
+    str += `${key}:[`;
+    const values: Array<{ _enum: number; modifier: string }> = [];
+    for (const modifier of modifierSet) {
+      const enumType = internEnum(program, modifier.enum);
+      values.push({ _enum: enumType, modifier: modifier.name });
+    }
+
+    str +=
+      values
+        .sort(function sortByEnumThenModifier(a, b) {
+          if (a._enum !== b._enum) {
+            return a._enum - b._enum;
+          }
+          return a.modifier.localeCompare(b.modifier);
+        })
+        .join(",") + "]";
+  }
+
+  str += "}";
+
+  visibilityFilterToStringCache.set(filter, str);
+
+  return str;
+}
 
 /**
  * Determines if a property is visible according to the given visibility filter.

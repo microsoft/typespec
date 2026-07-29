@@ -3,16 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
-
 /**
  * Represents a dictionary of any type.
  */
-public class DictionaryAny implements JsonSerializable<DictionaryAny> {
+public class DictionaryAny {
 
     /**
      * Creates a new instance of the DictionaryAny class.
@@ -37,21 +31,5 @@ public class DictionaryAny implements JsonSerializable<DictionaryAny> {
         }
 
         return other instanceof DictionaryAny;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject().writeEndObject();
-    }
-
-    /**
-     * Deserializes a DictionaryAny instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A DictionaryAny instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static DictionaryAny fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readEmptyObject(jsonReader, DictionaryAny::new);
     }
 }

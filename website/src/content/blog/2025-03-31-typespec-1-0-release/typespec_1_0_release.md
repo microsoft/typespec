@@ -1,13 +1,14 @@
 ---
-slug: 2025-03-31-typespec-1-0-release
+slug: typespec-1-0-RC-release
+redirect_slug: 2025-03-31-typespec-1-0-release
 title: "TypeSpec 1.0-RC: Design Faster Today, Scale Easier Tomorrow"
 image: ./TypeSpec_1_0_RC.png
 description: "The TypeSpec 1.0 Release Candidate is here! This open-source project, created by Microsoft and released to the community, brings a powerful yet concise API modeling language that supports API-first development, streamlining the generation of server code, client libraries, schemas, and documentation from a single source of truth."
 publishDate: 2025-04-02
-author:
-  name: Mario Guerra
-  title: Senior Product Manager @ Microsoft
-authorAvatar: assets/img/authors/mario_guerra.png
+authors:
+  - name: Mario Guerra
+    title: Senior Product Manager @ Microsoft
+    avatar: assets/img/authors/mario_guerra.png
 tags:
   - release
   - announcement
@@ -59,13 +60,11 @@ The 1.0-RC includes a foundation of core components alongside preview features t
 These components have been heavily used and tested internally, and we consider them ready for you to try in your own production environment:
 
 - **Compiler and core libraries**
-
   - [@typespec/compiler](https://www.npmjs.com/package/@typespec/compiler): The TypeSpec language compiler
   - [@typespec/http](https://www.npmjs.com/package/@typespec/http): HTTP protocol support
   - [@typespec/openapi](https://www.npmjs.com/package/@typespec/openapi): OpenAPI support
 
 - **IDE support**
-
   - [typespec-vscode](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode): VS Code extension
 
 - **Stable emitters**
@@ -77,11 +76,9 @@ These components have been heavily used and tested internally, and we consider t
 We're also including several components in preview state that are still being developed. We welcome your feedback on these features:
 
 - **Protocol emitters**
-
   - [@typespec/protobuf](https://www.npmjs.com/package/@typespec/protobuf): Protocol Buffer definitions
 
 - **Libraries**
-
   - [@typespec/events](https://www.npmjs.com/package/@typespec/events)
   - [@typespec/rest](https://www.npmjs.com/package/@typespec/rest)
   - [@typespec/sse](https://www.npmjs.com/package/@typespec/sse)

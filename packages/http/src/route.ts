@@ -1,14 +1,14 @@
 import {
   createDiagnosticCollector,
-  DecoratorContext,
+  Diagnostic,
   DiagnosticResult,
   Interface,
   Namespace,
   Operation,
   Program,
-  Type,
 } from "@typespec/compiler";
-import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
+import { isSharedRoute } from "./decorators/shared-route.js";
+import { createDiagnostic, HttpStateKeys } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
@@ -26,10 +26,18 @@ import {
 import { parseUriTemplate, UriTemplate } from "./uri-template.js";
 
 // The set of allowed segment separator characters
-const AllowedSegmentSeparators = ["/", ":"];
+const AllowedSegmentSeparators = ["/", ":", "?"];
+
+function needsSlashPrefix(fragment: string) {
+  return !(
+    fragment.length === 0 ||
+    AllowedSegmentSeparators.indexOf(fragment[0]) !== -1 ||
+    (fragment[0] === "{" && fragment[1] === "/")
+  );
+}
 
 function normalizeFragment(fragment: string, trimLast = false) {
-  if (fragment.length > 0 && AllowedSegmentSeparators.indexOf(fragment[0]) < 0) {
+  if (needsSlashPrefix(fragment)) {
     // Insert the default separator
     fragment = `/${fragment}`;
   }
@@ -52,8 +60,10 @@ function buildPath(pathFragments: string[]) {
   // Join all fragments with leading and trailing slashes trimmed
   const path = pathFragments.length === 0 ? "/" : joinPathSegments(pathFragments);
 
-  // The final path must start with a '/'
-  return path[0] === "/" ? path : `/${path}`;
+  // The final path must start with a '/', {/ (path expansion), or an allowed segment separator
+  return AllowedSegmentSeparators.includes(path[0]) || (path[0] === "{" && path[1] === "/")
+    ? path
+    : `/${path}`;
 }
 
 export function resolvePathAndParameters(
@@ -80,20 +90,11 @@ export function resolvePathAndParameters(
       .map((x) => x.name),
   );
 
+  validateDoubleSlash(parsedUriTemplate, operation, parameters).forEach((d) => diagnostics.add(d));
+
   // Ensure that all of the parameters defined in the route are accounted for in
   // the operation parameters and are correctly defined when optional
   for (const routeParam of parsedUriTemplate.parameters) {
-    const parameter = parameters.parameters.find((x) => x.name === routeParam.name);
-    if (parameter?.type === "path" && parameter.param.optional && routeParam.operator !== "/") {
-      diagnostics.add(
-        createDiagnostic({
-          code: "optional-needs-path-expansion",
-          format: { paramName: parameter.param.name },
-          target: parameter.param,
-        }),
-      );
-    }
-
     const decoded = decodeURIComponent(routeParam.name);
     if (!paramByName.has(routeParam.name) && !paramByName.has(decoded)) {
       diagnostics.add(
@@ -112,6 +113,38 @@ export function resolvePathAndParameters(
     path,
     parameters,
   });
+}
+
+function validateDoubleSlash(
+  parsedUriTemplate: UriTemplate,
+  operation: Operation,
+  parameters: HttpOperationParameters,
+): readonly Diagnostic[] {
+  const diagnostics = createDiagnosticCollector();
+  if (parsedUriTemplate.segments) {
+    const [firstSeg, ...rest] = parsedUriTemplate.segments;
+    let lastSeg = firstSeg;
+    for (const seg of rest) {
+      if (typeof seg !== "string") {
+        const parameter = parameters.parameters.find((x) => x.name === seg.name);
+
+        if (seg.operator === "/") {
+          if (typeof lastSeg === "string" && lastSeg.endsWith("/")) {
+            diagnostics.add(
+              createDiagnostic({
+                code: "double-slash",
+                messageId: parameter?.param.optional ? "optionalUnset" : "default",
+                format: { paramName: seg.name },
+                target: operation,
+              }),
+            );
+          }
+        }
+        lastSeg = seg;
+      }
+    }
+  }
+  return diagnostics.diagnostics;
 }
 
 function produceLegacyPathFromUriTemplate(uriTemplate: UriTemplate) {
@@ -182,7 +215,6 @@ export function DefaultRouteProducer(
       : joinPathSegments([...parentSegments, ...(routePath ? [routePath] : [])]);
 
   const parsedUriTemplate = parseUriTemplate(uriTemplate);
-
   const parameters: HttpOperationParameters = diagnostics.pipe(
     getOperationParameters(program, operation, uriTemplate, overloadBase, options.paramOptions),
   );
@@ -266,47 +298,6 @@ export function getRouteProducer(program: Program, operation: Operation): RouteP
   return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
 
-export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
-  const state = context.program.stateMap(HttpStateKeys.routes);
-
-  if (state.has(entity) && entity.kind === "Namespace") {
-    const existingPath: string | undefined = state.get(entity);
-    if (existingPath !== details.path) {
-      reportDiagnostic(context.program, {
-        code: "duplicate-route-decorator",
-        messageId: "namespace",
-        target: entity,
-      });
-    }
-  } else {
-    state.set(entity, details.path);
-    if (entity.kind === "Operation" && details.shared) {
-      setSharedRoute(context.program, entity as Operation);
-    }
-  }
-}
-
-export function setSharedRoute(program: Program, operation: Operation) {
-  program.stateMap(HttpStateKeys.sharedRoutes).set(operation, true);
-}
-
-export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(HttpStateKeys.sharedRoutes).get(operation) === true;
-}
-
-export function getRoutePath(
-  program: Program,
-  entity: Namespace | Interface | Operation,
-): RoutePath | undefined {
-  const path = program.stateMap(HttpStateKeys.routes).get(entity);
-  return path
-    ? {
-        path,
-        shared: entity.kind === "Operation" && isSharedRoute(program, entity as Operation),
-      }
-    : undefined;
-}
-
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -320,4 +311,17 @@ export function getRouteOptionsForNamespace(
   namespace: Namespace,
 ): RouteOptions | undefined {
   return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
+}
+
+export function getRoutePath(
+  program: Program,
+  entity: Namespace | Interface | Operation,
+): RoutePath | undefined {
+  const path = program.stateMap(HttpStateKeys.routes).get(entity);
+  return path
+    ? {
+        path,
+        shared: entity.kind === "Operation" && isSharedRoute(program, entity as Operation),
+      }
+    : undefined;
 }

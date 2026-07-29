@@ -1,6 +1,6 @@
 {
   "name": "tmlanguage-generator",
-  "version": "0.6.1",
+  "version": "0.6.8",
   "author": "Microsoft Corporation",
   "description": "Helper library to generate TextMate syntax highlighting tmLanguage files.",
   "homepage": "https://github.com/microsoft/typespec/tree/main/packages/tmlanguage-generator",
@@ -17,29 +17,34 @@
     "textmate",
     "tmlanguage"
   ],
+  "type": "module",
   "main": "dist/tmlanguage-generator.js",
+  "exports": {
+    ".": {
+      "import": "./dist/tmlanguage-generator.js"
+    }
+  },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "files": [
     "dist/**",
     "!dist/test/**"
   ],
   "dependencies": {
-    "onigasm": "~2.2.5",
-    "plist": "~3.1.0"
+    "vscode-oniguruma": "catalog:",
+    "plist": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "~22.13.11",
-    "@types/plist": "~3.0.5",
-    "rimraf": "~6.0.1",
-    "typescript": "~5.8.2"
+    "@types/node": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
   }
 }

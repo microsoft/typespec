@@ -3,11 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
-import com.azure.core.http.ContentType;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.util.polling.LongRunningOperationStatus;
-import com.azure.core.util.polling.SyncPoller;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -18,7 +13,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
@@ -33,8 +29,9 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
-import java.util.HashMap;
-import java.util.HashSet;
+import io.clientcore.core.http.models.HttpMethod;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class ClientMethodExampleWriter {
 
-    private final Set<String> imports = new HashSet<>();
+    private final Set<String> imports = new LinkedHashSet<>();
     private final BiConsumer<JavaBlock, Boolean> methodBodyWriter;
     private final Consumer<JavaBlock> responseAssertionWriter;
     private final ModelExampleWriter.ExampleNodeModelInitializationVisitor nodeVisitor
@@ -54,6 +51,15 @@ public class ClientMethodExampleWriter {
     public ClientMethodExampleWriter(ClientMethod method, String clientVarName, ProxyMethodExample proxyMethodExample) {
 
         List<MethodParameter> methodParameters = MethodUtil.getParameters(method, true);
+        // Exclude parameters that are hidden from the client method signature (e.g. "maxpagesize", which is set via
+        // PagedIterable/PagedFlux instead). Otherwise the generated sample would pass an argument that the method
+        // signature does not accept, producing invalid code.
+        final MethodPageDetails pageDetails = method.getMethodPageDetails();
+        if (pageDetails != null) {
+            methodParameters = methodParameters.stream()
+                .filter(methodParameter -> !pageDetails.shouldHideParameter(methodParameter.getClientMethodParameter()))
+                .collect(Collectors.toList());
+        }
         List<ExampleNode> exampleNodes = methodParameters.stream()
             .map(methodParameter -> parseNodeFromParameter(method, proxyMethodExample, methodParameter))
             .collect(Collectors.toList());
@@ -62,7 +68,7 @@ public class ClientMethodExampleWriter {
 
         // assertion
         this.imports.add("org.junit.jupiter.api.Assertions");
-        imports.add(LongRunningOperationStatus.class.getName());
+        imports.add(ClassType.LONG_RUNNING_OPERATION_STATUS.getFullName());
         ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
         method.getReturnValue().getType().addImportsTo(imports, false);
@@ -93,7 +99,7 @@ public class ClientMethodExampleWriter {
                 IType returnType = method.getReturnValue().getType();
                 if (returnType instanceof GenericType) {
                     GenericType responseType = (GenericType) returnType;
-                    if (SyncPoller.class.getSimpleName().equals(responseType.getName())) {
+                    if (ClassType.SYNC_POLLER.getName().equals(responseType.getName())) {
                         // SyncPoller<>
 
                         if (response.getStatusCode() / 100 == 2) {
@@ -104,7 +110,7 @@ public class ClientMethodExampleWriter {
                             methodBlock.line(
                                 "Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.waitForCompletion().getStatus());");
                         }
-                    } else if (PagedIterable.class.getSimpleName().equals(responseType.getName())) {
+                    } else if (ClassType.PAGED_ITERABLE.getName().equals(responseType.getName())) {
                         // PagedIterable<>
 
                         methodBlock.line();
@@ -116,14 +122,15 @@ public class ClientMethodExampleWriter {
                         // assert headers
                         response.getHttpHeaders().stream().forEach(header -> {
                             String expectedValueStr = ClassType.STRING.defaultValueExpression(header.getValue());
-                            String keyStr = ClassType.STRING.defaultValueExpression(header.getName());
+                            String keyStr
+                                = ClassType.STRING.defaultValueExpression(header.getName().getCaseSensitiveName());
                             methodBlock.line(String.format(
                                 "Assertions.assertEquals(%1$s, response.iterableByPage().iterator().next().getHeaders().get(HttpHeaderName.fromString(%2$s)).getValue());",
                                 expectedValueStr, keyStr));
                         });
                         // assert JSON of first item, or assert count=0
                         if (method.getProxyMethod().getResponseContentTypes() != null
-                            && method.getProxyMethod().getResponseContentTypes().contains(ContentType.APPLICATION_JSON)
+                            && method.getProxyMethod().getResponseContentTypes().contains("application/json")
                             && responseType.getTypeArguments().length > 0
                             && ClientModelUtil.isClientModel(responseType.getTypeArguments()[0])
                             && method.getMethodPageDetails() != null
@@ -229,8 +236,8 @@ public class ClientMethodExampleWriter {
             } else if (isList(modelClientType, modelValue)) {
                 // List
                 List<Object> values = (List<Object>) modelValue;
-                if (values.size() > 0) {
-                    ListType listType = (ListType) modelClientType;
+                if (!values.isEmpty()) {
+                    IterableType listType = (IterableType) modelClientType;
                     IType elementType = listType.getElementType();
                     Object firstItemValue = values.iterator().next();
                     if (firstItemValue != null) {
@@ -264,7 +271,7 @@ public class ClientMethodExampleWriter {
     }
 
     private boolean isList(IType modelClientType, Object modelValue) {
-        return modelClientType instanceof ListType && modelValue instanceof List;
+        return modelClientType instanceof IterableType && modelValue instanceof List;
     }
 
     private boolean isClientModel(IType modelClientType, Object modelValue) {
@@ -288,7 +295,7 @@ public class ClientMethodExampleWriter {
         if (transformations.isGroupingParameter(methodParameter)) {
             // grouping, possible with flattening first
             // group example values into a map
-            Map<String, Object> exampleValue = new HashMap<>();
+            Map<String, Object> exampleValue = new LinkedHashMap<>();
             for (ParameterTransformation transformation : convenienceMethod.getParameterTransformations().asList()) {
                 for (ParameterMapping parameterMapping : transformation.getMappings()) {
                     if (parameterMapping.getOutParameterPropertyName() != null) {
@@ -371,7 +378,7 @@ public class ClientMethodExampleWriter {
     }
 
     public Set<String> getImports() {
-        return new HashSet<>(this.imports);
+        return new LinkedHashSet<>(this.imports);
     }
 
     public void writeClientMethodInvocation(JavaBlock javaBlock, boolean isTestCode) {
@@ -379,7 +386,7 @@ public class ClientMethodExampleWriter {
     }
 
     public Set<ExampleHelperFeature> getHelperFeatures() {
-        return new HashSet<>(nodeVisitor.getHelperFeatures());
+        return new LinkedHashSet<>(nodeVisitor.getHelperFeatures());
     }
 
     public void writeAssertion(JavaBlock methodBlock) {

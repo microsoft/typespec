@@ -11,7 +11,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public class OptionalDefinition : TypeProvider
+    public class OptionalDefinition : InternalHelperProvider
     {
         private class ListTemplate<T> { }
 
@@ -29,16 +29,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _tValue = _genericChangeTrackingDictionary.Arguments[1];
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
-        }
-
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "Optional";
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return
             [
@@ -78,7 +73,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(valueParam.NotEqual(Null))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider IsObjectDefined()
@@ -89,7 +85,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(valueParam.NotEqual(Null))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider IsStructDefined()
@@ -100,7 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Return(new MemberExpression(valueParam, "HasValue"))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsReadOnlyDictionaryDefined()
@@ -115,7 +113,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsDictionaryDefined()
@@ -130,7 +129,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
 
         private MethodProvider BuildIsListDefined()
@@ -145,7 +145,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Return(Not(collectionParam.Is(changeTrackingDeclarationExpression)
                     .And(new MemberExpression(changeTrackingReference, "IsUndefined"))))
             },
-            this);
+            this,
+            XmlDocProvider.Empty);
         }
     }
 }

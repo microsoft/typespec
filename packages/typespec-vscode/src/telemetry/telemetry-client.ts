@@ -1,10 +1,10 @@
-import TelemetryReporter from "@vscode/extension-telemetry";
+import { TelemetryReporter } from "@vscode/extension-telemetry";
 import { inspect } from "util";
 import pkgJson from "../../package.json" with { type: "json" };
 import { EmptyGuid } from "../const.js";
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { ResultCode } from "../types.js";
+import { Result, ResultCode } from "../types.js";
 import { isWhitespaceStringOrUndefined } from "../utils.js";
 import {
   emptyActivityId,
@@ -16,7 +16,7 @@ import {
 } from "./telemetry-event.js";
 
 export class TelemetryClient {
-  private _client: TelemetryReporter.default | undefined;
+  private _client: TelemetryReporter | undefined;
   // The maximum number of telemetry error to log to avoid too much noise from it when
   // the telemetry doesn't work for some reason
   private readonly MAX_LOG_TELEMETRY_ERROR = 5;
@@ -43,8 +43,14 @@ export class TelemetryClient {
       );
       this._client = undefined;
     } else {
-      // has to convert the TelemetryReporter to any, otherwise it will report error: This expression is not constructable.
-      this._client = new (TelemetryReporter as any)(key);
+      try {
+        this._client = new TelemetryReporter(key);
+      } catch (err) {
+        this.logErrorWhenLoggingTelemetry(
+          `Failed to initialize telemetry client with key, error: ${inspect(err)}`,
+        );
+        this._client = undefined;
+      }
     }
   }
 
@@ -102,11 +108,11 @@ export class TelemetryClient {
     }
   }
 
-  public async doOperationWithTelemetry<T>(
+  public async doOperationWithTelemetry<T extends ResultCode | Result<unknown>>(
     eventName: TelemetryEventName,
     /**
-     * The result will be set automatically if the return type is ResultCode or Result<T>
-     * Otherwise, you can set the result manually by setting the opTelemetryEvent.result
+     * The operation must return either a {@link ResultCode} or a {@link Result}, and the
+     * telemetry event's result will be set from it automatically.
      */
     operation: (
       opTelemetryEvent: OperationTelemetryEvent,
@@ -114,6 +120,13 @@ export class TelemetryClient {
       sendTelemetryEvent: (result: ResultCode, delay: boolean) => void,
     ) => Promise<T>,
     activityId?: string,
+    /**
+     * Optional callback to handle unhandled exceptions from the operation.
+     * If provided, the exception will NOT be re-thrown and this callback will be invoked instead,
+     * and its return value will be used as the result of the operation.
+     * If not provided, the exception will be re-thrown after telemetry logging (default behavior).
+     */
+    onUnhandledException?: (error: unknown) => T,
   ): Promise<T> {
     const opTelemetryEvent = this.createOperationTelemetryEvent(eventName, activityId);
     let eventSent = false;
@@ -131,13 +144,11 @@ export class TelemetryClient {
       const result = await operation(opTelemetryEvent, (result, delay) =>
         sendTelemetryEvent(result, delay),
       );
-      if (result) {
-        const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
-        if (isResultCode(result)) {
-          opTelemetryEvent.result ??= result as ResultCode;
-        } else if (typeof result === "object" && "code" in result && isResultCode(result.code)) {
-          opTelemetryEvent.result ??= result.code as ResultCode;
-        }
+      const isResultCode = (v: any) => Object.values(ResultCode).includes(v as ResultCode);
+      if (isResultCode(result)) {
+        opTelemetryEvent.result ??= result as ResultCode;
+      } else if (typeof result === "object" && "code" in result && isResultCode(result.code)) {
+        opTelemetryEvent.result ??= result.code as ResultCode;
       }
       return result;
     } catch (e) {
@@ -145,6 +156,9 @@ export class TelemetryClient {
         error: "Unhandled exception from operation to doOperationWithTelemetry: \n" + inspect(e),
       });
       opTelemetryEvent.result = ResultCode.Fail;
+      if (onUnhandledException) {
+        return onUnhandledException(e);
+      }
       // just report the issue in telemetry and re-throw the error
       throw e;
     } finally {

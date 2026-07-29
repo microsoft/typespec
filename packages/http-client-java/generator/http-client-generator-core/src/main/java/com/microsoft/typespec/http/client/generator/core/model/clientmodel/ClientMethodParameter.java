@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,7 +18,7 @@ public class ClientMethodParameter extends MethodParameter {
             .wireType(ClassType.CONTEXT)
             .name("context")
             .requestParameterLocation(RequestParameterLocation.NONE)
-            .annotations(Collections.emptyList())
+            .annotations(List.of())
             .constant(false)
             .defaultValue(null)
             .fromClient(false)
@@ -32,7 +31,7 @@ public class ClientMethodParameter extends MethodParameter {
             .wireType(ClassType.HTTP_REQUEST)
             .name("httpRequest")
             .requestParameterLocation(RequestParameterLocation.NONE)
-            .annotations(Collections.emptyList())
+            .annotations(List.of())
             .constant(false)
             .defaultValue(null)
             .fromClient(false)
@@ -48,7 +47,18 @@ public class ClientMethodParameter extends MethodParameter {
         .constant(false)
         .required(false)
         .fromClient(false)
-        .annotations(Collections.emptyList())
+        .annotations(List.of())
+        .build();
+
+    public static final ClientMethodParameter REQUEST_CONTEXT_PARAMETER = new ClientMethodParameter.Builder()
+        .description("The context to configure the HTTP request before HTTP client sends it.")
+        .wireType(ClassType.REQUEST_CONTEXT)
+        .name("requestContext")
+        .requestParameterLocation(RequestParameterLocation.NONE)
+        .constant(false)
+        .required(false)
+        .fromClient(false)
+        .annotations(List.of())
         .build();
 
     /**
@@ -126,8 +136,11 @@ public class ClientMethodParameter extends MethodParameter {
             annotation.addImportsTo(imports, includeImplementationImports);
         }
         getClientType().addImportsTo(imports, includeImplementationImports);
-        if (includeImplementationImports && getRawType() != null) {
-            getRawType().addImportsTo(imports, includeImplementationImports);
+        if (includeImplementationImports) {
+            getWireType().addImportsTo(imports, includeImplementationImports);
+            if (getRawType() != null) {
+                getRawType().addImportsTo(imports, includeImplementationImports);
+            }
         }
     }
 

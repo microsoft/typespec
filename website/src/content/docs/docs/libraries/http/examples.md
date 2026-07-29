@@ -1,5 +1,7 @@
 ---
 title: Examples
+description: Defining HTTP operation examples
+llmstxt: true
 ---
 
 This document provides examples specific to the HTTP library in TypeSpec. For general information about how examples work in TypeSpec, see the [examples docs](../../standard-library/examples.md).
@@ -18,17 +20,20 @@ using Http;
 @opExample(#{ returnType: #{ statusCode: 200, name: "Max", age: 3 } })
 @opExample(#{ returnType: #{ statusCode: 404, error: "Not found" } })
 @opExample(#{ returnType: #{ statusCode: 422, error: "Invalid payload" } })
-op read(): {
-  @statusCode statusCode: 200;
-  name: string;
-  age: int32;
-} | {
-  @statusCode statusCode: 404;
-  error: string;
-} | {
-  @statusCode statusCode: 422;
-  error: string;
-};
+op read():
+  | {
+      @statusCode statusCode: 200;
+      name: string;
+      age: int32;
+    }
+  | {
+      @statusCode statusCode: 404;
+      error: string;
+    }
+  | {
+      @statusCode statusCode: 422;
+      error: string;
+    };
 ```
 
 Each `@opExample` decorator specifies:

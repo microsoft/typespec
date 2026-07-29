@@ -1,7 +1,7 @@
 // cspell:ignore bfff
-import { defineConfig, defineLabels } from "../scripts/labels/config.js";
-import { repo } from "../scripts/utils/common.js";
-import { AreaPaths } from "./area.js";
+import { defineConfig, defineLabels } from "../scripts/labels/config.ts";
+import { repo } from "../scripts/utils/common.ts";
+import { AreaPaths, ExternalOwners } from "./area.ts";
 
 /**
  * Labels that are used to categorize issue for which area they belong to.
@@ -11,7 +11,7 @@ export const AreaLabels = defineLabels({
     color: "453261",
     description: "Issues for @typespec/compiler",
   },
-  "compiler:emitter-framework": {
+  "emitter-framework": {
     color: "453261",
     description: "Issues for the emitter framework",
   },
@@ -210,13 +210,9 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
-        "1_0_E2E": {
-          color: "5319E7",
-          description: "",
-        },
-        "Client Emitter Migration": {
-          color: "FD92F0",
-          description: "",
+        "agentic-workflows": {
+          color: "000000",
+          description: "Issues/PR created by github agentic workflows",
         },
         "good first issue": {
           color: "7057ff",
@@ -226,8 +222,13 @@ export default defineConfig({
           color: "0969da",
           description: "Good candidate for MQ",
         },
+        "int:azure-specs": {
+          color: "0e8a16",
+          description: "Run integration tests against azure-rest-api-specs",
+        },
       },
     },
   },
   areaPaths: AreaPaths,
+  externalOwners: ExternalOwners,
 });

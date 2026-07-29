@@ -1,7 +1,11 @@
 import { Enum, Model, navigateType, Scalar, Type, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { type Typekit } from "@typespec/compiler/typekit";
 
-export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum | Scalar>) {
+export function collectDataTypes(
+  $: Typekit,
+  type: Type,
+  dataTypes: Set<Model | Union | Enum | Scalar>,
+) {
   navigateType(
     type,
     {
@@ -10,7 +14,7 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
           const partType = $.httpPart.unpack(model);
           // Need recursive call to collect data types from the part type as the semantic walker
           // doesn't do it automatically.
-          collectDataTypes(partType, dataTypes);
+          collectDataTypes($, partType, dataTypes);
           return;
         }
 

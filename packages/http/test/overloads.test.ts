@@ -1,133 +1,124 @@
-import { Operation } from "@typespec/compiler";
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { it } from "vitest";
 import { getHttpOperation, listHttpOperationsIn } from "../src/index.js";
-import { createHttpTestRunner } from "./test-host.js";
+import { Tester } from "./test-host.js";
 
-describe("http: overloads", () => {
-  let runner: BasicTestRunner;
+it("overloads inherit base overload route and verb", async () => {
+  const { uploadString, uploadBytes, program } = await Tester.compile(t.code`
+    @route("/upload")
+    @put
+    op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+    @overload(upload)
+    op ${t.op("uploadString")}(data: string, @header contentType: "text/plain" ): void;
+    @overload(upload)
+    op ${t.op("uploadBytes")}(data: bytes, @header contentType: "application/octet-stream"): void;
+  `);
 
-  beforeEach(async () => {
-    runner = await createHttpTestRunner();
-  });
+  const [uploadStringHttp] = getHttpOperation(program, uploadString);
+  const [uploadBytesHttp] = getHttpOperation(program, uploadBytes);
 
-  it("overloads inherit base overload route and verb", async () => {
-    const { uploadString, uploadBytes } = (await runner.compile(`
-      @route("/upload")
-      @put
-      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
-      @overload(upload)
-      @test op uploadString(data: string, @header contentType: "text/plain" ): void;
-      @overload(upload)
-      @test  op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `)) as { uploadString: Operation; uploadBytes: Operation };
+  strictEqual(uploadStringHttp.path, "/upload");
+  strictEqual(uploadStringHttp.verb, "put");
+  strictEqual(uploadBytesHttp.path, "/upload");
+  strictEqual(uploadBytesHttp.verb, "put");
+});
 
-    const [uploadStringHttp] = getHttpOperation(runner.program, uploadString);
-    const [uploadBytesHttp] = getHttpOperation(runner.program, uploadBytes);
+it("overloads can change their route or verb", async () => {
+  const { upload, uploadString, uploadBytes, program } = await Tester.compile(t.code`
+    @route("/upload")
+    @put
+    op ${t.op("upload")}(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+    @overload(upload)
+    @route("/uploadString")
+    op ${t.op("uploadString")}(data: string, @header contentType: "text/plain" ): void;
+    @overload(upload)
+    @post op ${t.op("uploadBytes")}(data: bytes, @header contentType: "application/octet-stream"): void;
+  `);
 
-    strictEqual(uploadStringHttp.path, "/upload");
-    strictEqual(uploadStringHttp.verb, "put");
-    strictEqual(uploadBytesHttp.path, "/upload");
-    strictEqual(uploadBytesHttp.verb, "put");
-  });
+  const [uploadHttp] = getHttpOperation(program, upload);
+  const [uploadStringHttp] = getHttpOperation(program, uploadString);
+  const [uploadBytesHttp] = getHttpOperation(program, uploadBytes);
 
-  it("overloads can change their route or verb", async () => {
-    const { upload, uploadString, uploadBytes } = (await runner.compile(`
-      @route("/upload")
-      @put
-      @test op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
-      @overload(upload)
-      @route("/uploadString")
-      @test op uploadString(data: string, @header contentType: "text/plain" ): void;
-      @overload(upload)
-      @post @test op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `)) as { upload: Operation; uploadString: Operation; uploadBytes: Operation };
+  strictEqual(uploadHttp.path, "/upload");
+  strictEqual(uploadHttp.verb, "put");
 
-    const [uploadHttp] = getHttpOperation(runner.program, upload);
-    const [uploadStringHttp] = getHttpOperation(runner.program, uploadString);
-    const [uploadBytesHttp] = getHttpOperation(runner.program, uploadBytes);
+  // Change to /uploadString
+  strictEqual(uploadStringHttp.path, "/uploadString");
+  strictEqual(uploadStringHttp.verb, "put");
 
-    strictEqual(uploadHttp.path, "/upload");
-    strictEqual(uploadHttp.verb, "put");
+  // Changed to post
+  strictEqual(uploadBytesHttp.path, "/upload");
+  strictEqual(uploadBytesHttp.verb, "post");
+});
 
-    // Change to /uploadString
-    strictEqual(uploadStringHttp.path, "/uploadString");
-    strictEqual(uploadStringHttp.verb, "put");
+it("links overloads", async () => {
+  const { program } = await Tester.compile(t.code`
+    @route("/upload")
+    @put
+    op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+    @overload(upload)
+    op uploadString(data: string, @header contentType: "text/plain" ): void;
+    @overload(upload)
+    op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+  `);
 
-    // Changed to post
-    strictEqual(uploadBytesHttp.path, "/upload");
-    strictEqual(uploadBytesHttp.verb, "post");
-  });
+  const [[overload, uploadString, uploadBytes]] = listHttpOperationsIn(
+    program,
+    program.getGlobalNamespaceType(),
+  );
 
-  it("links overloads", async () => {
-    await runner.compile(`
-      @route("/upload")
-      @put
-      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
-      @overload(upload)
-      op uploadString(data: string, @header contentType: "text/plain" ): void;
-      @overload(upload)
-      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `);
+  strictEqual(uploadString.overloading, overload);
+  strictEqual(uploadBytes.overloading, overload);
+  strictEqual(overload.overloads?.[0], uploadString);
+  strictEqual(overload.overloads?.[1], uploadBytes);
+});
 
-    const [[overload, uploadString, uploadBytes]] = listHttpOperationsIn(
-      runner.program,
-      runner.program.getGlobalNamespaceType(),
-    );
+it("overload base route should still be unique with other operations", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @route("/upload")
+    op otherUpload(data: bytes): void;
 
-    strictEqual(uploadString.overloading, overload);
-    strictEqual(uploadBytes.overloading, overload);
-    strictEqual(overload.overloads?.[0], uploadString);
-    strictEqual(overload.overloads?.[1], uploadBytes);
-  });
+    @route("/upload")
+    op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+    @overload(upload)
+    op uploadString(data: string, @header contentType: "text/plain" ): void;
+    @overload(upload)
+    op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+  `);
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/duplicate-operation",
+      message: `Duplicate operation "otherUpload" routed at "post /upload".`,
+    },
+    {
+      code: "@typespec/http/duplicate-operation",
+      message: `Duplicate operation "upload" routed at "post /upload".`,
+    },
+  ]);
+});
 
-  it("overload base route should still be unique with other operations", async () => {
-    const diagnostics = await runner.diagnose(`
-      @route("/upload")
-      op otherUpload(data: bytes): void;
+it("overloads route should still be unique with other operations", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @route("/uploadString")
+    op otherUploadString(data: string): void;
 
-      @route("/upload")
-      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
-      @overload(upload)
-      op uploadString(data: string, @header contentType: "text/plain" ): void;
-      @overload(upload)
-      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `);
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/http/duplicate-operation",
-        message: `Duplicate operation "otherUpload" routed at "post /upload".`,
-      },
-      {
-        code: "@typespec/http/duplicate-operation",
-        message: `Duplicate operation "upload" routed at "post /upload".`,
-      },
-    ]);
-  });
-
-  it("overloads route should still be unique with other operations", async () => {
-    const diagnostics = await runner.diagnose(`
-      @route("/uploadString")
-      op otherUploadString(data: string): void;
-
-      @route("/upload")
-      op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
-      @overload(upload)
-      @route("/uploadString")
-      op uploadString(data: string, @header contentType: "text/plain" ): void;
-      @overload(upload)
-      op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
-    `);
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/http/duplicate-operation",
-        message: `Duplicate operation "otherUploadString" routed at "post /uploadString".`,
-      },
-      {
-        code: "@typespec/http/duplicate-operation",
-        message: `Duplicate operation "uploadString" routed at "post /uploadString".`,
-      },
-    ]);
-  });
+    @route("/upload")
+    op upload(data: string | bytes, @header contentType: "text/plain" | "application/octet-stream"): void;
+    @overload(upload)
+    @route("/uploadString")
+    op uploadString(data: string, @header contentType: "text/plain" ): void;
+    @overload(upload)
+    op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): void;
+  `);
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/duplicate-operation",
+      message: `Duplicate operation "otherUploadString" routed at "post /uploadString".`,
+    },
+    {
+      code: "@typespec/http/duplicate-operation",
+      message: `Duplicate operation "uploadString" routed at "post /uploadString".`,
+    },
+  ]);
 });

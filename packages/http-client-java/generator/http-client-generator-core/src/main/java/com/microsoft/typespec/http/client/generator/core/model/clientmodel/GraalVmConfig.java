@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -75,11 +75,10 @@ public class GraalVmConfig {
         }
 
         private final Resource resources;
-        private final List<Object> bundles = Collections.emptyList();
+        private final List<Object> bundles = List.of();
 
         private ResourceConfig(String artifactId) {
-            this.resources
-                = new Resource(Collections.singletonList(new Pattern("\\Q" + artifactId + ".properties" + "\\E")));
+            this.resources = new Resource(List.of(new Pattern("\\Q" + artifactId + ".properties" + "\\E")));
         }
 
         @Override
@@ -97,7 +96,7 @@ public class GraalVmConfig {
 
     // TODO: Template
     public String toProxyConfigJson() {
-        List<List<String>> result = proxies.stream().map(Collections::singletonList).collect(Collectors.toList());
+        List<List<String>> result = proxies.stream().map(List::of).collect(Collectors.toList());
         return TemplateUtil.prettyPrintToJson(result);
     }
 

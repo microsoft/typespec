@@ -46,10 +46,12 @@ import payload.multipart.implementation.MultiPartClientImpl;
         FormDataHttpPartsClient.class,
         FormDataHttpPartsContentTypeClient.class,
         FormDataHttpPartsNonStringClient.class,
+        FormDataFileClient.class,
         FormDataAsyncClient.class,
         FormDataHttpPartsAsyncClient.class,
         FormDataHttpPartsContentTypeAsyncClient.class,
-        FormDataHttpPartsNonStringAsyncClient.class })
+        FormDataHttpPartsNonStringAsyncClient.class,
+        FormDataFileAsyncClient.class })
 public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBuilder>,
     ConfigurationTrait<MultiPartClientBuilder>, EndpointTrait<MultiPartClientBuilder> {
     @Generated
@@ -73,6 +75,22 @@ public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBu
     }
 
     /*
+     * The HTTP client used to send the request.
+     */
+    @Generated
+    private HttpClient httpClient;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public MultiPartClientBuilder httpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /*
      * The HTTP pipeline to send requests through.
      */
     @Generated
@@ -88,22 +106,6 @@ public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBu
             LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
         }
         this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
-     * The HTTP client used to send the request.
-     */
-    @Generated
-    private HttpClient httpClient;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public MultiPartClientBuilder httpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
         return this;
     }
 
@@ -313,6 +315,16 @@ public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBu
     }
 
     /**
+     * Builds an instance of FormDataFileAsyncClient class.
+     * 
+     * @return an instance of FormDataFileAsyncClient.
+     */
+    @Generated
+    public FormDataFileAsyncClient buildFormDataFileAsyncClient() {
+        return new FormDataFileAsyncClient(buildInnerClient().getFormDataFiles());
+    }
+
+    /**
      * Builds an instance of FormDataClient class.
      * 
      * @return an instance of FormDataClient.
@@ -350,6 +362,16 @@ public final class MultiPartClientBuilder implements HttpTrait<MultiPartClientBu
     @Generated
     public FormDataHttpPartsNonStringClient buildFormDataHttpPartsNonStringClient() {
         return new FormDataHttpPartsNonStringClient(buildInnerClient().getFormDataHttpPartsNonStrings());
+    }
+
+    /**
+     * Builds an instance of FormDataFileClient class.
+     * 
+     * @return an instance of FormDataFileClient.
+     */
+    @Generated
+    public FormDataFileClient buildFormDataFileClient() {
+        return new FormDataFileClient(buildInnerClient().getFormDataFiles());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(MultiPartClientBuilder.class);

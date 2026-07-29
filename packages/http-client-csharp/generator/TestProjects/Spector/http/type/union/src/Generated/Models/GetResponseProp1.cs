@@ -21,6 +21,8 @@ namespace _Type.Union
 
         public static implicit operator GetResponseProp1(string value) => throw null;
 
+        public static implicit operator GetResponseProp1?(string value) => throw null;
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => throw null;
 

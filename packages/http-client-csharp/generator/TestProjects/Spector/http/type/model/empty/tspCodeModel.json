@@ -1,327 +1,601 @@
 {
- "$id": "1",
- "name": "Type.Model.Empty",
- "apiVersions": [],
- "enums": [],
- "models": [
-  {
-   "$id": "2",
-   "kind": "model",
-   "name": "EmptyInput",
-   "namespace": "Type.Model.Empty",
-   "crossLanguageDefinitionId": "Type.Model.Empty.EmptyInput",
-   "usage": "Input,Json",
-   "doc": "Empty model used in operation parameters",
-   "decorators": [],
-   "properties": []
-  },
-  {
-   "$id": "3",
-   "kind": "model",
-   "name": "EmptyOutput",
-   "namespace": "Type.Model.Empty",
-   "crossLanguageDefinitionId": "Type.Model.Empty.EmptyOutput",
-   "usage": "Output,Json",
-   "doc": "Empty model used in operation return type",
-   "decorators": [],
-   "properties": []
-  },
-  {
-   "$id": "4",
-   "kind": "model",
-   "name": "EmptyInputOutput",
-   "namespace": "Type.Model.Empty",
-   "crossLanguageDefinitionId": "Type.Model.Empty.EmptyInputOutput",
-   "usage": "Input,Output,Json",
-   "doc": "Empty model used in both parameter and return type",
-   "decorators": [],
-   "properties": []
-  }
- ],
- "clients": [
-  {
-   "$id": "5",
-   "kind": "client",
-   "name": "EmptyClient",
-   "namespace": "Type.Model.Empty",
-   "doc": "Illustrates usage of empty model used in operation's parameters and responses.",
-   "operations": [
+  "name": "Type.Model.Empty",
+  "apiVersions": [],
+  "enums": [],
+  "constants": [
     {
-     "$id": "6",
-     "name": "putEmpty",
-     "resourceName": "Empty",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "7",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
+      "$id": "1",
+      "kind": "constant",
+      "name": "PutEmptyContentType",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "2",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "3",
+      "kind": "constant",
+      "name": "PutEmptyContentType1",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "4",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "5",
+      "kind": "constant",
+      "name": "PutEmptyContentType2",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
+        "$id": "6",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "7",
+      "kind": "constant",
+      "name": "PutEmptyContentType3",
+      "namespace": "",
+      "usage": "None",
+      "valueType": {
         "$id": "8",
-        "kind": "constant",
-        "valueType": {
-         "$id": "9",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
       },
-      {
-       "$id": "10",
-       "name": "input",
-       "nameInRequest": "input",
-       "type": {
-        "$ref": "2"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "11",
-       "statusCodes": [
-        204
-       ],
-       "headers": [],
-       "isErrorResponse": false
-      }
-     ],
-     "httpMethod": "PUT",
-     "uri": "{endpoint}",
-     "path": "/type/model/empty/alone",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty",
-     "decorators": []
+      "value": "application/json",
+      "decorators": [],
+      "isExactName": false
+    }
+  ],
+  "models": [
+    {
+      "$id": "9",
+      "kind": "model",
+      "name": "EmptyInput",
+      "namespace": "Type.Model.Empty",
+      "crossLanguageDefinitionId": "Type.Model.Empty.EmptyInput",
+      "usage": "Input,Json",
+      "doc": "Empty model used in operation parameters",
+      "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "EmptyInput"
+        }
+      },
+      "isExactName": false,
+      "properties": []
     },
     {
-     "$id": "12",
-     "name": "getEmpty",
-     "resourceName": "Empty",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "13",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "14",
-        "kind": "constant",
-        "valueType": {
-         "$id": "15",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "16",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "3"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "GET",
-     "uri": "{endpoint}",
-     "path": "/type/model/empty/alone",
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty",
-     "decorators": []
+      "$id": "10",
+      "kind": "model",
+      "name": "EmptyOutput",
+      "namespace": "Type.Model.Empty",
+      "crossLanguageDefinitionId": "Type.Model.Empty.EmptyOutput",
+      "usage": "Output,Json",
+      "doc": "Empty model used in operation return type",
+      "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "EmptyOutput"
+        }
+      },
+      "isExactName": false,
+      "properties": []
     },
     {
-     "$id": "17",
-     "name": "postRoundTripEmpty",
-     "resourceName": "Empty",
-     "accessibility": "public",
-     "parameters": [
-      {
-       "$id": "18",
-       "name": "contentType",
-       "nameInRequest": "Content-Type",
-       "doc": "Body parameter's content type. Known values are application/json",
-       "type": {
-        "$id": "19",
-        "kind": "constant",
-        "valueType": {
-         "$id": "20",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": true,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
+      "$id": "11",
+      "kind": "model",
+      "name": "EmptyInputOutput",
+      "namespace": "Type.Model.Empty",
+      "crossLanguageDefinitionId": "Type.Model.Empty.EmptyInputOutput",
+      "usage": "Input,Output,Json",
+      "doc": "Empty model used in both parameter and return type",
+      "decorators": [],
+      "serializationOptions": {
+        "json": {
+          "name": "EmptyInputOutput"
+        }
       },
-      {
-       "$id": "21",
-       "name": "accept",
-       "nameInRequest": "Accept",
-       "type": {
-        "$id": "22",
-        "kind": "constant",
-        "valueType": {
-         "$id": "23",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "value": "application/json",
-        "decorators": []
-       },
-       "location": "Header",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Constant",
-       "decorators": [],
-       "skipUrlEncoding": false
-      },
-      {
-       "$id": "24",
-       "name": "body",
-       "nameInRequest": "body",
-       "type": {
-        "$ref": "4"
-       },
-       "location": "Body",
-       "isApiVersion": false,
-       "isContentType": false,
-       "isEndpoint": false,
-       "explode": false,
-       "isRequired": true,
-       "kind": "Method",
-       "decorators": [],
-       "skipUrlEncoding": false
-      }
-     ],
-     "responses": [
-      {
-       "$id": "25",
-       "statusCodes": [
-        200
-       ],
-       "bodyType": {
-        "$ref": "4"
-       },
-       "headers": [],
-       "isErrorResponse": false,
-       "contentTypes": [
-        "application/json"
-       ]
-      }
-     ],
-     "httpMethod": "POST",
-     "uri": "{endpoint}",
-     "path": "/type/model/empty/round-trip",
-     "requestMediaTypes": [
-      "application/json"
-     ],
-     "bufferResponse": true,
-     "generateProtocolMethod": true,
-     "generateConvenienceMethod": true,
-     "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty",
-     "decorators": []
+      "isExactName": false,
+      "properties": []
     }
-   ],
-   "parameters": [
+  ],
+  "clients": [
     {
-     "$id": "26",
-     "name": "endpoint",
-     "nameInRequest": "endpoint",
-     "doc": "Service host",
-     "type": {
-      "$id": "27",
-      "kind": "url",
-      "name": "url",
-      "crossLanguageDefinitionId": "TypeSpec.url"
-     },
-     "location": "Uri",
-     "isApiVersion": false,
-     "isContentType": false,
-     "isRequired": true,
-     "isEndpoint": true,
-     "skipUrlEncoding": false,
-     "explode": false,
-     "kind": "Client",
-     "defaultValue": {
-      "$id": "28",
-      "type": {
-       "$id": "29",
-       "kind": "string",
-       "name": "string",
-       "crossLanguageDefinitionId": "TypeSpec.string"
-      },
-      "value": "http://localhost:3000"
-     }
+      "$id": "12",
+      "kind": "client",
+      "name": "EmptyClient",
+      "isExactName": false,
+      "namespace": "Type.Model.Empty",
+      "doc": "Illustrates usage of empty model used in operation's parameters and responses.",
+      "methods": [
+        {
+          "$id": "13",
+          "kind": "basic",
+          "name": "putEmpty",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "14",
+            "name": "putEmpty",
+            "isExactName": false,
+            "resourceName": "Empty",
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "15",
+                "kind": "header",
+                "name": "contentType",
+                "serializedName": "Content-Type",
+                "doc": "Body parameter's content type. Known values are application/json",
+                "type": {
+                  "$ref": "1"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": true,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty.contentType",
+                "methodParameterSegments": [
+                  {
+                    "$id": "16",
+                    "kind": "method",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "1"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty.contentType",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "17",
+                "kind": "body",
+                "name": "input",
+                "serializedName": "input",
+                "type": {
+                  "$ref": "9"
+                },
+                "isApiVersion": false,
+                "contentTypes": [
+                  "application/json"
+                ],
+                "defaultContentType": "application/json",
+                "optional": false,
+                "scope": "Method",
+                "decorators": [],
+                "readOnly": false,
+                "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty.input",
+                "methodParameterSegments": [
+                  {
+                    "$id": "18",
+                    "kind": "method",
+                    "name": "input",
+                    "serializedName": "input",
+                    "type": {
+                      "$ref": "9"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Method",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty.input",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false,
+                "serializationOptions": {
+                  "json": {
+                    "name": "input"
+                  }
+                }
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  204
+                ],
+                "headers": [],
+                "isErrorResponse": false,
+                "serializationOptions": {}
+              }
+            ],
+            "httpMethod": "PUT",
+            "uri": "{endpoint}",
+            "path": "/type/model/empty/alone",
+            "requestMediaTypes": [
+              "application/json"
+            ],
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty",
+            "decorators": [],
+            "namespace": "Type.Model.Empty"
+          },
+          "parameters": [
+            {
+              "$ref": "18"
+            },
+            {
+              "$ref": "16"
+            }
+          ],
+          "response": {},
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "Type.Model.Empty.putEmpty"
+        },
+        {
+          "$id": "19",
+          "kind": "basic",
+          "name": "getEmpty",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "20",
+            "name": "getEmpty",
+            "isExactName": false,
+            "resourceName": "Empty",
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "21",
+                "kind": "header",
+                "name": "accept",
+                "serializedName": "Accept",
+                "type": {
+                  "$ref": "3"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": false,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty.accept",
+                "methodParameterSegments": [
+                  {
+                    "$id": "22",
+                    "kind": "method",
+                    "name": "accept",
+                    "serializedName": "Accept",
+                    "type": {
+                      "$ref": "3"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty.accept",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  200
+                ],
+                "bodyType": {
+                  "$ref": "10"
+                },
+                "headers": [],
+                "isErrorResponse": false,
+                "contentTypes": [
+                  "application/json"
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
+              }
+            ],
+            "httpMethod": "GET",
+            "uri": "{endpoint}",
+            "path": "/type/model/empty/alone",
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty",
+            "decorators": [],
+            "namespace": "Type.Model.Empty"
+          },
+          "parameters": [
+            {
+              "$ref": "22"
+            }
+          ],
+          "response": {
+            "type": {
+              "$ref": "10"
+            }
+          },
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "Type.Model.Empty.getEmpty"
+        },
+        {
+          "$id": "23",
+          "kind": "basic",
+          "name": "postRoundTripEmpty",
+          "isExactName": false,
+          "accessibility": "public",
+          "apiVersions": [],
+          "operation": {
+            "$id": "24",
+            "name": "postRoundTripEmpty",
+            "isExactName": false,
+            "resourceName": "Empty",
+            "accessibility": "public",
+            "parameters": [
+              {
+                "$id": "25",
+                "kind": "header",
+                "name": "contentType",
+                "serializedName": "Content-Type",
+                "doc": "Body parameter's content type. Known values are application/json",
+                "type": {
+                  "$ref": "5"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": true,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.contentType",
+                "methodParameterSegments": [
+                  {
+                    "$id": "26",
+                    "kind": "method",
+                    "name": "contentType",
+                    "serializedName": "Content-Type",
+                    "doc": "Body parameter's content type. Known values are application/json",
+                    "type": {
+                      "$ref": "5"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.contentType",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "27",
+                "kind": "header",
+                "name": "accept",
+                "serializedName": "Accept",
+                "type": {
+                  "$ref": "7"
+                },
+                "isApiVersion": false,
+                "optional": false,
+                "isContentType": false,
+                "scope": "Constant",
+                "readOnly": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.accept",
+                "methodParameterSegments": [
+                  {
+                    "$id": "28",
+                    "kind": "method",
+                    "name": "accept",
+                    "serializedName": "Accept",
+                    "type": {
+                      "$ref": "7"
+                    },
+                    "location": "Header",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Constant",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.accept",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false
+              },
+              {
+                "$id": "29",
+                "kind": "body",
+                "name": "body",
+                "serializedName": "body",
+                "type": {
+                  "$ref": "11"
+                },
+                "isApiVersion": false,
+                "contentTypes": [
+                  "application/json"
+                ],
+                "defaultContentType": "application/json",
+                "optional": false,
+                "scope": "Method",
+                "decorators": [],
+                "readOnly": false,
+                "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.body",
+                "methodParameterSegments": [
+                  {
+                    "$id": "30",
+                    "kind": "method",
+                    "name": "body",
+                    "serializedName": "body",
+                    "type": {
+                      "$ref": "11"
+                    },
+                    "location": "Body",
+                    "isApiVersion": false,
+                    "optional": false,
+                    "scope": "Method",
+                    "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty.body",
+                    "readOnly": false,
+                    "access": "public",
+                    "decorators": [],
+                    "isExactName": false
+                  }
+                ],
+                "isExactName": false,
+                "serializationOptions": {
+                  "json": {
+                    "name": "body"
+                  }
+                }
+              }
+            ],
+            "responses": [
+              {
+                "statusCodes": [
+                  200
+                ],
+                "bodyType": {
+                  "$ref": "11"
+                },
+                "headers": [],
+                "isErrorResponse": false,
+                "contentTypes": [
+                  "application/json"
+                ],
+                "serializationOptions": {
+                  "json": {
+                    "name": ""
+                  }
+                }
+              }
+            ],
+            "httpMethod": "POST",
+            "uri": "{endpoint}",
+            "path": "/type/model/empty/round-trip",
+            "requestMediaTypes": [
+              "application/json"
+            ],
+            "bufferResponse": true,
+            "generateProtocolMethod": true,
+            "generateConvenienceMethod": true,
+            "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty",
+            "decorators": [],
+            "namespace": "Type.Model.Empty"
+          },
+          "parameters": [
+            {
+              "$ref": "30"
+            },
+            {
+              "$ref": "26"
+            },
+            {
+              "$ref": "28"
+            }
+          ],
+          "response": {
+            "type": {
+              "$ref": "11"
+            }
+          },
+          "isOverride": false,
+          "generateConvenient": true,
+          "generateProtocol": true,
+          "crossLanguageDefinitionId": "Type.Model.Empty.postRoundTripEmpty"
+        }
+      ],
+      "parameters": [
+        {
+          "$id": "31",
+          "kind": "endpoint",
+          "name": "endpoint",
+          "serializedName": "endpoint",
+          "doc": "Service host",
+          "type": {
+            "$id": "32",
+            "kind": "url",
+            "name": "endpoint",
+            "crossLanguageDefinitionId": "TypeSpec.url"
+          },
+          "isApiVersion": false,
+          "optional": false,
+          "scope": "Client",
+          "isEndpoint": true,
+          "defaultValue": {
+            "type": {
+              "$id": "33",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "http://localhost:3000"
+          },
+          "serverUrlTemplate": "{endpoint}",
+          "skipUrlEncoding": false,
+          "readOnly": false,
+          "crossLanguageDefinitionId": "Type.Model.Empty.endpoint",
+          "isExactName": false
+        }
+      ],
+      "initializedBy": 1,
+      "decorators": [],
+      "crossLanguageDefinitionId": "Type.Model.Empty",
+      "apiVersions": [],
+      "isMultiServiceClient": false
     }
-   ],
-   "decorators": [],
-   "crossLanguageDefinitionId": "Type.Model.Empty",
-   "apiVersions": []
-  }
- ]
+  ]
 }

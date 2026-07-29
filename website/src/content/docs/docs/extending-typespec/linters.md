@@ -16,10 +16,9 @@ You can find examples in `packages/best-practices`.
 ### 1. Define rules
 
 ```ts
-import {  createLinterRule } from "@typespec/compiler";
-import { reportDiagnostic } from "../lib.js";
+import { createRule, getDoc, paramMessage } from "@typespec/compiler";
 
-export const requiredDocRule = createLinterRule({
+export const requiredDocRule = createRule({
   name: "no-model-doc",
   severity: "warning",
   // Short description of what this linter rule does. To be used for generated summary of a linter.
@@ -37,7 +36,7 @@ export const requiredDocRule = createLinterRule({
       operation: (op) => {
         if (!getDoc(context.program, op)) {
           context.reportDiagnostic({
-            target: model,
+            target: op,
           });
         }
       },
@@ -49,11 +48,82 @@ export const requiredDocRule = createLinterRule({
           });
         }
       },
-      enums: (type) => {
+      enum: (type) => {
         if (!getDoc(context.program, type)) {
           context.reportDiagnostic({
             messageId: "enums",
-            format: {enumName: type.name}
+            format: { enumName: type.name },
+            target: type,
+          });
+        }
+      },
+    };
+  },
+});
+```
+
+#### Naming convention
+
+Rule names are user-facing in diagnostics, `tspconfig.yaml`, docs URLs, and suppression comments, so keep them concise and readable.
+
+- Use short **kebab-case** names.
+- Do **not** include the package or library name in `name`.
+  - `name` should be only the rule part (for example `no-foo`), not `@typespec/my-linter/no-foo`.
+- Use `no-<thing>` when the rule bans a construct or usage.
+- Use `use-<preferred-thing>` when the rule guides users toward a standard or preferred TypeSpec pattern.
+- For domain-specific validation where `no-`/`use-` does not fit, use short subject-oriented names such as `<subject>-missing-<thing>` or `<subject>-invalid-<condition>`.
+
+#### Provide extended documentation
+
+The `description` field is a short, one-line summary. To provide richer reference documentation for a rule — which `tspd doc` renders into a dedicated page per rule (`reference/rules/<rule-name>.md`) — set the `docs` field. It accepts either an inline markdown string or a reference to a co-located markdown file via `fileRef.fromPackageRoot`:
+
+```ts
+import { createRule, fileRef } from "@typespec/compiler";
+
+export const requiredDocRule = createRule({
+  name: "no-model-doc",
+  severity: "warning",
+  description: "Enforce documentation on models.",
+  // Extended documentation rendered on the generated reference page.
+  docs: fileRef.fromPackageRoot("src/rules/no-model-doc.md"),
+  messages: {
+    default: `Must be documented.`,
+  },
+  create(context) {
+    /* ... */
+  },
+});
+```
+
+`fileRef.fromPackageRoot(path)` points at a markdown file relative to the package root (the directory containing your `package.json`). The same `docs` field is available on diagnostic definitions. When generating docs, `tspd` reports a `documentation-missing` warning for any rule or diagnostic that does not provide `docs`.
+
+#### Define rules with options
+
+Rules can accept user-configurable options via `defaultOptions` and `context.options`. When enabled with `true`, the rule uses the default options. When enabled with an object, the provided values override the defaults.
+
+```ts
+import { createRule, paramMessage } from "@typespec/compiler";
+
+export const namingRule = createRule({
+  name: "naming-convention",
+  severity: "warning",
+  description: "Enforce naming conventions on models.",
+  messages: {
+    default: paramMessage`Model name "${"modelName"}" must use ${"expectedStyle"} casing.`,
+  },
+  // Define defaults — used when the rule is enabled with `true`
+  defaultOptions: {
+    style: "PascalCase" as "PascalCase" | "camelCase",
+    allowUnderscores: false,
+  },
+  create(context) {
+    return {
+      model: (model) => {
+        const { style, allowUnderscores } = context.options;
+        const name = model.name;
+        if (!allowUnderscores && name.includes("_")) {
+          context.reportDiagnostic({
+            format: { modelName: name, expectedStyle: style },
             target: model,
           });
         }
@@ -123,16 +193,21 @@ export { $linter } from "./linter.js";
 import { defineLinter } from "@typespec/compiler";
 // Import the rule defined previously
 import { requiredDocRule } from "./rules/required-doc.rule.js";
+import { namingRule } from "./rules/naming.rule.js";
 
 export const $linter = defineLinter({
   // Include all the rules your linter is defining here.
-  rules: [requiredDocRule],
+  rules: [requiredDocRule, namingRule],
 
   // Optionally a linter can provide a set of rulesets
   ruleSets: {
     recommended: {
       // (optional) A ruleset takes a map of rules to explicitly enable
-      enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
+      enable: {
+        [`@typespec/my-linter/${requiredDocRule.name}`]: true,
+        // Rules with options can be enabled with custom options in a ruleset
+        [`@typespec/my-linter/${namingRule.name}`]: { style: "PascalCase" },
+      },
 
       // (optional) A rule set can extend another rule set
       extends: ["@typespec/best-practices/recommended"],
@@ -155,26 +230,30 @@ To test a linter rule, a rule tester is provided, allowing you to test a specifi
 First, you'll want to create an instance of the rule tester using `createLinterRuleTester`, passing it the rule that is being tested. You can then provide different tests to check whether the rule passes or fails.
 
 ```ts
-import { RuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
+import {
+  type LinterRuleTester,
+  createLinterRuleTester,
+  createTestRunner,
+} from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {
-  let ruleTester: RuleTester;
+  let ruleTester: LinterRuleTester;
 
-  beforeEach(() => {
-    const runner = createTestRunner();
+  beforeEach(async () => {
+    const runner = await createTestRunner();
     ruleTester = createLinterRuleTester(runner, requiredDocRule, "@typespec/my-linter");
   });
 
-  it("emit diagnostics when using model named foo", async () => {
+  it("emit diagnostics when doc is missing for model", async () => {
     await ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
       code: "@typespec/my-linter/no-foo-model",
-      message: "Cannot name a model with 'Foo'",
+      message: "Models must be documented.",
     });
   });
 
-  it("should be valid to use other names", async () => {
-    await ruleTester.expect(`model Bar {}`).toBeValid();
+  it("should be valid when doc is provided", async () => {
+    await ruleTester.expect(`@doc("documentation") model Bar {}`).toBeValid();
   });
 });
 ```

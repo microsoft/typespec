@@ -45,6 +45,21 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-documentation": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/documentation -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-encode-array": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/array -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-encode-boolean": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/boolean -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-encode-bytes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/bytes -g StubLibraryGenerator",
       "commandName": "Executable",
@@ -75,8 +90,23 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-parameters-body-root": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/body-root -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-parameters-collection-format": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/collection-format -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-parameters-path": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/path -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-parameters-query": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/parameters/query -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
@@ -87,6 +117,11 @@
     },
     "http-payload-content-negotiation": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/content-negotiation -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-payload-head": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/head -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
@@ -107,6 +142,11 @@
     },
     "http-payload-pageable": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/pageable -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-payload-xml": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/payload/xml -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
@@ -157,6 +197,11 @@
     },
     "http-server-versions-versioned": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/server/versions/versioned -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-service-multiple-services": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/service/multiple-services -g StubLibraryGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },

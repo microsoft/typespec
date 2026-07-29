@@ -3,9 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
@@ -29,7 +28,7 @@ public class TestProxyAssertsTemplateTests {
 
         String output = new TestProxyAssetsTemplate().write(project);
 
-        try (JsonReader jsonReader = JsonProviders.createReader(output)) {
+        try (JsonReader jsonReader = JsonReader.fromString(output)) {
             Map<String, Object> jsonMap = jsonReader.readMap(JsonReader::readUntyped);
 
             Assertions.assertEquals("Azure/azure-sdk-assets", jsonMap.get("AssetsRepo").toString());

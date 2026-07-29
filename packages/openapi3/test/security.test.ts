@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   it("set a basic auth", async () => {
     const res = await openApiFor(
       `
@@ -245,6 +245,50 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     });
     deepStrictEqual(res.security, [{ OpenIdConnectAuth: [] }]);
+  });
+
+  it("set openId auth with scopes", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read", "write"]>)
+      namespace MyService {}
+      `,
+    );
+    // The scheme object must NOT list scopes (clients discover them via the
+    // openIdConnectUrl); only the security requirement lists required scopes.
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: ["read", "write"] }]);
+  });
+
+  it("set openId auth scopes at the operation level", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read"]>)
+      namespace MyService {
+        @route("/a")
+        @useAuth(OpenIdConnectAuth<"https://api.example.com/openid", ["read", "write"]>)
+        op a(): void;
+      }
+      `,
+    );
+    // Same OIDC scheme (differs only by scopes) must dedupe to a single scheme.
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: ["read"] }]);
+    deepStrictEqual(res.paths["/a"].get.security, [{ OpenIdConnectAuth: ["read", "write"] }]);
   });
 
   it("set a unsupported auth", async () => {
@@ -520,5 +564,137 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         OAuth2Auth: ["delete"],
       },
     ]);
+  });
+
+  it("deduplicates OAuth2 scopes across multiple flows", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+
+      model oauth<Scopes extends string[]>
+        is OAuth2Auth<
+          [
+            {
+              type: OAuth2FlowType.authorizationCode;
+              authorizationUrl: "https://example.org/oauth2/v2.0/authorize";
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+              refreshUrl: "https://example.org/oauth2/v2.0/token";
+            },
+            {
+              type: OAuth2FlowType.clientCredentials;
+              tokenUrl: "https://example.org/oauth2/v2.0/token";
+            }
+          ],
+          Scopes
+        >;
+
+      model Get200Response {
+        @statusCode statusCode: 200;
+        @bodyRoot body: int64;
+      }
+
+      @service
+      namespace MyService {
+        @route("/example")
+        @get
+        @useAuth(oauth<["api:read"]>)
+        op Get(): Get200Response;
+      }
+      `,
+    );
+
+    // The security scheme should include both flows with the same scopes
+    deepStrictEqual(res.components.securitySchemes, {
+      oauth: {
+        type: "oauth2",
+        flows: {
+          authorizationCode: {
+            authorizationUrl: "https://example.org/oauth2/v2.0/authorize",
+            tokenUrl: "https://example.org/oauth2/v2.0/token",
+            refreshUrl: "https://example.org/oauth2/v2.0/token",
+            scopes: {
+              "api:read": "",
+            },
+          },
+          clientCredentials: {
+            tokenUrl: "https://example.org/oauth2/v2.0/token",
+            scopes: {
+              "api:read": "",
+            },
+          },
+        },
+      },
+    });
+
+    // The security section should NOT have duplicate scopes
+    deepStrictEqual(res.paths["/example"]["get"].security, [
+      {
+        oauth: ["api:read"], // Should appear only once, not ["api:read", "api:read"]
+      },
+    ]);
+  });
+
+  it("does not emit a custom auth scheme model under components.schemas", async () => {
+    // A custom auth scheme model declared inside the service namespace
+    // belongs only in `components.securitySchemes`. Previously
+    // `processUnreferencedSchemas` also emitted it under
+    // `components.schemas` because no payload references it, which
+    // caused downstream validators to reject auth-only attributes
+    // (e.g. `bearerFormat`) that propagated to the schemas-side copy.
+    const res = await openApiFor(
+      `
+      @useAuth(customBearer)
+      @service
+      namespace MyService;
+
+      model customBearer {
+        type: AuthType.http;
+        scheme: "bearer";
+      }
+
+      @route("/ping")
+      op ping(): { @statusCode _: 200; ok: boolean };
+      `,
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      customBearer: {
+        type: "http",
+        scheme: "bearer",
+      },
+    });
+    expect(res.components.schemas?.customBearer).toBeUndefined();
+  });
+
+  it("still emits an auth scheme model under components.schemas if referenced by an operation", async () => {
+    // The filter in `processUnreferencedSchemas` only skips auth scheme
+    // models that are otherwise unreachable. If the same model is also
+    // referenced from a payload (e.g. returned by an operation), it must
+    // continue to appear under `components.schemas` so the operation can
+    // $ref it, while still being emitted under `components.securitySchemes`.
+    const res = await openApiFor(
+      `
+      @useAuth(customBearer)
+      @service
+      namespace MyService;
+
+      model customBearer {
+        type: AuthType.http;
+        scheme: "bearer";
+      }
+
+      @route("/echo")
+      op echo(): customBearer;
+      `,
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      customBearer: {
+        type: "http",
+        scheme: "bearer",
+      },
+    });
+    expect(res.components.schemas?.customBearer).toBeDefined();
+    deepStrictEqual(res.paths["/echo"]["get"].responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/customBearer",
+    });
   });
 });

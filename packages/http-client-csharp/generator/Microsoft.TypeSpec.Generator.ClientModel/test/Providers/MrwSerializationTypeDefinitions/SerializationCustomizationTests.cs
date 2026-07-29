@@ -84,6 +84,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        // Validates that when a custom deserialization hook has a ModelReaderWriterOptions parameter,
+        // the generated code passes the options to the hook.
+        [Test]
+        public async Task CanCustomizeDeserializationMethodWithOptions()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                        InputFactory.Property("Prop1", InputPrimitiveType.String),
+                        InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+                    ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "DeserializeMockInputModel"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates that when a custom deserialization hook does not have a ModelReaderWriterOptions parameter,
+        // the generated code does not pass options to the hook.
+        [Test]
+        public async Task CanCustomizeDeserializationMethodWithoutOptions()
+        {
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
+                        InputFactory.Property("Prop1", InputPrimitiveType.String),
+                        InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
+                    ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "DeserializeMockInputModel"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [Test]
         public async Task CanCustomizeSerializationMethodForRenamedProperty()
         {
@@ -204,20 +254,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCases =>
         [
-            new TestCaseData(InputPrimitiveType.String),
-            new TestCaseData(InputPrimitiveType.Int32),
+            new TestCaseData(InputFactory.StringEnum("EnumType", [("value", "value")], isExtensible: true)),
+            new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCases))]
-        public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
+        public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
+                    InputFactory.Property("Prop1", enumType)
                     ],
                 usage: InputModelTypeUsage.Json);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.Name));
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(enumType.ValueType.Name));
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
@@ -226,26 +276,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.Name), file.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(enumType.ValueType.Name), file.Content);
         }
 
         private static IEnumerable<TestCaseData> ExtensibleEnumCasesFromLiteral =>
         [
-            new TestCaseData(InputPrimitiveType.String, "foo"),
-            new TestCaseData(InputPrimitiveType.Int32, 1),
+            new TestCaseData(InputFactory.Literal.String("foo", name: "EnumType")),
+            new TestCaseData(InputFactory.Literal.Int32(1, name: "EnumType")),
         ];
 
         [TestCaseSource(nameof(ExtensibleEnumCasesFromLiteral))]
-        public async Task CanCustomizeLiteralExtensibleEnum(InputPrimitiveType enumType, object value)
+        public async Task CanCustomizeLiteralExtensibleEnum(InputLiteralType literal)
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Literal.Enum(
-                        InputFactory.Enum("EnumType", enumType, isExtensible: true),
-                        value: value))
+                    InputFactory.Property("Prop1", literal)
                     ],
                 usage: InputModelTypeUsage.Json);
-            var parameters = $"{enumType.Name},{value}";
+            var parameters = $"{literal.ValueType.Name},{literal.Value}";
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputLiterals: () => [literal],
                 inputModels: () => [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters));
 
@@ -276,7 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the serialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "JsonModelWriteCore"));
@@ -303,7 +352,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(10, methods.Count);
+            Assert.AreEqual(8, methods.Count);
 
             // validate the Write method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "Write"));
@@ -326,7 +375,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(serializationProvider);
 
             var methods = serializationProvider!.Methods;
-            Assert.AreEqual(11, methods.Count);
+            Assert.AreEqual(9, methods.Count);
 
             // validate the deserialization method doesn't exist in the serialization provider
             Assert.IsNull(methods.FirstOrDefault(m => m.Signature.Name == "DeserializeMockInputModel"));
@@ -392,11 +441,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
         {
             var inputModel = InputFactory.Model("Model", properties: [
-                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                         "MyEnum",
-                        InputPrimitiveType.String,
-                        usage: InputModelTypeUsage.Input,
-                        values: [InputFactory.EnumMember.String("foo", "bar")])))
+                        [("foo", "bar")],
+                        usage: InputModelTypeUsage.Input)))
                     ]);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -428,6 +476,122 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanPreserveArrayEncodingForCustomizedProperty()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String), encode: ArrayKnownEncoding.CommaDelimited)
+            };
+
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider!,
+                name => name == "DeserializeModel" || name == "JsonModelWriteCore"));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // A hand-authored base that does not take part in MRW serialization must not widen the
+        // return type of the generated *Core methods. Doing so makes derived overrides covariant,
+        // which fails to compile on runtimes without covariant return support (e.g. netstandard2.0).
+        [Test]
+        public async Task JsonModelCreateCoreIgnoresNonMrwCustomBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("PlainBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            foreach (var methodName in new[] { "JsonModelCreateCore", "PersistableModelCreateCore" })
+            {
+                var method = serializationProvider.Methods.Single(m => m.Signature.Name == methodName);
+                Assert.AreEqual(modelProvider.Type.Name, method.Signature.ReturnType!.Name);
+                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+                Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            }
+        }
+
+        // When the hand-authored base does take part in MRW, the generated *Core methods must match
+        // the base signature so that they override rather than hide it.
+        [Test]
+        public async Task JsonModelCreateCoreUsesMrwCustomBase()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            Assert.AreEqual("MrwBase", modelProvider.BaseType?.Name);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+
+            foreach (var methodName in new[] { "JsonModelCreateCore", "PersistableModelCreateCore" })
+            {
+                var method = serializationProvider.Methods.Single(m => m.Signature.Name == methodName);
+                Assert.AreEqual("MrwBase", method.Signature.ReturnType!.Name);
+            }
+        }
+
+        // A hand-authored base only supports being overridden when it declares a JsonModelWriteCore that is
+        // protected, overridable and has the exact generated signature. Anything else must keep the generated
+        // method virtual, otherwise the emitted `override` fails to compile.
+        [TestCase("JsonModelWriteCoreDoesNotOverrideNonVirtualCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverrideSealedCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverrideMismatchedSignatureCustomBase")]
+        [TestCase("JsonModelWriteCoreDoesNotOverridePrivateCustomBase")]
+        public async Task JsonModelWriteCoreDoesNotOverrideIncompatibleCustomBase(string testName)
+        {
+            var writeCore = await GetJsonModelWriteCoreWithCustomBaseAsync(testName);
+
+            Assert.IsTrue(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+            Assert.IsFalse(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+        }
+
+        [Test]
+        public async Task JsonModelWriteCoreOverridesVirtualCustomBase()
+        {
+            var writeCore = await GetJsonModelWriteCoreWithCustomBaseAsync(nameof(JsonModelWriteCoreOverridesVirtualCustomBase));
+
+            Assert.IsTrue(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(writeCore.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
+        private static async Task<MethodProvider> GetJsonModelWriteCoreWithCustomBaseAsync(string testName)
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties: [InputFactory.Property("Prop1", InputPrimitiveType.String)]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: testName));
+
+            var modelProvider = (ModelProvider)mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            return serializationProvider.Methods.Single(m => m.Signature.Name == "JsonModelWriteCore");
         }
     }
 }

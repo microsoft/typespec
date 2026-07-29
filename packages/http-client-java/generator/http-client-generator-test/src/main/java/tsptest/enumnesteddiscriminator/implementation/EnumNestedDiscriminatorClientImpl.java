@@ -125,7 +125,7 @@ public final class EnumNestedDiscriminatorClientImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "EnumNestedDiscrimina")
+    @ServiceInterface(name = "EnumNestedDiscriminatorClient")
     public interface EnumNestedDiscriminatorClientService {
         @Get("/type/model/inheritance/enum-nested-discriminator/model")
         @ExpectedResponses({ 200 })

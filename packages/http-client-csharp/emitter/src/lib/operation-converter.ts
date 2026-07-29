@@ -2,69 +2,217 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  getClientNamespace,
+  getClientOptions,
   getHttpOperationParameter,
+  getParamAlias,
+  isHttpMetadata,
+  SdkBodyParameter,
   SdkBuiltInKinds,
   SdkContext,
+  SdkHeaderParameter,
   SdkHttpOperation,
   SdkHttpParameter,
   SdkHttpResponse,
+  SdkLroPagingServiceMethod,
+  SdkLroServiceMethod,
+  SdkMethodParameter,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkPagingServiceMethod,
+  SdkPathParameter,
+  SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
   SdkType,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
+  Diagnostic,
+  getDeprecated,
+  isErrorModel,
+  NoTarget,
+} from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
 import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
-import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
+import { InputParameterScope } from "../type/input-parameter-scope.js";
 import {
+  InputBasicServiceMethod,
   InputContinuationToken,
+  InputLongRunningPagingServiceMethod,
+  InputLongRunningServiceMetadata,
+  InputLongRunningServiceMethod,
   InputNextLink,
-  InputOperationPaging,
-} from "../type/operation-paging.js";
+  InputPagingServiceMetadata,
+  InputPagingServiceMethod,
+  InputServiceMethod,
+  InputServiceMethodResponse,
+} from "../type/input-service-method.js";
+import {
+  InputBodyParameter,
+  InputHeaderParameter,
+  InputHttpParameter,
+  InputMethodParameter,
+  InputPathParameter,
+  InputQueryParameter,
+  InputType,
+} from "../type/input-type.js";
+import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
-import { fromSdkModelType, fromSdkType } from "./type-converter.js";
-import { getClientNamespaceString } from "./utils.js";
+import { createDiagnostic } from "./lib.js";
+import { fromSdkType } from "./type-converter.js";
+import { getClientNamespaceString, isReadOnly } from "./utils.js";
 
 export function fromSdkServiceMethod(
+  sdkContext: CSharpEmitterContext,
+  sdkMethod: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+  namespace: string,
+): [InputServiceMethod | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  let method = sdkContext.__typeCache.methods.get(sdkMethod);
+  if (method) {
+    return diagnostics.wrap(method);
+  }
+  const methodKind = sdkMethod.kind;
+
+  switch (methodKind) {
+    case "basic":
+      method = diagnostics.pipe(
+        createServiceMethod<InputBasicServiceMethod>(
+          sdkContext,
+          sdkMethod,
+          uri,
+          rootApiVersions,
+          namespace,
+        ),
+      );
+      break;
+    case "paging":
+      const pagingServiceMethod = diagnostics.pipe(
+        createServiceMethod<InputPagingServiceMethod>(
+          sdkContext,
+          sdkMethod,
+          uri,
+          rootApiVersions,
+          namespace,
+        ),
+      );
+      pagingServiceMethod.pagingMetadata = diagnostics.pipe(
+        loadPagingServiceMetadata(sdkContext, sdkMethod, rootApiVersions, uri, namespace),
+      );
+      method = pagingServiceMethod;
+      break;
+    case "lro":
+      const lroServiceMethod = diagnostics.pipe(
+        createServiceMethod<InputLongRunningServiceMethod>(
+          sdkContext,
+          sdkMethod,
+          uri,
+          rootApiVersions,
+          namespace,
+        ),
+      );
+      lroServiceMethod.lroMetadata = diagnostics.pipe(
+        loadLongRunningMetadata(sdkContext, sdkMethod),
+      );
+      method = lroServiceMethod;
+      break;
+    case "lropaging":
+      const lroPagingMethod = diagnostics.pipe(
+        createServiceMethod<InputLongRunningPagingServiceMethod>(
+          sdkContext,
+          sdkMethod,
+          uri,
+          rootApiVersions,
+          namespace,
+        ),
+      );
+      lroPagingMethod.lroMetadata = diagnostics.pipe(
+        loadLongRunningMetadata(sdkContext, sdkMethod),
+      );
+      lroPagingMethod.pagingMetadata = diagnostics.pipe(
+        loadPagingServiceMetadata(sdkContext, sdkMethod, rootApiVersions, uri, namespace),
+      );
+      method = lroPagingMethod;
+      break;
+    default:
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-service-method",
+          format: { methodKind: methodKind },
+          target: NoTarget,
+        }),
+      );
+      method = undefined;
+      break;
+  }
+
+  if (method) {
+    sdkContext.__typeCache.updateSdkMethodReferences(sdkMethod, method);
+  }
+
+  return diagnostics.wrap(method);
+}
+
+export function fromSdkServiceMethodOperation(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-): InputOperation {
+): [InputOperation, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  let operation = sdkContext.__typeCache.operations.get(method.operation);
+  if (operation) {
+    return diagnostics.wrap(operation);
+  }
+
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    sdkContext.logger.reportDiagnostic({
-      code: "unsupported-patch-convenience-method",
-      format: {
-        methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
-      },
-      target: method.__raw ?? NoTarget,
-    });
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-patch-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
     generateConvenience = false;
   }
 
-  const parameterMap = fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions);
-  const responseMap = fromSdkHttpOperationResponses(sdkContext, method.operation.responses);
-  return {
+  const requestMediaTypes = getRequestMediaTypes(method.operation);
+  if (generateConvenience && isUnsupportedMultipart(requestMediaTypes)) {
+    diagnostics.add(
+      createDiagnostic({
+        code: "unsupported-multipart-convenience-method",
+        format: {
+          methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+        },
+        target: method.__raw ?? NoTarget,
+      }),
+    );
+    generateConvenience = false;
+  }
+
+  operation = {
     name: method.name,
+    isExactName: method.isExactName,
     resourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
@@ -73,149 +221,465 @@ export function fromSdkServiceMethod(
     summary: method.summary,
     doc: method.doc,
     accessibility: method.access,
-    parameters: [...parameterMap.values()],
-    responses: [...responseMap.values()],
+    parameters: diagnostics.pipe(
+      fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
+    ),
+    responses: diagnostics.pipe(
+      fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
+    ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
-    requestMediaTypes: getRequestMediaTypes(method.operation),
+    requestMediaTypes: requestMediaTypes,
     bufferResponse: true,
-    longRunning: loadLongRunningOperation(sdkContext, method),
-    paging: loadOperationPaging(sdkContext, method, rootApiVersions, uri),
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
     decorators: method.decorators,
     examples: method.operation.examples
-      ? fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap)
+      ? diagnostics.pipe(fromSdkHttpExamples(sdkContext, method.operation.examples))
+      : undefined,
+    namespace: method.__raw?.namespace
+      ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
   };
+
+  sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
+
+  return diagnostics.wrap(operation);
 }
 
 export function getParameterDefaultValue(
   sdkContext: CSharpEmitterContext,
   clientDefaultValue: any,
   parameterType: InputType,
-): InputConstant | undefined {
+): [InputConstant | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
   if (
     clientDefaultValue === undefined ||
     // a constant parameter should overwrite client default value
     parameterType.kind === "constant"
   ) {
-    return undefined;
+    return diagnostics.wrap(undefined);
   }
 
-  const kind = getValueType(sdkContext, clientDefaultValue);
-  return {
+  const kind = diagnostics.pipe(getValueType(sdkContext, clientDefaultValue));
+  return diagnostics.wrap({
     type: {
       kind: kind,
       name: kind,
       crossLanguageDefinitionId: `TypeSpec.${kind}`,
     },
     value: clientDefaultValue,
-  };
+  });
 }
 
-function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
+function createServiceMethod<T extends InputServiceMethod>(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  uri: string,
+  rootApiVersions: string[],
+  namespace: string,
+): [T, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  return diagnostics.wrap({
+    kind: method.kind,
+    name: method.name,
+    isExactName: method.isExactName,
+    accessibility: method.access,
+    apiVersions: method.apiVersions,
+    doc: method.doc,
+    summary: method.summary,
+    operation: diagnostics.pipe(
+      fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
+    ),
+    parameters: diagnostics.pipe(
+      fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions, namespace),
+    ),
+    response: diagnostics.pipe(fromSdkServiceMethodResponse(sdkContext, method.response)),
+    exception: method.exception
+      ? diagnostics.pipe(fromSdkServiceMethodResponse(sdkContext, method.exception))
+      : undefined,
+    isOverride: method.isOverride,
+    generateConvenient: method.generateConvenient,
+    generateProtocol: method.generateProtocol,
+    crossLanguageDefinitionId: method.crossLanguageDefinitionId,
+  } as T);
+}
+
+function getValueType(
+  sdkContext: CSharpEmitterContext,
+  value: any,
+): [SdkBuiltInKinds, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
   switch (typeof value) {
     case "string":
-      return "string";
+      return diagnostics.wrap("string");
     case "number":
-      return "int32";
+      return diagnostics.wrap("int32");
     case "boolean":
-      return "boolean";
+      return diagnostics.wrap("boolean");
     case "bigint":
-      return "int64";
+      return diagnostics.wrap("int64");
     default:
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-default-value-type",
-        format: { valueType: typeof value },
-        target: NoTarget,
-      });
-      return "unknown";
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-default-value-type",
+          format: { valueType: typeof value },
+          target: NoTarget,
+        }),
+      );
+      return diagnostics.wrap("unknown");
   }
+}
+
+function fromSdkServiceMethodParameters(
+  sdkContext: CSharpEmitterContext,
+  method: SdkServiceMethod<SdkHttpOperation>,
+  rootApiVersions: string[],
+  namespace: string,
+): [InputMethodParameter[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameters: InputMethodParameter[] = [];
+
+  for (const p of method.parameters) {
+    const methodInputParameter = diagnostics.pipe(fromMethodParameter(sdkContext, p, namespace));
+    const operationHttpParameter = getHttpOperationParameter(method, p);
+
+    if (!operationHttpParameter) {
+      parameters.push(methodInputParameter);
+      continue;
+    }
+
+    // post-process the method parameter with information from the operation parameter
+    updateMethodParameter(
+      sdkContext,
+      methodInputParameter,
+      operationHttpParameter,
+      rootApiVersions,
+      diagnostics,
+    );
+    parameters.push(methodInputParameter);
+  }
+
+  return diagnostics.wrap(parameters);
+}
+
+function updateMethodParameter(
+  sdkContext: CSharpEmitterContext,
+  methodParameter: InputMethodParameter,
+  operationHttpParameter: SdkHttpParameter | SdkModelPropertyType,
+  rootApiVersions: string[],
+  diagnostics: ReturnType<typeof createDiagnosticCollector>,
+): void {
+  // for content type parameter
+  if (isContentType(operationHttpParameter)) {
+    methodParameter.type = diagnostics.pipe(
+      fromSdkType(sdkContext, operationHttpParameter.type, operationHttpParameter),
+    );
+  }
+  methodParameter.serializedName = getNameInRequest(operationHttpParameter);
+  methodParameter.location = getParameterLocation(operationHttpParameter);
+  methodParameter.scope = getParameterScope(
+    operationHttpParameter,
+    methodParameter.type,
+    rootApiVersions.length > 0,
+  );
+  if (methodParameter.location === RequestLocation.Body) {
+    // Convert constants to enums
+    if (methodParameter.type.kind === "constant") {
+      methodParameter.type = diagnostics.pipe(
+        fromSdkType(sdkContext, operationHttpParameter.type, operationHttpParameter),
+      );
+    }
+  }
+}
+
+function fromSdkServiceMethodResponse(
+  sdkContext: CSharpEmitterContext,
+  methodResponse: SdkMethodResponse,
+): [InputServiceMethodResponse, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  return diagnostics.wrap({
+    type: diagnostics.pipe(getResponseType(sdkContext, methodResponse.type)),
+    resultSegments: methodResponse.resultSegments?.map((segment) =>
+      getResponseSegmentName(segment),
+    ),
+  });
 }
 
 function fromSdkOperationParameters(
   sdkContext: CSharpEmitterContext,
   operation: SdkHttpOperation,
   rootApiVersions: string[],
-): Map<SdkHttpParameter, InputParameter> {
-  const parameters = new Map<SdkHttpParameter, InputParameter>();
+): [InputHttpParameter[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameters: InputHttpParameter[] = [];
+
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      sdkContext.logger.reportDiagnostic({
-        code: "unsupported-cookie-parameter",
-        format: { parameterName: p.name, path: operation.path },
-        target: NoTarget,
-      });
-      return parameters;
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-cookie-parameter",
+          format: { parameterName: p.name, path: operation.path },
+          target: NoTarget,
+        }),
+      );
+      return diagnostics.wrap(parameters);
     }
-    const param = fromSdkHttpOperationParameter(sdkContext, p, rootApiVersions);
-    parameters.set(p, param);
+    const param = diagnostics.pipe(fromParameter(sdkContext, p, rootApiVersions));
+    if (param) {
+      parameters.push(param);
+    }
   }
 
   if (operation.bodyParam) {
-    const bodyParam = fromSdkHttpOperationParameter(
-      sdkContext,
-      operation.bodyParam,
-      rootApiVersions,
+    const bodyParam = diagnostics.pipe(
+      fromParameter(sdkContext, operation.bodyParam, rootApiVersions),
     );
-    parameters.set(operation.bodyParam, bodyParam);
+    if (bodyParam) {
+      parameters.push(bodyParam);
+    }
   }
-  return parameters;
+  return diagnostics.wrap(parameters);
 }
 
-function fromSdkHttpOperationParameter(
+export function fromParameter(
   sdkContext: CSharpEmitterContext,
-  p: SdkModelPropertyType,
+  p: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
-): InputParameter {
-  const isContentType =
-    p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(sdkContext, p.type);
-  const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
+): [InputHttpParameter | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
 
-  // use serializedName if available, but fallback to name
-  // special case for body as the name is incorrectly set to "body" https://github.com/Azure/typespec-azure/issues/2292
-  const serializedName =
-    "serializedName" in p && p.kind !== "body" ? (p.serializedName ?? p.name) : p.name;
+  let parameter = sdkContext.__typeCache.operationParameters.get(p);
+  if (parameter) {
+    return diagnostics.wrap(parameter);
+  }
+  const parameterKind = p.kind;
 
-  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
-  // any path expansion to ensure the parameter values are delimited correctly during serialization.
-  // https://github.com/microsoft/typespec/issues/5561
-  const explode = isExplodedParameter(p);
+  switch (parameterKind) {
+    case "query":
+      parameter = diagnostics.pipe(fromQueryParameter(sdkContext, p, rootApiVersions));
+      break;
+    case "path":
+      parameter = diagnostics.pipe(fromPathParameter(sdkContext, p, rootApiVersions));
+      break;
+    case "header":
+      parameter = diagnostics.pipe(fromHeaderParameter(sdkContext, p, rootApiVersions));
+      break;
+    case "body":
+      parameter = diagnostics.pipe(fromBodyParameter(sdkContext, p, rootApiVersions));
+      break;
+    default:
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-parameter-kind",
+          format: { parameterKind },
+          target: p.__raw ?? NoTarget,
+        }),
+      );
+      parameter = undefined;
+      break;
+  }
 
-  return {
+  if (parameter) {
+    sdkContext.__typeCache.operationParameters.set(p, parameter);
+  }
+  return diagnostics.wrap(parameter);
+}
+
+function fromQueryParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkQueryParameter,
+  rootApiVersions: string[],
+): [InputQueryParameter, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+
+  const retVar: InputQueryParameter = {
+    kind: "query",
     name: p.name,
-    nameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
+    serializedName: getNameInRequest(p),
     summary: p.summary,
     doc: p.doc,
     type: parameterType,
-    location: getParameterLocation(p),
-    isApiVersion:
-      p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
-    isContentType: isContentType,
-    isEndpoint: false,
-    explode: explode,
-    arraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
-    isRequired: !p.optional,
-    kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
-    defaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    isApiVersion: p.isApiVersionParam,
+    explode: isExploded(p),
+    defaultValue: diagnostics.pipe(
+      getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    ),
+    arraySerializationDelimiter: getArraySerializationDelimiter(p),
+    optional: p.optional,
+    scope: getParameterScope(p, parameterType, rootApiVersions.length > 0),
     decorators: p.decorators,
-    skipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
-  } as InputParameter;
+    crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    readOnly: isReadOnly(p),
+    methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
+  };
+
+  sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
+  return diagnostics.wrap(retVar);
 }
 
-function loadLongRunningOperation(
+function fromPathParameter(
   sdkContext: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
-): OperationLongRunning | undefined {
-  if (method.kind !== "lro") {
-    return undefined;
+  p: SdkPathParameter,
+  rootApiVersions: string[],
+): [InputPathParameter, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+
+  const retVar: InputPathParameter = {
+    kind: "path",
+    name: p.name,
+    serializedName: getNameInRequest(p),
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    isApiVersion: p.isApiVersionParam,
+    explode: isExploded(p),
+    style: p.style,
+    allowReserved: p.allowReserved,
+    skipUrlEncoding: p.allowReserved,
+    defaultValue: diagnostics.pipe(
+      getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    ),
+    optional: p.optional,
+    scope: getParameterScope(p, parameterType, rootApiVersions.length > 0),
+    decorators: p.decorators,
+    readOnly: isReadOnly(p),
+    crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
+  };
+
+  sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
+  return diagnostics.wrap(retVar);
+}
+
+function fromHeaderParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHeaderParameter,
+  rootApiVersions: string[],
+): [InputHeaderParameter, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+
+  const retVar: InputHeaderParameter = {
+    kind: "header",
+    name: p.name,
+    serializedName: getNameInRequest(p),
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    isApiVersion: p.isApiVersionParam,
+    collectionFormat: p.collectionFormat,
+    arraySerializationDelimiter: getArraySerializationDelimiter(p),
+    defaultValue: diagnostics.pipe(
+      getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    ),
+    optional: p.optional,
+    isContentType: isContentType(p),
+    scope: getParameterScope(p, parameterType, rootApiVersions.length > 0),
+    readOnly: isReadOnly(p),
+    decorators: p.decorators,
+    crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    collectionHeaderPrefix: diagnostics.pipe(getCollectionHeaderPrefix(sdkContext, p)),
+    isExactName: p.isExactName,
+  };
+
+  sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
+  return diagnostics.wrap(retVar);
+}
+
+function fromBodyParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkBodyParameter,
+  rootApiVersions: string[],
+): [InputBodyParameter, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p));
+
+  const retVar: InputBodyParameter = {
+    kind: "body",
+    name: p.name,
+    serializedName: getNameInRequest(p),
+    summary: p.summary,
+    doc: p.doc,
+    type: parameterType,
+    isApiVersion: p.isApiVersionParam,
+    contentTypes: p.contentTypes,
+    defaultContentType: p.defaultContentType,
+    optional: p.optional,
+    scope: getParameterScope(p, parameterType, rootApiVersions.length > 0),
+    decorators: p.decorators,
+    readOnly: isReadOnly(p),
+    crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    methodParameterSegments: diagnostics.pipe(getMethodParameterSegments(sdkContext, p)),
+    isExactName: p.isExactName,
+    serializationOptions: p.serializationOptions,
+  };
+
+  sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
+  return diagnostics.wrap(retVar);
+}
+
+export function fromMethodParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkMethodParameter,
+  namespace: string,
+): [InputMethodParameter, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  let retVar = sdkContext.__typeCache.methodParmeters.get(p);
+  if (retVar) {
+    return diagnostics.wrap(retVar as InputMethodParameter);
   }
-  return {
+
+  const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p, namespace));
+
+  const paramAlias = p.__raw ? getParamAlias(sdkContext, p.__raw) : undefined;
+
+  retVar = {
+    kind: "method",
+    name: p.name,
+    summary: p.summary,
+    serializedName: p.name,
+    doc: p.doc,
+    type: parameterType,
+    location: RequestLocation.None,
+    isApiVersion: p.isApiVersionParam,
+    defaultValue: diagnostics.pipe(
+      getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
+    ),
+    optional: p.optional,
+    scope: InputParameterScope.Method,
+    crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    readOnly: isReadOnly(p),
+    access: p.access,
+    decorators: p.decorators,
+    paramAlias,
+    isExactName: p.isExactName,
+  };
+
+  sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
+  return diagnostics.wrap(retVar);
+}
+
+function loadLongRunningMetadata(
+  sdkContext: CSharpEmitterContext,
+  method: SdkLroServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+): [InputLongRunningServiceMetadata, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  return diagnostics.wrap({
     finalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     finalResponse: {
       // in swagger, we allow delete to return some meaningful body content
@@ -223,44 +687,71 @@ function loadLongRunningOperation(
       statusCodes: method.operation.verb === "delete" ? [204] : [200],
       bodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
-          ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
+          ? diagnostics.pipe(
+              fromSdkType(sdkContext, method.lroMetadata.finalResponse.envelopeResult),
+            )
           : undefined,
     } as OperationResponse,
-    resultPath: method.lroMetadata.finalResponse?.resultPath,
-  };
+    resultPath: method.lroMetadata.finalResultPath,
+  });
 }
 
 function fromSdkHttpOperationResponses(
   sdkContext: CSharpEmitterContext,
   operationResponses: SdkHttpResponse[],
-): Map<SdkHttpResponse, OperationResponse> {
-  const responses = new Map<SdkHttpResponse, OperationResponse>();
+): [OperationResponse[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const responses: OperationResponse[] = [];
+
   for (const r of operationResponses) {
-    const range = r.statusCodes;
-    responses.set(r, {
-      statusCodes: toStatusCodesArray(range),
-      bodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
-      headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
-      isErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
-      contentTypes: r.contentTypes,
-    });
+    responses.push(diagnostics.pipe(fromSdkHttpOperationResponse(sdkContext, r)));
   }
-  return responses;
+  return diagnostics.wrap(responses);
+}
+
+export function fromSdkHttpOperationResponse(
+  sdkContext: CSharpEmitterContext,
+  sdkResponse: SdkHttpResponse,
+): [OperationResponse, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  let retVar = sdkContext.__typeCache.responses.get(sdkResponse);
+  if (retVar) {
+    return diagnostics.wrap(retVar);
+  }
+
+  const range = sdkResponse.statusCodes;
+  retVar = {
+    statusCodes: toStatusCodesArray(range),
+    bodyType: diagnostics.pipe(getResponseType(sdkContext, sdkResponse.type)),
+    headers: diagnostics.pipe(fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers)),
+    isErrorResponse:
+      sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
+    contentTypes: sdkResponse.contentTypes,
+    serializationOptions: sdkResponse.serializationOptions,
+  };
+
+  sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
+  return diagnostics.wrap(retVar);
 }
 
 function fromSdkServiceResponseHeaders(
   sdkContext: CSharpEmitterContext,
   headers: SdkServiceResponseHeader[],
-): HttpResponseHeader[] {
-  return headers.map(
-    (h) =>
-      ({
-        name: h.__raw!.name,
-        nameInResponse: h.serializedName,
-        summary: h.summary,
-        doc: h.doc,
-        type: fromSdkType(sdkContext, h.type),
-      }) as HttpResponseHeader,
+): [HttpResponseHeader[], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  return diagnostics.wrap(
+    headers.map(
+      (h) =>
+        ({
+          name: h.__raw!.name,
+          nameInResponse: h.serializedName,
+          summary: h.summary,
+          doc: h.doc,
+          type: diagnostics.pipe(fromSdkType(sdkContext, h.type)),
+        }) as HttpResponseHeader,
+    ),
   );
 }
 
@@ -272,6 +763,15 @@ function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
     statusCodes.push(i);
   }
   return statusCodes;
+}
+
+function isUnsupportedMultipart(requestMediaTypes: string[] | undefined): boolean {
+  return (
+    requestMediaTypes?.some((mediaType) => {
+      const normalized = mediaType.toLowerCase();
+      return normalized.startsWith("multipart/") && normalized !== "multipart/form-data";
+    }) ?? false
+  );
 }
 
 function getRequestMediaTypes(op: SdkHttpOperation): string[] | undefined {
@@ -307,15 +807,14 @@ function getMediaTypes(type: SdkType): string[] {
   return [];
 }
 
-function loadOperationPaging(
+function loadPagingServiceMetadata(
   context: CSharpEmitterContext,
-  method: SdkServiceMethod<SdkHttpOperation>,
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
-): InputOperationPaging | undefined {
-  if (method.kind !== "paging" || method.pagingMetadata === undefined) {
-    return undefined;
-  }
+  namespace: string,
+): [InputPagingServiceMetadata, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
 
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
@@ -323,20 +822,45 @@ function loadOperationPaging(
       responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),
-      responseLocation: getResponseLocation(
-        context,
-        method,
-        method.pagingMetadata.nextLinkSegments[0],
+      responseLocation: diagnostics.pipe(
+        getResponseLocation(context, method, method.pagingMetadata.nextLinkSegments[0]),
       ),
     };
 
     if (method.pagingMetadata.nextLinkOperation) {
-      nextLink.operation = fromSdkServiceMethod(
-        context,
-        method.pagingMetadata.nextLinkOperation,
-        uri,
-        rootApiVersions,
+      nextLink.operation = diagnostics.pipe(
+        fromSdkServiceMethod(
+          context,
+          method.pagingMetadata.nextLinkOperation,
+          uri,
+          rootApiVersions,
+          namespace,
+        ),
       );
+    }
+
+    if (
+      method.pagingMetadata.nextLinkReInjectedParametersSegments &&
+      method.pagingMetadata.nextLinkReInjectedParametersSegments.length > 0
+    ) {
+      const nextLinkReInjectedParameters = [];
+      for (const parameterSegments of method.pagingMetadata.nextLinkReInjectedParametersSegments) {
+        if (parameterSegments?.length > 0) {
+          const lastParameterSegment = parameterSegments[
+            parameterSegments.length - 1
+          ] as SdkModelPropertyType;
+          const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
+          if (operationParameter) {
+            const parameter = diagnostics.pipe(
+              fromParameter(context, operationParameter, rootApiVersions),
+            );
+            if (parameter) {
+              nextLinkReInjectedParameters.push(parameter);
+            }
+          }
+        }
+      }
+      nextLink.reInjectedParameters = nextLinkReInjectedParameters;
     }
   }
 
@@ -350,61 +874,86 @@ function loadOperationPaging(
     const lastParameterSegment = method.pagingMetadata.continuationTokenParameterSegments[
       method.pagingMetadata.continuationTokenParameterSegments.length - 1
     ] as SdkModelPropertyType;
-    continuationToken = {
-      parameter: fromSdkHttpOperationParameter(
+    const continuationTokenParameter = diagnostics.pipe(
+      fromParameter(
         context,
         getHttpOperationParameter(method, lastParameterSegment)!,
         rootApiVersions,
       ),
-      responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
-        getResponseSegmentName(segment),
-      ),
-      responseLocation: getResponseLocation(
-        context,
-        method,
-        method.pagingMetadata.continuationTokenResponseSegments?.[0],
-      ),
-    };
+    );
+    if (continuationTokenParameter) {
+      continuationToken = {
+        parameter: continuationTokenParameter,
+        responseSegments: method.pagingMetadata.continuationTokenResponseSegments!.map((segment) =>
+          getResponseSegmentName(segment),
+        ),
+        responseLocation: diagnostics.pipe(
+          getResponseLocation(
+            context,
+            method,
+            method.pagingMetadata.continuationTokenResponseSegments?.[0],
+          ),
+        ),
+      };
+    }
   }
 
-  return {
-    // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
-    itemPropertySegments: method.response.resultSegments!.map((s) => s.name),
+  let pageSizeParameterSegments: string[] | undefined;
+  if (method.pagingMetadata.pageSizeParameterSegments) {
+    pageSizeParameterSegments = method.pagingMetadata.pageSizeParameterSegments.map(
+      (segment) => segment.name,
+    );
+  }
+
+  return diagnostics.wrap({
+    itemPropertySegments: method.response.resultSegments!.map((s) => getResponseSegmentName(s)),
     nextLink: nextLink,
     continuationToken: continuationToken,
-  };
+    pageSizeParameterSegments: pageSizeParameterSegments,
+  });
 }
 
-function getResponseSegmentName(segment: SdkModelPropertyType): string {
-  return segment.kind === "responseheader" || segment.kind === "body"
-    ? segment.serializedName
-    : segment.name;
+function getResponseSegmentName(segment: SdkServiceResponseHeader | SdkModelPropertyType): string {
+  if (segment.kind === "responseheader") {
+    return segment.serializedName;
+  }
+  const serializedName =
+    segment.serializationOptions?.json?.name ??
+    segment.serializationOptions?.xml?.name ??
+    segment.serializationOptions?.multipart?.name;
+
+  return serializedName ?? segment.name;
 }
 
 function getResponseLocation(
   context: CSharpEmitterContext,
-  method: SdkPagingServiceMethod<SdkHttpOperation>,
-  p: SdkModelPropertyType,
-): ResponseLocation {
-  switch (p?.kind) {
-    case "responseheader":
-      return ResponseLocation.Header;
-    case "property":
-      return ResponseLocation.Body;
-    default:
-      context.logger.reportDiagnostic({
+  method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
+  p: SdkServiceResponseHeader | SdkModelPropertyType,
+): [ResponseLocation, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  if (p.kind === "responseheader") {
+    return diagnostics.wrap(ResponseLocation.Header);
+  }
+
+  if (isHttpMetadata(context, p)) {
+    diagnostics.add(
+      createDiagnostic({
         code: "unsupported-continuation-location",
         format: {
           crossLanguageDefinitionId: method.crossLanguageDefinitionId,
         },
         target: NoTarget,
-      });
-      return ResponseLocation.None;
+      }),
+    );
+    return diagnostics.wrap(ResponseLocation.None);
   }
+
+  return diagnostics.wrap(ResponseLocation.Body);
 }
 
 // TODO: https://github.com/Azure/typespec-azure/issues/1441
-function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
+function getParameterLocation(p: SdkHttpParameter | SdkModelPropertyType): RequestLocation {
   switch (p?.kind) {
     case "path":
       return RequestLocation.Path;
@@ -412,6 +961,7 @@ function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
       return RequestLocation.Header;
     case "query":
       return RequestLocation.Query;
+    case "property":
     case "body":
       return RequestLocation.Body;
     default:
@@ -419,28 +969,28 @@ function getParameterLocation(p: SdkModelPropertyType): RequestLocation {
   }
 }
 
-function getParameterKind(
-  p: SdkModelPropertyType,
+function getParameterScope(
+  p: SdkHttpParameter | SdkModelPropertyType,
   type: InputType,
   hasGlobalApiVersion: boolean,
-): InputOperationParameterKind {
+): InputParameterScope {
   if (p.kind === "body") {
     /** TODO: remove this and use the spread metadata of parameter when https://github.com/Azure/typespec-azure/issues/1513 is resolved */
     if (type.kind === "model" && p.type !== p.correspondingMethodParams[0]?.type) {
-      return InputOperationParameterKind.Spread;
+      return InputParameterScope.Spread;
     }
-    return InputOperationParameterKind.Method;
+    return InputParameterScope.Method;
   }
 
   return type.kind === "constant"
-    ? InputOperationParameterKind.Constant
+    ? InputParameterScope.Constant
     : p.isApiVersionParam
       ? hasGlobalApiVersion
-        ? InputOperationParameterKind.Client
-        : InputOperationParameterKind.Method
+        ? InputParameterScope.Client
+        : InputParameterScope.Method
       : p.onClient
-        ? InputOperationParameterKind.Client
-        : InputOperationParameterKind.Method;
+        ? InputParameterScope.Client
+        : InputParameterScope.Method;
 }
 
 function getOperationGroupName(
@@ -477,6 +1027,111 @@ function normalizeHeaderName(name: string): string {
   }
 }
 
-function isExplodedParameter(p: SdkModelPropertyType): boolean {
+function isExploded(p: SdkHttpParameter | SdkModelPropertyType): boolean {
   return (p.kind === "path" || p.kind === "query") && p.explode === true;
+}
+
+function isContentType(p: SdkHttpParameter | SdkModelPropertyType): boolean {
+  return p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
+}
+
+function getCollectionFormat(p: SdkHttpParameter | SdkModelPropertyType): string | undefined {
+  return p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
+}
+
+function getSerializedName(p: SdkHttpParameter | SdkModelPropertyType): string {
+  // use serializedName if available, but fallback to name
+  // special case for body as the name is incorrectly set to "body" https://github.com/Azure/typespec-azure/issues/2292
+  return "serializedName" in p && p.kind !== "body" ? (p.serializedName ?? p.name) : p.name;
+}
+
+function getNameInRequest(p: SdkHttpParameter | SdkModelPropertyType): string {
+  const serializedName = getSerializedName(p);
+  return p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName;
+}
+
+function getArraySerializationDelimiter(
+  p: SdkHttpParameter | SdkModelPropertyType,
+): string | undefined {
+  const format = getCollectionFormat(p);
+  return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+export function getMethodParameterSegments(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHttpParameter | SdkModelPropertyType,
+): [InputMethodParameter[] | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  // methodParameterSegments is a 2D array where each segment array represents a path to a method parameter
+  // For spread body cases, there could be multiple paths, but we simplify by taking the first element
+  // We need the complete segment path (e.g., ['Params', 'foo'] for accessing params.foo)
+  const methodParameterSegments = (p as any).methodParameterSegments;
+  if (!methodParameterSegments || methodParameterSegments.length === 0) {
+    return diagnostics.wrap(undefined);
+  }
+
+  // Take the first segment path (simplification - no spector scenario for multiple paths yet)
+  const firstSegmentPath = methodParameterSegments[0];
+  if (!firstSegmentPath || firstSegmentPath.length === 0) {
+    return diagnostics.wrap(undefined);
+  }
+
+  const namespace = getClientNamespaceString(sdkContext) ?? "";
+  const methodParams: InputMethodParameter[] = [];
+
+  // Convert each element in the segment path to an InputMethodParameter
+  // This preserves the full path information (e.g., ['Params', 'foo'])
+  for (const segment of firstSegmentPath) {
+    const methodParam = segment as SdkMethodParameter;
+    methodParams.push(diagnostics.pipe(fromMethodParameter(sdkContext, methodParam, namespace)));
+  }
+
+  return diagnostics.wrap(methodParams.length > 0 ? methodParams : undefined);
+}
+
+function getResponseType(
+  sdkContext: CSharpEmitterContext,
+  type: SdkType | undefined,
+): [InputType | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+
+  if (!type) {
+    return diagnostics.wrap(undefined);
+  }
+
+  // handle anonymous union enum response types by defaulting to the enum value type in the case of
+  if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
+    return fromSdkType(sdkContext, type.valueType);
+  }
+
+  return fromSdkType(sdkContext, type);
+}
+
+function getCollectionHeaderPrefix(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHeaderParameter,
+): [string | undefined, readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  const value = getClientOptions(p, "collectionHeaderPrefix");
+  if (value === undefined) {
+    return diagnostics.wrap(undefined);
+  }
+  // Only apply to dictionary types (unwrap nullable)
+  const rawType = p.type.kind === "nullable" ? p.type.type : p.type;
+  if (rawType.kind !== "dict") {
+    return diagnostics.wrap(undefined);
+  }
+  if (typeof value !== "string") {
+    diagnostics.add(
+      createDiagnostic({
+        code: "general-warning",
+        format: {
+          message: `The 'collectionHeaderPrefix' client option must be a string value, but got '${typeof value}'. The option will be ignored.`,
+        },
+        target: p.__raw ?? NoTarget,
+      }),
+    );
+    return diagnostics.wrap(undefined);
+  }
+  return diagnostics.wrap(value);
 }

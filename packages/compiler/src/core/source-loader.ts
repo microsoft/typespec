@@ -1,21 +1,24 @@
+import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import {
   ModuleResolutionResult,
   ResolvedModule,
   resolveModule,
   ResolveModuleError,
-  ResolveModuleHost,
-} from "../module-resolver/module-resolver.js";
+} from "../module-resolver/index.js";
 import { PackageJson } from "../types/package-json.js";
+import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
 import { compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { resolveTypeSpecEntrypointForDir } from "./entrypoint-resolution.js";
 import { createDiagnostic } from "./messages.js";
+import { createResolveModuleHost } from "./module-host.js";
 import { isImportStatement, parse } from "./parser.js";
-import { getDirectoryPath } from "./path-utils.js";
+import { getDirectoryPath, resolvePath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
+  ModifierFlags,
   ModuleLibraryMetadata,
   NodeFlags,
   NoTarget,
@@ -40,6 +43,9 @@ export interface SourceResolution {
   readonly locationContexts: WeakMap<SourceFile, LocationContext>;
   readonly loadedLibraries: Map<string, TypeSpecLibraryReference>;
 
+  /** List of imports that were marked as external and not loaded. */
+  readonly externals: string[];
+
   readonly diagnostics: readonly Diagnostic[];
 }
 
@@ -52,6 +58,10 @@ export interface LoadSourceOptions {
   readonly parseOptions?: ParseOptions;
   readonly tracer?: Tracer;
   getCachedScript?: (file: SourceFile) => TypeSpecScriptNode | undefined;
+  /**
+   * List or callback to determine if a module is external and should not be loaded.
+   */
+  externals?: string[] | ((path: string) => boolean);
 }
 
 export interface SourceLoader {
@@ -86,11 +96,22 @@ export async function createSourceLoader(
   const sourceFiles = new Map<string, TypeSpecScriptNode>();
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
+  const externals: string[] = [];
+  // Cache of resolved feature lists from each library's own tspconfig.yaml, keyed by the
+  // library root directory, to avoid re-reading the config for every import of the library.
+  const libraryFeaturesCache = new Map<string, readonly string[] | undefined>();
+
+  const externalsOpts = options?.externals;
+  const isExternal = externalsOpts
+    ? typeof externalsOpts === "function"
+      ? externalsOpts
+      : (x: string) => externalsOpts.includes(x)
+    : () => false;
 
   async function importFile(
     path: string,
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
-    locationContext: LocationContext,
+    locationContext: LocationContext = { type: "project" },
     kind: "import" | "entrypoint" = "import",
   ) {
     const sourceFileKind = host.getSourceFileKind(path);
@@ -121,6 +142,7 @@ export async function createSourceLoader(
       locationContexts: sourceFileLocationContexts,
       loadedLibraries: loadedLibraries,
       diagnostics: diagnostics.diagnostics,
+      externals,
     },
   };
 
@@ -174,18 +196,54 @@ export async function createSourceLoader(
   }
 
   async function loadScriptImports(file: TypeSpecScriptNode) {
-    // collect imports
     const basedir = getDirectoryPath(file.file.path);
-    await loadImports(
-      file.statements.filter(isImportStatement).map((x) => ({ path: x.path.value, target: x })),
-      basedir,
-      getSourceFileLocationContext(file.file),
-    );
+    const importStatements = file.statements.filter(isImportStatement);
+    const duplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
+    const imports: Array<{ path: string; target: DiagnosticTarget | typeof NoTarget }> = [];
+
+    for (const stmt of importStatements) {
+      const importPath = stmt.path.value;
+
+      // Check for self-import: resolve relative paths and compare with file's own path
+      if (importPath.startsWith(".")) {
+        const resolved = resolvePath(basedir, importPath);
+        if (resolved === file.file.path) {
+          diagnostics.add(
+            createDiagnostic({
+              code: "self-import",
+              target: stmt,
+            }),
+          );
+          continue;
+        }
+      }
+
+      duplicateTracker.track(importPath, stmt);
+      imports.push({ path: importPath, target: stmt });
+    }
+
+    for (const [importPath, duplicates] of duplicateTracker.entries()) {
+      for (const duplicate of duplicates.slice(1)) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "duplicate-import",
+            target: duplicate,
+            format: { importPath },
+          }),
+        );
+      }
+    }
+
+    await loadImports(imports, basedir, getSourceFileLocationContext(file.file));
   }
 
   function getSourceFileLocationContext(sourcefile: SourceFile): LocationContext {
     const locationContext = sourceFileLocationContexts.get(sourcefile);
-    compilerAssert(locationContext, "SourceFile should have a declaration locationContext.");
+    compilerAssert(
+      locationContext,
+      `SourceFile ${sourcefile.path} should have a declaration locationContext.`,
+      { file: sourcefile, pos: 0, end: 0 },
+    );
     return locationContext;
   }
 
@@ -206,10 +264,15 @@ export async function createSourceLoader(
     relativeTo: string,
     locationContext: LocationContext = { type: "project" },
   ) {
+    if (isExternal(path)) {
+      externals.push(path);
+      return;
+    }
     const library = await resolveTypeSpecLibrary(path, relativeTo, target);
     if (library === undefined) {
       return;
     }
+
     if (library.type === "module") {
       loadedLibraries.set(library.manifest.name, {
         path: library.path,
@@ -221,13 +284,15 @@ export async function createSourceLoader(
       );
 
       const metadata = computeModuleMetadata(library);
+      const features = await resolveLibraryFeatures(library.path);
       locationContext = {
         type: "library",
         metadata,
+        ...(features && { features }),
       };
     }
-    const importFilePath = library.type === "module" ? library.mainFile : library.path;
 
+    const importFilePath = library.type === "module" ? library.mainFile : library.path;
     const isDirectory = (await host.stat(importFilePath)).isDirectory();
     if (isDirectory) {
       await loadDirectory(importFilePath, locationContext, target);
@@ -247,7 +312,7 @@ export async function createSourceLoader(
     target: DiagnosticTarget | typeof NoTarget,
   ): Promise<ModuleResolutionResult | undefined> {
     try {
-      return await resolveModule(getResolveModuleHost(), specifier, {
+      return await resolveModule(createResolveModuleHost(host), specifier, {
         baseDir,
         directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
         resolveMain(pkg) {
@@ -299,15 +364,25 @@ export async function createSourceLoader(
     return file;
   }
 
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
+  /**
+   * Resolve the compiler features a library opted into via its own `tspconfig.yaml`.
+   * Features are only honored when the library config is a project config (`kind: "project"`),
+   * matching the rule that `features` is only meaningful in a project config.
+   * @param libraryRoot Absolute path to the library root directory (containing `package.json`).
+   */
+  async function resolveLibraryFeatures(
+    libraryRoot: string,
+  ): Promise<readonly string[] | undefined> {
+    if (libraryFeaturesCache.has(libraryRoot)) {
+      return libraryFeaturesCache.get(libraryRoot);
+    }
+    // `lookup: false` restricts the search to the library root only, so we never pick up the
+    // consuming project's config by walking up the directory tree.
+    const config = await loadTypeSpecConfigForPath(host, libraryRoot, false, false);
+    const features =
+      config.diagnostics.length === 0 && config.kind === "project" ? config.features : undefined;
+    libraryFeaturesCache.set(libraryRoot, features);
+    return features;
   }
 }
 
@@ -376,6 +451,8 @@ export async function loadJsFile(
     pos: 0,
     end: 0,
     flags: NodeFlags.None,
+    modifiers: [],
+    modifierFlags: ModifierFlags.None,
   };
   return [node, diagnostics];
 }
@@ -383,8 +460,15 @@ export async function loadJsFile(
 export function moduleResolutionErrorToDiagnostic(
   e: ResolveModuleError,
   specifier: string,
-  target: DiagnosticTarget | typeof NoTarget,
+  sourceTarget: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
+  const target: DiagnosticTarget | typeof NoTarget = e.pkgJson
+    ? {
+        file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path),
+        pos: 0,
+        end: 0,
+      }
+    : sourceTarget;
   switch (e.code) {
     case "MODULE_NOT_FOUND":
       return createDiagnostic({ code: "import-not-found", format: { path: specifier }, target });

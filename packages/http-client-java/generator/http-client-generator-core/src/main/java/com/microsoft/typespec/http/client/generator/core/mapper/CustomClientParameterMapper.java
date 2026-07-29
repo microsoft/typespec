@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -32,50 +33,59 @@ public class CustomClientParameterMapper implements IMapper<Parameter, ClientMet
     }
 
     public ClientMethodParameter map(Parameter parameter, boolean isProtocolMethod) {
-        String name = parameter.getOriginalParameter() != null
-            && parameter.getLanguage()
-                .getJava()
-                .getName()
-                .equals(parameter.getOriginalParameter().getLanguage().getJava().getName())
-                    ? CodeNamer
-                        .toCamelCase(parameter.getOriginalParameter().getSchema().getLanguage().getJava().getName())
-                        + CodeNamer.toPascalCase(parameter.getLanguage().getJava().getName())
-                    : parameter.getLanguage().getJava().getName();
+        final String name = getParameterName(parameter);
 
         ClientMethodParameter.Builder builder = new ClientMethodParameter.Builder().name(name)
             .required(parameter.isRequired())
-            .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT);
+            .fromClient(parameter.getImplementation() == Parameter.ImplementationLocation.CLIENT)
+            .annotations(new ArrayList<>());
 
-        IType wireType = Mappers.getSchemaMapper().map(parameter.getSchema());
-        if (parameter.getSchema() instanceof ArraySchema) {
-            ArraySchema arraySchema = (ArraySchema) parameter.getSchema();
-            if (arraySchema.getElementType() instanceof AnySchema) {
-                wireType = ClassType.JSON_PATCH_DOCUMENT;
-            }
+        IType wireType;
+        if (isJsonPatchDocument(parameter.getSchema())) {
+            wireType = ClassType.JSON_PATCH_DOCUMENT;
+        } else {
+            wireType = Mappers.getSchemaMapper().map(parameter.getSchema());
         }
-
         if (isProtocolMethod) {
             wireType = SchemaUtil.removeModelFromParameter(parameter.getProtocol().getHttp().getIn(), wireType);
         }
-
         if (parameter.isNullable() || !parameter.isRequired()) {
-            wireType = wireType.asNullable();
+            builder.wireType(wireType.asNullable());
+        } else {
+            builder.wireType(wireType);
         }
-        builder.wireType(wireType);
 
-        builder.annotations(new ArrayList<>());
-
-        boolean isConstant = false;
-        String defaultValue = null;
-        if (parameter.getSchema() instanceof ConstantSchema) {
-            isConstant = true;
-            Object objValue = ((ConstantSchema) parameter.getSchema()).getValue().getValue();
-            defaultValue = objValue == null ? null : String.valueOf(objValue);
+        if (parameter.isConstant()) {
+            builder.constant(true);
+            final Object constValue = ((ConstantSchema) parameter.getSchema()).getValue().getValue();
+            if (constValue != null) {
+                builder.defaultValue(String.valueOf(constValue));
+            }
         }
-        builder.constant(isConstant).defaultValue(defaultValue);
 
         builder.description(MethodUtil.getMethodParameterDescription(parameter, name, isProtocolMethod));
 
         return builder.build();
+    }
+
+    private static String getParameterName(Parameter parameter) {
+        final String parameterName = parameter.getLanguage().getJava().getName();
+        final Parameter originalParameter = parameter.getOriginalParameter();
+        if (originalParameter == null) {
+            return parameterName;
+        }
+        if (parameterName.equals(originalParameter.getLanguage().getJava().getName())) {
+            final String originalParameterSchemaName = originalParameter.getSchema().getLanguage().getJava().getName();
+            return CodeNamer.toCamelCase(originalParameterSchemaName) + CodeNamer.toPascalCase(parameterName);
+        }
+        return parameterName;
+    }
+
+    private static boolean isJsonPatchDocument(Schema schema) {
+        if (schema instanceof ArraySchema) {
+            final ArraySchema arraySchema = (ArraySchema) schema;
+            return arraySchema.getElementType() instanceof AnySchema;
+        }
+        return false;
     }
 }

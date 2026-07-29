@@ -1,5 +1,216 @@
 # Change Log - @typespec/http
 
+## 1.14.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 1.13.0
+
+No changes, version bump only.
+
+## 1.12.0
+
+### Deprecations
+
+- [#9884](https://github.com/microsoft/typespec/pull/9884) Deprecate use of `@patch(#{implicitOptionality: true})`.
+  
+  Migrate using one of the following patterns depending on intended semantics:
+  
+  1. Preserve previous behavior with an explicit patch model (optional properties)
+  
+  ```diff lang=typespec
+    model Pet {
+      name: string;
+      age: int32;
+    }
+  
+  + model PetPatch {
+  +    name?: string;
+  +    age?: int32;
+  + }
+  
+    
+  - @patch(#{implicitOptionality: true}) op updatePet(@body patch: Pet): void;
+  + @patch op updatePet(@body patch: PetPatch): void;
+  ```
+  
+  2. Use merge-patch semantics explicitly with `MergePatchUpdate<T>`
+  
+  ```typespec
+  model Pet {
+    name: string;
+    age: int32;
+  }
+  
+  @patch op updatePet(@body patch: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Use `MergePatchCreateOrUpdate<T>` when the operation supports create-or-update behavior.
+
+### Features
+
+- [#10180](https://github.com/microsoft/typespec/pull/10180) [API] Operation returning a union of types without status code or content type will be treated as a single response
+
+
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9935](https://github.com/microsoft/typespec/pull/9935) Do not join routes starting with `?` or `:` with `/`(e.g. `@route("?pet=cat)` would result in `/?pet=cat`)
+- [#9887](https://github.com/microsoft/typespec/pull/9887) Remove `patch-implicit-optional` warning.
+
+
+## 1.9.1
+
+### Bug Fixes
+
+- [API] Fix `Content-Type` header will not be dropped in the response headers of `HttpOperationResponseContent` for `HEAD` requests.
+
+
+## 1.9.0
+
+Version Bump only.
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9311](https://github.com/microsoft/typespec/pull/9311) Fix empty response models with `statusCode` defined in a base model
+
+
+## 1.7.0
+
+### Features
+
+- [#8962](https://github.com/microsoft/typespec/pull/8962) support documentation on union variants for response descriptions
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8974](https://github.com/microsoft/typespec/pull/8974) Do not report `no-service-found` if there is a service even if it has no routes
+- [#8737](https://github.com/microsoft/typespec/pull/8737) Fix `@bodyIgnore` property shouldn't count as implicit body property for check
+
+
+## 1.5.0
+
+No changes, version bump only.
+
+## 1.4.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8276](https://github.com/microsoft/typespec/pull/8276) fix: circular import causing tsp compile --watch breakage
+- [#7771](https://github.com/microsoft/typespec/pull/7771) Fix OAuth2 scope deduplication in OpenAPI spec generation. OAuth2 authentication schemes with multiple flows sharing the same scopes no longer generate duplicate scope entries in the security section.
+
+
+## 1.3.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 1.2.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7849](https://github.com/microsoft/typespec/pull/7849) Fix optional path parameter with explicit name would have the wrong style(`path` instead of `simple`).
+
+
+## 1.1.0
+
+No changes, version bump only.
+
+## 1.0.1
+
+### Bug Fixes
+
+- [#7259](https://github.com/microsoft/typespec/pull/7259) Fix diagnostic for `PatchOptions.implicitOptionality`, which refers a non-existing property and the incorrect value.
+  To keep the old behavior, you will need to use `@patch(#{ implicitOptionality: true })` instead.
+
+
+## 1.0.0
+
+### Breaking Changes
+
+- [#7230](https://github.com/microsoft/typespec/pull/7230) Changed `@patch` so that it does not apply the "implicit optionality" transform by default anymore.
+  
+  ```diff lang=tsp
+  @patch op update(@body pet: Pet): void;
+  ```
+  
+  To use JSON Merge-Patch to update resources, replace the body property with an instance of `MergePatchUpdate` as follows:
+  
+  ```tsp
+  @patch op update(@body pet: MergePatchUpdate<Pet>): void;
+  ```
+  
+  Or, keep the old behavior by explicitly enabling `implicitOptionality` in the `@patch` options:
+  
+  ```tsp
+  @patch(#{ implicitOptionality: true }) op update(@body pet: Pet): void;
+  ```
+
+### Features
+
+- [#7207](https://github.com/microsoft/typespec/pull/7207) Implemented JSON Merge-Patch wrappers. This allows converting a type to a JSON Merge-Patch compatible update record using the `MergePatchUpdate` and `MergePatchCreateOrUpdate` templates.
+
+### Bug Fixes
+
+- [#7168](https://github.com/microsoft/typespec/pull/7168) Replace optional param validation requiring use with path expansion and replace with a warning when the resulting url might have a double `/`
+
+
+## 1.0.0-rc.1
+
+### Features
+
+- [#7049](https://github.com/microsoft/typespec/pull/7049) Updates `$.httpOperation.get` to be a diagnosable - use `$.httpOperation.get.withDiagnostics` to get diagnostics
+- [#6949](https://github.com/microsoft/typespec/pull/6949) Improved types for HTTP multipart payloads for more precise guarantees and additional information about the resolution of individual parts.
+
+### Bug Fixes
+
+- [#6962](https://github.com/microsoft/typespec/pull/6962) Fixes issue where each variant of a `@discriminated` union was treated as a separate response instead of the whole union being treated as a single response.
+- [#7069](https://github.com/microsoft/typespec/pull/7069) Handle types without node
+- [#7065](https://github.com/microsoft/typespec/pull/7065) Handle tuples without nodes
+
+
 ## 1.0.0-rc.0
 
 ### Breaking Changes

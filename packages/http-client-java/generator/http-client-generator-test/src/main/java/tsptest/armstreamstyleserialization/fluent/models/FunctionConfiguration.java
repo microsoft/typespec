@@ -86,7 +86,11 @@ public final class FunctionConfiguration implements JsonSerializable<FunctionCon
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeStringField("input", this.input);
+        if (input() != null) {
+            jsonWriter.writeStringField("input", this.input);
+        } else {
+            jsonWriter.writeNullField("input");
+        }
         jsonWriter.writeStringField("output", this.output);
         return jsonWriter.writeEndObject();
     }

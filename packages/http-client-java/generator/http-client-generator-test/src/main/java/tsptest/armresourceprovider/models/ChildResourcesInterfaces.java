@@ -73,7 +73,7 @@ public interface ChildResourcesInterfaces {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     PagedIterable<ChildResource> listByTopLevelArmResource(String resourceGroupName, String topLevelArmResourceName);
 
@@ -86,13 +86,13 @@ public interface ChildResourcesInterfaces {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a ChildResource list operation as paginated response with {@link PagedIterable}.
+     * @return paged collection of ChildResource items as paginated response with {@link PagedIterable}.
      */
     PagedIterable<ChildResource> listByTopLevelArmResource(String resourceGroupName, String topLevelArmResourceName,
         Context context);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -104,7 +104,7 @@ public interface ChildResourcesInterfaces {
     void actionWithoutBody(String resourceGroupName, String topLevelArmResourceName, String childResourceName);
 
     /**
-     * A long-running resource action.
+     * The actionWithoutBody operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.

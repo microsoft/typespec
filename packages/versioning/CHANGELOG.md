@@ -1,5 +1,123 @@
 # Change Log - @typespec/versioning
 
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9932](https://github.com/microsoft/typespec/pull/9932) [API] Fix running multiple versioning mutators together
+
+
+## 0.79.0
+
+### Bug Fixes
+
+- [#9444](https://github.com/microsoft/typespec/pull/9444) Fix incorrect incompatible versioning error in model expressions
+
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+No changes, version bump only.
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8327](https://github.com/microsoft/typespec/pull/8327) Skip validating versioning in template declaration as information could be missing
+
+
+## 0.73.0
+
+### Features
+
+- [#7999](https://github.com/microsoft/typespec/pull/7999) Use of `@useDependency` is now optional when referencing types from a versioned library. By default the latest version of the library will be used.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.71.0
+
+### Bug Fixes
+
+- [#7473](https://github.com/microsoft/typespec/pull/7473) Fix tuples not correctly versioned
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#7022](https://github.com/microsoft/typespec/pull/7022) Fix issue where the incompatible-versioned-reference diagnostic was incorrectly triggered when a model had a `@removed` decorator and one of its properties had an `@added` decorator, even if the versions were compatible.
+  
+  Example:
+  ```tsp
+  @removed(Versions.v3)
+  model Widget {
+    @added(Versions.v2)
+     name: string;
+  }
+  ```
+
+
 ## 0.68.0
 
 ### Bump dependencies

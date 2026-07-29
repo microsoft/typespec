@@ -1,32 +1,26 @@
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
-import { Model, StringTemplate } from "../../src/index.js";
+import { describe, it } from "vitest";
+import { getDoc, StringTemplate } from "../../src/index.js";
 import {
-  BasicTestRunner,
-  createTestRunner,
+  expectDiagnosticEmpty,
   expectDiagnostics,
   extractSquiggles,
+  mockFile,
+  t,
 } from "../../src/testing/index.js";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createTestRunner();
-});
+import { Tester } from "../tester.js";
 
 async function compileStringTemplate(
   templateString: string,
   other?: string,
 ): Promise<StringTemplate> {
-  const { Test } = (await runner.compile(
-    `
-      @test model Test {
+  const { Test } = await Tester.compile(t.code`
+      model ${t.model("Test")} {
         test: ${templateString};
       }
 
       ${other ?? ""}
-      `,
-  )) as { Test: Model };
+      `);
 
   const prop = Test.properties.get("test")!.type;
 
@@ -76,8 +70,20 @@ it("can interpolate a model", async () => {
   strictEqual(template.spans[2].type.value, " end");
 });
 
+// Regression test for https://github.com/microsoft/typespec/issues/7401
+it("can use empty string to interpolate in tempalates", async () => {
+  const diagnostics = await Tester.diagnose(
+    `
+    @doc("\${T} strange")
+    model Test<T extends valueof string> {}
+    model B is Test<"">;
+    `,
+  );
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("emit error if interpolating value and types", async () => {
-  const diagnostics = await runner.diagnose(
+  const diagnostics = await Tester.diagnose(
     `
     const str1 = "hi";
     alias str2 = "\${str1} and \${string}";
@@ -99,7 +105,7 @@ describe("emit error if interpolating value in a context where template is used 
       const str1 = "hi";
       ${code}
     `;
-    const diagnostics = await runner.diagnose(source);
+    const diagnostics = await Tester.diagnose(source);
     expectDiagnostics(diagnostics, {
       code: "value-in-type",
       message: "A value cannot be used as a type.",
@@ -113,7 +119,7 @@ it("emit error if interpolating template parameter that can be a type or value",
         a: ~~~"\${T}"~~~;
       };
     `);
-  const diagnostics = await runner.diagnose(source);
+  const diagnostics = await Tester.diagnose(source);
   expectDiagnostics(diagnostics, {
     code: "mixed-string-template",
     message:
@@ -129,11 +135,75 @@ it("emit error if interpolating template parameter that is a value but using tem
         a: ~~~"\${T}"~~~;
       };
     `);
-  const diagnostics = await runner.diagnose(source);
+  const diagnostics = await Tester.diagnose(source);
   expectDiagnostics(diagnostics, {
     code: "value-in-type",
     message: "A value cannot be used as a type.",
     pos,
     end,
+  });
+});
+
+it("emit error if interpolating template access that mixes values and types", async () => {
+  const { source, pos, end } = extractSquiggles(`
+      const prefix = "value";
+
+      model Input {
+        prop: string;
+      }
+
+      alias Template<T extends Input | (valueof Input)> = {
+        a: ~~~"\${prefix} \${T.prop::type}"~~~;
+      };
+    `);
+  const diagnostics = await Tester.diagnose(source);
+  expectDiagnostics(diagnostics, {
+    code: "mixed-string-template",
+    message:
+      "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
+    pos,
+    end,
+  });
+});
+
+describe("interpolating a function call referencing a template parameter", () => {
+  const fnTester = Tester.files({
+    "fn.js": mockFile.js({
+      $functions: {
+        "": {
+          getName: (_ctx: unknown, type: { name?: string }) => type?.name ?? "deferred",
+        },
+      },
+    }),
+  })
+    .import("./fn.js")
+    .using("TypeSpec.Reflection");
+
+  it("does not crash when used on a template declaration", async () => {
+    const diagnostics = await fnTester.diagnose(`
+      #suppress "experimental-feature" "test"
+      extern fn getName(type: unknown): valueof string;
+
+      @doc("\${getName(T)}")
+      model Crud<T extends Model> {}
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("resolves the function call when the template is instantiated", async () => {
+    const { p, program } = await fnTester.compile(t.code`
+      #suppress "experimental-feature" "test"
+      extern fn getName(type: unknown): valueof string;
+
+      @doc("\${getName(T)}")
+      model Crud<T extends Model> {}
+
+      model Foo {}
+
+      model Holder {
+        ${t.modelProperty("p")}: Crud<Foo>;
+      }
+    `);
+    strictEqual(getDoc(program, p.type), "Foo");
   });
 });

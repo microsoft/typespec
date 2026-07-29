@@ -1,6 +1,7 @@
 package specialwords.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the SpecialWordsClient type.
@@ -35,6 +36,20 @@ public final class SpecialWordsClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The ModelsImpl object to access its operations.
      */
     private final ModelsImpl models;
@@ -60,6 +75,34 @@ public final class SpecialWordsClientImpl {
      */
     public ModelPropertiesImpl getModelProperties() {
         return this.modelProperties;
+    }
+
+    /**
+     * The ReservedOperationBodyParamsImpl object to access its operations.
+     */
+    private final ReservedOperationBodyParamsImpl reservedOperationBodyParams;
+
+    /**
+     * Gets the ReservedOperationBodyParamsImpl object to access its operations.
+     * 
+     * @return the ReservedOperationBodyParamsImpl object.
+     */
+    public ReservedOperationBodyParamsImpl getReservedOperationBodyParams() {
+        return this.reservedOperationBodyParams;
+    }
+
+    /**
+     * The ExtensibleStringsImpl object to access its operations.
+     */
+    private final ExtensibleStringsImpl extensibleStrings;
+
+    /**
+     * Gets the ExtensibleStringsImpl object to access its operations.
+     * 
+     * @return the ExtensibleStringsImpl object.
+     */
+    public ExtensibleStringsImpl getExtensibleStrings() {
+        return this.extensibleStrings;
     }
 
     /**
@@ -94,13 +137,17 @@ public final class SpecialWordsClientImpl {
      * Initializes an instance of SpecialWordsClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public SpecialWordsClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public SpecialWordsClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.modelProperties = new ModelPropertiesImpl(this);
+        this.reservedOperationBodyParams = new ReservedOperationBodyParamsImpl(this);
+        this.extensibleStrings = new ExtensibleStringsImpl(this);
         this.operations = new OperationsImpl(this);
         this.parameters = new ParametersImpl(this);
     }

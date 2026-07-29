@@ -10,11 +10,10 @@ using System.ComponentModel;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The Thing_optionalLiteralString. </summary>
+    /// <summary></summary>
     public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>
     {
         private readonly string _value;
-        /// <summary> reject. </summary>
         private const string RejectValue = "reject";
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralString"/>. </summary>
@@ -27,7 +26,7 @@ namespace SampleTypeSpec
             _value = value;
         }
 
-        /// <summary> reject. </summary>
+        /// <summary> Gets the Reject. </summary>
         public static ThingOptionalLiteralString Reject { get; } = new ThingOptionalLiteralString(RejectValue);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralString"/> values are the same. </summary>
@@ -44,11 +43,15 @@ namespace SampleTypeSpec
         /// <param name="value"> The value. </param>
         public static implicit operator ThingOptionalLiteralString(string value) => new ThingOptionalLiteralString(value);
 
-        /// <param name="obj"> The object to compare. </param>
+        /// <summary> Converts a string to a <see cref="ThingOptionalLiteralString"/>. </summary>
+        /// <param name="value"> The value. </param>
+        public static implicit operator ThingOptionalLiteralString?(string value) => value == null ? null : new ThingOptionalLiteralString(value);
+
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object obj) => obj is ThingOptionalLiteralString other && Equals(other);
 
-        /// <param name="other"> The instance to compare. </param>
+        /// <inheritdoc/>
         public bool Equals(ThingOptionalLiteralString other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
         /// <inheritdoc/>

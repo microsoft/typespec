@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.ContentType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -38,18 +37,15 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     public final void write(Proxy restAPI, JavaClass classBlock) {
         JavaSettings settings = JavaSettings.getInstance();
         if (restAPI != null) {
-            classBlock.javadocComment(comment -> {
-                comment.description(String.format(
-                    "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
-                    restAPI.getClientTypeName()));
-            });
-            if (settings.isBranded()) {
-                classBlock.annotation(String.format("Host(\"%1$s\")", restAPI.getBaseURL()));
-                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName())));
+            classBlock.javadocComment(comment -> comment.description(String.format(
+                "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
+                restAPI.getClientTypeName())));
+            if (settings.isAzureV1()) {
+                classBlock.annotation("Host(\"" + restAPI.getBaseURL() + "\")");
+                classBlock.annotation("ServiceInterface(name = \"" + restAPI.getClientTypeName() + "\")");
             } else {
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\", host = \"%2$s\")",
-                    serviceInterfaceWithLengthLimit(restAPI.getClientTypeName()), restAPI.getBaseURL()));
+                    restAPI.getClientTypeName(), restAPI.getBaseURL()));
             }
 
             JavaVisibility visibility = JavaVisibility.Private;
@@ -58,16 +54,30 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             }
 
             classBlock.interfaceBlock(visibility, restAPI.getName(), interfaceBlock -> {
+                if (settings.isAzureV2() || !settings.isAzureV1()) {
+                    interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
+                        restAPI.getName() + " getNewInstance(HttpPipeline pipeline)",
+                        javaBlock -> javaBlock.tryBlock(tryBlock -> {
+                            tryBlock
+                                .line("Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
+                                    + ".implementation." + restAPI.getName() + "Impl" + "\");");
+                            tryBlock.line("return (" + restAPI.getName() + ") clazz.getMethod(\"getNewInstance\", "
+                                + "HttpPipeline.class).invoke(null, pipeline);");
+                        })
+                            .catchBlock(
+                                "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
+                                catchBlock -> catchBlock.line("throw new RuntimeException(e);")));
+                }
+
                 for (ProxyMethod restAPIMethod : restAPI.getMethods()) {
                     if (restAPIMethod.getRequestContentType().equals("multipart/form-data")
                         || restAPIMethod.getRequestContentType().equals("application/x-www-form-urlencoded")) {
-                        interfaceBlock.lineComment(
-                            String.format("@Multipart not supported by %1$s", ClassType.REST_PROXY.getName()));
+                        interfaceBlock.lineComment("@Multipart not supported by " + ClassType.REST_PROXY.getName());
                     }
 
                     writeProxyMethodHeaders(restAPIMethod, interfaceBlock);
 
-                    if (settings.isBranded()) {
+                    if (settings.isAzureV1()) {
                         interfaceBlock.annotation(String.format("%1$s(\"%2$s\")",
                             CodeNamer.toPascalCase(restAPIMethod.getHttpMethod().toString().toLowerCase()),
                             restAPIMethod.getUrlPath()));
@@ -95,23 +105,19 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                                 + " } " + returnValueWireTypeCode + ")");
                     }
 
-                    if (!settings.isDataPlaneClient()) {
+                    if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
                         if (restAPIMethod.getReturnValueWireType() != null) {
                             interfaceBlock.annotation(String.format("ReturnValueWireType(%1$s.class)",
                                 restAPIMethod.getReturnValueWireType()));
                         }
                     }
 
-                    if (!settings.isDataPlaneClient() || !settings.isBranded() || isExceptionCustomized()) {
-                        // write @UnexpectedResponseExceptionType
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
-                            writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
-                        }
-
-                        if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
-                            writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
-                        }
+                    // write @UnexpectedResponseExceptionType
+                    if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
+                        writeUnexpectedExceptions(restAPIMethod, interfaceBlock);
+                    }
+                    if (restAPIMethod.getUnexpectedResponseExceptionType() != null) {
+                        writeSingleUnexpectedException(restAPIMethod, interfaceBlock);
                     }
 
                     ArrayList<String> parameterDeclarationList = new ArrayList<>();
@@ -120,75 +126,8 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                     }
 
                     for (ProxyMethodParameter parameter : restAPIMethod.getParameters()) {
-                        StringBuilder parameterDeclarationBuilder = new StringBuilder();
-                        RequestParameterLocation location = parameter.getRequestParameterLocation();
-
-                        switch (location) {
-                            case URI:
-                            case PATH:
-                            case QUERY:
-                            case HEADER:
-                                parameterDeclarationBuilder
-                                    .append(String.format("@%1$sParam(", CodeNamer.toPascalCase(location.toString())));
-                                if (location == RequestParameterLocation.QUERY
-                                    && parameter.getAlreadyEncoded()
-                                    && parameter.getExplode()) {
-                                    parameterDeclarationBuilder.append(
-                                        String.format("value = \"%1$s\", encoded = true, multipleQueryParams = true",
-                                            parameter.getRequestParameterName()));
-                                } else if (location == RequestParameterLocation.QUERY && parameter.getExplode()) {
-                                    parameterDeclarationBuilder
-                                        .append(String.format("value = \"%1$s\", multipleQueryParams = true",
-                                            parameter.getRequestParameterName()));
-                                } else if ((location == RequestParameterLocation.PATH
-                                    || location == RequestParameterLocation.QUERY) && parameter.getAlreadyEncoded()) {
-                                    parameterDeclarationBuilder.append(String.format("value = \"%1$s\", encoded = true",
-                                        parameter.getRequestParameterName()));
-                                } else if (location == RequestParameterLocation.HEADER
-                                    && parameter.getHeaderCollectionPrefix() != null
-                                    && !parameter.getHeaderCollectionPrefix().isEmpty()) {
-                                    parameterDeclarationBuilder
-                                        .append(String.format("\"%1$s\"", parameter.getHeaderCollectionPrefix()));
-                                } else {
-                                    parameterDeclarationBuilder
-                                        .append(String.format("\"%1$s\"", parameter.getRequestParameterName()));
-                                }
-                                parameterDeclarationBuilder.append(") ");
-
-                                break;
-
-                            case BODY:
-                                if (ContentType.APPLICATION_X_WWW_FORM_URLENCODED
-                                    .equals(restAPIMethod.getRequestContentType())) {
-                                    parameterDeclarationBuilder.append(
-                                        String.format("@FormParam(\"%1$s\") ", parameter.getRequestParameterName()));
-                                    break;
-                                }
-                                parameterDeclarationBuilder.append(
-                                    String.format("@BodyParam(\"%1$s\") ", restAPIMethod.getRequestContentType()));
-                                break;
-
-                            // case FormData:
-                            // parameterDeclarationBuilder.append(String.format("@FormParam(\"%1$s\") ",
-                            // parameter.getRequestParameterName()));
-                            // break;
-
-                            case NONE:
-                                break;
-
-                            default:
-                                if (!restAPIMethod.isResumable() && parameter.getWireType() != ClassType.CONTEXT) {
-                                    throw new IllegalArgumentException(
-                                        "Unrecognized RequestParameterLocation value: " + location);
-                                }
-
-                                break;
-                        }
-
-                        parameterDeclarationBuilder.append(parameter.getWireType())
-                            .append(" ")
-                            .append(parameter.getName());
-                        parameterDeclarationList.add(parameterDeclarationBuilder.toString());
+                        String parameterDeclaration = buildParameterDeclaration(restAPIMethod, parameter);
+                        parameterDeclarationList.add(parameterDeclaration);
                     }
 
                     writeProxyMethodSignature(parameterDeclarationList, restAPIMethod, interfaceBlock);
@@ -197,8 +136,78 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    private void writeUnexpectedExceptions(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+    private static String buildParameterDeclaration(ProxyMethod restAPIMethod, ProxyMethodParameter parameter) {
+        StringBuilder parameterDeclarationBuilder = new StringBuilder();
+        RequestParameterLocation location = parameter.getRequestParameterLocation();
+
+        switch (location) {
+            case URI:
+            case PATH:
+            case QUERY:
+            case HEADER:
+                parameterDeclarationBuilder.append('@')
+                    .append(CodeNamer.toPascalCase(location.toString()))
+                    .append("Param(");
+                if (location == RequestParameterLocation.QUERY
+                    && parameter.getAlreadyEncoded()
+                    && parameter.getExplode()) {
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", encoded = true, multipleQueryParams = true");
+                } else if (location == RequestParameterLocation.QUERY && parameter.getExplode()) {
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", multipleQueryParams = true");
+                } else if ((location == RequestParameterLocation.PATH || location == RequestParameterLocation.QUERY)
+                    && parameter.getAlreadyEncoded()) {
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", encoded = true");
+                } else if (location == RequestParameterLocation.HEADER
+                    && parameter.getHeaderCollectionPrefix() != null
+                    && !parameter.getHeaderCollectionPrefix().isEmpty()) {
+                    parameterDeclarationBuilder.append('"').append(parameter.getHeaderCollectionPrefix()).append('"');
+                } else {
+                    parameterDeclarationBuilder.append('"').append(parameter.getRequestParameterName()).append('"');
+                }
+                parameterDeclarationBuilder.append(") ");
+
+                break;
+
+            case BODY:
+                if ("application/x-www-form-urlencoded".equals(restAPIMethod.getRequestContentType())) {
+                    parameterDeclarationBuilder.append("@FormParam(\"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\") ");
+                    break;
+                }
+                parameterDeclarationBuilder.append("@BodyParam(\"")
+                    .append(restAPIMethod.getRequestContentType())
+                    .append("\") ");
+                break;
+
+            // case FormData:
+            // parameterDeclarationBuilder.append(String.format("@FormParam(\"%1$s\") ",
+            // parameter.getRequestParameterName()));
+            // break;
+
+            case NONE:
+                break;
+
+            default:
+                if (!restAPIMethod.isResumable() && parameter.getWireType() != ClassType.CONTEXT) {
+                    throw new IllegalArgumentException("Unrecognized RequestParameterLocation value: " + location);
+                }
+
+                break;
+        }
+
+        parameterDeclarationBuilder.append(parameter.getWireType()).append(" ").append(parameter.getName());
+        return parameterDeclarationBuilder.toString();
+    }
+
+    protected void writeUnexpectedExceptions(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
                 .entrySet()) {
                 interfaceBlock.annotation(String.format(
@@ -231,8 +240,8 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    private void writeSingleUnexpectedException(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        if (JavaSettings.getInstance().isBranded()) {
+    protected void writeSingleUnexpectedException(ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
+        if (JavaSettings.getInstance().isAzureV1()) {
             interfaceBlock.annotation(String.format("UnexpectedResponseExceptionType(%1$s.class)",
                 restAPIMethod.getUnexpectedResponseExceptionType()));
         } else {
@@ -251,20 +260,20 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
         }
     }
 
-    private void writeProxyMethodSignature(java.util.ArrayList<String> parameterDeclarationList,
+    protected void writeProxyMethodSignature(java.util.ArrayList<String> parameterDeclarationList,
         ProxyMethod restAPIMethod, JavaInterface interfaceBlock) {
-        String parameterDeclarations = String.join(", ", parameterDeclarationList);
-        IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();
-        interfaceBlock.publicMethod(String.format("%1$s %2$s(%3$s)", restAPIMethodReturnValueClientType,
-            restAPIMethod.getName(), parameterDeclarations));
-    }
-
-    private static String serviceInterfaceWithLengthLimit(String serviceInterfaceName) {
-        final int lengthLimit = 20;
-
-        return serviceInterfaceName.length() > lengthLimit
-            ? serviceInterfaceName.substring(0, lengthLimit)
-            : serviceInterfaceName;
+        if (restAPIMethod.getImplementation() != null) {
+            String parameterDeclarations = String.join(", ", parameterDeclarationList);
+            IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();
+            interfaceBlock.defaultMethod(String.format("%1$s %2$s(%3$s)", restAPIMethodReturnValueClientType,
+                restAPIMethod.getName(), parameterDeclarations),
+                functionBlock -> functionBlock.line(restAPIMethod.getImplementation()));
+        } else {
+            String parameterDeclarations = String.join(", ", parameterDeclarationList);
+            IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();
+            interfaceBlock.publicMethod(String.format("%1$s %2$s(%3$s)", restAPIMethodReturnValueClientType,
+                restAPIMethod.getName(), parameterDeclarations));
+        }
     }
 
     /**

@@ -11,6 +11,20 @@ namespace _Type.Union
 {
     public partial class GetResponse4 : IJsonModel<GetResponse4>
     {
+        internal GetResponse4() => throw null;
+
+        protected virtual GetResponse4 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<GetResponse4>.Write(ModelReaderWriterOptions options) => throw null;
+
+        GetResponse4 IPersistableModel<GetResponse4>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<GetResponse4>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static explicit operator GetResponse4(ClientResult result) => throw null;
+
         void IJsonModel<GetResponse4>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -18,19 +32,5 @@ namespace _Type.Union
         GetResponse4 IJsonModel<GetResponse4>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual GetResponse4 JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<GetResponse4>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        GetResponse4 IPersistableModel<GetResponse4>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual GetResponse4 PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<GetResponse4>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(GetResponse4 getResponse4) => throw null;
-
-        public static explicit operator GetResponse4(ClientResult result) => throw null;
     }
 }

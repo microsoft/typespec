@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ClientPipelineExtensionsDefinition : TypeProvider
+    internal class ClientPipelineExtensionsDefinition : InternalHelperProvider
     {
         private ParameterProvider _pipelineParam;
         private ParameterProvider _messageParam;
@@ -30,11 +30,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _pipeline = _pipelineParam.ToApi<ClientPipelineApi>();
             _message = _messageParam.ToApi<HttpMessageApi>();
             _options = _requestOptionsParam.ToApi<HttpRequestOptionsApi>();
-        }
-
-        protected override TypeSignatureModifiers BuildDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
@@ -61,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, false)).Terminate(),
                 GetProcessHeadAsBoolMessageBody(response)
-            }, this);
+            }, this, XmlDocProvider.Empty);
         }
 
         private MethodProvider ProcessHeadAsBoolMessageAsync()
@@ -73,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 new DeclarationExpression(responseVariable, false).Assign(_pipeline.ProcessMessage(_message, _options, true)).Terminate(),
                 GetProcessHeadAsBoolMessageBody(response)
-            }, this);
+            }, this, XmlDocProvider.Empty);
         }
 
         private MethodBodyStatement GetProcessHeadAsBoolMessageBody(HttpResponseApi response)
@@ -92,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(new NewInstanceExpression(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, new NewInstanceExpression(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
+                        Return(New.Instance(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, New.Instance(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
                     })
                 ]),
             };
@@ -118,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildProcessMessage()
         {
             MethodSignature signature = GetProcessMessageSignature(false);
-            return new MethodProvider(signature, _pipeline.ProcessMessage(_message, _options), this);
+            return new MethodProvider(signature, _pipeline.SendMessage(_message, _options), this, XmlDocProvider.Empty);
         }
 
         private MethodSignature GetProcessMessageSignature(bool isAsync)
@@ -140,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildProcessMessageAsync()
         {
             MethodSignature signature = GetProcessMessageSignature(true);
-            return new MethodProvider(signature, _pipeline.ProcessMessageAsync(_message, _options), this);
+            return new MethodProvider(signature, _pipeline.SendMessageAsync(_message, _options), this, XmlDocProvider.Empty);
         }
     }
 }

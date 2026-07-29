@@ -261,6 +261,32 @@ scalar specializedInt32 extends myInt32;
 | `specializedInt32` | `int32`       | Emitter doesn't know what specializedInt32 is. Check baseScalar, finds myInt32 knows that it is an int32 now and applies minValue override. |
 | `float`            | `float64`     | Emitter knows float but doesn't have a mapping. Emit `float64` and a warning.                                                               |
 
+Scalars can also have encoding metadata. See the next section on encodings for more information about how to handle encoding metadata.
+
+## Dealing with encodings
+
+Emitters should use the compiler API `getEncode` to interpret `@encode` metadata on scalars and model properties. Correctly handling encoding metadata is **required** to accurately represent scalars and model properties.
+
+`getEncode(program, target)` returns:
+
+- `undefined` if no encoding metadata is present
+- an `EncodeData` object if `@encode` metadata is present
+
+`EncodeData.type` is the effective wire type after encoding. The compiler normalizes omitted `encodedAs` values to `TypeSpec.string`, so emitters should not implement their own fallback logic for that case.
+
+The recommended logic is:
+
+1. Call `getEncode(program, target)`.
+2. If it returns `undefined`, no encoding is necessary.
+3. If it returns an `EncodeData` object and the emitter recognizes `EncodeData.encoding`, apply that encoding.
+4. If it returns `EncodeData` but the emitter does not recognize `EncodeData.encoding`, treat the scalar or property as if its type is `EncodeData.type` instead of the original logical type. We call this process _decay_.
+
+"Decay" allows an emitter to safely continue from the normalized encoded type even when it cannot apply the named encoding-specific transformation.
+
+:::note
+The **experimental** package `@typespec/http-canonicalization` applies encoding decay logic as part of its canonicalization system. Emitters for HTTP services may choose to use this package instead of implementing encoding decay themselves, as it provides several logical transforms that are useful for accurately implementing HTTP APIs based on TypeSpec.
+:::
+
 ## Managing Default Values
 
 Several TypeSpec types have a `default` property that can be used to specify a default value. For example, the following model has a default value of `true` for the `isActive` property:

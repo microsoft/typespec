@@ -3,34 +3,39 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
+import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
+import com.google.googlejavaformat.FormatterDiagnostic;
+import com.google.googlejavaformat.java.FormatterException;
+import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
 import org.slf4j.Logger;
+import org.w3c.dom.NodeList;
 
 /**
  * Utility class that handles code formatting.
  */
 public final class CodeFormatterUtil {
-
-    private static final Pattern SPOTLESS_ERROR_PATTERN
-        = Pattern.compile("^(\\d+):\\d+: error: (.*)$", Pattern.MULTILINE);
-    private static final int SPOTLESS_FILE_CONTENT_RANGE = 3;
 
     /**
      * Formats the given files by removing unused imports and applying Eclipse code formatting.
@@ -39,42 +44,7 @@ public final class CodeFormatterUtil {
      * @param plugin The plugin to use to write the formatted files.
      */
     public static void formatCode(Map<String, String> files, NewPlugin plugin, Logger logger) {
-        try {
-            for (Map.Entry<String, String> file : formatCodeInternal(files.entrySet())) {
-                plugin.writeFile(file.getKey(), file.getValue(), null);
-            }
-        } catch (SpotlessException ex) {
-            // format one file at a time, to give better error diagnostics
-            for (Map.Entry<String, String> file : files.entrySet()) {
-                try {
-                    formatCodeInternal(List.of(file));
-                } catch (RuntimeException e) {
-                    // by default, log the whole file
-                    String content = file.getValue();
-
-                    // if we can find the line number from the error message, refine the "content" to the part of file
-                    // around the line
-                    Matcher matcher = SPOTLESS_ERROR_PATTERN.matcher(e.getMessage());
-                    if (matcher.find()) {
-                        int lineNumber = Integer.parseInt(matcher.group(1));
-
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append(matcher.group(0)).append("\n");
-
-                        // line number from log starts from 1
-                        String[] lines = content.split("\n");
-                        int lineIndexBegin = Math.max(0, lineNumber - 1 - SPOTLESS_FILE_CONTENT_RANGE);
-                        int lineIndexEnd = Math.min(lines.length - 1, lineNumber - 1 + SPOTLESS_FILE_CONTENT_RANGE);
-                        for (int lineIndex = lineIndexBegin; lineIndex <= lineIndexEnd; ++lineIndex) {
-                            stringBuilder.append(lineIndex + 1).append(" ").append(lines[lineIndex]).append("\n");
-                        }
-                        content = stringBuilder.toString();
-                    }
-                    logger.error("Failed to format file '{}'\n{}", file.getKey(), content);
-                }
-            }
-            throw ex;
-        }
+        formatCodeInternal(files, logger).forEach(entry -> plugin.writeFile(entry.getKey(), entry.getValue(), null));
     }
 
     /**
@@ -85,75 +55,230 @@ public final class CodeFormatterUtil {
      * @throws RuntimeException If code formatting fails.
      */
     public static List<String> formatCode(Map<String, String> files) {
-        return formatCodeInternal(files.entrySet()).stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        return formatCodeInternal(files, null).map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
-    private static List<Map.Entry<String, String>> formatCodeInternal(Collection<Map.Entry<String, String>> files) {
-        Path tmpDir = null;
+    private static Stream<Map.Entry<String, String>> formatCodeInternal(Map<String, String> files, Logger logger) {
+        Map<String, String> eclipseSettings = loadEclipseSettings();
+        DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
+        orderingStrategy.setSortImportsAlphabetically(true);
+
+        return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
+            try {
+                String file = reorderImports(entry.getValue(), orderingStrategy);
+                file = formatCode(file, entry.getKey(), ToolFactory.createCodeFormatter(eclipseSettings));
+                return Map.entry(entry.getKey(), file);
+            } catch (Exception e) {
+                // print file content
+                String errorMessage
+                    = "Failed to format file: " + entry.getKey() + ". File content: \n" + entry.getValue();
+                if (logger != null) {
+                    logger.error(errorMessage);
+                }
+
+                throw new RuntimeException(errorMessage, e);
+            }
+        });
+    }
+
+    /**
+     * Loads the Eclipse formatter settings from the XML file.
+     *
+     * @return The Eclipse formatter settings.
+     * @throws RuntimeException If the formatter settings could not be loaded.
+     */
+    private static Map<String, String> loadEclipseSettings() {
         try {
-            tmpDir = FileUtils.createTempDirectory("spotless" + UUID.randomUUID());
+            DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            org.w3c.dom.Document document = documentBuilder.parse(
+                CodeFormatterUtil.class.getClassLoader().getResourceAsStream("eclipse-format-azure-sdk-for-java.xml"));
 
-            for (Map.Entry<String, String> javaFile : files) {
-                Path file = tmpDir.resolve(javaFile.getKey());
-                Files.createDirectories(file.getParent());
-                Files.writeString(file, javaFile.getValue());
+            NodeList formatterSettingXml = document.getElementsByTagName("setting");
+            Map<String, String> formatterSettings = new LinkedHashMap<>();
+            for (int i = 0; i < formatterSettingXml.getLength(); i++) {
+                org.w3c.dom.Node node = formatterSettingXml.item(i);
+                formatterSettings.put(node.getAttributes().getNamedItem("id").getNodeValue(),
+                    node.getAttributes().getNamedItem("value").getNodeValue());
             }
 
-            Path pomPath = tmpDir.resolve("spotless-pom.xml");
-            Files.copy(CodeFormatterUtil.class.getClassLoader().getResourceAsStream("readme/pom.xml"), pomPath);
-            Files.copy(
-                CodeFormatterUtil.class.getClassLoader()
-                    .getResourceAsStream("readme/eclipse-format-azure-sdk-for-java.xml"),
-                pomPath.resolveSibling("eclipse-format-azure-sdk-for-java.xml"));
-
-            attemptMavenSpotless(pomPath);
-
-            List<Map.Entry<String, String>> formattedFiles = new ArrayList<>(files.size());
-            for (Map.Entry<String, String> javaFile : files) {
-                Path file = tmpDir.resolve(javaFile.getKey());
-                formattedFiles.add(new AbstractMap.SimpleEntry<>(javaFile.getKey(), Files.readString(file)));
-            }
-
-            return formattedFiles;
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        } finally {
-            if (tmpDir != null) {
-                Utils.deleteDirectory(tmpDir.toFile());
-            }
+            return formatterSettings;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 
-    private static void attemptMavenSpotless(Path pomPath) {
-        String[] command;
-        if (Utils.isWindows()) {
-            command = new String[] { "cmd", "/c", "mvn", "spotless:apply", "-P", "spotless", "-f", pomPath.toString() };
-        } else {
-            command = new String[] { "mvn", "spotless:apply", "-P", "spotless", "-f", pomPath.toString() };
+    /**
+     * Reorders the imports in alphabetical ordering.
+     * <p>
+     * This helper method performs many tasks manually to maintain the original formatting of the file as much as
+     * possible. Using {@link CompilationUnit} to manipulate the imports and then printing the entire file back
+     * results in newline removal and trailing space removal which is just noise for us.
+     *
+     * @param file The Java file to reorder imports for.
+     * @param orderingStrategy The import ordering strategy to use.
+     * @return The Java file with reordered imports, or if the file has no imports the file as-is.
+     */
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    private static String reorderImports(String file, ImportOrderingStrategy orderingStrategy) {
+        CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+        com.github.javaparser.ast.NodeList<ImportDeclaration> imports = compilationUnit.getImports();
+        if (imports.isEmpty()) {
+            // File has no imports, nothing to reorder.
+            return file;
         }
 
-        try {
-            File outputFile = Files.createTempFile(pomPath.getParent(), "spotless", ".log").toFile();
-            outputFile.deleteOnExit();
-            Process process = new ProcessBuilder(command).redirectErrorStream(true)
-                .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
-                .start();
-            process.waitFor(300, TimeUnit.SECONDS);
+        // Positions of the existing imports in the file.
+        // Position uses 1-based indexing, so when we replace imports later we need to adjust this to 0-based indexing
+        // for Java's List.
+        int importStartLine = imports.stream().mapToInt(i -> i.getBegin().get().line).min().getAsInt();
+        int importEndLine = imports.stream().mapToInt(i -> i.getEnd().get().line).max().getAsInt();
 
-            if (process.isAlive() || process.exitValue() != 0) {
-                process.destroyForcibly();
-                throw new SpotlessException(
-                    "Spotless failed to complete within 300 seconds or failed with an error code. Output:\n"
-                        + Files.readString(outputFile.toPath()));
+        // Using DefaultImportOrderingStrategy which returns a single NodeList after sorting.
+        // If this strategy is changed, inspect the orderer used for how many NodeLists are returned.
+        // For example, a made up SplitInstanceAndStaticImportOrderingStrategy could return two NodeLists,
+        // one for sorted instance imports and one for sorted static imports.
+        imports = orderingStrategy.sortImports(imports).get(0);
+
+        List<String> lines = file.lines().collect(Collectors.toList());
+
+        int lastLineReplaced = importStartLine - 1;
+        for (ImportDeclaration importDeclaration : distinctImports(imports)) {
+            lines.set(lastLineReplaced, importToString(importDeclaration));
+            lastLineReplaced++;
+        }
+
+        // Remove any remaining old import lines if the new import list is shorter.
+        if (importEndLine >= lastLineReplaced) {
+            // Use importLineEnd as-is since Position is 1-based and subList's end index is exclusive.
+            lines.subList(lastLineReplaced, importEndLine).clear();
+        }
+
+        return String.join("\n", lines);
+    }
+
+    private static List<ImportDeclaration> distinctImports(List<ImportDeclaration> imports) {
+        Map<String, ImportDeclaration> importMap = new LinkedHashMap<>();
+        for (ImportDeclaration importDecl : imports) {
+            importMap.putIfAbsent(importDecl.toString(), importDecl);
+        }
+        return new ArrayList<>(importMap.values());
+    }
+
+    /**
+     * Converts an {@link ImportDeclaration} to its string representation.
+     * <p>
+     * This is done as {@link ImportDeclaration#toString()} uses an internal printer which adds newline characters we
+     * don't want. And instead of configuring our own printer just for this, we manually build the string.
+     *
+     * @param importDeclaration The import declaration.
+     * @return The import statement representation of the import declaration.
+     */
+    private static String importToString(ImportDeclaration importDeclaration) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import ");
+        if (importDeclaration.isStatic()) {
+            sb.append("static ");
+        }
+        sb.append(importDeclaration.getNameAsString());
+        if (importDeclaration.isAsterisk()) {
+            sb.append(".*");
+        }
+        sb.append(";");
+        return sb.toString();
+    }
+
+    private static String formatCode(String file, String fileName, CodeFormatter codeFormatter) throws Exception {
+        IDocument doc = new Document(file);
+
+        boolean isModuleInfo = fileName.endsWith(IModule.MODULE_INFO_JAVA);
+        if (isModuleInfo) {
+            // candidate module-info.java, confirm by check file content about module declaration
+            CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+            if (compilationUnit.getModule().isEmpty()) {
+                // not module-info.java
+                isModuleInfo = false;
             }
-        } catch (IOException | InterruptedException ex) {
-            throw new RuntimeException("Failed to run Spotless on generated code.", ex);
         }
+        int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
+        kind |= CodeFormatter.F_INCLUDE_COMMENTS;
+        TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);
+        edit.apply(doc);
+
+        return doc.get();
     }
 
-    private static final class SpotlessException extends RuntimeException {
-        public SpotlessException(String message) {
-            super(message);
+    /*
+     * In previous iterations of code formatting, we let Spotless use Google Java Formatter to remove unused imports.
+     * This worked well when code was valid, but when there were errors Spotless would halt processing on the first
+     * issue found. This meant that resolving issues were difficult, as it could take many iterations to resolve the
+     * regressions introduced.
+     *
+     * This then resulted in a new design where when Spotless failed on the entire fileset we would run Spotless
+     * individually on each file, and log the error message with the file content. This worked, but was tremendously
+     * slow as it required running many Maven processes, one for each file.
+     *
+     * This new implementation takes a dependency on google-java-format to run Google Java Formatter ourselves. This
+     * allows us to control error handling by processing all files, in-memory (much faster than letting Spotless run
+     * Google Java Formatter), and capturing all issues before attempting Spotless formatting (which now excludes
+     * unused import removal).
+     */
+    private static List<Map.Entry<String, String>> removeUnusedImports(Collection<Map.Entry<String, String>> files,
+        Logger logger) {
+        List<Map.Entry<String, String>> updatedFiles = new ArrayList<>(files.size());
+
+        // Tracker for errors encountered while running Google Java Formatter.
+        StringBuilder errorCapture = new StringBuilder();
+
+        for (Map.Entry<String, String> file : files) {
+            String content = file.getValue();
+            try {
+                // Use Google Java Formatter to remove unused imports.
+                updatedFiles.add(
+                    new AbstractMap.SimpleEntry<>(file.getKey(), RemoveUnusedImports.removeUnusedImports(content)));
+            } catch (FormatterException ex) {
+                String[] fileLines = content.split("\n");
+                // Capture the error message and continue processing other files.
+                for (FormatterDiagnostic diagnostic : ex.diagnostics()) {
+                    appendDiagnosticError(errorCapture, diagnostic, file.getKey(), fileLines, logger);
+                }
+            }
+            file.setValue(content);
         }
+
+        if (errorCapture.length() > 0) {
+            throw new IllegalStateException("Google Java Formatter encountered errors:\n" + errorCapture);
+        }
+
+        return updatedFiles;
     }
+
+    private static void appendDiagnosticError(StringBuilder errorCapture, FormatterDiagnostic diagnostic,
+        String fileName, String[] fileLines, Logger logger) {
+        int lineNumber = diagnostic.line();
+        int columnNumber = diagnostic.column();
+        int startLine = Math.max(0, lineNumber - 3);
+        int endLine = Math.min(fileLines.length - 1, lineNumber + 2);
+
+        StringBuilder diagnosticMessageBuilder = new StringBuilder();
+        diagnosticMessageBuilder.append("Error in file '")
+            .append(fileName)
+            .append("', ")
+            .append(diagnostic)
+            .append(":\n");
+
+        for (int i = startLine; i <= endLine; i++) {
+            String prefix = (i + 1) + ": ";
+            diagnosticMessageBuilder.append(prefix).append(fileLines[i]).append("\n");
+            if (i == lineNumber - 1) {
+                diagnosticMessageBuilder.append(" ".repeat(columnNumber + prefix.length() - 1)).append("^\n");
+            }
+        }
+
+        String diagnosticMessage = diagnosticMessageBuilder.toString();
+        if (logger != null) {
+            logger.error(diagnosticMessage);
+        }
+        errorCapture.append(diagnosticMessage);
+    }
+
 }

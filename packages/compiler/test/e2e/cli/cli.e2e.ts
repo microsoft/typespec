@@ -16,7 +16,10 @@ interface ExecCliOptions {
 
 async function execCli(args: string[], { cwd }: ExecCliOptions) {
   const node = process.platform === "win32" ? "node.exe" : "node";
-  return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], { cwd });
+  return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], {
+    cwd,
+    env: { ...process.env, NO_COLOR: "1" },
+  });
 }
 async function execCliSuccess(args: string[], { cwd }: ExecCliOptions) {
   const result = await execCli(args, { cwd });
@@ -99,6 +102,15 @@ describe("info", () => {
     });
     expect(stdout).toContain(`User Config:`);
     expect(stdout).toContain(`outputDir: "{project-root}/tsp-output/{custom-dir}"`);
+  });
+});
+
+describe("format", () => {
+  it("--check returns non zero exit code for unformatted files", async () => {
+    const { stderr } = await execCliFail(["format", "--check", "."], {
+      cwd: getScenarioDir("unformatted"),
+    });
+    expect(stderr).toContain(`⚠ 1 need format`);
   });
 });
 
@@ -217,9 +229,9 @@ describe("compile", () => {
         "--arg",
         "owner=TypeSpec",
         "--option",
-        "description.name=TypeSpec with options",
+        "emitter1.name=TypeSpec with options",
         "--option",
-        "description.by.owners.secondary=Co-owner is defined by this test",
+        "emitter1.by.owners.secondary=Co-owner is defined by this test",
       ],
       {
         cwd: getScenarioDir("with-option"),

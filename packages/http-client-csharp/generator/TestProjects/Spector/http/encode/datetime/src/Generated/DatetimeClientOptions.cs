@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace Encode.Datetime
 {
     public partial class DatetimeClientOptions : ClientPipelineOptions
     {
+        public DatetimeClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal DatetimeClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

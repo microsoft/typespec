@@ -1,5 +1,95 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.1
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.79.0
+
+### Bug Fixes
+
+- [#9580](https://github.com/microsoft/typespec/pull/9580) Keep lexical context for when working with template instance without name
+
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+### Deprecations
+
+- [#8605](https://github.com/microsoft/typespec/pull/8605) Deprecate use of `ObjectBuilder#set` in favor of `setProperty`
+    ```diff lang=ts
+    - builder.set("key", value);
+    + setProperty(builder, "key", value);
+    ```
+
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.72.0
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7906](https://github.com/microsoft/typespec/pull/7906) Corrected some logic around the detection of array types in visibility calculation.
+
+
+## 0.71.0
+
+No changes, version bump only.
+
+## 0.70.1
+
+### Bug Fixes
+
+- [#7306](https://github.com/microsoft/typespec/pull/7306) Added performance improvements for larger specs
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+No changes, version bump only.
+
 ## 0.68.0
 
 ### Bump dependencies

@@ -1,11 +1,16 @@
 import { pathToFileURL } from "url";
+import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic } from "vscode-languageserver/node.js";
+import { CompilerOptions } from "../core/options.js";
 import { parse, visitChildren } from "../core/parser.js";
+import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import { createClientConfigProvider } from "../server/client-config-provider.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
+import { ServerCompileOptions } from "../server/server-compile-manager.js";
 import { createStringMap } from "../utils/misc.js";
-import { StandardTestLibrary, TestHostOptions, createTestFileSystem } from "./test-host.js";
+import { createTestFileSystem } from "./fs.js";
+import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
 
@@ -52,6 +57,10 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       const document = TextDocument.create(url, "typespec", version, content);
       documents.set(url, document);
       fileSystem.addTypeSpecFile(path, ""); // force virtual file system to create directory where document lives.
+      if (!oldDocument) {
+        server.documentOpened({ document });
+      }
+      server.checkChange({ document });
       return document;
     },
     openDocument(path) {
@@ -61,7 +70,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     getDiagnostics(path) {
       return diagnostics.get(this.getURL(path)) ?? [];
     },
-    sendDiagnostics(params) {
+    async sendDiagnostics(params) {
       if (params.version && documents.get(params.uri)?.version !== params.version) {
         return;
       }
@@ -76,21 +85,67 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       }
       return pathToFileURL(resolveVirtualPath(path)).href;
     },
-    applyEdit(paramOrEdit) {
-      return Promise.resolve({ applied: false });
+    async applyEdit(paramOrEdit) {
+      if ("changes" in paramOrEdit) {
+        const changes = paramOrEdit.changes || {};
+        for (const uri in changes) {
+          const path = resolvePath(this.compilerHost.fileURLToPath(uri));
+          const document = this.fs.get(path);
+          if (document) {
+            const lines = document.split("\n");
+            changes[uri].map((edit) => {
+              const curLineIdx = edit.range.start.line;
+              lines[curLineIdx] =
+                lines[curLineIdx].slice(0, edit.range.start.character) +
+                edit.newText +
+                lines[curLineIdx].slice(edit.range.end.character);
+
+              this.fs.set(path, lines.join("\n"));
+            });
+          }
+
+          server.watchedFilesChanged({
+            changes: [{ uri, type: FileChangeType.Changed }],
+          });
+        }
+      }
+
+      return Promise.resolve({ applied: true });
     },
+    getDocumentUpdateDebounceDelay: () => 0,
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";
   const rootUri = serverHost.getURL(workspaceDir);
-  const server = createServer(serverHost);
+  const clientConfigProvider = createClientConfigProvider();
+  const server = createServer(serverHost, clientConfigProvider);
   await server.initialize({
-    rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
-    capabilities: {},
+    capabilities: { workspace: { workspaceFolders: true } },
     processId: null,
-    workspaceFolders: null,
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
+    workspaceFolders: [
+      {
+        name: "<root>",
+        uri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
+      },
+    ],
   });
   server.initialized({});
+  const serverCompile = server.compile;
+  server.compile = async (
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+  ) => {
+    // Wrap the compile to report diagnostics after compile in test to make sure existing tests
+    // that rely on diagnostics to work without having to change each of them to call reportDiagnostics explicitly.
+    const result = await serverCompile(document, additionalOptions, serverCompileOptions);
+    if (result) {
+      await server.reportDiagnostics(result);
+    }
+    return result;
+  };
   serverHost.server = server;
   return serverHost;
 }

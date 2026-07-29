@@ -1,7 +1,7 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,19 +11,19 @@ import java.io.IOException;
 /**
  * The SpreadParameterWithInnerAliasRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SpreadParameterWithInnerAliasRequest
     implements JsonSerializable<SpreadParameterWithInnerAliasRequest> {
     /*
      * name of the Thing
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String name;
 
     /*
      * age of the Thing
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int age;
 
     /**
@@ -32,7 +32,7 @@ public final class SpreadParameterWithInnerAliasRequest
      * @param name the name value to set.
      * @param age the age value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadParameterWithInnerAliasRequest(String name, int age) {
         this.name = name;
         this.age = age;
@@ -43,7 +43,7 @@ public final class SpreadParameterWithInnerAliasRequest
      * 
      * @return the name value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getName() {
         return this.name;
     }
@@ -53,7 +53,7 @@ public final class SpreadParameterWithInnerAliasRequest
      * 
      * @return the age value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getAge() {
         return this.age;
     }
@@ -61,7 +61,7 @@ public final class SpreadParameterWithInnerAliasRequest
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -79,7 +79,7 @@ public final class SpreadParameterWithInnerAliasRequest
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SpreadParameterWithInnerAliasRequest.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SpreadParameterWithInnerAliasRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String name = null;

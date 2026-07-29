@@ -1,5 +1,98 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.15
+
+### Features
+
+- [#10875](https://github.com/microsoft/typespec/pull/10875) Allow `@encode(string)` on boolean targets, define case-insensitive `true`/`false` string semantics, and add shared case-insensitive string matcher support with encode/boolean Spector coverage.
+  
+  ```tsp
+  model FeatureFlags {
+    @encode(string)
+    enabled: boolean;
+  }
+  ```
+
+
+## 0.1.0-alpha.14
+
+### Features
+
+- [#10011](https://github.com/microsoft/typespec/pull/10011) Add matcher framework for flexible value comparison in scenarios. `match.dateTime()` enables semantic datetime comparison that handles precision and timezone differences across languages.
+
+### Bug Fixes
+
+- [#9995](https://github.com/microsoft/typespec/pull/9995) Remove prettier used for ValidationError message, in validateXmlBodyEquals.
+
+
+## 0.1.0-alpha.13
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 0.1.0-alpha.12
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.1.0-alpha.11
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.1.0-alpha.10
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.9
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.1.0-alpha.8
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 0.1.0-alpha.7
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 0.1.0-alpha.6
+
+Republish
+
+
+## 0.1.0-alpha.5
+
+### Features
+
+- [#7066](https://github.com/microsoft/typespec/pull/7066) Add dynamic value resolution in spector mock apis with a new `dyn` string template builder
+
+
+## 0.1.0-alpha.4
+
+### Features
+
+- [#6926](https://github.com/microsoft/typespec/pull/6926) Upgrade to express v5
+
+
 ## 0.1.0-alpha.3
 
 ### Features

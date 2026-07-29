@@ -1,8 +1,9 @@
-import { Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import type { Type } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
 import { reportDiagnostic } from "../lib.js";
 
 export function isMultipart(type: Type): boolean {
+  const { $ } = useTsp();
   const body = type;
 
   if (!$.model.is(body)) {

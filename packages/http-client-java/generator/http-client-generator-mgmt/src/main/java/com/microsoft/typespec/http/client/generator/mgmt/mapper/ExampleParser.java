@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.LiteralNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
@@ -45,7 +46,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,14 +70,17 @@ public class ExampleParser {
     public List<FluentExample> parseMethodGroup(MethodGroupClient methodGroup) {
         List<FluentClientMethodExample> methodExamples = new ArrayList<>();
 
-        methodGroup.getClientMethods().forEach(m -> {
-            List<FluentClientMethodExample> examples = ExampleParser.parseMethod(methodGroup, m);
-            if (examples != null) {
-                methodExamples.addAll(examples);
-            }
-        });
+        methodGroup.getClientMethods()
+            .stream()
+            .filter(m -> m.getMethodVisibility() == JavaVisibility.Public)
+            .forEach(m -> {
+                List<FluentClientMethodExample> examples = ExampleParser.parseMethod(methodGroup, m);
+                if (examples != null) {
+                    methodExamples.addAll(examples);
+                }
+            });
 
-        Map<String, FluentExample> examples = new HashMap<>();
+        Map<String, FluentExample> examples = new LinkedHashMap<>();
         methodExamples.forEach(e -> {
             FluentExample example = getExample(examples, e.getMethodGroup(), e.getClientMethod(), e.getName());
             example.getClientMethodExamples().add(e);
@@ -109,7 +113,7 @@ public class ExampleParser {
             }
         });
 
-        Map<String, FluentExample> examples = new HashMap<>();
+        Map<String, FluentExample> examples = new LinkedHashMap<>();
         methodExamples.forEach(e -> {
             FluentExample example
                 = getExample(examples, e.getResourceCollection(), e.getCollectionMethod(), e.getName());
@@ -138,7 +142,11 @@ public class ExampleParser {
     private FluentExample getExample(Map<String, FluentExample> examples, MethodGroupClient methodGroup,
         ClientMethod clientMethod, String exampleName) {
         String groupName = methodGroup.getClassBaseName();
-        String methodName = clientMethod.getProxyMethod().getName();
+        String proxyMethodName = clientMethod.getProxyMethod().getName();
+        String methodName = clientMethod.getProxyMethod().isSync() && proxyMethodName.endsWith("Sync")
+            // Remove "Sync" suffix as it'll appear in example class name otherwise.
+            ? proxyMethodName.substring(0, proxyMethodName.length() - "Sync".length())
+            : proxyMethodName;
         String name = CodeNamer.toPascalCase(groupName) + CodeNamer.toPascalCase(methodName);
         if (!this.aggregateExamples) {
             name += com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer

@@ -21,6 +21,7 @@ export const httpRuntimeTemplateLib = createPackage({
         "PipelineRequest",
         "HttpResponse",
         "RawHttpHeaders",
+        "RestError",
       ],
     },
   },

@@ -10,12 +10,18 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputOperation? Operation { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
         public InputResponseLocation ResponseLocation { get; }
+        public IReadOnlyList<InputParameter>? ReInjectedParameters { get; }
 
-        public InputNextLink(InputOperation? operation, IReadOnlyList<string> responseSegments, InputResponseLocation responseLocation)
+        public InputNextLink(
+            InputOperation? operation,
+            IReadOnlyList<string> responseSegments,
+            InputResponseLocation responseLocation,
+            IReadOnlyList<InputParameter>? reInjectedParameters)
         {
             Operation = operation;
             ResponseSegments = responseSegments;
             ResponseLocation = responseLocation;
+            ReInjectedParameters = reInjectedParameters;
         }
     }
 }

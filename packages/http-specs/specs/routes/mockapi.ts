@@ -49,8 +49,8 @@ function createTests(uri: string) {
   });
 }
 
-Scenarios.Routes_InInterface = createTests("/routes/fixed");
-Scenarios.Routes_fixed = createTests("/routes/in-interface/fixed");
+Scenarios.Routes_InInterface = createTests("/routes/in-interface/fixed");
+Scenarios.Routes_fixed = createTests("/routes/fixed");
 Scenarios.Routes_PathParameters_templateOnly = createTests("/routes/path/template-only/a");
 Scenarios.Routes_PathParameters_explicit = createTests("/routes/path/explicit/a");
 Scenarios.Routes_PathParameters_annotationOnly = createTests("/routes/path/annotation-only/a");
@@ -154,6 +154,9 @@ Scenarios.Routes_QueryParameters_QueryExpansion_Explode_array = createTests(
 );
 Scenarios.Routes_QueryParameters_QueryExpansion_Explode_record = createTests(
   "/routes/query/query-expansion/explode/record?a=1&b=2",
+);
+Scenarios.Routes_QueryParameters_QueryExpansion_Explode_model = createTests(
+  "/routes/query/query-expansion/explode/model?field=status&value=active",
 );
 Scenarios.Routes_QueryParameters_QueryContinuation_Standard_primitive = createTests(
   "/routes/query/query-continuation/standard/primitive?fixed=true&param=a",

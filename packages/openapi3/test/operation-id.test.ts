@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 interface Case {
   description: string;
@@ -31,7 +31,7 @@ const testCases: Case[] = [
   },
 ];
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it.each(testCases)("$description", async (c: Case) => {
     const res: OpenAPI3Document = await openApiFor(c.code);
     expect(res.paths["/{id}"].get?.operationId).toBe(c.expectedOperationId);

@@ -57,7 +57,7 @@ public final class SingleContentTypesImpl {
      * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "MultiContentTypesCli")
+    @ServiceInterface(name = "MultiContentTypesClientSingleContentTypes")
     public interface SingleContentTypesService {
         @Get("/single/request/download/image")
         @ExpectedResponses({ 200 })

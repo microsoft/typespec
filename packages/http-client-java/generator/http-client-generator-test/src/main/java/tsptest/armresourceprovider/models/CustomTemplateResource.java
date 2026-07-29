@@ -89,7 +89,7 @@ public interface CustomTemplateResource {
      * 
      * @return the anonymousEmptyModel value.
      */
-    CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel();
+    AnonymousEmptyModel anonymousEmptyModel();
 
     /**
      * Gets the priority property: The priority property.
@@ -262,7 +262,7 @@ public interface CustomTemplateResource {
              * @param anonymousEmptyModel The anonymousEmptyModel property.
              * @return the next definition stage.
              */
-            WithCreate withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel);
+            WithCreate withAnonymousEmptyModel(AnonymousEmptyModel anonymousEmptyModel);
         }
 
         /**

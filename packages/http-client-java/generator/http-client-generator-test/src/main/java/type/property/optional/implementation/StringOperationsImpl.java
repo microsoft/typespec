@@ -57,7 +57,7 @@ public final class StringOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientString")
+    @ServiceInterface(name = "OptionalClientStringOperations")
     public interface StringOperationsService {
         @Get("/type/property/optional/string/all")
         @ExpectedResponses({ 200 })

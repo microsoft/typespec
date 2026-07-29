@@ -1,7 +1,8 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
-  SdkBodyModelPropertyType,
   SdkDurationType,
+  SdkEnumType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   isSdkFloatKind,
@@ -28,11 +29,12 @@ import {
   isTemplateInstance,
   isTypeSpecValueTypeOf,
 } from "@typespec/compiler";
+import { XmlSerializationFormat } from "./common/formats/xml.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext } from "./common/schemas/usage.js";
 import { getNamespace } from "./utils.js";
 
-export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds"];
+export const DURATION_KNOWN_ENCODING = ["ISO8601", "seconds", "milliseconds"];
 export const DATETIME_KNOWN_ENCODING = ["rfc3339", "rfc7231", "unixTimestamp"];
 export const BYTES_KNOWN_ENCODING = ["base64", "base64url"];
 
@@ -107,7 +109,11 @@ export function isNullableType(type: Type): boolean {
 }
 
 export function getNonNullSdkType(type: SdkType): SdkType {
-  return type.kind === "nullable" ? type.type : type;
+  let nonNullType = type;
+  while (nonNullType.kind === "nullable") {
+    nonNullType = nonNullType.type;
+  }
+  return nonNullType;
 }
 
 export function getDefaultValue(value: Value | undefined): any {
@@ -135,6 +141,16 @@ export function getDurationFormat(type: SdkDurationType): DurationSchema["format
     } else {
       throw new Error(
         `Unrecognized scalar type used by duration encoded as seconds: '${type.kind}'.`,
+      );
+    }
+  } else if (type.encode === "milliseconds") {
+    if (isSdkIntKind(type.wireType.kind)) {
+      format = "milliseconds-integer";
+    } else if (isSdkFloatKind(type.wireType.kind)) {
+      format = "milliseconds-number";
+    } else {
+      throw new Error(
+        `Unrecognized scalar type used by duration encoded as milliseconds: '${type.kind}'.`,
       );
     }
   }
@@ -345,14 +361,56 @@ export function isArmCommonType(entity: Type): boolean {
   return false;
 }
 
-export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+/**
+ * Get the serialized name of a property, based on either JSON, or XML, or Multipart.
+ *
+ * @param property the model property.
+ * @returns the serialized name of the property.
+ */
+export function getPropertySerializedName(property: SdkModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
+    property.serializationOptions.xml?.name ??
     property.serializationOptions.multipart?.name ??
     property.__raw?.name ??
     property.name
   );
+}
+
+/**
+ * Get the XML serialization format for a type or property.
+ *
+ * @param type the type or model property.
+ * @returns the XML serialization format, or undefined if not applicable.
+ */
+export function getXmlSerializationFormat(
+  type: SdkModelType | SdkModelPropertyType,
+): XmlSerializationFormat | undefined {
+  if (!type.serializationOptions.xml) {
+    return undefined;
+  }
+  // "unwrapped" from xml lib can be applied to both array and string
+  let propertyTypeIsArray = false;
+  let propertyTypeIsText = false;
+  if (type.kind === "property") {
+    propertyTypeIsArray = type.type.kind === "array";
+    propertyTypeIsText =
+      type.type.kind !== "array" && type.type.kind !== "dict" && type.type.kind !== "model";
+  }
+  // name, namespace and prefix on type and property
+  // attribute, wrapped, text on property
+  return {
+    name: type.serializationOptions.xml.name ?? undefined,
+    namespace: type.serializationOptions.xml.ns?.namespace ?? undefined,
+    prefix: type.serializationOptions.xml.ns?.prefix ?? undefined,
+    attribute: type.serializationOptions.xml.attribute ?? false,
+    wrapped: propertyTypeIsArray ? !(type.serializationOptions.xml.unwrapped ?? true) : false,
+    text: propertyTypeIsText ? (type.serializationOptions.xml.unwrapped ?? false) : false,
+    itemsName: type.serializationOptions.xml.itemsName ?? undefined,
+    itemsNamespace: type.serializationOptions.xml.itemsNs?.namespace ?? undefined,
+    itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix ?? undefined,
+  };
 }
 
 function getDecoratorScopedValue<T>(
@@ -360,30 +418,35 @@ function getDecoratorScopedValue<T>(
   decorator: string,
   mapFunc: (d: DecoratorApplication) => T,
 ): T | undefined {
+  // check for decorator that contains "java" scope, e.g. "java" or "python,java"
   let value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "java",
+        scopeExplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that contains negative non-"java" scope, e.g. "!python"
   value = type.decorators
     .filter(
       (it) =>
         it.decorator.name === decorator &&
         it.args.length === 2 &&
-        (it.args[1].value as StringLiteral).value === "client",
+        scopeImplicitlyIncludeJava((it.args[1].value as StringLiteral).value),
     )
     .map((it) => mapFunc(it))
     .find(() => true);
   if (value) {
     return value;
   }
+
+  // check for decorator that does not have scope
   value = type.decorators
     .filter((it) => it.decorator.name === decorator && it.args.length === 1)
     .map((it) => mapFunc(it))
@@ -392,4 +455,61 @@ function getDecoratorScopedValue<T>(
     return value;
   }
   return undefined;
+}
+
+/**
+ * Tests that the scope explicitly includes "java". This is of higher priority than scope with negation.
+ *
+ * @param scope the scope.
+ * @returns scope explicitly includes "java".
+ */
+export function scopeExplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    return false;
+  }
+  return scope
+    .split(",")
+    .map((s) => s.trim())
+    .includes("java");
+}
+
+/**
+ * Tests that the scope implicitly includes "java" by having a negation of other languages.
+ * E.g. "!python" or "!(python,csharp)".
+ *
+ * @param scope the scope.
+ * @returns scope implicitly includes "java".
+ */
+export function scopeImplicitlyIncludeJava(scope: string): boolean {
+  if (scopeIsNegationOfMultiple(scope)) {
+    const scopeInNegation = scope.trim().slice(2, -1).trim(); // remove "!(" and ")"
+    return !scopeInNegation
+      .split(",")
+      .map((s) => s.trim())
+      .includes("java");
+  } else {
+    return scope
+      .split(",")
+      .map((s) => s.trim())
+      .some((s) => s.startsWith("!") && s !== "!java");
+  }
+}
+
+function scopeIsNegationOfMultiple(scope: string): boolean {
+  const trimmedScope = scope.trim();
+  return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
+}
+
+/**
+ * Gets the Java simple class name of the ExternalType type.
+ * @param type the type.
+ * @returns the Java simple class name.
+ */
+export function getExternalJavaClassName(type: SdkModelType | SdkEnumType): string {
+  if (type.external) {
+    const fullyQualifiedClassName = type.external.identity;
+    return fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf(".") + 1);
+  } else {
+    throw new Error(`Type ${type.name} is not an ExternalType.`);
+  }
 }

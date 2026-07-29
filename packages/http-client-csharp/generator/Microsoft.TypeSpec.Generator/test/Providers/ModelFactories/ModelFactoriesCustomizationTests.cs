@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanReplaceModelMethod()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+               inputNamespaceName: "Sample.Namespace",
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -98,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanChangeAccessibilityOfModelFactory()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -175,6 +177,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNull(modelFactory);
         }
 
+        // This test validates that a derived model customized to be internal does not get a
+        // public model factory method just because its base model remains public.
+        [Test]
+        public async Task OmitsModelFactoryMethodIfDerivedModelTypeInternal()
+        {
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                properties: [InputFactory.Property("BaseProp", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                properties: [InputFactory.Property("DerivedProp", InputPrimitiveType.String)],
+                baseModel: baseModel);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [baseModel, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+            CollectionAssert.Contains(modelFactory!.Methods.Select(m => m.Signature.Name), "BaseModel");
+            CollectionAssert.DoesNotContain(modelFactory.Methods.Select(m => m.Signature.Name), "DerivedModel");
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanCustomizeModelFullConstructor(bool extraParameters)
@@ -216,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 Assert.AreEqual("data", modelFactoryMethod.Signature.Parameters[0].Name);
                 Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
                 Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
-                        .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalData: null);"),
+                        .Contains("return new global::Sample.Models.MockInputModel(data.ToList(), prop1, additionalData: null);"),
                     modelFactoryMethod.BodyStatements!.ToDisplayString());
             }
             else

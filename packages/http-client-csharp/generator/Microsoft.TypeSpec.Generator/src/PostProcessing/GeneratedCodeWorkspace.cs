@@ -8,12 +8,17 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Build.Construction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Utilities;
+using NuGet.Configuration;
+using MSBuildProjectCollection = Microsoft.Build.Evaluation.ProjectCollection;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -24,6 +29,9 @@ namespace Microsoft.TypeSpec.Generator
         private const string GeneratedCodeProjectName = "GeneratedCode";
         private const string GeneratedTestFolder = "GeneratedTests";
         private const string NewLine = "\n";
+        private const string ApiCompatPropertyName = "ApiCompatVersion";
+        private const string TargetFrameworkPropertyName = "TargetFramework";
+        private const string TargetFrameworksPropertyName = "TargetFrameworks";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
@@ -96,6 +104,7 @@ namespace Microsoft.TypeSpec.Generator
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
             List<Task<Document>> documents = new List<Task<Document>>();
+            var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
             {
                 if (!IsGeneratedDocument(document))
@@ -103,16 +112,16 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                documents.Add(ProcessDocument(document));
+                documents.Add(ProcessDocument(document, memberRemover));
             }
             var docs = await Task.WhenAll(documents);
 
+            LoggingHelpers.LogElapsedTime("Roslyn document processing complete");
+
             foreach (var doc in docs)
             {
-                var processed = doc;
-
-                var text = await processed.GetSyntaxTreeAsync();
-                yield return (processed.Name, text!.ToString());
+                var text = await doc.GetTextAsync();
+                yield return (doc.Name, text.ToString());
             }
 
             foreach (var (file, content) in PlainFiles)
@@ -121,18 +130,35 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private async Task<Document> ProcessDocument(Document document)
+        private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover)
         {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            var compilation = await GetCompilationAsync();
-            if (syntaxTree != null)
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
+
+            if (semanticModel == null || root == null)
             {
-                var semanticModel = compilation.GetSemanticModel(syntaxTree);
-                var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
-                document = document.WithSyntaxRoot(modelRemoveRewriter.Visit(await syntaxTree.GetRootAsync()));
+                return document;
             }
 
-            document = await Simplifier.ReduceAsync(document);
+            root = memberRemover.Visit(root);
+
+            foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
+            {
+                rewriter.SemanticModel = semanticModel;
+                root = rewriter.Visit(root);
+            }
+            document = document.WithSyntaxRoot(root);
+
+            if (!CodeModelGenerator.Instance.Configuration.DisableRoslynReduce)
+            {
+                document = await Simplifier.ReduceAsync(document);
+            }
+
+            // Reformat if any custom rewriters have been applied
+            if (CodeModelGenerator.Instance.Rewriters.Count > 0)
+            {
+                document = await Formatter.FormatAsync(document);
+            }
             return document;
         }
 
@@ -158,7 +184,7 @@ namespace Microsoft.TypeSpec.Generator
             return generatedCodeProject;
         }
 
-        internal static async Task<GeneratedCodeWorkspace> Create()
+        internal static async Task<GeneratedCodeWorkspace> Create(bool isCustomCodeProject)
         {
             // prepare the generated code project
             var projectTask = Interlocked.Exchange(ref _cachedProject, null);
@@ -185,20 +211,29 @@ namespace Microsoft.TypeSpec.Generator
                 project = AddDirectory(project, sharedSourceFolder, folders: _sharedFolders);
             }
 
-            project = project.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
+            project = project.WithParseOptions(new CSharpParseOptions(
+                preprocessorSymbols: ["EXPERIMENTAL"],
+                documentationMode: isCustomCodeProject ? DocumentationMode.None : DocumentationMode.Parse));
 
             return new GeneratedCodeWorkspace(project);
         }
 
-        internal static async Task<Compilation?> CreatePreviousContractFromDll(string xmlDocumentationpath, string dllPath)
+        private static async Task<Compilation?> CreateLastContractFromDll(string xmlDocumentationpath, string dllPath)
         {
             var workspace = new AdhocWorkspace();
-            Project project = workspace.AddProject("PreviousContract", LanguageNames.CSharp);
+            Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
+            XmlDocumentationProvider? documentationProvider = File.Exists(xmlDocumentationpath)
+               ? XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)
+               : null;
+            List<MetadataReference> metadataReferences =
+            [
+                .. _assemblyMetadataReferences.Value.Concat(CodeModelGenerator.Instance.AdditionalMetadataReferences),
+                MetadataReference.CreateFromFile(dllPath, documentation: documentationProvider)
+            ];
             project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(metadataReferences)
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
-            project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
             return await project.GetCompilationAsync();
         }
 
@@ -215,7 +250,9 @@ namespace Microsoft.TypeSpec.Generator
             foreach (string sourceFile in Directory.GetFiles(directory, "*.cs", SearchOption.AllDirectories))
             {
                 if (skipPredicate != null && skipPredicate(sourceFile))
+                {
                     continue;
+                }
 
                 project = project.AddDocument(sourceFile, File.ReadAllText(sourceFile), folders ?? Array.Empty<string>(), sourceFile).Project;
             }
@@ -224,27 +261,203 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// This method invokes the postProcessor to do some post processing work
-        /// Depending on the configuration, it will either remove + internalize, just internalize or do nothing
+        /// Resolves PackageReference items from the project's .csproj file and adds their assemblies
+        /// as metadata references so that custom code referencing external NuGet types compiles correctly.
         /// </summary>
-        public async Task PostProcessAsync()
+        internal static async Task AddPackageReferencesFromProject()
         {
-            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
-            var postProcessor = new PostProcessor(
-                [.. CodeModelGenerator.Instance.TypeFactory.UnionTypes, .. CodeModelGenerator.Instance.TypesToKeep],
-                modelFactoryFullName: $"{modelFactory.Type.Namespace}.{modelFactory.Name}");
-            switch (Configuration.UnreferencedTypesHandling)
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
+            string projectFilePath = Path.GetFullPath(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
+            if (!File.Exists(projectFilePath))
             {
-                case Configuration.UnreferencedTypesHandlingOption.KeepAll:
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.Internalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    break;
-                case Configuration.UnreferencedTypesHandlingOption.RemoveOrInternalize:
-                    _project = await postProcessor.InternalizeAsync(_project);
-                    _project = await postProcessor.RemoveAsync(_project);
-                    break;
+                return;
             }
+
+            var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            // Build a set of assembly names already registered so we can skip them
+            var existingRefs = new HashSet<string>(
+                CodeModelGenerator.Instance.AdditionalMetadataReferences
+                    .Where(r => r.Display is not null)
+                    .Select(r => Path.GetFileNameWithoutExtension(r.Display!))
+                    .Where(n => !string.IsNullOrEmpty(n)),
+                StringComparer.OrdinalIgnoreCase);
+
+            foreach (var item in projectRoot.Items.Where(i => i.ItemType == "PackageReference"))
+            {
+                var refPackageName = item.Include;
+
+                if (string.IsNullOrEmpty(refPackageName))
+                {
+                    continue;
+                }
+
+                // Skip packages already added as metadata references (e.g., by a plugin)
+                if (existingRefs.Contains(refPackageName))
+                {
+                    continue;
+                }
+
+                // Search the NuGet global packages folder for any cached version of this package.
+                string? resolvedAssemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, refPackageName);
+
+                // If not found in cache, download the latest version from NuGet feeds
+                if (resolvedAssemblyPath == null)
+                {
+                    try
+                    {
+                        var latestVersion = await NugetPackageResolver.ResolveLatestPackageVersion(refPackageName, nugetSettings);
+                        if (latestVersion != null)
+                        {
+                            var downloader = new NugetPackageDownloader(refPackageName, latestVersion, null, nugetSettings);
+                            var downloadedPath = await downloader.DownloadAndInstallPackage();
+                            var downloadedAssembly = Path.Combine(downloadedPath, $"{refPackageName}.dll");
+                            if (File.Exists(downloadedAssembly))
+                            {
+                                resolvedAssemblyPath = downloadedAssembly;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Could not download package {refPackageName}: {ex.Message}");
+                    }
+                }
+
+                if (resolvedAssemblyPath != null)
+                {
+                    CodeModelGenerator.Instance.AddMetadataReference(
+                        MetadataReference.CreateFromFile(resolvedAssemblyPath));
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Added metadata reference: {refPackageName} from {resolvedAssemblyPath}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Locates and parses the ApiCompat baseline (suppression) file for the current library, if
+        /// present. The file is expected at <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.xml</c> or
+        /// <c>eng/apicompatbaselines/&lt;AssemblyName&gt;.txt</c> relative to a repository root
+        /// discovered by walking up from the project directory. The XML format is preferred when both
+        /// files exist.
+        /// Returns <see cref="ApiCompatBaseline.Empty"/> when no baseline file is found.
+        /// </summary>
+        internal static ApiCompatBaseline LoadApiCompatBaseline()
+        {
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
+            var directory = new DirectoryInfo(CodeModelGenerator.Instance.Configuration.ProjectDirectory);
+
+            while (directory != null)
+            {
+                var baselineDirectory = Path.Combine(directory.FullName, "eng", "apicompatbaselines");
+                foreach (var extension in new[] { ".xml", ".txt" })
+                {
+                    var candidate = Path.Combine(baselineDirectory, $"{packageName}{extension}");
+                    if (File.Exists(candidate))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug($"Loading ApiCompat baseline from {candidate}");
+                        return ApiCompatBaseline.FromFile(candidate);
+                    }
+                }
+
+                directory = directory.Parent;
+            }
+
+            return ApiCompatBaseline.Empty;
+        }
+
+        internal static async Task<Compilation?> LoadBaselineContract()
+        {
+            var packageName = CodeModelGenerator.Instance.Configuration.PackageName;
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{packageName}.csproj"));
+
+            if (!File.Exists(projectFilePath))
+            {
+                return null;
+            }
+
+            var projectRoot = ProjectRootElement.Open(projectFilePath);
+            var baselineVersion = projectRoot.Properties.SingleOrDefault(p => p.Name == ApiCompatPropertyName)?.Value;
+            if (baselineVersion == null)
+            {
+                return null;
+            }
+
+            var targetFrameworksValue = projectRoot.Properties
+                .FirstOrDefault(p => p.Name == TargetFrameworkPropertyName || p.Name == TargetFrameworksPropertyName)?.Value;
+            HashSet<string>? parsedTargetFrameworks = ParseNetTargetFrameworks(targetFrameworksValue);
+
+            var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
+            var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+
+            // Try to find or download the assembly
+            try
+            {
+                string nugetFolderPathToAssembly = string.Empty;
+                string assemblyFileFullPath = string.Empty;
+                bool foundInstalledAssembly = false;
+
+                foreach (var preferredTargetFramework in NugetPackageDownloader.PreferredDotNetFrameworkVersions)
+                {
+                    if (parsedTargetFrameworks != null && !parsedTargetFrameworks.Contains(preferredTargetFramework))
+                    {
+                        continue;
+                    }
+
+                    nugetFolderPathToAssembly = Path.Combine(
+                        nugetGlobalPackageFolder,
+                        packageName.ToLowerInvariant(),
+                        baselineVersion,
+                        "lib",
+                        preferredTargetFramework);
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+
+                    if (File.Exists(assemblyFileFullPath))
+                    {
+                        foundInstalledAssembly = true;
+                        break;
+                    }
+                }
+
+                // If assembly doesn't exist locally, download it & install it
+                if (!foundInstalledAssembly)
+                {
+                    NugetPackageDownloader downloader = new(packageName, baselineVersion, parsedTargetFrameworks, nugetSettings);
+                    nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
+                    assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
+                }
+
+                string xmlDocPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.xml");
+                return await CreateLastContractFromDll(xmlDocPath, assemblyFileFullPath);
+            }
+            catch (Exception ex)
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.BaselineContractMissing,
+                    $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
+                    $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static HashSet<string>? ParseNetTargetFrameworks(string? targetFrameworksValue)
+        {
+            if (string.IsNullOrEmpty(targetFrameworksValue))
+            {
+                return null;
+            }
+
+            var parsedFrameworks = targetFrameworksValue.Split(';')
+                .Where(framework => framework.StartsWith("net"))
+                .ToHashSet();
+
+            return parsedFrameworks.Count > 0 ? parsedFrameworks : null;
         }
     }
 }

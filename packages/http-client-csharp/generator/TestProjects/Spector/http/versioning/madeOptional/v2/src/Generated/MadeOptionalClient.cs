@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,16 +17,21 @@ namespace Versioning.MadeOptional
 
         public MadeOptionalClient(Uri endpoint) : this(endpoint, new MadeOptionalClientOptions()) => throw null;
 
-        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) => throw null;
+        internal MadeOptionalClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, MadeOptionalClientOptions options) => throw null;
+
+        public MadeOptionalClient(Uri endpoint, MadeOptionalClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public MadeOptionalClient(MadeOptionalClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Test(BinaryContent content, string @param = null, RequestOptions options = null) => throw null;
+        public virtual ClientResult Test(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> TestAsync(BinaryContent content, string @param = null, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(BinaryContent content, string @param = default, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(TestModel body, string @param = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, string @param = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, string @param = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -30,12 +30,8 @@ public final class ManagedIdentitiesImpl implements ManagedIdentities {
         String managedIdentityTrackedResourceName, Context context) {
         Response<ManagedIdentityTrackedResourceInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, managedIdentityTrackedResourceName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ManagedIdentityTrackedResourceImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ManagedIdentityTrackedResourceImpl(inner.getValue(), this.manager()));
     }
 
     public ManagedIdentityTrackedResource getByResourceGroup(String resourceGroupName,

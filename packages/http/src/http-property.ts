@@ -16,6 +16,7 @@ import {
   getPathOptions,
   getQueryOptions,
   isBody,
+  isBodyIgnore,
   isBodyRoot,
   isMultipartBodyProperty,
   isStatusCode,
@@ -78,6 +79,11 @@ export interface StatusCodeProperty extends HttpPropertyBase {
 export interface BodyProperty extends HttpPropertyBase {
   readonly kind: "body";
 }
+
+/** Property annotated with `@bodyIgnore` */
+export interface BodyIgnoreProperty extends HttpPropertyBase {
+  readonly kind: "bodyIgnore";
+}
 export interface BodyRootProperty extends HttpPropertyBase {
   readonly kind: "bodyRoot";
 }
@@ -93,6 +99,10 @@ export interface GetHttpPropertyOptions {
   implicitParameter?: (
     param: ModelProperty,
   ) => PathParameterOptions | QueryParameterOptions | undefined;
+  /**
+   * When true, treat `Content-Type` headers as regular headers.
+   */
+  treatContentTypeAsHeader?: boolean;
 }
 /**
  * Find the type of a property in a model
@@ -102,10 +112,10 @@ function getHttpProperty(
   property: ModelProperty,
   path: (string | number)[],
   options: GetHttpPropertyOptions = {},
-): [HttpProperty, readonly Diagnostic[]] {
+): [HttpProperty | BodyIgnoreProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
 
-  function createResult<T extends Omit<HttpProperty, "path" | "property">>(
+  function createResult<T extends Omit<HttpProperty | BodyIgnoreProperty, "path" | "property">>(
     opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
     return [{ ...opts, property, path } as any, diagnostics];
@@ -176,7 +186,9 @@ function getHttpProperty(
     });
   }
   if (defined.length === 0) {
-    return createResult({ kind: "bodyProperty" });
+    return isBodyIgnore(program, property)
+      ? createResult({ kind: "bodyIgnore" })
+      : createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
       createDiagnostic({
@@ -188,11 +200,13 @@ function getHttpProperty(
   }
 
   if (annotations.header) {
-    if (annotations.header.name.toLowerCase() === "content-type") {
+    if (
+      annotations.header.name.toLowerCase() === "content-type" &&
+      !options.treatContentTypeAsHeader
+    ) {
       return createResult({ kind: "contentType" });
-    } else {
-      return createResult({ kind: "header", options: annotations.header });
     }
+    return createResult({ kind: "header", options: annotations.header });
   } else if (annotations.cookie) {
     return createResult({ kind: "cookie", options: annotations.cookie });
   } else if (annotations.query) {
@@ -232,7 +246,7 @@ export function resolvePayloadProperties(
   const diagnostics = createDiagnosticCollector();
   const httpProperties = new Map<ModelProperty, HttpProperty>();
 
-  if (type.kind !== "Model" || type.properties.size === 0) {
+  if (type.kind !== "Model" || (type.properties.size === 0 && !type.baseModel)) {
     return diagnostics.wrap([]);
   }
 
@@ -249,7 +263,10 @@ export function resolvePayloadProperties(
       }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
-      if (shouldTreatAsBodyProperty(httpProperty, disposition)) {
+      if (
+        httpProperty.kind !== "bodyIgnore" &&
+        shouldTreatAsBodyProperty(httpProperty, disposition)
+      ) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
 
@@ -287,7 +304,9 @@ export function resolvePayloadProperties(
       if (httpProperty.kind === "bodyProperty") {
         foundBodyProperty = true;
       }
-      httpProperties.set(property, httpProperty);
+      if (httpProperty.kind !== "bodyIgnore") {
+        httpProperties.set(property, httpProperty);
+      }
     }
     return foundBody && !foundBodyProperty;
   }

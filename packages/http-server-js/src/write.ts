@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { resolvePath } from "@typespec/compiler";
+import { getDirectoryPath, resolvePath } from "@typespec/compiler";
 import { JsContext, Module, isModule } from "./ctx.js";
 
 import { emitModuleBody } from "./common/namespace.js";
 import { OnceQueue, createOnceQueue } from "./util/once-queue.js";
 
-import * as prettier from "prettier";
+import estreePlugin from "prettier/plugins/estree";
+import tsPlugin from "prettier/plugins/typescript";
+import { format as prettierFormat } from "prettier/standalone";
 
-import { EOL } from "os";
-import path from "path";
 import { bifilter } from "./util/iter.js";
 
 /**
@@ -52,7 +52,7 @@ export async function writeModuleFile(
   queue: OnceQueue<Module>,
   format: boolean,
   spit: (path: string, contents: string) => Promise<void> = async (name, contents) => {
-    await ctx.program.host.mkdirp(path.dirname(name));
+    await ctx.program.host.mkdirp(getDirectoryPath(name));
     await ctx.program.host.writeFile(name, contents);
   },
 ): Promise<void> {
@@ -79,10 +79,11 @@ export async function writeModuleFile(
   const modulePath = resolvePath(baseOutputPath, moduleRelativePath);
 
   const text = format
-    ? await prettier.format(moduleText.join(EOL), {
+    ? await prettierFormat(moduleText.join("\n"), {
         parser: "typescript",
+        plugins: [tsPlugin, estreePlugin],
       })
-    : moduleText.join(EOL);
+    : moduleText.join("\n");
 
   await spit(modulePath, text);
 }

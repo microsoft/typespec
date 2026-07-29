@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.BinarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.KnownMediaType;
@@ -19,7 +17,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
-import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsPageable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -31,9 +28,11 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class MethodUtil {
     public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
         = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
     public static final String REPEATABILITY_REQUEST_ID_EXPRESSION
-        = JavaSettings.getInstance().isBranded() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
+        = JavaSettings.getInstance().isAzureV1() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
     public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
         = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 
@@ -223,7 +222,7 @@ public class MethodUtil {
      * @return true if the requests have different content types, otherwise return false
      */
     public static int getContentTypeCount(List<Request> requests) {
-        Set<String> mediaTypes = new HashSet<>();
+        Set<String> mediaTypes = new LinkedHashSet<>();
         for (Request request : requests) {
             if (!CoreUtils.isNullOrEmpty(request.getProtocol().getHttp().getMediaTypes())) {
                 mediaTypes.addAll(request.getProtocol().getHttp().getMediaTypes());
@@ -295,42 +294,6 @@ public class MethodUtil {
             .filter(p -> !p.isConstant() && !p.isFromClient())
             .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Checks if the parameter should be hidden from API, for pageable operation.
-     *
-     * @param parameter the parameter
-     * @param xmsPageable the detail of pageable operation in CodeModel
-     * @return whether the parameter should be hidden from API
-     */
-    public static boolean shouldHideParameterInPageable(Parameter parameter, XmsPageable xmsPageable) {
-        boolean hide = false;
-        if (xmsPageable.getContinuationToken() != null
-            && parameter == xmsPageable.getContinuationToken().getParameter()) {
-            hide = true;
-        }
-        if (JavaSettings.getInstance().isPageSizeEnabled() && isMaxPageSizeParameter(parameter)) {
-            hide = true;
-        }
-        return hide;
-    }
-
-    /**
-     * Checks if the parameter is "maxpagesize".
-     * <p>
-     * It checks if the serialized name is "maxpagesize", or client name is "maxPageSize".
-     *
-     * @param parameter the parameter
-     * @return whether the parameter is "maxpagesize".
-     */
-    private static boolean isMaxPageSizeParameter(Parameter parameter) {
-        return parameter.getProtocol() != null && parameter.getProtocol().getHttp() != null
-        // query parameter
-            && parameter.getProtocol().getHttp().getIn() == RequestParameterLocation.QUERY
-            // serialized name == maxpagesize, or relax a bit, client name == maxPageSize
-            && (Objects.equals(parameter.getLanguage().getDefault().getSerializedName(), "maxpagesize")
-                || Objects.equals(SchemaUtil.getJavaName(parameter), "maxPageSize"));
     }
 
     /**

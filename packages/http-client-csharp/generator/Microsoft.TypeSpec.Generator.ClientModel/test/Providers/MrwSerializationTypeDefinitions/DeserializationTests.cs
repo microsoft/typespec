@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 return [.. base.BuildMethods().Where(m => m.Signature.Name.StartsWith("Deserialize"))];
             }
 
-            protected override FieldProvider[] BuildFields() => [];
+            protected internal override FieldProvider[] BuildFields() => [];
             protected override ConstructorProvider[] BuildConstructors() => [];
         }
 
@@ -92,6 +92,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     true,
                     false);
             }
+        }
+
+        [Test]
+        public void TestDeserializationUsesUriKindRelativeOrAbsolute()
+        {
+            var inputModel = InputFactory.Model("TestModel", properties:
+                [InputFactory.Property("prop1", InputPrimitiveType.Url)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+
+            var deserializationMethod = mrwProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+
+            Assert.IsTrue(methodBody.Contains("new global::System.Uri("),
+                $"Uri property should use new Uri() constructor. Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("global::System.UriKind.RelativeOrAbsolute"),
+                $"Uri property should specify UriKind.RelativeOrAbsolute. Actual:\n{methodBody}");
+        }
+
+        // Validates that duration properties encoded as integer milliseconds are deserialized
+        // from an integer JSON value (GetInt32 for Int32 wire type, GetInt64 for larger integer kinds).
+        [TestCase(nameof(InputPrimitiveType.Int32))]
+        [TestCase(nameof(InputPrimitiveType.Int64))]
+        [TestCase(nameof(InputPrimitiveTypeKind.Integer))]
+        public void TestDeserializationOfDurationMillisecondsIntegerWireType(string wireKindName)
+        {
+            var wireType = wireKindName switch
+            {
+                nameof(InputPrimitiveType.Int32) => InputPrimitiveType.Int32,
+                nameof(InputPrimitiveType.Int64) => InputPrimitiveType.Int64,
+                nameof(InputPrimitiveTypeKind.Integer) => new InputPrimitiveType(InputPrimitiveTypeKind.Integer, "integer", "TypeSpec.integer"),
+                _ => throw new ArgumentException(wireKindName),
+            };
+            var durationType = new InputDurationType(DurationKnownEncoding.Milliseconds, "duration", "TypeSpec.duration", wireType, null);
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("audio_end_ms", durationType, wireName: "audio_end_ms", isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: wireKindName), file.Content);
+        }
+
+        // Validates the deserialize body produced for a required FileBinaryContent property.
+        [Test]
+        public void RequiredFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: true)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // Validates the deserialize body produced for an optional FileBinaryContent property.
+        [Test]
+        public void OptionalFileBinaryContentProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                properties: [InputFactory.Property("profileImage", InputFactory.FileType(), isRequired: false)]);
+
+            var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
+            Assert.IsNotNull(mrwProvider);
+            var writer = new TypeProviderWriter(mrwProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

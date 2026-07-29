@@ -1,5 +1,5 @@
 {
-  "name": "tspconfig-test",
+  "name": "@typespec/tspconfig-test",
   "version": "1.0.0",
   "description": "test project for testing tsp config",
   "main": "index.js",
@@ -9,13 +9,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "fake-emitter-no-schema": "0.1.2",
-    "fake-linter-no-schema": "0.1.2"
+    "@typespec/fake-emitter-no-schema": "0.1.2",
+    "@typespec/fake-linter-no-schema": "0.1.2"
   },
   "dependencies": {
-    "fake-emitter": "0.0.2",
-    "fake-linter": "0.0.2",
-    "fake-yaml": "0.0.1",
-    "not-exist": "0.0.1"
+    "@typespec/fake-emitter": "0.0.2",
+    "@typespec/fake-linter": "0.0.2",
+    "@typespec/fake-yaml": "0.0.1",
+    "@typespec/not-exist": "0.0.1"
   }
 }

@@ -13,8 +13,8 @@ public class FlattenOpSend {
     public static void main(String[] args) {
         FlattenClient flattenClient
             = new FlattenClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
-        // BEGIN:tsptest.flatten.generated.send.flattenopsend
+        // BEGIN:tsptest.flatten.generated.send.flatten-op-send
         flattenClient.send("myRequiredId", null, "myRequiredInput", 0, 50, new User("myOptionalUser"));
-        // END:tsptest.flatten.generated.send.flattenopsend
+        // END:tsptest.flatten.generated.send.flatten-op-send
     }
 }

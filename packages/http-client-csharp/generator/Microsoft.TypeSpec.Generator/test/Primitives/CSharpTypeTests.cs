@@ -99,7 +99,130 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.AreEqual(cst1.GetHashCode(), cst2.GetHashCode());
         }
 
+        [Test]
+        public void TypesWithDifferentDeclaringTypesAreNotEqual()
+        {
+            var declaringType1 = new CSharpType(
+                "type1",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+            var declaringType2 = new CSharpType(
+                "type2",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+
+            var nested1 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType1,
+                [],
+                true,
+                false);
+            var nested2 = new CSharpType(
+                "nested",
+                "ns",
+                false,
+                false,
+                declaringType2,
+                [],
+                true,
+                false);
+
+            Assert.IsFalse(nested1.Equals(nested2));
+        }
+
+        [Test]
+        public void FullyQualifiedName()
+        {
+            var declaringType1 = new CSharpType(
+                "type1",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+            var declaringType2 = new CSharpType(
+                "type2",
+                "namespace2",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+
+            var nested1Name = declaringType1.FullyQualifiedName;
+            Assert.AreEqual($"namespace1.{declaringType1.Name}", nested1Name);
+
+            var nested2Name = declaringType2.FullyQualifiedName;
+            Assert.AreEqual($"namespace2.{declaringType2.Name}", nested2Name);
+        }
+
+        [Test]
+        public void FullyQualifiedName_NestedTypes()
+        {
+            var declaringType1 = new CSharpType(
+                "type1",
+                "namespace1",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+            var declaringType2 = new CSharpType(
+                "type2",
+                "namespace2",
+                false,
+                false,
+                null,
+                [],
+                true,
+                false);
+
+            var nested1 = new CSharpType(
+                "nested",
+                declaringType1.Namespace,
+                false,
+                false,
+                declaringType1,
+                [],
+                true,
+                false);
+            var nested2 = new CSharpType(
+                "nested",
+                declaringType2.Namespace,
+                false,
+                false,
+                declaringType2,
+                [],
+                true,
+                false);
+
+            var nested1Name = nested1.FullyQualifiedName;
+            Assert.AreEqual($"{nested1.Namespace}.{declaringType1.Name}.{nested1.Name}", nested1Name);
+
+            var nested2Name = nested2.FullyQualifiedName;
+            Assert.AreEqual($"{nested2.Namespace}.{declaringType2.Name}.{nested2.Name}", nested2Name);
+        }
+
         [TestCase(typeof(IList<>), new[] { typeof(int) })]
+        [TestCase(typeof(IList<>), new[] { typeof(TestDerivedType) })]
+        [TestCase(typeof(IList<>), new[] { typeof(TestBaseType) })]
         [TestCase(typeof(IReadOnlyList<>), new[] { typeof(string) })]
         [TestCase(typeof(IDictionary<,>), new[] { typeof(string), typeof(string) })]
         [TestCase(typeof(IReadOnlyDictionary<,>), new[] { typeof(string), typeof(int) })]
@@ -440,6 +563,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.IsFalse(ReferenceEquals(cSharpType7, cSharpType8));
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(IList<>))]
+        [TestCase(typeof(IList<int>))]
+        [TestCase(typeof(IDictionary<,>))]
+        [TestCase(typeof(IDictionary<int, int>))]
+        [TestCase(typeof(IDictionary<string, int>))]
+        [TestCase(typeof(IDictionary<IDictionary<int, string>, IDictionary<string, int>>))]
+        [TestCase(typeof(TestStruct<int>))]
+        [TestCase(typeof(string[]))]
+        [TestCase(typeof(TestEnum))]
+        [TestCase(typeof(TestDerivedType), typeof(TestBaseType))]
+        public void BaseTypesAreCorrect(Type type, Type? expectedBaseType = null)
+        {
+            var csharpType = new CSharpType(type);
+            if (expectedBaseType == null)
+            {
+                Assert.IsNull(csharpType.BaseType);
+            }
+            else
+            {
+                Assert.IsTrue(csharpType.BaseType!.Equals(expectedBaseType));
+            }
+        }
+
         [TestCaseSource(nameof(ValidateNullableTypesData))]
         public void ValidateNullableTypes(Type type, IReadOnlyList<CSharpType> expectedArguments, bool expectedIsNullable)
         {
@@ -505,5 +652,65 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         ];
 
         internal struct TestStruct<T> { }
+
+        private enum TestEnum { Value1, Value2 }
+
+        private class TestDerivedType : TestBaseType
+        {
+        }
+        private class TestBaseType
+        {
+        }
+
+        [TestCase("MyNs", "SimpleType", ExpectedResult = "SimpleType")]
+        [TestCase("MyNs", "SimpleType`1", ExpectedResult = "SimpleType`1")]
+        public string ClrMetadataName_SimpleType(string ns, string name)
+        {
+            var type = new CSharpType(name, ns, false, false, null, [], true, false);
+            return type.ClrMetadataName;
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_OneTypeArg()
+        {
+            var argType = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("GenericType", "MyNs", false, false, null, [argType], true, false);
+            Assert.AreEqual("GenericType`1", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_TwoTypeArgs()
+        {
+            var arg1 = new CSharpType("TKey", "MyNs", false, false, null, [], true, false);
+            var arg2 = new CSharpType("TValue", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("DictionaryType", "MyNs", false, false, null, [arg1, arg2], true, false);
+            Assert.AreEqual("DictionaryType`2", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_NestedType()
+        {
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericNestedType()
+        {
+            var arg = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [arg], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer`1+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_LazilyComputedAndCached()
+        {
+            var type = new CSharpType("MyType", "MyNs", false, false, null, [], true, false);
+            var first = type.ClrMetadataName;
+            var second = type.ClrMetadataName;
+            Assert.AreSame(first, second);
+        }
     }
 }

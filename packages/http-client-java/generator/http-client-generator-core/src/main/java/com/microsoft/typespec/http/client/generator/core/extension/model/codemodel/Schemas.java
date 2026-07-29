@@ -3,18 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Represents the full set of schemas for a given service, categorized into convenient collections.
  */
-public class Schemas implements JsonSerializable<Schemas> {
+public class Schemas {
     private List<ArraySchema> arrays = new ArrayList<>();
     private List<DictionarySchema> dictionaries = new ArrayList<>();
     private List<BinarySchema> binaries = new ArrayList<>();
@@ -552,110 +547,5 @@ public class Schemas implements JsonSerializable<Schemas> {
      */
     public void setBinaries(List<BinarySchema> binaries) {
         this.binaries = binaries;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeArrayField("arrays", arrays, JsonWriter::writeJson)
-            .writeArrayField("dictionaries", dictionaries, JsonWriter::writeJson)
-            .writeArrayField("binaries", binaries, JsonWriter::writeJson)
-            .writeArrayField("groups", groups, JsonWriter::writeJson)
-            .writeArrayField("booleans", booleans, JsonWriter::writeJson)
-            .writeArrayField("numbers", numbers, JsonWriter::writeJson)
-            .writeArrayField("objects", objects, JsonWriter::writeJson)
-            .writeArrayField("strings", strings, JsonWriter::writeJson)
-            .writeArrayField("unixtimes", unixtimes, JsonWriter::writeJson)
-            .writeArrayField("byteArrays", byteArrays, JsonWriter::writeJson)
-            .writeArrayField("streams", streams, JsonWriter::writeJson)
-            .writeArrayField("chars", chars, JsonWriter::writeJson)
-            .writeArrayField("dates", dates, JsonWriter::writeJson)
-            .writeArrayField("dateTimes", dateTimes, JsonWriter::writeJson)
-            .writeArrayField("durations", durations, JsonWriter::writeJson)
-            .writeArrayField("uuids", uuids, JsonWriter::writeJson)
-            .writeArrayField("uris", uris, JsonWriter::writeJson)
-            .writeArrayField("credentials", credentials, JsonWriter::writeJson)
-            .writeArrayField("odataQueries", odataQueries, JsonWriter::writeJson)
-            .writeArrayField("choices", choices, JsonWriter::writeJson)
-            .writeArrayField("sealedChoices", sealedChoices, JsonWriter::writeJson)
-            .writeArrayField("flags", flags, JsonWriter::writeJson)
-            .writeArrayField("constants", constants, JsonWriter::writeJson)
-            .writeArrayField("ands", ands, JsonWriter::writeJson)
-            .writeArrayField("ors", ors, JsonWriter::writeJson)
-            .writeArrayField("xors", xors, JsonWriter::writeJson)
-            .writeArrayField("unknowns", unknowns, JsonWriter::writeJson)
-            .writeArrayField("parameterGroups", parameterGroups, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Schemas instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Schemas instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Schemas fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, Schemas::new, (schemas, fieldName, reader) -> {
-            if ("arrays".equals(fieldName)) {
-                schemas.arrays = reader.readArray(ArraySchema::fromJson);
-            } else if ("dictionaries".equals(fieldName)) {
-                schemas.dictionaries = reader.readArray(DictionarySchema::fromJson);
-            } else if ("binaries".equals(fieldName)) {
-                schemas.binaries = reader.readArray(BinarySchema::fromJson);
-            } else if ("groups".equals(fieldName)) {
-                schemas.groups = reader.readArray(ObjectSchema::fromJson);
-            } else if ("booleans".equals(fieldName)) {
-                schemas.booleans = reader.readArray(BooleanSchema::fromJson);
-            } else if ("numbers".equals(fieldName)) {
-                schemas.numbers = reader.readArray(NumberSchema::fromJson);
-            } else if ("objects".equals(fieldName)) {
-                schemas.objects = reader.readArray(ObjectSchema::fromJson);
-            } else if ("strings".equals(fieldName)) {
-                schemas.strings = reader.readArray(StringSchema::fromJson);
-            } else if ("unixtimes".equals(fieldName)) {
-                schemas.unixtimes = reader.readArray(UnixTimeSchema::fromJson);
-            } else if ("byteArrays".equals(fieldName)) {
-                schemas.byteArrays = reader.readArray(ByteArraySchema::fromJson);
-            } else if ("streams".equals(fieldName)) {
-                schemas.streams = reader.readArray(Schema::fromJson);
-            } else if ("chars".equals(fieldName)) {
-                schemas.chars = reader.readArray(CharSchema::fromJson);
-            } else if ("dates".equals(fieldName)) {
-                schemas.dates = reader.readArray(DateSchema::fromJson);
-            } else if ("dateTimes".equals(fieldName)) {
-                schemas.dateTimes = reader.readArray(DateTimeSchema::fromJson);
-            } else if ("durations".equals(fieldName)) {
-                schemas.durations = reader.readArray(DurationSchema::fromJson);
-            } else if ("uuids".equals(fieldName)) {
-                schemas.uuids = reader.readArray(UuidSchema::fromJson);
-            } else if ("uris".equals(fieldName)) {
-                schemas.uris = reader.readArray(UriSchema::fromJson);
-            } else if ("credentials".equals(fieldName)) {
-                schemas.credentials = reader.readArray(CredentialSchema::fromJson);
-            } else if ("odataQueries".equals(fieldName)) {
-                schemas.odataQueries = reader.readArray(ODataQuerySchema::fromJson);
-            } else if ("choices".equals(fieldName)) {
-                schemas.choices = reader.readArray(ChoiceSchema::fromJson);
-            } else if ("sealedChoices".equals(fieldName)) {
-                schemas.sealedChoices = reader.readArray(SealedChoiceSchema::fromJson);
-            } else if ("flags".equals(fieldName)) {
-                schemas.flags = reader.readArray(FlagSchema::fromJson);
-            } else if ("constants".equals(fieldName)) {
-                schemas.constants = reader.readArray(ConstantSchema::fromJson);
-            } else if ("ands".equals(fieldName)) {
-                schemas.ands = reader.readArray(AndSchema::fromJson);
-            } else if ("ors".equals(fieldName)) {
-                schemas.ors = reader.readArray(OrSchema::fromJson);
-            } else if ("xors".equals(fieldName)) {
-                schemas.xors = reader.readArray(XorSchema::fromJson);
-            } else if ("unknowns".equals(fieldName)) {
-                schemas.unknowns = reader.readArray(Schema::fromJson);
-            } else if ("parameterGroups".equals(fieldName)) {
-                schemas.parameterGroups = reader.readArray(ParameterGroupSchema::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

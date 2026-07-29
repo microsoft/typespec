@@ -1,7 +1,7 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,12 +11,12 @@ import java.io.IOException;
 /**
  * The SpreadCompositeRequestMixRequest model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SpreadCompositeRequestMixRequest implements JsonSerializable<SpreadCompositeRequestMixRequest> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final String prop;
 
     /**
@@ -24,7 +24,7 @@ public final class SpreadCompositeRequestMixRequest implements JsonSerializable<
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SpreadCompositeRequestMixRequest(String prop) {
         this.prop = prop;
     }
@@ -34,7 +34,7 @@ public final class SpreadCompositeRequestMixRequest implements JsonSerializable<
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProp() {
         return this.prop;
     }
@@ -42,7 +42,7 @@ public final class SpreadCompositeRequestMixRequest implements JsonSerializable<
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -59,7 +59,7 @@ public final class SpreadCompositeRequestMixRequest implements JsonSerializable<
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SpreadCompositeRequestMixRequest.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SpreadCompositeRequestMixRequest fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String prop = null;

@@ -57,7 +57,7 @@ public final class DurationOperationsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "NullableClientDurati")
+    @ServiceInterface(name = "NullableClientDurationOperations")
     public interface DurationOperationsService {
         @Get("/type/property/nullable/duration/non-null")
         @ExpectedResponses({ 200 })

@@ -28,13 +28,13 @@ import {
   isQueryParam,
   isStatusCode,
 } from "./decorators.js";
-import { getHttpOperation } from "./operations.js";
 import { HttpVerb, OperationParameterOptions } from "./types.js";
 
 // Used in @link JsDoc tag.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
 import { includeInapplicableMetadataInPayload } from "./private.decorators.js";
+import { resolvePathAndParameters } from "./route.js";
 
 /**
  * Flags enum representation of well-known visibilities that are used in
@@ -339,9 +339,9 @@ export function HttpVisibilityProvider(
           getOperationVerb(program, operation));
 
       if (!verb) {
-        const [httpOperation] = getHttpOperation(program, operation);
+        const [{ parameters }] = resolvePathAndParameters(program, operation, undefined, {});
 
-        verb = httpOperation.verb;
+        verb = parameters.verb;
       }
 
       return visibilityToFilter(program, getDefaultVisibilityForVerb(verb));
@@ -380,13 +380,12 @@ export function resolveRequestVisibility(
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+    const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
 
-    if (patchOptionality) {
+    if (implicitOptionality) {
       visibility |= Visibility.Patch;
     }
   }
-
   return visibility;
 }
 

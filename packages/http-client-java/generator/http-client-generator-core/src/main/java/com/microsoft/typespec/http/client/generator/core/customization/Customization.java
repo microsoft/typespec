@@ -3,13 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization;
 
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
-import com.microsoft.typespec.http.client.generator.core.customization.implementation.ls.EclipseLanguageClient;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.Map;
 import org.slf4j.Logger;
 
@@ -25,33 +18,9 @@ public abstract class Customization {
      * @return the map of files after customization
      */
     public final Map<String, String> run(Map<String, String> files, Logger logger) {
-        Path tempDirWithPrefix;
-
-        // Populate editor
-        Editor editor;
-        try {
-            tempDirWithPrefix = FileUtils.createTempDirectory("temp");
-            editor = new Editor(files, tempDirWithPrefix);
-            InputStream pomStream = Customization.class.getResourceAsStream("/pom.xml");
-            byte[] buffer = new byte[pomStream.available()];
-            pomStream.read(buffer);
-            editor.addFile("pom.xml", new String(buffer, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Start language client
-        try (EclipseLanguageClient languageClient
-            = new EclipseLanguageClient(null, tempDirWithPrefix.toString(), logger)) {
-            languageClient.initialize();
-            customize(new LibraryCustomization(editor, languageClient), logger);
-            editor.removeFile("pom.xml");
-            return editor.getContents();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            Utils.deleteDirectory(tempDirWithPrefix.toFile());
-        }
+        Editor editor = new Editor(files);
+        customize(new LibraryCustomization(editor), logger);
+        return editor.getContents();
     }
 
     /**

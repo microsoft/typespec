@@ -1,6 +1,7 @@
 package encode.numeric.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the NumericClient type.
@@ -35,6 +36,20 @@ public final class NumericClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The PropertiesImpl object to access its operations.
      */
     private final PropertiesImpl properties;
@@ -52,10 +67,12 @@ public final class NumericClientImpl {
      * Initializes an instance of NumericClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public NumericClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public NumericClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.properties = new PropertiesImpl(this);
     }

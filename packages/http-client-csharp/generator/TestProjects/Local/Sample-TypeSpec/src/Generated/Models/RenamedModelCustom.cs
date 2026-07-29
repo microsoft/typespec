@@ -7,27 +7,31 @@
 
 using System;
 using System.Collections.Generic;
+using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
-    public partial class RenamedModelCustom
+    public partial class RenamedModelCustom : Friend
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
-
-        internal RenamedModelCustom(string name)
+        /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/>. </summary>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
+        internal RenamedModelCustom(string name, string otherName) : base(name)
         {
-            Name = name;
+            OtherName = otherName;
         }
 
-        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/>. </summary>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
+        internal RenamedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties, string otherName) : base(name, additionalBinaryDataProperties)
         {
-            Name = name;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            OtherName = otherName;
         }
 
         /// <summary> name of the ModelWithClientName. </summary>
-        public string Name { get; }
+        public string OtherName { get; }
     }
 }

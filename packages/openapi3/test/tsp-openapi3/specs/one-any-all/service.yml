@@ -44,6 +44,42 @@ paths:
                     - $ref: "#/components/schemas/Cat"
               required:
                 - pet
+  /any/schema:
+    post:
+      operationId: putAnySchema
+      parameters: []
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pet:
+                  $ref: "#/components/schemas/Any"
+              required:
+                - pet
+  /one/schema:
+    post:
+      operationId: putOneSchema
+      parameters: []
+      responses:
+        "204":
+          description: "There is no content to send for this request, but the headers may be useful. "
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pet:
+                  $ref: "#/components/schemas/One"
+              required:
+                - pet
 components:
   schemas:
     Cat:
@@ -71,6 +107,15 @@ components:
             - Terrier
       allOf:
         - $ref: "#/components/schemas/Pet"
+
+    One:
+      oneOf:
+        - $ref: "#/components/schemas/Dog"
+        - $ref: "#/components/schemas/Cat"
+    Any:
+      anyOf:
+        - $ref: "#/components/schemas/Dog"
+        - $ref: "#/components/schemas/Cat"
     Pet:
       type: object
       required:

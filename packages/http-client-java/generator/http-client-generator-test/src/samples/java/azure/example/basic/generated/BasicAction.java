@@ -18,14 +18,14 @@ public class BasicAction {
     public static void main(String[] args) {
         AzureExampleClient azureExampleClient
             = new AzureExampleClientBuilder().endpoint("http://localhost:3000").buildClient();
-        // BEGIN:azure.example.basic.generated.basicaction.basicaction
+        // BEGIN:azure.example.basic.generated.basic-action.basic-action
         ActionResponse response = azureExampleClient.basicAction("query", "header",
             new ActionRequest("text")
                 .setModelProperty(
                     new Model().setInt32Property(1).setFloat32Property(1.5D).setEnumProperty(Enum.ENUM_VALUE1))
                 .setArrayProperty(Arrays.asList("item"))
                 .setRecordProperty(mapOf("record", "value")));
-        // END:azure.example.basic.generated.basicaction.basicaction
+        // END:azure.example.basic.generated.basic-action.basic-action
     }
 
     // Use "Map.of" if available

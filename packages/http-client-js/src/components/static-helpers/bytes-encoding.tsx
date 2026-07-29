@@ -1,18 +1,19 @@
-import * as ay from "@alloy-js/core";
+import { code, Refkey, refkey } from "@alloy-js/core";
+import { Children } from "@alloy-js/core/jsx-runtime";
 import * as ts from "@alloy-js/typescript";
 
-export function getEncodeUint8ArrayRef(): ay.Refkey {
-  return ay.refkey("encodeUint8Array");
+export function getEncodeUint8ArrayRef(): Refkey {
+  return refkey("encodeUint8Array");
 }
 
-export function EncodeUint8Array(): ay.Children {
-  const valueRef = ay.refkey();
-  const encodingRef = ay.refkey();
-  const refkey = getEncodeUint8ArrayRef();
+export function EncodeUint8Array(): Children {
+  const valueRef = refkey();
+  const encodingRef = refkey();
+  const key = getEncodeUint8ArrayRef();
   return (
     <ts.FunctionDeclaration
       export
-      refkey={refkey}
+      refkey={key}
       name="encodeUint8Array"
       parameters={[
         { name: "value", type: "Uint8Array | undefined | null", refkey: valueRef },
@@ -20,7 +21,7 @@ export function EncodeUint8Array(): ay.Children {
       ]}
       returnType="string | undefined"
     >
-      {ay.code`
+      {code`
       if (!${valueRef}) {
         return ${valueRef} as any;
       }
@@ -30,21 +31,21 @@ export function EncodeUint8Array(): ay.Children {
   );
 }
 
-export function getDecodeUint8ArrayRef(): ay.Refkey {
-  return ay.refkey("decodeUint8Array");
+export function getDecodeUint8ArrayRef(): Refkey {
+  return refkey("decodeUint8Array");
 }
-export function DecodeBase64(): ay.Children {
-  const refkey = getDecodeUint8ArrayRef();
-  const valueRef = ay.refkey();
+export function DecodeBase64(): Children {
+  const key = getDecodeUint8ArrayRef();
+  const valueRef = refkey();
   return (
     <ts.FunctionDeclaration
       export
       name="decodeBase64"
       parameters={[{ name: "value", type: "string", refkey: valueRef }]}
       returnType="Uint8Array | undefined"
-      refkey={refkey}
+      refkey={key}
     >
-      {ay.code` 
+      {code` 
       if(!${valueRef}) {
         return ${valueRef} as any;
       }

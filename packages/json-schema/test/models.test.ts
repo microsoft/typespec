@@ -1,5 +1,5 @@
 import assert, { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting models", () => {
@@ -57,37 +57,6 @@ describe("emitting models", () => {
 
     assert.deepStrictEqual(schemas["Foo.json"].properties.prop, { $ref: "TemplateFoo.json" });
     assert(schemas["TemplateFoo.json"]);
-  });
-
-  it("inlines templates instantiated with union literals", async () => {
-    const schemas = await emitSchema(`
-      model Foo {
-        prop: Template<Bar | string | { y?: string }>
-      }
-
-      model Bar {
-        prop: string
-      }
-
-      model Template<T> {
-        x: T
-      }
-    `);
-
-    const expectedBarRef = { $ref: "Bar.json" };
-    const expectedStringSchema = { type: "string" };
-    const expectedExpressionSchema = { type: "object", properties: { y: { type: "string" } } };
-
-    assert.deepStrictEqual(schemas["Foo.json"].properties.prop, {
-      type: "object",
-      required: ["x"],
-      properties: {
-        x: {
-          anyOf: [expectedBarRef, expectedStringSchema, expectedExpressionSchema],
-        },
-      },
-    });
-    assert(schemas["Bar.json"]);
   });
 
   it("works with minProperties and maxProperties", async () => {
@@ -425,5 +394,115 @@ describe("emitting models", () => {
       assert.deepStrictEqual(schemas["Widget.json"].unevaluatedProperties, undefined);
       assert.deepStrictEqual(schemas["Spinner.json"].unevaluatedProperties, { not: {} });
     });
+  });
+});
+
+describe("can use special words as properties", () => {
+  it.each(["set", "constructor"])("%s", async (property) => {
+    const schemas = await emitSchema(
+      `
+        model Test {
+          before: string;
+          ${property}: string;
+          after: string;
+        };
+        `,
+    );
+    expect(schemas["Test.json"].properties).toEqual({
+      before: { type: "string" },
+      [property]: { type: "string" },
+      after: { type: "string" },
+    });
+  });
+});
+
+describe("unspeakable template should be emitted inline", () => {
+  it("when using namespace", async () => {
+    const schemas = await emitSchema(`
+      model Test {
+        a: Template<Thing, "a">;
+      }
+
+      model Template<T, B extends string> {
+        t: T
+      }
+      
+      model Thing {
+        a: string;
+      }
+    `);
+
+    expect(schemas["Test.json"].properties.a).toEqual({
+      type: "object",
+      required: ["t"],
+      properties: {
+        t: { $ref: "Thing.json" },
+      },
+    });
+  });
+
+  it("when emitting schema", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema
+      model Test {
+        a: Template<Thing, "a">;
+      }
+
+      model Template<T, B extends string> {
+        t: T
+      }
+      
+      model Thing {
+        a: string;
+      }
+    `,
+      undefined,
+      { emitNamespace: false },
+    );
+
+    expect(schemas["Test.json"].properties.a).toEqual({
+      type: "object",
+      required: ["t"],
+      properties: {
+        t: { $ref: "#/$defs/Thing" },
+      },
+    });
+    expect(schemas["Test.json"].$defs.Thing).toEqual({
+      type: "object",
+      properties: { a: { type: "string" } },
+      required: ["a"],
+    });
+  });
+
+  it("instantiated with union literals", async () => {
+    const schemas = await emitSchema(`
+      model Foo {
+        prop: Template<Bar | string | { y?: string }>
+      }
+
+      model Bar {
+        prop: string
+      }
+
+      model Template<T> {
+        x: T
+      }
+    `);
+
+    const expectedBarRef = { $ref: "Bar.json" };
+    const expectedStringSchema = { type: "string" };
+    const expectedExpressionSchema = { type: "object", properties: { y: { type: "string" } } };
+
+    expect(schemas["Foo.json"].properties.prop).toEqual({
+      type: "object",
+      required: ["x"],
+      properties: {
+        x: {
+          anyOf: [expectedBarRef, expectedStringSchema, expectedExpressionSchema],
+        },
+      },
+    });
+    assert(schemas["Bar.json"]);
   });
 });

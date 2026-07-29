@@ -28,31 +28,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             return true;
         }
 
-        public static bool TryReadReferenceId(this ref Utf8JsonReader reader, ref bool isFirstProperty, ref string? value)
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName)
-            {
-                throw new JsonException();
-            }
-
-            if (reader.GetString() != "$id")
-            {
-                return false;
-            }
-
-            if (!isFirstProperty)
-            {
-                throw new JsonException("$id should be the first defined property");
-            }
-
-            isFirstProperty = false;
-
-            reader.Read();
-            value = reader.GetString() ?? throw new JsonException();
-            reader.Read();
-            return true;
-        }
-
         public static bool TryReadNullableBoolean(this ref Utf8JsonReader reader, string propertyName, ref bool? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -165,6 +140,43 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var item = reader.ReadWithConverter<T>(options);
                 result.Add(item ?? throw new JsonException());
+            }
+            reader.Read();
+            value = result;
+            return true;
+        }
+
+        public static bool TryReadComplexType<T>(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyDictionary<string, T>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                throw new JsonException();
+            }
+            reader.Read();
+            string? id = null;
+            var result = new Dictionary<string, T>();
+            while (reader.TokenType != JsonTokenType.EndObject)
+            {
+                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
+                if (reader.TryReadReferenceId(ref id))
+                {
+                    continue;
+                }
+                var key = reader.GetString() ?? throw new JsonException("Dictionary key cannot be null");
+                reader.Read();
+                var item = reader.ReadWithConverter<T>(options);
+                result[key] = item ?? throw new JsonException();
             }
             reader.Read();
             value = result;

@@ -57,7 +57,7 @@ public final class OptionalOpsImpl {
      * REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "OptionalClientOption")
+    @ServiceInterface(name = "OptionalClientOptionalOps")
     public interface OptionalOpsService {
         @Put("/optional/put")
         @ExpectedResponses({ 200 })

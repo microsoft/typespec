@@ -2,8 +2,8 @@ import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../config/types.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
+import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/misc.js";
 import {
   createFileTemplatingContext,
   type FileTemplatingContext,
@@ -15,6 +15,7 @@ import type {
   InitTemplateLibrary,
   InitTemplateLibrarySpec,
 } from "./init-template.js";
+import type { TemplateSource } from "./template-source/index.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -23,9 +24,10 @@ export interface ScaffoldingConfig {
   template: InitTemplate;
 
   /**
-   * Path where this template was loaded from.
+   * Source the template was loaded from. Used to read the template's files during scaffolding.
+   * Optional: templates that declare no `files` never need it.
    */
-  baseUri: string;
+  source?: TemplateSource;
 
   /**
    * Directory full path where the project should be initialized.
@@ -72,7 +74,6 @@ export function makeScaffoldingConfig(
   return {
     template,
     libraries: config.libraries ?? template.libraries?.map(normalizeLibrary) ?? [],
-    baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
     parameters: config.parameters ?? {},
@@ -109,32 +110,42 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("package.json", config.template.files ?? [])) {
     return;
   }
-  const peerDependencies: Record<string, string> = {};
-  const devDependencies: Record<string, string> = {};
+
+  const versionResolutions: Array<Promise<[string, string]>> = [];
 
   if (!config.template.skipCompilerPackage) {
-    peerDependencies["@typespec/compiler"] = "latest";
-    devDependencies["@typespec/compiler"] = "latest";
+    versionResolutions.push(
+      resolvePackageVersion("@typespec/compiler").then((v) => ["@typespec/compiler", v]),
+    );
   }
 
   for (const library of config.libraries) {
-    peerDependencies[library.name] = await getPackageVersion(library);
-    devDependencies[library.name] = await getPackageVersion(library);
+    versionResolutions.push(
+      getPackageVersion(library.name, library).then((v) => [library.name, v]),
+    );
   }
 
   for (const key of Object.keys(config.emitters)) {
-    peerDependencies[key] = await getPackageVersion(config.emitters[key]);
-    devDependencies[key] = await getPackageVersion(config.emitters[key]);
+    versionResolutions.push(getPackageVersion(key, config.emitters[key]).then((v) => [key, v]));
   }
+
+  const dependencies: Record<string, string> = Object.fromEntries(
+    await Promise.all(versionResolutions),
+  );
 
   const packageJson: PackageJson = {
     name: config.name,
     version: "0.1.0",
     type: "module",
-    peerDependencies,
-    devDependencies,
     private: true,
   };
+
+  if (config.template.target === "library") {
+    packageJson.peerDependencies = dependencies;
+    packageJson.devDependencies = dependencies;
+  } else {
+    packageJson.dependencies = dependencies;
+  }
 
   return host.writeFile(
     joinPaths(config.directory, "package.json"),
@@ -142,24 +153,29 @@ async function writePackageJson(host: SystemHost, config: ScaffoldingConfig) {
   );
 }
 
-const placeholderConfig = `
-# extends: ../tspconfig.yaml                    # Extend another config file
-# emit:                                         # Emitter name
+const commentedOptions = `\
+# entrypoint: main.tsp                           # Main TypeSpec file (default: main.tsp)
+# extends: ../tspconfig.yaml                     # Extend another config file
+# emit:                                          # Emitter name
 #   - "<emitter-name"
-# options:                                      # Emitter options
+# options:                                       # Emitter options
 #   <emitter-name>:
 #    "<option-name>": "<option-value>"
-# environment-variables:                        # Environment variables which can be used to interpolate emitter options
+# environment-variables:                         # Environment variables which can be used to interpolate emitter options
 #   <variable-name>:
 #     default: "<variable-default>"
-# parameters:                                   # Parameters which can be used to interpolate emitter options
+# parameters:                                    # Parameters which can be used to interpolate emitter options
 #   <param-name>:
 #     default: "<param-default>"
-# trace:                                        # Trace areas to enable tracing
+# trace:                                         # Trace areas to enable tracing
 #  - "<trace-name>"
-# warn-as-error: true                           # Treat warnings as errors
-# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
-`.trim();
+# warn-as-error: true                            # Treat warnings as errors
+# output-dir: "{project-root}/_generated"        # Configure the base output directory for all emitters`;
+
+const placeholderConfig = `\
+kind: project                                    # Marks this as a TypeSpec project
+${commentedOptions}`;
+
 async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration(TypeSpecConfigFilename, config.template.files ?? [])) {
     return;
@@ -178,18 +194,15 @@ async function writeConfig(host: SystemHost, config: ScaffoldingConfig) {
       Object.entries(config.emitters).map(([key, emitter]) => [key, emitter.options]),
     );
   }
-  const content = rawConfig ? stringify(rawConfig) : placeholderConfig;
+  const content = rawConfig
+    ? stringify(rawConfig).trimEnd() + "\n" + commentedOptions
+    : placeholderConfig;
   return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
 }
 
 async function writeMain(host: SystemHost, config: ScaffoldingConfig) {
   if (isFileSkipGeneration("main.tsp", config.template.files ?? [])) {
     return;
-  }
-  const dependencies: Record<string, string> = {};
-
-  for (const library of config.libraries) {
-    dependencies[library.name] = await getPackageVersion(library);
   }
 
   const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
@@ -235,8 +248,12 @@ async function writeFile(
   context: FileTemplatingContext,
   file: InitTemplateFile,
 ) {
-  const baseDir = config.baseUri + "/";
-  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
+  if (config.source === undefined) {
+    throw new Error(
+      `Cannot resolve template file "${file.path}": template was loaded without a source.`,
+    );
+  }
+  const template = await config.source.readFile(file.path);
   const content = render(template.text, context);
   const destinationFilePath = joinPaths(config.directory, file.destination);
   // create folders in case they don't exist
@@ -244,7 +261,21 @@ async function writeFile(
   return host.writeFile(joinPaths(config.directory, file.destination), content);
 }
 
-async function getPackageVersion(packageInfo: { version?: string }): Promise<string> {
-  // TODO: Resolve 'latest' version from npm, issue #1919
-  return packageInfo.version ?? "latest";
+async function getPackageVersion(
+  packageName: string,
+  templatePackageConfig: { version?: string },
+): Promise<string> {
+  if (templatePackageConfig.version !== undefined) {
+    return templatePackageConfig.version;
+  }
+  return resolvePackageVersion(packageName);
+}
+
+async function resolvePackageVersion(packageName: string): Promise<string> {
+  try {
+    const manifest = await fetchLatestPackageManifest(packageName);
+    return `^${manifest.version}`;
+  } catch {
+    return "latest";
+  }
 }

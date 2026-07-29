@@ -1,7 +1,7 @@
 package type.property.nullable;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -14,24 +14,24 @@ import type.property.nullable.implementation.JsonMergePatchHelper;
 /**
  * Inner model used in collections model property.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class InnerModel implements JsonSerializable<InnerModel> {
     /*
      * Inner model property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String property;
 
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private boolean jsonMergePatch;
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
         this.jsonMergePatch = jsonMergePatch;
     }
@@ -54,7 +54,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
     /**
      * Creates an instance of InnerModel class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InnerModel() {
     }
 
@@ -63,7 +63,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getProperty() {
         return this.property;
     }
@@ -75,7 +75,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * @param property the property value to set.
      * @return the InnerModel object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public InnerModel setProperty(String property) {
         this.property = property;
         this.updatedProperties.add("property");
@@ -85,7 +85,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         if (jsonMergePatch) {
@@ -97,7 +97,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
         }
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private JsonWriter toJsonMergePatch(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         if (updatedProperties.contains("property")) {
@@ -118,7 +118,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
      * to JSON null.
      * @throws IOException If an error occurs while reading the InnerModel.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static InnerModel fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             InnerModel deserializedInnerModel = new InnerModel();

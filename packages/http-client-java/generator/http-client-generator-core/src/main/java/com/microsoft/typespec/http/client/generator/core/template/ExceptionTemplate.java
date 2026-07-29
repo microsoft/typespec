@@ -7,7 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -23,8 +23,9 @@ public class ExceptionTemplate implements IJavaTemplate<ClientException, JavaFil
         return INSTANCE;
     }
 
-    public final void write(ClientException exception, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>();
+    @Override
+    public void write(ClientException exception, JavaFile javaFile) {
+        Set<String> imports = new LinkedHashSet<>();
         imports.add(ClassType.HTTP_RESPONSE.getFullName());
         exception.getParentType().addImportsTo(imports, false);
         javaFile.declareImport(imports);

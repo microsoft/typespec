@@ -34,7 +34,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const clients = root.clients;
     strictEqual(clients.length, 1);
     ok(clients[0].children);
@@ -66,10 +66,11 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
-    const operations = root.clients[0].operations;
-    strictEqual(operations.length, 1);
-    deepStrictEqual(operations[0].decorators, [
+    const [root] = createModel(sdkContext);
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    deepStrictEqual(operation.decorators, [
       {
         name: "Azure.ClientGenerator.Core.@clientName",
         arguments: {
@@ -96,7 +97,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [
@@ -126,7 +127,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const [root] = createModel(sdkContext);
     const models = root.models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].properties[0].decorators, [
@@ -152,10 +153,11 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createCSharpSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
-    const operations = root.clients[0].operations;
-    strictEqual(operations.length, 1);
-    const idParameters = operations[0].parameters.filter((p) => p.name === "ClientId");
+    const [root] = createModel(sdkContext);
+    const methods = root.clients[0].methods;
+    strictEqual(methods.length, 1);
+    const operation = methods[0].operation;
+    const idParameters = operation.parameters.filter((p) => p.name === "ClientId");
     strictEqual(idParameters.length, 1);
     deepStrictEqual(idParameters[0].decorators, [
       {

@@ -5,11 +5,12 @@ import {
   DashboardFromAzureStorage,
   type CoverageFromAzureStorageOptions,
 } from "@typespec/spec-dashboard";
+import "@typespec/spec-dashboard/style.css";
 
 const options: CoverageFromAzureStorageOptions = {
   storageAccountName: "typespec",
   containerName: "coverage",
-  manifestContainerName: "manifests-typespec",
+  manifests: ["http-specs"],
   emitterNames: [
     "@typespec/http-client-python",
     "@typespec/http-client-csharp",

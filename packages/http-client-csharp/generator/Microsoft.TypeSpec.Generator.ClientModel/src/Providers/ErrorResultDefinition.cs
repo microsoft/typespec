@@ -12,7 +12,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class ErrorResultDefinition : TypeProvider
+    internal class ErrorResultDefinition : InternalHelperProvider
     {
         private class ErrorResultTemplate<T> { }
 
@@ -68,12 +68,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var baseInitializer = IsClientResult
                 ? new ConstructorInitializer(true, new List<ValueExpression> { Default, response })
                 : new ConstructorInitializer(true, new List<ValueExpression>());
-            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [response, exception], Initializer: baseInitializer);
+            var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [response, exception], initializer: baseInitializer);
             return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
                 _response.Assign(response).Terminate(),
                 _exception.Assign(exception).Terminate(),
-            }, this);
+            }, this, XmlDocProvider.Empty);
         }
 
         protected override PropertyProvider[] BuildProperties()

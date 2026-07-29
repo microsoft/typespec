@@ -20,8 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests.Perf
         {
             _resolver = new TypeSpecReferenceHandler();
             _options = new JsonSerializerOptions();
-            _options.Converters.Add(new TypeSpecInputEnumTypeConverter(_resolver));
-            _options.Converters.Add(new TypeSpecInputEnumTypeValueConverter(_resolver));
+            _options.Converters.Add(new InputEnumTypeConverter(_resolver));
+            _options.Converters.Add(new InputEnumTypeValueConverter(_resolver));
         }
 
         [Benchmark]
@@ -40,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests.Perf
                     continue;
                 }
 
-                _ = TypeSpecInputEnumTypeConverter.CreateEnumType(ref reader, null, null, _options!, _resolver!.CurrentResolver);
+                _ = InputEnumTypeConverter.CreateEnumType(ref reader, null, null, _options!, _resolver!.CurrentResolver);
 
                 if (reader.TokenType == JsonTokenType.EndObject)
                 {

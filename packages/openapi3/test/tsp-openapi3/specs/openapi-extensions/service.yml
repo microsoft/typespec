@@ -29,6 +29,7 @@ components:
             age: 12
             other:
               id: some
+              node.js: true
           x-obj:
             foo: 123
             bar: string

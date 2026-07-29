@@ -1,6 +1,10 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { applyCodeFix } from "../../src/core/code-fixes.js";
+import {
+  applyCodeFix,
+  applyCodeFixEditsOnText,
+  createCodeFixContext,
+} from "../../src/core/code-fixes.js";
 import {
   CodeFixContext,
   CodeFixEdit,
@@ -8,7 +12,7 @@ import {
   createSourceFile,
   defineCodeFix,
 } from "../../src/index.js";
-import { createTestHost } from "../../src/testing/test-host.js";
+import { createTestFileSystem } from "../../src/testing/fs.js";
 
 describe("Codefixes", () => {
   describe("applyCodeFix", () => {
@@ -17,11 +21,11 @@ describe("Codefixes", () => {
       fix: (context: CodeFixContext, file: SourceFile) => CodeFixEdit | CodeFixEdit[],
     ): Promise<string> {
       const fakeFile = createSourceFile(text, "test.ts");
-      const host = await createTestHost();
+      const fs = createTestFileSystem();
       let result: string | undefined;
       await applyCodeFix(
         {
-          ...host.compilerHost,
+          ...fs.compilerHost,
           writeFile: (name, content) => {
             result = content;
             return Promise.resolve();
@@ -68,5 +72,64 @@ describe("Codefixes", () => {
 
       expect(result).toBe("abc123f");
     });
+  });
+});
+
+describe("applyCodeFixEditsOnText()", () => {
+  const context = createCodeFixContext();
+  const file = createSourceFile("", "test.ts");
+
+  it("prepend multiple items", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.prependText({ pos: 1, file }, "123"),
+      context.prependText({ pos: 2, file }, "456"),
+    ]);
+
+    expect(result).toBe("a123b456c");
+  });
+
+  it("prepend multiple items out of order", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.prependText({ pos: 2, file }, "456"),
+      context.prependText({ pos: 1, file }, "123"),
+    ]);
+
+    expect(result).toBe("a123b456c");
+  });
+
+  it("append multiple items", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.appendText({ pos: 1, file }, "123"),
+      context.appendText({ pos: 2, file }, "456"),
+    ]);
+
+    expect(result).toBe("a123b456c");
+  });
+
+  it("append multiple items out of order", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.appendText({ pos: 2, file }, "456"),
+      context.appendText({ pos: 1, file }, "123"),
+    ]);
+
+    expect(result).toBe("a123b456c");
+  });
+
+  it("replace multiple items", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.replaceText({ pos: 1, end: 2, file }, "123"),
+      context.replaceText({ pos: 2, end: 3, file }, "456"),
+    ]);
+
+    expect(result).toBe("a123456");
+  });
+
+  it("replace multiple items out of order", () => {
+    const result = applyCodeFixEditsOnText("abc", [
+      context.replaceText({ pos: 2, end: 3, file }, "456"),
+      context.replaceText({ pos: 1, end: 2, file }, "123"),
+    ]);
+
+    expect(result).toBe("a123456");
   });
 });

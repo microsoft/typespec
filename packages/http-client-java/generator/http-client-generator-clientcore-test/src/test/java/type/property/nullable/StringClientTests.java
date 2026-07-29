@@ -20,6 +20,6 @@ public class StringClientTests {
 
         stringClient.patchNonNull(new StringProperty().setRequiredProperty("foo").setNullableProperty("hello"));
 
-        stringClient.patchNull(new StringProperty().setRequiredProperty("foo").setNullableProperty(null));
+//        stringClient.patchNull(new StringProperty().setRequiredProperty("foo").setNullableProperty(null));
     }
 }

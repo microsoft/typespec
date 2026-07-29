@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -23,10 +22,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ImplementationDetails;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,13 +58,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             Set<ImplementationDetails.Usage> usages = SchemaUtil.mapSchemaContext(compositeType.getUsage());
             if (isPredefinedModel(modelType)) {
                 // TODO (weidxu): a more consistent handling of external model for all data-plane
-                if (settings.isDataPlaneClient()) {
-                    usages = new HashSet<>(usages);
-                    usages.add(ImplementationDetails.Usage.EXTERNAL);
-                } else {
-                    // abort handling external model, if not DPG
-                    // vanilla and fluent currently does not have mechanism to handle model that not to be outputted.
+                if (settings.isAzureV1() && !settings.isDataPlaneClient()) {
                     return result;
+                } else {
+                    usages = new LinkedHashSet<>(usages);
+                    usages.add(ImplementationDetails.Usage.EXTERNAL);
                 }
             }
 
@@ -88,11 +85,11 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 = compositeType.getDiscriminator() != null || compositeType.getDiscriminatorValue() != null;
             builder.polymorphic(isPolymorphic);
 
-            HashSet<String> modelImports = new HashSet<>();
+            Set<String> modelImports = new LinkedHashSet<>();
 
             String parentModelName = null;
             boolean hasAdditionalProperties = false;
-            List<ObjectSchema> parentsNeedFlatten = Collections.emptyList();
+            List<ObjectSchema> parentsNeedFlatten = List.of();
             if (compositeType.getParents() != null && compositeType.getParents().getImmediate() != null) {
                 hasAdditionalProperties
                     = compositeType.getParents().getImmediate().stream().anyMatch(s -> s instanceof DictionarySchema);
@@ -554,7 +551,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
                 propertyNames.add(PROPERTY_NAME_ADDITIONAL_PROPERTIES);
             }
 
-            Set<String> referencePropertyNames = new HashSet<>();
+            Set<String> referencePropertyNames = new LinkedHashSet<>();
             // properties from the target model
             for (ClientModelProperty property1 : targetModel.getProperties()) {
                 if (!property1.getClientFlatten() && !property1.isAdditionalProperties()) {
@@ -659,7 +656,9 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * @return Whether the type is predefined.
      */
     protected boolean isPredefinedModel(ClassType compositeType) {
-        if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
+        if ((JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1())
+            || JavaSettings.getInstance().isAzureV2()
+            || !JavaSettings.getInstance().isAzureV1()) {
             // see ObjectMapper.mapPredefinedModel
             // this might be too simplified.
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");

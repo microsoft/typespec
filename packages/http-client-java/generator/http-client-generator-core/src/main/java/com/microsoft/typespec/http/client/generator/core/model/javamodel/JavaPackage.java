@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proto
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceVersion;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TestContext;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.UnionModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.XmlSequenceWrapper;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
@@ -35,9 +36,9 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
-import com.microsoft.typespec.http.client.generator.core.template.SwaggerReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
@@ -47,8 +48,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class JavaPackage {
 
     private final JavaFileFactory javaFileFactory;
 
-    private final Set<String> filePaths = new HashSet<>();
+    private final Set<String> filePaths = new LinkedHashSet<>();
 
     public JavaPackage(NewPlugin host) {
         this.settings = JavaSettings.getInstance();
@@ -247,7 +248,7 @@ public class JavaPackage {
             = javaFileFactory.createSampleFile(settings.getPackage("generated"), protocolExample.getFilename());
         Templates.getProtocolSampleTemplate().write(protocolExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addClientMethodExamples(ClientMethodExample clientMethodExample) {
@@ -255,14 +256,14 @@ public class JavaPackage {
             = javaFileFactory.createSampleFile(settings.getPackage("generated"), clientMethodExample.getFilename());
         Templates.getClientMethodSampleTemplate().write(clientMethodExample, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolExamplesBlank() {
         JavaFile javaFile = javaFileFactory.createSampleFile(settings.getPackage(), "ReadmeSamples");
         new ProtocolSampleBlankTemplate().write(null, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolTestBase(TestContext testContext) {
@@ -270,7 +271,7 @@ public class JavaPackage {
             = javaFileFactory.createTestFile(testContext.getPackageName(), testContext.getTestBaseClassName());
         ProtocolTestBaseTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addProtocolTest(TestContext<ProtocolExample> testContext) {
@@ -278,7 +279,7 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createTestFile(testContext.getPackageName(), className);
         ProtocolTestTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addClientMethodTest(TestContext<ClientMethodExample> testContext) {
@@ -286,17 +287,26 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createTestFile(testContext.getPackageName(), className);
         ClientMethodTestTemplate.getInstance().write(testContext, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addModelUnitTest(ClientModel model) {
         try {
-            String className = model.getName() + "Tests";
-            JavaFile javaFile
-                = javaFileFactory.createTestFile(JavaSettings.getInstance().getPackage("generated"), className);
-            ModelTestTemplate.getInstance().write(model, javaFile);
-            this.checkDuplicateFile(javaFile.getFilePath());
-            javaFiles.add(javaFile);
+            final String packageName = JavaSettings.getInstance().getPackage("generated");
+
+            String className = model.getName();
+            if (JavaSettings.getInstance().isAzureV1()) {
+                className = ClassNameUtil.truncateClassName(JavaSettings.getInstance().getPackage(), "src/test/java",
+                    packageName, className, "Tests");
+            } else {
+                className = className + "Tests";
+            }
+
+            JavaFile javaFile = javaFileFactory.createTestFile(packageName, className);
+            ModelTestTemplate.getInstance().write(new ModelTestTemplate.ModelUnitTestInfo(className, model), javaFile);
+            if (!this.checkDuplicateFile(javaFile.getFilePath())) {
+                addJavaFile(javaFile);
+            }
         } catch (PossibleCredentialException e) {
             // skip this test file
             logger.warn("Skip unit test for model '{}', caused by key '{}'", model.getName(), e.getKeyName());
@@ -308,12 +318,6 @@ public class JavaPackage {
 
     public void addReadmeMarkdown(Project project) {
         TextFile textFile = new TextFile("README.md", new ReadmeTemplate().write(project));
-        this.checkDuplicateFile(textFile.getFilePath());
-        textFiles.add(textFile);
-    }
-
-    public void addSwaggerReadmeMarkdown(Project project) {
-        TextFile textFile = new TextFile("swagger/README.md", new SwaggerReadmeTemplate().write(project));
         this.checkDuplicateFile(textFile.getFilePath());
         textFiles.add(textFile);
     }
@@ -331,8 +335,7 @@ public class JavaPackage {
     }
 
     public final void addGraalVmConfig(String groupId, String artifactId, GraalVmConfig graalVmConfig) {
-        String metaInfPath
-            = Paths.get("src", "main", "resources", "META-INF", "native-image", groupId, artifactId).toString();
+        String metaInfPath = ClassNameUtil.getDirectoryNameForGraalVmConfig(groupId, artifactId);
 
         TextFile proxyConfigFile
             = new TextFile(Paths.get(metaInfPath, "proxy-config.json").toString(), graalVmConfig.toProxyConfigJson());
@@ -349,21 +352,43 @@ public class JavaPackage {
         }
     }
 
-    protected boolean checkDuplicateFile(String filePath) {
-        if (filePaths.contains(filePath)) {
-//            throw new IllegalStateException(String.format("Name conflict for output file '%1$s'.", filePath));
-            logger.warn(String.format("Name conflict for output file '%1$s'.", filePath));
-            return true;
-        }
-        return false;
-    }
-
     public void addJsonMergePatchHelper(List<ClientModel> models) {
         JavaFile javaFile
             = javaFileFactory.createSourceFile(settings.getPackage(settings.getImplementationSubpackage()),
                 ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME);
         Templates.getJsonMergePatchHelperTemplate().write(models, javaFile);
         this.checkDuplicateFile(javaFile.getFilePath());
-        javaFiles.add(javaFile);
+        addJavaFile(javaFile);
+    }
+
+    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata, String suffix) {
+        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
+        try {
+            TextFile textFile = new TextFile(filePath, typeSpecMetadata.toJsonString());
+            this.checkDuplicateFile(textFile.getFilePath());
+            textFiles.add(textFile);
+        } catch (IOException e) {
+            logger.warn("Failed to write metadata file {}", filePath);
+        }
+    }
+
+    /**
+     * Checks whether there is a file with the same name already generated.
+     *
+     * @param filePath the path of the file.
+     * @return true if there is a file with the same name already generated, false otherwise.
+     */
+    protected boolean checkDuplicateFile(String filePath) {
+        if (filePaths.contains(filePath)) {
+            /*
+             * Originally, we want to fail the codegen if we see file of duplicate name generated.
+             * However, there is later cases that we decided to delay the decision to the function calling it.
+             * E.g. code to generate unit tests can just skip that file of duplicate name.
+             */
+            logger.warn(String.format("Name conflict for output file '%1$s'.", filePath));
+            return true;
+        }
+        return false;
     }
 }

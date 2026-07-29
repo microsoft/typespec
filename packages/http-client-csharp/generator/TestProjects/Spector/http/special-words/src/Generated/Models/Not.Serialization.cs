@@ -11,6 +11,20 @@ namespace SpecialWords._Models
 {
     public partial class Not : IJsonModel<Not>
     {
+        internal Not() => throw null;
+
+        protected virtual Not PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Not>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Not IPersistableModel<Not>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Not>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Not @not) => throw null;
+
         void IJsonModel<Not>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -18,19 +32,5 @@ namespace SpecialWords._Models
         Not IJsonModel<Not>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Not JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Not>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Not IPersistableModel<Not>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Not PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Not>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Not @not) => throw null;
-
-        public static explicit operator Not(ClientResult result) => throw null;
     }
 }

@@ -1,3 +1,4 @@
+import { isValidLibraryAlias } from "./diagnostic-code.js";
 import { createDiagnosticCreator } from "./diagnostic-creator.js";
 import { compilerAssert } from "./diagnostics.js";
 import type { Program } from "./program.js";
@@ -47,7 +48,7 @@ function createStateKeys<T extends string>(
  * @returns Library with utility functions.
  *
  *
- * @tutorial Create the lib object with `as const` to get the full typing.
+ * @remarks Create the lib object with `as const` to get the full typing.
  *
  * @example
  * const libDef = {
@@ -65,6 +66,11 @@ export function createTypeSpecLibrary<
   const State extends string = never,
 >(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
+
+  compilerAssert(
+    lib.alias === undefined || isValidLibraryAlias(lib.alias),
+    `Library alias "${lib.alias}" for library "${lib.name}" is invalid. It must contain only lowercase letters, digits, and hyphens (e.g. "tcgc").`,
+  );
 
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
 
@@ -109,9 +115,11 @@ export function defineLinter(def: LinterDefinition): LinterDefinition {
 }
 
 /** Create a new linter rule. */
-export function createLinterRule<const N extends string, const T extends DiagnosticMessages>(
-  definition: LinterRuleDefinition<N, T>,
-) {
+export function createLinterRule<
+  const N extends string,
+  const T extends DiagnosticMessages,
+  const Options extends Record<string, unknown> = Record<string, never>,
+>(definition: LinterRuleDefinition<N, T, Options>) {
   compilerAssert(!definition.name.includes("/"), "Rule name cannot contain a '/'.");
   return definition;
 }

@@ -9,13 +9,14 @@ import {
   isArrayModelType,
   isRecordModelType,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import {
   HttpOperation,
+  HttpOperationFileBody,
   HttpOperationParameter,
+  HttpOperationResponseContent,
   getHeaderFieldName,
-  isBody,
-  isHeader,
-  isStatusCode,
+  getHttpOperation,
 } from "@typespec/http";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
@@ -25,7 +26,7 @@ import {
   requireSerialization,
 } from "../../common/serialization/index.js";
 import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
-import { isUnspeakable, parseCase } from "../../util/case.js";
+import { ReCase, isUnspeakable, parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
@@ -40,7 +41,13 @@ import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { getJsScalar } from "../../common/scalar.js";
-import { requiresJsonSerialization } from "../../common/serialization/json.js";
+import {
+  requiresJsonSerialization,
+  transposeExpressionFromJson,
+  transposeExpressionToJson,
+} from "../../common/serialization/json.js";
+import { getFullyQualifiedTypeName } from "../../util/name.js";
+import { canonicalizeHttpOperation } from "../operation.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -91,11 +98,14 @@ function* emitRawServerOperation(
   module: Module,
   responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
-  const op = operation.operation;
+  let op = operation.operation;
   const operationNameCase = parseCase(op.name);
 
   const container = op.interface ?? op.namespace!;
   const containerNameCase = parseCase(container.name);
+
+  op = canonicalizeHttpOperation(ctx, op);
+  [operation] = getHttpOperation(ctx.program, op);
 
   module.imports.push({
     binder: [containerNameCase.pascalCase],
@@ -198,9 +208,12 @@ function* emitRawServerOperation(
     const bodyTypeName = emitTypeReference(
       ctx,
       body.type,
-      body.property?.type ?? operation.operation.node,
+      body.property?.type ?? operation.operation,
       module,
-      { altName: defaultBodyTypeName },
+      {
+        altName: defaultBodyTypeName,
+        requireDeclaration: requiresJsonSerialization(ctx, module, body.type),
+      },
     );
 
     bodyName = ctx.gensym(bodyNameCase.camelCase);
@@ -236,14 +249,7 @@ function* emitRawServerOperation(
         let value: string;
 
         if (requiresJsonSerialization(ctx, module, body.type)) {
-          if (body.type.kind === "Model" && isArrayModelType(ctx.program, body.type)) {
-            const innerTypeName = emitTypeReference(
-              ctx,
-              body.type.indexer.value,
-              body.type,
-              module,
-              { requireDeclaration: true },
-            );
+          if (body.type.kind === "Model" && isArrayModelType(body.type)) {
             yield `        const __arrayBody = JSON.parse(body);`;
             yield `        if (!Array.isArray(__arrayBody)) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -253,16 +259,8 @@ function* emitRawServerOperation(
             yield `          );`;
             yield `          return reject();`;
             yield `        }`;
-            value = `__arrayBody.map((item) => ${innerTypeName}.fromJsonObject(JSON.parse(item)))`;
-          } else if (body.type.kind === "Model" && isRecordModelType(ctx.program, body.type)) {
-            const innerTypeName = emitTypeReference(
-              ctx,
-              body.type.indexer.value,
-              body.type,
-              module,
-              { requireDeclaration: true },
-            );
-
+            value = transposeExpressionFromJson(ctx, body.type, `__arrayBody`, module);
+          } else if (body.type.kind === "Model" && isRecordModelType(body.type)) {
             yield `        const __recordBody = JSON.parse(body);`;
             yield `        if (typeof __recordBody !== "object" || __recordBody === null) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -272,9 +270,11 @@ function* emitRawServerOperation(
             yield `          );`;
             yield `          return reject();`;
             yield `        }`;
-            value = `Object.fromEntries(Object.entries(__recordBody).map(([key, value]) => [key, ${innerTypeName}.fromJsonObject(value)]))`;
+            value = transposeExpressionFromJson(ctx, body.type, `__recordBody`, module);
+          } else if (body.type.kind === "Scalar") {
+            value = transposeExpressionFromJson(ctx, body.type, `JSON.parse(body)`, module);
           } else {
-            value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+            value = `${bodyTypeName}.fromJsonObject(globalThis.JSON.parse(body))`;
           }
         } else {
           value = `JSON.parse(body)`;
@@ -296,7 +296,7 @@ function* emitRawServerOperation(
 
         break;
       }
-      case "multipart/form-data":
+      case "multipart/form-data": {
         if (body.bodyKind === "multipart") {
           yield* indent(
             emitMultipart(ctx, module, operation, body, names.ctx, bodyName, bodyTypeName),
@@ -305,7 +305,88 @@ function* emitRawServerOperation(
           yield* indent(emitMultipartLegacy(names.ctx, bodyName, bodyTypeName));
         }
         break;
+      }
+      case "text/plain": {
+        const string = ctx.program.checker.getStdType("string");
+        const assignable = $(ctx.program).type.isAssignableTo(
+          body.type,
+          string,
+          body.property ?? body.type,
+        );
+        if (!assignable) {
+          const name =
+            ("namespace" in body.type &&
+              body.type.namespace &&
+              getFullyQualifiedTypeName(body.type)) ||
+            ("name" in body.type && typeof body.type.name === "string" && body.type.name) ||
+            "<unknown>";
+          reportDiagnostic(ctx.program, {
+            code: "unrecognized-media-type",
+            target: body.property ?? body.type,
+            format: {
+              mediaType: contentType,
+              type: name,
+            },
+          });
+        }
+
+        yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
+        yield `    const chunks: Array<Buffer> = [];`;
+        yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+        yield `    ${names.ctx}.request.on("end", function finalize() {`;
+        yield `      try {`;
+        yield `        const body = Buffer.concat(chunks).toString();`;
+        yield `        resolve(body);`;
+        yield `      } catch (e) {`;
+        yield `        ${names.ctx}.errorHandlers.onInvalidRequest(`;
+        yield `          ${names.ctx},`;
+        yield `          ${JSON.stringify(operation.path)},`;
+        yield `          "invalid text in request body",`;
+        yield `        );`;
+        yield `        reject(e);`;
+        yield `      }`;
+        yield `    });`;
+        yield `    ${names.ctx}.request.on("error", reject);`;
+        yield `  }) as string;`;
+        yield "";
+        break;
+      }
+      case "application/octet-stream":
       default:
+        {
+          if (!ctx.program.checker.isStdType(body.type, "bytes")) {
+            const name =
+              ("namespace" in body.type &&
+                body.type.namespace &&
+                getFullyQualifiedTypeName(body.type)) ||
+              ("name" in body.type && typeof body.type.name === "string" && body.type.name) ||
+              "<unknown>";
+
+            reportDiagnostic(ctx.program, {
+              code: "unrecognized-media-type",
+              target: body.property ?? body.type,
+              format: {
+                mediaType: contentType,
+                type: name,
+              },
+            });
+          }
+          yield `  const ${bodyName} = await new Promise(function parse${bodyNameCase.pascalCase}(resolve, reject) {`;
+          yield `    const chunks: Array<Buffer> = [];`;
+          yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+          yield `    ${names.ctx}.request.on("end", function finalize() {`;
+          yield `      try {`;
+          yield `        const body = Buffer.concat(chunks);`;
+          yield `        resolve(body);`;
+          yield `      } catch (e) {`;
+          yield `        reject(e);`;
+          yield `      }`;
+          yield `    });`;
+          yield `    ${names.ctx}.request.on("error", reject);`;
+          yield `  }) as Buffer;`;
+          yield "";
+          break;
+        }
         throw new UnimplementedError(`request deserialization for content-type: '${contentType}'`);
     }
 
@@ -323,7 +404,13 @@ function* emitRawServerOperation(
     const paramNameSafe = keywordSafe(paramNameCase.camelCase);
     const isBodyField = bodyFields.has(param.name) && bodyFields.get(param.name) === param.type;
     const isBodyExact = operation.parameters.body?.property === param;
-    if (isBodyField) {
+    const isPathParameter = operation.parameters.parameters.some(
+      (p) => p.type === "path" && p.param === param,
+    );
+
+    if (isPathParameter) {
+      paramBaseExpression = `${paramNameSafe}`;
+    } else if (isBodyField) {
       paramBaseExpression = `${bodyName}.${paramNameCase.camelCase}`;
     } else if (isBodyExact) {
       paramBaseExpression = bodyName!;
@@ -337,7 +424,11 @@ function* emitRawServerOperation(
 
         const encoder = jsScalar.http[httpOperationParam.type];
 
-        paramBaseExpression = encoder.decode(paramNameSafe);
+        const decoded = encoder.decode(paramNameSafe);
+
+        paramBaseExpression = param.optional
+          ? `${paramNameSafe} === undefined ? undefined : (${decoded})`
+          : decoded;
       } else {
         paramBaseExpression = paramNameSafe;
       }
@@ -376,7 +467,16 @@ function* emitRawServerOperation(
   yield `  }`;
   yield "";
 
-  yield* indent(emitResultProcessing(ctx, names, op.returnType, module));
+  yield* indent(
+    emitResultProcessing(
+      ctx,
+      createNamer(operationNameCase),
+      names,
+      operation,
+      op.returnType,
+      module,
+    ),
+  );
 
   yield "}";
 
@@ -392,6 +492,29 @@ interface Names {
   httpResponderSym: string;
 }
 
+interface Namer {
+  opName: ReCase;
+
+  names: Record<string, number>;
+
+  getAltName(name: string): string;
+}
+
+function createNamer(opName: ReCase): Namer {
+  const names: Record<string, number> = {};
+
+  return {
+    opName,
+    names,
+    getAltName(name: string): string {
+      names[name] ??= 1;
+      const idx = names[name]++;
+
+      return this.opName.pascalCase + (idx === 1 ? name : `${name}_${idx}`);
+    },
+  };
+}
+
 /**
  * Emit the result-processing code for an operation.
  *
@@ -403,13 +526,22 @@ interface Names {
  */
 function* emitResultProcessing(
   ctx: HttpContext,
+  namer: Namer,
   names: Names,
+  operation: HttpOperation,
   t: Type,
   module: Module,
 ): Iterable<string> {
   if (t.kind !== "Union") {
     // Single target type
-    yield* emitResultProcessingForType(ctx, names, t, module);
+    yield* emitResultProcessingForType(
+      ctx,
+      namer,
+      names,
+      t,
+      getResponseContentForType(operation, t),
+      module,
+    );
   } else {
     const codeTree = differentiateUnion(ctx, module, t);
 
@@ -419,9 +551,30 @@ function* emitResultProcessing(
         return names.result + "." + parseCase(p.name).camelCase;
       },
       // We mapped the output directly in the code tree input, so we can just return it.
-      renderResult: (t) => emitResultProcessingForType(ctx, names, t, module),
+      renderResult: (t) =>
+        emitResultProcessingForType(
+          ctx,
+          namer,
+          names,
+          t,
+          getResponseContentForType(operation, t),
+          module,
+        ),
     });
   }
+}
+
+function getResponseContentForType(
+  operation: HttpOperation,
+  target: Type,
+): HttpOperationResponseContent | undefined {
+  for (const response of operation.responses) {
+    if (response.type === target) {
+      return response.responses.find((candidate) => candidate.body) ?? response.responses[0];
+    }
+  }
+
+  return undefined;
 }
 
 /**
@@ -433,8 +586,10 @@ function* emitResultProcessing(
  */
 function* emitResultProcessingForType(
   ctx: HttpContext,
+  namer: Namer,
   names: Names,
   target: Type,
+  responseContent: HttpOperationResponseContent | undefined,
   module: Module,
 ): Iterable<string> {
   if (target.kind === "Intrinsic") {
@@ -451,7 +606,7 @@ function* emitResultProcessingForType(
       case "unknown":
         yield `${names.ctx}.response.statusCode = 200;`;
         yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
-        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
         return;
       case "never":
         yield `return ${names.ctx}.errorHandlers.onInternalError(${names.ctx}, "Internal server error.");`;
@@ -461,48 +616,120 @@ function* emitResultProcessingForType(
     }
   }
 
+  if (target.kind === "Scalar" || isValueLiteralType(target)) {
+    if (
+      responseContent &&
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, names.result))
+    ) {
+      return;
+    }
+
+    const serializationRequired =
+      target.kind === "Scalar" && isSerializationRequired(ctx, module, target, "application/json");
+
+    if (target.kind === "Scalar") {
+      requireSerialization(ctx, target, "application/json");
+    }
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
+    }
+
+    return;
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
 
-  const body = [...target.properties.values()].find((p) => isBody(ctx.program, p));
+  const body = responseContent?.body;
+  const responseProperties = responseContent?.properties ?? [];
+  const bodyMetadataProperty = responseProperties.find(
+    (property) =>
+      property.kind === "body" || property.kind === "bodyRoot" || property.kind === "multipartBody",
+  );
+  const hasResolvedContentTypeHeader = responseProperties.some(
+    (property) =>
+      property.kind === "contentType" ||
+      (property.kind === "header" && property.options.name.toLowerCase() === "content-type"),
+  );
 
-  for (const property of target.properties.values()) {
-    if (isHeader(ctx.program, property)) {
-      const headerName = getHeaderFieldName(ctx.program, property);
-      yield `${names.ctx}.response.setHeader(${JSON.stringify(headerName.toLowerCase())}, ${names.result}.${parseCase(property.name).camelCase});`;
-      if (!body) yield `delete (${names.result} as any).${parseCase(property.name).camelCase};`;
-    } else if (isStatusCode(ctx.program, property)) {
-      if (isUnspeakable(property.name)) {
-        if (!isValueLiteralType(property.type)) {
-          reportDiagnostic(ctx.program, {
-            code: "unspeakable-status-code",
-            target: property,
-            format: {
-              name: property.name,
-            },
-          });
-          continue;
+  for (const property of responseProperties) {
+    switch (property.kind) {
+      case "header": {
+        const headerValue = isValueLiteralType(property.property.type)
+          ? getValueLiteralExpression(property.property.type)
+          : getPropertyPathExpression(names.result, property.path);
+        yield `${names.ctx}.response.setHeader(${JSON.stringify(property.options.name.toLowerCase())}, ${headerValue});`;
+        if (!body) {
+          yield* emitDeleteForPath(names.result, property.path);
         }
+        break;
+      }
+      case "contentType": {
+        const contentTypeValue = isValueLiteralType(property.property.type)
+          ? getValueLiteralExpression(property.property.type)
+          : getPropertyPathExpression(names.result, property.path);
+        yield `${names.ctx}.response.setHeader("content-type", ${contentTypeValue});`;
+        if (!body) {
+          yield* emitDeleteForPath(names.result, property.path);
+        }
+        break;
+      }
+      case "statusCode": {
+        if (isUnspeakable(property.property.name)) {
+          if (!isValueLiteralType(property.property.type)) {
+            reportDiagnostic(ctx.program, {
+              code: "unspeakable-status-code",
+              target: property.property,
+              format: {
+                name: property.property.name,
+              },
+            });
+            continue;
+          }
 
-        compilerAssert(property.type.kind === "Number", "Status code must be a number.");
-
-        yield `${names.ctx}.response.statusCode = ${property.type.valueAsString};`;
-      } else {
-        yield `${names.ctx}.response.statusCode = ${names.result}.${parseCase(property.name).camelCase};`;
-        if (!body) yield `delete (${names.result} as any).${parseCase(property.name).camelCase};`;
+          compilerAssert(property.property.type.kind === "Number", "Status code must be a number.");
+          yield `${names.ctx}.response.statusCode = ${property.property.type.valueAsString};`;
+        } else {
+          const statusCodeValue = isValueLiteralType(property.property.type)
+            ? getValueLiteralExpression(property.property.type)
+            : getPropertyPathExpression(names.result, property.path);
+          yield `${names.ctx}.response.statusCode = ${statusCodeValue};`;
+          if (!body) {
+            yield* emitDeleteForPath(names.result, property.path);
+          }
+        }
+        break;
       }
     }
   }
 
   const allMetadataIsRemoved =
     !body &&
-    [...target.properties.values()].every((p) => {
-      return isHeader(ctx.program, p) || isStatusCode(ctx.program, p);
-    });
+    responseProperties.every(
+      (property) =>
+        property.kind === "header" ||
+        property.kind === "contentType" ||
+        property.kind === "statusCode",
+    );
 
   if (body) {
-    const bodyCase = parseCase(body.name);
+    const bodyExpression = bodyMetadataProperty
+      ? getPropertyPathExpression(names.result, bodyMetadataProperty.path)
+      : names.result;
+
+    if (
+      responseContent &&
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, bodyExpression))
+    ) {
+      return;
+    }
+
     const serializationRequired = isSerializationRequired(
       ctx,
       module,
@@ -511,17 +738,59 @@ function* emitResultProcessingForType(
     );
     requireSerialization(ctx, body.type, "application/json");
 
+    if (!hasResolvedContentTypeHeader) {
+      yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+    }
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, body.type, bodyExpression, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${bodyExpression}));`;
+    }
+  } else if (isArrayModelType(target)) {
+    const itemType = target.indexer.value;
+
+    const serializationRequired = isSerializationRequired(
+      ctx,
+      module,
+      itemType,
+      "application/json",
+    );
+    requireSerialization(ctx, itemType, "application/json");
+
     yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
 
     if (serializationRequired) {
-      const typeReference = emitTypeReference(ctx, body.type, body, module, {
-        requireDeclaration: true,
-      });
-      yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
     } else {
-      yield `${names.ctx}.response.end(JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
+    }
+  } else if (isRecordModelType(target)) {
+    const itemType = target.indexer.value;
+
+    const serializationRequired = isSerializationRequired(
+      ctx,
+      module,
+      itemType,
+      "application/json",
+    );
+    requireSerialization(ctx, itemType, "application/json");
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
     }
   } else {
+    if (
+      responseContent &&
+      (yield* emitRawResponseBody(ctx, names, module, responseContent, names.result))
+    ) {
+      return;
+    }
+
     if (allMetadataIsRemoved) {
       yield `${names.ctx}.response.end();`;
     } else {
@@ -537,13 +806,151 @@ function* emitResultProcessingForType(
 
       if (serializationRequired) {
         const typeReference = emitTypeReference(ctx, target, target, module, {
+          altName: namer.getAltName("Result"),
           requireDeclaration: true,
         });
-        yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result} as ${typeReference})));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${typeReference}.toJsonObject(${names.result} as ${typeReference})));`;
       } else {
-        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
       }
     }
+  }
+}
+
+function* emitRawResponseBody(
+  ctx: HttpContext,
+  names: Names,
+  module: Module,
+  responseContent: HttpOperationResponseContent,
+  bodyExpression: string,
+): Generator<string, boolean, void> {
+  const body = responseContent.body;
+
+  if (!body) {
+    return false;
+  }
+
+  function emitsResolvedContentType(
+    property: ModelProperty | undefined,
+  ): property is ModelProperty {
+    return (
+      !!property &&
+      responseContent.properties.some(
+        (candidate) =>
+          candidate.property === property &&
+          (candidate.kind === "contentType" ||
+            (candidate.kind === "header" &&
+              candidate.options.name.toLowerCase() === "content-type")),
+      )
+    );
+  }
+
+  function emitsResolvedHeader(property: ModelProperty | undefined): property is ModelProperty {
+    return (
+      !!property &&
+      responseContent.properties.some(
+        (candidate) => candidate.property === property && candidate.kind === "header",
+      )
+    );
+  }
+
+  if (body.bodyKind === "file") {
+    const fileBody = body as HttpOperationFileBody;
+    const contentTypeProperty = fileBody.contentTypeProperty as ModelProperty;
+    const filenameProperty = fileBody.filename as ModelProperty;
+
+    if (!emitsResolvedContentType(contentTypeProperty)) {
+      const fallbackContentType = JSON.stringify(
+        fileBody.contentTypes[0] ?? "application/octet-stream",
+      );
+      yield `${names.ctx}.response.setHeader("content-type", ${bodyExpression}.contentType ?? ${fallbackContentType});`;
+    }
+
+    if (emitsResolvedHeader(filenameProperty)) {
+      const headerName = getHeaderFieldName(ctx.program, filenameProperty).toLowerCase();
+      yield `${names.ctx}.response.setHeader(${JSON.stringify(headerName)}, ${bodyExpression}.filename);`;
+    } else {
+      module.imports.push({
+        binder: ["formatContentDispositionAttachment"],
+        from: headerHelpers,
+      });
+      yield `if (${bodyExpression}.filename !== undefined) {`;
+      yield `  ${names.ctx}.response.setHeader("content-disposition", formatContentDispositionAttachment(${bodyExpression}.filename));`;
+      yield `}`;
+    }
+
+    yield `${names.ctx}.response.end(${bodyExpression}.contents);`;
+    return true;
+  }
+
+  if (
+    body.bodyKind === "single" &&
+    ctx.program.checker.isStdType(body.type, "bytes") &&
+    !body.contentTypes.some(isJsonContentType)
+  ) {
+    if (!emitsResolvedContentType(body.contentTypeProperty)) {
+      const contentType = body.contentTypes[0] ?? "application/octet-stream";
+      yield `${names.ctx}.response.setHeader("content-type", ${JSON.stringify(contentType)});`;
+    }
+
+    yield `${names.ctx}.response.end(${bodyExpression});`;
+    return true;
+  }
+
+  return false;
+}
+
+function isJsonContentType(contentType: string): boolean {
+  return (
+    contentType === "application/json" ||
+    contentType === "text/json" ||
+    contentType.endsWith("+json")
+  );
+}
+
+function getValueLiteralExpression(type: Type): string {
+  compilerAssert(isValueLiteralType(type), "Expected a value literal type.");
+
+  switch (type.kind) {
+    case "String":
+    case "Boolean":
+      return JSON.stringify(type.value);
+    case "Number":
+      return type.valueAsString;
+    default:
+      compilerAssert(false, `Unsupported value literal type '${type.kind}'.`);
+  }
+}
+
+function getPropertyPathExpression(root: string, path: readonly (string | number)[]): string {
+  let expression = root;
+
+  for (const segment of path) {
+    expression =
+      typeof segment === "number"
+        ? `${expression}[${segment}]`
+        : `${expression}.${parseCase(segment).camelCase}`;
+  }
+
+  return expression;
+}
+
+function* emitDeleteForPath(
+  root: string,
+  path: readonly (string | number)[],
+): Generator<string, void, void> {
+  if (path.length === 0) {
+    return;
+  }
+
+  const parentExpression =
+    path.length === 1 ? root : getPropertyPathExpression(root, path.slice(0, path.length - 1));
+  const leaf = path[path.length - 1]!;
+
+  if (typeof leaf === "number") {
+    yield `delete (${parentExpression} as any)[${leaf}];`;
+  } else {
+    yield `delete (${parentExpression} as any).${parseCase(leaf).camelCase};`;
   }
 }
 

@@ -57,7 +57,7 @@ public final class ExtendsUnknownDerivedsImpl {
      * proxy service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AdditionalProperties")
+    @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknownDeriveds")
     public interface ExtendsUnknownDerivedsService {
         @Get("/type/property/additionalProperties/extendsRecordUnknownDerived")
         @ExpectedResponses({ 200 })

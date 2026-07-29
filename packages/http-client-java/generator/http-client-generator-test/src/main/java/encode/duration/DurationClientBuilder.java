@@ -45,9 +45,11 @@ import java.util.Objects;
         QueryClient.class,
         PropertyClient.class,
         HeaderClient.class,
+        LossyClient.class,
         QueryAsyncClient.class,
         PropertyAsyncClient.class,
-        HeaderAsyncClient.class })
+        HeaderAsyncClient.class,
+        LossyAsyncClient.class })
 public final class DurationClientBuilder implements HttpTrait<DurationClientBuilder>,
     ConfigurationTrait<DurationClientBuilder>, EndpointTrait<DurationClientBuilder> {
     @Generated
@@ -71,6 +73,22 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     }
 
     /*
+     * The HTTP client used to send the request.
+     */
+    @Generated
+    private HttpClient httpClient;
+
+    /**
+     * {@inheritDoc}.
+     */
+    @Generated
+    @Override
+    public DurationClientBuilder httpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
+    /*
      * The HTTP pipeline to send requests through.
      */
     @Generated
@@ -86,22 +104,6 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
             LOGGER.atInfo().log("HttpPipeline is being set to 'null' when it was previously configured.");
         }
         this.pipeline = pipeline;
-        return this;
-    }
-
-    /*
-     * The HTTP client used to send the request.
-     */
-    @Generated
-    private HttpClient httpClient;
-
-    /**
-     * {@inheritDoc}.
-     */
-    @Generated
-    @Override
-    public DurationClientBuilder httpClient(HttpClient httpClient) {
-        this.httpClient = httpClient;
         return this;
     }
 
@@ -301,6 +303,16 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     }
 
     /**
+     * Builds an instance of LossyAsyncClient class.
+     * 
+     * @return an instance of LossyAsyncClient.
+     */
+    @Generated
+    public LossyAsyncClient buildLossyAsyncClient() {
+        return new LossyAsyncClient(buildInnerClient().getLossies());
+    }
+
+    /**
      * Builds an instance of QueryClient class.
      * 
      * @return an instance of QueryClient.
@@ -328,6 +340,16 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     @Generated
     public HeaderClient buildHeaderClient() {
         return new HeaderClient(buildInnerClient().getHeaders());
+    }
+
+    /**
+     * Builds an instance of LossyClient class.
+     * 
+     * @return an instance of LossyClient.
+     */
+    @Generated
+    public LossyClient buildLossyClient() {
+        return new LossyClient(buildInnerClient().getLossies());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(DurationClientBuilder.class);

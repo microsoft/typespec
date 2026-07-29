@@ -3,17 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Represents a test model.
  */
-public class TestModel implements JsonSerializable<TestModel> {
+public class TestModel {
     private List<ScenarioTest> scenarioTests;
 
     /**
@@ -38,29 +33,5 @@ public class TestModel implements JsonSerializable<TestModel> {
      */
     public void setScenarioTests(List<ScenarioTest> scenarioTests) {
         this.scenarioTests = scenarioTests;
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeArrayField("scenarioTests", scenarioTests, JsonWriter::writeJson)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a TestModel instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A TestModel instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static TestModel fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, TestModel::new, (model, fieldName, reader) -> {
-            if ("scenarioTests".equals(fieldName)) {
-                model.scenarioTests = reader.readArray(ScenarioTest::fromJson);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

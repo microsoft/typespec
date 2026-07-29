@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 from .parameter import (
     ParameterLocation,
     ParameterMethodLocation,
@@ -26,7 +26,7 @@ class RequestBuilderBodyParameter(BodyParameter):
         if (
             isinstance(self.type, (BinaryType, StringType))
             or any("xml" in ct for ct in self.content_types)
-            or self.code_model.options["models_mode"] == "dpg"
+            or self.code_model.options["models-mode"] == "dpg"
         ):
             self.client_name = "content"
         else:
@@ -40,7 +40,7 @@ class RequestBuilderBodyParameter(BodyParameter):
     @property
     def in_method_signature(self) -> bool:
         return (
-            super().in_method_signature and not self.is_partial_body and self.code_model.options["models_mode"] != "dpg"
+            super().in_method_signature and not self.is_partial_body and self.code_model.options["models-mode"] != "dpg"
         )
 
     @property
@@ -52,7 +52,7 @@ class RequestBuilderBodyParameter(BodyParameter):
         )
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "RequestBuilderBodyParameter":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "RequestBuilderBodyParameter":
         return super().from_yaml(yaml_data, code_model)  # type: ignore
 
     @property
@@ -67,7 +67,7 @@ class RequestBuilderParameter(Parameter):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         type: BaseType,
     ) -> None:

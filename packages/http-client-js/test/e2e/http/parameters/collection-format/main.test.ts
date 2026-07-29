@@ -18,11 +18,6 @@ describe("Parameters.CollectionFormat", () => {
       // Assert successful request
     });
 
-    it.skip("should test sending a tsv collection format array query parameters", async () => {
-      await client.tsv(["blue", "red", "green"]);
-      // Assert successful request
-    });
-
     it.skip("should test sending a pipes collection format array query parameters", async () => {
       await client.pipes(["blue", "red", "green"]);
       // Assert successful request

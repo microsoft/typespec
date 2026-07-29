@@ -3,10 +3,10 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -21,9 +21,10 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class SchemaNameNormalization {
     private static final Logger LOGGER
         = new PluginLogger(FluentNamer.getPluginInstance(), SchemaNameNormalization.class);
 
-    private final Map<String, String> nameOverridePlan = new HashMap<>();
+    private final Map<String, String> nameOverridePlan = new LinkedHashMap<>();
 
     public SchemaNameNormalization(Map<String, String> nameOverridePlan) {
         nameOverridePlan.forEach((k, v) -> {
@@ -59,7 +60,7 @@ public class SchemaNameNormalization {
 
     public CodeModel process(CodeModel codeModel) {
         codeModel = namingOverride(codeModel);
-        Set<String> names = new HashSet<>();
+        Set<String> names = new LinkedHashSet<>();
         codeModel = normalizeUnnamedAdditionalProperties(codeModel, names);
         codeModel = normalizeUnnamedBaseType(codeModel, names);
         codeModel = normalizeUnnamedObjectTypeInArray(codeModel, names);    // after normalizeUnnamedBaseType
@@ -280,30 +281,27 @@ public class SchemaNameNormalization {
         final String postfix = "Schema";
         final String requestBody = "Requestbody";
 
-        codeModel.getOperationGroups().forEach(og -> {
-            og.getOperations().forEach(operation -> {
-                operation.getRequests().forEach(request -> {
-                    Optional<Schema> bodySchemaOpt = request.getParameters()
-                        .stream()
-                        .filter(p -> p.getSchema() != null
-                            && p.getProtocol() != null
-                            && p.getProtocol().getHttp() != null
-                            && p.getProtocol().getHttp().getIn() == RequestParameterLocation.BODY)
-                        .map(Value::getSchema)
-                        .findFirst();
-                    if (bodySchemaOpt.isPresent()) {
-                        Schema schema = bodySchemaOpt.get();
-                        String name = Utils.getDefaultName(schema);
-                        if (name.startsWith(prefix) && name.endsWith(postfix) && name.contains(requestBody)) {
-                            String newName = Utils.getDefaultName(og) + Utils.getDefaultName(operation) + "RequestBody";
-                            newName = rename(newName, names);
-                            schema.getLanguage().getDefault().setName(newName);
-                            LOGGER.warn("Rename schema default name, from '{}' to '{}'", name, newName);
-                        }
+        codeModel.getOperationGroups()
+            .forEach(og -> og.getOperations().forEach(operation -> operation.getRequests().forEach(request -> {
+                Optional<Schema> bodySchemaOpt = request.getParameters()
+                    .stream()
+                    .filter(p -> p.getSchema() != null
+                        && p.getProtocol() != null
+                        && p.getProtocol().getHttp() != null
+                        && p.getProtocol().getHttp().getIn() == RequestParameterLocation.BODY)
+                    .map(Value::getSchema)
+                    .findFirst();
+                if (bodySchemaOpt.isPresent()) {
+                    Schema schema = bodySchemaOpt.get();
+                    String name = Utils.getDefaultName(schema);
+                    if (name.startsWith(prefix) && name.endsWith(postfix) && name.contains(requestBody)) {
+                        String newName = Utils.getDefaultName(og) + Utils.getDefaultName(operation) + "RequestBody";
+                        newName = rename(newName, names);
+                        schema.getLanguage().getDefault().setName(newName);
+                        LOGGER.warn("Rename schema default name, from '{}' to '{}'", name, newName);
                     }
-                });
-            });
-        });
+                }
+            })));
 
         return codeModel;
     }
@@ -364,25 +362,13 @@ public class SchemaNameNormalization {
                 .flatMap(r -> r.getParameters().stream())
                 .forEach(this::overrideName);
 
-            // hack, http header is case insensitive
             codeModel.getOperationGroups()
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
                 .flatMap(o -> o.getResponses().stream())
                 .filter(r -> r.getProtocol().getHttp().getHeaders() != null)
                 .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream())
-                .forEach(h -> {
-                    String name = h.getHeader();
-                    String newName = overrideName(name);
-                    if (!name.equals(newName)) {
-                        if (name.equalsIgnoreCase(newName)) {
-                            LOGGER.info("Override response header, from '{}' to '{}'", name, newName);
-                            h.setHeader(newName);
-                        } else {
-                            LOGGER.info("Abort override response header, from '{}' to '{}'", name, newName);
-                        }
-                    }
-                });
+                .forEach(this::overrideName);
         }
         return codeModel;
     }
@@ -393,6 +379,32 @@ public class SchemaNameNormalization {
         if (!name.equals(newName)) {
             m.getLanguage().getDefault().setName(newName);
             LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+        }
+    }
+
+    private void overrideName(Header h) {
+        String name = (h.getLanguage() != null && h.getLanguage().getDefault() != null)
+            ? h.getLanguage().getDefault().getName()
+            : null;
+        if (name != null) {
+            String newName = overrideName(name);
+            if (!name.equals(newName)) {
+                h.getLanguage().getDefault().setName(newName);
+                // LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+            }
+        }
+
+        // We should not modify header name directly
+        // for backward compatibility, here it only change case, where header is case-insensitive
+        name = h.getHeader();
+        String newName = overrideName(name);
+        if (!name.equals(newName)) {
+            if (name.equalsIgnoreCase(newName)) {
+                LOGGER.info("Override response header, from '{}' to '{}'", name, newName);
+                h.setHeader(newName);
+            } else {
+                LOGGER.info("Abort override response header, from '{}' to '{}'", name, newName);
+            }
         }
     }
 

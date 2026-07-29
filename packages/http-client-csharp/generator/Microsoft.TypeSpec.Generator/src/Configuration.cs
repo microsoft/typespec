@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator
     /// </summary>
     public class Configuration
     {
-        internal enum UnreferencedTypesHandlingOption
+        public enum UnreferencedTypesHandlingOption
         {
             RemoveOrInternalize = 0,
             Internalize = 1,
@@ -29,22 +29,24 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
-        private Configuration(
+        public Configuration(
             string outputPath,
-            Dictionary<string, BinaryData> additionalConfigOptions,
-            bool clearOutputFolder,
-            string packageName,
+            Dictionary<string, BinaryData> additionalConfigurationOptions,
+            string? packageName,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling,
-            LicenseInfo? licenseInfo)
+            LicenseInfo? licenseInfo,
+            IReadOnlyList<string>? pluginPaths = null,
+            bool disableRoslynReduce = false)
         {
             OutputDirectory = outputPath;
-            AdditionalConfigOptions = additionalConfigOptions;
-            ClearOutputFolder = clearOutputFolder;
-            PackageName = packageName;
+            AdditionalConfigurationOptions = additionalConfigurationOptions;
+            PackageName = packageName!;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
             LicenseInfo = licenseInfo;
+            PluginPaths = pluginPaths;
+            DisableRoslynReduce = disableRoslynReduce;
         }
 
         /// <summary>
@@ -52,16 +54,24 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static class Options
         {
-            public const string ClearOutputFolder = "clear-output-folder";
             public const string PackageName = "package-name";
             public const string DisableXmlDocs = "disable-xml-docs";
+            public const string DisableRoslynReduce = "disable-roslyn-reduce";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
+            public const string Plugins = "plugins";
         }
 
         /// <summary>
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
+
+        /// <summary>
+        /// Gets whether the Roslyn reduce (simplification) post-processing step is disabled.
+        /// Disabling it speeds up generation at the cost of less simplified output, which is
+        /// useful when iterating quickly.
+        /// </summary>
+        public bool DisableRoslynReduce { get; }
 
         /// <summary>
         /// Gets the root output directory for the generated library.
@@ -87,12 +97,14 @@ namespace Microsoft.TypeSpec.Generator
         private string? _testGeneratedDirectory;
         internal string TestGeneratedDirectory => _testGeneratedDirectory ??= Path.Combine(TestProjectDirectory, GeneratedFolderName);
 
-        internal string PackageName { get; }
+        public string PackageName { get; internal set; }
 
         /// <summary>
-        /// True if the output folder should be cleared before generating the code.
+        /// Gets the paths to plugin assemblies (DLLs) or directories containing plugin assemblies.
+        /// When specified, the generator loads plugins from these paths in addition to any
+        /// plugins discovered via node_modules.
         /// </summary>
-        internal bool ClearOutputFolder { get; private set; }
+        public IReadOnlyList<string>? PluginPaths { get; }
 
         /// <summary>
         /// True if a sample project should be generated.
@@ -104,8 +116,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal bool GenerateTestProject { get; private set; }
 
-        // The additional configuration options read from the input configuration file.
-        public Dictionary<string, BinaryData> AdditionalConfigOptions { get; }
+        /// <summary>
+        /// Additional configuration options read from the input configuration file.
+        /// </summary>
+        public virtual IReadOnlyDictionary<string, BinaryData> AdditionalConfigurationOptions { get; }
 
         /// <summary>
         /// Initializes the configuration from the given path to the configuration file.
@@ -126,11 +140,12 @@ namespace Microsoft.TypeSpec.Generator
             return new Configuration(
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
-                ReadOption(root, Options.ClearOutputFolder),
-                ReadRequiredStringOption(root, Options.PackageName),
+                ReadStringOption(root, Options.PackageName),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling),
-                ReadLicenseInfo(root));
+                ReadLicenseInfo(root),
+                ReadStringArrayOption(root, Options.Plugins),
+                ReadOption(root, Options.DisableRoslynReduce));
         }
 
         private static LicenseInfo? ReadLicenseInfo(JsonElement root)
@@ -160,8 +175,8 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.ClearOutputFolder, true },
             { Options.DisableXmlDocs, false },
+            { Options.DisableRoslynReduce, false },
         };
 
         /// <summary>
@@ -169,10 +184,11 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         private static readonly HashSet<string> _knownOptions = new()
         {
-            Options.ClearOutputFolder,
             Options.PackageName,
             Options.DisableXmlDocs,
+            Options.DisableRoslynReduce,
             Options.UnreferencedTypesHandling,
+            Options.Plugins,
         };
 
         private static bool ReadOption(JsonElement root, string option)
@@ -187,15 +203,31 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static string ReadRequiredStringOption(JsonElement root, string option)
-        {
-            return ReadStringOption(root, option) ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration.");
-        }
-
         private static string? ReadStringOption(JsonElement root, string option)
         {
             if (root.TryGetProperty(option, out JsonElement value))
+            {
                 return value.GetString();
+            }
+
+            return null;
+        }
+
+        private static IReadOnlyList<string>? ReadStringArrayOption(JsonElement root, string option)
+        {
+            if (root.TryGetProperty(option, out JsonElement value) && value.ValueKind == JsonValueKind.Array)
+            {
+                var list = new List<string>();
+                foreach (var item in value.EnumerateArray())
+                {
+                    var str = item.GetString();
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        list.Add(str);
+                    }
+                }
+                return list.Count > 0 ? list : null;
+            }
 
             return null;
         }

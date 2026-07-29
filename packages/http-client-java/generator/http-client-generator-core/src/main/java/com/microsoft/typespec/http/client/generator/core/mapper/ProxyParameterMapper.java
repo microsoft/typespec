@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
@@ -13,11 +12,13 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 
@@ -72,7 +73,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
 
         builder.clientType(clientType);
 
-        if (wireType instanceof ListType
+        if (wireType instanceof IterableType
             && SchemaUtil.treatAsXml(parameterJvWireType)
             && parameterRequestLocation == RequestParameterLocation.BODY) {
             String modelTypeName
@@ -92,7 +93,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             } else if (isRemoveModelFromParameter(parameter, wireType)) {
                 wireType = SchemaUtil.removeModelFromParameter(parameterRequestLocation, wireType);
             }
-        } else if (wireType instanceof ListType
+        } else if (wireType instanceof IterableType
             && parameter.getProtocol().getHttp().getIn()
                 != RequestParameterLocation.BODY /*
                                                   * && parameter.getProtocol().getHttp().getIn() !=
@@ -127,7 +128,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
             String caller = (operationGroupName == null || operationGroupName.isEmpty()) ? "this" : "this.client";
             String clientPropertyName = parameter.getLanguage().getJava().getName();
             boolean isServiceVersion = false;
-            if (settings.isDataPlaneClient()
+            if ((settings.isDataPlaneClient() || !settings.isAzureV1() || settings.isAzureV2())
                 && ParameterSynthesizedOrigin.fromValue(parameter.getOrigin())
                     == ParameterSynthesizedOrigin.API_VERSION) {
                 isServiceVersion = true;
@@ -174,7 +175,7 @@ public class ProxyParameterMapper implements IMapper<Parameter, ProxyMethodParam
                     collectionFormat = CollectionFormat.CSV;
             }
         }
-        if (collectionFormat == null && clientType instanceof ListType && ClassType.STRING == wireType) {
+        if (collectionFormat == null && clientType instanceof IterableType && ClassType.STRING == wireType) {
             collectionFormat = CollectionFormat.CSV;
         }
         builder.collectionFormat(collectionFormat);

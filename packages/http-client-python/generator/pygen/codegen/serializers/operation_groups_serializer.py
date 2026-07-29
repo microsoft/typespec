@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Optional, List, Union
+from typing import Optional, Union
 import functools
 from jinja2 import Environment
 
@@ -27,7 +27,7 @@ class OperationGroupsSerializer(BaseSerializer):
     def __init__(
         self,
         code_model: CodeModel,
-        operation_groups: List[OperationGroup],
+        operation_groups: list[OperationGroup],
         env: Environment,
         async_mode: bool,
         *,
@@ -39,7 +39,7 @@ class OperationGroupsSerializer(BaseSerializer):
 
     def _get_request_builders(
         self, operation_group: OperationGroup
-    ) -> List[Union[OverloadedRequestBuilder, RequestBuilder]]:
+    ) -> list[Union[OverloadedRequestBuilder, RequestBuilder]]:
         return [
             r
             for r in operation_group.client.request_builders
@@ -66,6 +66,11 @@ class OperationGroupsSerializer(BaseSerializer):
                     serialize_namespace_type=NamespaceType.OPERATION,
                 )
             )
+        # put here since one operation file only need one self-defined list type
+        if self.code_model.has_operation_named_list:
+            # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
+            # not doing for dict or set yet, though we might have to later
+            imports.define_mypy_type("List", "list")
 
         template = self.env.get_or_select_template("operation_groups_container.py.jinja2")
 

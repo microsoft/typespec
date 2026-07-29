@@ -1,7 +1,7 @@
 package type.property.nullable;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -16,30 +16,30 @@ import type.property.nullable.implementation.JsonMergePatchHelper;
 /**
  * Model with a datetime property.
  */
-@Metadata(conditions = { TypeConditions.FLUENT })
+@Metadata(properties = { MetadataProperties.FLUENT })
 public final class DatetimeProperty implements JsonSerializable<DatetimeProperty> {
     /*
      * Required property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String requiredProperty;
 
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private OffsetDateTime nullableProperty;
 
     /**
      * Stores updated model property, the value is property name, not serialized name.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final Set<String> updatedProperties = new HashSet<>();
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private boolean jsonMergePatch;
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private void serializeAsJsonMergePatch(boolean jsonMergePatch) {
         this.jsonMergePatch = jsonMergePatch;
     }
@@ -63,7 +63,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
     /**
      * Creates an instance of DatetimeProperty class.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeProperty() {
     }
 
@@ -72,7 +72,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
      * 
      * @return the requiredProperty value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getRequiredProperty() {
         return this.requiredProperty;
     }
@@ -84,7 +84,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
      * @param requiredProperty the requiredProperty value to set.
      * @return the DatetimeProperty object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeProperty setRequiredProperty(String requiredProperty) {
         this.requiredProperty = requiredProperty;
         this.updatedProperties.add("requiredProperty");
@@ -96,7 +96,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
      * 
      * @return the nullableProperty value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public OffsetDateTime getNullableProperty() {
         return this.nullableProperty;
     }
@@ -108,7 +108,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
      * @param nullableProperty the nullableProperty value to set.
      * @return the DatetimeProperty object itself.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public DatetimeProperty setNullableProperty(OffsetDateTime nullableProperty) {
         this.nullableProperty = nullableProperty;
         this.updatedProperties.add("nullableProperty");
@@ -118,7 +118,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         if (jsonMergePatch) {
@@ -134,7 +134,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
         }
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private JsonWriter toJsonMergePatch(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         if (updatedProperties.contains("requiredProperty")) {
@@ -165,7 +165,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
      * pointing to JSON null.
      * @throws IOException If an error occurs while reading the DatetimeProperty.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static DatetimeProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             DatetimeProperty deserializedDatetimeProperty = new DatetimeProperty();

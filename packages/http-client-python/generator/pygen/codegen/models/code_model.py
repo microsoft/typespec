@@ -3,24 +3,27 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
+from pathlib import Path
+from typing import Any, Union, Literal, Optional, cast
 
 from .base import BaseType
 from .enum_type import EnumType
 from .model_type import ModelType, UsageFlags
 from .combined_type import CombinedType
+from .primitive_types import ExternalType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
 from .utils import NamespaceType
 from .._utils import DEFAULT_HEADER_TEXT, DEFAULT_LICENSE_DESCRIPTION
+from ... import OptionsDict
 
 
 def _is_legacy(options) -> bool:
-    return not (options.get("version_tolerant") or options.get("low_level_client"))
+    return not (options.get("version-tolerant") or options.get("low-level-client"))
 
 
-def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
+def get_all_operation_groups_recursively(clients: list[Client]) -> list[OperationGroup]:
     operation_groups = []
     queue = []
     for client in clients:
@@ -35,10 +38,10 @@ def get_all_operation_groups_recursively(clients: List[Client]) -> List[Operatio
 class ClientNamespaceType:
     def __init__(
         self,
-        clients: Optional[List[Client]] = None,
-        models: Optional[List[ModelType]] = None,
-        enums: Optional[List[EnumType]] = None,
-        operation_groups: Optional[List[OperationGroup]] = None,
+        clients: Optional[list[Client]] = None,
+        models: Optional[list[ModelType]] = None,
+        enums: Optional[list[EnumType]] = None,
+        operation_groups: Optional[list[OperationGroup]] = None,
     ):
         self.clients = clients or []
         self.models = models or []
@@ -71,33 +74,36 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
-        options: Dict[str, Any],
+        yaml_data: dict[str, Any],
+        options: OptionsDict,
     ) -> None:
         self.yaml_data = yaml_data
         self.options = options
         self.namespace = self.yaml_data["namespace"]
-        self.types_map: Dict[int, BaseType] = {}  # map yaml id to schema
-        self._model_types: List[ModelType] = []
+        self.types_map: dict[int, BaseType] = {}  # map yaml id to schema
+        self._model_types: list[ModelType] = []
         from . import build_type
 
         for type_yaml in yaml_data.get("types", []):
             build_type(yaml_data=type_yaml, code_model=self)
-        self.clients: List[Client] = [
+        self.clients: list[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        if self.options["models_mode"] and self.model_types:
+        if self.options["models-mode"] and self.model_types:
             self.sort_model_types()
-        self.named_unions: List[CombinedType] = [
+        self.named_unions: list[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
+        self.cross_language_version = self.yaml_data.get("crossLanguageVersion")
         self.for_test: bool = False
         # key is typespec namespace, value is models/clients/opeartion_groups/enums cache in the namespace
-        self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+        self._client_namespace_types: dict[str, ClientNamespaceType] = {}
         self.has_subnamespace = False
-        self._operations_folder_name: Dict[str, str] = {}
-        self._relative_import_path: Dict[str, str] = {}
+        self._operations_folder_name: dict[str, str] = {}
+        self._relative_import_path: dict[str, str] = {}
+        self.metadata: dict[str, Any] = yaml_data.get("metadata", {})
+        self.has_external_type = any(isinstance(t, ExternalType) for t in self.types_map.values())
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
@@ -146,18 +152,30 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return result
         return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
 
-    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+    def _get_unique_import_alias(self, serialize_namespace: str, imported_namespace: str, module_name: str) -> str:
         if not self.has_subnamespace:
-            return "_models"
+            return f"_{module_name}"
         relative_path = self.get_relative_import_path(
             serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
         )
         dot_num = max(relative_path.count(".") - 1, 0)
-        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
+        path_parts = [p for p in relative_path.split(".") if p]
+        # For "models", keep existing format: _<path_parts><dot_num> (e.g. _models1, _firstnamespace_models2)
+        # For other modules like "types", prefix with module name: _types_<path_parts><dot_num>
+        if module_name == "models":
+            parts = [""] + (path_parts or [module_name])
+        else:
+            parts = [f"_{module_name}"] + (path_parts or [])
         return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
 
+    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "models")
+
+    def get_unique_types_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        return self._get_unique_import_alias(serialize_namespace, imported_namespace, "types")
+
     @property
-    def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
+    def client_namespace_types(self) -> dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
             # calculate client namespace types for each kind of client namespace
             for client in self.clients:
@@ -168,6 +186,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 if model.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[model.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[model.client_namespace].models.append(model)
+            # TypedDict copies (base="typeddict") are excluded from model_types to keep
+            # them out of _models.py, but they need to be in the namespace model list
+            # so the TypesSerializer can render them in types.py.
+            for t in self.types_map.values():
+                if isinstance(t, ModelType) and t.base == "typeddict" and t.usage != UsageFlags.Default.value:
+                    if t.client_namespace not in self._client_namespace_types:
+                        self._client_namespace_types[t.client_namespace] = ClientNamespaceType()
+                    self._client_namespace_types[t.client_namespace].models.append(t)
             for enum in self.enums:
                 if enum.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[enum.client_namespace] = ClientNamespaceType()
@@ -199,7 +225,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return any(client.has_etag for client in self.clients)
 
     @staticmethod
-    def clients_has_operations(clients: List[Client]) -> bool:
+    def clients_has_operations(clients: list[Client]) -> bool:
         return any(c for c in clients if c.has_operations)
 
     @property
@@ -226,13 +252,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def rest_layer_name(self) -> str:
         """If we have a separate rest layer, what is its name?"""
-        return "rest" if self.options["builders_visibility"] == "public" else "_rest"
+        return "rest" if self.options["builders-visibility"] == "public" else "_rest"
 
     @property
     def client_filename(self) -> str:
         return self.clients[0].filename
 
-    def get_clients(self, client_namespace: str) -> List[Client]:
+    def get_clients(self, client_namespace: str) -> list[Client]:
         """Get all clients in specific namespace"""
         return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
 
@@ -242,31 +268,42 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """
         return client_namespace == self.namespace
 
-    def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
-        """Whether we need to vendor code in the _vendor.py in specific namespace"""
+    def need_utils_folder(self, async_mode: bool, client_namespace: str) -> bool:
         return (
-            self.need_vendored_form_data(async_mode, client_namespace)
-            or self.need_vendored_etag(client_namespace)
-            or self.need_vendored_abstract(client_namespace)
-            or self.need_vendored_mixin(client_namespace)
+            self.need_utils_utils(async_mode, client_namespace)
+            or self.need_utils_serialization
+            or self.options["models-mode"] == "dpg"
         )
 
-    def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
+    @property
+    def need_utils_serialization(self) -> bool:
+        return not self.options["client-side-validation"]
+
+    def need_utils_utils(self, async_mode: bool, client_namespace: str) -> bool:
+        return (
+            self.need_utils_form_data(async_mode, client_namespace)
+            or self.need_utils_etag(client_namespace)
+            or self.need_utils_abstract(client_namespace)
+            or self.need_utils_mixin
+        )
+
+    def need_utils_form_data(self, async_mode: bool, client_namespace: str) -> bool:
         return (
             (not async_mode)
             and self.is_top_namespace(client_namespace)
             and self.has_form_data
-            and self.options["models_mode"] == "dpg"
+            and self.options["models-mode"] == "dpg"
         )
 
-    def need_vendored_etag(self, client_namespace: str) -> bool:
+    def need_utils_etag(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_etag
 
-    def need_vendored_abstract(self, client_namespace: str) -> bool:
+    def need_utils_abstract(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
 
-    def need_vendored_mixin(self, client_namespace: str) -> bool:
-        return self.has_mixin(client_namespace)
+    @property
+    def need_utils_mixin(self) -> bool:
+        return any(c_n for c_n in self.client_namespace_types if self.has_mixin(c_n))
 
     def has_mixin(self, client_namespace: str) -> bool:
         return any(c for c in self.get_clients(client_namespace) if c.has_mixin)
@@ -280,7 +317,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if client_namespace not in self._operations_folder_name:
             name = "operations"
             operation_groups = self.client_namespace_types.get(client_namespace, ClientNamespaceType()).operation_groups
-            if self.options["version_tolerant"] and all(og.is_mixin for og in operation_groups):
+            if self.options["version-tolerant"] and all(og.is_mixin for og in operation_groups):
                 name = f"_{name}"
             self._operations_folder_name[client_namespace] = name
         return self._operations_folder_name[client_namespace]
@@ -318,28 +355,30 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             raise KeyError(f"Couldn't find schema with id {schema_id}") from exc
 
     @property
-    def model_types(self) -> List[ModelType]:
+    def model_types(self) -> list[ModelType]:
         """All of the model types in this class"""
         if not self._model_types:
             self._model_types = [
-                t for t in self.types_map.values() if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value
+                t
+                for t in self.types_map.values()
+                if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value and t.base != "typeddict"
             ]
         return self._model_types
 
     @model_types.setter
-    def model_types(self, val: List[ModelType]) -> None:
+    def model_types(self, val: list[ModelType]) -> None:
         self._model_types = val
 
     @staticmethod
-    def get_public_model_types(models: List[ModelType]) -> List[ModelType]:
-        return [m for m in models if not m.internal and not m.base == "json"]
+    def get_public_model_types(models: list[ModelType]) -> list[ModelType]:
+        return [m for m in models if not m.internal and not m.base == "json" and not m.is_typed_dict_only]
 
     @property
-    def public_model_types(self) -> List[ModelType]:
+    def public_model_types(self) -> list[ModelType]:
         return self.get_public_model_types(self.model_types)
 
     @property
-    def enums(self) -> List[EnumType]:
+    def enums(self) -> list[EnumType]:
         """All of the enums"""
         return [t for t in self.types_map.values() if isinstance(t, EnumType)]
 
@@ -350,8 +389,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def _sort_model_types_helper(
         self,
         current: ModelType,
-        seen_schema_names: Set[str],
-        seen_schema_yaml_ids: Set[int],
+        seen_schema_names: set[str],
+        seen_schema_yaml_ids: set[int],
     ):
         if current.id in seen_schema_yaml_ids:
             return []
@@ -375,9 +414,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         :return: None
         :rtype: None
         """
-        seen_schema_names: Set[str] = set()
-        seen_schema_yaml_ids: Set[int] = set()
-        sorted_object_schemas: List[ModelType] = []
+        seen_schema_names: set[str] = set()
+        seen_schema_yaml_ids: set[int] = set()
+        sorted_object_schemas: list[ModelType] = []
         for schema in sorted(self.model_types, key=lambda x: x.name.lower()):
             sorted_object_schemas.extend(self._sort_model_types_helper(schema, seen_schema_names, seen_schema_yaml_ids))
         self.model_types = sorted_object_schemas
@@ -401,7 +440,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return _is_legacy(self.options)
 
     @staticmethod
-    def has_non_json_models(models: List[ModelType]) -> bool:
+    def has_non_json_models(models: list[ModelType]) -> bool:
         return any(m for m in models if m.base != "json")
 
     @property
@@ -415,7 +454,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             license_header = self.yaml_data.get("licenseInfo", {}).get("header", "")
         else:
             # typespec azure case without custom license and swagger case
-            license_header = self.options.get("header_text") or DEFAULT_HEADER_TEXT
+            license_header = self.options.get("header-text") or DEFAULT_HEADER_TEXT
         if license_header:
             license_header = license_header.replace("\n", "\n# ")
             license_header = (
@@ -439,3 +478,55 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return self.yaml_data.get("licenseInfo", {}).get("company", "")
         # typespec azure case without custom license and swagger case
         return "Microsoft Corporation"
+
+    def get_root_dir(self) -> Path:
+        if self.options["no-namespace-folders"]:
+            # when output folder contains parts different from the namespace, we fall back to current folder directly.
+            return Path(".")
+        return Path(*self.namespace.split("."))
+
+    def get_generation_dir(self, namespace: str) -> Path:
+        """The directory to generate the code in.
+
+        If 'generation-subdir' is specified, it will be used as a subdirectory.
+        """
+        root_dir = self.get_root_dir()
+        retval = self._get_relative_generation_dir(root_dir, namespace)
+        return retval
+
+    def _get_relative_generation_dir(self, root_dir: Path, namespace: str) -> Path:
+        if self.options["no-namespace-folders"]:
+            return Path(".")
+        if self.options.get("generation-subdir"):
+            # For the main namespace, return root_dir + generation-subdir
+            if namespace in ("", self.namespace):
+                return root_dir / self.options["generation-subdir"]
+
+            # For subnamespaces, extract the subnamespace part and append it to generation-subdir
+            if namespace.startswith(self.namespace + "."):
+                subnamespace_parts = namespace[len(self.namespace) + 1 :].split(".")
+                return root_dir / self.options["generation-subdir"] / Path(*subnamespace_parts)
+
+        # No generation-subdir specified, use the namespace path directly
+        return Path(*namespace.split("."))
+
+    @property
+    def has_operation_named_list(self) -> bool:
+        return any(o.name.lower() == "list" for c in self.clients for og in c.operation_groups for o in og.operations)
+
+    @property
+    def has_property_named_list(self) -> bool:
+        return any(p.client_name.lower() == "list" for m in self.model_types for p in m.properties)
+
+    @property
+    def has_padded_model_property(self) -> bool:
+        for model_type in self.model_types:
+            for prop in model_type.properties:
+                if prop.original_tsp_name:
+                    return True
+        return False
+
+    @property
+    def external_types(self) -> list[ExternalType]:
+        """All of the external types"""
+        return [t for t in self.types_map.values() if isinstance(t, ExternalType)]

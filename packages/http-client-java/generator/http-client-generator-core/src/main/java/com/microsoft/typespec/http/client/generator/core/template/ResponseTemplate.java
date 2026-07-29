@@ -9,7 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -28,10 +28,10 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
     public final void write(ClientResponse response, JavaFile javaFile) {
         JavaSettings settings = JavaSettings.getInstance();
 
-        Set<String> imports = new HashSet<>();
-        imports.add("com.azure.core.http.HttpRequest");
-        imports.add("com.azure.core.http.HttpHeaders");
-        IType restResponseType = GenericType.RestResponse(response.getHeadersType(), response.getBodyType());
+        Set<String> imports = new LinkedHashSet<>();
+        imports.add(ClassType.HTTP_REQUEST.getFullName());
+        imports.add(ClassType.HTTP_HEADERS.getFullName());
+        IType restResponseType = GenericType.restResponse(response.getHeadersType(), response.getBodyType());
         restResponseType.addImportsTo(imports, true);
 
         boolean isStreamResponse = response.getBodyType().equals(GenericType.FLUX_BYTE_BUFFER);

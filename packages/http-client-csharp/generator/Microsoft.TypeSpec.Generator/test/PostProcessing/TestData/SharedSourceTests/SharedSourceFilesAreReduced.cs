@@ -6,11 +6,8 @@ using Sample.Models.Shared;
 
 namespace Sample.Models
 {
-    /// <summary></summary>
     public partial class TypeUsingSharedSourceType
     {
-        /// <summary> Desc. </summary>
-        /// <returns></returns>
         public SharedSourceType TestMethod() => throw null;
     }
 }

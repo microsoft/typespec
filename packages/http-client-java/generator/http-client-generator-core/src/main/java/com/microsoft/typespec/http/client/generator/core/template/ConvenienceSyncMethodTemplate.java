@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.ResponseBase;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -16,8 +13,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -87,16 +86,24 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
         String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
 
-        IType responseBodyType = getResponseBodyType(convenienceMethod);
-        IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
+        IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
+        IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync && isResponseHeadersAsModel(convenienceMethod)) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers of the protocol method (which returns Response<Void>).
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.methodReturn(String.format("new %1$s(protocolMethodResponse.getHeaders())", responseBodyType));
+            return;
+        }
 
         String convertFromResponse
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
 
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
             String mapPageExpression = "";
-            if (JavaSettings.getInstance().isBranded()) {
+            if (JavaSettings.getInstance().isAzureV1()) {
                 mapPageExpression
                     = ".mapPage(bodyItemValue -> "
                         + expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",
@@ -185,65 +192,54 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             statement);
     }
 
-    private IType getResponseBodyType(ClientMethod method) {
-        // no need to care about LRO
-        IType type = method.getReturnValue().getType();
-        if (type instanceof GenericType
-            && (ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
-                || (PagedIterable.class.getSimpleName().equals(((GenericType) type).getName())))) {
-            type = ((GenericType) type).getTypeArguments()[0];
-        } else if (isResponseBase(type)) {
-            // TODO: ResponseBase is not in use, hence it may have bug
-            type = ((GenericType) type).getTypeArguments()[1];
-        }
-        return type;
-    }
-
     private boolean isResponseBase(IType type) {
-        return type instanceof GenericType && ResponseBase.class.getSimpleName().equals(((GenericType) type).getName());
+        return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
     }
 
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
         Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        // TODO (weidxu): support XML etc.
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
-                return String.format("%s.toString()", invocationExpression);
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    // Dealing with a primitive type that needs to be converted.
+                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
+                }
+                return basicText;
 
             case BINARY:
                 return invocationExpression;
 
             default:
-                // JSON etc.
+                // JSON, XML etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
                     IType elementType = ((EnumType) responseBodyType).getElementType();
-                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class))", responseBodyType, elementType,
-                        invocationExpression);
+                    return String.format("%1$s.from%2$s(%3$s.toObject(%2$s.class%4$s))", responseBodyType, elementType,
+                        invocationExpression, serializerArgument);
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. List, Map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("%2$s.toObject(%1$s)", TemplateUtil.getTypeReferenceCreation(responseBodyType),
-                        invocationExpression);
+                    return String.format("%2$s.toObject(%1$s%3$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
+                        serializerArgument);
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData
                     return invocationExpression;
-                } else if (isModelOrBuiltin(responseBodyType)) {
-                    // class
-                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
-                        invocationExpression);
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return String.format(
-                            "%1$s.toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()",
-                            invocationExpression);
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
+                            + serializerArgument + ").decodedBytes()";
                     } else {
-                        return String.format("%1$s.toObject(byte[].class)", invocationExpression);
+                        return invocationExpression + ".toObject(byte[].class" + serializerArgument + ")";
                     }
                 } else {
-                    return invocationExpression;
+                    // default, treat as class
+                    return String.format("%2$s.toObject(%1$s.class%3$s)", responseBodyType.asNullable(),
+                        invocationExpression, serializerArgument);
                 }
         }
     }

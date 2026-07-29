@@ -1,5 +1,4 @@
 import { join, resolve } from "path";
-import "source-map-support/register.js";
 import yargs from "yargs";
 import { checkCoverage } from "../actions/check-coverage.js";
 import { generateScenarioSummary } from "../actions/generate-scenario-summary.js";
@@ -13,6 +12,8 @@ import { validateMockApis } from "../actions/validate-mock-apis.js";
 import { verifySurfaceChecks } from "../actions/verify-surface-checks.js";
 import { logger } from "../logger.js";
 import { getCommit } from "../utils/misc-utils.js";
+
+process.setSourceMapsEnabled(true);
 
 export const DEFAULT_PORT = 3000;
 

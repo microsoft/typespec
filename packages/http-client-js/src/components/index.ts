@@ -1,0 +1,12 @@
+export { OperationsDirectory } from "./client-directory.jsx";
+export { Client } from "./client.jsx";
+export { EncodingProvider } from "./encoding-provider.jsx";
+export { httpRuntimeTemplateLib } from "./external-packages/ts-http-runtime.js";
+export { uriTemplateLib } from "./external-packages/uri-template.js";
+export { Models } from "./models.js";
+export { ModelSerializers } from "./serializers.js";
+export { Interfaces } from "./static-helpers/interfaces.jsx";
+export { MultipartHelpers } from "./static-helpers/multipart-helpers.jsx";
+export { PagingHelpers } from "./static-helpers/paging-helper.jsx";
+export { RestError } from "./static-helpers/rest-error.jsx";
+export { createTransformNamePolicy } from "./transforms/transform-name-policy.js";

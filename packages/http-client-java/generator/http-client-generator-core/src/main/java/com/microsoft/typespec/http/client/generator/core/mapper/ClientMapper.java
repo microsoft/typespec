@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -51,12 +50,11 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -90,7 +88,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         // enum model
         final List<EnumType> enumTypes = new ArrayList<>();
-        Set<String> enumNames = new HashSet<>();
+        Set<String> enumNames = new LinkedHashSet<>();
         for (ChoiceSchema choiceSchema : codeModel.getSchemas().getChoices()) {
             IType iType = Mappers.getChoiceMapper().map(choiceSchema);
             if (iType != ClassType.STRING) {
@@ -114,8 +112,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         builder.enums(enumTypes);
 
         // exception
-        List<ClientException> exceptions = codeModel.getOperationGroups()
-            .stream()
+        List<ClientException> exceptions = Stream
+            .concat(
+                codeModel.getClients() == null
+                    ? Stream.empty()
+                    : codeModel.getClients().stream().flatMap(c -> c.getOperationGroups().stream()),
+                codeModel.getOperationGroups().stream())
             .flatMap(og -> og.getOperations().stream())
             .flatMap(o -> o.getExceptions().stream())
             .map(Response::getSchema)
@@ -136,6 +138,19 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 .flatMap(og -> og.getOperations().stream())
                 .map(o -> parseHeader(o, settings))
                 .filter(Objects::nonNull));
+
+        // For operations that opt in to returning response headers as a strongly-typed model
+        // (@clientOption "responseHeadersAsModel"), the operations are nested under clients (data-plane
+        // code model), not the top-level operation groups, so parse their header schema here as well.
+        Stream<ObjectSchema> responseHeaderModelTypes = codeModel.getClients()
+            .stream()
+            .flatMap(c -> c.getOperationGroups().stream())
+            .flatMap(og -> og.getOperations().stream())
+            .filter(o -> o.getConvenienceApi() != null && o.getConvenienceApi().isResponseHeadersAsModel())
+            .map(o -> parseHeader(o, settings))
+            .filter(Objects::nonNull);
+
+        autoRestModelTypes = Stream.concat(autoRestModelTypes, responseHeaderModelTypes);
 
         List<ClientModel> clientModelsFromCodeModel = autoRestModelTypes.distinct()
             .map(autoRestCompositeType -> Mappers.getModelMapper().map(autoRestCompositeType))
@@ -179,12 +194,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap
             = new LinkedHashMap<>();
 
-        boolean multipleClientsWithOperationsPresent = codeModel.getClients()
-            .stream()
-            .flatMap(client -> client.getOperationGroups().stream())
-            .flatMap(og -> og.getOperations().stream())
-            .findAny()
-            .isPresent();
+        boolean multipleClientsWithOperationsPresent = !CoreUtils.isNullOrEmpty(codeModel.getClients())
+            && codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .flatMap(og -> og.getOperations().stream())
+                .findAny()
+                .isPresent();
 
         boolean singleClientOperationsPresent
             = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).findAny().isPresent();
@@ -207,7 +223,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         // package info
         // client
-        Map<String, PackageInfo> packageInfos = new HashMap<>();
+        Map<String, PackageInfo> packageInfos = new LinkedHashMap<>();
         if (settings.isGenerateClientInterfaces()
             || !settings.isGenerateClientAsImpl()
             || settings.getImplementationSubpackage() == null
@@ -324,10 +340,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                             ? syncClient.getClassName()
                             : asyncClient.getClassName().replace("AsyncClient", "Client"));
                         String clientBuilderName = clientName + builderSuffix;
-                        ClientBuilder clientBuilder
-                            = new ClientBuilder(builderPackage, clientBuilderName, serviceClient,
-                                (syncClient == null) ? Collections.emptyList() : Collections.singletonList(syncClient),
-                                Collections.singletonList(asyncClient), serviceClient.getCrossLanguageDefinitionId());
+                        ClientBuilder clientBuilder = new ClientBuilder(builderPackage, clientBuilderName,
+                            serviceClient, (syncClient == null) ? List.of() : List.of(syncClient), List.of(asyncClient),
+                            serviceClient.getCrossLanguageDefinitionId());
 
                         addBuilderTraits(clientBuilder, serviceClient);
                         clientBuilders.add(clientBuilder);
@@ -377,7 +392,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     private void addConvenienceExamples(Client.Builder builder, List<AsyncSyncClient> syncClients) {
         // convenience examples
         List<ClientMethodExample> convenienceExamples = new ArrayList<>();
-        Set<String> convenienceExampleNameSet = new HashSet<>();
+        Set<String> convenienceExampleNameSet = new LinkedHashSet<>();
 
         BiConsumer<AsyncSyncClient, ConvenienceMethod> handleConvenienceExample = (c, convenienceMethod) -> {
             ClientBuilder clientBuilder = c.getClientBuilder();
@@ -415,7 +430,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
     private void addProtocolExamples(Client.Builder builder, List<AsyncSyncClient> syncClients) {
         List<ProtocolExample> protocolExamples = new ArrayList<>();
-        Set<String> protocolExampleNameSet = new HashSet<>();
+        Set<String> protocolExampleNameSet = new LinkedHashSet<>();
 
         BiConsumer<AsyncSyncClient, ClientMethod> handleExample = (c, m) -> {
             if (m.getMethodVisibility() == JavaVisibility.Public
@@ -441,7 +456,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         // protocol examples, exclude those that have convenience methods
         syncClients.stream().filter(c -> c.getServiceClient() != null).forEach(c -> {
-            Set<String> convenienceProxyMethodNames = new HashSet<>();
+            Set<String> convenienceProxyMethodNames = new LinkedHashSet<>();
             if (c.getConvenienceMethods() != null) {
                 convenienceProxyMethodNames.addAll(c.getConvenienceMethods()
                     .stream()
@@ -455,7 +470,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 .forEach(m -> handleExample.accept(c, m));
         });
         syncClients.stream().filter(c -> c.getMethodGroupClient() != null).forEach(c -> {
-            Set<String> convenienceProxyMethodNames = new HashSet<>();
+            Set<String> convenienceProxyMethodNames = new LinkedHashSet<>();
             if (c.getConvenienceMethods() != null) {
                 convenienceProxyMethodNames.addAll(c.getConvenienceMethods()
                     .stream()
@@ -480,12 +495,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     protected Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client>
         processClients(List<com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> clients,
             CodeModel codeModel) {
-        return Collections.emptyMap();
+        return Map.of();
     }
 
     private void addBuilderTraits(ClientBuilder clientBuilder, ServiceClient serviceClient) {
         clientBuilder.addBuilderTrait(ClientBuilderTrait.HTTP_TRAIT);
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.PROXY_TRAIT);
         }
 
@@ -494,7 +509,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             clientBuilder.addBuilderTrait(ClientBuilderTrait.TOKEN_CREDENTIAL_TRAIT);
         }
         if (serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.KEY)) {
-            if (!JavaSettings.getInstance().isBranded() || JavaSettings.getInstance().isUseKeyCredential()) {
+            if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isUseKeyCredential()) {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.KEY_CREDENTIAL_TRAIT);
             } else {
                 clientBuilder.addBuilderTrait(ClientBuilderTrait.AZURE_KEY_CREDENTIAL_TRAIT);
@@ -513,8 +528,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<String, XmlSequenceWrapper> xmlSequenceWrappers = new LinkedHashMap<>();
         for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
             for (Operation operation : operationGroup.getOperations()) {
-                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(
-                    operation.getResponses().stream().map(Response::getSchema).filter(Objects::nonNull).iterator());
+                Schema responseBodySchema = SchemaUtil.getLowestCommonParent(operation.getResponseSchemas().iterator());
 
                 if (responseBodySchema instanceof ArraySchema) {
                     parseXmlSequenceWrappers((ArraySchema) responseBodySchema, xmlSequenceWrappers, settings);
@@ -554,20 +568,29 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         xmlSequenceWrappers.computeIfAbsent(modelTypeName, name -> new XmlSequenceWrapper(name, arraySchema, settings));
     }
 
-    static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
+    public ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return null;
         }
 
         String name = CodeNamer.getPlural(operation.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(operation.getLanguage().getJava().getName()) + "Headers";
-        Map<String, Schema> headerMap = new HashMap<>();
-        Map<String, XmsExtensions> headerExtensions = new HashMap<>();
+        // Honor the "rename-model" option for this synthesized header model. The schema is created here,
+        // after the SchemaRenamer preprocessor pass (which only visits schemas in the code model), so the
+        // rename must be applied explicitly, keyed by the generated header model name.
+        String renamedName = settings.getJavaNamesForRenameModel().get(name);
+        if (!CoreUtils.isNullOrEmpty(renamedName)) {
+            name = renamedName;
+        }
+        Map<String, Schema> headerMap = new LinkedHashMap<>();
+        Map<String, String> headerClientNameMap = new LinkedHashMap<>();
+        Map<String, XmsExtensions> headerExtensions = new LinkedHashMap<>();
         for (Response response : operation.getResponses()) {
             if (response.getProtocol().getHttp().getHeaders() != null) {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
                     headerExtensions.put(header.getHeader(), header.getExtensions());
                     headerMap.put(header.getHeader(), header.getSchema());
+                    headerClientNameMap.put(header.getHeader(), getResponseHeaderName(header));
                 }
             }
         }
@@ -580,19 +603,24 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         headerSchema.getLanguage().getJava().setName(name);
         headerSchema.setProperties(new ArrayList<>());
         headerSchema.setStronglyTypedHeader(true);
-        headerSchema.setUsage(new HashSet<>(Collections.singletonList(SchemaContext.OUTPUT)));
+        headerSchema.setUsage(new LinkedHashSet<>(List.of(SchemaContext.OUTPUT)));
 
-        // TODO (weidxu): at present we do not generate convenience API with Header model
-//        if (operation.getConvenienceApi() != null) {
-//            headerSchema.getUsage().add(SchemaContext.CONVENIENCE_API);
-//        }
+        // When the operation opts in to returning response headers as a convenience model
+        // (@clientOption "responseHeadersAsModel"), the strongly-typed header class is surfaced as a
+        // public model and used as the return type of the convenience method. Marking it PUBLIC ensures
+        // it is generated (data-plane models are only generated when public or internal).
+        if (operation.getConvenienceApi() != null && operation.getConvenienceApi().isResponseHeadersAsModel()) {
+            headerSchema.getUsage().add(SchemaContext.PUBLIC);
+        }
 
         for (Map.Entry<String, Schema> header : headerMap.entrySet()) {
             Property property = new Property();
             property.setSerializedName(header.getKey());
             property.setLanguage(new Languages());
             property.getLanguage().setJava(new Language());
-            property.getLanguage().getJava().setName(CodeNamer.getPropertyName(header.getKey()));
+            property.getLanguage()
+                .getJava()
+                .setName(CodeNamer.getPropertyName(headerClientNameMap.get(header.getKey())));
             property.getLanguage().getJava().setDescription(header.getValue().getDescription());
             property.setSchema(header.getValue());
             property.setDescription(header.getValue().getDescription());
@@ -608,6 +636,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             headerSchema.getProperties().add(property);
         }
         return headerSchema;
+    }
+
+    protected String getResponseHeaderName(Header header) {
+        // We should use header.getLanguage().getDefault().getName()
+        // kept as header.getHeader() for backward compatibility
+        return header.getHeader();
     }
 
     private ClientResponse parseResponse(Operation method, List<ClientModel> models, JavaSettings settings) {
@@ -634,6 +668,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         List<ModuleInfo.RequireModule> requireModules = moduleInfo.getRequireModules();
         requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.CORE.getPackageName(), true));
+        if (settings.isAzureV2()) {
+            requireModules.add(new ModuleInfo.RequireModule(ExternalPackage.AZURE_CORE_VNEXT_PACKAGE_NAME, true));
+        }
 
         // export packages that contain Client, ClientBuilder, ServiceVersion
         List<ModuleInfo.ExportModule> exportModules = moduleInfo.getExportModules();
@@ -650,7 +687,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         final String implementationSubpackagePrefix = settings.getPackage(settings.getImplementationSubpackage()) + ".";
         for (String modelsPackage : modelsPackages) {
             // export if models is not in implementation
-            if (!modelsPackage.startsWith(implementationSubpackagePrefix)) {
+            if (!modelsPackage.startsWith(implementationSubpackagePrefix)
+                && !modelsPackage.contains("implementation")) {
                 exportModules.add(new ModuleInfo.ExportModule(modelsPackage));
             }
 
@@ -680,7 +718,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
     protected List<String> getModelsPackages(List<ClientModel> clientModels, List<EnumType> enumTypes,
         List<ClientResponse> responseModels) {
 
-        List<String> ret = Collections.emptyList();
+        List<String> ret = List.of();
 
         JavaSettings settings = JavaSettings.getInstance();
         boolean hasModels = !settings.isDataPlaneClient()   // not DPG
@@ -701,7 +739,8 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         return ret;
     }
 
-    static ClassType getClientResponseClassType(Operation method, List<ClientModel> models, JavaSettings settings) {
+    public static ClassType getClientResponseClassType(Operation method, List<ClientModel> models,
+        JavaSettings settings) {
         String name = CodeNamer.getPlural(method.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(method.getLanguage().getJava().getName()) + "Response";
         String packageName = settings.getPackage(settings.getModelsSubpackage());

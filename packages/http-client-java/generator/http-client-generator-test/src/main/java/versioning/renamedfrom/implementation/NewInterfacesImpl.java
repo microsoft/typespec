@@ -26,7 +26,6 @@ import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import versioning.renamedfrom.RenamedFromServiceVersion;
-import versioning.renamedfrom.models.Versions;
 
 /**
  * An instance of this class provides access to all the operations defined in NewInterfaces.
@@ -67,7 +66,7 @@ public final class NewInterfacesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}/versioning/renamed-from/api-version:{version}")
-    @ServiceInterface(name = "RenamedFromClientNew")
+    @ServiceInterface(name = "RenamedFromClientNewInterfaces")
     public interface NewInterfacesService {
         @Post("/interface/test")
         @ExpectedResponses({ 200 })
@@ -76,7 +75,7 @@ public final class NewInterfacesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> newOpInNewInterface(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
 
@@ -87,7 +86,7 @@ public final class NewInterfacesImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> newOpInNewInterfaceSync(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
+            @HostParam("version") String version, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
     }
@@ -132,7 +131,7 @@ public final class NewInterfacesImpl {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.newOpInNewInterface(this.client.getEndpoint(),
-            this.client.getVersion(), contentType, accept, body, requestOptions, context));
+            this.client.getServiceVersion().getVersion(), contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -173,7 +172,7 @@ public final class NewInterfacesImpl {
     public Response<BinaryData> newOpInNewInterfaceWithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.newOpInNewInterfaceSync(this.client.getEndpoint(), this.client.getVersion(), contentType, accept,
-            body, requestOptions, Context.NONE);
+        return service.newOpInNewInterfaceSync(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),
+            contentType, accept, body, requestOptions, Context.NONE);
     }
 }

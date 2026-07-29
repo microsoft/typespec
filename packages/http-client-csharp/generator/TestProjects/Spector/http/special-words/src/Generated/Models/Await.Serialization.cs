@@ -11,6 +11,20 @@ namespace SpecialWords._Models
 {
     public partial class Await : IJsonModel<Await>
     {
+        internal Await() => throw null;
+
+        protected virtual Await PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+
+        BinaryData IPersistableModel<Await>.Write(ModelReaderWriterOptions options) => throw null;
+
+        Await IPersistableModel<Await>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+
+        string IPersistableModel<Await>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+
+        public static implicit operator BinaryContent(Await @await) => throw null;
+
         void IJsonModel<Await>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
@@ -18,19 +32,5 @@ namespace SpecialWords._Models
         Await IJsonModel<Await>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
         protected virtual Await JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
-
-        BinaryData IPersistableModel<Await>.Write(ModelReaderWriterOptions options) => throw null;
-
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
-
-        Await IPersistableModel<Await>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        protected virtual Await PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
-
-        string IPersistableModel<Await>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
-
-        public static implicit operator BinaryContent(Await @await) => throw null;
-
-        public static explicit operator Await(ClientResult result) => throw null;
     }
 }

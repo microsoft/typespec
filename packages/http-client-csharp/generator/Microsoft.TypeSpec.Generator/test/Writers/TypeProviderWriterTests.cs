@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -41,9 +43,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModel()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
-
             var inputModel = InputFactory.Model("TestModel", properties: properties);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -58,9 +59,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         public void TypeProviderWriter_WriteModelAsStruct()
         {
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
-            MockHelpers.LoadMockGenerator(createCSharpTypeCore: MockGeneratorSetValue(properties));
-
             var inputModel = InputFactory.Model("TestModel", properties: properties, modelAsStruct: true);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -71,44 +71,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
             Assert.AreEqual(expected, result);
         }
 
-        private CSharpType GetCSharpType(InputType type) => type switch
-        {
-            InputPrimitiveType primitiveType => primitiveType.Kind switch
-            {
-                InputPrimitiveTypeKind.String => typeof(string),
-                InputPrimitiveTypeKind.Int32 => typeof(int),
-                InputPrimitiveTypeKind.Unknown => typeof(BinaryData),
-                _ => throw new ArgumentException("Unsupported input type.")
-            },
-            InputArrayType => typeof(IList<string>),
-            InputDictionaryType => typeof(IDictionary<string, string>),
-            _ => throw new ArgumentException("Unsupported input type.")
-        };
-
-        private Func<InputType, CSharpType> MockGeneratorSetValue(List<InputModelProperty> properties)
-        {
-            return (InputType inputType) =>
-            {
-                // Lookup the inputType in the list and return the corresponding CSharpType
-                var inputModelProperty = properties.Where(prop => prop.Type.Name == inputType.Name).FirstOrDefault();
-                if (inputModelProperty != null)
-                {
-                    return GetCSharpType(inputModelProperty.Type);
-                }
-                else
-                {
-                    throw new ArgumentException("Unsupported input type.");
-                }
-            };
-        }
-
         // common usages definitions
         internal static readonly InputModelProperty RequiredStringProperty = InputFactory.Property("requiredString", InputPrimitiveType.String, isRequired: true);
 
         internal static readonly InputModelProperty RequiredIntProperty = InputFactory.Property("requiredInt", InputPrimitiveType.Int32, isRequired: true);
 
-        internal static readonly InputModelProperty RequiredStringListProperty = InputFactory.Property("requiredStringList", InputFactory.Array(InputPrimitiveType.String), isRequired: true);
+        [Test]
+        public void TypeProviderWriter_WriteEnumWithFieldAttributes()
+        {
+            var enumProvider = new TestEnumWithAttributesProvider();
+            var codeFile = new TypeProviderWriter(enumProvider).Write();
+            var result = codeFile.Content;
 
-        internal static readonly InputModelProperty RequiredIntListProperty = InputFactory.Property("requiredIntList", InputFactory.Array(InputPrimitiveType.Int32), isRequired: true);
+            var expected = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expected, result);
+        }
+
+        private class TestEnumWithAttributesProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => "TestEnum.cs";
+            protected override string BuildName() => "TestEnum";
+            protected override string BuildNamespace() => "Sample.Models";
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
+
+            protected internal override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(
+                        FieldModifiers.Public | FieldModifiers.Static,
+                        typeof(int),
+                        "Value1",
+                        this,
+                        $"First value",
+                        initializationValue: new LiteralExpression(1),
+                        attributes: [new AttributeStatement(typeof(ObsoleteAttribute))]),
+                    new FieldProvider(
+                        FieldModifiers.Public | FieldModifiers.Static,
+                        typeof(int),
+                        "Value2",
+                        this,
+                        $"Second value",
+                        initializationValue: new LiteralExpression(2))
+                ];
+            }
+        }
     }
 }

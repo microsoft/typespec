@@ -22,10 +22,18 @@ export type PayloadType = {
     | "Pull_Request_Review_Comment";
 };
 
+export type IsActivitySender = {
+  isActivitySender: {
+    user?: string;
+    issueAuthor?: boolean;
+  };
+};
+
 export type IsAction = {
   isAction: {
-    action: // Issues
-    | "Opened"
+    action:
+      // Issues
+      | "Opened"
       | "Closed"
       | "Reopened"
       // Issue_Comment
@@ -72,6 +80,7 @@ export type FilesMatchPattern = {
 
 export type Condition =
   | PayloadType
+  | IsActivitySender
   | IsAction
   | LabelAdded
   | HasLabel
@@ -86,6 +95,12 @@ export type Condition =
 export function payloadType(payloadType: PayloadType["payloadType"]): PayloadType {
   return {
     payloadType,
+  };
+}
+
+export function isActivitySender(data: IsActivitySender["isActivitySender"]): IsActivitySender {
+  return {
+    isActivitySender: data,
   };
 }
 
@@ -151,4 +166,24 @@ export type EventResponderTask = {
 };
 export function eventResponderTask(options: EventResponderTask): EventResponderTask {
   return options;
+}
+
+export type AddReply = {
+  addReply: { reply: string };
+};
+
+/**
+ * Post a comment on the issue/PR. @-mentions in the body notify the mentioned users,
+ * including users that are not repository collaborators.
+ */
+export function addReply(reply: string): AddReply {
+  return { addReply: { reply } };
+}
+
+export type AddLabel = {
+  addLabel: { label: string };
+};
+
+export function addLabel(label: string): AddLabel {
+  return { addLabel: { label } };
 }

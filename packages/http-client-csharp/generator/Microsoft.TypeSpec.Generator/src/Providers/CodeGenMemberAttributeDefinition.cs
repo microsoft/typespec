@@ -11,18 +11,18 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class CodeGenMemberAttributeDefinition : TypeProvider
+    internal class CodeGenMemberAttributeDefinition : CustomCodeAttributeDefinition
     {
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
         protected override string BuildName() => "CodeGenMemberAttribute";
 
-        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
+        protected override string BuildNamespace() => CodeModelGenerator.CustomizationAttributeNamespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
+        protected internal override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -32,9 +32,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     FrameworkEnumValue(AttributeTargets.Property),
                     FrameworkEnumValue(AttributeTargets.Field)))];
         }
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
-            var parameter = new ParameterProvider("originalName", FormattableStringHelpers.Empty, typeof(string));
+            var parameter = new ParameterProvider("originalName", $"The original name of the member.", typeof(string));
 
             return
             [
@@ -44,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         null,
                         MethodSignatureModifiers.Public,
                         [parameter],
-                        Initializer: new ConstructorInitializer(IsBase: true, [parameter])),
+                        initializer: new ConstructorInitializer(IsBase: true, [parameter])),
                     MethodBodyStatement.Empty,
                 this)
             ];

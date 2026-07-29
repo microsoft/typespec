@@ -3,6 +3,7 @@
 
 using System.ClientModel.Primitives;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -12,14 +13,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
     public class MultipartFormDataTests
     {
         [Test]
-        public void MultipartOperationDoesNotHaveConvenienceMethods()
+        public void MultipartOperationHasConvenienceMethods()
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            Assert.AreEqual(2, client!.Methods.Count);
+            Assert.AreEqual(4, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "options" && p.Type.Equals(typeof(RequestOptions))));
         }
 
@@ -27,12 +29,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         public void MultipartOperationShouldHaveContentTypeParam()
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
-            var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
             MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
-            Assert.AreEqual(2, client!.Methods.Count);
+            Assert.AreEqual(4, client!.Methods.Count);
             Assert.IsTrue(client.Methods[0].Signature.Parameters.Any(p => p.Name == "contentType" && p.Type.Equals(typeof(string))));
+        }
+
+        // Verifies the convenience method omits the contentType parameter when the content type is a literal/constant.
+        [Test]
+        public void MultipartConvenienceMethodShouldNotHaveContentTypeParam()
+        {
+            var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", operation);
+            var inputClient = InputFactory.Client("MultipartClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var convenienceMethods = client!.Methods
+                .OfType<ScmMethodProvider>()
+                .Where(m => m.Kind == ScmMethodKind.Convenience)
+                .ToList();
+            Assert.IsNotEmpty(convenienceMethods);
+            foreach (var method in convenienceMethods)
+            {
+                Assert.IsFalse(
+                    method.Signature.Parameters.Any(p => p.Name == "contentType"),
+                    $"Convenience method '{method.Signature.Name}' should not have a contentType parameter.");
+            }
         }
     }
 }

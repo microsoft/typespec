@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
   describe("discriminated unions", () => {
     it("use object envelope", async () => {
       const res = await openApiFor(
@@ -84,6 +84,176 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
           },
         },
       });
+    });
+
+    it("apply name suffixes to synthetic envelope types", async () => {
+      const res = await openApiFor(
+        `
+        model A {
+          a: string;
+          @visibility(Lifecycle.Read)
+          ro: string;
+        }
+  
+        model B {
+          b: string;
+          @visibility(Lifecycle.Create)
+          co: string;
+        }
+  
+        @discriminated
+        union U {
+          a: A,
+          b: B,
+        }
+
+        @put op update(@body data: U): U;
+        `,
+      );
+
+      // Union schemas
+      deepStrictEqual(res.components.schemas.U, {
+        type: "object",
+        oneOf: [{ $ref: "#/components/schemas/UA" }, { $ref: "#/components/schemas/UB" }],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/UA",
+            b: "#/components/schemas/UB",
+          },
+        },
+      });
+      deepStrictEqual(res.components.schemas["UA"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["a"] },
+          value: { $ref: "#/components/schemas/A" },
+        },
+        required: ["kind", "value"],
+      });
+      deepStrictEqual(res.components.schemas["UB"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["b"] },
+          value: { $ref: "#/components/schemas/B" },
+        },
+        required: ["kind", "value"],
+      });
+
+      deepStrictEqual(res.components.schemas["UCreateOrUpdate"], {
+        type: "object",
+        oneOf: [
+          { $ref: "#/components/schemas/UA" },
+          { $ref: "#/components/schemas/UBCreateOrUpdate" },
+        ],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/UA",
+            b: "#/components/schemas/UBCreateOrUpdate",
+          },
+        },
+      });
+      deepStrictEqual(res.components.schemas["UBCreateOrUpdate"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["b"] },
+          value: { $ref: "#/components/schemas/BCreateOrUpdate" },
+        },
+        required: ["kind", "value"],
+      });
+
+      // Model schemas
+      deepStrictEqual(res.components.schemas["A"], {
+        type: "object",
+        properties: {
+          a: { type: "string" },
+          ro: { type: "string", readOnly: true },
+        },
+        required: ["a", "ro"],
+      });
+      deepStrictEqual(res.components.schemas["B"], {
+        type: "object",
+        properties: {
+          b: { type: "string" },
+        },
+        required: ["b"],
+      });
+      deepStrictEqual(res.components.schemas["BCreateOrUpdate"], {
+        type: "object",
+        properties: {
+          b: { type: "string" },
+          co: { type: "string" },
+        },
+        required: ["b", "co"],
+      });
+
+      // Routes
+      deepStrictEqual(res.paths["/"].put.requestBody.content["application/json"].schema, {
+        $ref: "#/components/schemas/UCreateOrUpdate",
+      });
+      deepStrictEqual(res.paths["/"].put.responses["200"].content["application/json"].schema, {
+        $ref: "#/components/schemas/U",
+      });
+    });
+
+    it("default variant with envelope: none (all versions)", async () => {
+      const res = await openApiFor(
+        `
+        @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+        union Animal {
+          Dog,
+          felidae: Cat,
+          muscidae: Ferret
+        }
+
+        model Dog {
+          taxonomic_family: "canidae";
+        }
+
+        model Cat {
+          taxonomic_family: "felidae";
+        }
+
+        model Ferret {
+          taxonomic_family: "muscidae";
+        }
+
+        op read(): { @body body: Animal };
+        `,
+      );
+
+      // Dog should be in oneOf even though it's the default variant
+      ok(res.components.schemas.Animal.oneOf, "expected oneOf in Animal schema");
+      deepStrictEqual(res.components.schemas.Animal.oneOf, [
+        { $ref: "#/components/schemas/Cat" },
+        { $ref: "#/components/schemas/Ferret" },
+        { $ref: "#/components/schemas/Dog" },
+      ]);
+
+      // For versions < 3.2, canidae should be in the mapping
+      ok(res.components.schemas.Animal.discriminator, "expected discriminator");
+      deepStrictEqual(res.components.schemas.Animal.discriminator.propertyName, "taxonomic_family");
+
+      // For versions 3.0 and 3.1, canidae should be in the mapping
+      if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          muscidae: "#/components/schemas/Ferret",
+          canidae: "#/components/schemas/Dog",
+        });
+      } else {
+        // For version 3.2.0, canidae should NOT be in mapping
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          muscidae: "#/components/schemas/Ferret",
+        });
+        // Instead, it should be in defaultMapping
+        deepStrictEqual(
+          res.components.schemas.Animal.discriminator.defaultMapping,
+          "#/components/schemas/Dog",
+        );
+      }
     });
   });
 
@@ -624,10 +794,8 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         `,
       );
       expect(res.paths["/"].get.responses["200"].content["text/plain"].schema).toEqual({
-        anyOf: [
-          { type: "string", enum: ["a"] },
-          { type: "string", enum: ["b"] },
-        ],
+        type: "string",
+        enum: ["a", "b"],
       });
     });
   });
@@ -735,6 +903,289 @@ worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {
       deepStrictEqual(openApi.components.schemas.Pet, {
         type: "null",
       });
+    });
+  });
+});
+
+// Test OpenAPI 3.2.0-specific features
+import { OpenAPISpecHelpers } from "./works-for.js";
+
+describe("openapi3: discriminated union defaultMapping (3.2.0)", () => {
+  const { openApiFor } = OpenAPISpecHelpers["3.2.0"];
+
+  it("default variant uses defaultMapping in OpenAPI 3.2.0", async () => {
+    const res = await openApiFor(
+      `
+      @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+      union Animal {
+        Dog,
+        felidae: Cat,
+        muscidae: Ferret
+      }
+
+      model Dog {
+        taxonomic_family: "canidae";
+      }
+
+      model Cat {
+        taxonomic_family: "felidae";
+      }
+
+      model Ferret {
+        taxonomic_family: "muscidae";
+      }
+
+      op read(): { @body body: Animal };
+      `,
+    );
+
+    // Dog should be in oneOf
+    ok(res.components.schemas.Animal.oneOf, "expected oneOf in Animal schema");
+    deepStrictEqual(res.components.schemas.Animal.oneOf, [
+      { $ref: "#/components/schemas/Cat" },
+      { $ref: "#/components/schemas/Ferret" },
+      { $ref: "#/components/schemas/Dog" },
+    ]);
+
+    // In OpenAPI 3.2, defaultMapping should be used instead of putting canidae in mapping
+    ok(res.components.schemas.Animal.discriminator, "expected discriminator");
+    deepStrictEqual(res.components.schemas.Animal.discriminator, {
+      propertyName: "taxonomic_family",
+      defaultMapping: "#/components/schemas/Dog",
+      mapping: {
+        felidae: "#/components/schemas/Cat",
+        muscidae: "#/components/schemas/Ferret",
+      },
+    });
+  });
+
+  it("default variant without discriminator property uses defaultMapping", async () => {
+    const res = await openApiFor(
+      `
+      @discriminated(#{discriminatorPropertyName: "kind", envelope: "none"})
+      union Pet {
+        DefaultPet,
+        cat: Cat,
+        dog: Dog
+      }
+
+      model DefaultPet {
+        name: string;
+      }
+
+      model Cat {
+        kind: "cat";
+        meow: int32;
+      }
+
+      model Dog {
+        kind: "dog";
+        bark: string;
+      }
+
+      op read(): { @body body: Pet };
+      `,
+    );
+
+    // DefaultPet should be in oneOf
+    ok(res.components.schemas.Pet.oneOf, "expected oneOf in Pet schema");
+    deepStrictEqual(res.components.schemas.Pet.oneOf, [
+      { $ref: "#/components/schemas/Cat" },
+      { $ref: "#/components/schemas/Dog" },
+      { $ref: "#/components/schemas/DefaultPet" },
+    ]);
+
+    // In OpenAPI 3.2, defaultMapping should point to DefaultPet
+    ok(res.components.schemas.Pet.discriminator, "expected discriminator");
+    deepStrictEqual(res.components.schemas.Pet.discriminator, {
+      propertyName: "kind",
+      defaultMapping: "#/components/schemas/DefaultPet",
+      mapping: {
+        cat: "#/components/schemas/Cat",
+        dog: "#/components/schemas/Dog",
+      },
+    });
+  });
+});
+
+worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
+  describe("enum-strategy: annotated (unions of literals)", () => {
+    it("emits annotated `const` subschemas for a documented literal union", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        /** Set of known error types. */
+        union ErrorType {
+          /** Common error for a bad request. */
+          @summary("CommonBadRequest")
+          commonBadRequest: "https://example.com/errors/bad-request",
+
+          /** Body could not be parsed. */
+          @summary("InvalidBody")
+          invalidBody: "https://example.com/errors/invalid-body",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        description: "Set of known error types.",
+        anyOf: [
+          {
+            const: "https://example.com/errors/bad-request",
+            title: "CommonBadRequest",
+            description: "Common error for a bad request.",
+          },
+          {
+            const: "https://example.com/errors/invalid-body",
+            title: "InvalidBody",
+            description: "Body could not be parsed.",
+          },
+        ],
+      });
+    });
+
+    it("uses `oneOf` when the union carries `@oneOf`", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        @oneOf
+        union ErrorType {
+          /** A. */
+          a: "a",
+          /** B. */
+          b: "b",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        oneOf: [
+          { const: "a", description: "A." },
+          { const: "b", description: "B." },
+        ],
+      });
+    });
+
+    it("omits title/description for variants without docs", async () => {
+      const res = await oapiForModel(
+        "Color",
+        `
+        union Color {
+          red: "red",
+          green: "green",
+          /** Blue is the warmest color. */
+          blue: "blue",
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Color, {
+        anyOf: [
+          { const: "red" },
+          { const: "green" },
+          { const: "blue", description: "Blue is the warmest color." },
+        ],
+      });
+    });
+
+    it("emits annotated `const` subschemas for number-valued literal unions", async () => {
+      const res = await oapiForModel(
+        "Priority",
+        `
+        union Priority {
+          /** Low priority. */
+          low: 1,
+          /** High priority. */
+          high: 10,
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Priority, {
+        anyOf: [
+          { const: 1, description: "Low priority." },
+          { const: 10, description: "High priority." },
+        ],
+      });
+    });
+
+    it("keeps model/scalar variants alongside annotated literal `const` members", async () => {
+      const res = await oapiForModel(
+        "Mixed",
+        `
+        model Detailed { code: string; }
+        union Mixed {
+          /** Simple literal. */
+          @summary("Simple")
+          simple: "simple",
+          detailed: Detailed,
+        }
+        `,
+        { "enum-strategy": "annotated" },
+      );
+
+      deepStrictEqual(res.schemas.Mixed, {
+        anyOf: [
+          { const: "simple", title: "Simple", description: "Simple literal." },
+          { $ref: "#/components/schemas/Detailed" },
+        ],
+      });
+    });
+
+    it("does not change literal unions under the default strategy", async () => {
+      const res = await oapiForModel(
+        "ErrorType",
+        `
+        union ErrorType {
+          /** Common error for a bad request. */
+          @summary("CommonBadRequest")
+          commonBadRequest: "https://example.com/errors/bad-request",
+
+          /** Body could not be parsed. */
+          @summary("InvalidBody")
+          invalidBody: "https://example.com/errors/invalid-body",
+        }
+        `,
+      );
+
+      deepStrictEqual(res.schemas.ErrorType, {
+        type: "string",
+        enum: ["https://example.com/errors/bad-request", "https://example.com/errors/invalid-body"],
+      });
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ emitOpenApiWithDiagnostics }) => {
+  it("falls back to the default enum form for literal unions on OpenAPI 3.0.0", async () => {
+    const [doc, diagnostics] = await emitOpenApiWithDiagnostics(
+      `
+      @service
+      namespace Test;
+
+      union ErrorType {
+        /** A. */
+        a: "a",
+        /** B. */
+        b: "b",
+      }
+      op read(): ErrorType;
+      `,
+      { "enum-strategy": "annotated" },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/enum-strategy-not-supported",
+      severity: "warning",
+    });
+
+    deepStrictEqual(doc.components!.schemas!.ErrorType, {
+      type: "string",
+      enum: ["a", "b"],
     });
   });
 });

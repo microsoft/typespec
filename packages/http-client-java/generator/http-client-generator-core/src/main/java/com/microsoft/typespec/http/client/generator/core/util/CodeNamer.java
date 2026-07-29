@@ -52,8 +52,7 @@ public class CodeNamer {
 
         while ((replacementIndex = comment.indexOf("*/", prevStart)) != -1) {
             if (sb == null) {
-                // Add enough overhead to account for 1/8 of the string to be replaced.
-                sb = new StringBuilder(commentLength + 3 * (commentLength / 8));
+                sb = newStringBuilder(commentLength);
             }
 
             sb.append(comment, prevStart, replacementIndex);
@@ -66,6 +65,64 @@ public class CodeNamer {
         }
 
         sb.append(comment, prevStart, commentLength);
+        return sb.toString();
+    }
+
+    /**
+     * Escapes e.g. "domain\\username" (single backslash) to "domain{@code \}username".
+     *
+     * @param comment the Java comment
+     * @return the escaped Java comment
+     */
+    public static String escapeIllegalUnicodeEscape(String comment) {
+        if (comment == null || comment.isEmpty()) {
+            return comment;
+        }
+
+        StringBuilder sb = null;
+        int prevStart = 0;
+        int prevProcessedStart = 0; // the start index of the last replacement, or 0 if no replacement has been made
+        int commentLength = comment.length();
+        int replacementIndex;
+
+        while ((replacementIndex = comment.indexOf("\\u", prevStart)) != -1) {
+            if (replacementIndex > 0 && comment.charAt(replacementIndex - 1) == '\\') {
+                // skip escaped unicode escape
+                prevStart = replacementIndex + 2;
+                continue;
+            } else if (replacementIndex + 6 <= commentLength) {
+                boolean validUnicode = true;
+                for (int unicodeIndex = replacementIndex + 2; unicodeIndex < replacementIndex + 6; unicodeIndex++) {
+                    char ch = comment.charAt(unicodeIndex);
+                    if ((ch < '0' || ch > '9') && (ch < 'A' || ch > 'F') && (ch < 'a' || ch > 'f')) {
+                        // not a hexadecimal
+                        validUnicode = false;
+                        break;
+                    }
+                }
+
+                if (validUnicode) {
+                    // skip valid unicode escape
+                    prevStart = replacementIndex + 6;
+                    continue;
+                }
+            }
+
+            if (sb == null) {
+                sb = newStringBuilder(commentLength);
+            }
+
+            sb.append(comment, prevProcessedStart, replacementIndex);
+            sb.append("{@code \\}u");
+            prevStart = replacementIndex + 2;
+            prevProcessedStart = prevStart;
+        }
+
+        if (sb == null) {
+            return comment;
+        }
+
+        sb.append(comment, prevProcessedStart, commentLength);
         return sb.toString();
     }
 
@@ -95,19 +152,22 @@ public class CodeNamer {
         }
 
         // trim leading and trailing '_'
-        if ((name.startsWith("_") || name.endsWith("_")) && !name.chars().allMatch(c -> c == '_')) {
-            StringBuilder sb = new StringBuilder(name);
-            while (sb.length() > 0 && sb.charAt(0) == '_') {
-                sb.deleteCharAt(0);
-            }
-            while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
-                sb.setLength(sb.length() - 1);
-            }
-            name = sb.toString();
-        }
+        name = trimUnderscores(name);
 
         String result = removeInvalidCharacters(CHARACTERS_TO_REPLACE_WITH_UNDERSCORE.matcher(name).replaceAll("_"));
+
+        if (result.startsWith("_")) {
+            // some "_" remains after "removeInvalidCharacters", e.g. "_100_Gift_Card"
+            // trim it again, and call "removeInvalidCharacters" on it,
+            // so that the "100" would be transformed to "OneZeroZero"
+            result = trimUnderscores(result);
+            result = removeInvalidCharacters(result);
+        }
+
+        // merge underscores
         result = MERGE_UNDERSCORES.matcher(result).replaceAll("_");  // merge multiple underlines
+
+        // convert PascalCase to UPPER_CASE
         Function<Character, Boolean> isUpper = c -> c >= 'A' && c <= 'Z';
         Function<Character, Boolean> isLower = c -> c >= 'a' && c <= 'z';
         for (int i = 1; i < result.length() - 1; i++) {
@@ -144,14 +204,16 @@ public class CodeNamer {
             }
         }
 
+        if (result.equals("_")) {
+            // "_" cannot be used as variable name
+            result = "UNDERSCORE";
+        }
+
         return result.toUpperCase();
     }
 
-    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of("service",      // the
-                                                                                                    // ServiceInterface
-                                                                                                    // local variable
-        "client"        // the ManagementClient local variable
-    );
+    // the ServiceInterface local variable and the ManagementClient local variable
+    private static final Set<String> RESERVED_CLIENT_METHOD_PARAMETER_NAME = Set.of("service", "client");
 
     public static String getEscapedReservedClientMethodParameterName(String name) {
         if (RESERVED_CLIENT_METHOD_PARAMETER_NAME.contains(name)) {
@@ -189,5 +251,25 @@ public class CodeNamer {
 
         sb.append(str, prevStart, strLength);
         return sb.toString();
+    }
+
+    private static String trimUnderscores(String name) {
+        // trim leading and trailing '_'
+        if ((name.startsWith("_") || name.endsWith("_")) && !name.chars().allMatch(c -> c == '_')) {
+            StringBuilder sb = new StringBuilder(name);
+            while (sb.length() > 0 && sb.charAt(0) == '_') {
+                sb.deleteCharAt(0);
+            }
+            while (sb.length() > 0 && sb.charAt(sb.length() - 1) == '_') {
+                sb.setLength(sb.length() - 1);
+            }
+            name = sb.toString();
+        }
+        return name;
+    }
+
+    private static StringBuilder newStringBuilder(int length) {
+        // Add enough overhead to account for 1/8 of the string to be replaced.
+        return new StringBuilder(length + 3 * (length / 8));
     }
 }

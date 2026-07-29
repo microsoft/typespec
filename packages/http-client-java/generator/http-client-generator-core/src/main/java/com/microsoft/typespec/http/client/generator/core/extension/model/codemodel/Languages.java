@@ -3,18 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import static com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils.readObject;
-
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonWriter;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Represents all languages.
  */
-public class Languages implements JsonSerializable<Languages> {
+public class Languages {
     private Language _default;
     private CSharpLanguage csharp;
     private Language python;
@@ -304,65 +298,5 @@ public class Languages implements JsonSerializable<Languages> {
     @Override
     public String toString() {
         return "Languages{default=" + _default + ", java=" + java + '}';
-    }
-
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeJsonField("default", _default)
-            .writeJsonField("csharp", csharp)
-            .writeJsonField("python", python)
-            .writeJsonField("ruby", ruby)
-            .writeJsonField("go", go)
-            .writeJsonField("typescript", typescript)
-            .writeJsonField("javascript", javascript)
-            .writeJsonField("powershell", powershell)
-            .writeJsonField("java", java)
-            .writeJsonField("c", c)
-            .writeJsonField("cpp", cpp)
-            .writeJsonField("swift", swift)
-            .writeJsonField("objectivec", objectivec)
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a Languages instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A Languages instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static Languages fromJson(JsonReader jsonReader) throws IOException {
-        return readObject(jsonReader, Languages::new, (languages, fieldName, reader) -> {
-            if ("_default".equals(fieldName)) {
-                languages._default = Language.fromJson(reader);
-            } else if ("csharp".equals(fieldName)) {
-                languages.csharp = CSharpLanguage.fromJson(reader);
-            } else if ("python".equals(fieldName)) {
-                languages.python = Language.fromJson(reader);
-            } else if ("ruby".equals(fieldName)) {
-                languages.ruby = Language.fromJson(reader);
-            } else if ("go".equals(fieldName)) {
-                languages.go = Language.fromJson(reader);
-            } else if ("typescript".equals(fieldName)) {
-                languages.typescript = Language.fromJson(reader);
-            } else if ("javascript".equals(fieldName)) {
-                languages.javascript = Language.fromJson(reader);
-            } else if ("powershell".equals(fieldName)) {
-                languages.powershell = Language.fromJson(reader);
-            } else if ("java".equals(fieldName)) {
-                languages.java = Language.fromJson(reader);
-            } else if ("c".equals(fieldName)) {
-                languages.c = Language.fromJson(reader);
-            } else if ("cpp".equals(fieldName)) {
-                languages.cpp = Language.fromJson(reader);
-            } else if ("swift".equals(fieldName)) {
-                languages.swift = Language.fromJson(reader);
-            } else if ("objectivec".equals(fieldName)) {
-                languages.objectivec = Language.fromJson(reader);
-            } else {
-                reader.skipChildren();
-            }
-        });
     }
 }

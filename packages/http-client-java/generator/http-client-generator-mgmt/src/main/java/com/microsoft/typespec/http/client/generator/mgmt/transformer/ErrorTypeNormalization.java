@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -19,10 +18,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -52,9 +49,8 @@ public class ErrorTypeNormalization {
     }
 
     private static final Set<String> MANAGEMENT_ERROR_FIELDS
-        = new HashSet<>(Arrays.asList("code", "message", "target", "details", "additionalInfo"));
-    private static final Set<String> MANAGEMENT_ERROR_FIELDS_MIN_REQUIRED
-        = new HashSet<>(Arrays.asList("code", "message"));
+        = Set.of("code", "message", "target", "details", "additionalInfo");
+    private static final Set<String> MANAGEMENT_ERROR_FIELDS_MIN_REQUIRED = Set.of("code", "message");
 
     private static final ObjectSchema DUMMY_ERROR = dummyManagementError();
 
@@ -130,8 +126,8 @@ public class ErrorTypeNormalization {
 
                 // make it a subclass of ManagementError
                 Relations parents = new Relations();
-                parents.setAll(Collections.singletonList(DUMMY_ERROR));
-                parents.setImmediate(Collections.singletonList(DUMMY_ERROR));
+                parents.setAll(List.of(DUMMY_ERROR));
+                parents.setImmediate(List.of(DUMMY_ERROR));
                 errorSchema.setParents(parents);
 
                 if (errorSchema != error) {
@@ -249,8 +245,8 @@ public class ErrorTypeNormalization {
                     case SUBCLASS_MANAGEMENT_ERROR:
                     case GENERIC:
                         Relations parents = new Relations();
-                        parents.setAll(Collections.singletonList(DUMMY_ERROR));
-                        parents.setImmediate(Collections.singletonList(DUMMY_ERROR));
+                        parents.setAll(List.of(DUMMY_ERROR));
+                        parents.setImmediate(List.of(DUMMY_ERROR));
                         error.setParents(parents);
 
                         filterProperties(error);

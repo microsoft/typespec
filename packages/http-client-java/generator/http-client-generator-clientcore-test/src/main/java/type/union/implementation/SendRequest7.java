@@ -1,7 +1,7 @@
 package type.union.implementation;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,12 +12,12 @@ import type.union.StringAndArrayCases;
 /**
  * The SendRequest7 model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SendRequest7 implements JsonSerializable<SendRequest7> {
     /*
      * The prop property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringAndArrayCases prop;
 
     /**
@@ -25,7 +25,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
      * 
      * @param prop the prop value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public SendRequest7(StringAndArrayCases prop) {
         this.prop = prop;
     }
@@ -35,7 +35,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
      * 
      * @return the prop value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public StringAndArrayCases getProp() {
         return this.prop;
     }
@@ -43,7 +43,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -60,7 +60,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the SendRequest7.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static SendRequest7 fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             StringAndArrayCases prop = null;

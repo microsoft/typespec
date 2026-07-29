@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
@@ -24,16 +26,25 @@ namespace Microsoft.TypeSpec.Generator
     {
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
+        private readonly Dictionary<string, List<TypeProvider>> _customCodeMethodDependencies = new(StringComparer.Ordinal);
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
-        internal static CodeModelGenerator Instance
+
+        /// <summary>
+        /// The fixed namespace used for CodeGen customization attributes.
+        /// Using a fixed namespace avoids API compatibility failures when the project namespace changes.
+        /// </summary>
+        internal const string CustomizationAttributeNamespace = "Microsoft.TypeSpec.Generator.Customizations";
+
+        internal Stopwatch Stopwatch { get; } = new Stopwatch();
+        public static CodeModelGenerator Instance
         {
             get
             {
                 return _instance ?? throw new InvalidOperationException("CodeModelGenerator is not initialized");
             }
-            set
+            internal set
             {
                 _instance = value;
             }
@@ -42,6 +53,8 @@ namespace Microsoft.TypeSpec.Generator
         public Configuration Configuration { get; }
 
         public IReadOnlyList<LibraryVisitor> Visitors => _visitors;
+
+        public IReadOnlyList<LibraryRewriter> Rewriters => _rewriters;
 
         [ImportingConstructor]
         public CodeModelGenerator(GeneratorContext context)
@@ -68,6 +81,8 @@ namespace Microsoft.TypeSpec.Generator
         public virtual TypeFactory TypeFactory { get; }
 
         private SourceInputModel? _sourceInputModel;
+        private List<LibraryRewriter> _rewriters = [];
+
         public virtual SourceInputModel SourceInputModel
         {
             get => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
@@ -85,7 +100,13 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
 
-        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders { get; } =
+        /// <summary>
+        /// The list of <see cref="CustomCodeAttributeDefinition"/> instances that define custom-code attributes. These attribute
+        /// definitions are generated into the SDK project and are made available to the compiler while it compiles
+        /// custom code. Derived generators can contribute additional providers via
+        /// <see cref="AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition)"/>.
+        /// </summary>
+        internal List<CustomCodeAttributeDefinition> CustomCodeAttributeProviders { get; } =
         [
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
@@ -95,42 +116,183 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal virtual void Configure()
         {
+            if (string.IsNullOrEmpty(Configuration.PackageName))
+            {
+                Configuration.PackageName = TypeFactory.PrimaryNamespace;
+                Emitter.Info($"'package-name' was not specified. Defaulting to namespace '{Configuration.PackageName}'.");
+            }
+
             foreach (var type in CustomCodeAttributeProviders)
             {
                 AddTypeToKeep(type);
             }
         }
 
-        public void AddVisitor(LibraryVisitor visitor)
+        public virtual void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
         }
 
-        public void AddMetadataReference(MetadataReference reference)
+        /// <summary>
+        /// Removes all visitors of the specified type from the list of visitors.
+        /// </summary>
+        /// <typeparam name="T">The type of visitor to remove.</typeparam>
+        public virtual void RemoveVisitor<T>() where T : LibraryVisitor
+        {
+            _visitors.RemoveAll(v => v.GetType() == typeof(T));
+        }
+
+        /// <summary>
+        /// Removes all visitors whose type name matches the specified name from the list of visitors.
+        /// This overload is useful when the visitor type is not publicly accessible.
+        /// </summary>
+        /// <param name="visitorTypeName">The name of the visitor type to remove.</param>
+        public virtual void RemoveVisitor(string visitorTypeName)
+        {
+            _visitors.RemoveAll(v => v.GetType().Name == visitorTypeName);
+        }
+
+        public virtual void AddRewriter(LibraryRewriter rewriter)
+        {
+            _rewriters.Add(rewriter);
+        }
+
+        public virtual void AddMetadataReference(MetadataReference reference)
         {
             _additionalMetadataReferences.Add(reference);
         }
 
-        public void AddSharedSourceDirectory(string sharedSourceDirectory)
+        /// <summary>
+        /// Registers a generated provider required by an unresolved custom-code method invocation.
+        /// </summary>
+        /// <param name="methodName">The invoked method name.</param>
+        /// <param name="provider">The generated provider that defines the method.</param>
+        protected void AddCustomCodeMethodDependency(string methodName, TypeProvider provider)
+        {
+            if (!_customCodeMethodDependencies.TryGetValue(methodName, out var providers))
+            {
+                providers = [];
+                _customCodeMethodDependencies.Add(methodName, providers);
+            }
+
+            providers.Add(provider);
+        }
+
+        internal IReadOnlyList<TypeProvider> GetCustomCodeMethodDependencies(string methodName) =>
+            _customCodeMethodDependencies.TryGetValue(methodName, out var providers) ? providers : [];
+
+        public virtual void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> TypesToKeep { get; } = new();
+        /// <summary>
+        /// Adds a custom-code attribute provider that derived generators can use to contribute
+        /// generator-specific attribute definitions. The provider's attribute definition is generated into
+        /// the SDK project and made available to the compiler while it compiles custom code.
+        /// </summary>
+        /// <param name="provider">The <see cref="CustomCodeAttributeDefinition"/> that defines the custom-code attribute.</param>
+        protected void AddCustomCodeAttributeProvider(CustomCodeAttributeDefinition provider)
+        {
+            CustomCodeAttributeProviders.Add(provider);
+        }
+
+        private record KeptTypesInfo(HashSet<string> TypeNames, HashSet<TypeProvider> TypeProviders);
+
+        private readonly KeptTypesInfo _additionalRootTypeInfo = new([], []);
+        private readonly KeptTypesInfo _nonRootTypeInfo = new([], []);
+
+        private HashSet<string>? _additionalRootTypes;
+        private HashSet<string>? _nonRootTypes;
+
+        /// <summary>
+        /// The set of fully qualified type names to keep as roots. Resolved lazily so that
+        /// <see cref="TypeProvider"/> entries added via <see cref="AddTypeToKeep(TypeProvider, bool)"/>
+        /// are not forced to materialize their <see cref="TypeProvider.Type"/> at registration time
+        /// (which would dispatch virtual <c>Build*</c> methods on partially constructed providers).
+        /// </summary>
+        internal HashSet<string> AdditionalRootTypes => _additionalRootTypes ??= MaterializeKeepSet(_additionalRootTypeInfo);
+
+        /// <summary>
+        /// The set of fully qualified type names to keep as non-roots. Resolved lazily; see
+        /// <see cref="AdditionalRootTypes"/> for rationale.
+        /// </summary>
+        internal HashSet<string> NonRootTypes => _nonRootTypes ??= MaterializeKeepSet(_nonRootTypeInfo);
+
+        private static HashSet<string> MaterializeKeepSet(KeptTypesInfo info)
+        {
+            if (info.TypeProviders.Count == 0)
+            {
+                return info.TypeNames;
+            }
+            var result = new HashSet<string>(info.TypeNames);
+            foreach (var provider in info.TypeProviders)
+            {
+                result.Add(provider.Type.FullyQualifiedName);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
         /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
-        public void AddTypeToKeep(string typeName)
+        /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
+        /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
+        public void AddTypeToKeep(string typeName, bool isRoot = true)
         {
-            TypesToKeep.Add(typeName);
+            if (isRoot)
+            {
+                if (_additionalRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _additionalRootTypes = null;
+                }
+            }
+            else
+            {
+                if (_nonRootTypeInfo.TypeNames.Add(typeName))
+                {
+                    _nonRootTypes = null;
+                }
+            }
         }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
+        /// <remarks>
+        /// The provider's fully qualified name is resolved lazily, when the keep list is consumed during
+        /// reference-map analysis. This makes it safe to call this method from a <see cref="TypeProvider"/>
+        /// constructor (including base constructors that run before the derived constructor body), since
+        /// it does not force evaluation of <see cref="TypeProvider.Type"/> — which would dispatch virtual
+        /// <c>Build*</c> methods on a not-yet-fully-constructed instance.
+        /// </remarks>
         /// <param name="type">The type provider representing the type.</param>
-        public void AddTypeToKeep(TypeProvider type) => AddTypeToKeep(type.Type.FullyQualifiedName);
+        /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
+        /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
+        public void AddTypeToKeep(TypeProvider type, bool isRoot = true)
+        {
+            if (isRoot)
+            {
+                if (_additionalRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _additionalRootTypes = null;
+                }
+            }
+            else
+            {
+                if (_nonRootTypeInfo.TypeProviders.Add(type))
+                {
+                    _nonRootTypes = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes additional output files (e.g. configuration schemas) after the main code generation is complete.
+        /// Override this method to generate non-C# output files.
+        /// </summary>
+        /// <param name="outputPath">The root output directory.</param>
+        public virtual Task WriteAdditionalFiles(string outputPath) => Task.CompletedTask;
     }
 }

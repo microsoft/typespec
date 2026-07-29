@@ -3,7 +3,7 @@ import {
   resolveModule,
   ResolveModuleError,
   type ResolveModuleHost,
-} from "../../src/module-resolver/module-resolver.js";
+} from "../../src/module-resolver/index.js";
 import { TestHostError } from "../../src/testing/types.js";
 
 function mkFs(files: Record<string, string>): {
@@ -230,6 +230,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE_EXPORT_TARGET",
             `Import "test-lib" resolving to "/ws/proj/node_modules/test-lib/missing.js" is not a file.`,
+            expect.anything(),
           ),
         );
       });
@@ -244,6 +245,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE_EXPORT_TARGET",
             `Could not resolve import "test-lib"  using exports defined in file:///ws/proj/node_modules/test-lib. Invalid mapping: "index.js".`,
+            expect.anything(),
           ),
         );
       });
@@ -261,6 +263,7 @@ describe("packages", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
+            expect.anything(),
           ),
         );
       });
@@ -366,6 +369,7 @@ describe("packages", () => {
               new ResolveModuleError(
                 "INVALID_MODULE",
                 `Could not resolve import "test-lib/named"  using exports defined in file:///ws/proj/node_modules/test-lib.`,
+                expect.anything(),
               ),
             );
           });
@@ -396,6 +400,27 @@ describe("resolve self", () => {
       type: "module",
       path: "/ws/proj",
       mainFile: "/ws/proj/entry.js",
+    });
+  });
+
+  it("loads self sub exports", async () => {
+    const { host } = mkFs({
+      "/ws/proj/package.json": JSON.stringify({
+        name: "@scope/proj",
+        exports: { ".": "./entry.js", "./subpath": "./subpath.js" },
+      }),
+      "/ws/proj/entry.js": "",
+      "/ws/proj/subpath.js": "",
+    });
+
+    const resolved = await resolveModule(host, "@scope/proj/subpath", {
+      baseDir: "/ws/proj/node_modules/test-lib/nested",
+    });
+    const path = "/ws/proj";
+    expect(resolved).toMatchObject({
+      type: "module",
+      path,
+      mainFile: `${path}/subpath.js`,
     });
   });
 
@@ -537,6 +562,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE_IMPORT_TARGET",
             `Import "#utils" resolving to "/ws/proj/missing.js" is not a file.`,
+            expect.anything(),
           ),
         );
       });
@@ -552,6 +578,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+            expect.anything(),
           ),
         );
       });
@@ -564,6 +591,7 @@ describe("resolve self", () => {
           new ResolveModuleError(
             "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+            expect.anything(),
           ),
         );
       });
@@ -592,6 +620,7 @@ describe("resolve self", () => {
               new ResolveModuleError(
                 "INVALID_MODULE",
                 `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
+                expect.anything(),
               ),
             );
           });

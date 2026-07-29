@@ -9,8 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
@@ -19,164 +22,283 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class CollectionResultDefinition : TypeProvider
+    public class CollectionResultDefinition : TypeProvider
     {
-        private readonly InputOperation _operation;
-        private readonly bool _isAsync;
-        private readonly ClientProvider _client;
-        private readonly FieldProvider _clientField;
-        private readonly FieldProvider? _optionsField;
-        private readonly CSharpType _responseType;
-        private readonly CSharpType? _itemModelType;
-        private readonly string? _nextPagePropertyName;
-        private readonly InputResponseLocation? _nextPageLocation;
+        protected bool IsAsync { get; }
+        protected ClientProvider Client { get; }
+        protected FieldProvider ClientField { get; }
+
+        protected InputOperation Operation { get; }
+        protected InputPagingServiceMetadata Paging { get; }
+
+        public string ScopeName { get; }
+
+        protected internal FieldProvider? PageSizeField { get; }
+
+        protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
+            .First(f => f.Name == RequestOptionsFieldName);
+        private FieldProvider? _requestOptionsField;
+        protected virtual string RequestOptionsFieldName => "_options";
+
+        private IReadOnlyList<FieldProvider>? _requestFields;
+        protected IReadOnlyList<FieldProvider> RequestFields
+            => _requestFields ??= BuildRequestFields();
+
+        private IReadOnlyList<ParameterProvider>? _createRequestParameters;
+        private IReadOnlyList<ParameterProvider> CreateRequestParameters
+            => _createRequestParameters ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Parameters;
+
+        private string? _createRequestMethodName;
+        private string CreateRequestMethodName
+            => _createRequestMethodName ??= Client.RestClient.GetCreateRequestMethod(Operation).Signature.Name;
+
+        protected ModelProvider ResponseModel { get; }
+        protected CSharpType ResponseModelType { get; }
+
+        protected virtual CSharpType? ItemModelType { get; }
+        protected FieldProvider? NextTokenField { get; }
+
+        protected CSharpType NextPagePropertyType { get; }
+
+        protected IReadOnlyList<string> NextPagePropertySegments { get; }
+
+        protected InputResponseLocation? NextPageLocation { get; }
 
         private static readonly ParameterProvider PageParameter =
             new("page", FormattableStringHelpers.Empty, new CSharpType(typeof(ClientResult)));
 
-        private readonly string _itemsPropertyName;
-        private readonly InputOperationPaging _paging;
-        private readonly FieldProvider[] _requestFields;
-        private readonly IReadOnlyList<ParameterProvider> _createRequestParameters;
-        private readonly int? _nextTokenParameterIndex;
-
-        public CollectionResultDefinition(ClientProvider client, InputOperation operation, CSharpType? itemModelType, bool isAsync)
+        public CollectionResultDefinition(ClientProvider client, InputPagingServiceMethod serviceMethod, CSharpType? itemModelType, bool isAsync)
         {
-            _client = client;
-            _clientField = new FieldProvider(
+            Client = client;
+            ClientField = new FieldProvider(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
-                _client.Type,
+                Client.Type,
                 "_client",
                 this);
-            _operation = operation;
-            _paging = _operation.Paging!;
+            Operation = serviceMethod.Operation;
+            Paging = serviceMethod.PagingMetadata;
+            IsAsync = isAsync;
+            ItemModelType = itemModelType;
+            ScopeName = $"{Client.Name}.{Operation.Name.ToIdentifierName()}";
 
-            _createRequestParameters = _client.RestClient.GetCreateRequestMethod(_operation).Signature.Parameters;
+            var response = Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
+            ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
+            ResponseModelType = ResponseModel.Type;
 
-            var fields = new List<FieldProvider>();
-            for (int paramIndex = 0; paramIndex < _createRequestParameters.Count; paramIndex++)
+            // The page size request parameter will always correspond to the last segment. We do not currently support
+            // nested page size parameters that are not HTTP parameters, i.e. just a property in a body.
+            // TODO https://github.com/microsoft/typespec/issues/9069
+            var pageSize = Paging.PageSizeParameterSegments.LastOrDefault();
+
+            foreach (var field in RequestFields)
             {
-                var parameter = _createRequestParameters[paramIndex];
-                if (parameter.Name == _paging.ContinuationToken?.Parameter.Name)
+                if (string.Equals(field.AsParameter.Name, Paging.ContinuationToken?.Parameter.Name, StringComparison.OrdinalIgnoreCase))
                 {
-                    _nextTokenParameterIndex = paramIndex;
+                    NextTokenField = field;
                 }
+
+                if (string.Equals(field.AsParameter.Name, pageSize, StringComparison.OrdinalIgnoreCase))
+                {
+                    PageSizeField = field;
+                }
+            }
+
+            NextPageLocation = Paging.NextLink?.ResponseLocation ?? Paging.ContinuationToken?.ResponseLocation;
+            NextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments ?? [];
+
+            NextPagePropertyType = GetNextPagePropertyType();
+
+            if (Paging.ItemPropertySegments.Count == 0)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.MissingItemsProperty,
+                    "No property was marked as the paging items property",
+                    Operation.CrossLanguageDefinitionId,
+                    EmitterDiagnosticSeverity.Error);
+            }
+        }
+
+        private IReadOnlyList<FieldProvider> BuildRequestFields()
+        {
+            var fields = new List<FieldProvider>();
+            for (int paramIndex = 0; paramIndex < CreateRequestParameters.Count; paramIndex++)
+            {
+                var parameter = CreateRequestParameters[paramIndex];
                 var field = new FieldProvider(
                     FieldModifiers.Private | FieldModifiers.ReadOnly,
                     parameter.Type,
-                    $"_{parameter.Name}",
+                    $"_{parameter.Name.ToVariableName()}",
                     this);
                 fields.Add(field);
-                if (field.Name == "_options")
+            }
+
+            return fields;
+        }
+
+        private CSharpType GetNextPagePropertyType()
+        {
+            if (NextPageLocation != InputResponseLocation.Body)
+            {
+                return typeof(string);
+            }
+
+            TypeProvider model = ResponseModel;
+            PropertyProvider? property = null;
+            for (int i = 0; i < NextPagePropertySegments.Count; i++)
+            {
+                property = FindPropertyInModelHierarchy(model, NextPagePropertySegments[i]);
+
+                if (i < NextPagePropertySegments.Count - 1)
                 {
-                    _optionsField = field;
+                    model = ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
                 }
             }
 
-            _requestFields = fields.ToArray();
-
-            _itemModelType = itemModelType;
-            _isAsync = isAsync;
-
-            var response = _operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
-            var responseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
-            // TODO Nested models are not supported yet https://github.com/Azure/typespec-azure/issues/2287
-
-            var nextPagePropertyName = _paging.NextLink != null
-                ? _paging.NextLink.ResponseSegments[0]
-                : _paging.ContinuationToken?.ResponseSegments[0];
-            _nextPageLocation = _paging.NextLink?.ResponseLocation ?? _paging.ContinuationToken?.ResponseLocation;
-
-            // TODO Nested models are not supported https://github.com/Azure/typespec-azure/issues/2287
-            var itemsPropertyName = _paging.ItemPropertySegments[0];
-            var itemsModelPropertyName = responseModel.CanonicalView.Properties
-                .FirstOrDefault(p => p.WireInfo?.SerializedName == itemsPropertyName)?.Name;
-            if (itemsModelPropertyName == null)
-            {
-                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    "missing-items-property",
-                    $"Missing items property: {itemsPropertyName}",
-                    _operation.CrossLanguageDefinitionId);
-            }
-            _itemsPropertyName = itemsModelPropertyName ?? itemsPropertyName;
-
-            // Find the model property that has the serialized name matching the next link.
-            // Use the canonical view in case the property was customized.
-            if (_nextPageLocation == InputResponseLocation.Body)
-            {
-                _nextPagePropertyName =
-                    responseModel.CanonicalView.Properties.FirstOrDefault(
-                        p => p.WireInfo?.SerializedName == nextPagePropertyName)?.Name;
-            }
-            else if (_nextPageLocation == InputResponseLocation.Header)
-            {
-                _nextPagePropertyName = nextPagePropertyName;
-            }
-
-            _responseType = responseModel.Type;
+            return property!.Type;
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+        /// <summary>
+        /// Searches for a property with the specified serialized name in the model and its base models.
+        /// </summary>
+        private PropertyProvider FindPropertyInModelHierarchy(TypeProvider model, string serializedName)
+        {
+            // First, try to find the property in the current model
+            var property = model.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == serializedName);
+            if (property != null)
+            {
+                return property;
+            }
 
-        protected override string BuildNamespace() => _client.Type.Namespace;
+            // If not found, search in the base model hierarchy
+            if (model is ModelProvider modelProvider && modelProvider.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(modelProvider.BaseModelProvider, serializedName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new InvalidOperationException(
+                $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
+        }
+
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
+
+        protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override string BuildName()
-            => $"{_client.Type.Name}{_operation.Name.ToCleanName()}{(_isAsync ? "Async" : "")}CollectionResult{(_itemModelType == null ? "" : "OfT")}";
+        {
+            var operationName = Operation.Name.ToIdentifierName();
+            // Check if there is another paging operation in the same client whose name would produce a collision.
+            // If so, use the OriginalName to differentiate.
+            if (HasPagingOperationNameCollision(operationName))
+            {
+                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
+            }
+            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
+        }
+
+        private bool HasPagingOperationNameCollision(string operationName)
+        {
+            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
+            int count = 0;
+            foreach (var method in pagingMethods)
+            {
+                if (method.Operation.Name.ToIdentifierName() == operationName)
+                {
+                    count++;
+                    if (count > 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override FieldProvider[] BuildFields() => [_clientField, .. _requestFields];
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes()
+        {
+            var dependencies = new List<CSharpType> { Client.Type, ResponseModelType, NextPagePropertyType };
+            if (ItemModelType != null)
+            {
+                dependencies.Add(ItemModelType);
+            }
+
+            foreach (var field in RequestFields)
+            {
+                dependencies.Add(field.Type);
+            }
+
+            return dependencies;
+        }
+
+        protected override FieldProvider[] BuildFields() => [ClientField, .. RequestFields];
 
         protected override CSharpType[] BuildImplements() =>
-         (_modelType: _itemModelType, _isAsync) switch
+         (_modelType: ItemModelType, IsAsync) switch
          {
              (null, true) => [new CSharpType(typeof(AsyncCollectionResult))],
              (null, false) => [new CSharpType(typeof(CollectionResult))],
-             (_, true) => [new CSharpType(typeof(AsyncCollectionResult<>), _itemModelType)],
-             (_, false) => [new CSharpType(typeof(CollectionResult<>), _itemModelType)],
+             (_, true) => [new CSharpType(typeof(AsyncCollectionResult<>), ItemModelType)],
+             (_, false) => [new CSharpType(typeof(CollectionResult<>), ItemModelType)],
          };
 
         protected override ConstructorProvider[] BuildConstructors()
         {
             var clientParameter = new ParameterProvider(
                 "client",
-                FormattableStringHelpers.Empty,
-                _client.Type);
+                $"The {Client.Type.Name} client used to send requests.",
+                Client.Type);
             return
             [
                 new ConstructorProvider(
                     new ConstructorSignature(
                         Type,
-                        FormattableStringHelpers.Empty,
+                        $"Initializes a new instance of {Name}, which is used to iterate over the pages of a collection.",
                         MethodSignatureModifiers.Public,
                         [
                             clientParameter,
-                            .. _createRequestParameters
+                            .. CreateRequestParameters
                         ]),
                     BuildConstructorBody(clientParameter),
                     this)
             ];
         }
 
+        private ValueExpression GetPropertyExpression(IReadOnlyList<string> segments, ValueExpression response)
+        {
+            return BuildGetPropertyExpression(segments, response.CastTo(ResponseModelType));
+        }
+
+        protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
+        {
+            return ResponseModel.GetPropertyExpression(responseModel, segments);
+        }
+
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)
         {
-            var statements = new List<MethodBodyStatement>(_createRequestParameters.Count + 1);
+            var statements = new List<MethodBodyStatement>(CreateRequestParameters.Count + 1);
 
-            statements.Add(_clientField.Assign(clientParameter).Terminate());
+            statements.Add(ClientField.Assign(clientParameter).Terminate());
 
-            for (int parameterNumber = 0; parameterNumber < _createRequestParameters.Count; parameterNumber++)
+            for (int parameterNumber = 0; parameterNumber < CreateRequestParameters.Count; parameterNumber++)
             {
-                var parameter = _createRequestParameters[parameterNumber];
-                var field = _requestFields[parameterNumber];
+                var parameter = CreateRequestParameters[parameterNumber];
+                var field = RequestFields[parameterNumber];
                 statements.Add(field.Assign(parameter).Terminate());
             }
             return statements.ToArray();
         }
 
+        /// <summary>
+        /// The name of the method that retrieves the next response, e.g. "GetNextResponse" or "GetNextResponseAsync".
+        /// </summary>
+        public string GetNextResponseMethodName => IsAsync ? "GetNextResponseAsync" : "GetNextResponse";
+
         protected override MethodProvider[] BuildMethods()
         {
-            MethodBodyStatement[] getRawPagesMethodBody = (_paging.NextLink, _paging.ContinuationToken) switch
+            MethodBodyStatement[] getRawPagesMethodBody = (Paging.NextLink, Paging.ContinuationToken) switch
             {
                 (null, null) => BuildGetRawPagesForSingle(),
                 (not null, _) => BuildGetRawPagesForNextLink(),
@@ -186,108 +308,149 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var methods = new List<MethodProvider>
             {
                 new MethodProvider(
-                    new MethodSignature(_isAsync ?
+                    new MethodSignature(IsAsync ?
                             nameof(AsyncCollectionResult.GetRawPagesAsync) :
                             nameof(CollectionResult.GetRawPages),
-                        FormattableStringHelpers.Empty,
-                        _isAsync ?
+                        $"Gets the raw pages of the collection.",
+                        IsAsync ?
                             MethodSignatureModifiers.Public | MethodSignatureModifiers.Async | MethodSignatureModifiers.Override :
                             MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
-                        new CSharpType(_isAsync ?
+                        new CSharpType(IsAsync ?
                             typeof(IAsyncEnumerable<>) :
                             typeof(IEnumerable<>),
                             typeof(ClientResult)),
-                        FormattableStringHelpers.Empty,
+                        $"The raw pages of the collection.",
                         []),
                     getRawPagesMethodBody,
                     this),
 
                 new MethodProvider(
                     new MethodSignature(nameof(CollectionResult.GetContinuationToken),
-                        FormattableStringHelpers.Empty,
+                        $"Gets the continuation token from the specified page.",
                         MethodSignatureModifiers.Public | MethodSignatureModifiers.Override,
                         new CSharpType(typeof(ContinuationToken)),
-                        FormattableStringHelpers.Empty,
+                        $"The continuation token for the specified page.",
                         [PageParameter]),
                     BuildGetContinuationToken(),
                     this)
             };
 
-            if (_itemModelType != null)
+            if (ItemModelType != null)
             {
                 methods.Add(new MethodProvider(
-                                new MethodSignature(_isAsync ? "GetValuesFromPageAsync" : "GetValuesFromPage",
-                                FormattableStringHelpers.Empty,
-                                _isAsync ?
+                                new MethodSignature(IsAsync ? "GetValuesFromPageAsync" : "GetValuesFromPage",
+                                $"Gets the values from the specified page.",
+                                IsAsync ?
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override | MethodSignatureModifiers.Async :
                                     MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override,
-                                _isAsync ?
-                                    new CSharpType(typeof(IAsyncEnumerable<>), _itemModelType) :
-                                    new CSharpType(typeof(IEnumerable<>), _itemModelType),
-                                FormattableStringHelpers.Empty,
+                                IsAsync ?
+                                    new CSharpType(typeof(IAsyncEnumerable<>), ItemModelType) :
+                                    new CSharpType(typeof(IEnumerable<>), ItemModelType),
+                                $"The values from the specified page.",
                                 [PageParameter]),
                         BuildGetValuesFromPages(),
                         this));
             }
 
+            methods.Add(BuildGetNextResponseMethod());
+
             return methods.ToArray();
+        }
+
+        private MethodProvider BuildGetNextResponseMethod()
+        {
+            var messageParameter = new ParameterProvider(
+                "message",
+                $"The pipeline message containing the request to send.",
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType);
+
+            var signature = new MethodSignature(
+                GetNextResponseMethodName,
+                $"Sends the request in the pipeline message and returns the response.",
+                IsAsync ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Async : MethodSignatureModifiers.Private,
+                IsAsync
+                    ? new CSharpType(typeof(ValueTask<>), typeof(ClientResult))
+                    : new CSharpType(typeof(ClientResult)),
+                null,
+                [messageParameter]);
+
+            var processMessageExpression = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
+                ClientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
+                    messageParameter.ToApi<HttpMessageApi>(),
+                    RequestOptionsField.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
+                    IsAsync)).ToApi<ClientResponseApi>();
+
+            return new MethodProvider(
+                signature,
+                Return(processMessageExpression),
+                this);
         }
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
         {
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsVariable());
             return
-            _isAsync ?
+            IsAsync ?
                 [
-                    new ForeachStatement(_itemModelType!, "item", PageParameter.AsExpression().CastTo(_responseType)
-                        .Property(_itemsPropertyName), false, out var item)
+                    new ForEachStatement(ItemModelType!, "item", items, false, out var item)
                     {
                         YieldReturn(item),
                         Static(typeof(Task)).Invoke("Yield", [], [], callAsAsync: true, addConfigureAwaitFalse: false).Terminate()
                     }
                 ] :
                 [
-                    Return(PageParameter.AsExpression().CastTo(_responseType)
-                        .Property(_itemsPropertyName))
+                    Return(items)
                 ];
         }
 
         private MethodBodyStatement[] BuildGetContinuationToken()
         {
             // Simply return null if no continuation token or next link were defined.
-            if (_paging.ContinuationToken == null && _paging.NextLink == null)
+            if (Paging.ContinuationToken == null && Paging.NextLink == null)
             {
                 return [Return(Null)];
             }
 
-            CSharpType nextPageType = _paging.NextLink != null
-                ? new CSharpType(typeof(Uri))
-                : _requestFields[_nextTokenParameterIndex!.Value].Type;
+            CSharpType nextPageType = Paging.NextLink != null
+                ? NextPagePropertyType
+                : NextTokenField!.Type;
             var nextPageVariable = new VariableExpression(nextPageType, "nextPage");
-
-            switch (_nextPageLocation)
+            var nextPagePropertySegments = Paging.NextLink?.ResponseSegments ?? Paging.ContinuationToken?.ResponseSegments;
+            switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = PageParameter.AsExpression().CastTo(_responseType)
-                        .Property(_nextPagePropertyName!);
-                    return
-                    [
-                        Declare(nextPageVariable, resultExpression),
-                        new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
+
+                    var ifElseStatement = nextPageType.Equals(typeof(Uri))
+                        ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                    nextPageType.Equals(typeof(Uri)) ?
-                                        nextPageVariable.Property("AbsoluteUri") :
-                                        nextPageVariable)))
+                                    new TernaryConditionalExpression(
+                                        nextPageVariable.Property(nameof(Uri.IsAbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.AbsoluteUri)),
+                                        nextPageVariable.Property(nameof(Uri.OriginalString))))))
                             },
                             Return(Null))
+                        : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
+                            },
+                            Return(Null));
+
+                    return
+                    [
+                        Declare(nextPageVariable, resultExpression),
+                        ifElseStatement
                     ];
                 case InputResponseLocation.Header:
                     return
                     [
                         new IfElseStatement(
                             new IfStatement(PageParameter.ToApi<ClientResponseApi>().GetRawResponse()
-                                .TryGetHeader(_nextPagePropertyName!, out var nextLinkHeader))
+                                .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader)
+                                .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                             {
                                 Return(Static(typeof(ContinuationToken)).Invoke("FromBytes", BinaryDataSnippets.FromString(nextLinkHeader!)))
                             },
@@ -307,7 +470,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequestForNextLink(_requestFields[0].As<Uri>()),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextPageUri variable
@@ -318,11 +481,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                _isAsync)).ToApi<ClientResponseApi>(),
+                        This.Invoke(GetNextResponseMethodName, [message], IsAsync).ToApi<ClientResponseApi>(),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -330,7 +489,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextPageVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextPageVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForNextLink(nextPageVariable)).Terminate()
@@ -340,13 +499,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetRawPagesForContinuationToken()
         {
-            var nextTokenVariable = new VariableExpression(_requestFields[_nextTokenParameterIndex!.Value].Type, "nextToken");
+            var nextTokenVariable = new VariableExpression(NextTokenField!.Type, "nextToken");
             return
             [
                 // Declare the initial request message
                 Declare(
                     "message",
-                    InvokeCreateRequestForContinuationToken(_requestFields[_nextTokenParameterIndex!.Value]),
+                    InvokeCreateRequestForContinuationToken(NextTokenField!),
                     out ScopedApi<PipelineMessage> message),
 
                 // Declare nextToken variable
@@ -357,11 +516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     Declare(
                         "result",
-                        ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                            _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                                message.ToApi<HttpMessageApi>(),
-                                _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                                _isAsync)).ToApi<ClientResponseApi>(),
+                        This.Invoke(GetNextResponseMethodName, [message], IsAsync).ToApi<ClientResponseApi>(),
                         out ClientResponseApi result),
 
                     // Yield return result
@@ -369,7 +524,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     MethodBodyStatement.EmptyLine,
 
                     // Assign nextLinkUri from the result and check if it is null
-                    AssignAndCheckNextPageVariable(result, nextTokenVariable),
+                    AssignAndCheckNextPageVariable(result, result.CastTo(ResponseModelType), nextTokenVariable),
 
                     // Update message for next iteration
                     message.Assign(InvokeCreateRequestForContinuationToken(nextTokenVariable)).Terminate()
@@ -381,43 +536,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var pipelineMessageDeclaration = Declare(
                     "message",
-                    InvokeCreateRequestForSingle(),
+                    InvokeCreateInitialRequest(),
                     out ScopedApi<PipelineMessage> m);
-            var pipelineResponse = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(
-                        _clientField.Property("Pipeline").ToApi<ClientPipelineApi>().ProcessMessage(
-                            m.ToApi<HttpMessageApi>(),
-                            _optionsField!.AsValueExpression.ToApi<HttpRequestOptionsApi>(),
-                            _isAsync)).ToApi<ClientResponseApi>();
+            var result = This.Invoke(GetNextResponseMethodName, [m], IsAsync).ToApi<ClientResponseApi>();
             return
             [
                 pipelineMessageDeclaration,
                 // Yield return result
-                YieldReturn(pipelineResponse),
+                YieldReturn(result),
             ];
         }
 
-        private MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, VariableExpression nextPage)
+        protected MethodBodyStatement[] AssignAndCheckNextPageVariable(ClientResponseApi result, ValueExpression responseModel, VariableExpression nextPage)
         {
-            switch (_nextPageLocation)
+            switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = result.CastTo(_responseType).Property(_nextPagePropertyName!);
+                    var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
+                    if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
+                    {
+                        IfStatement condition = NextPagePropertyType.Equals(typeof(Uri))
+                            ? new IfStatement(nextPage.Equal(Null))
+                            : new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPage));
+                        condition.Add(YieldBreak());
+
+                        return
+                        [
+                            nextPage.Assign(resultExpression).Terminate(),
+                            condition,
+                        ];
+                    }
+
                     return
                     [
-                        nextPage.Assign(resultExpression).Terminate(),
-                        new IfStatement(nextPage.Equal(Null))
+                        Declare("nextPageString", resultExpression.As<string>(), out ScopedApi<string> nextPageString),
+                        new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageString))
                         {
                             YieldBreak()
                         },
+                        nextPage.Assign(New.Instance<Uri>(nextPageString, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate()
                     ];
                 case InputResponseLocation.Header:
                     return
                         [
                             new IfElseStatement(
-                                new IfStatement(result.GetRawResponse().TryGetHeader(_nextPagePropertyName!, out var nextLinkHeader))
+                                new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader)
+                                    .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
-                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
+                                            nextPage.Assign(New.Instance<Uri>(nextLinkHeader!, FrameworkEnumValue(UriKind.RelativeOrAbsolute))).Terminate() :
                                             nextPage.Assign(nextLinkHeader!).Terminate(),
                                 },
                                 YieldBreak())
@@ -428,33 +595,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri) => _clientField.Invoke(
-            $"Create{_operation.Name.ToCleanName()}Request",
-            // we replace the first argument (the initialUri) with the nextPageUri
-            [nextPageUri, .. _requestFields[1..]])
-            .As<PipelineMessage>();
-
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForNextLink(ValueExpression nextPageUri)
         {
-            ValueExpression[] arguments = _requestFields.Select(f => f.AsValueExpression).ToArray();
-
-            // Replace the nextToken field with the nextToken variable
-            arguments[_nextTokenParameterIndex!.Value] = nextToken;
-
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
+            var createNextLinkRequestMethodName =
+                Client.RestClient.GetCreateNextLinkRequestMethod(Operation).Signature.Name;
+            return ClientField.Invoke(
+                    createNextLinkRequestMethodName,
+                    [nextPageUri, .. RequestFields])
                 .As<PipelineMessage>();
         }
 
-        private ScopedApi<PipelineMessage> InvokeCreateRequestForSingle()
+        private ScopedApi<PipelineMessage> InvokeCreateRequestForContinuationToken(ValueExpression nextToken)
         {
-            ValueExpression[] arguments = [.. _requestFields.Select(f => f.AsValueExpression)];
+            // Replace the nextToken field with the nextToken variable
+            var arguments = RequestFields.Select(f => f.Name.Equals(NextTokenField?.Name) == true ? nextToken : f.AsValueExpression);
 
-            return _clientField.Invoke(
-                    $"Create{_operation.Name.ToCleanName()}Request",
-                    arguments)
-                .As<PipelineMessage>();
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
+        }
+
+        private ScopedApi<PipelineMessage> InvokeCreateInitialRequest()
+        {
+            ValueExpression[] arguments = [.. RequestFields.Select(f => f.AsValueExpression)];
+
+            return ClientField.Invoke(CreateRequestMethodName, arguments).As<PipelineMessage>();
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            _requestFields = null;
+            _createRequestParameters = null;
+            _createRequestMethodName = null;
+            _requestOptionsField = null;
         }
     }
 }

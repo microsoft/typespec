@@ -21,14 +21,8 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
 {% if serializer.set_constants() %}
         {{ op_tools.serialize(serializer.set_constants()) | indent(8) -}}
 {% endif %}
-{% if client.credential %}
-    {% set cred_scopes = client.credential.type if client.credential.type.policy is defined and client.credential.type.policy.credential_scopes is defined %}
-    {% if not cred_scopes %}
-        {% set cred_scopes = client.credential.type.types | selectattr("policy.credential_scopes") | first if client.credential.type.types is defined %}
-    {% endif %}
-    {% if cred_scopes %}
-        self.credential_scopes = kwargs.pop('credential_scopes', {{ cred_scopes.policy.credential_scopes }})
-    {% endif %}
+{% if client.credential_scopes is not none %}
+        self.credential_scopes = kwargs.pop('credential_scopes', {{ client.credential_scopes }})
 {% endif %}
         kwargs.setdefault('sdk_moniker', '{{ client.config.sdk_moniker }}/{}'.format(VERSION))
         self.polling_interval = kwargs.get("polling_interval", 30)
@@ -52,7 +46,7 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
         self.proxy_policy = kwargs.get('proxy_policy') or policies.ProxyPolicy(**kwargs)
         self.logging_policy = kwargs.get('logging_policy') or policies.NetworkTraceLoggingPolicy(**kwargs)
         {% if code_model.is_azure_flavor %}
-        self.http_logging_policy = kwargs.get('http_logging_policy') or {{ "ARM" if client.code_model.options['azure_arm'] else "policies." }}HttpLoggingPolicy(**kwargs)
+        self.http_logging_policy = kwargs.get('http_logging_policy') or {{ "ARM" if client.code_model.options["azure-arm"] else "policies." }}HttpLoggingPolicy(**kwargs)
         self.custom_hook_policy = kwargs.get('custom_hook_policy') or policies.CustomHookPolicy(**kwargs)
         self.redirect_policy = kwargs.get('redirect_policy') or policies.{{ keywords.async_class }}RedirectPolicy(**kwargs)
         {% endif %}

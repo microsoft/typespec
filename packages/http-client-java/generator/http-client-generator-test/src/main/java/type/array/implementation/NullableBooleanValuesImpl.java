@@ -57,7 +57,7 @@ public final class NullableBooleanValuesImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArrayClientNullableB")
+    @ServiceInterface(name = "ArrayClientNullableBooleanValues")
     public interface NullableBooleanValuesService {
         @Get("/type/array/nullable-boolean")
         @ExpectedResponses({ 200 })

@@ -5,6 +5,5 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
-  },
-  "include": ["specs/rest-metadata-emitter/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
+  }
 }

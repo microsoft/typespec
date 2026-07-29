@@ -57,7 +57,7 @@ public final class UnionFloatLiteralsImpl {
      * perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ValueTypesClientUnio")
+    @ServiceInterface(name = "ValueTypesClientUnionFloatLiterals")
     public interface UnionFloatLiteralsService {
         @Get("/type/property/value-types/union/float/literal")
         @ExpectedResponses({ 200 })

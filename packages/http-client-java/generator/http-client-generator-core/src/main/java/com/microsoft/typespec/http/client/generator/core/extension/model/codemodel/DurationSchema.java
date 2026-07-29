@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonWriter;
-import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -65,30 +61,6 @@ public class DurationSchema extends PrimitiveSchema {
         return Objects.hash(format);
     }
 
-    @Override
-    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("format", format == null ? null : format.toString())
-            .writeEndObject();
-    }
-
-    /**
-     * Deserializes a DurationSchema instance from the JSON data.
-     *
-     * @param jsonReader The JSON reader to deserialize from.
-     * @return A DurationSchema instance deserialized from the JSON data.
-     * @throws IOException If an error occurs during deserialization.
-     */
-    public static DurationSchema fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readObject(jsonReader, DurationSchema::new, (schema, fieldName, reader) -> {
-            if ("format".equals(fieldName)) {
-                schema.format = Format.fromValue(reader.getString());
-            } else {
-                reader.skipChildren();
-            }
-        });
-    }
-
     /**
      * The format of the duration.
      */
@@ -106,7 +78,17 @@ public class DurationSchema extends PrimitiveSchema {
         /**
          * The duration is in seconds as a number.
          */
-        SECONDS_NUMBER("seconds-number");
+        SECONDS_NUMBER("seconds-number"),
+
+        /**
+         * The duration is in milliseconds as an integer.
+         */
+        MILLISECONDS_INTEGER("milliseconds-integer"),
+
+        /**
+         * The duration is in milliseconds as a number.
+         */
+        MILLISECONDS_NUMBER("milliseconds-number");
 
         private final String value;
 
@@ -142,6 +124,10 @@ public class DurationSchema extends PrimitiveSchema {
                 return SECONDS_INTEGER;
             } else if ("seconds-number".equals(value)) {
                 return SECONDS_NUMBER;
+            } else if ("milliseconds-integer".equals(value)) {
+                return MILLISECONDS_INTEGER;
+            } else if ("milliseconds-number".equals(value)) {
+                return MILLISECONDS_NUMBER;
             } else {
                 throw new IllegalArgumentException(value);
             }

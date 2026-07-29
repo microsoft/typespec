@@ -56,7 +56,7 @@ public final class RelativeModelInOperationsImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "AccessClientRelative")
+    @ServiceInterface(name = "AccessClientRelativeModelInOperations")
     public interface RelativeModelInOperationsService {
         @Get("/azure/client-generator-core/access/relativeModelInOperation/operation")
         @ExpectedResponses({ 200 })

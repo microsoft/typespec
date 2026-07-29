@@ -17,17 +17,6 @@ try {
         Remove-Item -Recurse -Force "./node_modules"
     }
 
-    # install dotnet
-    if ($IsWindows) {
-        # download and run https://dot.net/v1/dotnet-install.ps1
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile 'dotnet-install.ps1'
-        ./dotnet-install.ps1 -Version '8.0.204'
-    }
-    else {
-        Invoke-WebRequest 'https://dot.net/v1/dotnet-install.sh' -OutFile 'dotnet-install.sh'
-        bash ./dotnet-install.sh --version 8.0.204
-    }
-
     # install and list npm packages
   
     if ($BuildArtifactsPath) {
@@ -37,16 +26,28 @@ try {
         Copy-Item "$lockFilesPath/emitter/package.json" './package.json' -Force
         Copy-Item "$lockFilesPath/emitter/package-lock.json" './package-lock.json' -Force
 
-        Invoke-LoggedCommand "npm ci"
+        if ($UseTypeSpecNext) {
+            Invoke-LoggedCommand "npm ci --force"
+        }
+        else {
+            Invoke-LoggedCommand "npm ci"
+        }
     }
     elseif ($UseTypeSpecNext) {
-        # TODO: add use typespec next to template later
+        Invoke-LoggedCommand "npm install --force"
     }
     else {
         Invoke-LoggedCommand "npm ci"
     }
 
-    Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    if ($UseTypeSpecNext) {
+        # npm ls may report peer dependency mismatches with @next versions; ignore exit code
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput -IgnoreExitCode
+        $global:LASTEXITCODE = 0
+    }
+    else {
+        Invoke-LoggedCommand "npm ls -a" -GroupOutput
+    }
 
     Write-Host "artifactStagingDirectory: $env:BUILD_ARTIFACTSTAGINGDIRECTORY"
     Write-Host "BuildArtifactsPath: $BuildArtifactsPath"

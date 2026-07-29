@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Utilities
@@ -142,22 +143,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             }
         }
 
-        [TestCase("Foo", "Foo", ExpectedResult = true)]
-        [TestCase("Foo", "Bar", ExpectedResult = false)]
-        [TestCase("Foo", "_Foo", ExpectedResult = false)]
-        [TestCase("_Foo", "Foo", ExpectedResult = false)]
-        [TestCase("Foo", "Bar.Foo", ExpectedResult = true)]
-        [TestCase("Bar.Foo", "Foo", ExpectedResult = true)]
-        [TestCase("Foo", "Bar._Foo", ExpectedResult = false)]
-        [TestCase("Bar._Foo", "Foo", ExpectedResult = false)]
-        [TestCase("Foo", "/Foo", ExpectedResult = false)]
-        [TestCase("/Foo", "Foo", ExpectedResult = false)]
-        [TestCase(".Foo", ".Foo", ExpectedResult = true)]
-        [TestCase("Foo", ".Foo", ExpectedResult = true)]
-        [TestCase(".Foo", "Foo", ExpectedResult = true)]
-        public bool ValidateIsLastNamespaceSegmentTheSame(string left, string right)
+        [TestCase("V1_0_0", "1-0-0")]
+        [TestCase("V2022_05_15_Preview", "2022-05-15-preview")]
+        [TestCase("V1_2_3_Beta", "1-2-3-beta")]
+        [TestCase("V3_0", "3-0")]
+        [TestCase("V3", "3")]
+        [TestCase("V2024_01_01_RC", "2024-01-01-rc")]
+        [TestCase("V1_0_0_Alpha", "1-0-0-alpha")]
+        [TestCase("V10_5_2", "10-5-2")]
+        [TestCase("V2023_12_31", "2023-12-31")]
+        [TestCase("V2023-12-31", "2023-12-31")]
+        public void TestToApiVersionValue(string apiVersion, string expectedValue)
         {
-            return StringExtensions.IsLastNamespaceSegmentTheSame(left, right);
+            var result = apiVersion.ToApiVersionValue();
+            Assert.AreEqual(expectedValue, result);
+        }
+
+        [TestCase("V1_0_0", ".", "1.0.0")]
+        [TestCase("V2022_05_15_Preview", ".", "2022.05.15.preview")]
+        [TestCase("V1_2_3", "/", "1/2/3")]
+        [TestCase("V2024_01_01", "_", "2024_01_01")]
+        [TestCase("V1_0", ":", "1:0")]
+        public void TestToApiVersionValueWithCustomSeparator(string apiVersion, string separator, string expectedValue)
+        {
+            var result = apiVersion.ToApiVersionValue(separator: separator[0]);
+            Assert.AreEqual(expectedValue, result);
+        }
+
+        [TestCase("V1_0_0", "api-version-", "api-version-1-0-0")]
+        [TestCase("V2022_05_15", "v", "v2022-05-15")]
+        [TestCase("V1_2_3_Beta", "release-", "release-1-2-3-beta")]
+        public void TestToApiVersionValueWithVersionPrefix(string apiVersion, string versionPrefix, string expectedValue)
+        {
+            var result = apiVersion.ToApiVersionValue(versionPrefix: versionPrefix);
+            Assert.AreEqual(expectedValue, result);
+        }
+
+        [TestCase("V1_0_0", "v", ".", "v1.0.0")]
+        [TestCase("V2022_05_15_Preview", "v", "/", "v2022/05/15/preview")]
+        [TestCase("V1_2_3", "v", "_", "v1_2_3")]
+        public void TestToApiVersionValueWithPrefixAndSeparator(string apiVersion, string versionPrefix, string separator, string expectedValue)
+        {
+            var result = apiVersion.ToApiVersionValue(versionPrefix: versionPrefix, separator: separator[0]);
+            Assert.AreEqual(expectedValue, result);
         }
 
         public record Part(string Value, bool IsLiteral, int ArgumentIndex);

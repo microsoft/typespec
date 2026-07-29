@@ -1,0 +1,142 @@
+---
+title: Package Structure
+sidebar_position: 0
+toc_min_heading_level: 2
+toc_max_heading_level: 3
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+# Namespaces
+
+By default, the Python HTTP client emitter generates code into a package structure that follows Python's naming conventions. We follow the structure of the other http client emitters that we publish: by default a namespace in TypeSpec corresponds to a namespace in our generated Python SDK. See [here](https://azure.github.io/typespec-azure/docs/howtos/generate-client-libraries/02package/#namespace) for more examples.
+
+## Default Behavior
+
+The Python HTTP client emitter creates a package structure based on the namespace specified in your TypeSpec file:
+
+<Tabs>
+<TabItem label="TypeSpec File" default>
+
+```typespec
+@service({
+  title: "Azure Key Vault Certificate Client",
+})
+namespace Azure.KeyVault.Certificates {
+  model Certificate {
+    id: string;
+    name: string;
+    properties: CertificateProperties;
+  }
+
+  model CertificateProperties {
+    created: utcDateTime;
+    updated: utcDateTime;
+    enabled: boolean;
+  }
+
+  @route("/certificates")
+  interface CertificateOperations {
+    @get list(): Certificate[];
+    @get get(@path id: string): Certificate;
+  }
+}
+```
+
+</TabItem>
+<TabItem label="Generated Python SDK">
+
+```
+azure-keyvault-certificates/
+├── azure/
+│   └── keyvault/
+│       └── certificates/
+│           ├── __init__.py
+│           ├── _models.py
+│           ├── _client.py
+│           └── ...
+├── setup.py
+└── ...
+```
+
+</TabItem>
+</Tabs>
+
+## Controlling the Generation Directory
+
+When migrating existing SDKs or working with brownfield services, you might need to place generated code in a specific subdirectory, like `_generated`. For these scenarios, you can use the [`namespace` configuration option](https://azure.github.io/typespec-azure/docs/libraries/typespec-client-generator-core/reference/emitter/#namespace) in your `tspconfig.yaml` file.
+
+If you want the published SDK to follow closely with the package structure and namespaces in your TypeSpec file, you should also pass in the `package-name` flag with the desired value.
+
+### Using the `namespace` Flag
+
+The `namespace` option allows you to specify where the generated code should be placed within your package structure. This is particularly useful for cases where you want to:
+
+1. Keep generated code isolated in a dedicated subdirectory
+2. Maintain backward compatibility with existing SDK structures
+3. Separate generated code from hand-written code
+
+#### Example Configuration
+
+In this example, we will take you through emitting generated code into a specific subdirectory (like `_generated`), with the idea that you will be fully-wrapping the generated code. Add the following to your `tspconfig.yaml`:
+
+<Tabs>
+<TabItem label="tspconfig.yaml" default>
+
+```yaml
+emitters:
+  "@typespec/http-client-python":
+    namespace: "azure.keyvault.certificates._generated"
+    package-name: "azure-keyvault-certificates"
+```
+
+</TabItem>
+<TabItem label="TypeSpec File">
+
+```typespec
+namespace Azure.KeyVault.Certificates;
+
+@service({
+  title: "Azure Key Vault Certificate Client",
+})
+namespace Azure.Keyvault.Certificates {
+  model Certificate {
+    id: string;
+    name: string;
+    properties: CertificateProperties;
+  }
+
+  model CertificateProperties {
+    created: utcDateTime;
+    updated: utcDateTime;
+    enabled: boolean;
+  }
+
+  @route("/certificates")
+  interface CertificateOperations {
+    @get list(): Certificate[];
+    @get get(@path id: string): Certificate;
+  }
+}
+```
+
+</TabItem>
+<TabItem label="Generated Python SDK">
+
+```
+azure-keyvault-certificates/
+├── azure/
+│   └── keyvault/
+│       └── certificates/
+│           ├── __init__.py
+│           └── _generated/
+│               ├── __init__.py
+│               ├── _models.py
+│               ├── _client.py
+│               └── ...
+├── setup.py
+└── ...
+```
+
+</TabItem>
+</Tabs>

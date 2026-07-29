@@ -42,6 +42,7 @@ export class DynamicTask implements TrackActionTask {
 
   start() {
     if (this.#isTTY) {
+      this.#stream.write("\x1B[?25l"); // Hide cursor to prevent flicker
       this.#interval = setInterval(() => {
         this.#printProgress();
       }, 100);
@@ -71,6 +72,9 @@ export class DynamicTask implements TrackActionTask {
       this.#interval = undefined;
     }
     this.#clear();
+    if (this.#isTTY) {
+      this.#stream.write("\x1B[?25h"); // Show cursor
+    }
     this.#stream.write(`${StatusIcons[status]} ${this.#message}\n`);
   }
 

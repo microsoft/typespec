@@ -1,0 +1,17 @@
+.view-toggle-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+  background-color: var(--colorNeutralBackground1);
+  flex-shrink: 0;
+}
+
+.view-toggle-tabs {
+  min-height: auto;
+}
+
+.view-toggle-actions {
+  margin-left: auto;
+  overflow: hidden;
+}

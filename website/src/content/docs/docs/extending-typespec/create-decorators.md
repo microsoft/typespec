@@ -8,6 +8,76 @@ TypeSpec decorators are implemented as JavaScript functions. The process of crea
 1. [Declare the decorator signature in TypeSpec](#declare-the-decorator-signature) (optional but recommended)
 2. [Implement the decorator in JavaScript](#javascript-decorator-implementation)
 
+Alternatively, for decorators that simply store metadata, you can use [auto decorators](#auto-decorators) which require no JavaScript implementation at all.
+
+## Auto decorators
+
+Auto decorators are a simplified way to declare decorators that only store metadata. They are declared with the `auto` modifier and require no JavaScript implementation — the compiler auto-generates the storage logic.
+
+```typespec
+// A boolean flag (no parameters beyond the target)
+auto dec tracked(target: unknown);
+
+// A single value
+auto dec label(target: Model, value: valueof string);
+
+// Multiple values (stored as a named record)
+auto dec serviceInfo(target: Model, name: valueof string, version: valueof int32);
+```
+
+### How data is stored
+
+Auto decorator arguments are always stored as a record with parameter names as keys in the program's state map, keyed by the decorator's fully-qualified name:
+
+- **No parameters** (flag): stores `{}` (empty record)
+- **One or more parameters**: stores `{ paramName: value, ... }`, e.g. `{ name: "hello", version: 1 }`
+
+### Reading auto decorator values
+
+The compiler provides a generic API to read auto decorator values without any generated code:
+
+```ts
+import { hasAutoDecorator, getAutoDecoratorValue } from "@typespec/compiler";
+
+// Check if a flag decorator was applied
+if (hasAutoDecorator(program, "MyLib.tracked", type)) {
+  // ...
+}
+
+// Get the stored record
+const label = getAutoDecoratorValue(program, "MyLib.label", type) as { value: string };
+
+// Get a multi-arg record
+const info = getAutoDecoratorValue(program, "MyLib.serviceInfo", type) as {
+  name: string;
+  version: number;
+};
+```
+
+### Generated typed accessors
+
+When using `tspd gen-extern-signature`, typed accessor functions are generated for auto decorators:
+
+```ts
+// Generated for: auto dec tracked(target: Model);
+export function isTracked(program: Program, target: Model): boolean;
+
+// Generated for: auto dec label(target: Model, value: valueof string);
+export function getLabel(program: Program, target: Model): string | undefined;
+```
+
+### Combining with `internal`
+
+Auto decorators can be combined with the `internal` modifier:
+
+```typespec
+internal auto dec myInternalFlag(target: Model);
+```
+
+:::note
+`auto` and `extern` are mutually exclusive — a decorator is either auto-implemented (auto) or externally implemented (extern).
+:::
+
 ## Declare the decorator signature
 
 While this step is optional, it offers significant benefits:
@@ -120,6 +190,92 @@ model Dog {
 }
 ```
 
+### Decorator validation
+
+Decorators often need to validate that they are being used correctly. TypeSpec provides different validation strategies depending on your requirements:
+
+:::warning
+The purpose of validation callbacks is specifically to report diagnostics, not to modify the type graph. Modifying the type graph during validation may lead to unexpected behavior.
+:::
+
+#### Immediate validation
+
+For simple validation cases (such as checking parameter values), you can use the `reportDiagnostic` method directly in the decorator implementation. This is suitable when validation only depends on the decorator's parameters.
+
+```ts
+export function $maxLength(context: DecoratorContext, target: Type, max: number) {
+  if (max < 0) {
+    reportDiagnostic(context.program, {
+      code: "invalid-max-length",
+      target: context.getArgumentTarget(0),
+      format: { max },
+    });
+  }
+  // ... rest of decorator implementation
+}
+```
+
+#### Post-validation callbacks
+
+When you need to validate interactions between decorators or verify constraints across the type graph, use validation callbacks. These callbacks allow you to defer validation until specific points in the compilation process.
+
+There are two different events you can use:
+
+##### `onTargetFinish`
+
+Called when the target type is fully processed. At this point, all decorators have been applied to the type, making it suitable for validating decorator conflicts or combinations on a single type.
+
+```ts
+export function $track(context: DecoratorContext, target: Type) {
+  return {
+    onTargetFinish() {
+      // Validate that @track and @deprecated are not used together
+      if (isDeprecated(context.program, target)) {
+        return [
+          createDiagnostic(context.program, {
+            code: "track-deprecated-conflict",
+            target: context.decoratorTarget,
+          }),
+        ];
+      }
+      return [];
+    },
+  };
+}
+```
+
+##### `onGraphFinish`
+
+Called after the entire type graph has been resolved during the checker phase. Use this when you need to validate relationships across multiple types or perform analysis that requires the complete type graph.
+
+```ts
+export function $foreignKey(context: DecoratorContext, target: ModelProperty, ref: Model) {
+  return {
+    onGraphFinish() {
+      // Validate that the referenced model exists in the type graph
+      // and has appropriate key properties
+      const refKeys = getKeyProperties(context.program, ref);
+      if (refKeys.length === 0) {
+        return [
+          createDiagnostic(context.program, {
+            code: "foreign-key-no-primary",
+            target: context.decoratorTarget,
+            format: { modelName: ref.name },
+          }),
+        ];
+      }
+      return [];
+    },
+  };
+}
+```
+
+#### Choosing the right validation approach
+
+- Use **immediate validation** for parameter validation and simple checks
+- Use **`onTargetFinish`** when you need to check decorator combinations on a single type
+- Use **`onGraphFinish`** when you need to validate relationships across multiple types or require the complete type graph
+
 ### Decorator parameter marshalling
 
 When decorators are passed types, the type is passed as-is. When a decorator is passed a TypeSpec value, the decorator receives a JavaScript value with a type that is appropriate for representing that value.
@@ -211,7 +367,7 @@ export const $lib = createTypeSpecLibrary({
 export const StateKeys = $lib.stateKeys;
 ```
 
-### Reporting diagnostic on decorator or arguments
+### Reporting diagnostics on decorator or arguments
 
 The decorator context provides the `decoratorTarget` and `getArgumentTarget` helpers.
 

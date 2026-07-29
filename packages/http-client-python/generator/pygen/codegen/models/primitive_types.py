@@ -5,10 +5,11 @@
 # --------------------------------------------------------------------------
 import datetime
 import decimal
-from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from typing import Any, Optional, Union, TYPE_CHECKING
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -49,6 +50,11 @@ class PrimitiveType(BaseType):
 
 
 class BooleanType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        if yaml_data.get("encode") == "string":
+            self.encode = "str"
+
     def serialization_type(self, **kwargs: Any) -> str:
         return "bool"
 
@@ -61,7 +67,7 @@ class BooleanType(PrimitiveType):
 
 
 class BinaryType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.type = "IO"
 
@@ -139,7 +145,7 @@ class AnyType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.REGULAR)
         return file_import
 
     @property
@@ -176,7 +182,7 @@ class AnyObjectType(PrimitiveType):
 
 
 class NumberType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.precision: Optional[int] = yaml_data.get("precision")
         self.multiple: Optional[int] = yaml_data.get("multipleOf")
@@ -186,7 +192,7 @@ class NumberType(PrimitiveType):
         self.exclusive_minimum: Optional[int] = yaml_data.get("exclusiveMinimum")
 
     @property
-    def serialization_constraints(self) -> List[str]:
+    def serialization_constraints(self) -> list[str]:
         validation_constraints = [
             (f"maximum_ex={self.maximum}" if self.maximum is not None and self.exclusive_maximum else None),
             (f"maximum={self.maximum}" if self.maximum is not None and not self.exclusive_maximum else None),
@@ -197,8 +203,8 @@ class NumberType(PrimitiveType):
         return [x for x in validation_constraints if x is not None]
 
     @property
-    def validation(self) -> Optional[Dict[str, Union[bool, int, str]]]:
-        validation: Dict[str, Union[bool, int, str]] = {}
+    def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
+        validation: dict[str, Union[bool, int, str]] = {}
         if self.maximum is not None:
             if self.exclusive_maximum:
                 validation["maximum_ex"] = self.maximum
@@ -221,7 +227,7 @@ class NumberType(PrimitiveType):
 
 class IntegerType(NumberType):
 
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         if yaml_data.get("encode") == "string":
             self.encode = "str"
@@ -271,6 +277,8 @@ class DecimalType(NumberType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "float"
         return "decimal.Decimal"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -281,7 +289,8 @@ class DecimalType(NumberType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("decimal", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("decimal", ImportType.STDLIB)
         return file_import
 
     @property
@@ -294,7 +303,7 @@ class DecimalType(NumberType):
 
 
 class StringType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.max_length: Optional[int] = yaml_data.get("maxLength")
         self.min_length: Optional[int] = (
@@ -303,7 +312,7 @@ class StringType(PrimitiveType):
         self.pattern: Optional[str] = yaml_data.get("pattern")
 
     @property
-    def serialization_constraints(self) -> List[str]:
+    def serialization_constraints(self) -> list[str]:
         validation_constraints = [
             f"max_length={self.max_length}" if self.max_length is not None else None,
             f"min_length={self.min_length}" if self.min_length is not None else None,
@@ -312,8 +321,8 @@ class StringType(PrimitiveType):
         return [x for x in validation_constraints if x is not None]
 
     @property
-    def validation(self) -> Optional[Dict[str, Union[bool, int, str]]]:
-        validation: Dict[str, Union[bool, int, str]] = {}
+    def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
+        validation: dict[str, Union[bool, int, str]] = {}
         if self.max_length is not None:
             validation["max_length"] = self.max_length
         if self.min_length is not None:
@@ -338,7 +347,7 @@ class StringType(PrimitiveType):
 
 
 class DatetimeType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = (
             "rfc3339"
@@ -357,6 +366,8 @@ class DatetimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.datetime"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -370,7 +381,8 @@ class DatetimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -399,6 +411,8 @@ class TimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.time"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -412,7 +426,8 @@ class TimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -445,6 +460,8 @@ class UnixTimeType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "int"
         return "datetime.datetime"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -458,7 +475,8 @@ class UnixTimeType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -487,6 +505,8 @@ class DateType(PrimitiveType):
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.date"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -500,7 +520,8 @@ class DateType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -522,13 +543,29 @@ class DateType(PrimitiveType):
 
 
 class DurationType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        # ``seconds`` and ``milliseconds`` encodings serialize a timedelta to a numeric
+        # wire value. ``encode`` is set to a combined format token (e.g.
+        # ``duration-seconds-int``) so that serialization/deserialization can convert
+        # between ``datetime.timedelta`` and the numeric wire type. ISO8601 (the default)
+        # leaves ``encode`` unset and keeps the legacy ISO 8601 string behavior.
+        self.encode: Optional[str] = None
+        encode = yaml_data.get("encode")
+        if encode in ("seconds", "milliseconds"):
+            wire_type = yaml_data.get("wireType") or {}
+            wire = "int" if wire_type.get("type") == "integer" else "float"
+            self.encode = f"duration-{encode}-{wire}"
+
     def serialization_type(self, **kwargs: Any) -> str:
-        return "duration"
+        return self.encode or "duration"
 
     def docstring_type(self, **kwargs: Any) -> str:
         return "~" + self.type_annotation()
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
         return "datetime.timedelta"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -542,7 +579,8 @@ class DurationType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_import("datetime", ImportType.STDLIB)
+        if kwargs.get("serialize_namespace_type") != NamespaceType.TYPES_FILE:
+            file_import.add_import("datetime", ImportType.STDLIB)
         return file_import
 
     @property
@@ -564,7 +602,7 @@ class DurationType(PrimitiveType):
 
 
 class ByteArraySchema(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = yaml_data.get("encode", "base64")
 
@@ -576,6 +614,11 @@ class ByteArraySchema(PrimitiveType):
     def docstring_type(self, **kwargs: Any) -> str:
         return "bytes"
 
+    def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+            return "str"
+        return "bytes"
+
     def get_declaration(self, value: str) -> str:
         return f'bytes("{value}", encoding="utf-8")'
 
@@ -585,20 +628,26 @@ class ByteArraySchema(PrimitiveType):
 
 
 class SdkCoreType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = yaml_data.get("name", "")
         self.submodule = yaml_data.get("submodule", "")
+        self.is_typing_only = yaml_data.get("isTypingOnly", False)
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.core_library}.{self.type_annotation(**kwargs)}"
+        return f"~{self.code_model.core_library}.{self.name}"
 
     def type_annotation(self, **kwargs: Any) -> str:
-        return self.name
+        return f'"{self.name}"' if self.is_typing_only else self.name
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        file_import.add_submodule_import(self.submodule, self.name, ImportType.SDKCORE)
+        file_import.add_submodule_import(
+            self.submodule,
+            self.name,
+            ImportType.SDKCORE,
+            typing_section=TypingSection.TYPING if self.is_typing_only else TypingSection.REGULAR,
+        )
         return file_import
 
     @property
@@ -609,8 +658,41 @@ class SdkCoreType(PrimitiveType):
         return self.name
 
 
+class ExternalType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        external_type_info = yaml_data.get("externalTypeInfo", {})
+        self.identity = external_type_info.get("identity", "")
+        self.submodule = ".".join(self.identity.split(".")[:-1])
+        self.min_version = external_type_info.get("minVersion", "")
+        self.package_name = external_type_info.get("package", "")
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        return f"~{self.identity}"
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        return self.identity
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        file_import.add_import(self.submodule, ImportType.THIRDPARTY, TypingSection.REGULAR)
+        return file_import
+
+    @property
+    def instance_check_template(self) -> str:
+        return f"isinstance({{}}, {self.identity})"
+
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.identity
+
+    @property
+    def default_template_representation_declaration(self) -> str:
+        value = f"{self.identity}(...)"
+        return f'"{value}"' if self.code_model.for_test else value
+
+
 class MultiPartFileType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = "FileType"
 
@@ -618,13 +700,13 @@ class MultiPartFileType(PrimitiveType):
         return self.name
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}._vendor.{self.name}"
+        return f"~{self.code_model.namespace}._utils.utils.{self.name}"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
+            self.code_model.get_relative_import_path(serialize_namespace, module_name="_utils.utils"),
             self.name,
             ImportType.LOCAL,
         )

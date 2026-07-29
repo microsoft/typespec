@@ -9,8 +9,8 @@ parameters:
     default: "None"
 
 options:
-  description:
-    header: "By {description.by.owners.primary}"
+  emitter1:
+    header: "By {by.owners.primary}"
     name: "Testing name: {argName}"
     details: "Succeeded: {name} by {owner}"
     by:

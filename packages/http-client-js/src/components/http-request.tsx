@@ -1,64 +1,74 @@
-import { Children, code, refkey, Refkey, StatementList } from "@alloy-js/core";
+import { Children, code, List, refkey, Refkey, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
-import { ClientOperation } from "@typespec/http-client";
+import { HttpOperation } from "@typespec/http";
 import { EncodingProvider } from "./encoding-provider.jsx";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { HttpRequestOptions } from "./http-request-options.js";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.js";
-import { getOperationOptionsParameterRefkey } from "./operation-parameters.jsx";
 
 export interface HttpRequestProps {
-  operation: ClientOperation;
+  httpOperation: HttpOperation;
+  operationOptionsParamRefkey: Refkey;
   responseRefkey?: Refkey;
 }
 
 export function HttpRequest(props: HttpRequestProps) {
   const operationUrlRefkey = refkey();
-  const requestOptionsRefkey = refkey();
+  const requestOptionsVarRefkey = refkey();
   const httpResponseRefkey = props.responseRefkey ?? refkey();
-  const verb = props.operation.httpOperation.verb;
+  const verb = props.httpOperation.verb;
   return (
-    <StatementList>
-      <HttpRequest.Url operation={props.operation} refkey={operationUrlRefkey} />
+    <List>
+      <StatementList>
+        <HttpRequest.Url
+          httpOperation={props.httpOperation}
+          pathVarRefkey={operationUrlRefkey}
+          requestOptionsParamRefkey={props.operationOptionsParamRefkey}
+        />
 
-      <HttpRequestOptions operation={props.operation} refkey={requestOptionsRefkey} />
+        <HttpRequestOptions
+          httpOperation={props.httpOperation}
+          requestOptionsParamRefkey={props.operationOptionsParamRefkey}
+          requestOptionsVarRefkey={requestOptionsVarRefkey}
+        />
 
-      <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
-        {code`
-      await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsRefkey} />)})
-      
+        <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
+          {code`
+      await client.pathUnchecked(${(<Reference refkey={operationUrlRefkey} />)}).${verb}(${(<Reference refkey={requestOptionsVarRefkey} />)})
+      `}
+        </ts.VarDeclaration>
+      </StatementList>
+      <hbr />
+      <hbr />
+      {code`      
       if (typeof options?.operationOptions?.onResponse === "function") {
         options?.operationOptions?.onResponse(response);
-      }
-
-      `}
-      </ts.VarDeclaration>
-    </StatementList>
+      }`}
+    </List>
   );
 }
 
 export interface HttpUrlProps {
-  operation: ClientOperation;
-  refkey?: Refkey;
+  httpOperation: HttpOperation;
+  requestOptionsParamRefkey: Refkey;
+  pathVarRefkey?: Refkey;
   children?: Children;
 }
 
 HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
-  const httpOperation = props.operation.httpOperation;
-  const urlTemplate = httpOperation.uriTemplate;
-  const urlParameters = httpOperation.parameters.properties.filter(
+  const urlTemplate = props.httpOperation.uriTemplate;
+  const urlParameters = props.httpOperation.parameters.properties.filter(
     (p) => p.kind === "path" || p.kind === "query",
   );
-  const optionsParameter = getOperationOptionsParameterRefkey(props.operation.httpOperation);
   return (
     <EncodingProvider defaults={{ bytes: "base64url" }}>
-      <ts.VarDeclaration name="path" refkey={props.refkey}>
+      <ts.VarDeclaration name="path" refkey={props.pathVarRefkey}>
         {uriTemplateLib.parse}({JSON.stringify(urlTemplate)}).expand(
         {
           <HttpRequestParametersExpression
-            httpOperation={httpOperation}
-            optionsParameter={optionsParameter!}
+            httpOperation={props.httpOperation}
+            optionsParameter={props.requestOptionsParamRefkey}
             parameters={urlParameters}
           />
         }

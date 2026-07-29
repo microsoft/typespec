@@ -57,7 +57,7 @@ public final class RecursiveModelValuesImpl {
      * to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "DictionaryClientRecu")
+    @ServiceInterface(name = "DictionaryClientRecursiveModelValues")
     public interface RecursiveModelValuesService {
         @Get("/type/dictionary/model/recursive")
         @ExpectedResponses({ 200 })

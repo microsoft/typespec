@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -15,9 +16,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public MethodSignature Signature { get; private set; }
         public MethodBodyStatement? BodyStatements { get; private set;}
         public ValueExpression? BodyExpression { get; private set;}
-        public XmlDocProvider? XmlDocs { get; private set;}
+
+        public XmlDocProvider XmlDocs { get; private set; }
 
         public TypeProvider EnclosingType { get; }
+
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
+
+        /// <summary>
+        /// Indicates whether this method is declared as a <c>partial</c> method.
+        /// Derived from the <see cref="MethodSignatureModifiers.Partial"/> modifier on the signature.
+        /// </summary>
+        public bool IsPartialMethod => Signature?.Modifiers.HasFlag(MethodSignatureModifiers.Partial) ?? false;
+
+        /// <summary>
+        /// Determines whether this method is suppressed via a <c>CodeGenSuppress</c> attribute on its
+        /// enclosing type. A suppressed method may still be provided by custom code, so callers that need to
+        /// know whether the method exists in the final output must additionally check for a custom replacement.
+        /// </summary>
+        public bool IsMethodSuppressed()
+        {
+            foreach (var attribute in EnclosingType.GetMemberSuppressionAttributes())
+            {
+                if (TypeProvider.IsMatch(EnclosingType, Signature, attribute))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -33,16 +61,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyStatements">The method body.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, MethodBodyStatement bodyStatements, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public MethodProvider(
+            MethodSignature signature,
+            MethodBodyStatement bodyStatements,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
-            bool skipParamValidation = !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
-            var paramHash = MethodProviderHelpers.GetParamhash(signature.Parameters, skipParamValidation);
+            var paramHash = MethodProviderHelpers.GetParamHash(signature, enclosingType);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
-            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
-                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, paramHash)
-                : null);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
         /// <summary>
@@ -52,25 +83,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="bodyExpression">The method body expression.</param>
         /// <param name="enclosingType">The enclosing type.</param>
         /// <param name="xmlDocProvider">The XML documentation provider.</param>
-        public MethodProvider(MethodSignature signature, ValueExpression bodyExpression, TypeProvider enclosingType, XmlDocProvider? xmlDocProvider = default)
+        public MethodProvider(
+            MethodSignature signature,
+            ValueExpression bodyExpression,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
-            XmlDocs = xmlDocProvider ?? (MethodProviderHelpers.IsMethodPublic(enclosingType.DeclarationModifiers, signature.Modifiers)
-                ? MethodProviderHelpers.BuildXmlDocs(signature.Parameters, signature.Description, signature.ReturnDescription, null)
-                : null);
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
             EnclosingType = enclosingType;
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MethodProvider"/> class with only a method signature and no body,
+        /// for use with partial method declarations.
+        /// </summary>
+        /// <param name="signature">The method signature.</param>
+        /// <param name="enclosingType">The enclosing type.</param>
+        /// <param name="xmlDocProvider">The XML documentation provider.</param>
+        public MethodProvider(
+            MethodSignature signature,
+            TypeProvider enclosingType,
+            XmlDocProvider? xmlDocProvider = default)
+        {
+            Signature = signature;
+            XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature, enclosingType);
+            EnclosingType = enclosingType;
+            Suppressions = [];
         }
 
         public void Update(
             MethodSignature? signature = null,
             MethodBodyStatement? bodyStatements = null,
             ValueExpression? bodyExpression = null,
-            XmlDocProvider? xmlDocProvider = null)
+            XmlDocProvider? xmlDocProvider = null,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             if (signature != null)
             {
                 Signature = signature;
+                // rebuild the XML docs if the signature changes
+                XmlDocs = MethodProviderHelpers.BuildXmlDocs(Signature, EnclosingType);
             }
             if (bodyStatements != null)
             {
@@ -86,6 +142,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 XmlDocs = xmlDocProvider;
             }
+            if (suppressions != null)
+            {
+                Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
+            }
+        }
+
+        internal virtual MethodProvider? Accept(LibraryVisitor visitor)
+        {
+            var updated = visitor.VisitMethod(this);
+            if (updated == null)
+            {
+                return null;
+            }
+
+            if (!ReferenceEquals(updated, this))
+            {
+                return updated.Accept(visitor);
+            }
+
+            Signature = updated.Signature;
+
+            if (BodyExpression != null)
+            {
+                var expression = BodyExpression.Accept(visitor, this);
+                if (!ReferenceEquals(expression, BodyExpression))
+                {
+                    BodyExpression = expression;
+                }
+            }
+            else if (BodyStatements != null)
+            {
+                var updatedStatements = BodyStatements.Accept(visitor, this);
+                if (!ReferenceEquals(updatedStatements, BodyStatements))
+                {
+                    BodyStatements = updatedStatements;
+                }
+            }
+
+            return this;
         }
     }
 }

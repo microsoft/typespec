@@ -26,11 +26,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? externalDocsUrl,
             IReadOnlyList<string>? requestMediaTypes,
             bool bufferResponse,
-            InputOperationLongRunning? longRunning,
-            InputOperationPaging? paging,
             bool generateProtocolMethod,
             bool generateConvenienceMethod,
-            string crossLanguageDefinitionId)
+            string crossLanguageDefinitionId,
+            string? ns)
         {
             Name = name;
             ResourceName = resourceName;
@@ -46,11 +45,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             ExternalDocsUrl = externalDocsUrl;
             RequestMediaTypes = requestMediaTypes;
             BufferResponse = bufferResponse;
-            LongRunning = longRunning;
-            Paging = paging;
             GenerateProtocolMethod = generateProtocolMethod;
             GenerateConvenienceMethod = generateConvenienceMethod;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            Namespace = ns;
         }
 
         public InputOperation() : this(
@@ -68,19 +66,29 @@ namespace Microsoft.TypeSpec.Generator.Input
             externalDocsUrl: null,
             requestMediaTypes: Array.Empty<string>(),
             bufferResponse: false,
-            longRunning: null,
-            paging: null,
             generateProtocolMethod: true,
             generateConvenienceMethod: false,
-            crossLanguageDefinitionId: string.Empty)
+            crossLanguageDefinitionId: string.Empty,
+            ns: null)
         { }
 
         public string Name { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the operation name should be preserved exactly as-is, without casing transformations.
+        /// </summary>
+        public bool IsExactName { get; internal set; }
+
+        /// <summary>
+        /// Gets the original name of the operation as defined in the TypeSpec before any mutations.
+        /// </summary>
+        public string? OriginalName { get; internal set; }
         public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
         public string? Accessibility { get; internal set; }
+        public string? Namespace { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
         public IReadOnlyList<InputOperationResponse> Responses { get; internal set; }
         public string HttpMethod { get; internal set; }
@@ -89,26 +97,107 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? ExternalDocsUrl { get; internal set; }
         public IReadOnlyList<string>? RequestMediaTypes { get; internal set; }
         public bool BufferResponse { get; internal set; }
-        public InputOperationLongRunning? LongRunning { get; internal set; }
-        public InputOperationPaging? Paging { get; internal set; }
         public bool GenerateProtocolMethod { get; internal set; }
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
-
-        private IReadOnlyDictionary<string, InputOperationExample>? _examples;
-        internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();
-
-        private IReadOnlyDictionary<string, InputOperationExample> EnsureExamples()
-        {
-            return new Dictionary<string, InputOperationExample>()
-            {
-                [ExampleMockValueBuilder.ShortVersionMockExampleKey] = ExampleMockValueBuilder.BuildOperationExample(this, false),
-                [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildOperationExample(this, true)
-            };
-        }
+        public IReadOnlyList<InputOperationExample> Examples { get; internal set; } = new List<InputOperationExample>();
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
+
+        public void Update(
+            string? name = null,
+            string? resourceName = null,
+            string? summary = null,
+            string? doc = null,
+            string? deprecated = null,
+            string? accessibility = null,
+            IEnumerable<InputParameter>? parameters = null,
+            IEnumerable<InputOperationResponse>? responses = null,
+            string? httpMethod = null,
+            string? uri = null,
+            string? path = null,
+            string? externalDocsUrl = null,
+            IEnumerable<string>? requestMediaTypes = null,
+            bool? bufferResponse = null,
+            bool? generateProtocolMethod = null,
+            bool? generateConvenienceMethod = null,
+            string? crossLanguageDefinitionId = null,
+            string? ns = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+            if (resourceName != null)
+            {
+                ResourceName = resourceName;
+            }
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+            if (doc != null)
+            {
+                Doc = doc;
+            }
+            if (deprecated != null)
+            {
+                Deprecated = deprecated;
+            }
+            if (accessibility != null)
+            {
+                Accessibility = accessibility;
+            }
+            if (parameters != null)
+            {
+                Parameters = new List<InputParameter>(parameters);
+            }
+            if (responses != null)
+            {
+                Responses = new List<InputOperationResponse>(responses);
+            }
+            if (httpMethod != null)
+            {
+                HttpMethod = httpMethod;
+            }
+            if (uri != null)
+            {
+                Uri = uri;
+            }
+            if (path != null)
+            {
+                Path = path;
+            }
+            if (externalDocsUrl != null)
+            {
+                ExternalDocsUrl = externalDocsUrl;
+            }
+            if (requestMediaTypes != null)
+            {
+                RequestMediaTypes = new List<string>(requestMediaTypes);
+            }
+            if (bufferResponse.HasValue)
+            {
+                BufferResponse = bufferResponse.Value;
+            }
+            if (generateProtocolMethod.HasValue)
+            {
+                GenerateProtocolMethod = generateProtocolMethod.Value;
+            }
+            if (generateConvenienceMethod.HasValue)
+            {
+                GenerateConvenienceMethod = generateConvenienceMethod.Value;
+            }
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+            if (ns != null)
+            {
+                Namespace = ns;
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
@@ -12,21 +13,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClientTypes()
         {
-            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients;
-            var clients = new List<TypeProvider>();
+            var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
+            var types = new HashSet<TypeProvider>();
+
             foreach (var inputClient in inputClients)
             {
-                BuildClient(inputClient, clients);
+                CreateClientProviders(inputClient);
             }
 
-            return [.. clients];
+            foreach (var inputClient in inputClients)
+            {
+                BuildClient(inputClient, types);
+            }
+
+            return [.. types];
         }
 
-        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
+        private static void CreateClientProviders(InputClient inputClient)
         {
             foreach (var child in inputClient.Children)
             {
-                BuildClient(child, clients);
+                CreateClientProviders(child);
+            }
+
+            ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+        }
+
+        private static void BuildClient(InputClient inputClient, HashSet<TypeProvider> types)
+        {
+            foreach (var child in inputClient.Children)
+            {
+                BuildClient(child, types);
             }
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
@@ -34,20 +51,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 return;
             }
-            clients.Add(client);
-            clients.Add(client.RestClient);
-            var clientOptions = client.ClientOptions.Value;
+            types.Add(client);
+            types.Add(client.RestClient);
+            var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
-                clients.Add(clientOptions);
+                types.Add(clientOptions);
             }
 
-            foreach (var method in client.Methods)
+            // Emit the Settings class for any publicly constructible client (root or individually-initialized sub-client).
+            var clientSettings = client.ClientSettings;
+            if (clientSettings != null && client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                types.Add(clientSettings);
+            }
+
+            // We use the spec view methods so that we include collection definitions even if the user is customizing or suppressing
+            // the methods. They will still be filtered out by the post processor if not needed.
+            foreach (var method in client.SpecView.Methods)
             {
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {
-                    clients.Add(scmMethod.CollectionDefinition);
-                    ScmCodeModelGenerator.Instance.AddTypeToKeep(scmMethod.CollectionDefinition);
+                    types.Add(scmMethod.CollectionDefinition);
                 }
             }
         }
@@ -55,38 +80,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override TypeProvider[] BuildTypeProviders()
         {
             var baseTypes = base.BuildTypeProviders();
-            var systemOptionalProvider = new SystemOptionalDefinition();
 
             for (var i = 0; i < baseTypes.Length; i++)
             {
                 if (baseTypes[i] is OptionalDefinition)
                 {
-                    baseTypes[i] = systemOptionalProvider;
+                    baseTypes[i] = ScmCodeModelGenerator.Instance.SystemOptionalDefinition;
                 }
             }
 
             return [
                 ..baseTypes,
                 ..BuildClientTypes(),
-                new ModelSerializationExtensionsDefinition(),
-                new TypeFormattersDefinition(),
-                new ClientPipelineExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
+                ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
+                ScmCodeModelGenerator.Instance.TypeFormattersDefinition,
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
-                new PipelineRequestHeadersExtensionsDefinition(),
-                .. GetMultipartFormDataBinaryContentDefinition()
+                ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
+                new CancellationTokenExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition,
+                .. GetMultipartFormDataTypes(),
+                new ModelReaderWriterContextDefinition()
             ];
         }
 
-        private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
+        private IEnumerable<TypeProvider> GetMultipartFormDataTypes()
         {
             if (ScmCodeModelGenerator.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
                 ScmCodeModelGenerator.Instance.AddTypeToKeep(multipart.Name);
+
                 yield return multipart;
+                yield return new MultipartFormDataHelperDefinition();
             }
         }
     }

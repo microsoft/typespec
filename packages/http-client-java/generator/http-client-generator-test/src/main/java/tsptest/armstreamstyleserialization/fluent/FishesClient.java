@@ -20,7 +20,7 @@ public interface FishesClient {
      * 
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws tsptest.armstreamstyleserialization.models.ErrorException thrown if the request is rejected by server.
+     * @throws tsptest.armstreamstyleserialization.models.ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator along with
      * {@link Response}.
@@ -31,7 +31,7 @@ public interface FishesClient {
     /**
      * The getModel operation.
      * 
-     * @throws tsptest.armstreamstyleserialization.models.ErrorException thrown if the request is rejected by server.
+     * @throws tsptest.armstreamstyleserialization.models.ErrorMaxException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic multiple levels inheritance with a discriminator.
      */

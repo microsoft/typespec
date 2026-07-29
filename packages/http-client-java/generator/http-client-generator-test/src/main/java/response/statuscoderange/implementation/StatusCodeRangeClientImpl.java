@@ -6,7 +6,6 @@ package response.statuscoderange.implementation;
 
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
-import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.ReturnType;
@@ -121,7 +120,7 @@ public final class StatusCodeRangeClientImpl {
      * calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "StatusCodeRangeClien")
+    @ServiceInterface(name = "StatusCodeRangeClient")
     public interface StatusCodeRangeClientService {
         @Get("/response/status-code-range/error-response-status-code-in-range")
         @ExpectedResponses({ 204 })
@@ -130,7 +129,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-in-range")
         @ExpectedResponses({ 204 })
@@ -139,7 +138,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> errorResponseStatusCodeInRangeSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-404")
         @ExpectedResponses({ 204 })
@@ -148,7 +147,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            RequestOptions requestOptions, Context context);
 
         @Get("/response/status-code-range/error-response-status-code-404")
         @ExpectedResponses({ 204 })
@@ -157,7 +156,7 @@ public final class StatusCodeRangeClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> errorResponseStatusCode404Sync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -172,9 +171,8 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> errorResponseStatusCodeInRangeWithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
         return FluxUtil.withContext(
-            context -> service.errorResponseStatusCodeInRange(this.getEndpoint(), accept, requestOptions, context));
+            context -> service.errorResponseStatusCodeInRange(this.getEndpoint(), requestOptions, context));
     }
 
     /**
@@ -189,8 +187,7 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCodeInRangeWithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCodeInRangeSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.errorResponseStatusCodeInRangeSync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 
     /**
@@ -205,9 +202,8 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> errorResponseStatusCode404WithResponseAsync(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil.withContext(
-            context -> service.errorResponseStatusCode404(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil
+            .withContext(context -> service.errorResponseStatusCode404(this.getEndpoint(), requestOptions, context));
     }
 
     /**
@@ -222,7 +218,6 @@ public final class StatusCodeRangeClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> errorResponseStatusCode404WithResponse(RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return service.errorResponseStatusCode404Sync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.errorResponseStatusCode404Sync(this.getEndpoint(), requestOptions, Context.NONE);
     }
 }

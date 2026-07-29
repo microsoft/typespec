@@ -1,5 +1,6 @@
 ---
 title: "Decorators"
+description: "Decorators exported by @typespec/sse"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---

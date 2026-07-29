@@ -3,6 +3,7 @@
 
 import { Interface, Operation, Type, UnionVariant, isErrorModel } from "@typespec/compiler";
 import { JsContext, Module, PathCursor } from "../ctx.js";
+import { canonicalizeHttpOperation } from "../http/operation.js";
 import { parseCase } from "../util/case.js";
 import { getAllProperties } from "../util/extends.js";
 import { bifilter, indent } from "../util/iter.js";
@@ -54,6 +55,7 @@ export function* emitOperationGroup(
  * @param module - The module that the operation is written into.
  */
 export function* emitOperation(ctx: JsContext, op: Operation, module: Module): Iterable<string> {
+  op = canonicalizeHttpOperation(ctx, op);
   const opNameCase = parseCase(op.name);
 
   const opName = opNameCase.camelCase;

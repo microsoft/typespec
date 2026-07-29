@@ -1,0 +1,90 @@
+{
+  "name": "SampleNamespace",
+  "doc": "Test namespace for dynamic model inheritance",
+  "models": [
+    {
+      "$id": "1",
+      "kind": "model",
+      "name": "BaseModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.BaseModel",
+      "usage": "Input,Output,Json",
+      "doc": "Base model without dynamic decorator",
+      "decorators": [],
+      "properties": [
+        {
+          "$id": "2",
+          "kind": "property",
+          "name": "baseProp",
+          "serializedName": "baseProp",
+          "doc": "A property in the base model",
+          "type": {
+            "$id": "3",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.BaseModel.baseProp",
+          "serializationOptions": {
+            "json": {
+              "name": "baseProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "4",
+      "kind": "model",
+      "name": "DerivedModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.DerivedModel",
+      "usage": "Input,Output,Json",
+      "doc": "Derived model with dynamic decorator",
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
+      "baseModel": {
+        "$ref": "1"
+      },
+      "properties": [
+        {
+          "$id": "5",
+          "kind": "property",
+          "name": "derivedProp",
+          "serializedName": "derivedProp",
+          "doc": "A property in the derived model",
+          "type": {
+            "$id": "6",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.DerivedModel.derivedProp",
+          "serializationOptions": {
+            "json": {
+              "name": "derivedProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { Operation, Program } from "@typespec/compiler";
-import { deepClone, deepEquals } from "@typespec/compiler/utils";
+import { deepEquals } from "@typespec/compiler/utils";
 import { getAuthentication } from "./decorators.js";
 import {
   Authentication,
@@ -112,15 +112,22 @@ function gatherAuth(
 
 function makeHttpAuthRef(local: HttpAuth, reference: HttpAuth): HttpAuthRef {
   if (reference.type === "oauth2" && local.type === "oauth2") {
-    const scopes: string[] = [];
+    const scopes = new Set<string>();
     for (const flow of local.flows) {
-      scopes.push(...flow.scopes.map((x) => x.value));
+      for (const scope of flow.scopes) {
+        scopes.add(scope.value);
+      }
     }
-    return { kind: "oauth2", auth: reference, scopes: scopes };
+    return { kind: "oauth2", auth: reference, scopes: Array.from(scopes) };
   } else if (reference.type === "noAuth") {
     return { kind: "noAuth", auth: reference };
   } else {
-    return { kind: "any", auth: reference };
+    // Requirement scopes are read from the per-option (`local`) scheme so that
+    // operation-level `@useAuth` can request a different scope subset than the
+    // service default. Only openIdConnect currently surfaces scopes; the ref is
+    // scheme-agnostic so other scheme types can opt in without a new ref kind.
+    const scopes = local.type === "openIdConnect" ? (local.scopes ?? []) : [];
+    return { kind: "any", auth: reference, scopes };
   }
 }
 
@@ -128,7 +135,7 @@ function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
   scheme1: Oauth2Auth<Flows>,
   scheme2: Oauth2Auth<Flows>,
 ): Oauth2Auth<Flows> {
-  const flows = deepClone(scheme1.flows);
+  const flows = structuredClone(scheme1.flows);
   flows.forEach((flow1, i) => {
     const flow2 = scheme2.flows[i];
     const scopes = Array.from(new Set(flow1.scopes.concat(flow2.scopes)));
@@ -143,7 +150,7 @@ function mergeOAuthScopes<Flows extends OAuth2Flow[]>(
 function ignoreScopes<Flows extends OAuth2Flow[]>(
   scheme: Omit<Oauth2Auth<Flows>, "model">,
 ): Omit<Oauth2Auth<Flows>, "model"> {
-  const flows: Flows = deepClone(scheme.flows);
+  const flows: Flows = structuredClone(scheme.flows);
   flows.forEach((flow) => {
     flow.scopes = [];
   });
@@ -158,6 +165,13 @@ function authsAreEqual(scheme1: HttpAuth, scheme2: HttpAuth): boolean {
   const { model: _model2, ...withoutModel2 } = scheme2;
   if (withoutModel1.type === "oauth2" && withoutModel2.type === "oauth2") {
     return deepEquals(ignoreScopes(withoutModel1), ignoreScopes(withoutModel2));
+  }
+  // Scopes live on the security requirement, not on the scheme identity, so two
+  // openIdConnect schemes that differ only by scopes are the same scheme and
+  // must dedupe to a single id (per-requirement scopes are still carried on the
+  // auth ref). No scope merge is needed because the scheme object lists no scopes.
+  if (withoutModel1.type === "openIdConnect" && withoutModel2.type === "openIdConnect") {
+    return deepEquals({ ...withoutModel1, scopes: [] }, { ...withoutModel2, scopes: [] });
   }
   return deepEquals(withoutModel1, withoutModel2);
 }

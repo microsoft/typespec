@@ -1,3 +1,4 @@
+import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
@@ -14,6 +15,8 @@ import {
   SymbolFlags,
   SyntaxKind,
   Type,
+  TypeSpecDiagnosticTarget,
+  Value,
 } from "./types.js";
 
 export type WriteLine = (text?: string) => void;
@@ -40,6 +43,73 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
       location: getSourceLocation(x),
     };
   });
+}
+
+/**
+ * Find the syntax node for a TypeSpec diagnostic target.
+ *
+ * This function extracts the AST node from various types of diagnostic targets:
+ * - For template instance targets: returns the node of the template declaration
+ * - For symbols: returns the first declaration node (or symbol source for using symbols)
+ * - For AST nodes: returns the node itself
+ * - For entities: returns the most relevant node associated with the entity
+ *
+ * @param target The diagnostic target to extract a node from. Can be a template instance,
+ *               symbol, AST node, or type.
+ * @returns The AST node associated with the target, or undefined if the target
+ *          doesn't have an associated node.
+ */
+export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if (!("declarations" in target)) {
+      return target.node;
+    }
+
+    // symbol
+    if (target.flags & SymbolFlags.Using) {
+      target = target.symbolSource!;
+    }
+
+    return target.declarations[0];
+  } else if ("entityKind" in target) {
+    switch (target.entityKind) {
+      case "Type":
+        return target.node;
+      case "Value":
+        return getValueNode(target) ?? target.type.node;
+      case "MixedParameterConstraint":
+        // Prefer the explicit union expression node when present, otherwise fall back
+        // to a side of the constraint that has a source node. Type is preferred
+        // over valueType to keep location behavior stable for mixed constraints
+        // that include both branches.
+        return target.node ?? target.type?.node ?? target.valueType?.node;
+      case "Indeterminate":
+        return target.type.node;
+      default:
+        return undefined;
+    }
+  } else if ("kind" in target && typeof target.kind === "number") {
+    // node
+    return target as Node;
+  } else {
+    // type
+    return (target as Type).node;
+  }
+}
+
+function getValueNode(value: Value): Node | undefined {
+  // Only compound values and function values carry their own syntax node.
+  // Primitive values (string/number/boolean/null/enum/scalar literal values)
+  // are represented by their resolved value/type and don't retain a direct node.
+  switch (value.valueKind) {
+    case "ObjectValue":
+    case "ArrayValue":
+    case "Function":
+      return value.node;
+    default:
+      return undefined;
+  }
 }
 
 export interface SourceLocationOptions {
@@ -73,35 +143,8 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("entityKind" in target)) {
-    // TemplateInstanceTarget
-    if (!("declarations" in target)) {
-      return getSourceLocationOfNode(target.node, options);
-    }
-
-    // symbol
-    if (target.flags & SymbolFlags.Using) {
-      target = target.symbolSource!;
-    }
-
-    if (!target.declarations[0]) {
-      return createSyntheticSourceLocation();
-    }
-
-    return getSourceLocationOfNode(target.declarations[0], options);
-  } else if ("kind" in target && typeof target.kind === "number") {
-    // node
-    return getSourceLocationOfNode(target as Node, options);
-  } else {
-    // type
-    const targetNode = (target as Type).node;
-
-    if (targetNode) {
-      return getSourceLocationOfNode(targetNode, options);
-    }
-
-    return createSyntheticSourceLocation();
-  }
+  const node = getNodeForTarget(target);
+  return node ? getSourceLocationOfNode(node, options) : createSyntheticSourceLocation();
 }
 
 /**
@@ -237,18 +280,26 @@ export function assertType<TKind extends Type["kind"][]>(
  * @param program TypeSpec Program.
  * @param message Message describing the deprecation.
  * @param target Target of the deprecation.
+ * @param reportFunc Optional custom report function.
  */
 export function reportDeprecated(
   program: Program,
   message: string,
   target: DiagnosticTarget | typeof NoTarget,
+  reportFunc?: (diagnostic: Diagnostic) => void,
 ): void {
-  program.reportDiagnostic({
-    severity: "warning",
-    code: "deprecated",
-    message: `Deprecated: ${message}`,
-    target,
-  });
+  if (program.compilerOptions.ignoreDeprecated !== true) {
+    const report = reportFunc ?? program.reportDiagnostic.bind(program);
+    report(
+      createDiagnostic({
+        code: "deprecated",
+        format: {
+          message,
+        },
+        target,
+      }),
+    );
+  }
 }
 
 /**

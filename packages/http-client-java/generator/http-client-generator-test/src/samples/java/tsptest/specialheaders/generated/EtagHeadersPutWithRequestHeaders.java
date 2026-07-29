@@ -15,10 +15,10 @@ public class EtagHeadersPutWithRequestHeaders {
         EtagHeadersClient etagHeadersClient
             = new SpecialHeadersClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT"))
                 .buildEtagHeadersClient();
-        // BEGIN:tsptest.specialheaders.generated.etagheadersputwithrequestheaders.etagheadersputwithrequestheaders
+        // BEGIN:tsptest.specialheaders.generated.etag-headers-put-with-request-headers.etag-headers-put-with-request-headers
         Resource response = etagHeadersClient.putWithRequestHeaders("name",
             new Resource().setDescription("This is sample for Etag headers").setType("myType"),
             new RequestConditions().setIfMatch("\"64e005\""));
-        // END:tsptest.specialheaders.generated.etagheadersputwithrequestheaders.etagheadersputwithrequestheaders
+        // END:tsptest.specialheaders.generated.etag-headers-put-with-request-headers.etag-headers-put-with-request-headers
     }
 }

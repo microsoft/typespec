@@ -1,6 +1,7 @@
 package type.union;
 
 import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -25,13 +26,13 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
     /**
      * Static value b for GetResponseProp1.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static final GetResponseProp1 B = fromValue("b");
 
     /**
      * Static value c for GetResponseProp1.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static final GetResponseProp1 C = fromValue("c");
 
     private final String value;
@@ -47,7 +48,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
      * @return the corresponding GetResponseProp1.
      * @throws IllegalArgumentException if value is null.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static GetResponseProp1 fromValue(String value) {
         if (value == null) {
             throw new IllegalArgumentException("'value' cannot be null.");
@@ -60,7 +61,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
      * 
      * @return Known GetResponseProp1 values.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Collection<GetResponseProp1> values() {
         return new ArrayList<>(VALUES.values());
     }
@@ -70,7 +71,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
      * 
      * @return the value of the GetResponseProp1 instance.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String getValue() {
         return this.value;
@@ -79,7 +80,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeString(getValue());
@@ -94,7 +95,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
      * @throws IOException If an error occurs while reading the GetResponseProp1.
      * @throws IllegalStateException If unexpected JSON token is found.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static GetResponseProp1 fromJson(JsonReader jsonReader) throws IOException {
         JsonToken nextToken = jsonReader.nextToken();
         if (nextToken == JsonToken.NULL) {
@@ -107,19 +108,19 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
         return GetResponseProp1.fromValue(jsonReader.getString());
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public String toString() {
         return Objects.toString(this.value);
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public boolean equals(Object obj) {
         return this == obj;
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public int hashCode() {
         return Objects.hashCode(this.value);

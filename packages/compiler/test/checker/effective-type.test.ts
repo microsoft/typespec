@@ -1,52 +1,41 @@
 import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { it } from "vitest";
 import { filterModelProperties, getEffectiveModelType } from "../../src/core/checker.js";
 import { DecoratorContext, Model, ModelProperty, Type } from "../../src/core/types.js";
-import { TestHost, createTestHost, expectTypeEquals } from "../../src/testing/index.js";
+import { expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
-describe("compiler: effective type", () => {
-  let testHost: TestHost;
-  let removeFilter: (model: ModelProperty) => boolean;
+const removeSymbol = Symbol("remove");
 
-  beforeEach(async () => {
-    const removeSymbol = Symbol("remove");
-    testHost = await createTestHost();
-    testHost.addJsFile("remove.js", {
-      $remove: ({ program }: DecoratorContext, entity: Type) => {
-        program.stateSet(removeSymbol).add(entity);
-      },
-    });
-    removeFilter = (property: ModelProperty) =>
-      !testHost.program.stateSet(removeSymbol).has(property);
-  });
+const RemoveTester = Tester.files({
+  "remove.js": mockFile.js({
+    $remove: ({ program }: DecoratorContext, entity: Type) => {
+      program.stateSet(removeSymbol).add(entity);
+    },
+  }),
+});
 
-  it("spread", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Source {
+it("spread", async () => {
+  const { Source, Test, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
         prop: string;
       }
       
-      @test model Test {
+      model ${t.model("Test")} {
         prop: { ...Source };
       }
-      `,
-    );
-    const { Source, Test } = await testHost.compile("./");
-    strictEqual(Source.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Source.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("prop")?.type as Model;
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, Source);
-  });
+  const propType = Test.properties.get("prop")?.type as Model;
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, Source);
+});
 
-  it("indirect spread", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Source {
+it("indirect spread", async () => {
+  const { Source, Test, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
         prop: string;
       }
 
@@ -55,252 +44,222 @@ describe("compiler: effective type", () => {
         ...Source
       };
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: {...Spread };
       }
-      `,
-    );
-    const { Source, Test } = await testHost.compile("./");
-    strictEqual(Source.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Source.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, Source);
-  });
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, Source);
+});
 
-  it("indirect spread, intersect, and filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("indirect spread, intersect, and filter", async () => {
+  const { Source, Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       model IndirectSource {
         prop1: string;
       }
 
-      @test model Source {
+      model ${t.model("Source")} {
         prop2: string;
         ...IndirectSource;
       }
   
-      @test model Test {
+      model ${t.model("Test")} {
         test: { @remove prop3: string; } & Source;
       }
-      `,
-    );
-    const { Source, Test } = await testHost.compile("./");
-    strictEqual(Source.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Source.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType, removeFilter);
-    expectTypeEquals(effective, Source);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, propType, removeFilter);
+  expectTypeEquals(effective, Source);
+});
 
-  it("intersect", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Source {
+it("intersect", async () => {
+  const { Source, Test, program } = await Tester.compile(t.code`
+      model ${t.model("Source")} {
         prop: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Source & {}
       }
-      `,
-    );
-    const { Source, Test } = await testHost.compile("./");
-    strictEqual(Source.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Source.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, Source);
-  });
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, Source);
+});
 
-  it("extends", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extends", async () => {
+  const { Test, Derived, program } = await Tester.compile(t.code`
       model Base {
         propBase: string;
       }
 
-      @test model Derived extends Base {
+      model ${t.model("Derived")} extends Base {
         propDerived: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: { ...Derived };
       }
-      `,
-    );
-    const { Test, Derived } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
-    strictEqual(Derived.kind, "Model" as const);
+    `);
+  strictEqual(Test.kind, "Model" as const);
+  strictEqual(Derived.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, Derived);
-  });
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, Derived);
+});
 
-  it("intersect and filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("intersect and filter", async () => {
+  const { Source, Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
-      @test model Source {
+      model ${t.model("Source")} {
         prop: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Source & { @remove something: string; };
       }
-      `,
-    );
-    const { Source, Test } = await testHost.compile("./");
-    strictEqual(Source.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Source.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
-    const effective = getEffectiveModelType(testHost.program, propType, removeFilter);
-    expectTypeEquals(effective, Source);
-  });
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, propType, removeFilter);
+  expectTypeEquals(effective, Source);
+});
 
-  it("extend and filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extend and filter", async () => {
+  const { Base, Derived, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
-      @test model Base {
+      model ${t.model("Base")} {
         prop: string;
       }
 
-      @test model Derived extends Base {
+      model ${t.model("Derived")} extends Base {
         @remove test: string;
       }
-      `,
-    );
-    const { Base, Derived } = await testHost.compile("./");
-    strictEqual(Base.kind, "Model" as const);
-    strictEqual(Derived.kind, "Model" as const);
+    `);
+  strictEqual(Base.kind, "Model" as const);
+  strictEqual(Derived.kind, "Model" as const);
 
-    const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Scalar" as const);
+  const propType = Derived.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Scalar" as const);
 
-    const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
-    expectTypeEquals(effective, Base);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, Derived, removeFilter);
+  expectTypeEquals(effective, Base);
+});
 
-  it("extend and filter two levels", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extend and filter two levels", async () => {
+  const { Base, Derived, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
-      @test model Base {
+      model ${t.model("Base")} {
         prop: string;
       }
 
-      @test model Middle extends Base {
+      model Middle extends Base {
         @remove prop2: string;
       }
 
-      @test model Derived extends Middle {
+      model ${t.model("Derived")} extends Middle {
         @remove test: string;
       }
-      `,
-    );
-    const { Base, Derived } = await testHost.compile("./");
-    strictEqual(Base.kind, "Model" as const);
-    strictEqual(Derived.kind, "Model" as const);
+    `);
+  strictEqual(Base.kind, "Model" as const);
+  strictEqual(Derived.kind, "Model" as const);
 
-    const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Scalar" as const);
+  const propType = Derived.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Scalar" as const);
 
-    const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
-    expectTypeEquals(effective, Base);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, Derived, removeFilter);
+  expectTypeEquals(effective, Base);
+});
 
-  it("extend and filter two levels with override", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extend and filter two levels with override", async () => {
+  const { Middle, Derived, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
-      @test model Base {
+      model Base {
         prop: string;
         prop2: string;
       }
 
-      @test model Middle extends Base {
+      model ${t.model("Middle")} extends Base {
         @remove prop3: string;
         @remove prop4: string;
         prop2: "hello";
       }
 
-      @test model Derived extends Middle {
+      model ${t.model("Derived")} extends Middle {
         @remove test: string;
       }
-      `,
-    );
-    const { Middle, Derived } = await testHost.compile("./");
-    strictEqual(Middle.kind, "Model" as const);
-    strictEqual(Derived.kind, "Model" as const);
+    `);
+  strictEqual(Middle.kind, "Model" as const);
+  strictEqual(Derived.kind, "Model" as const);
 
-    const propType = Derived.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Scalar" as const);
+  const propType = Derived.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Scalar" as const);
 
-    const effective = getEffectiveModelType(testHost.program, Derived, removeFilter);
-    expectTypeEquals(effective, Middle);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, Derived, removeFilter);
+  expectTypeEquals(effective, Middle);
+});
 
-  it("extend, intersect, and filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extend, intersect, and filter", async () => {
+  const { Derived, Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       model Base {
         prop: string;
       }
 
-      @test model Derived extends Base {
+      model ${t.model("Derived")} extends Base {
         propDerived: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Derived & { @remove something: string; };
       }
-      `,
-    );
-    const { Derived, Test } = await testHost.compile("./");
-    strictEqual(Derived.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Derived.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType, removeFilter);
-    expectTypeEquals(effective, Derived);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, propType, removeFilter);
+  expectTypeEquals(effective, Derived);
+});
 
-  it("extend templated base with spread and filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("extend templated base with spread and filter", async () => {
+  const { Thing, Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       model Base<T> {
@@ -308,72 +267,61 @@ describe("compiler: effective type", () => {
         ...T;
       }
 
-      @test model Thing {
+      model ${t.model("Thing")} {
         name: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Base<Thing>;
       }
-      `,
-    );
-    const { Thing, Test } = await testHost.compile("./");
-    strictEqual(Thing.kind, "Model" as const);
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Thing.kind, "Model" as const);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType, removeFilter);
-    expectTypeEquals(effective, Thing);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, propType, removeFilter);
+  expectTypeEquals(effective, Thing);
+});
 
-  it("empty model", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
-      @test model Test {
+it("empty model", async () => {
+  const { Test, program } = await Tester.compile(t.code`
+      model ${t.model("Test")} {
         test: {};
       }
-      `,
-    );
-    const { Test } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, propType);
-  });
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, propType);
+});
 
-  it("unsourced property", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("unsourced property", async () => {
+  const { Test, program } = await Tester.compile(t.code`
       model Source {
         prop: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: { notRemoved: string, ...Source };
       }
-      `,
-    );
-    const { Test } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
+    `);
+  strictEqual(Test.kind, "Model" as const);
 
-    const propType = Test.properties.get("test")?.type;
-    strictEqual(propType?.kind, "Model" as const);
+  const propType = Test.properties.get("test")?.type;
+  strictEqual(propType?.kind, "Model" as const);
 
-    const effective = getEffectiveModelType(testHost.program, propType);
-    expectTypeEquals(effective, propType);
-  });
+  const effective = getEffectiveModelType(program, propType);
+  expectTypeEquals(effective, propType);
+});
 
-  it("different sources", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("different sources", async () => {
+  const { Test, program } = await Tester.compile(t.code`
       model SourceOne {
         one: string;
       }
@@ -383,26 +331,21 @@ describe("compiler: effective type", () => {
 
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: SourceOne & SourceTwo;
       }
-      `,
-    );
+    `);
+  strictEqual(Test.kind, "Model" as const);
 
-    const { Test } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
+  const SourceOneAndSourceTwo = Test.properties.get("test")?.type;
+  strictEqual(SourceOneAndSourceTwo?.kind, "Model" as const);
 
-    const SourceOneAndSourceTwo = Test.properties.get("test")?.type;
-    strictEqual(SourceOneAndSourceTwo?.kind, "Model" as const);
+  const effective = getEffectiveModelType(program, SourceOneAndSourceTwo);
+  expectTypeEquals(effective, SourceOneAndSourceTwo);
+});
 
-    const effective = getEffectiveModelType(testHost.program, SourceOneAndSourceTwo);
-    expectTypeEquals(effective, SourceOneAndSourceTwo);
-  });
-
-  it("only part of source with separate filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("only part of source with separate filter", async () => {
+  const { Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       model Source {
@@ -411,28 +354,24 @@ describe("compiler: effective type", () => {
         propB: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Source;
       }
-      `,
-    );
+    `);
+  strictEqual(Test.kind, "Model" as const);
 
-    const { Test } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
+  const Source = Test.properties.get("test")?.type;
+  strictEqual(Source?.kind, "Model" as const);
 
-    const Source = Test.properties.get("test")?.type;
-    strictEqual(Source?.kind, "Model" as const);
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const filtered = filterModelProperties(program, Source, removeFilter);
+  const effective = getEffectiveModelType(program, filtered);
+  strictEqual(effective.name, "", "Result should be anonymous");
+  expectTypeEquals(effective, filtered);
+});
 
-    const filtered = filterModelProperties(testHost.program, Source, removeFilter);
-    const effective = getEffectiveModelType(testHost.program, filtered);
-    strictEqual(effective.name, "", "Result should be anonymous");
-    expectTypeEquals(effective, filtered);
-  });
-
-  it("only parts of base and spread sources with separate filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("only parts of base and spread sources with separate filter", async () => {
+  const { Derived, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       // NOTE: Base and Source should have the same number of properties so that we
@@ -447,24 +386,21 @@ describe("compiler: effective type", () => {
         propD: string;
       }
 
-      @test model Derived extends Base {
+      model ${t.model("Derived")} extends Base {
         ...Source;
       }
-      `,
-    );
-    const { Derived } = await testHost.compile("./");
-    strictEqual(Derived.kind, "Model" as const);
+    `);
+  strictEqual(Derived.kind, "Model" as const);
 
-    const filtered = filterModelProperties(testHost.program, Derived, removeFilter);
-    const effective = getEffectiveModelType(testHost.program, filtered);
-    strictEqual(effective.name, "", "result should be anonymous");
-    expectTypeEquals(filtered, effective);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const filtered = filterModelProperties(program, Derived, removeFilter);
+  const effective = getEffectiveModelType(program, filtered);
+  strictEqual(effective.name, "", "result should be anonymous");
+  expectTypeEquals(filtered, effective);
+});
 
-  it("only part of source with filter", async () => {
-    testHost.addTypeSpecFile(
-      "main.tsp",
-      `
+it("only part of source with filter", async () => {
+  const { Test, program } = await RemoveTester.compile(t.code`
       import "./remove.js";
 
       model Source {
@@ -473,19 +409,16 @@ describe("compiler: effective type", () => {
         propB: string;
       }
 
-      @test model Test {
+      model ${t.model("Test")} {
         test: Source;
       }
-      `,
-    );
+    `);
+  strictEqual(Test.kind, "Model" as const);
 
-    const { Test } = await testHost.compile("./");
-    strictEqual(Test.kind, "Model" as const);
+  const Source = Test.properties.get("test")?.type;
+  strictEqual(Source?.kind, "Model" as const);
 
-    const Source = Test.properties.get("test")?.type;
-    strictEqual(Source?.kind, "Model" as const);
-
-    const effective = getEffectiveModelType(testHost.program, Source, removeFilter);
-    expectTypeEquals(effective, Source);
-  });
+  const removeFilter = (property: ModelProperty) => !program.stateSet(removeSymbol).has(property);
+  const effective = getEffectiveModelType(program, Source, removeFilter);
+  expectTypeEquals(effective, Source);
 });

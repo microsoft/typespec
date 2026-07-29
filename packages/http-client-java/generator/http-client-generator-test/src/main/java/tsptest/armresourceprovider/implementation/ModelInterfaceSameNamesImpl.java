@@ -30,12 +30,8 @@ public final class ModelInterfaceSameNamesImpl implements ModelInterfaceSameName
         String modelInterfaceDifferentNameName, Context context) {
         Response<ModelInterfaceSameNameInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, modelInterfaceDifferentNameName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ModelInterfaceSameNameImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ModelInterfaceSameNameImpl(inner.getValue(), this.manager()));
     }
 
     public ModelInterfaceSameName getByResourceGroup(String resourceGroupName, String modelInterfaceDifferentNameName) {
@@ -46,6 +42,16 @@ public final class ModelInterfaceSameNamesImpl implements ModelInterfaceSameName
         } else {
             return null;
         }
+    }
+
+    public Response<Void> deleteByResourceGroupWithResponse(String resourceGroupName,
+        String modelInterfaceDifferentNameName, String ifMatch, String ifNoneMatch, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceGroupName, modelInterfaceDifferentNameName, ifMatch, ifNoneMatch, context);
+    }
+
+    public void deleteByResourceGroup(String resourceGroupName, String modelInterfaceDifferentNameName) {
+        this.serviceClient().delete(resourceGroupName, modelInterfaceDifferentNameName);
     }
 
     private ModelInterfaceSameNamesClient serviceClient() {

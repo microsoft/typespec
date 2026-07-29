@@ -3,10 +3,10 @@
 
 using System.ClientModel;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
-using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 using Microsoft.TypeSpec.Generator.Expressions;
-using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Statements;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {

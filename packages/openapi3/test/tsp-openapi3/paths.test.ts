@@ -668,7 +668,7 @@ model Foo {
               operationId: "getFoo",
               parameters: [],
               responses: {
-                [statusCode]: {},
+                [statusCode]: {} as OpenAPI3Response,
               },
             },
           },
@@ -765,8 +765,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   headers: { foo: { schema: { type: "string" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },
@@ -785,9 +786,12 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Headers = {
-          @header foo?: string;
-        }>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Headers = {
+            @header foo?: string;
+          }
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -816,8 +820,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   content: { "application/json": { schema: { type: "string" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },
@@ -836,7 +841,10 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Body = string>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Body = string
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -939,8 +947,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   content: { "application/json": { schema: { $ref: "#/components/schemas/Foo" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },
@@ -971,6 +980,113 @@ model Foo {
           @statusCode statusCode: 100;
           @body body: Foo;
         };
+        "
+      `);
+
+      await validateTsp(tsp);
+    });
+  });
+
+  describe("error response schemas", () => {
+    it("adds @error when schema is used in specific 4xx response body", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        schemas: {
+          MyError: { type: "object" },
+        },
+        paths: {
+          "/": {
+            get: {
+              operationId: "myOp",
+              parameters: [],
+              responses: {
+                "200": { description: "ok" },
+                "401": {
+                  description: "unauthorized",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/MyError" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toMatchInlineSnapshot(`
+        "import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
+        namespace TestService;
+
+        @error
+        model MyError {}
+
+        @route("/") @get op myOp(): OkResponse | (UnauthorizedResponse & MyError);
+        "
+      `);
+
+      await validateTsp(tsp);
+    });
+
+    it("adds @error when schema is used in 4XX response body", async () => {
+      const tsp = await renderTypeSpecForOpenAPI3({
+        schemas: {
+          MyError: { type: "object" },
+        },
+        paths: {
+          "/": {
+            get: {
+              operationId: "myOp",
+              parameters: [],
+              responses: {
+                "200": { description: "ok" },
+                "4XX": {
+                  description: "client error",
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/MyError" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      expect(tsp).toMatchInlineSnapshot(`
+        "import "@typespec/http";
+        import "@typespec/openapi";
+        import "@typespec/openapi3";
+
+        using Http;
+        using OpenAPI;
+
+        @service(#{ title: "Test Service" })
+        @info(#{ version: "1.0.0" })
+        namespace TestService;
+
+        @error
+        model MyError {}
+
+        @route("/") @get op myOp():
+          | OkResponse
+          | {
+              @statusCode
+              @minValue(400)
+              @maxValue(499)
+              statusCode: int32;
+
+              @body body: MyError;
+            };
         "
       `);
 
@@ -1269,9 +1385,7 @@ model Foo {
       }
 
       @route("/") @get op getFoo(): {
-        /**
-         * my test header
-         */
+        /** my test header */
         @header("x-test") xTest?: string;
 
         @header("x-test2") xTest2?: string;
@@ -1338,9 +1452,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1407,9 +1519,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1477,13 +1587,85 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * Overwritten description
-         */
+        /** Overwritten description */
         @body body: Foo,
       ): OkResponse;
       "
     `);
+
+    await validateTsp(tsp);
+  });
+
+  it("generates separate operations for multipart and non-multipart content types", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        RealtimeCallCreateRequest: {
+          type: "object",
+          required: ["sdp", "session"],
+          properties: {
+            sdp: {
+              type: "string",
+              description: "sdp",
+            },
+            session: {
+              type: "object",
+              properties: {
+                user_id: {
+                  type: "string",
+                  description: "User ID",
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        "/realtime/calls": {
+          post: {
+            operationId: "create-realtime-call",
+            summary: "Create call",
+            parameters: [],
+            requestBody: {
+              required: true,
+              content: {
+                "multipart/form-data": {
+                  schema: {
+                    $ref: "#/components/schemas/RealtimeCallCreateRequest",
+                  },
+                  encoding: {
+                    sdp: {
+                      contentType: "application/sdp",
+                    },
+                    session: {
+                      contentType: "application/json",
+                    },
+                  },
+                },
+                "application/sdp": {
+                  schema: {
+                    type: "string",
+                    description: "SDP",
+                  },
+                },
+              },
+            },
+            responses: {
+              "204": {
+                description: "No Content",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should generate separate operations for multipart and non-multipart
+    expect(tsp).toContain("@sharedRoute");
+    expect(tsp).toContain("@multipartBody");
+    expect(tsp).toContain('contentType: "multipart/form-data"');
+    expect(tsp).toContain('"application/sdp"');
+    expect(tsp).toContain("create-realtime-callMultipart");
+    expect(tsp).toContain("create-realtime-callSdp");
 
     await validateTsp(tsp);
   });

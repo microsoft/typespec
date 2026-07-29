@@ -1,6 +1,7 @@
 package parameters.collectionformat.implementation;
 
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.instrumentation.Instrumentation;
 
 /**
  * Initializes a new instance of the CollectionFormatClient type.
@@ -35,6 +36,20 @@ public final class CollectionFormatClientImpl {
     }
 
     /**
+     * The instance of instrumentation to report telemetry.
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * Gets The instance of instrumentation to report telemetry.
+     * 
+     * @return the instrumentation value.
+     */
+    public Instrumentation getInstrumentation() {
+        return this.instrumentation;
+    }
+
+    /**
      * The QueriesImpl object to access its operations.
      */
     private final QueriesImpl queries;
@@ -66,10 +81,12 @@ public final class CollectionFormatClientImpl {
      * Initializes an instance of CollectionFormatClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
+     * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
      */
-    public CollectionFormatClientImpl(HttpPipeline httpPipeline, String endpoint) {
+    public CollectionFormatClientImpl(HttpPipeline httpPipeline, Instrumentation instrumentation, String endpoint) {
         this.httpPipeline = httpPipeline;
+        this.instrumentation = instrumentation;
         this.endpoint = endpoint;
         this.queries = new QueriesImpl(this);
         this.headers = new HeadersImpl(this);

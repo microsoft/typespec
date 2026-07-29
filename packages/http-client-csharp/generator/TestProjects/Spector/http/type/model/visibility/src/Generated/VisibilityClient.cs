@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +15,12 @@ namespace _Type.Model.Visibility
     {
         public VisibilityClient() : this(new Uri("http://localhost:3000"), new VisibilityClientOptions()) => throw null;
 
-        public VisibilityClient(Uri endpoint, VisibilityClientOptions options) => throw null;
+        internal VisibilityClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, VisibilityClientOptions options) => throw null;
+
+        public VisibilityClient(Uri endpoint, VisibilityClientOptions options) : this(null, endpoint, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public VisibilityClient(VisibilityClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -22,17 +28,17 @@ namespace _Type.Model.Visibility
 
         public virtual Task<ClientResult> GetModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<VisibilityModel> GetModel(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<VisibilityModel> GetModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult HeadModel(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> HeadModelAsync(int queryProp, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult HeadModel(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult HeadModel(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> HeadModelAsync(int queryProp, VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> HeadModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 

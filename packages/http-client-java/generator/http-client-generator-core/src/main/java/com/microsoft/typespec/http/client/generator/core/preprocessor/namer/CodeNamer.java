@@ -3,8 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor.namer;
 
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -75,7 +75,7 @@ public class CodeNamer {
 
         // following are commonly used classes/annotations in service client, from azure-core
         RESERVED_WORDS_CLASSES = new HashSet<>(RESERVED_WORDS);
-        RESERVED_WORDS_CLASSES.addAll(Arrays.asList("Host", "ServiceInterface", "ServiceMethod", "ServiceClient",
+        RESERVED_WORDS_CLASSES.addAll(List.of("Host", "ServiceInterface", "ServiceMethod", "ServiceClient",
             "ReturnType", "Get", "Put", "Post", "Patch", "Delete", "Headers", "ExpectedResponses",
             "UnexpectedResponseExceptionType", "UnexpectedResponseExceptionTypes", "HostParam", "PathParam",
             "QueryParam", "HeaderParam", "FormParam", "BodyParam", "Fluent", "Immutable", "JsonFlatten", "Override"));

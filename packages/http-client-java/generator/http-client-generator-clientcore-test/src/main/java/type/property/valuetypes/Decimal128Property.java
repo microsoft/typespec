@@ -1,7 +1,7 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 /**
  * Model with a decimal128 property.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Decimal128Property implements JsonSerializable<Decimal128Property> {
     /*
      * Property
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final BigDecimal property;
 
     /**
@@ -25,7 +25,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
      * 
      * @param property the property value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public Decimal128Property(BigDecimal property) {
         this.property = property;
     }
@@ -35,7 +35,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
      * 
      * @return the property value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public BigDecimal getProperty() {
         return this.property;
     }
@@ -43,7 +43,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -60,7 +60,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Decimal128Property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Decimal128Property fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             BigDecimal property = null;

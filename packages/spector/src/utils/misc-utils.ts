@@ -1,3 +1,4 @@
+import type { PackageJson } from "@typespec/compiler";
 import { execSync } from "child_process";
 import { readFile, stat } from "fs/promises";
 import { dirname, join } from "path";
@@ -10,7 +11,7 @@ export async function ensureScenariosPathExists(scenariosPath: string) {
       throw new Error(`Scenarios path ${scenariosPath} is not a directory.`);
     }
   } catch (e) {
-    throw new Error(`Scenarios path ${scenariosPath} doesn't exists.`);
+    throw new Error(`Scenarios path ${scenariosPath} doesn't exist.`, { cause: e });
   }
 }
 
@@ -18,9 +19,10 @@ export function getCommit(path: string): string {
   return execSync("git rev-parse HEAD", { cwd: path }).toString().trim();
 }
 
-export interface PackageJson {
-  name: string;
-  version: string;
+export interface SpectorPackageJson extends PackageJson {
+  spector?: {
+    sourceUrl?: string;
+  };
 }
 
 export async function getPackageJson(path: string): Promise<PackageJson | undefined> {

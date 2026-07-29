@@ -5,13 +5,7 @@ import yargs from "yargs";
 import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
 import { generateLibraryDocs } from "./ref-doc/experimental.js";
 
-try {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await import("source-map-support/register.js");
-} catch {
-  // package only present in dev.
-}
+process.setSourceMapsEnabled(true);
 
 function logExperimentalWarning(type: "log" | "error") {
   const log =
@@ -79,9 +73,23 @@ async function main() {
           .option("output-dir", {
             type: "string",
           })
-          .positional("skip-js", {
+          .option("skip-js", {
             description: "Skip generating JS API docs.",
             type: "boolean",
+          })
+          .option("typekits", {
+            description: "Generate typekit docs. Currently targeted for use with Astro Starlight.",
+            type: "boolean",
+          })
+          .option("llmstxt", {
+            description:
+              "Add llmstxt frontmatter to generated docs to aide in generating llms.txt files.",
+            type: "boolean",
+          })
+          .option("rules-dir", {
+            description:
+              "Relative directory (from --output-dir) where per-rule reference pages are written. Defaults to 'rules'. Use e.g. '../rules' to place them outside the reference folder.",
+            type: "string",
           });
       },
       async (args) => {
@@ -92,6 +100,9 @@ async function main() {
           args["output-dir"] ?? resolvePath(resolvedRoot, "docs"),
           {
             skipJSApi: args["skip-js"],
+            typekits: args["typekits"],
+            llmstxt: args["llmstxt"],
+            rulesDir: args["rules-dir"],
           },
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);

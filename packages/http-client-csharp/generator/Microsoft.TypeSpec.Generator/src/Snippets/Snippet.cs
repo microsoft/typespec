@@ -15,6 +15,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
         public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
+        public static ScopedApi<bool> IsNot(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is not", parameter, other).As<bool>();
 
         public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
         public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();
@@ -29,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
             => new PositionalParameterReferenceExpression(parameter.Name, value);
 
+        public static ValueExpression PositionalReference(string parameterName, ValueExpression value)
+            => new PositionalParameterReferenceExpression(parameterName, value);
+
         public static DictionaryExpression AsDictionary(this FieldProvider field, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), field);
         public static DictionaryExpression AsDictionary(this ParameterProvider parameter, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), parameter);
         public static DictionaryExpression AsDictionary(this PropertyProvider property, CSharpType keyType, CSharpType valueType) => new(new KeyValuePairType(keyType, valueType), property);
@@ -37,8 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static ValueExpression Static<T>() => TypeReferenceExpression.FromType(typeof(T));
         //overload needed since static types cannot be usd as type arguments
-        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(type);
-        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type);
+        public static ValueExpression Static(Type type) => TypeReferenceExpression.FromType(new CSharpType(type).WithNullable(false));
+        public static ValueExpression Static(CSharpType type) => TypeReferenceExpression.FromType(type.WithNullable(false));
         public static ValueExpression Static() => TypeReferenceExpression.FromType(null);
 
         public static ValueExpression Identifier(string name) => new MemberExpression(null, name);
@@ -70,8 +74,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ValueExpression Nameof(ValueExpression expression) => new InvokeMethodExpression(null, "nameof", new[] { expression });
         public static ValueExpression ThrowExpression(ValueExpression expression) => new KeywordExpression("throw", expression);
 
-        // TO-DO: Migrate remaining class as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
-        //public static ValueExpression EnumValue(EnumType type, EnumTypeValue value) => new MemberExpression(new TypeReference(type.Type), value.Declaration.Name);
         public static ValueExpression FrameworkEnumValue<TEnum>(TEnum value) where TEnum : struct, Enum => new MemberExpression(TypeReferenceExpression.FromType(typeof(TEnum)), Enum.GetName(value)!);
 
         public static ValueExpression RemoveAllNullConditional(ValueExpression expression)
@@ -91,6 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<string> Literal(string? value) => (value is null ? Null : new LiteralExpression(value)).As<string>();
         public static ScopedApi<string> LiteralU8(string value) => new UnaryOperatorExpression("u8", new LiteralExpression(value), true).As<string>();
 
+        public static ValueExpression Spread(ValueExpression expression) => new UnaryOperatorExpression(".. ", expression, false);
         public static ScopedApi<bool> Not(ValueExpression operand) => new UnaryOperatorExpression("!", operand, false).As<bool>();
 
         public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
@@ -99,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static MethodBodyStatement Return() => new KeywordExpression("return", null).Terminate();
         public static MethodBodyStatement Throw(ValueExpression? expression = default) => new KeywordExpression("throw", expression).Terminate();
 
-        public static ValueExpression ByRef(ValueExpression expression) => new KeywordExpression("ref", expression);
+        public static ValueExpression ByRef(ValueExpression expression) => new ArgumentExpression(expression, IsRef: true);
 
         public static ValueExpression ArrayEmpty(CSharpType arrayItemType)
             => Static<Array>().Invoke(nameof(Array.Empty), [], [arrayItemType], false);
@@ -108,20 +111,35 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static AssignmentExpression Assign(this FieldProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
         public static AssignmentExpression Assign(this PropertyProvider to, ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(to, value, nullCoalesce);
 
-        public static CatchStatement Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchStatement(declare) { statements };
+        public static CatchExpression Catch(DeclarationExpression declare, params MethodBodyStatement[] statements) => new CatchExpression(declare, statements);
 
         public static MethodBodyStatement InvokeConsoleWriteLine(ValueExpression expression)
             => Static(typeof(Console)).Invoke(nameof(Console.WriteLine), expression).Terminate();
 
-        // TO-DO: Migrate code from autorest as part of output classes migration : https://github.com/Azure/autorest.csharp/issues/4198
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, ValueExpression arg)
             => new InvokeMethodExpression(parameter, methodName, [arg]);
+
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter,
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs)
+            => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs };
+
+        public static InvokeMethodExpression Invoke(this ParameterProvider parameter,
+            string methodName,
+            IReadOnlyList<ValueExpression> args,
+            IReadOnlyList<CSharpType> typeArgs,
+            CSharpType? extensionType)
+            => new InvokeMethodExpression(parameter, methodName, args) { TypeArguments = typeArgs, ExtensionType = extensionType };
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, params ValueExpression[] args)
             => new InvokeMethodExpression(parameter, methodName, args);
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
+
+        public static InvokeMethodExpression InvokeLambda(this ParameterProvider parameter, params ValueExpression[] args)
+            => new InvokeMethodExpression(null, parameter.Name, args);
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
@@ -161,6 +179,12 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
-        public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
+        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter);
+        public static ValueExpression AsArgument(this ParameterProvider parameter) => ParameterProvider.GetArgumentExpression(parameter);
+
+        /// <summary>
+        /// Wraps a <see cref="ValueExpression"/> as an argument with optional <c>ref</c> or <c>out</c> modifiers.
+        /// </summary>
+        public static ValueExpression AsArgument(this ValueExpression expression, bool isRef = false, bool isOut = false) => new ArgumentExpression(expression, isRef, isOut);
     }
 }

@@ -30,12 +30,8 @@ public final class ManagedMaintenanceWindowStatusOperationsImpl implements Manag
         String managedMaintenanceWindowStatusContentName, Context context) {
         Response<ManagedMaintenanceWindowStatusInner> inner = this.serviceClient()
             .getByResourceGroupWithResponse(resourceGroupName, managedMaintenanceWindowStatusContentName, context);
-        if (inner != null) {
-            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
-                new ManagedMaintenanceWindowStatusImpl(inner.getValue(), this.manager()));
-        } else {
-            return null;
-        }
+        return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+            new ManagedMaintenanceWindowStatusImpl(inner.getValue(), this.manager()));
     }
 
     public ManagedMaintenanceWindowStatus getByResourceGroup(String resourceGroupName,
@@ -47,6 +43,16 @@ public final class ManagedMaintenanceWindowStatusOperationsImpl implements Manag
         } else {
             return null;
         }
+    }
+
+    public void deleteByResourceGroup(String resourceGroupName, String managedMaintenanceWindowStatusContentName) {
+        this.serviceClient().delete(resourceGroupName, managedMaintenanceWindowStatusContentName);
+    }
+
+    public void delete(String resourceGroupName, String managedMaintenanceWindowStatusContentName, String ifMatch,
+        String ifNoneMatch, Context context) {
+        this.serviceClient()
+            .delete(resourceGroupName, managedMaintenanceWindowStatusContentName, ifMatch, ifNoneMatch, context);
     }
 
     private ManagedMaintenanceWindowStatusOperationsClient serviceClient() {

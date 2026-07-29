@@ -11,7 +11,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-    internal static class ModelSerializationExtensionsSnippets
+    internal static partial class ModelSerializationExtensionsSnippets
     {
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
@@ -23,8 +23,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         private const string GetDateTimeOffsetMethodName = "GetDateTimeOffset";
         private const string GetTimeSpanMethodName = "GetTimeSpan";
         private const string WireOptionsName = "WireOptions";
+        private const string JsonDocumentOptionsName = "JsonDocumentOptions";
+        private const string XmlWriterSettingsName = "XmlWriterSettings";
 
         public static readonly ScopedApi<ModelReaderWriterOptions> Wire = Static<ModelSerializationExtensionsDefinition>().Property(WireOptionsName).As<ModelReaderWriterOptions>();
+        public static readonly ValueExpression JsonDocumentOptions = Static<ModelSerializationExtensionsDefinition>().Property(JsonDocumentOptionsName);
+        public static readonly ValueExpression XmlWriterSettings = Static<ModelSerializationExtensionsDefinition>().Property(XmlWriterSettingsName);
 
         public static MethodBodyStatement WriteObjectValue(ScopedApi<Utf8JsonWriter> snippet, ScopedApi value, ValueExpression? options = null)
         {

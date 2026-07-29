@@ -3,13 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,10 +56,11 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
         } else if (settings.isFluent() && compositeType.isFlattenedSchema()) {
             // put class of flattened type to fluent package
             packageSuffixes = new String[] { settings.getFluentModelsSubpackage() };
-        } else if (settings.isDataPlaneClient() && isInternalModel(compositeType)) {
+        } else if ((settings.isDataPlaneClient() || settings.isAzureV2() || !settings.isAzureV1())
+            && isInternalModel(compositeType)) {
             // internal type is not exposed to user
             packageSuffixes = new String[] { settings.getImplementationSubpackage(), settings.getModelsSubpackage() };
-        } else if (isPageModel(compositeType)) {
+        } else if (isPagedModel(compositeType) && isChildrenAllInternal(compositeType)) {
             // put class of Page<> type to implementation package
             // for DPG from TypeSpec, these are not generated to class
 
@@ -94,11 +95,26 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @return The predefined type.
      */
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
-        if (JavaSettings.getInstance().isBranded()) {
-            return SchemaUtil.mapExternalModel(compositeType);
-        } else {
-            return null;
+        ClassType type = null;
+        if (JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
+            type = SchemaUtil.mapExternalModel(compositeType);
         }
+
+        if (type == null
+            && compositeType.getUsage() != null
+            && compositeType.getUsage().contains(SchemaContext.EXTERNAL)
+            && compositeType.getLanguage() != null
+            && compositeType.getLanguage().getJava() != null
+            && compositeType.getLanguage().getJava().getNamespace() != null
+            && compositeType.getLanguage().getJava().getName() != null) {
+
+            // schema is external model
+            String namespace = compositeType.getLanguage().getJava().getNamespace();
+            String name = compositeType.getLanguage().getJava().getName();
+            type = new ClassType.Builder().packageName(namespace).name(name).build();
+        }
+
+        return type;
     }
 
     /**
@@ -121,8 +137,24 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
      * @param compositeType object type
      * @return whether the type is a Page model.
      */
-    private static boolean isPageModel(ObjectSchema compositeType) {
+    private static boolean isPagedModel(ObjectSchema compositeType) {
         return compositeType.getUsage() != null && compositeType.getUsage().contains(SchemaContext.PAGED);
+    }
+
+    private static boolean isChildrenAllInternal(ObjectSchema compositeType) {
+        // If we move model to implementation package, we need to make sure it does not have child that need to be
+        // public
+        boolean ret = true;
+        if (compositeType.getChildren() != null && !CoreUtils.isNullOrEmpty(compositeType.getChildren().getAll())) {
+            ret = compositeType.getChildren()
+                .getAll()
+                .stream()
+                .noneMatch(s -> (s instanceof ObjectSchema)
+                    && !isPagedModel(((ObjectSchema) s))
+                    && (((ObjectSchema) s).getUsage() != null
+                        && ((ObjectSchema) s).getUsage().contains(SchemaContext.PUBLIC)));
+        }
+        return ret;
     }
 
     private static boolean isInternalModel(ObjectSchema compositeType) {

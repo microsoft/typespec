@@ -140,7 +140,7 @@ export class NpmUtil {
     return { installed: false, version: undefined };
   }
 
-  private async loadNpmPackage(packageName: string): Promise<NpmPackageInfo | undefined> {
+  public async loadNpmPackage(packageName: string): Promise<NpmPackageInfo | undefined> {
     const executable = await loadModule(this.cwd, packageName);
     if (executable) {
       const packageJsonPath = path.resolve(executable.path, "package.json");

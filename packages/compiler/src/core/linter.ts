@@ -1,11 +1,14 @@
+import { isPromise } from "../utils/misc.js";
+import { DiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
-import { NameResolver } from "./name-resolver.js";
+import { perf } from "./perf.js";
 import type { Program } from "./program.js";
+import { createJSONSchemaValidator } from "./schema-validator.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import {
   Diagnostic,
@@ -15,6 +18,7 @@ import {
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
+  LinterRuleEnableValue,
   LinterRuleSet,
   NoTarget,
   RuleRef,
@@ -26,7 +30,18 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
-  lint(): readonly Diagnostic[];
+  lint(): Promise<LinterResult>;
+}
+
+export interface LinterStats {
+  runtime: {
+    total: number;
+    rules: Record<string, number>;
+  };
+}
+export interface LinterResult {
+  readonly diagnostics: readonly Diagnostic[];
+  readonly stats: LinterStats;
 }
 
 /**
@@ -60,11 +75,39 @@ export function resolveLinterDefinition(
 export function createLinter(
   program: Program,
   loadLibrary: (name: string) => Promise<LinterLibraryInstance | undefined>,
+  codeResolver?: DiagnosticCodeResolver,
 ): Linter {
   const tracer = program.tracer.sub("linter");
 
-  const ruleMap = new Map<string, LinterRule<string, any>>();
-  const enabledRules = new Map<string, LinterRule<string, any>>();
+  const resolveCode = (ref: string): string => (codeResolver ? codeResolver.resolveCode(ref) : ref);
+
+  /**
+   * Report a warning when `ref` uses an ambiguous short name. Returns `true` if it was
+   * ambiguous so the caller can skip processing that entry.
+   */
+  const reportIfAmbiguous = (ref: string, diagnostics: DiagnosticCollector): boolean => {
+    const conflict = codeResolver?.getAmbiguousShortName(ref);
+    if (conflict) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: {
+            shortName: conflict.shortName,
+            candidates: formatShortNameCandidates(conflict.candidates),
+          },
+          target: NoTarget,
+        }),
+      );
+      return true;
+    }
+    return false;
+  };
+
+  const ruleMap = new Map<string, LinterRule<string, any, any>>();
+  const enabledRules = new Map<
+    string,
+    { rule: LinterRule<string, any, any>; options: Record<string, unknown> }
+  >();
   const linterLibraries = new Map<string, LinterLibraryInstance | undefined>();
 
   return {
@@ -78,7 +121,12 @@ export function createLinter(
     const diagnostics = createDiagnosticCollector();
     if (ruleSet.extends) {
       for (const extendingRuleSetName of ruleSet.extends) {
-        const ref = diagnostics.pipe(parseRuleReference(extendingRuleSetName));
+        if (reportIfAmbiguous(extendingRuleSetName, diagnostics)) {
+          continue;
+        }
+        const ref = diagnostics.pipe(
+          parseRuleReference(resolveCode(extendingRuleSetName) as RuleRef),
+        );
         if (ref) {
           const library = await resolveLibrary(ref.libraryName);
           const libLinterDefinition = library?.linter;
@@ -100,17 +148,27 @@ export function createLinter(
 
     const enabledInThisRuleSet = new Set<string>();
     if (ruleSet.enable) {
-      for (const [ruleName, enable] of Object.entries(ruleSet.enable)) {
-        if (enable === false) {
+      for (const [rawRuleName, enableValue] of Object.entries(ruleSet.enable)) {
+        if (enableValue === false) {
           continue;
         }
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         const ref = diagnostics.pipe(parseRuleReference(ruleName as RuleRef));
         if (ref) {
           await resolveLibrary(ref.libraryName);
           const rule = ruleMap.get(ruleName);
           if (rule) {
             enabledInThisRuleSet.add(ruleName);
-            enabledRules.set(ruleName, rule);
+            const [options, optionDiagnostics] = resolveRuleOptions(rule, enableValue);
+            for (const d of optionDiagnostics) {
+              diagnostics.add(d);
+            }
+            if (!optionDiagnostics.some((d) => d.severity === "error")) {
+              enabledRules.set(ruleName, { rule, options });
+            }
           } else {
             diagnostics.add(
               createDiagnostic({
@@ -125,7 +183,11 @@ export function createLinter(
     }
 
     if (ruleSet.disable) {
-      for (const ruleName of Object.keys(ruleSet.disable)) {
+      for (const rawRuleName of Object.keys(ruleSet.disable)) {
+        if (reportIfAmbiguous(rawRuleName, diagnostics)) {
+          continue;
+        }
+        const ruleName = resolveCode(rawRuleName);
         if (enabledInThisRuleSet.has(ruleName)) {
           diagnostics.add(
             createDiagnostic({
@@ -146,23 +208,93 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  function lint(): readonly Diagnostic[] {
+  async function lint(): Promise<LinterResult> {
+    const syncLintResult = await lintInternal(false /* asyncRules */);
+    const asyncLintResult = await lintInternal(true /* asyncRules */);
+
+    return {
+      diagnostics: [...syncLintResult.diagnostics, ...asyncLintResult.diagnostics],
+      stats: {
+        runtime: {
+          total: syncLintResult.stats.runtime.total + asyncLintResult.stats.runtime.total,
+          rules: {
+            ...syncLintResult.stats.runtime.rules,
+            ...asyncLintResult.stats.runtime.rules,
+          },
+        },
+      },
+    };
+  }
+
+  async function lintInternal(asyncRules: boolean): Promise<LinterResult> {
     const diagnostics = createDiagnosticCollector();
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
+    const stats: LinterStats = {
+      runtime: {
+        total: 0,
+        rules: {},
+      },
+    };
+    const filteredRules = new Map<
+      string,
+      { rule: LinterRule<string, any, any>; options: Record<string, unknown> }
+    >();
+    for (const [ruleId, entry] of enabledRules) {
+      if ((entry.rule.async ?? false) === asyncRules) {
+        filteredRules.set(ruleId, entry);
+      }
+    }
     tracer.trace(
       "lint",
-      `Running linter with following rules:\n` +
-        [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n"),
+      `Running ${asyncRules ? "async" : "sync"} linter with following rules:\n` +
+        [...filteredRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
-    for (const rule of enabledRules.values()) {
-      const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+    const timer = perf.startTimer();
+    const exitCallbacks = [];
+    const EXIT_EVENT_NAME = "exit";
+    const allPromises: Promise<any>[] = [];
+    for (const { rule, options } of filteredRules.values()) {
+      const createTiming = perf.startTimer();
+      const listener = rule.create(createLinterRuleContext(program, rule, options, diagnostics));
+      stats.runtime.rules[rule.id] = createTiming.end();
       for (const [name, cb] of Object.entries(listener)) {
-        eventEmitter.on(name as any, cb as any);
+        const timedCb = (...args: any[]) => {
+          const timer = perf.startTimer();
+          const result = (cb as any)(...args);
+          if (name === EXIT_EVENT_NAME && isPromise(result)) {
+            compilerAssert(
+              rule.async,
+              `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
+            );
+            const rr = result.finally(() => {
+              const duration = timer.end();
+              stats.runtime.rules[rule.id] += duration;
+            });
+            allPromises.push(rr);
+          } else {
+            const duration = timer.end();
+            stats.runtime.rules[rule.id] += duration;
+          }
+        };
+        if (name === EXIT_EVENT_NAME) {
+          // we need to trigger 'exit' callbacks explicitly after semantic walker is done
+          exitCallbacks.push(timedCb);
+        } else {
+          eventEmitter.on(name as any, timedCb);
+        }
       }
     }
     navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
-    return diagnostics.diagnostics;
+    for (const cb of exitCallbacks) {
+      cb(program);
+    }
+    if (allPromises.length > 0) {
+      await Promise.all(allPromises);
+    }
+
+    stats.runtime.total = timer.end();
+    return { diagnostics: diagnostics.diagnostics, stats };
   }
 
   async function resolveLibrary(name: string): Promise<LinterLibraryInstance | undefined> {
@@ -213,15 +345,55 @@ export function createLinter(
     }
     return [{ libraryName, name }, []];
   }
+
+  function resolveRuleOptions(
+    rule: LinterRule<string, any, any>,
+    enableValue: Exclude<LinterRuleEnableValue, false>,
+  ): [Record<string, unknown>, readonly Diagnostic[]] {
+    const options =
+      enableValue === true
+        ? (rule.defaultOptions ?? {})
+        : { ...(rule.defaultOptions ?? {}), ...enableValue };
+
+    if (rule.optionSchema && enableValue !== true) {
+      const validator = createJSONSchemaValidatorForRuleOptions(rule.optionSchema);
+      const validationDiagnostics = validator.validate(options, NoTarget);
+      if (validationDiagnostics.length > 0) {
+        const details = validationDiagnostics.map((d) => d.message).join("; ");
+        return [
+          options,
+          [
+            createDiagnostic({
+              code: "invalid-rule-options",
+              format: { ruleName: rule.id, details },
+              target: NoTarget,
+            }),
+          ],
+        ];
+      }
+    }
+
+    return [options, []];
+  }
 }
 
-export function createLinterRuleContext<N extends string, DM extends DiagnosticMessages>(
+function createJSONSchemaValidatorForRuleOptions(schema: Record<string, unknown>) {
+  return createJSONSchemaValidator(schema as any, { strict: false });
+}
+
+export function createLinterRuleContext<
+  N extends string,
+  DM extends DiagnosticMessages,
+  Options extends Record<string, unknown>,
+>(
   program: Program,
-  rule: LinterRule<N, DM>,
+  rule: LinterRule<N, DM, Options>,
+  options: Options,
   diagnosticCollector: DiagnosticCollector,
-): LinterRuleContext<DM> {
+): LinterRuleContext<DM, Options> {
   return {
     program,
+    options,
     reportDiagnostic,
   };
 
@@ -265,16 +437,15 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
-export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
+export function createBuiltInLinterLibrary(): LinterLibraryInstance {
   const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
     builtInLinterLibraryName,
-    createBuiltInLinter(nameResolver),
+    createBuiltInLinter(),
   );
   return { linter: builtInLinter };
 }
-function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
-  const unusedUsingLinterRule = createUnusedUsingLinterRule(nameResolver);
-
+function createBuiltInLinter(): LinterDefinition {
+  const unusedUsingLinterRule = createUnusedUsingLinterRule();
   const unusedTemplateParameterLinterRule = createUnusedTemplateParameterLinterRule();
 
   return defineLinter({

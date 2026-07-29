@@ -39,7 +39,9 @@ namespace Microsoft.TypeSpec.Generator.Statements
             {
                 writer.Append($"{Parameters[i].Type} {Parameters[i].Name}, ");
                 if (i < Parameters.Count - 1)
+                {
                     writer.AppendRaw(", ");
+                }
             }
             writer.AppendRaw(")");
             if (BodyExpression is not null)

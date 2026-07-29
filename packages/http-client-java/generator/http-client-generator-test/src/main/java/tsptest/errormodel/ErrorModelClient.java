@@ -8,14 +8,13 @@ import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.annotation.ServiceMethod;
-import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
-import com.azure.core.exception.ResourceModifiedException;
-import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import tsptest.errormodel.implementation.ErrorOpsImpl;
+import tsptest.errormodel.models.BadResponseErrorException;
+import tsptest.errormodel.models.BatchErrorException;
 import tsptest.errormodel.models.Diagnostic;
 
 /**
@@ -71,10 +70,9 @@ public final class ErrorModelClient {
      * </pre>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws BatchErrorException thrown if the request is rejected by server.
+     * @throws BadResponseErrorException thrown if the request is rejected by server on status code 400.
+     * @throws HttpResponseException thrown if the request is rejected by server on status code 404.
      * @return the response body along with {@link Response}.
      */
     @Generated
@@ -86,10 +84,9 @@ public final class ErrorModelClient {
     /**
      * The read operation.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws BatchErrorException thrown if the request is rejected by server.
+     * @throws BadResponseErrorException thrown if the request is rejected by server on status code 400.
+     * @throws HttpResponseException thrown if the request is rejected by server on status code 404.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */

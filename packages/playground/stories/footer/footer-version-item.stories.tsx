@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
 import { createBrowserHostInternal } from "../../src/browser-host.js";
 import { PlaygroundContextProvider } from "../../src/react/context/playground-context.js";
 import {

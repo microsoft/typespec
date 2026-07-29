@@ -3,10 +3,16 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Configuration;
 
 namespace _Type.Model.Visibility
 {
     public partial class VisibilityClientOptions : ClientPipelineOptions
     {
+        public VisibilityClientOptions() => throw null;
+
+        [Experimental("SCME0002")]
+        internal VisibilityClientOptions(IConfigurationSection section) : base(section) => throw null;
     }
 }

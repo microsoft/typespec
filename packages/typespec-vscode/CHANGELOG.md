@@ -1,5 +1,159 @@
 # Change Log - typespec-vscode
 
+## 1.14.1
+
+### Bug Fixes
+
+- [#11275](https://github.com/microsoft/typespec/pull/11275) Fix a shell command injection in the tsp compile task provider. Tasks now run via `vscode.ProcessExecution` with arguments passed as an array instead of `vscode.ShellExecution`, so workspace file paths and task arguments are no longer interpreted by the OS shell. The task `args` is now specified as an array of arguments.
+
+
+## 1.14.0
+
+No changes, version bump only.
+
+## 1.13.0
+
+### Bug Fixes
+
+- [#10847](https://github.com/microsoft/typespec/pull/10847) Improved telemetry instrumentation for `install-global-compiler-cli`, `preview-openapi3`, `start-server`, and `server-path-changed` events by adding missing `lastStep` tracking and error detail logging. Added actionable error message when compiler is found but neither `node` nor `tsp` is available on PATH, guiding users to fix common nvm/fnm/volta configuration issues.
+
+
+## 1.12.0
+
+### Bug Fixes
+
+- [#10567](https://github.com/microsoft/typespec/pull/10567) Handle unhandled exceptions in VS Code extension: add custom error handler for server crashes with restart notification, wrap commands with graceful exception handling, and add null guards to prevent extension host errors when LSP client is unavailable
+- [#10523](https://github.com/microsoft/typespec/pull/10523) Show "Launching TypeSpec language service..." progress in the status bar instead of as a notification to avoid blocking the UI
+- [#10527](https://github.com/microsoft/typespec/pull/10527) Ensure operation telemetry events always carry a valid `result` value. Previously the `start-extension` event (and any other operation whose callback returned `void`) was sent with `result="undefined"` and classified as an error event. The `doOperationWithTelemetry` callback is now constrained to return `ResultCode | Result<...>`, so the result is always derived from the operation's return value.
+
+
+## 1.11.0
+
+No changes, version bump only.
+
+## 1.10.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+
+## 1.9.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 1.8.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 1.7.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8735](https://github.com/microsoft/typespec/pull/8735) Fix `pnpm clean && pnpm build` create diff in vscode package folder
+
+
+## 1.5.0
+
+### Features
+
+- [#7929](https://github.com/microsoft/typespec/pull/7929) Allow configuring which file names to use as entrypoints
+- [#8346](https://github.com/microsoft/typespec/pull/8346) 1. Limit the vscode tasks to be created when the extension is starting
+  2. Do not include the emitters by default when compiling in LSP. Setting 'typespec.lsp.emit' can be used to configure the emitters to include explicitly (set to ['<config:defaults>'] to include all the emitters defined in tspconfig.yaml)
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 1.4.0
+
+### Features
+
+- [#7691](https://github.com/microsoft/typespec/pull/7691) Prefill all available emitter options as comments when adding a new emitter
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 1.3.0
+
+### Features
+
+- [#7830](https://github.com/microsoft/typespec/pull/7830) Get emitter options from the `resolveCompilerOptions` function of the compiler
+- [#6802](https://github.com/microsoft/typespec/pull/6802) Add test case for TypeSpec Extension
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
+## 1.2.0
+
+### Features
+
+- [#7576](https://github.com/microsoft/typespec/pull/7576) Allow LSP to configure which emitters to include for live checks
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+
+## 1.1.0
+
+### Features
+
+- [#7317](https://github.com/microsoft/typespec/pull/7317) Enable emit code command on tspconfig.yaml.
+- [#6783](https://github.com/microsoft/typespec/pull/6783) Install packages for unrecognized import via npm command
+- [#7239](https://github.com/microsoft/typespec/pull/7239) Use language server to compile project instead of CLI
+- [#7331](https://github.com/microsoft/typespec/pull/7331) Support prompting to install compiler proactively if no compiler is found when starting LSP
+- [#7541](https://github.com/microsoft/typespec/pull/7541) Add extension API for other vscode extension to be able to register more TypeSpec InitTemplate to choose when scaffolding TypeSpec project.
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7300](https://github.com/microsoft/typespec/pull/7300) Unify the writing of OpenAPI 3
+- [#7353](https://github.com/microsoft/typespec/pull/7353) Fix openapi3 preview error when path contains space
+- [#7374](https://github.com/microsoft/typespec/pull/7374) Check whether the compiler language server supports project compilation.
+- [#7302](https://github.com/microsoft/typespec/pull/7302) Telemetry data item result displays `cancelled` when the `Select file` step of `Preview API Documentation` is `cancelled`
+
+
+## 1.0.0
+
+### Features
+
+- [#7042](https://github.com/microsoft/typespec/pull/7042) send compile startTime and endTime telemetry
+
+
+## 0.69.0
+
+### Bug Fixes
+
+- [#6894](https://github.com/microsoft/typespec/pull/6894) Fix the issue where the emitter version is undefined in telemetry.
+- [#7021](https://github.com/microsoft/typespec/pull/7021) Fix crash when initialize telemetry client
+
+
 ## 0.68.0
 
 ### Bump dependencies

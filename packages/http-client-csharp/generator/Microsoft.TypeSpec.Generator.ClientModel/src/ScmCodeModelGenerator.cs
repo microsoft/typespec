@@ -4,8 +4,11 @@
 using System;
 using System.ClientModel;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel
 {
@@ -14,12 +17,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     public class ScmCodeModelGenerator : CodeModelGenerator
     {
         private static ScmCodeModelGenerator? _instance;
-        internal static ScmCodeModelGenerator Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelGenerator is not loaded.");
+        internal static new ScmCodeModelGenerator Instance => _instance ?? throw new InvalidOperationException("ScmCodeModelGenerator is not loaded.");
 
         private ScmOutputLibrary? _scmOutputLibrary;
         public override OutputLibrary OutputLibrary => _scmOutputLibrary ??= new();
 
         public override ScmTypeFactory TypeFactory { get; }
+
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition
+            => _modelSerializationExtensionsDefinition ??= new ModelSerializationExtensionsDefinition();
+        private ModelSerializationExtensionsDefinition? _modelSerializationExtensionsDefinition;
+
+        internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
+            new SerializationFormatDefinition();
+
+        private SystemOptionalDefinition? _systemOptionalDefinition;
+        internal SystemOptionalDefinition SystemOptionalDefinition =>
+            _systemOptionalDefinition ??= new SystemOptionalDefinition();
+
+        private TypeFormattersDefinition? _typeFormattersDefinition;
+        internal TypeFormattersDefinition TypeFormattersDefinition =>
+            _typeFormattersDefinition ??= new TypeFormattersDefinition();
+
+        private ClientPipelineExtensionsDefinition? _clientPipelineExtensionsDefinition;
+        internal ClientPipelineExtensionsDefinition ClientPipelineExtensionsDefinition =>
+            _clientPipelineExtensionsDefinition ??= new ClientPipelineExtensionsDefinition();
+
+        private PipelineRequestHeadersExtensionsDefinition? _pipelineRequestHeadersExtensionsDefinition;
+        internal PipelineRequestHeadersExtensionsDefinition PipelineRequestHeadersExtensionsDefinition =>
+            _pipelineRequestHeadersExtensionsDefinition ??= new PipelineRequestHeadersExtensionsDefinition();
+
+        /// <summary>
+        /// Gets the options that control ConfigurationSchema.json generation.
+        /// </summary>
+        public ConfigurationSchemaOptions ConfigurationSchema { get; } = new();
 
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
@@ -32,10 +63,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override void Configure()
         {
             base.Configure();
-            AddVisitor(new DefaultScmLibraryVisitor());
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
+            AddCustomCodeMethodDependency(PipelineRequestHeadersExtensionsDefinition.SetDelimitedMethodName, PipelineRequestHeadersExtensionsDefinition);
+            AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
+            AddTypeToKeep(SerializationFormatDefinition, isRoot: false);
+        }
+
+        public override async Task WriteAdditionalFiles(string outputPath)
+        {
+            // Skip generation if a custom ConfigurationSchema.json exists outside the Generated folder
+            var customSchemaPath = Path.Combine(outputPath, "schema", "ConfigurationSchema.json");
+            if (File.Exists(customSchemaPath))
+            {
+                Emitter.Info($"Custom ConfigurationSchema.json detected at {Path.GetFullPath(customSchemaPath)}, skipping generation.");
+                return;
+            }
+
+            var schemaContent = ConfigurationSchemaGenerator.Generate(
+                OutputLibrary,
+                ConfigurationSchema.SectionName,
+                ConfigurationSchema.OptionsRef);
+            if (schemaContent != null)
+            {
+                var schemaPath = Path.Combine(outputPath, "src", "Generated", "schema", "ConfigurationSchema.json");
+                var schemaDir = Path.GetDirectoryName(schemaPath);
+                if (schemaDir != null)
+                {
+                    Directory.CreateDirectory(schemaDir);
+                }
+                Emitter.Info($"Writing {Path.GetFullPath(schemaPath)}");
+                await File.WriteAllTextAsync(schemaPath, schemaContent);
+
+                if (ConfigurationSchema.GenerateNuGetTargets)
+                {
+                    // Generate the .targets file for JsonSchemaSegment registration
+                    var packageName = Configuration.PackageName;
+                    var targetsPath = Path.Combine(outputPath, $"{packageName}.NuGet.targets");
+                    var targetsContent = GenerateTargetsFile();
+                    Emitter.Info($"Writing {Path.GetFullPath(targetsPath)}");
+                    await File.WriteAllTextAsync(targetsPath, targetsContent);
+                }
+            }
+        }
+
+        private static string GenerateTargetsFile()
+        {
+            return "<Project>\n" +
+                   "  <ItemGroup>\n" +
+                   "    <JsonSchemaSegment Include=\"$(MSBuildThisFileDirectory)..\\..\\ConfigurationSchema.json\"\n" +
+                   "                       FilePathPattern=\"appsettings.*.json\" />\n" +
+                   "  </ItemGroup>\n" +
+                   "</Project>\n";
         }
     }
 }

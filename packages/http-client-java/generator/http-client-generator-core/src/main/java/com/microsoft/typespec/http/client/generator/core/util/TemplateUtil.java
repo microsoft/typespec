@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -22,6 +19,8 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,7 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -79,7 +78,7 @@ public class TemplateUtil {
      */
     public static String prettyPrintToJson(Object jsonObject) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeUntyped(jsonObject).flush();
 
             return outputStream.toString(StandardCharsets.UTF_8);
@@ -100,9 +99,9 @@ public class TemplateUtil {
         try (InputStream inputStream = TemplateUtil.class.getClassLoader().getResourceAsStream(filename)) {
             if (inputStream != null) {
                 text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines()
-                    .collect(Collectors.joining(System.lineSeparator()));
+                    .collect(Collectors.joining(Constants.NEW_LINE));
                 if (!text.isEmpty()) {
-                    text += System.lineSeparator();
+                    text += Constants.NEW_LINE;
                 }
 
                 if (replacements.length > 0) {
@@ -135,7 +134,7 @@ public class TemplateUtil {
         JavaSettings settings = JavaSettings.getInstance();
 
         // collect types of TypeReference<T>
-        Set<GenericType> typeReferenceStaticClasses = new HashSet<>();
+        Set<GenericType> typeReferenceStaticClasses = new LinkedHashSet<>();
 
         for (ClientMethod clientMethod : clientMethods) {
             Templates.getClientMethodTemplate().write(clientMethod, classBlock);
@@ -144,13 +143,14 @@ public class TemplateUtil {
             // getLongRunningOperationTypeReferenceExpression
             if (clientMethod.getType() == ClientMethodType.LongRunningBeginAsync
                 && clientMethod.getMethodPollingDetails() != null) {
-                if (clientMethod.getMethodPollingDetails().getIntermediateType() instanceof GenericType) {
+                if (clientMethod.getMethodPollingDetails().getPollResultType() instanceof GenericType) {
                     typeReferenceStaticClasses
-                        .add((GenericType) clientMethod.getMethodPollingDetails().getIntermediateType());
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getPollResultType());
                 }
 
-                if (clientMethod.getMethodPollingDetails().getFinalType() instanceof GenericType) {
-                    typeReferenceStaticClasses.add((GenericType) clientMethod.getMethodPollingDetails().getFinalType());
+                if (clientMethod.getMethodPollingDetails().getFinalResultType() instanceof GenericType) {
+                    typeReferenceStaticClasses
+                        .add((GenericType) clientMethod.getMethodPollingDetails().getFinalResultType());
                 }
             }
         }
@@ -162,7 +162,7 @@ public class TemplateUtil {
 
         // helper methods for LLC
         if (settings.isDataPlaneClient()
-            && settings.isBranded()
+            && settings.isAzureV1()
             && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
         }
@@ -176,8 +176,8 @@ public class TemplateUtil {
      */
     public static String getLongRunningOperationTypeReferenceExpression(MethodPollingDetails details) {
         // see writeTypeReferenceStaticClass
-        return getTypeReferenceCreation(details.getIntermediateType()) + ", "
-            + getTypeReferenceCreation(details.getFinalType());
+        return getTypeReferenceCreation(details.getPollResultType()) + ", "
+            + getTypeReferenceCreation(details.getFinalResultType());
     }
 
     /**
@@ -192,7 +192,7 @@ public class TemplateUtil {
         // Array, class, enum, and primitive types are all able to use TypeReference.createInstance which will create
         // or use a singleton instance.
         // Generic types must use a custom instance that supports complex generic parameters.
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             return (type instanceof ArrayType
                 || type instanceof ClassType
                 || type instanceof EnumType
@@ -219,7 +219,7 @@ public class TemplateUtil {
     public static void writeTypeReferenceStaticVariable(JavaClass classBlock, GenericType type) {
         // see getLongRunningOperationTypeReferenceExpression
 
-        if (!JavaSettings.getInstance().isBranded()) {
+        if (!JavaSettings.getInstance().isAzureV1()) {
             StringBuilder sb = new StringBuilder();
             for (IType typeArgument : type.getTypeArguments()) {
                 if (sb.length() > 0) {
@@ -280,9 +280,7 @@ public class TemplateUtil {
                 break;
 
             default:
-                if (JavaSettings.getInstance().isBranded()) {
-                    typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
-                }
+                typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
                 break;
         }
     }
@@ -372,6 +370,10 @@ public class TemplateUtil {
     }
 
     public static String getContextNone() {
-        return JavaSettings.getInstance().isBranded() ? "Context.NONE" : "Context.none()";
+        return JavaSettings.getInstance().isAzureV1() ? "Context.NONE" : "Context.none()";
+    }
+
+    public static String getRequestContextNone() {
+        return "RequestContext.none()";
     }
 }

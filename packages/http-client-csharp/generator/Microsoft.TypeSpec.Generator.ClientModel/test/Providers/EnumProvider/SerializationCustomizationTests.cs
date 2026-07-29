@@ -15,18 +15,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [Test]
         public async Task CanChangeEnumMemberName()
         {
-            var enumValues = new[]
-            {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [
+                    ("Red", 1),
+                    ("Green", 2),
+                    ("Blue", 3)
+                ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            Assert.IsNull(mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum));
+            Assert.IsNull(mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum && t.Name == "MockInputModel"));
 
             var serializationProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is FixedEnumSerializationProvider);
             Assert.IsNotNull(serializationProvider);
@@ -41,13 +41,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
         [Test]
         public async Task CanReplaceMethod()
         {
-            var enumValues = new[]
-            {
-                InputFactory.EnumMember.Int32("Red", 1),
-                InputFactory.EnumMember.Int32("Green", 2),
-                InputFactory.EnumMember.Int32("Blue", 3)
-            };
-            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputModel",
+                [
+                    ("Red", 1),
+                    ("Green", 2),
+                    ("Blue", 3)
+                ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -68,6 +68,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
             var customMethods = customCodeView!.Methods;
             Assert.AreEqual(1, customMethods.Count);
             Assert.AreEqual("ToSerialString", customMethods[0].Signature.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_FixedEnumSerializationUsesPreservedUnderscores()
+        {
+            var inputEnum = InputFactory.Int32Enum(
+                "mockInputEnum",
+                [
+                    ("ExistingValue", 0),
+                    ("Other", 1)
+                ]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
+            Assert.IsNotNull(enumProvider);
+
+            var serializationProvider = enumProvider!.SerializationProviders.Single();
+            _ = serializationProvider.Methods;
+            enumProvider.EnsureBuilt();
+            enumProvider.ProcessTypeForBackCompatibility();
+
+            var file = new TypeProviderWriter(serializationProvider).Write();
+            StringAssert.Contains("MockInputEnum.Existing_Value", file.Content);
+            StringAssert.DoesNotContain("MockInputEnum.ExistingValue", file.Content);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -13,6 +14,8 @@ namespace Encode.Datetime._Property
     public partial class Property
     {
         protected Property() => throw null;
+
+        internal Property(ClientPipeline pipeline, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

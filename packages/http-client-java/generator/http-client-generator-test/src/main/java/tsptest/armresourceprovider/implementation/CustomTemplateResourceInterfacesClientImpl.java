@@ -24,7 +24,6 @@ import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
@@ -46,25 +45,25 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     /**
      * The service client containing this operation class.
      */
-    private final ArmResourceProviderClientImpl client;
+    private final ArmClientImpl client;
 
     /**
      * Initializes an instance of CustomTemplateResourceInterfacesClientImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    CustomTemplateResourceInterfacesClientImpl(ArmResourceProviderClientImpl client) {
+    CustomTemplateResourceInterfacesClientImpl(ArmClientImpl client) {
         this.service = RestProxy.create(CustomTemplateResourceInterfacesService.class, client.getHttpPipeline(),
             client.getSerializerAdapter());
         this.client = client;
     }
 
     /**
-     * The interface defining all the services for ArmResourceProviderClientCustomTemplateResourceInterfaces to be used
-     * by the proxy service to perform REST calls.
+     * The interface defining all the services for ArmClientCustomTemplateResourceInterfaces to be used by the proxy
+     * service to perform REST calls.
      */
     @Host("{endpoint}")
-    @ServiceInterface(name = "ArmResourceProviderC")
+    @ServiceInterface(name = "ArmClientCustomTemplateResourceInterfaces")
     public interface CustomTemplateResourceInterfacesService {
         @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 201 })
@@ -124,29 +123,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
@@ -173,31 +151,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String customTemplateResourceName,
         CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -223,31 +176,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName, String customTemplateResourceName,
         CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -270,7 +198,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
         String ifMatch, String ifNoneMatch) {
         Mono<Response<Flux<ByteBuffer>>> mono = createOrUpdateWithResponseAsync(resourceGroupName,
@@ -293,7 +221,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdateAsync(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -391,7 +319,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
         return beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch)
             .last()
@@ -411,7 +339,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> createOrUpdateAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
@@ -474,29 +402,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
+    public Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
@@ -521,31 +428,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> updateLongRunningWithResponse(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.updateLongRunningSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -569,31 +451,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> updateLongRunningWithResponse(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (customTemplateResourceName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter customTemplateResourceName is required and cannot be null."));
-        }
-        if (properties == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
-        } else {
-            properties.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.updateLongRunningSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -614,9 +471,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * type using a specific property type.
      */
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner>
-        beginUpdateLongRunningAsync(String resourceGroupName, String customTemplateResourceName,
-            CustomTemplateResourcePatch properties) {
+    public PollerFlux<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginUpdateLongRunningAsync(
+        String resourceGroupName, String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         Mono<Response<Flux<ByteBuffer>>> mono
             = updateLongRunningWithResponseAsync(resourceGroupName, customTemplateResourceName, properties);
         return this.client.<CustomTemplateResourceInner, CustomTemplateResourceInner>getLroResult(mono,
@@ -681,7 +537,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
      * successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
+    public Mono<CustomTemplateResourceInner> updateLongRunningAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties).last()
             .flatMap(this.client::getLroFinalResultOrError);
@@ -722,6 +578,4 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         return beginUpdateLongRunning(resourceGroupName, customTemplateResourceName, properties, context)
             .getFinalResult();
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(CustomTemplateResourceInterfacesClientImpl.class);
 }

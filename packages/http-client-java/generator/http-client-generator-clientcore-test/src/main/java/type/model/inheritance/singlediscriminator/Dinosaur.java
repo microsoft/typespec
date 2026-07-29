@@ -1,7 +1,7 @@
 package type.model.inheritance.singlediscriminator;
 
 import io.clientcore.core.annotations.Metadata;
-import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
@@ -11,18 +11,18 @@ import java.io.IOException;
 /**
  * Define a base class in the legacy way. Discriminator property is not explicitly defined in the model.
  */
-@Metadata(conditions = { TypeConditions.IMMUTABLE })
+@Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Dinosaur implements JsonSerializable<Dinosaur> {
     /*
      * Discriminator property for Dinosaur.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private String kind = "Dinosaur";
 
     /*
      * The size property.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     private final int size;
 
     /**
@@ -30,7 +30,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
      * 
      * @param size the size value to set.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     protected Dinosaur(int size) {
         this.size = size;
     }
@@ -40,7 +40,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
      * 
      * @return the kind value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public String getKind() {
         return this.kind;
     }
@@ -50,7 +50,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
      * 
      * @return the size value.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public int getSize() {
         return this.size;
     }
@@ -58,7 +58,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
     /**
      * {@inheritDoc}
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
@@ -76,7 +76,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Dinosaur.
      */
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     public static Dinosaur fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
@@ -102,7 +102,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
         });
     }
 
-    @Metadata(generated = true)
+    @Metadata(properties = { MetadataProperties.GENERATED })
     static Dinosaur fromJsonKnownDiscriminator(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
             int size = 0;

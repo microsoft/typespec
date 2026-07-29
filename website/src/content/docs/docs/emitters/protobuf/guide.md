@@ -2,7 +2,7 @@
 title: Guide
 ---
 
-TypeSpec includes a built-in emitter (`/protobuf`) that can generate Protocol Buffers specifications from TypeSpec sources. The Protobuf files generated can then be used to create gRPC services or any other tools that are compatible with Protocol Buffers.
+TypeSpec includes a built-in emitter (`@typespec/protobuf`) that can generate Protocol Buffers specifications from TypeSpec sources. The Protobuf files generated can then be used to create gRPC services or any other tools that are compatible with Protocol Buffers.
 
 **Please note**: The Protobuf emitter is designed to work with Protocol Buffers 3 (proto3) syntax. Ensure that your workflow (including `protoc` version) supports proto3 to make full use of this emitter.
 
@@ -81,6 +81,31 @@ message TestMessage {
   int32 n = 1;
 }
 ```
+
+#### Optional fields
+
+When a TypeSpec property is defined as optional (`?`) inside of a model that defines a `message`, the protobuf emitter writes the proto3 `optional` label for singular scalar and enum fields.
+
+```typespec
+model Example {
+  @field(1)
+  count?: int32;
+
+  @field(2)
+  name?: string;
+}
+```
+
+```protobuf
+message Example {
+  optional int32 count = 1;
+  optional string name = 2;
+}
+```
+
+Optional message fields (TypeSpec optional properties where the type is a model) are emitted without the `optional` label because message-typed fields always have explicit presence discipline in proto3 (in other words, _all message-typed fields are effectively optional in the Protocol Buffers layer_). Validating optionality constraints on message-typed fields requires checking the presence of the field in the application that uses the protobuf implementation.
+
+Optional `repeated` and `map` fields are emitted without `optional` and produce a warning; protobuf cannot distinguish between _unset_ and _empty_ for those shapes because they are represented by "repeating" a field index within the protobuf message payload (if the field isn't set in the message, that means "_empty_" and there is no alternative to represent "_this field is not set_").
 
 ### Services
 

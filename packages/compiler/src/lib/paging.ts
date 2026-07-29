@@ -26,7 +26,7 @@ import type {
 } from "../core/types.js";
 import { createStateSymbol } from "../lib/utils.js";
 import { DuplicateTracker, useStateSet } from "../utils/index.js";
-import { isNumericType, isStringType } from "./decorators.js";
+import { isNumericType } from "./decorators.js";
 
 export const [
   /**
@@ -87,7 +87,7 @@ export const [
   /** {@inheritdoc PageItemsDecorator} */
   pageItemsDecorator,
 ] = createMarkerDecorator<PageItemsDecorator>("pageItems", (context, target) => {
-  if (target.type.kind !== "Model" || !isArrayModelType(context.program, target.type)) {
+  if (target.type.kind !== "Model" || !isArrayModelType(target.type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       messageId: "withExpected",
@@ -109,18 +109,7 @@ export const [
   markContinuationTokenProperty,
   /** {@inheritdoc ContinuationTokenDecorator} */
   continuationTokenDecorator,
-] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken", (context, target) => {
-  if (!isStringType(context.program, target.type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      messageId: "withExpected",
-      format: { decorator: "continuationToken", expected: "string", to: getTypeName(target.type) },
-      target: context.decoratorTarget,
-    });
-    return false;
-  }
-  return true;
-});
+] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken");
 
 export const [
   /**
@@ -187,6 +176,17 @@ type PagingPropertyKind =
 
 export interface PagingProperty {
   readonly property: ModelProperty;
+  /**
+   * If the paging property is nested, this will contain the path to the paging property in the model
+   * and array length will be greater than one.
+   *
+   * You can use this to generate the path to the property in the model with following code:
+   * @example
+   * ```ts
+   * const path = pagingInfo.output.pageItems.path.map((prop) => prop.name).join(".");
+   * ```
+   */
+  readonly path: ModelProperty[];
 }
 export interface PagingOperation {
   readonly input: {
@@ -226,14 +226,14 @@ function findPagingProperties<K extends "input" | "output">(
   const acceptableProps = source === "input" ? inputProps : outputProps;
   const duplicateTracker = new DuplicateTracker<string, ModelProperty>();
   const data: Record<string, PagingProperty> = {};
-  navigateProperties(base, (property) => {
+  navigateProperties(base, (property, path) => {
     const kind = diags.pipe(getPagingProperty(program, property));
     if (kind === undefined) {
       return;
     }
     duplicateTracker.track(kind, property);
     if (acceptableProps.has(kind)) {
-      data[kind] = { property };
+      data[kind] = { property, path };
     } else {
       diags.add(
         createDiagnostic({
@@ -283,20 +283,31 @@ export function getPagingOperation(
   return diags.wrap(result);
 }
 
-function navigateProperties(type: Type, callback: (prop: ModelProperty) => void) {
+function navigateProperties(
+  type: Type,
+  callback: (prop: ModelProperty, path: ModelProperty[]) => void,
+  path: ModelProperty[] = [],
+  visited: Set<Type> = new Set(),
+): void {
+  if (visited.has(type)) return;
+  visited.add(type);
   switch (type.kind) {
     case "Model":
       for (const prop of type.properties.values()) {
-        callback(prop);
+        callback(prop, [...path, prop]);
+        navigateProperties(prop.type, callback, [...path, prop], visited);
+      }
+      if (type.baseModel) {
+        navigateProperties(type.baseModel, callback, path, visited);
       }
       break;
     case "Union":
       for (const member of type.variants.values()) {
-        navigateProperties(member, callback);
+        navigateProperties(member, callback, path, visited);
       }
       break;
     case "UnionVariant":
-      navigateProperties(type.type, callback);
+      navigateProperties(type.type, callback, path, visited);
       break;
   }
 }

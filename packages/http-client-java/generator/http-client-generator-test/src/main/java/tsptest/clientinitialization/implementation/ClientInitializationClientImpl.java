@@ -96,7 +96,7 @@ public final class ClientInitializationClientImpl {
      * Gets an instance of SubClientImpl class.
      * 
      * @param name The name parameter.
-     * @return an instance of SubClientImplclass.
+     * @return an instance of SubClientImpl class.
      */
     public SubClientImpl getSubClient(String name) {
         Objects.requireNonNull(name, "'name' cannot be null.");

@@ -53,7 +53,8 @@ export async function processSidebar(
   function getSlugFromPath(directory: string, path: string) {
     const name = parse(path).name.toLocaleLowerCase();
     const normalizedName = name === "index" ? "" : name;
-    return prefix(join(directory, normalizedName))
+    const joined = join(directory, normalizedName);
+    return prefix(joined === "." ? "" : joined)
       .replaceAll("$", "")
       .replaceAll(" ", "-")
       .toLowerCase();
@@ -129,9 +130,15 @@ export async function processSidebar(
           collapsed: !item.expanded,
         });
       } else {
-        items.forEach((x) =>
-          result.push(typeof x === "string" ? x : { ...x, collapsed: !item.expanded }),
-        );
+        items.forEach((x) => {
+          if (typeof x === "string") {
+            result.push(x);
+          } else if ("items" in x) {
+            result.push({ ...x, collapsed: !item.expanded });
+          } else {
+            result.push(x);
+          }
+        });
       }
     } else if ("slug" in item) {
       result.push({ ...item, slug: prefix(item.slug) });

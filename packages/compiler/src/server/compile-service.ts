@@ -4,32 +4,33 @@ import {
   defaultConfig,
   findTypeSpecConfigPath,
   loadTypeSpecConfigFile,
+  TypeSpecConfigFilename,
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
-import { compilerAssert } from "../core/diagnostics.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
-import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { compile as compileProgram, Program } from "../core/program.js";
-import type {
-  CompilerHost,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-} from "../core/types.js";
-import { doIO, loadFile } from "../utils/io.js";
-import { resolveTspMain } from "../utils/misc.js";
+import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
+import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
+import { distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
+import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
+import { debugLoggers } from "./debug.js";
+import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
+import {
+  CompileTracker,
+  ServerCompileManager,
+  ServerCompileOptions,
+} from "./server-compile-manager.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
-import { UpdateManger } from "./update-manager.js";
+import { UpdateManager, UpdateType } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -44,7 +45,11 @@ export interface CompileService {
    * @param document The document to compile. This is not necessarily the entrypoint, compile will try to guess which entrypoint to compile to include this one.
    * @returns the compiled result or undefined if compilation was aborted.
    */
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+  ): Promise<CompileResult | undefined>;
 
   /**
    * Load the AST for the given document.
@@ -57,9 +62,11 @@ export interface CompileService {
    * It will recompile after a debounce timer so we don't recompile on every keystroke.
    * @param document Document that changed.
    */
-  notifyChange(document: TextDocument): void;
+  notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType): void;
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
+
+  getMainFileForDocument(path: string): Promise<string | undefined>;
 }
 
 export interface CompileServiceOptions {
@@ -67,7 +74,9 @@ export interface CompileServiceOptions {
   readonly fileService: FileService;
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
+  readonly updateManager: UpdateManager;
   readonly log: (log: ServerLog) => void;
+  readonly clientConfigsProvider?: ClientConfigProvider;
 }
 
 export function createCompileService({
@@ -75,14 +84,17 @@ export function createCompileService({
   serverHost,
   fileService,
   fileSystemCache,
+  updateManager,
   log,
+  clientConfigsProvider,
 }: CompileServiceOptions): CompileService {
-  const oldPrograms = new Map<string, Program>();
-  const eventListeners = new Map<string, (...args: unknown[]) => void>();
-  const updated = new UpdateManger((document) => compile(document));
+  const eventListeners = new Map<string, (...args: unknown[]) => void | Promise<void>>();
+  const compileManager = new ServerCompileManager(updateManager, compilerHost, log);
   let configFilePath: string | undefined;
+  const debug = debugLoggers.compileConfig;
+  const logDebug = debug.enabled ? log : () => {};
 
-  return { compile, getScript, on, notifyChange };
+  return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
@@ -91,28 +103,78 @@ export function createCompileService({
   function notify(event: string, ...args: unknown[]) {
     const listener = eventListeners.get(event);
     if (listener) {
-      listener(...args);
+      void listener(...args);
     }
   }
 
-  function notifyChange(document: TextDocument) {
-    updated.scheduleUpdate(document);
+  function notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType) {
+    void updateManager.scheduleUpdate(document, updateType);
   }
 
+  /**
+   * Compile the given document.
+   * First, the main.tsp file will be obtained for compilation.
+   * If the current document is not the main.tsp file or not included in the compilation starting from the main file found,
+   * the current document will be recompiled and returned as part of the result.
+   * Otherwise, the compilation of main.tsp will be returned as part of the result.
+   * @param document The document to compile. tsp file that is open or not opened in workspace.
+   * @returns see {@link CompileResult} for more details.
+   */
   async function compile(
     document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
   ): Promise<CompileResult | undefined> {
     const path = await fileService.getPath(document);
+    const pathBaseName = getBaseFileName(path);
+    if (!path.endsWith(".tsp") && pathBaseName !== TypeSpecConfigFilename) {
+      return undefined;
+    }
     const mainFile = await getMainFileForDocument(path);
+    if (mainFile === undefined) {
+      logDebug({ level: "debug", message: `failed to resolve main file for ${path}` });
+      return undefined;
+    }
+    if (!mainFile.endsWith(".tsp")) {
+      return undefined;
+    }
     const config = await getConfig(mainFile);
     configFilePath = config.filename;
-    log({ level: "debug", message: `config resolved`, detail: config });
-
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
+    logDebug({ level: "debug", message: `config resolved`, detail: config });
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
+      cwd: getDirectoryPath(path),
+    });
+    // we need to keep the optionsFromConfig unchanged which will be returned in CompileResult
+    const clone = structuredClone(optionsFromConfig);
     const options: CompilerOptions = {
-      ...optionsFromConfig,
+      ...clone,
       ...serverOptions,
+      ...(additionalOptions ?? {}),
     };
+
+    // If emit is set in additionalOptions, use this setting first
+    // otherwise, obtain the `typespec.lsp.emit` configuration from clientConfigsProvider
+    if (additionalOptions?.emit === undefined) {
+      const configEmits = clientConfigsProvider?.config?.lsp?.emit;
+      const CONFIG_DEFAULTS = "<config:defaults>";
+      if (configEmits) {
+        if (configEmits.find((e) => e === CONFIG_DEFAULTS)) {
+          // keep the emits in tspconfig only when user configs "<config:defaults>", and append other emits from vscode settings if there is any
+          options.emit = distinctArray(
+            [...(options.emit ?? []), ...configEmits.filter((e) => e !== CONFIG_DEFAULTS)],
+            (s) => s,
+          );
+        } else {
+          // use the configured emits if no "<config:defaults>" is found
+          options.emit = configEmits;
+        }
+      } else {
+        // by default, exclude emits from compile which are not useful in most case but may cause perf issue
+        // User can set ['<config:defaults>'] to opt-in
+        options.emit = [];
+      }
+    }
+
     // add linter rule for unused using if user didn't configure it explicitly
     const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
     if (
@@ -135,42 +197,44 @@ export function createCompileService({
       options.linterRuleSet.enable[unusedTemplateParameterRule] = true;
     }
 
-    log({ level: "debug", message: `compiler options resolved`, detail: options });
+    const isCancelledOrOutOfDate = () => {
+      return serverCompileOptions.isCancelled?.() || !fileService.upToDate(document);
+    };
 
-    if (!fileService.upToDate(document)) {
+    if (isCancelledOrOutOfDate()) {
       return undefined;
     }
 
-    let program: Program;
+    let tracker: CompileTracker;
     try {
-      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
-      oldPrograms.set(mainFile, program);
-      if (!fileService.upToDate(document)) {
+      tracker = await compileManager.compile(mainFile, options, serverCompileOptions);
+      let program = await tracker.getCompileResult();
+      if (isCancelledOrOutOfDate()) {
         return undefined;
       }
 
-      if (mainFile !== path && !program.sourceFiles.has(path)) {
+      if (
+        mainFile !== path &&
+        !program.sourceFiles.has(path) &&
+        pathBaseName !== TypeSpecConfigFilename
+      ) {
         // If the file that changed wasn't imported by anything from the main
         // file, retry using the file itself as the main file.
-        log({
+        logDebug({
           level: "debug",
           message: `target file was not included in compiling, try to compile ${path} as main file directly`,
         });
-        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
-        oldPrograms.set(path, program);
+        tracker = await compileManager.compile(path, options, serverCompileOptions);
+        program = await tracker.getCompileResult();
       }
-
-      if (!fileService.upToDate(document)) {
+      if (isCancelledOrOutOfDate()) {
         return undefined;
       }
 
       const doc = "version" in document ? document : serverHost.getOpenDocumentByURL(document.uri);
-      compilerAssert(doc, "Failed to get document.");
-      const resolvedPath = await fileService.getPath(doc);
-      const script = program.sourceFiles.get(resolvedPath);
-      compilerAssert(script, "Failed to get script.");
+      const script = program.sourceFiles.get(path);
 
-      const result: CompileResult = { program, document: doc, script, optionsFromConfig };
+      const result: CompileResult = { program, document: doc, script, optionsFromConfig, tracker };
       notify("compileEnd", result);
       return result;
     } catch (err: any) {
@@ -185,7 +249,7 @@ export function createCompileService({
         const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
         const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
         if (target.pos === 0) {
-          log({
+          logDebug({
             level: "debug",
             message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
           });
@@ -225,21 +289,21 @@ export function createCompileService({
     const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
     const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
     if (!configPath) {
-      log({
+      logDebug({
         level: "debug",
         message: `can't find path with config file, try to use default config`,
       });
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
 
+    // JSON round-trip intentionally strips non-serializable values (functions) from the config
     const cached = await fileSystemCache.get(configPath);
-    const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
     if (cached?.data) {
-      return deepCopy(cached.data);
+      return JSON.parse(JSON.stringify(cached.data));
     }
 
     const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    return deepCopy(config);
+    return JSON.parse(JSON.stringify(config));
   }
 
   async function getScript(
@@ -262,6 +326,9 @@ export function createCompileService({
    * results can be obtained from compiling the same file with different entry
    * points.
    *
+   * Priority is given to processing user-defined files as the entry point,
+   * and it has the highest priority.
+   *
    * Walk directory structure upwards looking for package.json with tspMain or
    * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
@@ -273,74 +340,14 @@ export function createCompileService({
    */
   async function getMainFileForDocument(path: string) {
     if (path.startsWith("untitled:")) {
-      log({ level: "debug", message: `untitled document treated as its own main file: ${path}` });
+      logDebug({
+        level: "debug",
+        message: `untitled document treated as its own main file: ${path}`,
+      });
       return path;
     }
 
-    let dir = getDirectoryPath(path);
-    const options = { allowFileNotFound: true };
-
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
-
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
-          logMainFileSearchDiagnostic,
-          options,
-        );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
-
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        log({
-          level: "debug",
-          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
-        });
-        mainFile = tspMain;
-      }
-
-      const candidate = joinPaths(dir, mainFile);
-      const stat = await doIO(
-        () => compilerHost.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options,
-      );
-
-      if (stat?.isFile()) {
-        log({ level: "debug", message: `main file found as ${candidate}` });
-        return candidate;
-      }
-
-      const parentDir = getDirectoryPath(dir);
-      if (parentDir === dir) {
-        break;
-      }
-      log({
-        level: "debug",
-        message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
-      });
-      dir = parentDir;
-    }
-
-    log({ level: "debug", message: `reached directory root, using ${path} as main file` });
-    return path;
-
-    function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
-      log({
-        level: `error`,
-        message: `Unexpected diagnostic while looking for main file of ${path}`,
-        detail: formatDiagnostic(diagnostic),
-      });
-    }
+    const entrypoints = clientConfigsProvider?.config?.entrypoint;
+    return resolveEntrypointFile(compilerHost, entrypoints, path, fileSystemCache, log);
   }
 }

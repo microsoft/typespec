@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -37,5 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public FormattableString GetCRef() => $"{Name}({Parameters.GetTypesFormattable()})";
 
         internal string FullMethodName => ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
+        public static IEqualityComparer<MethodSignature> MethodSignatureComparer => SignatureComparer;
     }
 }

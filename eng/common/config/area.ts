@@ -1,11 +1,11 @@
-import type { AreaLabels } from "./labels.js";
+import type { AreaLabels } from "./labels.ts";
 
 /**
  * Set the paths that each area applies to.
  */
 export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "compiler:core": ["packages/compiler/"],
-  "compiler:emitter-framework": [],
+  "emitter-framework": ["packages/emitter-framework/"],
   ide: ["packages/typespec-vscode/", "packages/typespec-vs/"],
   "lib:http": ["packages/http/"],
   "lib:openapi": ["packages/openapi/"],
@@ -35,6 +35,18 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 };
 
 /**
+ * External area owners: teams/users outside the org that should be notified on PRs
+ * touching their area. GitHub does not allow non-collaborators in CODEOWNERS, nor can
+ * they be added as formal reviewers, so they are @-mentioned in a comment instead.
+ *
+ * Keyed by the same area names as {@link AreaPaths}; the paths are reused from there.
+ */
+export const ExternalOwners: Partial<Record<keyof typeof AreaLabels, string[]>> = {
+  // cspell:ignore swatkatz fionabronwen
+  "emitter:graphql": ["fionabronwen", "swatkatz", "steverice"],
+};
+
+/**
  * Path that should trigger every CI build.
  */
 const all = ["eng/common/", "vitest.config.ts", "tsconfig.base.json"];
@@ -48,20 +60,4 @@ export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
   Java: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:java"], ".editorconfig"],
   Python: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:python"], ".editorconfig"],
-
-  Core: [
-    "**/*",
-    "!.prettierignore", // Prettier is already run as its dedicated CI(via github action)
-    "!.prettierrc.json",
-    "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
-    "!eslint.config.json", // Eslint is already run as its dedicated CI(via github action)
-    ...ignore(isolatedEmitters),
-    ...ignore(AreaPaths["emitter:client:csharp"]),
-    ...ignore(AreaPaths["emitter:client:java"]),
-    ...ignore(AreaPaths["emitter:client:python"]),
-  ],
 };
-
-function ignore(paths: string[]) {
-  return paths.map((x) => `!${x}`);
-}

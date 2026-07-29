@@ -1,5 +1,5 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
-import { beforeEach, describe, expect, it } from "vitest";
+import { ok, strictEqual } from "assert";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { parse } from "yaml";
 import { InitTemplate } from "../../src/init/init-template.js";
 import {
@@ -9,9 +9,18 @@ import {
 } from "../../src/init/scaffold.js";
 import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
+const fetchMock = vi.fn().mockResolvedValue({
+  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
+});
+
 let testHost: TestHost;
 beforeEach(async () => {
+  vi.stubGlobal("fetch", fetchMock);
   testHost = await createTestHost();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 function getOutputFile(path: string): string | undefined {
@@ -38,24 +47,63 @@ async function runTemplate(
 }
 
 describe("libraries", () => {
+  it("adds libraries to peer and dev dependencies fields", async () => {
+    await runTemplate({
+      target: "library",
+      libraries: [{ name: "bar" }],
+    });
+
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.peerDependencies).toEqual({
+      "@typespec/compiler": "^1.0.0",
+      bar: "^1.0.0",
+    });
+    expect(pkgJson.devDependencies).toEqual({
+      "@typespec/compiler": "^1.0.0",
+      bar: "^1.0.0",
+    });
+    expect(pkgJson.dependencies).toBeUndefined();
+  });
+
   it("templates can contain specific library versions to use", async () => {
     await runTemplate({
+      target: "library",
       libraries: [{ name: "foo", version: "~1.2.3" }, { name: "bar" }],
     });
 
-    deepStrictEqual(JSON.parse(getOutputFile("package.json")!).peerDependencies, {
-      "@typespec/compiler": "latest",
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.peerDependencies).toEqual({
+      "@typespec/compiler": "^1.0.0",
       foo: "~1.2.3",
-      bar: "latest",
+      bar: "^1.0.0",
     });
 
-    deepStrictEqual(JSON.parse(getOutputFile("package.json")!).devDependencies, {
-      "@typespec/compiler": "latest",
+    expect(pkgJson.devDependencies).toEqual({
+      "@typespec/compiler": "^1.0.0",
       foo: "~1.2.3",
-      bar: "latest",
+      bar: "^1.0.0",
     });
 
     strictEqual(getOutputFile("main.tsp")!, 'import "foo";\nimport "bar";\n');
+  });
+});
+
+describe("project", () => {
+  it("adds libraries to dependencies field", async () => {
+    await runTemplate({
+      libraries: [{ name: "bar" }],
+    });
+
+    const pkgJson = JSON.parse(getOutputFile("package.json")!);
+
+    expect(pkgJson.dependencies).toEqual({
+      "@typespec/compiler": "^1.0.0",
+      bar: "^1.0.0",
+    });
+    expect(pkgJson.peerDependencies).toBeUndefined();
+    expect(pkgJson.devDependencies).toBeUndefined();
   });
 });
 

@@ -5,13 +5,14 @@
 package azure.resourcemanager.operationtemplates.models;
 
 import com.azure.core.util.Context;
+import java.util.List;
 
 /**
  * Resource collection API of Lroes.
  */
 public interface Lroes {
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -24,7 +25,7 @@ public interface Lroes {
     ExportResult export(String resourceGroupName, String orderName, ExportRequest body);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -59,6 +60,29 @@ public interface Lroes {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     void delete(String resourceGroupName, String orderName, Context context);
+
+    /**
+     * The exportArray operation.
+     * 
+     * @param body The request body.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    List<ExportResult> exportArray(ExportRequest body);
+
+    /**
+     * The exportArray operation.
+     * 
+     * @param body The request body.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    List<ExportResult> exportArray(ExportRequest body, Context context);
 
     /**
      * Delete a Order.

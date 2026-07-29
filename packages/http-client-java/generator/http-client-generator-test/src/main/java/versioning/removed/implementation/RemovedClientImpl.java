@@ -32,7 +32,6 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.removed.RemovedServiceVersion;
-import versioning.removed.models.Versions;
 
 /**
  * Initializes a new instance of the RemovedClient type.
@@ -55,20 +54,6 @@ public final class RemovedClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Need to be set as 'v1', 'v2preview' or 'v2' in client.
-     */
-    private final Versions version;
-
-    /**
-     * Gets Need to be set as 'v1', 'v2preview' or 'v2' in client.
-     * 
-     * @return the version value.
-     */
-    public Versions getVersion() {
-        return this.version;
     }
 
     /**
@@ -117,12 +102,11 @@ public final class RemovedClientImpl {
      * Initializes an instance of RemovedClient client.
      * 
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1', 'v2preview' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RemovedClientImpl(String endpoint, Versions version, RemovedServiceVersion serviceVersion) {
+    public RemovedClientImpl(String endpoint, RemovedServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -130,12 +114,10 @@ public final class RemovedClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1', 'v2preview' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
-        RemovedServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+    public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, RemovedServiceVersion serviceVersion) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -144,15 +126,13 @@ public final class RemovedClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
-     * @param version Need to be set as 'v1', 'v2preview' or 'v2' in client.
      * @param serviceVersion Service version.
      */
     public RemovedClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        Versions version, RemovedServiceVersion serviceVersion) {
+        RemovedServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(RemovedClientService.class, this.httpPipeline, this.getSerializerAdapter());
     }
@@ -169,7 +149,7 @@ public final class RemovedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> v2(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Mono<Response<BinaryData>> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
@@ -179,7 +159,7 @@ public final class RemovedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> v2Sync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<BinaryData> v2Sync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
@@ -189,10 +169,9 @@ public final class RemovedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> modelV3(@HostParam("endpoint") String endpoint,
-            @HostParam("version") Versions version, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
-            RequestOptions requestOptions, Context context);
+        Mono<Response<BinaryData>> modelV3(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
 
         @Post("/v3")
         @ExpectedResponses({ 200 })
@@ -200,7 +179,7 @@ public final class RemovedClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> modelV3Sync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
+        Response<BinaryData> modelV3Sync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") BinaryData body, RequestOptions requestOptions, Context context);
     }
@@ -243,8 +222,8 @@ public final class RemovedClientImpl {
     public Mono<Response<BinaryData>> v2WithResponseAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.v2(this.getEndpoint(), this.getVersion(), contentType, accept,
-            body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.v2(this.getEndpoint(), this.getServiceVersion().getVersion(),
+            contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -285,8 +264,8 @@ public final class RemovedClientImpl {
     public Response<BinaryData> v2WithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.v2Sync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions,
-            Context.NONE);
+        return service.v2Sync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestOptions, Context.NONE);
     }
 
     /**
@@ -325,8 +304,8 @@ public final class RemovedClientImpl {
     public Mono<Response<BinaryData>> modelV3WithResponseAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.modelV3(this.getEndpoint(), this.getVersion(), contentType,
-            accept, body, requestOptions, context));
+        return FluxUtil.withContext(context -> service.modelV3(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), contentType, accept, body, requestOptions, context));
     }
 
     /**
@@ -365,7 +344,7 @@ public final class RemovedClientImpl {
     public Response<BinaryData> modelV3WithResponse(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
-        return service.modelV3Sync(this.getEndpoint(), this.getVersion(), contentType, accept, body, requestOptions,
-            Context.NONE);
+        return service.modelV3Sync(this.getEndpoint(), this.getServiceVersion().getVersion(), contentType, accept, body,
+            requestOptions, Context.NONE);
     }
 }

@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Immutable;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -20,6 +21,11 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * The description property.
      */
     private String description;
+
+    /*
+     * The builtin property.
+     */
+    private Builtin builtin;
 
     /**
      * Creates an instance of TopLevelArmResourceProperties class.
@@ -37,12 +43,30 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     }
 
     /**
+     * Get the builtin property: The builtin property.
+     * 
+     * @return the builtin value.
+     */
+    public Builtin builtin() {
+        return this.builtin;
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
      */
     public void validate() {
+        if (builtin() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Missing required property builtin in model TopLevelArmResourceProperties"));
+        } else {
+            builtin().validate();
+        }
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourceProperties.class);
 
     /**
      * {@inheritDoc}
@@ -50,6 +74,7 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeJsonField("builtin", this.builtin);
         jsonWriter.writeStringField("description", this.description);
         return jsonWriter.writeEndObject();
     }
@@ -60,6 +85,7 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
      * @param jsonReader The JsonReader being read.
      * @return An instance of TopLevelArmResourceProperties if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the TopLevelArmResourceProperties.
      */
     public static TopLevelArmResourceProperties fromJson(JsonReader jsonReader) throws IOException {
@@ -70,7 +96,9 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("description".equals(fieldName)) {
+                if ("builtin".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.builtin = Builtin.fromJson(reader);
+                } else if ("description".equals(fieldName)) {
                     deserializedTopLevelArmResourceProperties.description = reader.getString();
                 } else {
                     reader.skipChildren();

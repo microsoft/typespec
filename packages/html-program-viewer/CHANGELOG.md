@@ -1,5 +1,127 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.84.0
+
+### Deprecations
+
+- [#10964](https://github.com/microsoft/typespec/pull/10964) Deprecate old testing framework (`createTestHost`, `createTestRunner`, `createTestWrapper`, `createTestLibrary`, `BasicTestRunner`, `TypeSpecTestLibrary`, etc.). Use `createTester` from `@typespec/compiler/testing` instead.
+
+### Bug Fixes
+
+- [#10921](https://github.com/microsoft/typespec/pull/10921) Fix html program viewer crash when rendering search results with missing type kind.
+
+
+## 0.83.0
+
+No changes, version bump only.
+
+## 0.82.0
+
+No changes, version bump only.
+
+## 0.81.0
+
+No changes, version bump only.
+
+## 0.80.0
+
+### Bump dependencies
+
+- [#9838](https://github.com/microsoft/typespec/pull/9838) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9617](https://github.com/microsoft/typespec/pull/9617) Fix type graph viewer to display Symbol-keyed decorator state
+
+
+## 0.79.0
+
+### Bump dependencies
+
+- [#9446](https://github.com/microsoft/typespec/pull/9446) Upgrade dependencies
+
+
+## 0.78.0
+
+### Bump dependencies
+
+- [#9223](https://github.com/microsoft/typespec/pull/9223) Upgrade dependencies
+
+
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Features
+
+- [#8013](https://github.com/microsoft/typespec/pull/8013) Add button to bookmark types in the type graph into `window.vars`
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7899](https://github.com/microsoft/typespec/pull/7899) Handle new `creating` property
+
+
+## 0.72.0
+
+### Features
+
+- [#7620](https://github.com/microsoft/typespec/pull/7620) Render `indexer` property on model
+- [#7836](https://github.com/microsoft/typespec/pull/7836) Expose program viewer navigation in TypGraph props
+
+### Bump dependencies
+
+- [#7674](https://github.com/microsoft/typespec/pull/7674) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7834](https://github.com/microsoft/typespec/pull/7834) Fix type state not showing in program viewer
+
+
+## 0.71.0
+
+### Bump dependencies
+
+- [#7323](https://github.com/microsoft/typespec/pull/7323) Upgrade dependencies
+
+
+## 0.70.0
+
+No changes, version bump only.
+
+## 0.69.0
+
+No changes, version bump only.
+
 ## 0.68.0
 
 ### Bump dependencies

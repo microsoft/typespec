@@ -1,7 +1,7 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.0.0-rc.0",
-  "description": "TypeSpec Compiler Preview",
+  "version": "1.14.0",
+  "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
   "homepage": "https://typespec.io",
@@ -35,11 +35,15 @@
       "default": "./dist/src/testing/index.js"
     },
     "./module-resolver": {
-      "types": "./dist/module-resolver/module-resolver.d.ts",
-      "default": "./dist/src/module-resolver/module-resolver.js"
+      "types": "./dist/module-resolver/index.d.ts",
+      "default": "./dist/src/module-resolver/index.js"
     },
     "./ast": {
       "import": "./dist/src/ast/index.js"
+    },
+    "./typekit": {
+      "types": "./dist/src/typekit/index.d.ts",
+      "default": "./dist/src/typekit/index.js"
     },
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
@@ -55,14 +59,21 @@
     },
     "./internals/prettier-formatter": {
       "import": "./dist/src/internals/prettier-formatter.js"
-    }
+    },
+    "./internals/standalone": {
+      "import": "./dist/src/internals/standalone.js"
+    },
+    "./casing": {
+      "import": "./dist/src/casing/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -77,63 +88,59 @@
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build:init-templates-index": "tsx ./.scripts/build-init-templates.ts",
+    "build:init-templates-index": "node ./.scripts/build-init-templates.ts",
     "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
     "api-extractor": "api-extractor run --local --verbose",
-    "compile": "tsc -p .",
-    "watch": "tsc -p . --watch",
-    "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
-    "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
-    "gen-extern-signature": "tsx ./.scripts/gen-extern-signature.ts",
-    "dogfood": "node scripts/dogfood.js",
+    "compile": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
+    "watch-tmlanguage": "node scripts/watch-tmlanguage.ts",
+    "generate-tmlanguage": "node scripts/generate-tmlanguage.ts",
+    "gen-extern-signature": "node ./.scripts/gen-extern-signature.ts",
+    "dogfood": "node scripts/dogfood.ts",
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
-    "gen-manifest": "node scripts/generate-manifest.js",
-    "regen-nonascii": "node scripts/regen-nonascii.js",
+    "gen-manifest": "node scripts/generate-manifest.ts",
+    "regen-nonascii": "node scripts/regen-nonascii.ts",
     "fuzz": "node dist/test/manual/fuzz.js run",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix"
+    "lint": "oxlint . --deny-warnings",
+    "lint:fix": "oxlint . --fix"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.26.2",
-    "@inquirer/prompts": "^7.4.0",
-    "ajv": "~8.17.1",
-    "change-case": "~5.4.4",
-    "env-paths": "^3.0.0",
-    "globby": "~14.1.0",
-    "is-unicode-supported": "^2.1.0",
-    "mustache": "~4.2.0",
-    "picocolors": "~1.1.1",
-    "prettier": "~3.5.3",
-    "semver": "^7.7.1",
-    "tar": "^7.4.3",
-    "temporal-polyfill": "^0.2.5",
-    "vscode-languageserver": "~9.0.1",
-    "vscode-languageserver-textdocument": "~1.0.12",
-    "yaml": "~2.7.0",
-    "yargs": "~17.7.2"
+    "@babel/code-frame": "catalog:",
+    "@inquirer/prompts": "catalog:",
+    "ajv": "catalog:",
+    "change-case": "catalog:",
+    "env-paths": "catalog:",
+    "is-unicode-supported": "catalog:",
+    "mustache": "catalog:",
+    "picocolors": "catalog:",
+    "prettier": "catalog:",
+    "semver": "catalog:",
+    "tar": "catalog:",
+    "temporal-polyfill": "catalog:",
+    "vscode-languageserver": "catalog:",
+    "vscode-languageserver-textdocument": "catalog:",
+    "yaml": "catalog:",
+    "yargs": "catalog:"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "~7.0.6",
-    "@types/mustache": "~4.2.5",
-    "@types/node": "~22.13.11",
-    "@types/semver": "^7.5.8",
-    "@types/yargs": "~17.0.33",
+    "@types/babel__code-frame": "catalog:",
+    "@types/mustache": "catalog:",
+    "@types/node": "catalog:",
+    "@types/semver": "catalog:",
+    "@types/yargs": "catalog:",
     "@typespec/internal-build-utils": "workspace:^",
-    "@vitest/coverage-v8": "^3.0.9",
-    "@vitest/ui": "^3.0.9",
-    "c8": "^10.1.3",
-    "grammarkdown": "~3.3.2",
-    "pathe": "^2.0.3",
-    "rimraf": "~6.0.1",
-    "source-map-support": "~0.5.21",
+    "@vitest/coverage-v8": "catalog:",
+    "@vitest/ui": "catalog:",
+    "pathe": "catalog:",
+    "rimraf": "catalog:",
     "tmlanguage-generator": "workspace:^",
-    "typescript": "~5.8.2",
-    "vitest": "^3.0.9",
-    "vscode-oniguruma": "~2.0.1",
-    "vscode-textmate": "~9.2.0"
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vscode-oniguruma": "catalog:",
+    "vscode-textmate": "catalog:"
   }
 }

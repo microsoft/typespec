@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +17,12 @@ namespace Resiliency.ServiceDriven
 
         public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
+        internal ResiliencyServiceDrivenClient(AuthenticationPolicy authenticationPolicy, Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
+
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) : this(null, endpoint, serviceDeploymentVersion, options) => throw null;
+
+        [Experimental("SCME0002")]
+        public ResiliencyServiceDrivenClient(ResiliencyServiceDrivenClientSettings settings) : this(AuthenticationPolicy.Create(settings), settings?.Endpoint, settings?.ServiceDeploymentVersion, settings?.Options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
@@ -32,24 +38,24 @@ namespace Resiliency.ServiceDriven
 
         public virtual Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromNone(string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromNone(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromNoneAsync(string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromNoneAsync(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromOneRequired(string parameter, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromOneRequired(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromOneOptional(string parameter = null, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = null, string newParameter = null, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

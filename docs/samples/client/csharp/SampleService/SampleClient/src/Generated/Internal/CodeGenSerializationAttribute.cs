@@ -4,27 +4,30 @@
 
 using System;
 
-namespace SampleTypeSpec
+namespace Microsoft.TypeSpec.Generator.Customizations
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute
     {
+        /// <param name="propertyName"> The property name which these hooks apply to. </param>
         public CodeGenSerializationAttribute(string propertyName)
         {
             PropertyName = propertyName;
         }
 
-        public CodeGenSerializationAttribute(string propertyName, string propertySerializationName)
+        /// <param name="propertyName"> The property name which these hooks apply to. </param>
+        /// <param name="serializationName"> The serialization name of the property. </param>
+        public CodeGenSerializationAttribute(string propertyName, string serializationName)
         {
             PropertyName = propertyName;
-            PropertySerializationName = propertySerializationName;
+            SerializationName = serializationName;
         }
 
         /// <summary> Gets or sets the property name which these hooks should apply to. </summary>
         public string PropertyName { get; }
 
         /// <summary> Gets or sets the serialization name of the property. </summary>
-        public string PropertySerializationName { get; set; }
+        public string SerializationName { get; set; }
 
         /// <summary>
         /// Gets or sets the method name to use when serializing the property value (property name excluded).

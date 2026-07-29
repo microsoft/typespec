@@ -7,7 +7,8 @@ import {
   TypeSpecLibraryDef,
 } from "../../src/index.js";
 import { expectDiagnosticEmpty } from "../../src/testing/expect.js";
-import { createTestHost } from "../../src/testing/test-host.js";
+import { mockFile } from "../../src/testing/fs.js";
+import { Tester } from "../tester.js";
 
 interface FakeEmitter {
   name: string;
@@ -41,22 +42,19 @@ async function runEmitters(
   emitters: FakeEmitter[],
   options: CompilerOptions,
 ): Promise<[undefined, readonly Diagnostic[]]> {
-  const host = await createTestHost();
-  host.addTypeSpecFile("main.tsp", "model Foo {}");
-
+  const files: Record<string, string | ReturnType<typeof mockFile.js>> = {};
   for (const emitter of emitters) {
-    host.addTypeSpecFile(
-      `node_modules/${emitter.name}/package.json`,
-      JSON.stringify({
-        main: "index.js",
-      }),
-    );
-    host.addJsFile(`node_modules/${emitter.name}/index.js`, {
+    files[`node_modules/${emitter.name}/package.json`] = JSON.stringify({
+      main: "index.js",
+    });
+    files[`node_modules/${emitter.name}/index.js`] = mockFile.js({
       $lib: emitter.$lib,
       $onEmit: emitter.$onEmit,
     });
   }
-  const diagnostics = await host.diagnose("main.tsp", options);
+  const diagnostics = await Tester.files(files).diagnose("model Foo {}", {
+    compilerOptions: options,
+  });
   return [undefined, diagnostics];
 }
 

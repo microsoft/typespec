@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -19,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         [Test]
         public void ValidateReturnTypeIsOverridden()
         {
-            ClientProvider clientProvider = CreateMockClientProvider();
+            (ClientProvider clientProvider, _) = CreateMockClientProvider();
 
             // take the sync version of the method from the client provider
             var method = clientProvider.Methods.FirstOrDefault(x => !x.Signature.Name.EndsWith("Async"));
@@ -31,7 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         [Test]
         public void ValidateBodyOfClientOperationIsOverridden()
         {
-            var clientProvider = CreateMockClientProvider();
+            (ClientProvider clientProvider, _) = CreateMockClientProvider();
 
             // take the sync version of the method from the client provider
             var method = clientProvider.Methods.FirstOrDefault(x => x.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))) && !x.Signature.Name.EndsWith("Async"));
@@ -40,13 +43,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method.BodyStatements!.ToDisplayString());
         }
 
-        private static ClientProvider CreateMockClientProvider()
+        [Test]
+        public void ValidateExplicitOperator()
         {
-            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
-            MockHelpers.LoadMockGenerator(clientResponseApi: TestClientResponseApi.Instance);
-            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            (_, ModelProvider modelProvider) = CreateMockClientProvider();
+
+            var explicitOperator = modelProvider.SerializationProviders.First().Methods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit));
+            Assert.NotNull(explicitOperator);
+            var parameter = explicitOperator!.Signature.Parameters.FirstOrDefault();
+            Assert.NotNull(parameter);
+            Assert.AreEqual("stringResponse", parameter!.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), explicitOperator!.BodyStatements!.ToDisplayString());
+        }
+
+        private static (ClientProvider, ModelProvider) CreateMockClientProvider()
+        {
+            var responseModel = InputFactory.Model("Bar");
+            var operationResponse = InputFactory.OperationResponse(bodytype: responseModel);
+            var serviceResponse = InputFactory.ServiceMethodResponse(responseModel, null);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("foo", InputFactory.Operation("foo", responses: [operationResponse]), response: serviceResponse);
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                clientResponseApi: TestClientResponseApi.Instance,
+                inputModels: () => [responseModel],
+                clients: () => [client]);
+            var modelProvider = generator.Object.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .FirstOrDefault(m => m.Name == "Bar");
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders
+                .OfType<ClientProvider>()
+                .FirstOrDefault(c => c.Name == "TestClient");
+
             Assert.IsNotNull(clientProvider);
-            return clientProvider!;
+            Assert.IsNotNull(modelProvider);
+
+            return (clientProvider!, modelProvider!);
         }
 
         private record TestClientResponseApi : ClientResponseApi
@@ -62,7 +94,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             }
 
             public override HttpResponseApi GetRawResponse()
-                => Original.Invoke("GetFakeRawResponse").ToApi<HttpResponseApi>();
+                => Original.ToApi<HttpResponseApi>();
 
             public override ValueExpression FromValue(ValueExpression valueExpression, HttpResponseApi response)
                 => Original.Invoke("GetFakeFromValue");
@@ -88,14 +120,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             public override CSharpType ClientCollectionAsyncResponseType => typeof(AsyncCollectionResult);
             public override CSharpType ClientCollectionResponseOfTType => typeof(CollectionResult<>);
             public override CSharpType ClientCollectionAsyncResponseOfTType => typeof(AsyncCollectionResult<>);
+            public override string ResponseParameterName => "stringResponse";
 
             public override TypeProvider CreateClientCollectionResultDefinition(
                 ClientProvider client,
-                InputOperation operation,
+                InputPagingServiceMethod serviceMethod,
                 CSharpType? type,
                 bool isAsync)
             {
-                return new CollectionResultDefinition(client, operation, type, isAsync);
+                return new CollectionResultDefinition(client, serviceMethod, type, isAsync);
             }
 
             public override CSharpType ClientResponseExceptionType => typeof(NotImplementedException);

@@ -10,9 +10,9 @@ import com.azure.core.util.Context;
 import java.util.Collections;
 import java.util.Map;
 import tsptest.armresourceprovider.fluent.models.CustomTemplateResourceInner;
+import tsptest.armresourceprovider.models.AnonymousEmptyModel;
 import tsptest.armresourceprovider.models.CustomTemplateResource;
 import tsptest.armresourceprovider.models.CustomTemplateResourcePatch;
-import tsptest.armresourceprovider.models.CustomTemplateResourcePropertiesAnonymousEmptyModel;
 import tsptest.armresourceprovider.models.Dog;
 import tsptest.armresourceprovider.models.EmptyModel;
 import tsptest.armresourceprovider.models.ManagedServiceIdentity;
@@ -70,7 +70,7 @@ public final class CustomTemplateResourceImpl
         return this.innerModel().namedEmptyModel();
     }
 
-    public CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel() {
+    public AnonymousEmptyModel anonymousEmptyModel() {
         return this.innerModel().anonymousEmptyModel();
     }
 
@@ -200,8 +200,7 @@ public final class CustomTemplateResourceImpl
         return this;
     }
 
-    public CustomTemplateResourceImpl
-        withAnonymousEmptyModel(CustomTemplateResourcePropertiesAnonymousEmptyModel anonymousEmptyModel) {
+    public CustomTemplateResourceImpl withAnonymousEmptyModel(AnonymousEmptyModel anonymousEmptyModel) {
         this.innerModel().withAnonymousEmptyModel(anonymousEmptyModel);
         return this;
     }
@@ -222,6 +221,6 @@ public final class CustomTemplateResourceImpl
     }
 
     private boolean isInCreateMode() {
-        return this.innerModel().id() == null;
+        return this.innerModel() == null || this.innerModel().id() == null;
     }
 }

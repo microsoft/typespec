@@ -1,0 +1,85 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Providers;
+
+namespace Microsoft.TypeSpec.Generator.Snippets
+{
+    public static class ModelProviderSnippets
+    {
+        public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
+        {
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments);
+        }
+
+        public static AssignmentExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
+        {
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments).Assign(value);
+        }
+
+        private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
+        {
+            ModelProvider currentModel = model;
+            ValueExpression propertyAccessExpression = modelVariable;
+
+            for (int i = 0; i < propertySegments.Count; i++)
+            {
+                var property = FindPropertyInModelHierarchy(currentModel, propertySegments[i]);
+
+                propertyAccessExpression = propertyAccessExpression.Property(property.Name);
+
+                if (i < propertySegments.Count - 1)
+                {
+                    if (NeedsNullableConditional(property))
+                    {
+                        propertyAccessExpression = propertyAccessExpression.NullConditional();
+                    }
+                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type] as ModelProvider
+                        ?? throw new System.InvalidOperationException($"Cannot navigate the property path through '{property.Name}' because its type is not a model.");
+                }
+            }
+
+            return propertyAccessExpression;
+        }
+
+        /// <summary>
+        /// Searches for a property in the model and its base models by matching either the
+        /// property's serialized (wire) name or its client name. Method-parameter segments carry
+        /// the client name, which can differ from the wire name (e.g. <c>@query("band_index") bandIndex</c>).
+        /// </summary>
+        private static PropertyProvider FindPropertyInModelHierarchy(ModelProvider model, string segmentName)
+        {
+            // Properties may only be populated on the canonical view at this stage.
+            var properties = model.CanonicalView.Properties;
+
+            // Try to find the property by wire name, then by client name (segments carry the
+            // camelCase client name; the C# property name is PascalCase).
+            var property = properties.FirstOrDefault(p => p.WireInfo?.SerializedName == segmentName)
+                ?? properties.FirstOrDefault(p => p.InputProperty?.Name == segmentName)
+                ?? properties.FirstOrDefault(p => string.Equals(p.Name, segmentName, System.StringComparison.OrdinalIgnoreCase));
+            if (property != null)
+            {
+                return property;
+            }
+
+            // If not found, search in the base model hierarchy
+            if (model.BaseModelProvider != null)
+            {
+                return FindPropertyInModelHierarchy(model.BaseModelProvider, segmentName);
+            }
+
+            // If not found anywhere, throw an exception with a helpful message
+            throw new System.InvalidOperationException(
+                $"Property with name '{segmentName}' not found in model '{model.Name}' or its base models.");
+        }
+
+        private static bool NeedsNullableConditional(PropertyProvider property)
+        {
+            return !property.Type.IsValueType || property.InputProperty?.Type is InputNullableType;
+        }
+    }
+}

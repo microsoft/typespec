@@ -40,26 +40,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void NotNullOrEmptyCollection()
-        {
-            string[] value = { "test" };
-            Argument.AssertNotNullOrEmpty(value, "value");
-        }
-
-        [Test]
-        public void NotNullOrEmptyCollectionThrowsOnNull()
-        {
-            string[]? value = null;
-            Assert.Throws<ArgumentNullException>(() => Argument.AssertNotNullOrEmpty(value, "value"));
-        }
-
-        [TestCaseSource(nameof(GetNotNullOrEmptyCollectionThrowsOnEmptyCollectionData))]
-        public void NotNullOrEmptyCollectionThrowsOnEmptyCollection(IEnumerable<string>? value)
-        {
-            Assert.Throws<ArgumentException>(() => Argument.AssertNotNullOrEmpty(value, "value"));
-        }
-
-        [Test]
         public void NotNullOrEmptyString()
         {
             string value = "test";
@@ -89,7 +69,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void NotNullOrWhiteSpaceThrowsOnNull()
         {
-            Assert.Throws<ArgumentNullException>(() => Argument.AssertNotNullOrWhiteSpace(null, "value"));
+            string? value = null;
+            Assert.Throws<ArgumentNullException>(() => Argument.AssertNotNullOrWhiteSpace(value, "value"));
+        }
+
+        [Test]
+        public void NotNullOrWhiteSpaceThrowsOnWhiteSpace()
+        {
+            Assert.Throws<ArgumentException>(() => Argument.AssertNotNullOrWhiteSpace("   ", "value"));
         }
 
         [Test]
@@ -99,67 +86,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void NotNullOrWhiteSpaceThrowsOnWhiteSpace()
+        public void AssertInRange()
         {
-            Assert.Throws<ArgumentException>(() => Argument.AssertNotNullOrWhiteSpace(string.Empty, " "));
+            Argument.AssertInRange(5, 1, 10, "value");
         }
 
         [Test]
-        public void NotDefault()
+        public void AssertInRangeThrowsWhenBelowMinimum()
         {
-            TestStructure value = new TestStructure("test", 1);
-            Argument.AssertNotDefault(ref value, "value");
+            Assert.Throws<ArgumentOutOfRangeException>(() => Argument.AssertInRange(0, 1, 10, "value"));
         }
 
         [Test]
-        public void NotDefaultThrows()
+        public void AssertInRangeThrowsWhenAboveMaximum()
         {
-            TestStructure value = default;
-            Assert.Throws<ArgumentException>(() => Argument.AssertNotDefault(ref value, "value"));
-        }
-
-        [TestCase(0, 0, 2)]
-        [TestCase(1, 0, 2)]
-        [TestCase(2, 0, 2)]
-        public void InRangeInt32(int value, int minimum, int maximum)
-        {
-            Argument.AssertInRange(value, minimum, maximum, "value");
-        }
-
-        [TestCase(-1, 0, 2)]
-        [TestCase(3, 0, 2)]
-        public void InRangeInt32Throws(int value, int minimum, int maximum)
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => Argument.AssertInRange(value, minimum, maximum, "value"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Argument.AssertInRange(11, 1, 10, "value"));
         }
 
         [Test]
-        public void CheckNotNull()
-        {
-            var value = "test";
-            var checkedValue = Argument.CheckNotNull(value, "value");
-
-            Assert.AreEqual(value, checkedValue);
-        }
-
-        [Test]
-        public void CheckNotNullOrEmptyString()
+        public void CheckNotNullOrEmpty()
         {
             string value = "test";
-            var checkedValue = Argument.CheckNotNullOrEmpty(value, "value");
-
-            Assert.AreEqual(value, checkedValue);
+            string result = Argument.CheckNotNullOrEmpty(value, "value");
+            Assert.AreEqual("test", result);
         }
 
         [Test]
-        public void CheckNotNullOrEmptyStringThrowsOnNull()
+        public void CheckNotNullOrEmptyThrowsOnNull()
         {
             string? value = null;
             Assert.Throws<ArgumentNullException>(() => Argument.CheckNotNullOrEmpty(value, "value"));
         }
 
         [Test]
-        public void CheckNotNullOrEmptyStringThrowsOnEmpty()
+        public void CheckNotNullOrEmptyThrowsOnEmpty()
         {
             Assert.Throws<ArgumentException>(() => Argument.CheckNotNullOrEmpty(string.Empty, "value"));
         }

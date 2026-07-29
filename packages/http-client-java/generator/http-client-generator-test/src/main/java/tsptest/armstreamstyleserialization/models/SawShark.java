@@ -276,7 +276,6 @@ public final class SawShark extends Shark {
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("kind", this.kind);
-        jsonWriter.writeIntField("age", age());
         jsonWriter.writeJsonField("properties", innerProperties());
         jsonWriter.writeJsonField("anotherProperties", innerAnotherProperties());
         jsonWriter.writeStringField("dna", this.dna);

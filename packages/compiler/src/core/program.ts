@@ -1,24 +1,24 @@
 import pc from "picocolors";
 import { EmitterOptions } from "../config/types.js";
-import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
-import {
-  ModuleResolutionResult,
-  ResolveModuleError,
-  ResolveModuleHost,
-  ResolvedModule,
-  resolveModule,
-} from "../module-resolver/module-resolver.js";
+import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
+import { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import {
+  DiagnosticCodeResolver,
+  LibraryNameInfo,
+  createDiagnosticCodeResolver,
+  formatShortNameCandidates,
+} from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
-import { flushEmittedFilesPaths } from "./emitter-utils.js";
+import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
@@ -31,10 +31,13 @@ import {
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
-import { createResolver } from "./name-resolver.js";
+import { createResolveModuleHost } from "./module-host.js";
+import { NameResolver, createResolver } from "./name-resolver.js";
+import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import { createPerfReporter, perf } from "./perf.js";
 import {
   SourceLoader,
   SourceResolution,
@@ -43,11 +46,17 @@ import {
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
+import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import {
+  SuppressionTracker,
+  createSuppressionTracker,
+  findAmbiguousSuppressions,
+  findDirectiveSuppressingOnNode,
+  findDuplicateSuppressions,
+} from "./suppression-tracking.js";
 import {
   CompilerHost,
   Diagnostic,
-  Directive,
-  DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -61,17 +70,23 @@ import {
   Namespace,
   NoTarget,
   Node,
+  PerfReporter,
   SourceFile,
   Sym,
   SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateInstanceTarget,
   Tracer,
   Type,
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
+
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -82,7 +97,7 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFileNode>;
 
   /** @internal */
-  literalTypes: Map<string | number | boolean, LiteralType>;
+  literalTypes: Map<string | number | boolean | Numeric, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
@@ -91,6 +106,9 @@ export interface Program {
    * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
    */
   checker: Checker;
+  /** @internal */
+  resolver: NameResolver;
+
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   /** @internal */
@@ -106,6 +124,8 @@ export interface Program {
   /** @internal */
   stateSets: Map<symbol, Set<Type>>;
   stateMap(key: symbol): Map<Type, any>;
+  /**@internal */
+  stats: Stats;
   /** @internal */
   stateMaps: Map<symbol, Map<Type, unknown>>;
   hasError(): boolean;
@@ -114,10 +134,18 @@ export interface Program {
 
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  /** @internal */
+  readonly suppressionTracker: SuppressionTracker | undefined;
+
+  /** @internal Resolver for short/full diagnostic and linter rule codes. */
+  readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
+
+  /** @internal */
+  resolveTypeOrValueReference(reference: string): [Entity | undefined, readonly Diagnostic[]];
 
   /** Return location context of the given source file. */
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
@@ -126,6 +154,11 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -139,7 +172,9 @@ interface EmitterRef {
 
 interface Validator {
   metadata: LibraryMetadata;
-  callback: (program: Program) => void | Promise<void>;
+  callback: (
+    program: Program,
+  ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
 }
 
 interface TypeSpecLibraryReference {
@@ -172,18 +207,26 @@ export async function compile(
     return program;
   }
 
+  const emitStats: RuntimeStats["emit"] = {
+    total: 0,
+    emitters: {},
+  };
+  const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
       continue;
     }
-    await emit(emitter, program);
-
+    const emitterStats = await emit(emitter, program);
+    emitStats.emitters[emitter.metadata.name ?? "<unnamed>"] = emitterStats;
     if (options.listFiles) {
-      logEmittedFilesPath(host.logSink);
+      logEmittedFilesPath(program);
     }
   }
+  emitStats.total = timer.end();
+  program.stats.runtime.emit = emitStats;
   return program;
 }
 
@@ -193,6 +236,7 @@ async function createProgram(
   options: CompilerOptions = {},
   oldProgram?: Program,
 ): Promise<{ program: Program; shouldAbort: boolean }> {
+  const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
@@ -200,15 +244,23 @@ async function createProgram(
   const duplicateSymbols = new Set<Sym>();
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
-  let sourceResolution: SourceResolution;
+  const complexityStats: ComplexityStats = {} as any;
+  let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let suppressionTracker: SuppressionTracker | undefined;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
+
+  let currentStage: CompilationStage = "parsing";
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
   const program: Program = {
     checker: undefined!,
+    resolver: undefined!,
     compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
@@ -220,12 +272,29 @@ async function createProgram(
     getOption,
     stateMaps,
     stateSets,
+    stats: {
+      complexity: complexityStats,
+      runtime: runtimeStats as any,
+    },
+
     tracer,
     trace,
     ...createStateAccessors(stateMaps, stateSets),
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
+    get suppressionTracker() {
+      return suppressionTracker;
+    },
+    get diagnosticCodeResolver() {
+      return diagnosticCodeResolver;
+    },
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage: CompilationStage) {
+      currentStage = stage;
+    },
     hasError() {
       return error;
     },
@@ -234,6 +303,8 @@ async function createProgram(
     },
     getGlobalNamespaceType,
     resolveTypeReference,
+    /** @internal */
+    resolveTypeOrValueReference,
     getSourceFileLocationContext,
     projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
   };
@@ -251,7 +322,7 @@ async function createProgram(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  await loadSources(resolvedMain);
+  runtimeStats.loader = await perf.timeAsync(() => loadSources(resolvedMain));
 
   const emit = options.noEmit ? [] : (options.emit ?? []);
   const emitterOptions = options.options;
@@ -268,25 +339,55 @@ async function createProgram(
 
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
-  setCurrentProgram(program);
 
-  const resolver = createResolver(program);
-  resolver.resolveProgram();
+  diagnosticCodeResolver = createDiagnosticCodeResolver(collectLibraryNameInfos());
+  suppressionTracker = createSuppressionTracker(sourceResolution, diagnosticCodeResolver);
+  reportDiagnostics(
+    findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
+      createDiagnostic({
+        code: "duplicate-suppression",
+        format: { code: directive.code },
+        target: directive.node,
+      }),
+    ),
+  );
+  reportDiagnostics(
+    findAmbiguousSuppressions(sourceResolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
+    ),
+  );
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
-  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
+  const resolver = (program.resolver = createResolver(program));
+  runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
+
+  const linter = createLinter(
+    program,
+    (name) => loadLibrary(basedir, name),
+    diagnosticCodeResolver,
+  );
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
   program.checker = createChecker(program, resolver);
-  program.checker.checkProgram();
+  currentStage = "checking";
+  runtimeStats.checker = perf.time(() => program.checker.checkProgram());
+
+  complexityStats.createdTypes = program.checker.stats.createdTypes;
+  complexityStats.finishedTypes = program.checker.stats.finishedTypes;
 
   if (!continueToNextStage) {
     return { program, shouldAbort: true };
   }
 
   // onValidate stage
+  currentStage = "validating";
   await runValidators();
 
   validateRequiredImports();
@@ -298,7 +399,10 @@ async function createProgram(
   }
 
   // Linter stage
-  program.reportDiagnostics(linter.lint());
+  currentStage = "linting";
+  const lintResult = await linter.lint();
+  runtimeStats.linter = lintResult.stats.runtime;
+  program.reportDiagnostics(lintResult.diagnostics);
 
   return { program, shouldAbort: false };
 
@@ -569,6 +673,29 @@ async function createProgram(
     }
   }
 
+  function collectLibraryNameInfos(): LibraryNameInfo[] {
+    // Read library-declared aliases from each loaded library's `$lib` export.
+    const aliasByName = new Map<string, string>();
+    for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+      const lib = jsFile.esmExports?.$lib as TypeSpecLibrary<any> | undefined;
+      if (lib?.name && lib.alias) {
+        aliasByName.set(lib.name, lib.alias);
+      }
+    }
+
+    const infos: LibraryNameInfo[] = [];
+    const seen = new Set<string>();
+    for (const name of sourceResolution.loadedLibraries.keys()) {
+      seen.add(name);
+      infos.push({ name, alias: aliasByName.get(name) });
+    }
+    // The compiler's built-in linter rules live under `@typespec/compiler`.
+    if (!seen.has(builtInLinterLibraryName)) {
+      infos.push({ name: builtInLinterLibraryName });
+    }
+    return infos;
+  }
+
   function computeLibraryMetadata(
     module: ModuleResolutionResult,
     libDefinition: TypeSpecLibrary<any> | undefined,
@@ -603,15 +730,24 @@ async function createProgram(
   }
 
   async function runValidators() {
+    const start = perf.startTimer();
+    runtimeStats.validation = { total: 0, validators: {} };
     runCompilerValidators();
+    runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
-      await runValidator(validator);
+      const start = perf.startTimer();
+      const diagnostics = await runValidator(validator);
+      if (diagnostics && Array.isArray(diagnostics)) {
+        program.reportDiagnostics(diagnostics);
+      }
+      runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
+    runtimeStats.validation.total = start.end();
   }
 
   async function runValidator(validator: Validator) {
     try {
-      await validator.callback(program);
+      return await validator.callback(program);
     } catch (error: any) {
       if (options.designTimeBuild) {
         program.reportDiagnostic(
@@ -658,7 +794,10 @@ async function createProgram(
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [
-        await resolveModule(getResolveModuleHost(), specifier, { baseDir, conditions: ["import"] }),
+        await resolveModule(createResolveModuleHost(host), specifier, {
+          baseDir,
+          conditions: ["import"],
+        }),
         [],
       ];
     } catch (e: any) {
@@ -668,17 +807,6 @@ async function createProgram(
         throw e;
       }
     }
-  }
-
-  function getResolveModuleHost(): ResolveModuleHost {
-    return {
-      realpath: host.realpath,
-      stat: host.stat,
-      readFile: async (path) => {
-        const file = await host.readFile(path);
-        return file.text;
-      },
-    };
   }
 
   // It's important that we use the compiler version that resolves locally
@@ -786,10 +914,15 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    const suppressing = findDirectiveSuppressingOnNode(
+      diagnostic.code,
+      node,
+      diagnosticCodeResolver,
+    );
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
+        suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -799,57 +932,11 @@ async function createProgram(
 
         return false;
       } else {
+        suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
-  }
-
-  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
-    let current: Node | undefined = node;
-    do {
-      if (current.directives) {
-        const directive = findDirectiveSuppressingCode(code, current.directives);
-        if (directive) {
-          return directive;
-        }
-      }
-    } while ((current = current.parent));
-    return undefined;
-  }
-
-  /**
-   * Returns the directive node that is suppressing this code.
-   * @param code Code to check for suppression.
-   * @param directives List of directives.
-   * @returns Directive suppressing this code if found, `undefined` otherwise
-   */
-  function findDirectiveSuppressingCode(
-    code: string,
-    directives: readonly DirectiveExpressionNode[],
-  ): Directive | undefined {
-    for (const directive of directives.map((x) => parseDirective(x))) {
-      if (directive.name === "suppress") {
-        if (directive.code === code) {
-          return directive;
-        }
-      }
-    }
-    return undefined;
-  }
-
-  function parseDirective(node: DirectiveExpressionNode): Directive {
-    const args = node.arguments.map((x) => {
-      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-    });
-    switch (node.target.sv) {
-      case "suppress":
-        return { name: "suppress", code: args[0], message: args[1], node };
-      case "deprecated":
-        return { name: "deprecated", message: args[0], node };
-      default:
-        throw new Error("Unexpected directive name.");
-    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {
@@ -909,6 +996,20 @@ async function createProgram(
     resolver.resolveTypeReference(node);
     return program.checker.resolveTypeReference(node);
   }
+
+  function resolveTypeOrValueReference(
+    reference: string,
+  ): [Entity | undefined, readonly Diagnostic[]] {
+    const [node, parseDiagnostics] = parseStandaloneTypeReference(reference);
+    if (parseDiagnostics.length > 0) {
+      return [undefined, parseDiagnostics];
+    }
+    const binder = createBinder(program);
+    binder.bindNode(node);
+    mutate(node).parent = resolver.symbols.global.declarations[0];
+    resolver.resolveTypeReference(node);
+    return program.checker.resolveTypeOrValueReference(node);
+  }
 }
 
 /**
@@ -918,7 +1019,10 @@ function resolveOptions(options: CompilerOptions): CompilerOptions {
   return { ...options };
 }
 
-async function emit(emitter: EmitterRef, program: Program) {
+async function emit(
+  emitter: EmitterRef,
+  program: Program,
+): Promise<{ total: number; steps: Record<string, number> }> {
   const emitterName = emitter.metadata.name ?? "";
   const relativePathForEmittedFiles =
     transformPathForSink(program.host.logSink, emitter.emitterOutputDir) + "/";
@@ -926,43 +1030,47 @@ async function emit(emitter: EmitterRef, program: Program) {
   const errorCount = program.diagnostics.filter((x) => x.severity === "error").length;
   const warnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
   const logger = createLogger({ sink: program.host.logSink });
-  await logger.trackAction(
-    `Running ${emitterName}...`,
-    `${emitterName}    ${pc.dim(relativePathForEmittedFiles)}`,
-    async (task) => {
-      await runEmitter(emitter, program);
-
-      const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
-      const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
-      if (newErrorCount > errorCount) {
-        task.fail();
-      } else if (newWarnCount > warnCount) {
-        task.warn();
-      }
-    },
-  );
+  return await logger.trackAction(`Running ${emitterName}...`, "", async (task) => {
+    const start = perf.startTimer();
+    const emitterPerfReporter = await runEmitter(emitter, program);
+    const duration = start.end();
+    const message = `${emitterName} ${pc.green(`${Math.round(duration)}ms`)} ${pc.dim(relativePathForEmittedFiles)}`;
+    const newErrorCount = program.diagnostics.filter((x) => x.severity === "error").length;
+    const newWarnCount = program.diagnostics.filter((x) => x.severity === "warning").length;
+    if (newErrorCount > errorCount) {
+      task.fail(message);
+    } else if (newWarnCount > warnCount) {
+      task.warn(message);
+    } else {
+      task.succeed(message);
+    }
+    return { total: duration, steps: emitterPerfReporter.measures };
+  });
 }
 
 /**
  * @param emitter Emitter ref to run
  */
-async function runEmitter(emitter: EmitterRef, program: Program) {
+async function runEmitter(emitter: EmitterRef, program: Program): Promise<PerfReporter> {
+  const perfReporter = createPerfReporter();
   const context: EmitContext<any> = {
     program,
     emitterOutputDir: emitter.emitterOutputDir,
     options: emitter.options,
+    perf: perfReporter,
   };
   try {
     await emitter.emitFunction(context);
+    return perfReporter;
   } catch (error: unknown) {
     throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
   }
 }
 
-function logEmittedFilesPath(logSink: LogSink) {
-  flushEmittedFilesPaths().forEach((filePath) => {
+function logEmittedFilesPath(program: Program) {
+  getEmittedFilesForProgram(program).forEach((filePath) => {
     // eslint-disable-next-line no-console
-    console.log(`    ${pc.dim(transformPathForSink(logSink, filePath))}`);
+    console.log(`    ${pc.dim(transformPathForSink(program.host.logSink, filePath))}`);
   });
 }
 function transformPathForSink(logSink: LogSink, path: string) {

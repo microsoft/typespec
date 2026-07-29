@@ -27,6 +27,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
+import { capitalize } from "@typespec/compiler/casing";
 import {
   map,
   matchType,
@@ -202,8 +203,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     return {
       package: (
         (details?.properties.get("name") as ModelProperty | undefined)?.type as
-          | StringLiteral
-          | undefined
+          StringLiteral | undefined
       )?.value,
 
       options: Object.fromEntries(packageOptions),
@@ -831,8 +831,45 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     // Determine if the property type is an array
     if (isArray(property.type)) field.repeated = true;
+    field.optional = shouldEmitOptionalLabel(property);
 
     return field;
+  }
+
+  function shouldEmitOptionalLabel(property: ModelProperty): boolean {
+    if (!property.optional) {
+      return false;
+    }
+
+    if (isArray(property.type)) {
+      reportDiagnostic.once(program, {
+        code: "optional-array-field",
+        format: {},
+        target: property,
+      });
+      return false;
+    }
+
+    if (isMap(program, property.type)) {
+      reportDiagnostic.once(program, {
+        code: "optional-map-field",
+        format: {},
+        target: property,
+      });
+      return false;
+    }
+
+    switch (property.type.kind) {
+      case "Scalar":
+      case "Enum":
+        return true;
+      case "Intrinsic":
+      case "Model":
+      case "Union":
+        return false;
+      default:
+        return false;
+    }
   }
 
   /**
@@ -848,26 +885,18 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map(
-        (variant): ProtoEnumVariantDeclaration => ({
-          kind: "variant",
-          name: variant.name,
-          value: variant.value as number,
-          doc: getDoc(program, variant),
-        }),
-      ),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
+        kind: "variant",
+        name: variant.name,
+        value: variant.value as number,
+        doc: getDoc(program, variant),
+      })),
       doc: getDoc(program, e),
     };
   }
 
   type NamespaceTraversable =
-    | Enum
-    | Model
-    | Interface
-    | Union
-    | Operation
-    | Namespace
-    | IntrinsicType;
+    Enum | Model | Interface | Union | Operation | Namespace | IntrinsicType;
 
   function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
@@ -952,8 +981,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             ? (map(
                 k,
                 addImportSourceForProtoIfNeeded(program, v, mapInfo[0], mapInfo[1]) as
-                  | ProtoRef
-                  | ProtoScalar,
+                  ProtoRef | ProtoScalar,
                 // Anything else is unreachable by construction.
               ) as T)
             : pt;
@@ -975,8 +1003,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             return pt;
 
           const dependencyDetails = program.stateMap(state.package).get(dependencyPackage) as
-            | Model
-            | undefined;
+            Model | undefined;
 
           const dependencyPackageName = (
             dependencyDetails?.properties.get("name")?.type as StringLiteral | undefined
@@ -1006,13 +1033,6 @@ function isArray(t: Type) {
 }
 
 /**
- * Simple utility function to capitalize a string.
- */
-function capitalize<S extends string>(s: S) {
-  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
-}
-
-/**
  * Gets the syntactic return type target for an operation.
  *
  * Helps us squiggle the right things for operation return types.
@@ -1021,7 +1041,7 @@ function capitalize<S extends string>(s: S) {
  * emitters to implement this functionality.
  */
 function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
-  const signature = op.node.signature;
+  const signature = op.node!.signature;
   switch (signature.kind) {
     case SyntaxKind.OperationSignatureDeclaration:
       return signature.returnType;
@@ -1030,7 +1050,7 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
     default:
       const __exhaust: never = signature;
       throw new Error(
-        `Internal Emitter Error: reached unreachable operation signature: ${op.node.signature.kind}`,
+        `Internal Emitter Error: reached unreachable operation signature: ${op.node?.signature.kind}`,
       );
   }
 }
@@ -1043,7 +1063,9 @@ function getOperationReturnSyntaxTarget(op: Operation): DiagnosticTarget {
  */
 function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget {
   const node = property.node;
-
+  if (node === undefined) {
+    return property;
+  }
   switch (node.kind) {
     case SyntaxKind.ModelProperty:
     case SyntaxKind.ObjectLiteralProperty:
@@ -1053,7 +1075,7 @@ function getPropertyNameSyntaxTarget(property: ModelProperty): DiagnosticTarget 
     default:
       const __exhaust: never = node;
       throw new Error(
-        `Internal Emitter Error: reached unreachable model property node: ${property.node.kind}`,
+        `Internal Emitter Error: reached unreachable model property node: ${property.node?.kind}`,
       );
   }
 }

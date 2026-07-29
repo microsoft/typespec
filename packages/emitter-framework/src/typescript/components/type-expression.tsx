@@ -1,74 +1,91 @@
-import { For, refkey } from "@alloy-js/core";
+import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
-import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
-import "@typespec/http/experimental/typekit";
+import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
+import type { Typekit } from "@typespec/compiler/typekit";
+import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
+import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { efRefkey } from "../utils/refkey.js";
 import { ArrayExpression } from "./array-expression.js";
+import { FunctionType } from "./function-type.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { RecordExpression } from "./record-expression.js";
-import { UnionExpression } from "./union-expression.js";
+import { UnionExpression } from "./union/expression.js";
 
 export interface TypeExpressionProps {
   type: Type;
+
+  /**
+   * Whether to disallow references. Setting this will force the type to be
+   * emitted inline, even if it is a declaration that would otherwise be
+   * referenced.
+   */
+  noReference?: boolean;
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
-  const type = $.httpPart.unpack(props.type);
-  if (isDeclaration(type)) {
-    // todo: probably need abstraction around deciding what's a declaration in the output
-    // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={refkey(type)} />;
-    //throw new Error("Reference not implemented");
-  }
+  const type = props.type;
+  const { $ } = useTsp();
 
-  // TODO: Make sure this is an exhaustive switch, including EnumMember and such
-  switch (type.kind) {
-    case "Scalar":
-    case "Intrinsic":
-      return <>{getScalarIntrinsicExpression(type)}</>;
-    case "Boolean":
-    case "Number":
-    case "String":
-      return <ValueExpression jsValue={type.value} />;
-    case "Union":
-      return <UnionExpression type={type} />;
-    case "UnionVariant":
-      return <TypeExpression type={type.type} />;
-    case "Tuple":
-      return (
-        <>
-          [
-          <For each={type.values} comma line>
-            {(element) => <TypeExpression type={element} />}
-          </For>
-          ]
-        </>
-      );
-    case "ModelProperty":
-      return <TypeExpression type={type.type} />;
-    case "Model":
-      if ($.array.is(type)) {
-        const elementType = type.indexer!.value;
-        return <ArrayExpression elementType={elementType} />;
-      }
+  return (
+    <Experimental_OverridableComponent reference type={type}>
+      {() => {
+        if (!props.noReference && isDeclaration($, type)) {
+          // todo: probably need abstraction around deciding what's a declaration in the output
+          // (it may not correspond to things which are declarations in TypeSpec?)
+          return <Reference refkey={efRefkey(type)} />;
+          //throw new Error("Reference not implemented");
+        }
 
-      if ($.record.is(type)) {
-        const elementType = (type as Model).indexer!.value;
-        return <RecordExpression elementType={elementType} />;
-      }
+        // TODO: Make sure this is an exhaustive switch, including EnumMember and such
+        switch (type.kind) {
+          case "Scalar":
+          case "Intrinsic":
+            return <>{getScalarIntrinsicExpression($, type)}</>;
+          case "Boolean":
+          case "Number":
+          case "String":
+            return <ValueExpression jsValue={type.value} />;
+          case "Union":
+            return <UnionExpression type={type} />;
+          case "UnionVariant":
+            return <TypeExpression type={type.type} />;
+          case "Tuple":
+            return (
+              <>
+                [
+                <For each={type.values} comma line>
+                  {(element) => <TypeExpression type={element} />}
+                </For>
+                ]
+              </>
+            );
+          case "ModelProperty":
+            return <TypeExpression type={type.type} />;
+          case "Model":
+            if ($.array.is(type)) {
+              const elementType = type.indexer!.value;
+              return <ArrayExpression elementType={elementType} />;
+            }
 
-      if ($.httpPart.is(type)) {
-        const partType = $.httpPart.unpack(type);
-        return <TypeExpression type={partType} />;
-      }
+            if ($.record.is(type)) {
+              const elementType = (type as Model).indexer!.value;
+              return <RecordExpression elementType={elementType} />;
+            }
 
-      return <InterfaceExpression type={type} />;
-
-    default:
-      reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-type", target: type });
-      return "any";
-  }
+            return <InterfaceExpression type={type} />;
+          case "Operation":
+            return <FunctionType type={type} />;
+          default:
+            reportTypescriptDiagnostic($.program, {
+              code: "typescript-unsupported-type",
+              target: type,
+            });
+            return "any";
+        }
+      }}
+    </Experimental_OverridableComponent>
+  );
 }
 
 const intrinsicNameToTSType = new Map<string, string | null>([
@@ -110,12 +127,12 @@ const intrinsicNameToTSType = new Map<string, string | null>([
   ["url", "string"], // Matches TypeScript's `string`
 ]);
 
-function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | null {
+function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string | null {
   let intrinsicName: string;
   if ($.scalar.is(type)) {
     if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
       const encoding = $.scalar.getEncoding(type);
-      let emittedType = "Date";
+      let emittedType;
       switch (encoding?.encoding) {
         case "unixTimestamp":
         case "rfc7231":
@@ -143,7 +160,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
   return tsType;
 }
 
-function isDeclaration(type: Type): boolean {
+function isDeclaration($: Typekit, type: Type): boolean {
   switch (type.kind) {
     case "Namespace":
     case "Interface":

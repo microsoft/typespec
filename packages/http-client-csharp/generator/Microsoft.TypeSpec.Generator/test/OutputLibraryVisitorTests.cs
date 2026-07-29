@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -35,7 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void VisitsTypes()
         {
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
         }
@@ -50,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockTypeProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([testMethod]);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), testMethod);
         }
@@ -64,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockTypeProvider.Protected().Setup<ConstructorProvider[]>("BuildConstructors")
                 .Returns([testConstructor]);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<ConstructorProvider>("VisitConstructor", Times.Once(), testConstructor);
@@ -78,7 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockTypeProvider.Protected().Setup<PropertyProvider[]>("BuildProperties")
                 .Returns([testProperty]);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<PropertyProvider>("VisitProperty", Times.Once(), testProperty);
@@ -91,7 +96,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockTypeProvider.Protected().Setup<FieldProvider[]>("BuildFields")
                 .Returns([mockFieldProvider.Object]);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<FieldProvider>("VisitField", Times.Once(), mockFieldProvider.Object);
@@ -100,15 +105,19 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void VisitsSerializationProviderMembers()
         {
-            var mockSerializationProvider = new Mock<TypeProvider>();
+            var mockSerializationProvider = new Mock<TypeProvider>() { CallBase = true };
             _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildSerializationProviders")
                 .Returns([mockSerializationProvider.Object]);
             var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
-            var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty, mockSerializationProvider.Object, new XmlDocProvider());
+            var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty,
+                mockSerializationProvider.Object, new XmlDocProvider(), new List<SuppressionStatement>())
+            {
+                CallBase = true
+            };
             mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([mockMethodProvider.Object]);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), mockSerializationProvider.Object);
@@ -127,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockVisitor.Protected().Setup<TypeProvider?>("VisitType", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Never(), testMethod);
@@ -144,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockVisitor.Protected().Setup<TypeProvider?>("VisitType", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<ConstructorProvider>("VisitConstructor", Times.Never(), testConstructor);
@@ -160,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockVisitor.Protected().Setup<TypeProvider?>("VisitType", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<PropertyProvider>("VisitProperty", Times.Never(), testProperty);
@@ -175,10 +184,404 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _mockVisitor.Protected().Setup<TypeProvider?>("VisitType", _mockTypeProvider.Object).Returns<TypeProvider?>(
                 (t) => null);
 
-            _mockVisitor.Object.Visit(_mockGenerator.Object.OutputLibrary);
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), _mockTypeProvider.Object);
             _mockVisitor.Protected().Verify<FieldProvider>("VisitField", Times.Never(), mockFieldProvider.Object);
+        }
+
+        [Test]
+        public void VisitMethodToRenameParameterName()
+        {
+            var parameter = new ParameterProvider("oldName", $"", typeof(string));
+            var testMethod = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", [parameter]),
+                Snippet.Return(parameter), new TestTypeProvider());
+
+            testMethod.Accept(new MethodVisitor());
+
+            Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
+            Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task MatchingMethodSignatureIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set methods after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(methods: [methodProvider], reset: true);
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+        }
+
+        [Test]
+        public async Task MethodIsNotFilteredWhenVisitorChangesSignature()
+        {
+            // Use a type provider subclass with mutable BuildMethods to avoid setting
+            // the TypeProvider._methods cache directly (which would bypass EnsureBuilt's
+            // new code path that calls BuildMethods without filtering).
+            var typeProvider = new MutableMethodsTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"",
+                    [new ParameterProvider("param1", $"", typeof(int))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            typeProvider.MethodProviders = [methodProvider];
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Reset to reinitialize CustomCodeView now that the mock generator is set up
+            typeProvider.Update(reset: true);
+
+            // Step 1: Build all types (simulating CSharpGen.ExecuteAsync)
+            // EnsureBuilt bypasses customization filtering, so the method is preserved
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            // Verify that the custom code is correctly loaded and the method is present
+            Assert.IsNotNull(typeProvider.CustomCodeView, "CustomCodeView should not be null");
+            Assert.AreEqual(1, typeProvider.Methods.Count, "Method should be present after EnsureBuilt");
+
+            // Step 2: Visitor changes the parameter type from int to float,
+            // so it no longer matches the custom code
+            var visitor = new ChangeParameterTypeVisitor("TestMethod", typeof(float));
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            // Step 3: Apply customization filtering after visitor
+            typeProvider.Update(methods: typeProvider.FilterCustomizedMethods(typeProvider.Methods));
+
+            // The method should NOT be filtered because the visitor changed its signature
+            // to no longer match the custom code
+            Assert.AreEqual(1, typeProvider.Methods.Count);
+            Assert.AreEqual("TestMethod", typeProvider.Methods[0].Signature.Name);
+            Assert.AreEqual(typeof(float), typeProvider.Methods[0].Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
+        public async Task MatchingConstructorSignatureIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set constructors after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(constructors: [constructor], reset: true);
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Constructors.Count);
+        }
+
+        [Test]
+        public async Task SerializationProviderConstructorIsFilteredWhenMatchingCustomCode()
+        {
+            // Create a type provider with a serialization provider
+            var typeProvider = new TestTypeProvider();
+            var serializationProvider = new TestSerializationTypeProvider();
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(serializationProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), serializationProvider);
+            serializationProvider.ConstructorProviders = [constructor];
+            typeProvider.Update(serializations: [serializationProvider], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Reset to reinitialize CustomCodeView now that the mock generator is set up
+            serializationProvider.Update(reset: true);
+
+            // Build all types (simulating CSharpGen.ExecuteAsync) — EnsureBuilt bypasses
+            // customization filtering so the constructor is preserved.
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            // Verify serialization provider constructor is present after EnsureBuilt
+            Assert.IsNotNull(serializationProvider.CustomCodeView, "CustomCodeView should not be null");
+            Assert.AreEqual(1, serializationProvider.Constructors.Count, "Serialization provider should have 1 constructor before filtering");
+
+            // Apply filtering through the real pipeline
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            // The constructor should be filtered out because it matches custom code
+            Assert.AreEqual(0, serializationProvider.Constructors.Count, "Serialization provider constructor should be filtered when matching custom code");
+        }
+
+        [Test]
+        public async Task NestedProviderConstructorIsFilteredWhenMatchingCustomCode()
+        {
+            var typeProvider = new TestTypeProvider(ns: "Sample");
+            var customNestedProvider = new TestConstructorTypeProvider("NestedType", "Sample");
+            customNestedProvider.ConstructorProviders =
+            [
+                new ConstructorProvider(
+                    new ConstructorSignature(customNestedProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                    Snippet.Throw(Snippet.Null), customNestedProvider)
+            ];
+            var nestedProvider = new TestConstructorTypeProvider("NestedType", "Sample", typeProvider, customNestedProvider);
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(nestedProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(string))]),
+                Snippet.Throw(Snippet.Null), nestedProvider);
+            nestedProvider.ConstructorProviders = [constructor];
+            typeProvider.NestedTypesInternal = [nestedProvider];
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider));
+
+            foreach (var type in generator.Object.OutputLibrary.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            Assert.AreEqual(1, nestedProvider.Constructors.Count, "Nested provider should have 1 constructor before filtering");
+            Assert.IsNotNull(nestedProvider.CustomCodeView, "Nested provider custom code view should be found");
+
+            CSharpGen.FilterAllCustomizedMembers(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, nestedProvider.Constructors.Count, "Nested provider constructor should be filtered when matching custom code");
+        }
+
+        [Test]
+        public async Task MatchingPropertyIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var property = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "TestProperty", new AutoPropertyBody(true), typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set properties after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(properties: [property], reset: true);
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task MatchingFieldIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var field = new FieldProvider(FieldModifiers.Public, typeof(string), "TestField", typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set fields after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(fields: [field], reset: true);
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Fields.Count);
+        }
+
+        [Test]
+        public async Task MultipleVisitorsMutateMember()
+        {
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("OriginalMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Set methods after the mock generator is loaded so CustomCodeView is built
+            // from the correct SourceInputModel.
+            typeProvider.Update(methods: [methodProvider], reset: true);
+
+            var visitor1 = new RenameMethodVisitor("OriginalMethod", "TestMethod");
+            var visitor2 = new ChangeParameterTypeVisitor("TestMethod", typeof(int));
+
+            visitor1.VisitLibrary(generator.Object.OutputLibrary);
+            visitor2.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+        }
+
+        private class RenameMethodVisitor : LibraryVisitor
+        {
+            private readonly string _originalName;
+            private readonly string _newName;
+
+            public RenameMethodVisitor(string originalName, string newName)
+            {
+                _originalName = originalName;
+                _newName = newName;
+            }
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == _originalName)
+                {
+                    method.Signature.Update(name: _newName);
+                }
+                return method; // Return method even if not renamed, to allow further visiting (though logic here seems to not matter much as LibraryVisitor base is used or visitor logic)
+            }
+        }
+
+        private class ChangeParameterTypeVisitor : LibraryVisitor
+        {
+            private readonly string _methodName;
+            private readonly System.Type _newType;
+
+            public ChangeParameterTypeVisitor(string methodName, System.Type newType)
+            {
+                _methodName = methodName;
+                _newType = newType;
+            }
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == _methodName)
+                {
+                    method.Signature.Parameters[0].Update(type: _newType);
+                }
+                return method;
+            }
+        }
+
+
+        private class TestFilterVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == "TestMethod")
+                {
+                    method.Signature.Parameters[0].Update(type: typeof(int));
+                }
+                return method;
+            }
+
+            protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+            {
+                if (constructor.Signature.Parameters.Count > 0)
+                {
+                    constructor.Signature.Parameters[0].Update(type: typeof(int));
+                }
+                return constructor;
+            }
+
+            protected override PropertyProvider? VisitProperty(PropertyProvider property)
+            {
+                if (property.Name == "TestProperty")
+                {
+                    property.Update(name: "UpdatedProperty");
+                }
+                return property;
+            }
+
+            protected internal override FieldProvider? VisitField(FieldProvider field)
+            {
+                if (field.Name == "TestField")
+                {
+                    field.Update(name: "UpdatedField");
+                }
+                return field;
+            }
+        }
+
+        private class MethodVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                // Rename the parameter to "newName"
+                foreach (var parameter in method.Signature.Parameters)
+                {
+                    if (parameter.Name == "oldName")
+                    {
+                        parameter.Update("newName");
+                    }
+                }
+                return base.VisitMethod(method);
+            }
+        }
+
+        /// <summary>
+        /// A TypeProvider subclass that allows setting methods after construction via BuildMethods,
+        /// which avoids writing to the TypeProvider._methods cache directly.
+        /// This is needed for tests that exercise EnsureBuilt's code path.
+        /// </summary>
+        private class MutableMethodsTypeProvider : TypeProvider
+        {
+            public MethodProvider[] MethodProviders { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "TestName";
+            protected override string BuildNamespace() => "Test";
+            protected internal override MethodProvider[] BuildMethods() => MethodProviders;
+        }
+
+        /// <summary>
+        /// A TypeProvider subclass that simulates a serialization provider with configurable constructors.
+        /// </summary>
+        private class TestSerializationTypeProvider : TypeProvider
+        {
+            public ConstructorProvider[] ConstructorProviders { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => "TestSerializationProvider";
+            protected override string BuildNamespace() => "Test";
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+        }
+
+        private class TestConstructorTypeProvider : TypeProvider
+        {
+            private readonly string _name;
+            private readonly string _namespace;
+            private readonly TypeProvider? _declaringTypeProvider;
+
+            public TestConstructorTypeProvider(string name, string @namespace, TypeProvider? declaringTypeProvider = null)
+                : this(name, @namespace, declaringTypeProvider, customCodeView: null)
+            {
+            }
+
+            public TestConstructorTypeProvider(string name, string @namespace, TypeProvider? declaringTypeProvider, TypeProvider? customCodeView)
+            {
+                _name = name;
+                _namespace = @namespace;
+                _declaringTypeProvider = declaringTypeProvider;
+                _customCodeView = customCodeView;
+            }
+
+            private readonly TypeProvider? _customCodeView;
+            public ConstructorProvider[] ConstructorProviders { get; set; } = [];
+            protected override string BuildRelativeFilePath() => $"{Name}.cs";
+            protected override string BuildName() => _name;
+            protected override string BuildNamespace() => _namespace;
+            protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+            private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => _customCodeView;
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
     }
 }

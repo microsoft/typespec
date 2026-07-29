@@ -26,14 +26,12 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      external: externals,
+      external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },
   plugins: [
     react({}),
-    dts({
-      logLevel: "silent", // checker reports the errors
-    }),
+    dts({}),
     checker({
       // e.g. use TypeScript check
       typescript: true,
@@ -43,5 +41,9 @@ export default defineConfig({
     fs: {
       strict: false,
     },
+  },
+  test: {
+    environment: "node",
+    globals: true,
   },
 });
