@@ -87,8 +87,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
 
-            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
+            if (GetStreamingResponse() != null)
+            {
+                if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
+                {
+                    return
+                    [
+                        asyncProtocol,
+                        BuildConvenienceMethod(asyncProtocol, true)
+                    ];
+                }
+
+                return [asyncProtocol];
+            }
+
+            var syncProtocol = BuildProtocolMethod(_createRequestMethod, false, shouldMakeParametersRequired);
 
             if (_generateConvenienceMethod)
             {
@@ -214,60 +228,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (streamingResponse != null)
             {
-                if (streamingResponse.StreamKind == "sse")
-                {
-                    ValueExpression terminalPredicate = Null;
-                    if (streamingResponse.TerminalEventValue != null)
-                    {
-                        var sseItemType = new CSharpType(typeof(SseItem<>), typeof(BinaryData));
-                        var item = new VariableExpression(sseItemType, "item");
-                        ValueExpression isTerminal = item.Property("Data")
-                            .Invoke("ToString")
-                            .Equal(Literal(streamingResponse.TerminalEventValue));
-                        if (streamingResponse.TerminalEventType != null)
-                        {
-                            isTerminal = item.Property("EventType")
-                                .Equal(Literal(streamingResponse.TerminalEventType))
-                                .And(isTerminal);
-                        }
-                        terminalPredicate = new FuncExpression([item.Declaration], isTerminal);
-                    }
-
-                    methodBody =
-                    [
-                        .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
-                        Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
-                        Return(Static(typeof(AsyncStreamingClientResult)).Invoke(
-                            "CreateSse",
-                            [
-                                result.GetRawResponse(),
-                                terminalPredicate,
-                                signatureParameters[^1]
-                            ]))
-                    ];
-                }
-                else
-                {
-                    var itemType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingResponse.ValueType)
-                        ?? throw new InvalidOperationException("Unable to resolve JSON Lines stream item type.");
-                    var jsonLinesContentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([itemType]);
-                    var deserializeMethod = streamingResponse.ValueType is InputModelType
-                        ? "DeserializeModel"
-                        : "DeserializeValue";
-                    methodBody =
-                    [
-                        .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
-                        Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
-                        Return(Static(typeof(AsyncStreamingClientResult)).Invoke(
-                            "CreateJsonLines",
-                            [
-                                result.GetRawResponse(),
-                                Static(jsonLinesContentType).Property(deserializeMethod),
-                                signatureParameters[^1]
-                            ],
-                            [itemType]))
-                    ];
-                }
+                var conversionStatements = GetStackVariablesForProtocolParamConversion(
+                    convenienceBodyParameters,
+                    out var declarations);
+                var protocolArguments = GetProtocolMethodArguments(declarations);
+                var requestOptions = protocolArguments[^1];
+                methodBody =
+                [
+                    .. conversionStatements,
+                    UsingDeclare(
+                        "message",
+                        ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
+                        This.Invoke(_createRequestMethod.Signature, protocolArguments),
+                        out var message),
+                    message.Property("BufferResponse").Assign(False).Terminate(),
+                    Return(CreateStreamingResultExpression(
+                        streamingResponse,
+                        client.PipelineProperty.Invoke(
+                            "ProcessMessageAsync",
+                            [message, requestOptions],
+                            true,
+                            true,
+                            extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type),
+                        signatureParameters[^1],
+                        useConvenienceType: true))
+                ];
             }
             else if (responseBodyType is null)
             {
@@ -1238,6 +1223,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else
             {
                 var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                var streamingResponse = GetStreamingResponse();
                 methodBody =
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
@@ -1246,8 +1232,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
                         : new MethodBodyStatement[] { message.Property("BufferResponse").Assign(False).Terminate() },
-                    Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
+                    Return(streamingResponse != null
+                        ? CreateStreamingResultExpression(
+                            streamingResponse,
+                            client.PipelineProperty.Invoke(
+                                processMessageName,
+                                [message, requestOptionsParameter],
+                                isAsync,
+                                true,
+                                extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type),
+                            cancellationToken: null,
+                            useConvenienceType: false)
+                        : ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
+                            .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
                 ];
             }
 
@@ -1417,6 +1414,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientCollectionResponseType;
             }
 
+            var streamingResponse = responses.FirstOrDefault(r => !r.IsErrorResponse)?.BodyType as InputStreamingType;
+            if (streamingResponse != null)
+            {
+                responseBodyType = GetRawStreamingItemType(streamingResponse);
+                var resultType = new CSharpType(typeof(AsyncStreamingClientResult<>), responseBodyType);
+                return new CSharpType(typeof(Task<>), resultType);
+            }
+
             var returnType = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType;
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
@@ -1427,9 +1432,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
             if (response?.BodyType is InputStreamingType streamingType)
             {
-                responseBodyType = streamingType.StreamKind == "sse"
-                    ? new CSharpType(typeof(SseItem<>), typeof(BinaryData))
-                    : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingType.ValueType);
+                responseBodyType = GetConvenienceStreamingItemType(streamingType);
                 var resultType = new CSharpType(
                     typeof(AsyncStreamingClientResult<>),
                     responseBodyType ?? throw new InvalidOperationException("Unable to resolve streaming response type."));
@@ -1459,6 +1462,159 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType.OutputType);
 
             return isAsync ? new CSharpType(typeof(Task<>), returnType) : returnType;
+        }
+
+        private static CSharpType GetRawStreamingItemType(InputStreamingType streamingType)
+            => streamingType.StreamKind == "sse"
+                ? new CSharpType(typeof(SseItem<>), typeof(BinaryData))
+                : typeof(BinaryData);
+
+        private static CSharpType GetConvenienceStreamingItemType(InputStreamingType streamingType)
+        {
+            if (streamingType.StreamKind != "sse")
+            {
+                return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingType.ValueType)
+                    ?? throw new InvalidOperationException("Unable to resolve JSON Lines stream item type.");
+            }
+
+            var payloadType = GetSseConveniencePayloadType(streamingType);
+            var payloadCSharpType = payloadType is null
+                ? typeof(BinaryData)
+                : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(payloadType)
+                    ?? throw new InvalidOperationException("Unable to resolve SSE stream item type.");
+            return new CSharpType(typeof(SseItem<>), payloadCSharpType);
+        }
+
+        private static InputType? GetSseConveniencePayloadType(InputStreamingType streamingType)
+        {
+            if (streamingType.ValueType is not InputUnionType unionType)
+            {
+                return streamingType.ValueType;
+            }
+
+            var payloadTypes = unionType.VariantTypes
+                .Where(type => type is not InputLiteralType literal ||
+                    !Equals(literal.Value, streamingType.TerminalEventValue))
+                .ToArray();
+            if (payloadTypes.Length == 0)
+            {
+                return null;
+            }
+
+            var firstCSharpType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(payloadTypes[0]);
+            return firstCSharpType != null &&
+                payloadTypes.Skip(1).All(type =>
+                    firstCSharpType.Equals(
+                        ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(type)))
+                ? payloadTypes[0]
+                : null;
+        }
+
+        private static ValueExpression CreateStreamingResultExpression(
+            InputStreamingType streamingType,
+            ValueExpression response,
+            ValueExpression? cancellationToken,
+            bool useConvenienceType)
+        {
+            if (streamingType.StreamKind == "sse")
+            {
+                var terminalPredicate = CreateSseTerminalPredicate(streamingType);
+                var payloadType = useConvenienceType
+                    ? GetSseConveniencePayloadType(streamingType)
+                    : null;
+                if (payloadType != null)
+                {
+                    var payloadCSharpType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(payloadType)
+                        ?? throw new InvalidOperationException("Unable to resolve SSE stream item type.");
+                    var parser = CreateSseParser(payloadType, payloadCSharpType);
+                    var arguments = cancellationToken != null
+                        ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
+                        : [response, parser, terminalPredicate];
+                    return Static(typeof(AsyncStreamingClientResult)).Invoke(
+                        "CreateSse",
+                        arguments,
+                        [payloadCSharpType]);
+                }
+
+                var rawArguments = cancellationToken != null
+                    ? new ValueExpression[] { response, terminalPredicate, cancellationToken }
+                    : terminalPredicate == Null
+                        ? [response]
+                        : [response, terminalPredicate];
+                return Static(typeof(AsyncStreamingClientResult)).Invoke("CreateSse", rawArguments);
+            }
+
+            if (!useConvenienceType)
+            {
+                return Static(typeof(AsyncStreamingClientResult)).Invoke(
+                    "CreateJsonLines",
+                    cancellationToken != null
+                        ? [response, cancellationToken]
+                        : [response]);
+            }
+
+            var itemType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingType.ValueType)
+                ?? throw new InvalidOperationException("Unable to resolve JSON Lines stream item type.");
+            var jsonLinesContentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([itemType]);
+            var deserializeMethod = streamingType.ValueType is InputModelType
+                ? "DeserializeModel"
+                : "DeserializeValue";
+            var jsonLinesArguments = cancellationToken != null
+                ? new ValueExpression[]
+                {
+                    response,
+                    Static(jsonLinesContentType).Property(deserializeMethod),
+                    cancellationToken
+                }
+                :
+                [
+                    response,
+                    Static(jsonLinesContentType).Property(deserializeMethod)
+                ];
+            return Static(typeof(AsyncStreamingClientResult)).Invoke(
+                "CreateJsonLines",
+                jsonLinesArguments,
+                [itemType]);
+        }
+
+        private static ValueExpression CreateSseTerminalPredicate(InputStreamingType streamingType)
+        {
+            if (streamingType.TerminalEventValue is null)
+            {
+                return Null;
+            }
+
+            var sseItemType = new CSharpType(typeof(SseItem<>), typeof(BinaryData));
+            var item = new VariableExpression(sseItemType, "item");
+            ValueExpression isTerminal = item.Property("Data")
+                .Invoke("ToString")
+                .Equal(Literal(streamingType.TerminalEventValue));
+            if (streamingType.TerminalEventType != null)
+            {
+                isTerminal = item.Property("EventType")
+                    .Equal(Literal(streamingType.TerminalEventType))
+                    .And(isTerminal);
+            }
+            return new FuncExpression([item.Declaration], isTerminal);
+        }
+
+        private static ValueExpression CreateSseParser(
+            InputType payloadType,
+            CSharpType payloadCSharpType)
+        {
+            var eventType = new VariableExpression(typeof(string), "_");
+            var data = new VariableExpression(typeof(ReadOnlySpan<byte>), "data");
+            var binaryData = Static(typeof(BinaryData)).Invoke(
+                "FromBytes",
+                [data.Invoke("ToArray")]);
+            var helperType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType(
+                [payloadCSharpType]);
+            var deserializeMethod = payloadType is InputModelType
+                ? "DeserializeModel"
+                : "DeserializeValue";
+            return new FuncExpression(
+                [eventType.Declaration, data.Declaration],
+                Static(helperType).Invoke(deserializeMethod, [binaryData]));
         }
 
         private CSharpType? GetResponseBodyType(InputType? responseType)

@@ -2,8 +2,6 @@
 
 #nullable disable
 
-using System.Collections.Generic;
-using Streaming.Sse._Named;
 using Streaming.Sse._Retrieve;
 using Streaming.Sse._Unnamed;
 
@@ -11,6 +9,7 @@ namespace Streaming.Sse
 {
     public static partial class StreamingSseModelFactory
     {
+        public static Info Info(string desc = default) => throw null;
 
         public static RetrievalRequest RetrievalRequest(string query = default) => throw null;
     }

@@ -256,6 +256,7 @@
                           "valueType": {
                             "$ref": "9"
                           },
+                          "streamKind": "jsonl",
                           "contentTypes": [
                             "application/jsonl"
                           ],
@@ -304,6 +305,7 @@
                       "valueType": {
                         "$ref": "9"
                       },
+                      "streamKind": "jsonl",
                       "contentTypes": [
                         "application/jsonl"
                       ],
@@ -448,6 +450,7 @@
                       "valueType": {
                         "$ref": "9"
                       },
+                      "streamKind": "jsonl",
                       "contentTypes": [
                         "application/jsonl"
                       ],
@@ -496,6 +499,7 @@
                   "valueType": {
                     "$ref": "9"
                   },
+                  "streamKind": "jsonl",
                   "contentTypes": [
                     "application/jsonl"
                   ],

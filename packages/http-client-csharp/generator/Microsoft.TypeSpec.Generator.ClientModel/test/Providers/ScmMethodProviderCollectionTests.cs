@@ -109,10 +109,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
-            Assert.AreEqual(3, methodCollection.Count);
+            Assert.AreEqual(2, methodCollection.Count);
             Assert.IsFalse(methodCollection.Any(method =>
                 method.Signature.Name == "Receive" &&
-                method.Signature.Parameters.All(parameter => parameter.Name != "options")));
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options")));
+
+            var rawProtocolMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options"));
+            var expectedProtocolReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(typeof(AsyncStreamingClientResult<>), typeof(BinaryData)));
+            Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                rawProtocolMethod.BodyStatements!.ToDisplayString());
 
             var convenienceMethod = methodCollection.Single(method =>
                 method.Signature.Name == "ReceiveAsync" &&
@@ -142,10 +153,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var eventType = InputFactory.Model(
                 "Info",
                 properties: [InputFactory.Property("desc", InputPrimitiveType.String, isRequired: true)]);
+            var eventUnion = InputFactory.Union([eventType], "SseEvents");
             var streamType = new InputStreamingType(
                 "SseStream",
                 "Streaming.Sse.SseStream",
-                eventType,
+                eventUnion,
                 ["text/event-stream"],
                 streamKind: "sse",
                 terminalEventValue: "[DONE]");
@@ -163,6 +175,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(client);
 
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(2, methodCollection.Count);
+            Assert.IsFalse(methodCollection.Any(method => method.Signature.Name == "Receive"));
+
+            var rawProtocolMethod = methodCollection.Single(method =>
+                method.Signature.Name == "ReceiveAsync" &&
+                method.Signature.Parameters.Any(parameter => parameter.Name == "options"));
+            var expectedProtocolReturnType = new CSharpType(
+                typeof(Task<>),
+                new CSharpType(
+                    typeof(AsyncStreamingClientResult<>),
+                    new CSharpType(typeof(SseItem<>), typeof(BinaryData))));
+            Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
+            StringAssert.Contains(
+                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                rawProtocolMethod.BodyStatements!.ToDisplayString());
+
             var convenienceMethod = methodCollection.Single(method =>
                 method.Signature.Name == "ReceiveAsync" &&
                 method.Signature.Parameters.All(parameter => parameter.Name != "options"));
@@ -170,11 +198,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 typeof(Task<>),
                 new CSharpType(
                     typeof(AsyncStreamingClientResult<>),
-                    new CSharpType(typeof(SseItem<>), typeof(BinaryData))));
+                    new CSharpType(
+                        typeof(SseItem<>),
+                        ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(eventType)!)));
             Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
             var body = convenienceMethod.BodyStatements!.ToDisplayString();
             StringAssert.Contains(
                 "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                body);
+            StringAssert.Contains(
+                "global::Sample.JsonLinesBinaryContent<global::Sample.Models.Info>.DeserializeModel",
                 body);
             StringAssert.Contains(
                 "item.Data.ToString() == \"[DONE]\"",

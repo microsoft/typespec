@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using Streaming.Jsonl._Basic;
 
 namespace Streaming.Jsonl

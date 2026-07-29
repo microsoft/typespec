@@ -19,10 +19,8 @@ namespace Streaming.Sse._Unnamed
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Receive(RequestOptions options) => throw null;
+        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReceiveAsync(RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ReceiveAsync(RequestOptions options) => throw null;
-
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<AsyncStreamingClientResult<SseItem<Info>>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

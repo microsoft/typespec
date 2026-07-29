@@ -25,9 +25,7 @@ namespace Streaming.Jsonl._Basic
 
         public virtual Task<ClientResult> SendAsync(IAsyncEnumerable<Info> stream, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Receive(RequestOptions options) => throw null;
-
-        public virtual Task<ClientResult> ReceiveAsync(RequestOptions options) => throw null;
+        public virtual Task<AsyncStreamingClientResult<BinaryData>> ReceiveAsync(RequestOptions options) => throw null;
 
         public virtual Task<AsyncStreamingClientResult<Info>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
     }

@@ -22,8 +22,7 @@ namespace TestProjects.Spector.Tests.Http.Streaming.Sse
             await foreach (var item in response)
             {
                 Assert.AreEqual("message", item.EventType);
-                using var document = JsonDocument.Parse(item.Data.ToMemory());
-                descriptions.Add(document.RootElement.GetProperty("desc").GetString()!);
+                descriptions.Add(item.Data.Desc);
             }
 
             CollectionAssert.AreEqual(new[] { "one", "two", "three" }, descriptions);

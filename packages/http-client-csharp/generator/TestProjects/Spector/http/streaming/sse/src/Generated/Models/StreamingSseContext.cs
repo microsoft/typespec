@@ -3,12 +3,12 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using Streaming.Sse._Named;
 using Streaming.Sse._Retrieve;
 using Streaming.Sse._Unnamed;
 
 namespace Streaming.Sse
 {
+    [ModelReaderWriterBuildable(typeof(Info))]
     [ModelReaderWriterBuildable(typeof(RetrievalRequest))]
     public partial class StreamingSseContext : ModelReaderWriterContext
     {
