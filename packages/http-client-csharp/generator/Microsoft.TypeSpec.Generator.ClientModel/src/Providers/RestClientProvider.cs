@@ -639,22 +639,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var convertedItem = paramType.ElementType.IsEnum
                         ? paramType.ElementType.ToSerial(item.Value)
                         : item.Value;
-                    // A string-backed extensible enum serializes via `ToString()`, which returns null for a
-                    // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
-                    // `Uri.EscapeDataString`, so cache the serialized value and guard against null/empty before
-                    // appending.
-                    if (IsExtensibleStringEnum(paramType.ElementType))
-                    {
-                        forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
-                        forEachStatement.Add(new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), cachedVar)))
-                        {
-                            uri.AppendQuery(item.Key, cachedVar, true).Terminate()
-                        });
-                    }
-                    else
-                    {
-                        forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
-                    }
+                    AddExplodeQueryItem(forEachStatement, uri, item.Key, convertedItem, paramType.ElementType);
                     return forEachStatement;
                 }
                 else
@@ -689,22 +674,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     convertedItem = item;
                 }
-                // A string-backed extensible enum serializes via `ToString()`, which returns null for a
-                // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
-                // `Uri.EscapeDataString`, so cache the serialized value and guard against null/empty before
-                // appending.
-                if (IsExtensibleStringEnum(paramType.ElementType))
-                {
-                    forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
-                    forEachStatement.Add(new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), cachedVar)))
-                    {
-                        uri.AppendQuery(Literal(inputQueryParameter.SerializedName), cachedVar, true).Terminate()
-                    });
-                }
-                else
-                {
-                    forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
-                }
+                AddExplodeQueryItem(forEachStatement, uri, Literal(inputQueryParameter.SerializedName), convertedItem, paramType.ElementType);
                 return forEachStatement;
             }
         }
@@ -715,6 +685,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         private static bool IsExtensibleStringEnum(CSharpType type)
             => type.IsEnum && type.IsStruct && type.UnderlyingEnumType == typeof(string);
+
+        private static void AddExplodeQueryItem(
+            ForEachStatement forEachStatement,
+            ScopedApi uri,
+            ValueExpression key,
+            ValueExpression convertedItem,
+            CSharpType elementType)
+        {
+            if (IsExtensibleStringEnum(elementType))
+            {
+                forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
+                forEachStatement.Add(new IfStatement(Not(StringSnippets.IsNullOrEmpty(cachedVar.As<string>())))
+                {
+                    uri.AppendQuery(key, cachedVar, true).Terminate()
+                });
+            }
+            else
+            {
+                forEachStatement.Add(uri.AppendQuery(key, convertedItem, true).Terminate());
+            }
+        }
 
         /// <summary>
         /// Builds the statements for a model-typed query parameter that uses form-style `explode`.
