@@ -460,7 +460,8 @@ async function addIdentifierCompletion(
       continue;
     }
 
-    const insertionText = printIdentifier(key) + (suffix ?? "");
+    const identifierContext = getIdentifierPrintContext(node);
+    const insertionText = printIdentifier(key, identifierContext) + (suffix ?? "");
     if (node.pos === node.end) {
       // Synthetic/missing identifier node — just use insertText
       item.insertText = insertionText;
@@ -508,6 +509,22 @@ async function addIdentifierCompletion(
 
       return declLocation === sourceLocation;
     });
+  }
+}
+
+/**
+ * Determine the print context for an identifier in completion.
+ * In certain positions (model property names, object literal property names, member expressions),
+ * keywords can be used as identifiers without backticks.
+ */
+function getIdentifierPrintContext(node: IdentifierNode): "allow-reserved" | "disallow-reserved" {
+  switch (node.parent?.kind) {
+    case SyntaxKind.MemberExpression:
+    case SyntaxKind.ModelProperty:
+    case SyntaxKind.ObjectLiteralProperty:
+      return "allow-reserved";
+    default:
+      return "disallow-reserved";
   }
 }
 

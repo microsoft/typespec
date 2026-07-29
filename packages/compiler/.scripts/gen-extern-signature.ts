@@ -3,7 +3,7 @@ import { format, resolveConfig } from "prettier";
 import { fileURLToPath } from "url";
 import { generateExternDecorators } from "../../tspd/dist/src/gen-extern-signatures/gen-extern-signatures.js";
 import {
-  Namespace,
+  type Namespace,
   NodeHost,
   compile,
   formatDiagnostic,

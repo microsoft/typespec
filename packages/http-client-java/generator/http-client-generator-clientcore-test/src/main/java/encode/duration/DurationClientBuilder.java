@@ -31,7 +31,8 @@ import java.util.Objects;
 /**
  * A builder for creating a new instance of the DurationClient type.
  */
-@ServiceClientBuilder(serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class })
+@ServiceClientBuilder(
+    serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class, LossyClient.class })
 public final class DurationClientBuilder implements HttpTrait<DurationClientBuilder>, ProxyTrait<DurationClientBuilder>,
     ConfigurationTrait<DurationClientBuilder>, EndpointTrait<DurationClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -179,7 +180,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of DurationClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DurationClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of QueryClient class.
-     * 
+     *
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -235,7 +236,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of PropertyClient class.
-     * 
+     *
      * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -246,12 +247,23 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of HeaderClient class.
-     * 
+     *
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     public HeaderClient buildHeaderClient() {
         DurationClientImpl innerClient = buildInnerClient();
         return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of LossyClient class.
+     *
+     * @return an instance of LossyClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public LossyClient buildLossyClient() {
+        DurationClientImpl innerClient = buildInnerClient();
+        return new LossyClient(innerClient.getLossies(), innerClient.getInstrumentation());
     }
 }

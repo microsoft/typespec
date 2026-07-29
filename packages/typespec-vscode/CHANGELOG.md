@@ -1,5 +1,12 @@
 # Change Log - typespec-vscode
 
+## 1.14.1
+
+### Bug Fixes
+
+- [#11275](https://github.com/microsoft/typespec/pull/11275) Fix a shell command injection in the tsp compile task provider. Tasks now run via `vscode.ProcessExecution` with arguments passed as an array instead of `vscode.ShellExecution`, so workspace file paths and task arguments are no longer interpreted by the OS shell. The task `args` is now specified as an array of arguments.
+
+
 ## 1.14.0
 
 No changes, version bump only.

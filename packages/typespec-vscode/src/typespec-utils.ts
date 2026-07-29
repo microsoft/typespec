@@ -84,8 +84,8 @@ export async function installCompilerWithUi(
   const locString = onlyGlobalInPaths ? "globally" : "";
 
   let confirmOption:
-    | ConfirmOptions<QuickPickOptionsWithExternalLink, QuickPickOptionsWithExternalLink>
-    | undefined = undefined;
+    ConfirmOptions<QuickPickOptionsWithExternalLink, QuickPickOptionsWithExternalLink> | undefined =
+    undefined;
   // confirm with end user by default
   if (confirmOptions.confirmNeeded !== false) {
     const detailLink = "https://typespec.io/docs/";

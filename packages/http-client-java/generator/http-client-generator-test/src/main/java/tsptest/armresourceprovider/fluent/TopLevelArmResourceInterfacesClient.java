@@ -418,7 +418,7 @@ public interface TopLevelArmResourceInterfacesClient {
     PagedIterable<TopLevelArmResourceInner> list(Context context);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -431,7 +431,7 @@ public interface TopLevelArmResourceInterfacesClient {
     Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -445,7 +445,7 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -459,7 +459,7 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -474,7 +474,7 @@ public interface TopLevelArmResourceInterfacesClient {
         String topLevelArmResourceName, Context context);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -487,7 +487,7 @@ public interface TopLevelArmResourceInterfacesClient {
     Mono<ResultInner> actionAsync(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.
@@ -500,7 +500,7 @@ public interface TopLevelArmResourceInterfacesClient {
     ResultInner action(String resourceGroupName, String topLevelArmResourceName);
 
     /**
-     * A long-running resource action.
+     * The action operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourceName arm resource name for path.

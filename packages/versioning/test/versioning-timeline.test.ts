@@ -34,8 +34,8 @@ async function resolveTimelineMatrix(
   const { program } = await Tester.compile(content);
 
   const serviceNamespace = program.getGlobalNamespaceType().namespaces.get("TestServiceNs")!;
-  const libNamespaces: Namespace[] = libNamespaceNames.map(
-    (x) => program.getGlobalNamespaceType().namespaces.get(x)!,
+  const libNamespaces: Namespace[] = libNamespaceNames.map((x) =>
+    program.getGlobalNamespaceType().namespaces.get(x)!,
   );
   const resolutions = resolveVersions(program, serviceNamespace);
   const timeline = new VersioningTimeline(

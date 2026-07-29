@@ -421,7 +421,7 @@ stages:
                     inputs:
                       azureSubscription: "Azure SDK Engineering System"
                       scriptLocation: inlineScript
-                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.js ${{ parameters.PackagePath }}
+                      inlineScript: node ./eng/emitters/scripts/upload-bundled-emitter.ts ${{ parameters.PackagePath }}
                       workingDirectory: $(Build.SourcesDirectory)
 
               - ${{ if and(parameters.PlaygroundServerDockerfile, parameters.PlaygroundServerAppName) }}:

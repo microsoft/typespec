@@ -391,13 +391,7 @@ export const $resource: ResourceDecorator = (
 };
 
 export type ResourceOperations =
-  | "read"
-  | "create"
-  | "createOrReplace"
-  | "createOrUpdate"
-  | "update"
-  | "delete"
-  | "list";
+  "read" | "create" | "createOrReplace" | "createOrUpdate" | "update" | "delete" | "list";
 
 export interface ResourceOperation {
   operation: string;

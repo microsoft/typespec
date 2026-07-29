@@ -764,6 +764,52 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes keyword property name in member expression without backticks", async () => {
+    const completions = await complete(
+      `
+      model Test {
+        auto: string;
+      }
+      alias A = Test.au┆
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nTest.auto: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in model body without backticks", async () => {
+    const completions = await complete(
+      `
+      model Base {
+        auto: string;
+      }
+      model Child extends Base {
+        au┆
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nBase.auto: string\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes partial identifier with astral character", async () => {
     const completions = await complete(
       `

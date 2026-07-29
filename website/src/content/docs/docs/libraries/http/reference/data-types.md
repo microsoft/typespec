@@ -567,21 +567,23 @@ https://server.com/.well-known/openid-configuration
 ```
 
 ```typespec
-model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl>
+model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl, Scopes>
 ```
 
 #### Template Parameters
 
-| Name       | Description |
-| ---------- | ----------- |
-| ConnectUrl |             |
+| Name       | Description                                                                                                                       |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| ConnectUrl | The openIdConnectUrl, where the OpenID provider publishes its discovery metadata. It can be specified relative to the server URL. |
+| Scopes     | The scope names required for operations that use this scheme.                                                                     |
 
 #### Properties
 
-| Name             | Type                                   | Description                                                 |
-| ---------------- | -------------------------------------- | ----------------------------------------------------------- |
-| type             | `TypeSpec.Http.AuthType.openIdConnect` | Auth type                                                   |
-| openIdConnectUrl | `ConnectUrl`                           | Connect url. It can be specified relative to the server URL |
+| Name             | Type                                   | Description                                                              |
+| ---------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| type             | `TypeSpec.Http.AuthType.openIdConnect` | Auth type                                                                |
+| openIdConnectUrl | `ConnectUrl`                           | Connect url. It can be specified relative to the server URL              |
+| scopes           | `Scopes`                               | Scope names required for operations that use this authentication scheme. |
 
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 

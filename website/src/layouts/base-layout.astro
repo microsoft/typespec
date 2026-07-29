@@ -29,11 +29,12 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
     ></script>
   </head>
   <body class="body">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
       <Header />
     </header>
     <!-- pt is set according to the height of the header -->
-    <main class="main">
+    <main id="main-content" tabindex="-1" class="main">
       <slot />
     </main>
     {footer && <Footer />}
@@ -41,20 +42,43 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
   <style>
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 0.5rem 1rem;
+      background-color: var(--colorNeutralBackground1);
+      color: var(--colorBrandForeground1);
+      border: 1px solid var(--colorBrandForeground1);
+      border-radius: 0 0 4px 0;
+      text-decoration: none;
+      /* Visually hidden until focused, but kept in the tab order. */
+      transform: translateY(-100%);
+    }
+
+    .skip-link:focus-visible,
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .main:focus {
+      outline: none;
+    }
+
     .main {
       flex: 1;
-      margin-top: var(--header-height);
       background-color: var(--colorNeutralBackground1);
     }
 
     .header {
-      position: fixed;
-      width: 100vw;
+      position: sticky;
+      top: 0;
       z-index: 500;
     }
     .footer {

@@ -44,7 +44,7 @@ jobs:
           azureSubscription: "Azure SDK Engineering System"
           scriptType: bash
           scriptLocation: inlineScript
-          inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
+          inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.ts
 
       - task: AzureCLI@2
         displayName: Upload scenario manifest
@@ -58,6 +58,13 @@ jobs:
       # Update version for next version publish
       - script: pnpm chronus version --prerelease
         displayName: Bump version to prerelease targets
+
+      # `chronus version --prerelease` rewrites package.json specifiers (e.g. workspace:^ -> a
+      # concrete range) without updating pnpm-lock.yaml. Disable pnpm's pre-run deps check for
+      # the rest of this job so the subsequent pnpm commands (gen-manifest, chronus pack) don't
+      # fail with ERR_PNPM_OUTDATED_LOCKFILE.
+      - script: pnpm config set verifyDepsBeforeRun false --location project
+        displayName: Disable deps check after prerelease version bump
 
       - script: pnpm run gen-manifest
         displayName: Regen manifest for compiler
