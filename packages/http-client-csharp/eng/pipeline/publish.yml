@@ -125,6 +125,9 @@ extends:
               npm_config_cache: $(Agent.TempDirectory)/npm-cache
             steps:
               - checkout: self
+
+              - template: /eng/common/pipelines/templates/steps/create-authenticated-npmrc.yml
+
               - pwsh: |
                   # Determine the TypeSpec PR URL 
                   $repoUrl = '$(Build.Repository.Uri)'.TrimEnd('/')
@@ -247,6 +250,7 @@ extends:
                     ${{ replace(replace('True', eq(parameters.RegenerateMgmtLibraries, false), ''), 'True', '-RegenerateMgmtLibraries') }}
                     -BuildArtifactsPath '$(Pipeline.Workspace)/build_artifacts_csharp/packages'
                     -UseTypeSpecNext:$${{ parameters.UseTypeSpecNext }}
+                    -BuildReason '$(Build.Reason)'
 
               - pwsh: |
                   $npmrcPath = "$(Build.SourcesDirectory)/packages/http-client-csharp/.npmrc"

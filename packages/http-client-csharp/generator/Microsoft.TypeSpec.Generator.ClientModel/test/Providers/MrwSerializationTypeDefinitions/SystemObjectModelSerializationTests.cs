@@ -42,7 +42,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return systemBase;
+                    }
+
                     return new ModelProvider(model);
                 },
                 createSerializationsCore: (inputType, typeProvider) =>
@@ -116,6 +119,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(method);
             Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
                 "JsonModelWriteCore should be 'override' with regular base too");
+        }
+
+        [Test]
+        public void JsonModelWriteCore_IsOverride_WhenBaseProviderIsResolvedAfterSerialization()
+        {
+            var baseInputModel = InputFactory.Model("Resource");
+            var derivedInputModel = InputFactory.Model("TrackedResource", properties: [InputFactory.Property("Location", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseInputModel, derivedInputModel]);
+
+            var derived = new DelayedBaseModelProvider(derivedInputModel);
+            var serialization = new MrwSerializationTypeDefinition(derivedInputModel, derived);
+
+            // The serialization provider can be constructed before later visitors/customization
+            // resolution make the base model provider available.
+            derived.BaseModel = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+
+            var method = serialization.BuildJsonModelWriteCoreMethod();
+
+            Assert.AreEqual(derived.BaseModel.Type, derived.Type.BaseType,
+                "The generated model type should inherit the base resolved after serialization construction.");
+            Assert.AreEqual(derived.BaseModel.Type, serialization.Type.BaseType,
+                "The serialization type should inherit the same resolved base.");
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override),
+                "JsonModelWriteCore should evaluate BaseModelProvider when the method is built, not when serialization is constructed");
+            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
+        }
+
+        [Test]
+        public void XmlModelWriteCore_IsOverride_WhenBaseProviderIsResolvedAfterSerialization()
+        {
+            var baseInputModel = InputFactory.Model("Resource", usage: InputModelTypeUsage.Xml);
+            var derivedInputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [InputFactory.Property("Location", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Xml);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseInputModel, derivedInputModel]);
+
+            var derived = new DelayedBaseModelProvider(derivedInputModel);
+            var serialization = new MrwSerializationTypeDefinition(derivedInputModel, derived);
+
+            derived.BaseModel = new ModelProvider(baseInputModel);
+
+            var method = serialization.Methods.Single(method => method.Signature.Name == "XmlModelWriteCore");
+
+            Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override));
+            Assert.IsFalse(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual));
         }
 
         // -------------------------------------------------------------------
@@ -324,6 +373,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             string IPersistableModel<FakeMrwBase>.GetFormatFromOptions(ModelReaderWriterOptions options)
                 => "J";
+        }
+
+        private class DelayedBaseModelProvider(InputModelType inputModel) : ModelProvider(inputModel)
+        {
+            public ModelProvider? BaseModel { get; set; }
+
+            protected override ModelProvider? BuildBaseModelProvider() => BaseModel;
+
+            protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }
     }
 }

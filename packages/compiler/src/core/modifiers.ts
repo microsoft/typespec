@@ -12,8 +12,10 @@ import { Declaration, Modifier, ModifierFlags, SyntaxKind } from "./types.js";
 interface ModifierCompatibility {
   /** A set of modifier flags that are allowed on the node type. */
   readonly allowed: ModifierFlags;
-  /** A set of modifier flags that are _required_ on the node type. */
+  /** At least one of these modifier flags must be present. */
   readonly required: ModifierFlags;
+  /** Pairs of modifier flags that cannot be used together. */
+  readonly mutuallyExclusive?: readonly [ModifierFlags, ModifierFlags][];
 }
 
 /**
@@ -44,10 +46,11 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.DecoratorDeclarationStatement]: {
     allowed: ModifierFlags.All,
-    required: ModifierFlags.Extern,
+    required: ModifierFlags.Extern | ModifierFlags.Auto,
+    mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
   [SyntaxKind.FunctionDeclarationStatement]: {
-    allowed: ModifierFlags.All,
+    allowed: ModifierFlags.Extern | ModifierFlags.Internal,
     required: ModifierFlags.Extern,
   },
 };
@@ -87,21 +90,51 @@ export function checkModifiers(program: Program, node: Declaration): boolean {
     }
   }
 
-  const missingRequiredModifiers = compatibility.required & ~node.modifierFlags;
-
-  if (missingRequiredModifiers) {
-    // There is at least one required modifier missing from this syntax node.
+  if (compatibility.required && !(node.modifierFlags & compatibility.required)) {
+    // None of the required modifiers are present.
     isValid = false;
 
-    for (const missing of getNamesOfModifierFlags(missingRequiredModifiers)) {
+    const names = getNamesOfModifierFlags(compatibility.required);
+    if (names.length === 1) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "invalid-modifier",
           messageId: "missing-required",
-          format: { modifier: missing, nodeKind: getDeclarationKindText(node.kind) },
+          format: { modifier: names[0], nodeKind: getDeclarationKindText(node.kind) },
           target: node,
         }),
       );
+    } else {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-modifier",
+          messageId: "missing-required-one-of",
+          format: {
+            modifiers: names.map((n) => `'${n}'`).join(" or "),
+            nodeKind: getDeclarationKindText(node.kind),
+          },
+          target: node,
+        }),
+      );
+    }
+  }
+
+  if (compatibility.mutuallyExclusive) {
+    for (const [a, b] of compatibility.mutuallyExclusive) {
+      if (node.modifierFlags & a && node.modifierFlags & b) {
+        isValid = false;
+
+        const nameA = getNamesOfModifierFlags(a)[0];
+        const nameB = getNamesOfModifierFlags(b)[0];
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "invalid-modifier",
+            messageId: "mutually-exclusive",
+            format: { modifierA: nameA, modifierB: nameB },
+            target: node,
+          }),
+        );
+      }
     }
   }
 
@@ -134,6 +167,8 @@ function modifierToFlag(modifier: Modifier): ModifierFlags {
       return ModifierFlags.Extern;
     case SyntaxKind.InternalKeyword:
       return ModifierFlags.Internal;
+    case SyntaxKind.AutoKeyword:
+      return ModifierFlags.Auto;
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -145,6 +180,8 @@ function getTextForModifier(modifier: Modifier): string {
       return "extern";
     case SyntaxKind.InternalKeyword:
       return "internal";
+    case SyntaxKind.AutoKeyword:
+      return "auto";
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -157,6 +194,9 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   }
   if (flags & ModifierFlags.Internal) {
     names.push("internal");
+  }
+  if (flags & ModifierFlags.Auto) {
+    names.push("auto");
   }
   return names;
 }

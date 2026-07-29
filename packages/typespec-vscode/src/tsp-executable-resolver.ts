@@ -1,6 +1,6 @@
 import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
-import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
+import { Executable, ExecutableOptions } from "vscode-languageclient/node";
 import logger from "./log/logger.js";
 import { getDirectoryPath } from "./path-utils.js";
 import telemetryClient from "./telemetry/telemetry-client.js";

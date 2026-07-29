@@ -1,4 +1,3 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
   CodeActionKind,
@@ -18,6 +17,7 @@ import {
   DocumentSymbolParams,
   FileChangeType,
   FoldingRange,
+  FoldingRangeKind,
   FoldingRangeParams,
   Hover,
   HoverParams,
@@ -48,7 +48,8 @@ import {
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
@@ -72,6 +73,7 @@ import {
 import { type Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
+import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
 import {
   AugmentDecoratorStatementNode,
   CodeFixEdit,
@@ -668,13 +670,29 @@ export function createServer(
           rangeStartSingleLines = comment.pos;
         }
       } else if (rangeStartSingleLines !== -1) {
-        addRange(rangeStartSingleLines, comment.end);
+        addRange(rangeStartSingleLines, comment.end, FoldingRangeKind.Comment);
         rangeStartSingleLines = -1;
       } else {
-        addRange(comment.pos, comment.end);
+        addRange(comment.pos, comment.end, FoldingRangeKind.Comment);
       }
     }
+    addRangesForImports();
     visitChildren(ast, addRangesForNode);
+    function addRangesForImports() {
+      const statements = ast!.statements;
+      let runStart = -1;
+      for (let i = 0; i <= statements.length; i++) {
+        const isImport = i < statements.length && statements[i].kind === SyntaxKind.ImportStatement;
+        if (isImport) {
+          if (runStart === -1) {
+            runStart = i;
+          }
+        } else if (runStart !== -1) {
+          addRange(statements[runStart].pos, statements[i - 1].end, FoldingRangeKind.Imports);
+          runStart = -1;
+        }
+      }
+    }
     function addRangesForNode(node: Node) {
       if (node.kind === SyntaxKind.Doc) {
         return; // fold doc comments as regular comments
@@ -690,16 +708,20 @@ export function createServer(
       visitChildren(node, addRangesForNode);
     }
     return ranges;
-    function addRange(startPos: number, endPos: number) {
+    function addRange(startPos: number, endPos: number, kind?: FoldingRangeKind) {
       const start = file.getLineAndCharacterOfPosition(startPos);
       const end = file.getLineAndCharacterOfPosition(endPos);
       if (start.line !== end.line) {
-        ranges.push({
+        const range: FoldingRange = {
           startLine: start.line,
           startCharacter: start.character,
           endLine: end.line,
           endCharacter: end.character,
-        });
+        };
+        if (kind !== undefined) {
+          range.kind = kind;
+        }
+        ranges.push(range);
       }
     }
   }
@@ -841,6 +863,38 @@ export function createServer(
         );
         diagnostics.push(diagnostic);
         newDiagnosticIndex.set(diagnostic.data.id, each);
+      }
+    }
+
+    // Report unused suppressions as hints with faded-out styling
+    for (const { directive } of program.suppressionTracker?.getUnusedSuppressions() ?? []) {
+      const unusedSuppressionDiagnostic: Diagnostic = {
+        code: "unused-suppression",
+        severity: "warning",
+        message: `Suppression for "${directive.code}" is unused.`,
+        target: directive.node,
+        codefixes: [createRemoveUnusedSuppressionCodeFix(directive.node)],
+      };
+      const results = convertDiagnosticToLsp(
+        fileService,
+        program,
+        document,
+        unusedSuppressionDiagnostic,
+      );
+      for (const [diagnostic, diagDocument] of results) {
+        diagnostic.tags = [DiagnosticTag.Unnecessary];
+        diagnostic.severity = DiagnosticSeverity.Hint;
+        diagnostic.data = {
+          id: diagnosticIdCounter++,
+          file: diagDocument.uri,
+        };
+        const diagnostics = diagnosticMap.get(diagDocument);
+        compilerAssert(
+          diagnostics,
+          "Diagnostic reported against a source file that was not added to the program.",
+        );
+        diagnostics.push(diagnostic);
+        newDiagnosticIndex.set(diagnostic.data.id, unusedSuppressionDiagnostic);
       }
     }
 
@@ -1555,9 +1609,7 @@ export function createServer(
 }
 
 type SignatureHelpNode =
-  | DecoratorExpressionNode
-  | AugmentDecoratorStatementNode
-  | TypeReferenceNode;
+  DecoratorExpressionNode | AugmentDecoratorStatementNode | TypeReferenceNode;
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,

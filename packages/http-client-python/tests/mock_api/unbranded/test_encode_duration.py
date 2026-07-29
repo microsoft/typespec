@@ -105,6 +105,11 @@ def test_property(client: DurationClient):
     assert result.value == datetime.timedelta(milliseconds=210000)
 
 
+def test_lossy(client: DurationClient):
+    client.lossy.int_seconds(input=datetime.timedelta(seconds=36.25))
+    client.lossy.int_milliseconds(input=datetime.timedelta(milliseconds=36250.25))
+
+
 def test_header(client: DurationClient):
     client.header.default(duration=datetime.timedelta(days=40))
     client.header.iso8601(duration=datetime.timedelta(days=40))

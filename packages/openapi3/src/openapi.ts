@@ -33,6 +33,7 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
+  NoTarget,
   Program,
   resolvePath,
   Service,
@@ -86,6 +87,7 @@ import { getExampleOrExamples, OperationExamples, resolveOperationExamples } fro
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import {
   createDiagnostic,
+  EnumStrategy,
   FileType,
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
@@ -219,6 +221,11 @@ export function resolveOptions(
 
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
+  const enumStrategy: EnumStrategy = resolvedOptions["enum-strategy"] ?? "default";
+  if (enumStrategy === "annotated" && openapiVersions.includes("3.0.0")) {
+    reportDiagnostic(context.program, { code: "enum-strategy-not-supported", target: NoTarget });
+  }
+
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
   return {
     fileTypes,
@@ -231,6 +238,7 @@ export function resolveOptions(
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
     operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
+    enumStrategy,
   };
 }
 
@@ -272,6 +280,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   sealObjectSchemas: boolean;
   parameterExamplesStrategy?: "data" | "serialized";
   operationIdStrategy: { kind: OperationIdStrategy; separator: string };
+  enumStrategy: EnumStrategy;
 }
 
 function createOAPIEmitter(
@@ -1623,6 +1632,15 @@ function createOAPIEmitter(
     // Description is already provided in the parameter itself.
     delete schema.description;
 
+    const extensions = getExtensions(program, param);
+    if (extensions && !("$ref" in schema)) {
+      for (const key of extensions.keys()) {
+        if (key in schema) {
+          delete schema[key];
+        }
+      }
+    }
+
     const oaiParam: OpenAPI3ParameterBase = {
       required: !param.optional,
       description: getDoc(program, param),
@@ -1976,7 +1994,9 @@ function createOAPIEmitter(
             securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
             continue;
           default:
-            securityOption[httpAuthRef.auth.id] = [];
+            // Requirement scopes for any scheme that carries them (e.g.
+            // openIdConnect). Schemes without scopes resolve to an empty array.
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
         }
       }
       return securityOption;

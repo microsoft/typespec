@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Microsoft.CodeAnalysis.CSharp;
 using System;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -19,7 +19,13 @@ namespace Microsoft.TypeSpec.Generator.Expressions
                 null => "null",
                 string s => SyntaxFactory.Literal(s).ToString(),
                 int i => SyntaxFactory.Literal(i).ToString(),
+                uint ui => SyntaxFactory.Literal(ui).ToString(),
                 long l => SyntaxFactory.Literal(l).ToString(),
+                ulong ul => SyntaxFactory.Literal(ul).ToString(),
+                byte b => SyntaxFactory.Literal((int)b).ToString(),
+                sbyte sb => SyntaxFactory.Literal((int)sb).ToString(),
+                short s => SyntaxFactory.Literal((int)s).ToString(),
+                ushort us => SyntaxFactory.Literal((uint)us).ToString(),
                 decimal d => SyntaxFactory.Literal(d).ToString(),
                 double d => SyntaxFactory.Literal(d).ToString(),
                 float f => SyntaxFactory.Literal(f).ToString(),

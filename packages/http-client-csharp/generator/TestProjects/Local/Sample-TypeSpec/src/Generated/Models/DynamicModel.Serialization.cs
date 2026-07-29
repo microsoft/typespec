@@ -126,7 +126,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.optionalNullableList"u8))
                 {
                     writer.WritePropertyName("optionalNullableList"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.optionalNullableList"u8));
+                    Patch.WriteTo(writer, "$.optionalNullableList"u8);
                 }
             }
             else if (Optional.IsCollectionDefined(OptionalNullableList))
@@ -149,7 +149,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.requiredNullableList"u8))
                 {
                     writer.WritePropertyName("requiredNullableList"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.requiredNullableList"u8));
+                    Patch.WriteTo(writer, "$.requiredNullableList"u8);
                 }
             }
             else if (Optional.IsCollectionDefined(RequiredNullableList))
@@ -221,7 +221,7 @@ namespace SampleTypeSpec
                 Patch.WriteTo(writer, "$.requiredNullableDictionary"u8);
                 writer.WriteEndObject();
             }
-            else
+            else if (!Patch.Contains("$.requiredNullableDictionary"u8))
             {
                 writer.WriteNull("requiredNullableDictionary"u8);
             }
@@ -260,7 +260,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listFoo"u8))
                 {
                     writer.WritePropertyName("listFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listFoo"u8));
+                    Patch.WriteTo(writer, "$.listFoo"u8);
                 }
             }
             else
@@ -283,7 +283,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listOfListFoo"u8))
                 {
                     writer.WritePropertyName("listOfListFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listOfListFoo"u8));
+                    Patch.WriteTo(writer, "$.listOfListFoo"u8);
                 }
             }
             else
@@ -436,7 +436,7 @@ namespace SampleTypeSpec
                 if (!Patch.IsRemoved("$.listOfDictionaryFoo"u8))
                 {
                     writer.WritePropertyName("listOfDictionaryFoo"u8);
-                    writer.WriteRawValue(Patch.GetJson("$.listOfDictionaryFoo"u8));
+                    Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
                 }
             }
             else

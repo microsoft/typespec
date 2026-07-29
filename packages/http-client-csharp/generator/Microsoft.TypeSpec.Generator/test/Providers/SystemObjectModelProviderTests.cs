@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -29,9 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         /// Creates a non-framework CSharpType with the given name and namespace.
         /// Uses the internal constructor accessible via InternalsVisibleTo.
         /// </summary>
-        private static CSharpType CreateSystemCSharpType(string name, string ns)
+        private static CSharpType CreateSystemCSharpType(string name, string ns, CSharpType? baseType = null)
             => new(name, ns, isValueType: false, isNullable: false, declaringType: null,
-                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
+                   args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false, baseType: baseType);
 
         [SetUp]
         public void Setup()
@@ -51,6 +52,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = new SystemObjectModelProvider(systemType, inputModel);
 
             Assert.IsInstanceOf<ModelProvider>(provider);
+        }
+
+        [Test]
+        public void FrameworkInterfacesArePopulated()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(new CSharpType(typeof(List<string>)), inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<string>))));
+        }
+
+        [Test]
+        public void FrameworkInterfacesUseGeneratedTypeArguments()
+        {
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var generatedType = CreateSystemCSharpType("GeneratedModel", "Sample.Models");
+            var provider = new SystemObjectModelProvider(
+                new CSharpType(typeof(List<>), generatedType),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IEnumerable<>), generatedType)));
+        }
+
+        [Test]
+        public async Task ReferencedInterfacesArePopulated()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var inputModel = InputFactory.Model("Resource", properties: []);
+            var provider = new SystemObjectModelProvider(
+                CreateSystemCSharpType("ReferencedModel", "TestFramework"),
+                inputModel);
+
+            Assert.That(
+                provider.Implements,
+                Has.Some.EqualTo(new CSharpType(typeof(IDisposable))));
         }
 
         [Test]
@@ -83,7 +124,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -93,6 +137,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The base should be a SystemObjectModelProvider — impossible with SystemObjectTypeProvider
             Assert.IsNotNull(derivedProvider!.BaseModelProvider);
             Assert.IsInstanceOf<SystemObjectModelProvider>(derivedProvider.BaseModelProvider);
+        }
+
+        [Test]
+        public void CanRepresentExternalBaseChainWithoutSeparateInheritedProperties()
+        {
+            var baseSystemType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var baseProvider = new SystemObjectModelProvider(baseSystemType, baseInputModel);
+
+            var inputModel = InputFactory.Model(
+                "TrackedResource",
+                properties: [InputFactory.Property("resourceType", InputPrimitiveType.String, wireName: "type")]);
+            var systemTypeWithBase = CreateSystemCSharpType("TrackedResourceData", "TestFramework", baseSystemType);
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[baseSystemType] = baseProvider;
+
+            var provider = new SystemObjectModelProvider(systemTypeWithBase, inputModel, skipDerivedConstructorParameters: true);
+
+            Assert.AreSame(baseProvider, provider.BaseModelProvider);
+            Assert.AreEqual(baseProvider.Type, provider.Type.BaseType);
+            Assert.AreEqual(1, provider.Properties.Count);
+            Assert.AreEqual("ResourceType", provider.Properties[0].Name);
         }
 
         // -------------------------------------------------------------------
@@ -119,7 +184,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -158,7 +226,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 
@@ -229,7 +300,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 createModelCore: (model) =>
                 {
                     if (model.Name == "Resource")
+                    {
                         return new SystemObjectModelProvider(systemType, model);
+                    }
+
                     return new ModelProvider(model);
                 });
 

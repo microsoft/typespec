@@ -180,7 +180,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         if isinstance(self.type, CombinedType) and self.type.name:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
-                "_types",
+                "_unions",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
@@ -338,7 +338,7 @@ class Parameter(_ParameterBase):
     ) -> ParameterMethodLocation:
         if not self.in_method_signature:
             raise ValueError(f"Parameter '{self.client_name}' is not in the method.")
-        if self.code_model.options["models-mode"] == "dpg" and self.in_flattened_body:
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict") and self.in_flattened_body:
             return ParameterMethodLocation.KEYWORD_ONLY
         if self.grouper:
             return ParameterMethodLocation.POSITIONAL

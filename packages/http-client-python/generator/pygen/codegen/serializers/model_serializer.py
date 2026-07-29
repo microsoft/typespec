@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Optional
+from typing import Any, Optional
 from abc import ABC, abstractmethod
 
 from ..models import ModelType, Property, ConstantType, EnumValue, EnumType
@@ -23,7 +23,7 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType
+from ..models.utils import NamespaceType, add_to_pylint_disable
 
 
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
@@ -73,12 +73,22 @@ def _get_xml_deserializer_enum_type(prop: Property) -> Optional[EnumType]:
     return prop_type if isinstance(prop_type, EnumType) else None
 
 
-def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> list[str]:
+def _documentation_string(
+    prop: Property, description_keyword: str, docstring_type_keyword: str, **kwargs: Any
+) -> list[str]:
     retval: list[str] = []
-    sphinx_prefix = f":{description_keyword} {prop.client_name}:"
+    doc_name = (
+        prop.wire_name if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE else prop.client_name
+    )
+    sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
-    retval.append(f":{docstring_type_keyword} {prop.client_name}: {prop.type.docstring_type()}")
+    # In the types file, use type_annotation (the serialized form) for docstrings
+    if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
+        doc_type = prop.type.type_annotation(**kwargs)
+    else:
+        doc_type = prop.type.docstring_type(**kwargs)
+    retval.append(f":{docstring_type_keyword} {doc_name}: {doc_type}")
     return retval
 
 
@@ -192,6 +202,16 @@ class _ModelSerializer(BaseSerializer, ABC):
     def pylint_disable(self, model: ModelType) -> str:
         return "  # pylint: disable=" + ", ".join(self.pylint_disable_items(model))
 
+    def class_pylint_disable(self, model: ModelType) -> str:
+        """Class-level pylint disables for the model declaration line."""
+        retval = model.pylint_disable()
+        # When the model's only constructor is ``def __init__(self, *args, **kwargs)`` (i.e. no
+        # typed overload is generated), the guideline checker reports the ``*args`` vararg as an
+        # undocumented param. There is no meaningful param to document, so silence the check.
+        if not self.need_init(model) and self.initialize_properties(model):
+            retval = add_to_pylint_disable(retval, "docstring-missing-param")
+        return retval
+
     def global_pylint_disables(self) -> str:
         return ""
 
@@ -237,7 +257,7 @@ class MsrestModelSerializer(_ModelSerializer):
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
-        return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
 
     @staticmethod
     def get_properties_to_initialize(model: ModelType) -> list[Property]:
@@ -400,7 +420,17 @@ class DpgModelSerializer(_ModelSerializer):
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
             basename += f", discriminator='{model.discriminator_value}'"
-        return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
+
+    def class_pylint_disable(self, model: ModelType) -> str:
+        retval = super().class_pylint_disable(model)
+        # DPG models render an empty ``@overload def __init__(self, *, ...)`` body, so the
+        # guideline checker validates the keyword-only arguments against the *class* docstring.
+        # We only document those arguments as instance variables (``:ivar:``) to avoid a redundant
+        # ``:keyword:`` entry per property, so silence the keyword/keyword-only correlation check.
+        if self._init_line_parameters(model):
+            retval = add_to_pylint_disable(retval, "docstring-keyword-should-match-keyword-only")
+        return retval
 
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> list[Property]:
@@ -493,4 +523,121 @@ class DpgModelSerializer(_ModelSerializer):
         final_result = set(result)
         if final_result:
             return "# pylint: disable=" + ", ".join(final_result)
+        return ""
+
+
+class TypedDictModelSerializer(_ModelSerializer):
+    def _is_parent_discriminated_base(self, model: ModelType) -> bool:
+        """Check if any parent of this model is a discriminated base (has discriminated_subtypes)."""
+        return any(p.discriminated_subtypes for p in model.parents)
+
+    def _reorder_models(self, models: list[ModelType]) -> list[ModelType]:
+        """Reorder so discriminated base Union aliases come after all their subtypes."""
+        bases = [m for m in models if m.discriminated_subtypes]
+        non_bases = [m for m in models if not m.discriminated_subtypes]
+        return non_bases + bases
+
+    def serialize(self) -> str:
+        template = self.env.get_template("model_container.py.jinja2")
+        return template.render(
+            code_model=self.code_model,
+            imports=FileImportSerializer(self.imports()),
+            str=str,
+            serializer=self,
+            models=self._reorder_models(self.models),
+        )
+
+    def imports(self) -> FileImport:
+        file_import = FileImport(self.code_model)
+        has_required = False
+        has_discriminated_union = False
+        for model in self.models:
+            if model.base == "json":
+                continue
+            if model.discriminated_subtypes:
+                has_discriminated_union = True
+            file_import.merge(
+                model.imports(
+                    is_operation_file=False,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.MODEL,
+                )
+            )
+            for prop in model.properties:
+                file_import.merge(
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
+                if not (prop.optional or prop.client_default_value is not None):
+                    has_required = True
+            for parent in model.parents:
+                if parent.client_namespace != model.client_namespace and not parent.discriminated_subtypes:
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            self.serialize_namespace,
+                            self.code_model.get_imported_namespace_for_model(parent.client_namespace),
+                        ),
+                        parent.name,
+                        ImportType.LOCAL,
+                    )
+        file_import.add_submodule_import("typing_extensions", "TypedDict", ImportType.STDLIB)
+        if has_required:
+            file_import.add_submodule_import("typing_extensions", "Required", ImportType.STDLIB)
+        if has_discriminated_union:
+            file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
+        return file_import
+
+    def declare_model(self, model: ModelType) -> str:
+        # If the model's parent is a discriminated base, don't inherit from it
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if non_discriminated_parents:
+            basename = ", ".join([m.name for m in non_discriminated_parents])
+            return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
+
+    @staticmethod
+    def get_properties_to_declare(model: ModelType) -> list[Property]:
+        # Only exclude inherited properties from non-discriminated parents
+        non_discriminated_parents = [p for p in model.parents if not p.discriminated_subtypes]
+        if non_discriminated_parents:
+            parent_properties = [p for bm in non_discriminated_parents for p in bm.properties]
+            properties_to_declare = [
+                p
+                for p in model.properties
+                if not any(
+                    p.client_name == pp.client_name
+                    and p.type_annotation() == pp.type_annotation()
+                    and not p.is_base_discriminator
+                    for pp in parent_properties
+                )
+            ]
+        else:
+            properties_to_declare = model.properties
+        return properties_to_declare
+
+    def declare_property(self, prop: Property) -> str:
+        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        is_optional = prop.optional or prop.client_default_value is not None
+        if is_optional:
+            return f"{prop.wire_name}: {type_annotation}"
+        return f"{prop.wire_name}: Required[{type_annotation}]"
+
+    def initialize_properties(self, model: ModelType) -> list[str]:
+        return []
+
+    def need_init(self, model: ModelType) -> bool:
+        return False
+
+    def discriminated_subtypes_union(self, model: ModelType) -> str:
+        subtypes = list(model.discriminated_subtypes.values())
+        subtype_names = [s.name for s in subtypes]
+        return f"{model.name} = Union[{', '.join(subtype_names)}]"
+
+    def is_discriminated_base(self, model: ModelType) -> bool:
+        return bool(model.discriminated_subtypes)
+
+    def global_pylint_disables(self) -> str:
         return ""

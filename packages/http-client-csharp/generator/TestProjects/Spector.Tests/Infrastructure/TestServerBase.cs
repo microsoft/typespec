@@ -97,7 +97,9 @@ namespace TestProjects.Spector.Tests
         public void Dispose()
         {
             if (_process is not null)
+            {
                 Stop(_process);
+            }
 
             _process?.Dispose();
             Client?.Dispose();

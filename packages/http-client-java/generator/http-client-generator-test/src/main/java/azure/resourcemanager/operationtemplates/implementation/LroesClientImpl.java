@@ -320,7 +320,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -342,7 +342,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -361,7 +361,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -382,7 +382,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -401,7 +401,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -420,7 +420,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -440,7 +440,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -457,7 +457,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -473,7 +473,7 @@ public final class LroesClientImpl implements LroesClient {
     }
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.

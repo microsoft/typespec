@@ -58,11 +58,15 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                     // grow the first word length when this letter follows by two other upper case letters
                     // this happens in OSProfile, where OS is the first word
                     if (i + 2 < name.Length && char.IsUpper(name[i + 1]) && (char.IsUpper(name[i + 2]) || IsWordSeparator(name[i + 2], preserveUnderscores)))
+                    {
                         firstWordLength++;
+                    }
                     // grow the first word length when this letter follows by another upper case letter and an end of the string
                     // this happens when the string only has one word, like OS, DNS
                     if (i + 2 == name.Length && char.IsUpper(name[i + 1]))
+                    {
                         firstWordLength++;
+                    }
                 }
 
                 if (upperCase)

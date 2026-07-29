@@ -266,8 +266,7 @@ function fromSdkModelProperty(
   const diagnostics = createDiagnosticCollector();
   // TODO -- this returns undefined because some properties we do not support yet.
   let property = sdkContext.__typeCache.properties.get(sdkProperty) as
-    | InputModelProperty
-    | undefined;
+    InputModelProperty | undefined;
   if (property) {
     return diagnostics.wrap(property);
   }

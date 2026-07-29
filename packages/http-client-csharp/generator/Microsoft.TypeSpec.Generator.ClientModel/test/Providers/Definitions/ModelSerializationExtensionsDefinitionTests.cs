@@ -609,6 +609,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(0, xElementMethods.Count, "No XElement methods should be generated when library doesn't support XML");
         }
 
+        [Test]
+        public void ValidateXmlMethodsAreNotGeneratedWhenOnlyEnumHasXmlUsage()
+        {
+            // An Xml-usage enum on its own must not enable the XML extension methods.
+            // Enums do not implement IPersistableModel and are not registered with the
+            // ModelReaderWriterContext, so generating WriteObjectValue (which references
+            // the context) would cause the source generator to fail.
+            var xmlEnum = InputFactory.StringEnum(
+                "TestXmlEnum",
+                [("Value1", "value1")],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [xmlEnum]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+
+            // No XmlWriter WriteObjectValue method should be generated.
+            var xmlWriteObjectValueMethods = methods.Where(m =>
+                m.Signature.Name == "WriteObjectValue" &&
+                m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.AreEqual(0, xmlWriteObjectValueMethods.Count, "No XML WriteObjectValue method should be generated when only an enum has XML usage");
+
+            // No XElement methods should be generated either.
+            var xElementMethods = methods.Where(m =>
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement)).ToList();
+            Assert.AreEqual(0, xElementMethods.Count, "No XElement methods should be generated when only an enum has XML usage");
+        }
+
+        [Test]
+        public void ValidateXmlMethodsAreNotGeneratedWhenOnlyExceptionModelHasXmlUsage()
+        {
+            // Models with Exception usage are error models and are not generated with
+            // MRW serialization, so an Xml-usage exception model on its own must not
+            // enable the XML extension methods (e.g. WriteObjectValue), which reference
+            // the ModelReaderWriterContext.
+            var xmlExceptionModel = InputFactory.Model(
+                "TestXmlExceptionModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml | InputModelTypeUsage.Exception,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [xmlExceptionModel]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+
+            // No XmlWriter WriteObjectValue method should be generated.
+            var xmlWriteObjectValueMethods = methods.Where(m =>
+                m.Signature.Name == "WriteObjectValue" &&
+                m.Signature.Parameters.FirstOrDefault(p => p.Type.Equals(typeof(XmlWriter))) != null).ToList();
+            Assert.AreEqual(0, xmlWriteObjectValueMethods.Count, "No XML WriteObjectValue method should be generated when only an exception model has XML usage");
+
+            // No XElement methods should be generated either.
+            var xElementMethods = methods.Where(m =>
+                m.Signature.Parameters.Count > 0 &&
+                m.Signature.Parameters[0].Type.FrameworkType == typeof(XElement)).ToList();
+            Assert.AreEqual(0, xElementMethods.Count, "No XElement methods should be generated when only an exception model has XML usage");
+        }
+
         // Verifies the WriteFileBinaryContent extension is emitted when a Json-usage model has a FileBinaryContent property.
         [Test]
         public void ValidateWriteFileBinaryContentMethodIsGeneratedWhenJsonModelHasFileBinaryContent()

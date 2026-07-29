@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
@@ -53,8 +53,8 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
-    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
-    "lint:fix": "eslint . --report-unused-disable-directives --fix",
+    "lint": "oxlint src/ test/ --deny-warnings",
+    "lint:fix": "oxlint . --fix",
     "format": "prettier .  --write",
     "format:check": "prettier --check ."
   }

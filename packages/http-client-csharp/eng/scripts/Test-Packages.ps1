@@ -36,8 +36,10 @@ try {
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
 
+        $packageJson = Get-Content -Raw "..\..\package.json" | ConvertFrom-Json
+
         Write-Host "Installing pnpm" -ForegroundColor Cyan
-        Invoke-LoggedCommand "npm install -g pnpm" -GroupOutput
+        Invoke-LoggedCommand "npm install -g $($packageJson.packageManager)" -GroupOutput
 
         Write-Host "Setting up workspace" -ForegroundColor Cyan
         Invoke-LoggedCommand "pnpm setup:min" $packageRoot/../..

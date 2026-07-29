@@ -1,5 +1,9 @@
 # Change Log - @typespec/protobuf
 
+## 0.84.0
+
+No changes, version bump only.
+
 ## 0.83.0
 
 No changes, version bump only.

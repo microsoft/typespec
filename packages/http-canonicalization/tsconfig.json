@@ -12,7 +12,8 @@
     "declarationMap": true,
     "outDir": "dist",
     "rootDir": "./",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": ["node"]
   },
   "exclude": ["node_modules", "dist"]
 }

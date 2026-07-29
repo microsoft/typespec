@@ -51,7 +51,6 @@ versionPolicies:
       - "@typespec/versioning"
       - "@typespec/rest"
       - "@typespec/protobuf"
-      - "@typespec/eslint-plugin"
       - "@typespec/html-program-viewer"
       - "@typespec/internal-build-utils"
       - "typespec-vs"
@@ -61,6 +60,8 @@ versionPolicies:
       - "@typespec/streams"
       - "@typespec/xml"
       - "@typespec/standalone-cli"
+      - "@typespec/http-specs"
+      - "@typespec/graphql"
 
   - name: standalone
     type: independent

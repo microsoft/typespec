@@ -71,6 +71,7 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
+  UsageFlags,
   createSdkContext,
   getAllModels,
   getClientNameOverride,
@@ -108,7 +109,6 @@ import {
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
-import pkg from "lodash";
 import {
   Client as CodeModelClient,
   EncodedProperty,
@@ -172,8 +172,8 @@ import {
   getFilteredApiVersions,
   getServiceApiVersions,
   isStableApiVersionString,
+  resolveApiVersionOption,
 } from "./versioning-utils.js";
-const { isEqual } = pkg;
 
 export interface EmitterOptionsDev {
   flavor?: string;
@@ -203,6 +203,7 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
+  "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
@@ -248,7 +249,12 @@ export class CodeModelBuilder {
 
   // current apiVersion name to generate code
   // it would be undefined, if mixed api-versions
+  // when it has value, its usage is at "getFilteredApiVersions" (to filter the api-versions for
+  // the client), and as the constant value of the "api-version" parameter for ARM
   private apiVersion: string | undefined;
+
+  // enum types with UsageFlags.ApiVersionEnum, collected in processVersionEnum()
+  private apiVersionEnums: SdkEnumType[] = [];
 
   public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
     this.options = context.options as EmitterOptionsDev;
@@ -360,6 +366,8 @@ export class CodeModelBuilder {
       this.codeModel.arm = true;
       this.options["group-etag-headers"] = false;
     }
+
+    this.processVersionEnum();
 
     this.processClients();
 
@@ -640,6 +648,15 @@ export class CodeModelBuilder {
     }
   }
 
+  private processVersionEnum() {
+    this.apiVersionEnums = [];
+    for (const model of getAllModels(this.sdkContext)) {
+      if (model.kind === "enum" && model.usage & UsageFlags.ApiVersionEnum) {
+        this.apiVersionEnums.push(model);
+      }
+    }
+  }
+
   private processClients() {
     // preprocess group-etag-headers
 
@@ -698,14 +715,15 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (Array.isArray(versions) && versions.length > 0) {
       // consistent api-versions
-      if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
+      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+      if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
+        this.apiVersion = versions.find((it) => it.value === apiVersionOption)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
-            format: { apiVersion: this.sdkContext.apiVersion },
+            format: { apiVersion: apiVersionOption },
             target: NoTarget,
           });
         }
@@ -721,6 +739,17 @@ export class CodeModelBuilder {
         const apiVersion = new ApiVersion();
         apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
+      }
+
+      // if there is exactly 1 api-version enum, use its values to override codeModelClient.apiVersions
+      // this is due to this issue in TCGC https://github.com/Azure/typespec-azure/issues/4914
+      if (codeModelClient.apiVersions.length > 0 && this.apiVersionEnums.length === 1) {
+        codeModelClient.apiVersions = [];
+        for (const enumValue of this.apiVersionEnums[0].values) {
+          const apiVersion = new ApiVersion();
+          apiVersion.version = String(enumValue.value ?? enumValue.name);
+          codeModelClient.apiVersions.push(apiVersion);
+        }
       }
     }
 
@@ -840,7 +869,13 @@ export class CodeModelBuilder {
         // first client, set it to sharedApiVersions
         sharedApiVersions = apiVersions;
       } else {
-        apiVersionSameForAllClients = isEqual(sharedApiVersions, apiVersions);
+        // Compare the api-version strings, not the ApiVersion object references. Each client
+        // builds its own ApiVersion instances (see `new ApiVersion()` above), so reference
+        // equality ("===") would always be false for clients that in fact share the same
+        // api-versions, incorrectly producing a separate ServiceVersion enum per client.
+        apiVersionSameForAllClients =
+          sharedApiVersions.length === apiVersions.length &&
+          sharedApiVersions.every((it, index) => it.version === apiVersions[index].version);
       }
       if (!apiVersionSameForAllClients) {
         break;
@@ -1014,6 +1049,24 @@ export class CodeModelBuilder {
         codeModelOperation.convenienceApi.language.java =
           codeModelOperation.convenienceApi.language.java ?? new Language();
         codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
+      }
+
+      // opt-in: return significant response headers as a strongly-typed model from the convenience method
+      const responseHeadersAsModel = getClientOptions(sdkMethod, "responseHeadersAsModel") as
+        boolean | undefined;
+      if (responseHeadersAsModel === true) {
+        if (sdkMethod.response.type !== undefined) {
+          // the model is built purely from response headers, hence the operation must not have a response body
+          this.program.reportDiagnostic(
+            createDiagnostic({
+              code: "response-headers-as-model-with-body",
+              format: { operationName: operationName },
+              target: sdkMethod.__raw ?? NoTarget,
+            }),
+          );
+        } else {
+          codeModelOperation.convenienceApi.responseHeadersAsModel = true;
+        }
       }
     }
     if (diagnostic) {
@@ -2682,7 +2735,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
 
     const elementSchema = this.processSchema(elementType, name);
@@ -2708,7 +2761,7 @@ export class CodeModelBuilder {
     let elementType = type.valueType;
     if (elementType.kind === "nullable") {
       nullableItems = true;
-      elementType = elementType.type;
+      elementType = getNonNullSdkType(elementType);
     }
     const elementSchema = this.processSchema(elementType, name);
     dictSchema.elementType = elementSchema;
@@ -3001,7 +3054,7 @@ export class CodeModelBuilder {
     let nonNullType = modelProperty.type;
     if (nonNullType.kind === "nullable") {
       nullable = true;
-      nonNullType = nonNullType.type;
+      nonNullType = getNonNullSdkType(nonNullType);
     }
     let schema;
 

@@ -663,6 +663,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void ReferencedExtensibleEnumUsesInlineConstruction()
+        {
+            // A property typed as a referenced extensible enum (a value-type struct) must deserialize via
+            // inline construction, not the generic ModelReaderWriter.Read<T> fallback (which throws at
+            // runtime because the struct has no MRW builder).
+            var externalEnum = InputFactory.StringEnum(
+                "ExternalKind",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true,
+                external: new InputExternalTypeMetadata("System.Guid", null, null));
+            var property = InputFactory.Property("kind", externalEnum);
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
+
+            Assert.IsFalse(
+                methodBody.Contains("ModelReaderWriter.Read<global::System.Guid>"),
+                "Referenced extensible enum should not use the ModelReaderWriter.Read<T> fallback.");
+            Assert.IsTrue(
+                methodBody.Contains("new global::System.Guid("),
+                "Referenced extensible enum should be constructed inline from its underlying value.");
+
+            // Serialization must use the enum's underlying value (ToString for a string-backed enum),
+            // not a model write.
+            var writeBody = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+            Assert.IsTrue(
+                writeBody.Contains("WriteStringValue(") && writeBody.Contains("ToString()"),
+                "Referenced extensible enum should serialize via its underlying string value.");
+        }
+
+        [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
             var baseModel = InputFactory.Model("BaseModel");

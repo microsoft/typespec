@@ -42,6 +42,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string DeserializationMethodNamePrefix = "Deserialize";
         private const string WriteAction = "writing";
         private const string ReadAction = "reading";
+        private static readonly IReadOnlySet<string> s_createCoreMethodNames = new HashSet<string>
+        {
+            JsonModelCreateCoreMethodName,
+            PersistableModelCreateCoreMethodName
+        };
         private readonly ParameterProvider _utf8JsonWriterParameter = new("writer", $"The JSON writer.", typeof(Utf8JsonWriter));
         private readonly ParameterProvider _utf8JsonReaderParameter = new("reader", $"The JSON reader.", typeof(Utf8JsonReader), isRef: true);
         private readonly ParameterProvider _serializationOptionsParameter =
@@ -53,10 +58,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly ScopedApi<ModelReaderWriterOptions> _mrwOptionsParameterSnippet;
         private readonly ScopedApi<JsonElement> _jsonElementParameterSnippet;
         private readonly ScopedApi<bool> _isNotEqualToWireConditionSnippet;
-        private readonly CSharpType _jsonModelTInterface;
-        private readonly CSharpType? _jsonModelObjectInterface;
-        private readonly CSharpType _persistableModelTInterface;
-        private readonly CSharpType? _persistableModelObjectInterface;
+        // These interface types depend on _model.Type. Build them lazily so we do not cache a
+        // CSharpType before delayed base model resolution has updated the model's inheritance.
+        private CSharpType? _jsonModelTInterfaceValue;
+        private CSharpType _jsonModelTInterface => _jsonModelTInterfaceValue ??= new CSharpType(typeof(IJsonModel<>), SerializationInterfaceType.Type);
+        private CSharpType? _jsonModelObjectInterface;
+        private CSharpType? JsonModelObjectInterface => _isStruct ? _jsonModelObjectInterface ??= (CSharpType)typeof(IJsonModel<object>) : null;
+        private CSharpType? _persistableModelTInterfaceValue;
+        private CSharpType _persistableModelTInterface => _persistableModelTInterfaceValue ??= new CSharpType(typeof(IPersistableModel<>), SerializationInterfaceType.Type);
+        private CSharpType? _persistableModelObjectInterface;
+        private CSharpType? PersistableModelObjectInterface => _isStruct ? _persistableModelObjectInterface ??= (CSharpType)typeof(IPersistableModel<object>) : null;
         private readonly ModelProvider _model;
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
@@ -67,9 +78,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _supportsXml;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
-        private readonly bool _shouldOverrideMethods;
-        private readonly bool _shouldSkipDerivedSerializationMethodOverrides;
+        private bool? _shouldOverrideMethods;
+        private bool ShouldOverrideMethods => _shouldOverrideMethods ??= !_isStruct &&
+            (_model.BaseModelProvider != null || HasCustomBaseJsonModelWriteCoreMethod());
+        private bool? _shouldSkipSerializationMethodOverrides;
+        private bool ShouldSkipSerializationMethodOverrides => _shouldSkipSerializationMethodOverrides ??= ShouldSkipDerivedSerializationMethodOverrides(_model);
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
+
+        // Unknown discriminator models use their base model as the serialization interface type.
+        // This can also touch model.Type, so defer it until serialization method/interface emission.
+        private TypeProvider SerializationInterfaceType => _serializationInterfaceType ??= _inputModel.IsUnknownDiscriminatorModel
+            ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel!)!
+            : _model;
+        private TypeProvider? _serializationInterfaceType;
 
         private CSharpType RootType => _rootType ??= GetRootModelType();
         private CSharpType? _rootType;
@@ -84,17 +105,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             _supportsXml = inputModel.Usage.HasFlag(InputModelTypeUsage.Xml);
             _supportsJson = inputModel.Usage.HasFlag(InputModelTypeUsage.Json) || !_supportsXml;
-            // Initialize the serialization interfaces
-            var interfaceType = inputModel.IsUnknownDiscriminatorModel ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel!)! : _model;
-            _jsonModelTInterface = new CSharpType(typeof(IJsonModel<>), interfaceType.Type);
-            _jsonModelObjectInterface = _isStruct ? (CSharpType)typeof(IJsonModel<object>) : null;
-            _persistableModelTInterface = new CSharpType(typeof(IPersistableModel<>), interfaceType.Type);
-            _persistableModelObjectInterface = _isStruct ? (CSharpType)typeof(IPersistableModel<object>) : null;
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
-            _shouldSkipDerivedSerializationMethodOverrides = ShouldSkipDerivedSerializationMethodOverrides(_model.BaseModelProvider);
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -108,6 +121,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 
@@ -116,6 +133,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName() => _model.Name;
 
         protected override CSharpType? BuildBaseType() => _model.BaseType;
+
+        protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes() => _rawDataField != null || _additionalProperties.Value.Length > 0
+            ? [ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType]
+            : [];
+
+        protected override IReadOnlyList<CSharpType> BuildBodyDependencyTypes() =>
+            [ScmCodeModelGenerator.Instance.SystemOptionalDefinition.Type, ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type];
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
         {
@@ -143,7 +167,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ?? Type;
+            var returnType = _model.BaseModelProvider?.Type ??
+                GetCustomMrwBaseRootType() ??
+                Type;
             while (returnType.BaseType != null
                    && IsModelType(returnType.BaseType))
             {
@@ -158,6 +184,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                baseProvider is ModelProvider;
 
         /// <summary>
+        /// Gets the hand-authored base type this model derives from, or <c>null</c> when the base is generated.
+        /// </summary>
+        private CSharpType? GetCustomSerializationBaseType()
+            => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
+                ? _model.BaseType
+                : null;
+
+        /// <summary>
+        /// Gets the return type the generated <c>*Core</c> creation methods must use when this model derives
+        /// from a hand-authored base, or <c>null</c> when the custom base does not declare those methods.
+        /// </summary>
+        /// <remarks>
+        /// A hand-authored base only dictates the <c>*Core</c> return type when it declares the methods being
+        /// overridden, in which case the signatures have to match. A plain base class that merely groups models
+        /// together must be ignored, otherwise the generated base declares a wider return type than its derived
+        /// overrides and the result only compiles on runtimes that support covariant returns.
+        /// </remarks>
+        private CSharpType? GetCustomMrwBaseRootType()
+            => GetCustomSerializationBaseType() is { } baseType
+                ? ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    method => s_createCoreMethodNames.Contains(method.Signature.Name),
+                    baseTypesFirst: true)?.Signature.ReturnType
+                : null;
+
+        /// <summary>
+        /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
+        /// generated one can legally override.
+        /// </summary>
+        /// <remarks>
+        /// Matching on the name alone is not enough: a base method that is non-virtual, sealed, declared with a
+        /// different signature, or not accessible as <c>protected</c> cannot be overridden, and emitting
+        /// <c>override</c> against it produces CS0506/CS0115/CS0507.
+        /// </remarks>
+        private bool HasCustomBaseJsonModelWriteCoreMethod()
+            => GetCustomSerializationBaseType() is { } baseType &&
+                ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    IsJsonModelWriteCoreSignature,
+                    baseTypesFirst: false) is { } method &&
+                IsJsonModelWriteCoreMethod(method);
+
+        private static bool IsJsonModelWriteCoreMethod(MethodProvider method)
+            => IsJsonModelWriteCoreSignature(method) &&
+                (method.Signature.Modifiers &
+                    (MethodSignatureModifiers.Public |
+                        MethodSignatureModifiers.Internal |
+                        MethodSignatureModifiers.Protected |
+                        MethodSignatureModifiers.Private)) == MethodSignatureModifiers.Protected &&
+                ModelReaderWriterHelpers.IsOverridable(method.Signature.Modifiers);
+
+        private static bool IsJsonModelWriteCoreSignature(MethodProvider method)
+            => method.Signature.Name == JsonModelWriteCoreMethodName &&
+                !method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                (method.Signature.ReturnType is null || method.Signature.ReturnType.Equals(typeof(void))) &&
+                method.Signature.Parameters.Count == 2 &&
+                method.Signature.Parameters[0].Type.Equals(typeof(Utf8JsonWriter)) &&
+                method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
+
+        /// <summary>
         /// Determines whether a derived model should skip overriding the generated serialization
         /// <c>*Core</c> methods of its base.
         /// </summary>
@@ -169,43 +255,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
         /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
         /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
-        /// models re-introduce the methods as <c>virtual</c>.
+        /// models re-introduce the methods as <c>virtual</c>. The same reasoning applies to a
+        /// hand-authored base, which only participates when it declares the <c>*Core</c> methods.
         /// </remarks>
-        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider? baseModelProvider)
+        private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider model)
         {
-            if (baseModelProvider is null)
+            if (model.BaseModelProvider is null)
             {
-                return false;
-            }
-
-            if (baseModelProvider is SystemObjectModelProvider systemBase)
-            {
-                return !SystemTypeImplementsModelReaderWriter(systemBase.SystemType);
-            }
-
-            return baseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
-        }
-
-        private static bool SystemTypeImplementsModelReaderWriter(CSharpType systemType)
-        {
-            if (!systemType.IsFrameworkType)
-            {
-                return false;
-            }
-
-            foreach (var @interface in systemType.FrameworkType.GetInterfaces())
-            {
-                if (@interface.IsGenericType)
+                if (model.CustomCodeView?.BaseType is null || model.BaseType is not { } baseType)
                 {
-                    var definition = @interface.GetGenericTypeDefinition();
-                    if (definition == typeof(IJsonModel<>) || definition == typeof(IPersistableModel<>))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
+
+                return ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        baseType,
+                        method => method.Signature.Name == JsonModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null &&
+                    ModelReaderWriterHelpers.FindMethodInHierarchy(
+                        baseType,
+                        method => method.Signature.Name == PersistableModelCreateCoreMethodName,
+                        baseTypesFirst: true) is null;
             }
 
-            return false;
+            if (model.BaseModelProvider is SystemObjectModelProvider systemBase)
+            {
+                return !ModelReaderWriterHelpers.ImplementsModelReaderWriter(systemBase);
+            }
+
+            return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -429,17 +506,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_supportsJson)
             {
                 interfaces.Add(_jsonModelTInterface);
-                if (_jsonModelObjectInterface != null)
+                var jsonModelObjectInterface = JsonModelObjectInterface;
+                if (jsonModelObjectInterface != null)
                 {
-                    interfaces.Add(_jsonModelObjectInterface);
+                    interfaces.Add(jsonModelObjectInterface);
                 }
             }
             else if (_supportsXml)
             {
                 interfaces.Add(_persistableModelTInterface);
-                if (_persistableModelObjectInterface != null)
+                var persistableModelObjectInterface = PersistableModelObjectInterface;
+                if (persistableModelObjectInterface != null)
                 {
-                    interfaces.Add(_persistableModelObjectInterface);
+                    interfaces.Add(persistableModelObjectInterface);
                 }
             }
 
@@ -469,7 +548,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var castToT = This.CastTo(_jsonModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IJsonModel<object>.Write), null, MethodSignatureModifiers.None, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Write), null, MethodSignatureModifiers.None, null, null, [_utf8JsonWriterParameter, _serializationOptionsParameter], ExplicitInterface: JsonModelObjectInterface),
               castToT.Invoke(nameof(IJsonModel<object>.Write), [_utf8JsonWriterParameter, _serializationOptionsParameter]),
               this
             );
@@ -484,7 +563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var castToT = This.CastTo(_jsonModelTInterface);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeof(object), null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: _jsonModelObjectInterface),
+              new MethodSignature(nameof(IJsonModel<object>.Create), null, MethodSignatureModifiers.None, typeof(object), null, [_utf8JsonReaderParameter, _serializationOptionsParameter], ExplicitInterface: JsonModelObjectInterface),
               castToT.Invoke(nameof(IJsonModel<object>.Create), [_utf8JsonReaderParameter.AsArgument(), _serializationOptionsParameter]),
               this
             );
@@ -500,7 +579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var returnType = typeof(BinaryData);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Write), null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Write), null, MethodSignatureModifiers.None, returnType, null, [_serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
               castToT.Invoke(nameof(IPersistableModel<object>.Write), [_serializationOptionsParameter]),
               this
             );
@@ -516,7 +595,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var returnType = typeof(object);
             return new MethodProvider
             (
-              new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, returnType, null, [_dataParameter, _serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+              new MethodSignature(nameof(IPersistableModel<object>.Create), null, MethodSignatureModifiers.None, returnType, null, [_dataParameter, _serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
               castToT.Invoke(nameof(IPersistableModel<object>.Create), [_dataParameter, _serializationOptionsParameter]),
               this
             );
@@ -530,7 +609,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers = _isStruct
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (_shouldOverrideMethods)
+            if (ShouldOverrideMethods)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -552,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
+            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -576,7 +655,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
+            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -624,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? MethodSignatureModifiers.Private
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
 
-            if (_shouldOverrideMethods && !_shouldSkipDerivedSerializationMethodOverrides)
+            if (ShouldOverrideMethods && !ShouldSkipSerializationMethodOverrides)
             {
                 modifiers = MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override;
             }
@@ -796,7 +875,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // string IPersistableModel<object>.GetFormatFromOptions(ModelReaderWriterOptions options) => ((IPersistableModel<T>)this).GetFormatFromOptions(options);
             return new MethodProvider
             (
-                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: _persistableModelObjectInterface),
+                new MethodSignature(nameof(IPersistableModel<object>.GetFormatFromOptions), null, MethodSignatureModifiers.None, typeof(string), null, [_serializationOptionsParameter], ExplicitInterface: PersistableModelObjectInterface),
                 castToT.Invoke(nameof(IPersistableModel<object>.GetFormatFromOptions), [_serializationOptionsParameter]),
                 this
             );
@@ -1055,7 +1134,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
         {
             // base.<JsonModelWriteCore>()
-            bool callBaseWriteMethod = _shouldOverrideMethods
+            bool callBaseWriteMethod = ShouldOverrideMethods
                 && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
             return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
@@ -1927,7 +2006,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 (IsNonNullableValueType(propertyType) || (propertyIsRequired && !propertyIsNullable)))
             {
                 if (patchCheck == null)
+                {
                     return writePropertySerializationStatement;
+                }
 
                 return (propertyType.IsList || propertyType.IsArray)
                     ? CreateConditionalPatchSerializationStatement(jsonSerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
@@ -2254,18 +2335,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (valueType.IsStruct) // extensible enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke(nameof(ToString)));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
                 else // fixed enum
                 {
                     if (valueType.UnderlyingEnumType.Equals(typeof(int)))
+                    {
                         // when the fixed enum is implemented as int, we cast to the value
                         return utf8JsonWriter.WriteNumberValue(value.CastTo(valueType.UnderlyingEnumType));
+                    }
 
                     if (valueType.UnderlyingEnumType.Equals(typeof(string)))
+                    {
                         return utf8JsonWriter.WriteStringValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
+                    }
 
                     return utf8JsonWriter.WriteNumberValue(value.Invoke($"ToSerial{valueType.UnderlyingEnumType.Name}"));
                 }
@@ -2273,7 +2360,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Handle non-enum types
             if (!valueType.IsFrameworkType)
+            {
                 return utf8JsonWriter.WriteObjectValue(value.As(valueType), options: mrwOptionsParameter);
+            }
 
             // Handle framework types
             var frameworkType = valueType.FrameworkType;
@@ -2548,10 +2637,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         _utf8JsonWriterSnippet.WriteNull(serializedName));
                 }
 
-                return new IfElseStatement(
-                    condition,
-                    writePropertySerializationStatement,
-                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+                var ifStatement = new IfStatement(condition) { writePropertySerializationStatement };
+                var writeNull = _utf8JsonWriterSnippet.WriteNull(serializedName);
+                return patchCheck != null
+                    ? new IfElseStatement(ifStatement, [new IfStatement(patchCheck) { writeNull }], null)
+                    : new IfElseStatement(ifStatement, writeNull);
             }
 
             if (shouldCheckJsonPath)

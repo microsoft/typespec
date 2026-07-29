@@ -43,6 +43,7 @@ words:
   - canonicalizer
   - Cblack
   - Cbrown
+  - clid
   - clsx
   - cobertura
   - codehaus
@@ -60,6 +61,7 @@ words:
   - debugpy
   - Declipse
   - dedented
+  - dedup
   - Dedupes
   - deps
   - deser
@@ -154,6 +156,7 @@ words:
   - MACVMIMAGEM
   - marshal
   - mday
+  - Menlo
   - methodsubscriptionid
   - mgmt
   - mgmtplane
@@ -199,6 +202,8 @@ words:
   - onigasm
   - onwarn
   - openapi
+  - opfields
+  - oxlint
   - openapiv
   - Packument
   - Perfolizer
@@ -216,6 +221,7 @@ words:
   - ptvsd
   - pwsh
   - pycache
+  - pydantic
   - pyexpat
   - pygen
   - pygments
@@ -277,6 +283,7 @@ words:
   - tsconfigs
   - tsdoc
   - TSES
+  - tsgolint
   - tspd
   - tspwebsitepr
   - tsvs
@@ -313,11 +320,14 @@ words:
   - vnet
   - VNEXT
   - vsix
+  - vsextensions
   - vsmarketplace
+  - vspackage
   - VSSDK
   - Vsts
   - vswhere
   - wday
+  - WCAG
   - weidxu
   - westus
   - WHATWG
@@ -361,6 +371,7 @@ ignorePaths:
   - "**/*.plist"
   - .git/**
   - .gitignore
+  - .claude/**
   - .vscode/**
   - .editorconfig
   - .github/CODEOWNERS

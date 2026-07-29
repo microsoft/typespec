@@ -206,7 +206,9 @@ namespace Microsoft.TypeSpec.Generator
         private static string? ReadStringOption(JsonElement root, string option)
         {
             if (root.TryGetProperty(option, out JsonElement value))
+            {
                 return value.GetString();
+            }
 
             return null;
         }

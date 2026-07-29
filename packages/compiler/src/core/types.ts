@@ -1,6 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
+import type { FileRef } from "./file-ref.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
@@ -29,15 +30,7 @@ export interface DecoratorArgument {
    * Marshalled value for use in Javascript.
    */
   jsValue:
-    | Type
-    | Value
-    | Record<string, unknown>
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | Numeric
-    | null;
+    Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric | null;
   node?: Node;
 }
 
@@ -758,6 +751,8 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
+  /** How this decorator was declared. */
+  declarationKind: "extern" | "auto";
 }
 
 /**
@@ -1212,6 +1207,7 @@ export enum SyntaxKind {
   CallExpression,
   ScalarConstructor,
   InternalKeyword,
+  AutoKeyword,
   FunctionTypeExpression,
 }
 
@@ -1512,11 +1508,7 @@ export type Expression =
 export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
 
 export type ReferenceExpression =
-  | TypeReferenceNode
-  | MemberExpressionNode
-  | IdentifierNode
-  | VoidKeywordNode
-  | NeverKeywordNode;
+  TypeReferenceNode | MemberExpressionNode | IdentifierNode | VoidKeywordNode | NeverKeywordNode;
 
 export interface MemberExpressionNode extends BaseNode {
   readonly kind: SyntaxKind.MemberExpression;
@@ -1551,8 +1543,7 @@ export interface OperationSignatureReferenceNode extends BaseNode {
 }
 
 export type OperationSignature =
-  | OperationSignatureDeclarationNode
-  | OperationSignatureReferenceNode;
+  OperationSignatureDeclarationNode | OperationSignatureReferenceNode;
 
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
   readonly kind: SyntaxKind.OperationStatement;
@@ -1778,6 +1769,10 @@ export interface InternalKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.InternalKeyword;
 }
 
+export interface AutoKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.AutoKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1834,11 +1829,12 @@ export const enum ModifierFlags {
   None,
   Extern = 1 << 1,
   Internal = 1 << 2,
+  Auto = 1 << 3,
 
-  All = Extern | Internal,
+  All = Extern | Internal | Auto,
 }
 
-export type Modifier = ExternKeywordNode | InternalKeywordNode;
+export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode;
 
 /**
  * Represent a decorator declaration
@@ -2085,6 +2081,13 @@ export interface LibraryLocationContext {
 
   /** Module definition */
   readonly flags?: PackageFlags;
+
+  /**
+   * Compiler features enabled for this library, as declared in the library's own
+   * `tspconfig.yaml` `features`. Used to gate experimental features (e.g. `auto-decorators`)
+   * for the library's own source files, independently of the consuming project's config.
+   */
+  readonly features?: readonly string[];
 }
 
 export interface LibraryInstance {
@@ -2402,6 +2405,12 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly description?: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   readonly url?: string;
+  /**
+   * Extended documentation for this diagnostic. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  readonly docs?: string | FileRef;
 }
 
 export interface DiagnosticMessages {
@@ -2472,6 +2481,14 @@ export interface TypeSpecLibraryDef<
    * Library name. MUST match package.json name.
    */
   readonly name: string;
+
+  /**
+   * Optional short alias for this library used in diagnostic and linter rule codes.
+   * When provided, diagnostic/linter codes can be referenced as `${alias}/${code}`
+   * in addition to the full `${name}/${code}` form (e.g. `tcgc/no-foo`).
+   * Overrides the automatically scope-stripped short name.
+   */
+  readonly alias?: string;
 
   /** Optional registration of capabilities the library/emitter provides */
   readonly capabilities?: TypeSpecLibraryCapabilities;
@@ -2549,6 +2566,12 @@ interface LinterRuleDefinitionBase<
   description: string;
   /** Specifies the URL at which the full documentation can be accessed. */
   url?: string;
+  /**
+   * Extended documentation for this rule. Surfaced both in generated reference
+   * documentation and in editor tooling (e.g. completion and hover). Either raw markdown,
+   * or a {@link FileRef} pointing to a markdown file (recommended).
+   */
+  docs?: string | FileRef;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
   /**

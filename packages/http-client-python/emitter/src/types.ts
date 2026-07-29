@@ -16,7 +16,7 @@ import {
   SdkUnionType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
+import { getEncode, Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";
@@ -233,6 +233,11 @@ function emitProperty(
     // Python convert all the type of file part to FileType so clear these models' usage so that they won't be generated
     addDisableGenerationMap(context, property.type);
   }
+  const isNullable = !isMultipartFileInput && sourceType.kind === "nullable";
+  const booleanEncode =
+    property.type.kind === "boolean" && property.__raw
+      ? getEncode(context.program, property.__raw)
+      : undefined;
   return {
     clientName: getClientName(property),
     isExactName: property.isExactName,
@@ -242,6 +247,7 @@ function emitProperty(
         : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
+    nullable: isNullable,
     description: property.summary ? property.summary : property.doc,
     addedOn: getAddedOn(context, property),
     apiVersions: property.apiVersions,
@@ -250,7 +256,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
-    encode: property.encode,
+    encode: property.encode ?? (booleanEncode?.type.name === "string" ? "str" : undefined),
     clientDefaultValue: property.clientDefaultValue,
   };
 }

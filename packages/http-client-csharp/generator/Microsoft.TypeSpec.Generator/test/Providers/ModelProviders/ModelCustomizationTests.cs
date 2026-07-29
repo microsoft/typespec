@@ -1765,10 +1765,100 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The BaseModelProvider should be null since the base is not a generated model
             Assert.IsNull(modelProvider.BaseModelProvider);
 
-            // System types from referenced assemblies are NOT found by FindForTypeInCustomization
-            // (which only searches the customization assembly, not references), so they use SystemObjectTypeProvider
-            Assert.IsInstanceOf<SystemObjectTypeProvider>(modelProvider.BaseTypeProvider,
-                "System.Exception is from a referenced assembly and should use SystemObjectTypeProvider");
+            // System types from referenced assemblies are found in the customization compilation
+            // so inherited members can be represented by normal property providers.
+            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider,
+                "System.Exception is from a referenced assembly and should use NamedTypeSymbolProvider");
+        }
+
+        [Test]
+        public async Task CanCustomizeSpecBaseModelToSystemType()
+        {
+            // This verifies that a custom partial base type wins even when the input model
+            // has a TypeSpec base model. Otherwise the generated partial would keep the
+            // TypeSpec base and conflict with the custom partial declaration.
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [InputFactory.Property("specBaseProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [
+                    InputFactory.Property("message", InputPrimitiveType.String),
+                    InputFactory.Property("childProp", InputPrimitiveType.String),
+                ],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel") as ModelProvider;
+
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNotNull(modelProvider!.BaseType);
+            Assert.AreEqual("Exception", modelProvider.BaseType!.Name);
+            Assert.AreEqual("System", modelProvider.BaseType!.Namespace);
+            Assert.IsNull(modelProvider.BaseModelProvider, "The TypeSpec base model should not be used when custom code declares a system base type.");
+            Assert.IsInstanceOf<NamedTypeSymbolProvider>(modelProvider.BaseTypeProvider);
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Not.Contain("Message"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Contain("ChildProp"));
+
+            var modelContent = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.That(modelContent, Does.Contain("public partial class MockInputModel : global::System.Exception"));
+            Assert.That(modelContent, Does.Not.Contain("SpecBaseModel"));
+            Assert.That(modelContent, Does.Not.Contain("public string Message"));
+        }
+
+        [Test]
+        public async Task CanCustomizeSpecBaseModelToSystemObjectModelProvider()
+        {
+            // This verifies the generator-specific system model path used by management-plane
+            // generators: a custom base type can resolve to a SystemObjectModelProvider in
+            // CSharpTypeMap, and generated members inherited from that mapped provider are filtered.
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [InputFactory.Property("specBaseProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("name", InputPrimitiveType.String),
+                    InputFactory.Property("childProp", InputPrimitiveType.String),
+                ],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+            var systemInputModel = InputFactory.Model(
+                "ResourceData",
+                properties: [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("name", InputPrimitiveType.String),
+                ],
+                usage: InputModelTypeUsage.Json);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel, systemInputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var customBaseType = CreateSystemCSharpType("ResourceData", "TestFramework");
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[customBaseType] = new SystemObjectModelProvider(customBaseType, systemInputModel);
+
+            var modelProvider = new ModelProvider(childModel);
+
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual("ResourceData", modelProvider.BaseType!.Name);
+            Assert.AreEqual("TestFramework", modelProvider.BaseType!.Namespace);
+            Assert.IsInstanceOf<SystemObjectModelProvider>(modelProvider.BaseTypeProvider);
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Not.Contain("Id"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Not.Contain("Name"));
+            Assert.That(modelProvider.Properties.Select(p => p.Name), Does.Contain("ChildProp"));
+
+            var modelContent = new TypeProviderWriter(modelProvider).Write().Content;
+            Assert.That(modelContent, Does.Contain("public partial class MockInputModel : global::TestFramework.ResourceData"));
+            Assert.That(modelContent, Does.Not.Contain("public string Id"));
+            Assert.That(modelContent, Does.Not.Contain("public string Name"));
         }
 
         [Test]
@@ -1846,6 +1936,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         private const string AttributeNamespace = TestCustomCodeAttributeDefinition.AttributeNamespace;
+
+        private static CSharpType CreateSystemCSharpType(string name, string ns)
+            => new(name, ns, isValueType: false, isNullable: false, declaringType: null,
+                args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false);
 
         private class TestNameVisitor : NameVisitor
         {

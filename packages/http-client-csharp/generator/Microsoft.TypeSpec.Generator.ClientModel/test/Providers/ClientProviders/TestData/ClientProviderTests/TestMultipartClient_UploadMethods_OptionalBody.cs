@@ -15,7 +15,7 @@ namespace Sample
     {
         public virtual global::System.ClientModel.ClientResult Upload(string contentType, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
-            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUploadRequest(contentType, content, options);
+            using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUploadRequest(content, contentType, options);
             return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 

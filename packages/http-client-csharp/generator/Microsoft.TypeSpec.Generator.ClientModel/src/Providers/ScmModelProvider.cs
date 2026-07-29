@@ -508,7 +508,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 type: _jsonPatchFieldType,
                 name: JsonPatchPropertyName,
                 isRef: isRef,
-                body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
+                body: new ExpressionPropertyBody(
+                    isRef
+                        ? ByRef(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration))
+                        : new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration)),
                 attributes:
                 [
                     new AttributeStatement(typeof(JsonIgnoreAttribute)),

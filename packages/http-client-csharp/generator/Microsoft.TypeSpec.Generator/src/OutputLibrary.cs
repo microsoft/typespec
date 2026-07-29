@@ -27,7 +27,10 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var inputEnum in input.Enums)
             {
                 if (inputEnum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
                     continue;
+                }
+
                 var outputEnum = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
                 // If there is a custom code view for a fixed enum, then we should not emit the generated enum as the custom code will have

@@ -21,10 +21,15 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var parameter in signature.Parameters)
                 {
                     if (parameter.Validation == ParameterValidationType.None)
+                    {
                         continue;
+                    }
 
                     if (!paramHash.ContainsKey(parameter.Validation))
+                    {
                         paramHash[parameter.Validation] = new List<ParameterProvider>();
+                    }
+
                     paramHash[parameter.Validation].Add(parameter);
                 }
             }
@@ -34,18 +39,25 @@ namespace Microsoft.TypeSpec.Generator
         public static MethodBodyStatement GetBodyStatementWithValidation(IEnumerable<ParameterProvider> parameters, MethodBodyStatement bodyStatements, Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash)
         {
             if (paramHash is null || bodyStatements == MethodBodyStatement.Empty)
+            {
                 return bodyStatements;
+            }
 
             int count = 0;
             foreach (var kvp in paramHash)
             {
                 if (kvp.Key == ParameterValidationType.None)
+                {
                     continue;
+                }
+
                 count += kvp.Value.Count;
             }
 
             if (count == 0)
+            {
                 return bodyStatements;
+            }
 
             MethodBodyStatement[] statements = new MethodBodyStatement[count + 2];
             int index = 0;

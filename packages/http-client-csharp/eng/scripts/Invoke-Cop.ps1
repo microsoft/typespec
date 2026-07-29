@@ -38,7 +38,7 @@ param(
     # Pinned cop release. Bump deliberately after verifying the cop-checks/ rules
     # still run against the new release (cop can make breaking API changes
     # between releases). Pass "latest" to test against the newest release.
-    [string] $Version = "v2026.6.10.1"
+    [string] $Version = "v2026.6.23.2"
 )
 
 $ErrorActionPreference = 'Stop'

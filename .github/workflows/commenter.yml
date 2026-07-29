@@ -18,7 +18,7 @@ jobs:
       !startsWith(github.head_ref, 'publish/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Prepare artifact directory
         run: mkdir -p "${{ runner.temp }}/comment-artifact"
       - uses: actions/download-artifact@v8

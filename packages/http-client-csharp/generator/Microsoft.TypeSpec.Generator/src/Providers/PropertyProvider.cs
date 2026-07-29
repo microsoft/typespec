@@ -238,7 +238,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ValueExpression? GetPropertyInitializationValue(CSharpType propertyType, InputProperty inputProperty)
         {
             if (!inputProperty.IsRequired)
+            {
                 return null;
+            }
 
             if (propertyType.IsLiteral)
             {

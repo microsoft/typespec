@@ -33,24 +33,22 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name: decorator.target.name,
       type: <TargetParameterTsType type={decorator.target.type.type} />,
     },
-    ...decorator.parameters.map(
-      (param): ts.ParameterDescriptor => ({
-        // https://github.com/alloy-framework/alloy/issues/144
-        name: param.rest ? `...${param.name}` : param.name,
-        type: param.rest ? (
-          <>
-            (
-            {param.type ? (
-              <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
-            ) : undefined}
-            )[]
-          </>
-        ) : (
-          <ParameterTsType constraint={param.type} />
-        ),
-        optional: param.optional,
-      }),
-    ),
+    ...decorator.parameters.map((param): ts.ParameterDescriptor => ({
+      // https://github.com/alloy-framework/alloy/issues/144
+      name: param.rest ? `...${param.name}` : param.name,
+      type: param.rest ? (
+        <>
+          (
+          {param.type ? (
+            <ParameterTsType constraint={extractRestParamConstraint(program, param.type)!} />
+          ) : undefined}
+          )[]
+        </>
+      ) : (
+        <ParameterTsType constraint={param.type} />
+      ),
+      optional: param.optional,
+    })),
   ];
   return (
     <ts.TypeDeclaration
@@ -117,7 +115,7 @@ export function ParameterTsType({ constraint }: ParameterTsTypeProps) {
   return typespecCompiler.Type;
 }
 
-function TargetParameterTsType(props: { type: Type | undefined }) {
+export function TargetParameterTsType(props: { type: Type | undefined }) {
   const type = props.type;
   if (type === undefined) {
     return typespecCompiler.Type;

@@ -1,6 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import { join } from "path";
-import { repoRoot } from "../../common/scripts/utils/common.js";
+import { repoRoot } from "../../common/scripts/utils/common.ts";
 
 // Standalone packages that need special handling with npm instead of pnpm
 const STANDALONE_PACKAGES = [

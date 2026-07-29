@@ -10,6 +10,13 @@ export interface MockApiServerConfig {
   port: number;
 }
 
+/**
+ * The mock server always binds to the loopback interface so it is only reachable
+ * from the local host. This keeps the unauthenticated admin endpoints (e.g. the
+ * server stop signal) from being exposed to other hosts on the network.
+ */
+const LOOPBACK_HOST = "127.0.0.1";
+
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   logger.error("Error", err);
 
@@ -85,14 +92,14 @@ export class MockApiServer {
     this.app.use(errorHandler);
 
     return new Promise((resolve, reject) => {
-      const server = this.app.listen(this.config.port, () => {
+      const server = this.app.listen(this.config.port, LOOPBACK_HOST, () => {
         const resolvedPort = getPort(server);
         if (!resolvedPort) {
           logger.error("Failed to resolve port");
           reject(new Error("Failed to resolve port"));
           return;
         }
-        logger.info(`Started server on ${resolvedPort}`);
+        logger.info(`Started server on ${LOOPBACK_HOST}:${resolvedPort}`);
         resolve(resolvedPort);
       });
 

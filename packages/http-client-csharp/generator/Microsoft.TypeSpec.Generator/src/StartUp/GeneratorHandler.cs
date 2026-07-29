@@ -10,14 +10,18 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal class GeneratorHandler
     {
         private const string NodeModulesDir = "node_modules";
+        private const string SrcDir = "src";
+        private const string PluginOutputRootDirName = "typespec-generator-plugins";
 
         public void LoadGenerator(CommandLineOptions options)
         {
@@ -66,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var package in packageNamesInOrder)
             {
-                var packageDir = Path.Combine(rootDirectory, NodeModulesDir, package);
+                var packageDir = GetPackageDirectory(rootDirectory, package);
                 var packageDistPath = Path.Combine(packageDir, "dist");
 
                 if (Directory.Exists(packageDistPath))
@@ -190,29 +194,97 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         internal static string? BuildPluginIfNeeded(string directory, Emitter emitter)
         {
-            var csprojFiles = Directory.GetFiles(directory, "*.csproj", SearchOption.AllDirectories);
-            if (csprojFiles.Length == 0)
+            var csprojPath = FindPluginProject(directory);
+            if (csprojPath == null)
             {
                 return null;
             }
 
-            return BuildPlugin(csprojFiles[0], directory, emitter);
+            return BuildPlugin(csprojPath, emitter);
         }
 
         /// <summary>
-        /// Builds a plugin .csproj and returns the path to the output DLL by scanning
-        /// <paramref name="scanDirectory"/> for the built assembly.
+        /// Selects the plugin project to build from <paramref name="directory"/>.
+        /// A plugin directory may contain multiple projects. This method prefers a project under
+        /// a 'src' directory to avoid building a test or sample project, and returns a
+        /// deterministic result that is stable across platforms and filesystems.
         /// </summary>
-        internal static string? BuildPlugin(string csprojPath, string scanDirectory, Emitter emitter)
+        internal static string? FindPluginProject(string directory)
+        {
+            // Fast path: search a top-level 'src' directory first.
+            var srcDirectory = Path.Combine(directory, SrcDir);
+            if (Directory.Exists(srcDirectory))
+            {
+                var srcProject = SelectDeterministic(
+                    Directory.EnumerateFiles(srcDirectory, "*.csproj", SearchOption.AllDirectories));
+                if (srcProject != null)
+                {
+                    return srcProject;
+                }
+            }
+
+            // Fall back to a full recursive search.
+            var allProjects = Directory
+                .EnumerateFiles(directory, "*.csproj", SearchOption.AllDirectories)
+                .ToArray();
+            if (allProjects.Length == 0)
+            {
+                return null;
+            }
+
+            return SelectDeterministic(allProjects.Where(path => ContainsDirectorySegment(path, SrcDir)))
+                ?? SelectDeterministic(allProjects);
+        }
+
+        /// <summary>
+        /// Builds the path to a package's directory under 'node_modules'.
+        /// Scoped package names (e.g. '@scope/name') use a forward slash that must be split into
+        /// separate path segments and recombined with the platform separator. Otherwise the forward
+        /// slash is preserved verbatim on Windows, producing a mixed-separator path that fails once
+        /// the path is long enough for the runtime to apply the '\\?\' extended-length prefix, which
+        /// requires canonical backslash separators.
+        /// </summary>
+        internal static string GetPackageDirectory(string rootDirectory, string package)
+        {
+            var packageSegments = package.Split('/', '\\');
+            var segments = new string[packageSegments.Length + 2];
+            segments[0] = rootDirectory;
+            segments[1] = NodeModulesDir;
+            packageSegments.CopyTo(segments, 2);
+            return Path.Combine(segments);
+        }
+
+        private static string? SelectDeterministic(IEnumerable<string> paths) =>
+            paths.OrderBy(path => path, StringComparer.Ordinal).FirstOrDefault();
+
+        /// <summary>
+        /// Builds a plugin .csproj into a process-isolated output directory and returns the path
+        /// to the built assembly, or <see langword="null"/> if the build failed or no assembly
+        /// could be located.
+        /// </summary>
+        /// <remarks>
+        /// Within a single solution folder the emitter runs once per referenced project, so the
+        /// same plugin can be built concurrently by multiple processes. Sharing the plugin's
+        /// 'bin'/'obj' output across those processes races: the assembly can be truncated
+        /// mid-write, restore can corrupt 'project.assets.json', or a stale assembly from a
+        /// previous run can be loaded — which silently drops the plugin's behavior (for example,
+        /// visitors that add attributes). Redirecting each process to its own output directory
+        /// removes the shared resource entirely, so builds stay fully parallel and the loaded
+        /// assembly is always the one this process just built.
+        /// </remarks>
+        internal static string? BuildPlugin(string csprojPath, Emitter emitter)
         {
             emitter.Info($"Building plugin: {csprojPath}");
+
+            var outputRoot = CreateIsolatedPluginOutputDirectory(csprojPath);
+            var binDirectory = EnsureTrailingSeparator(Path.Combine(outputRoot, "bin"));
+            var objDirectory = EnsureTrailingSeparator(Path.Combine(outputRoot, "obj"));
 
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "dotnet",
-                    Arguments = $"build \"{csprojPath}\" -c Release",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -220,19 +292,41 @@ namespace Microsoft.TypeSpec.Generator
                 }
             };
 
+            // Override the *base* output/intermediate paths (rather than 'OutputPath'/'--output')
+            // so that multi-targeted plugin projects keep their per-framework subfolders and any
+            // project that derives its output location from these base paths is still honored.
+            // Command-line global properties take precedence over values set within the project or
+            // its imports, so this reliably redirects the build regardless of repository layout.
+            // ArgumentList is used to avoid the Windows trailing-backslash quoting pitfall.
+            process.StartInfo.ArgumentList.Add("build");
+            process.StartInfo.ArgumentList.Add(csprojPath);
+            process.StartInfo.ArgumentList.Add("-c");
+            process.StartInfo.ArgumentList.Add("Release");
+            process.StartInfo.ArgumentList.Add($"-p:BaseOutputPath={binDirectory}");
+            process.StartInfo.ArgumentList.Add($"-p:BaseIntermediateOutputPath={objDirectory}");
+
             process.Start();
-            // Read both streams to avoid deadlocks, even though we only use stderr for error reporting.
-            process.StandardOutput.ReadToEnd();
-            var stderr = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+            // Read both streams to avoid deadlocks. 'dotnet build' writes build/compiler
+            // errors to standard output rather than standard error, so we include both when
+            // reporting a failure.
+            var (stdout, stderr) = ReadProcessOutput(process);
 
             if (process.ExitCode != 0)
             {
-                throw new InvalidOperationException(
-                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stderr}");
+                // Report a warning rather than an error so that a failed plugin build does not
+                // abort the entire generation; callers treat a null result as "no assembly to
+                // load" and continue. Because the output directory is isolated per process, there
+                // is no shared artifact to fall back to, so a failed build simply yields no plugin.
+                emitter.ReportDiagnostic(
+                    DiagnosticCodes.PluginBuildFailed,
+                    $"Failed to build plugin '{csprojPath}'. Exit code: {process.ExitCode}\n{stdout}\n{stderr}",
+                    severity: EmitterDiagnosticSeverity.Warning);
+                return null;
             }
 
-            var dllPath = FindPluginAssembly(csprojPath, scanDirectory);
+            // Scan only this process's isolated output directory so we never pick up an assembly
+            // produced by a concurrent build of the same plugin.
+            var dllPath = FindPluginAssembly(csprojPath, binDirectory);
             if (dllPath != null)
             {
                 emitter.Info($"Plugin built: {dllPath}");
@@ -242,6 +336,50 @@ namespace Microsoft.TypeSpec.Generator
             emitter.Info($"Warning: Build succeeded but could not locate the output DLL for '{csprojPath}'");
             return null;
         }
+
+        internal static (string StandardOutput, string StandardError) ReadProcessOutput(Process process)
+        {
+            var stdoutTask = process.StandardOutput.ReadToEndAsync();
+            var stderrTask = process.StandardError.ReadToEndAsync();
+            process.WaitForExit();
+            Task.WaitAll(stdoutTask, stderrTask);
+            return (stdoutTask.Result, stderrTask.Result);
+        }
+
+        /// <summary>
+        /// Creates a unique, process-isolated directory to hold a plugin build's 'bin' and 'obj'
+        /// output. The directory is keyed on the process id and a GUID so that concurrent
+        /// generations never share build output for the same plugin.
+        /// </summary>
+        private static string CreateIsolatedPluginOutputDirectory(string csprojPath)
+        {
+            var directory = Path.Combine(
+                Path.GetTempPath(),
+                PluginOutputRootDirName,
+                GetAssemblyName(csprojPath),
+                $"{Environment.ProcessId}-{Guid.NewGuid():N}");
+            Directory.CreateDirectory(directory);
+
+            // Best-effort cleanup when the process exits. The built assembly may still be loaded
+            // (and therefore locked) at that point, so any failure to delete is ignored; the
+            // operating system reclaims the temporary directory eventually.
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                try
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+                catch
+                {
+                    // Best effort only.
+                }
+            };
+
+            return directory;
+        }
+
+        private static string EnsureTrailingSeparator(string path) =>
+            path.EndsWith(Path.DirectorySeparatorChar) ? path : path + Path.DirectorySeparatorChar;
 
         /// <summary>
         /// Locates the assembly produced by building a plugin .csproj by scanning

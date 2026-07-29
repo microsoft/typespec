@@ -90,6 +90,7 @@ export default defineConfig({
       ],
       favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
+      routeMiddleware: "./src/starlight-route-data.ts",
       components: {
         Header: "./src/components/header/header.astro",
         PageFrame: "./src/components/starlight-overrides/PageFrame.astro",

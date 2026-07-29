@@ -186,7 +186,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 serialize_namespace, module_name="_utils.model_base"
             )
             file_import.merge(self.item_type.imports(**kwargs))
-            if self.default_error_deserialization(serialize_namespace) or self.need_deserialize:
+            need_deserialize_import = self.default_error_deserialization(serialize_namespace) or (
+                self.need_deserialize
+                and not (isinstance(self.item_type, ModelType) and self.item_type.is_typed_dict_only)
+            )
+            if need_deserialize_import:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.is_xml_paging:
                 file_import.add_submodule_import("xml.etree", "ElementTree", ImportType.STDLIB, alias="ET")

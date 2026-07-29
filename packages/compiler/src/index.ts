@@ -1,5 +1,11 @@
 export { resolveCompilerOptions, ResolveCompilerOptionsOptions } from "./config/index.js";
 export {
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
+  hasAutoDecorator,
+  setAutoDecorator,
+} from "./core/auto-decorator.js";
+export {
   Checker,
   CreateTypeProps,
   // TODO: feels like all of those should move to a separate file
@@ -41,6 +47,7 @@ export {
   type WriteLine,
 } from "./core/diagnostics.js";
 export { emitFile, type EmitFileOptions, type NewLine } from "./core/emitter-utils.js";
+export { fileRef, isFileRef, type FileRef } from "./core/file-ref.js";
 export { checkFormatTypeSpec, formatTypeSpec } from "./core/formatter.js";
 export {
   DiscriminatedUnion,

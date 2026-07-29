@@ -157,8 +157,7 @@ describe("ClientInitialization", () => {
 
     // Find the method parameter with paramAlias
     const blobParam = client.parameters.find((p) => p.kind === "method" && p.name === "blob") as
-      | InputMethodParameter
-      | undefined;
+      InputMethodParameter | undefined;
     ok(blobParam, "Should have a 'blob' method parameter");
     strictEqual(blobParam.paramAlias, "blobName", "paramAlias should be 'blobName'");
   });

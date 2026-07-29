@@ -81,7 +81,7 @@ public interface LroesClient {
     OrderInner createOrReplace(String resourceGroupName, String orderName, OrderInner resource, Context context);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -96,7 +96,7 @@ public interface LroesClient {
         ExportRequest body);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -112,7 +112,7 @@ public interface LroesClient {
         ExportRequest body, Context context);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
@@ -126,7 +126,7 @@ public interface LroesClient {
     ExportResultInner export(String resourceGroupName, String orderName, ExportRequest body);
 
     /**
-     * A long-running resource action.
+     * The export operation.
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.

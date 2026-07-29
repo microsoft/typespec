@@ -23,7 +23,7 @@
       "outputs": ["coverage/**"]
     },
     "lint": {
-      "inputs": ["src/**", "test/**", "eslint.config.*", "package.json"],
+      "inputs": ["src/**", "test/**", "oxlint.config.*", "package.json"],
       "outputs": []
     },
     "clean": {

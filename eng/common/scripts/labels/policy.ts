@@ -31,7 +31,8 @@ export type IsActivitySender = {
 
 export type IsAction = {
   isAction: {
-    action: // Issues
+    action:
+      // Issues
       | "Opened"
       | "Closed"
       | "Reopened"
@@ -165,4 +166,24 @@ export type EventResponderTask = {
 };
 export function eventResponderTask(options: EventResponderTask): EventResponderTask {
   return options;
+}
+
+export type AddReply = {
+  addReply: { reply: string };
+};
+
+/**
+ * Post a comment on the issue/PR. @-mentions in the body notify the mentioned users,
+ * including users that are not repository collaborators.
+ */
+export function addReply(reply: string): AddReply {
+  return { addReply: { reply } };
+}
+
+export type AddLabel = {
+  addLabel: { label: string };
+};
+
+export function addLabel(label: string): AddLabel {
+  return { addLabel: { label } };
 }

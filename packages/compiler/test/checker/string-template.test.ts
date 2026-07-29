@@ -1,10 +1,11 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { StringTemplate } from "../../src/index.js";
+import { getDoc, StringTemplate } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractSquiggles,
+  mockFile,
   t,
 } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
@@ -162,5 +163,47 @@ it("emit error if interpolating template access that mixes values and types", as
       "String template is interpolating values and types. It must be either all values to produce a string value or or all types for string template type.",
     pos,
     end,
+  });
+});
+
+describe("interpolating a function call referencing a template parameter", () => {
+  const fnTester = Tester.files({
+    "fn.js": mockFile.js({
+      $functions: {
+        "": {
+          getName: (_ctx: unknown, type: { name?: string }) => type?.name ?? "deferred",
+        },
+      },
+    }),
+  })
+    .import("./fn.js")
+    .using("TypeSpec.Reflection");
+
+  it("does not crash when used on a template declaration", async () => {
+    const diagnostics = await fnTester.diagnose(`
+      #suppress "experimental-feature" "test"
+      extern fn getName(type: unknown): valueof string;
+
+      @doc("\${getName(T)}")
+      model Crud<T extends Model> {}
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("resolves the function call when the template is instantiated", async () => {
+    const { p, program } = await fnTester.compile(t.code`
+      #suppress "experimental-feature" "test"
+      extern fn getName(type: unknown): valueof string;
+
+      @doc("\${getName(T)}")
+      model Crud<T extends Model> {}
+
+      model Foo {}
+
+      model Holder {
+        ${t.modelProperty("p")}: Crud<Foo>;
+      }
+    `);
+    strictEqual(getDoc(program, p.type), "Foo");
   });
 });

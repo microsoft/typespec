@@ -1,179 +1,178 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { DocumentHighlight } from "vscode-languageserver/node.js";
+import { it } from "vitest";
+import { DocumentHighlight } from "vscode-languageserver";
 import { extractCursor } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
-describe("compiler: server: documentHighlight", () => {
-  it("includes model in highlighting", async () => {
-    const ranges = await findDocumentHighlight(`model MyToy extends Toy {}
+it("includes model in highlighting", async () => {
+  const ranges = await findDocumentHighlight(`model MyToy extends Toy {}
     model Toy┆ {
       id: int64;
       petId: int64;
       name: string;
     }`);
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 23,
-            line: 0,
-          },
-          start: {
-            character: 20,
-            line: 0,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 23,
+          line: 0,
+        },
+        start: {
+          character: 20,
+          line: 0,
         },
       },
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 13,
-            line: 1,
-          },
-          start: {
-            character: 10,
-            line: 1,
-          },
+    },
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 13,
+          line: 1,
+        },
+        start: {
+          character: 10,
+          line: 1,
         },
       },
-    ]);
-  });
+    },
+  ]);
+});
 
-  it("does not include comments in highlighting model", async () => {
-    const ranges = await findDocumentHighlight(`//Toy
+it("does not include comments in highlighting model", async () => {
+  const ranges = await findDocumentHighlight(`//Toy
     model MyToy extends Toy {}
     model Toy┆ {
       id: int64;
       petId: int64;
       name: string;
     }`);
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 27,
-            line: 1,
-          },
-          start: {
-            character: 24,
-            line: 1,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 27,
+          line: 1,
+        },
+        start: {
+          character: 24,
+          line: 1,
         },
       },
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 13,
-            line: 2,
-          },
-          start: {
-            character: 10,
-            line: 2,
-          },
+    },
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 13,
+          line: 2,
+        },
+        start: {
+          character: 10,
+          line: 2,
         },
       },
-    ]);
-  });
+    },
+  ]);
+});
 
-  it("does not include decorators in highlighting model", async () => {
-    const ranges = await findDocumentHighlight(`@doc("Not modified")
+it("does not include decorators in highlighting model", async () => {
+  const ranges = await findDocumentHighlight(`@doc("Not modified")
     model NotModified┆<T> {
       @statusCode _: 304;
       @body body: T;
     }`);
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 21,
-            line: 1,
-          },
-          start: {
-            character: 10,
-            line: 1,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 21,
+          line: 1,
+        },
+        start: {
+          character: 10,
+          line: 1,
         },
       },
-    ]);
-  });
+    },
+  ]);
+});
 
-  it("includes namespace in highlighting", async () => {
-    const ranges = await findDocumentHighlight(`namespace Pets┆ {
+it("includes namespace in highlighting", async () => {
+  const ranges = await findDocumentHighlight(`namespace Pets┆ {
     }`);
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 14,
-            line: 0,
-          },
-          start: {
-            character: 10,
-            line: 0,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 14,
+          line: 0,
+        },
+        start: {
+          character: 10,
+          line: 0,
         },
       },
-    ]);
-  });
+    },
+  ]);
+});
 
-  it("includes decorators in highlighting", async () => {
-    const ranges = await findDocumentHighlight(`
+it("includes decorators in highlighting", async () => {
+  const ranges = await findDocumentHighlight(`
     @doc("Manage your pets")
     @doc("List pets")
     @doc┆("Delete a pet") {
     }`);
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 8,
-            line: 1,
-          },
-          start: {
-            character: 5,
-            line: 1,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 8,
+          line: 1,
+        },
+        start: {
+          character: 5,
+          line: 1,
         },
       },
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 8,
-            line: 2,
-          },
-          start: {
-            character: 5,
-            line: 2,
-          },
+    },
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 8,
+          line: 2,
+        },
+        start: {
+          character: 5,
+          line: 2,
         },
       },
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 8,
-            line: 3,
-          },
-          start: {
-            character: 5,
-            line: 3,
-          },
+    },
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 8,
+          line: 3,
+        },
+        start: {
+          character: 5,
+          line: 3,
         },
       },
-    ]);
-  });
+    },
+  ]);
+});
 
-  it("includes template access references in highlighting", async () => {
-    const ranges = await findDocumentHighlight(`
+it("includes template access references in highlighting", async () => {
+  const ranges = await findDocumentHighlight(`
     model X {
       a: string;
     }
@@ -182,43 +181,42 @@ describe("compiler: server: documentHighlight", () => {
       p2: M.a::type;
     }`);
 
-    deepStrictEqual(ranges, [
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 13,
-            line: 5,
-          },
-          start: {
-            character: 12,
-            line: 5,
-          },
+  deepStrictEqual(ranges, [
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 13,
+          line: 5,
+        },
+        start: {
+          character: 12,
+          line: 5,
         },
       },
-      {
-        kind: 2,
-        range: {
-          end: {
-            character: 13,
-            line: 6,
-          },
-          start: {
-            character: 12,
-            line: 6,
-          },
+    },
+    {
+      kind: 2,
+      range: {
+        end: {
+          character: 13,
+          line: 6,
+        },
+        start: {
+          character: 12,
+          line: 6,
         },
       },
-    ]);
-  });
-
-  async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {
-    const { source, pos } = extractCursor(sourceWithCursor);
-    const testHost = await createTestServerHost();
-    const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
-    return await testHost.server.findDocumentHighlight({
-      textDocument,
-      position: textDocument.positionAt(pos),
-    });
-  }
+    },
+  ]);
 });
+
+async function findDocumentHighlight(sourceWithCursor: string): Promise<DocumentHighlight[]> {
+  const { source, pos } = extractCursor(sourceWithCursor);
+  const testHost = await createTestServerHost();
+  const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
+  return await testHost.server.findDocumentHighlight({
+    textDocument,
+    position: textDocument.positionAt(pos),
+  });
+}

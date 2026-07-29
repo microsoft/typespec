@@ -211,13 +211,19 @@ model ClientCredentialsFlow {
  * ```http
  * https://server.com/.well-known/openid-configuration
  * ```
+ *
+ * @template ConnectUrl The openIdConnectUrl, where the OpenID provider publishes its discovery metadata. It can be specified relative to the server URL.
+ * @template Scopes The scope names required for operations that use this scheme.
  */
-model OpenIdConnectAuth<ConnectUrl extends string> {
+model OpenIdConnectAuth<ConnectUrl extends string, Scopes extends string[] = []> {
   /** Auth type */
   type: AuthType.openIdConnect;
 
   /** Connect url. It can be specified relative to the server URL */
   openIdConnectUrl: ConnectUrl;
+
+  /** Scope names required for operations that use this authentication scheme. */
+  scopes: Scopes;
 }
 
 /**

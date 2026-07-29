@@ -11,6 +11,12 @@ import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import {
+  DiagnosticCodeResolver,
+  LibraryNameInfo,
+  createDiagnosticCodeResolver,
+  formatShortNameCandidates,
+} from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -42,10 +48,15 @@ import {
 import { createStateAccessors } from "./state-accessors.js";
 import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
+  SuppressionTracker,
+  createSuppressionTracker,
+  findAmbiguousSuppressions,
+  findDirectiveSuppressingOnNode,
+  findDuplicateSuppressions,
+} from "./suppression-tracking.js";
+import {
   CompilerHost,
   Diagnostic,
-  Directive,
-  DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
   Entity,
@@ -64,13 +75,18 @@ import {
   Sym,
   SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateInstanceTarget,
   Tracer,
   Type,
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
+
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -118,6 +134,11 @@ export interface Program {
 
   /** @internal */
   reportDuplicateSymbols(symbols: SymbolTable | undefined): void;
+  /** @internal */
+  readonly suppressionTracker: SuppressionTracker | undefined;
+
+  /** @internal Resolver for short/full diagnostic and linter rule codes. */
+  readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
 
   getGlobalNamespaceType(): Namespace;
 
@@ -133,6 +154,11 @@ export interface Program {
    * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
    */
   readonly projectRoot: string;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -187,6 +213,7 @@ export async function compile(
   };
   const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
@@ -218,9 +245,15 @@ async function createProgram(
   const emitters: EmitterRef[] = [];
   const requireImports = new Map<string, string>();
   const complexityStats: ComplexityStats = {} as any;
-  let sourceResolution: SourceResolution;
+  let sourceResolution: SourceResolution = undefined!;
   let error = false;
   let continueToNextStage = true;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let suppressionTracker: SuppressionTracker | undefined;
+  // eslint-disable-next-line prefer-const -- reassigned after source resolution
+  let diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
+
+  let currentStage: CompilationStage = "parsing";
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -250,6 +283,18 @@ async function createProgram(
     reportDiagnostic,
     reportDiagnostics,
     reportDuplicateSymbols,
+    get suppressionTracker() {
+      return suppressionTracker;
+    },
+    get diagnosticCodeResolver() {
+      return diagnosticCodeResolver;
+    },
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage: CompilationStage) {
+      currentStage = stage;
+    },
     hasError() {
       return error;
     },
@@ -295,16 +340,43 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
+  diagnosticCodeResolver = createDiagnosticCodeResolver(collectLibraryNameInfos());
+  suppressionTracker = createSuppressionTracker(sourceResolution, diagnosticCodeResolver);
+  reportDiagnostics(
+    findDuplicateSuppressions(sourceResolution).map(({ directive }) =>
+      createDiagnostic({
+        code: "duplicate-suppression",
+        format: { code: directive.code },
+        target: directive.node,
+      }),
+    ),
+  );
+  reportDiagnostics(
+    findAmbiguousSuppressions(sourceResolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
+    ),
+  );
+
   const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = perf.time(() => resolver.resolveProgram());
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  const linter = createLinter(
+    program,
+    (name) => loadLibrary(basedir, name),
+    diagnosticCodeResolver,
+  );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
   program.checker = createChecker(program, resolver);
+  currentStage = "checking";
   runtimeStats.checker = perf.time(() => program.checker.checkProgram());
 
   complexityStats.createdTypes = program.checker.stats.createdTypes;
@@ -315,6 +387,7 @@ async function createProgram(
   }
 
   // onValidate stage
+  currentStage = "validating";
   await runValidators();
 
   validateRequiredImports();
@@ -326,6 +399,7 @@ async function createProgram(
   }
 
   // Linter stage
+  currentStage = "linting";
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
@@ -599,6 +673,29 @@ async function createProgram(
     }
   }
 
+  function collectLibraryNameInfos(): LibraryNameInfo[] {
+    // Read library-declared aliases from each loaded library's `$lib` export.
+    const aliasByName = new Map<string, string>();
+    for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+      const lib = jsFile.esmExports?.$lib as TypeSpecLibrary<any> | undefined;
+      if (lib?.name && lib.alias) {
+        aliasByName.set(lib.name, lib.alias);
+      }
+    }
+
+    const infos: LibraryNameInfo[] = [];
+    const seen = new Set<string>();
+    for (const name of sourceResolution.loadedLibraries.keys()) {
+      seen.add(name);
+      infos.push({ name, alias: aliasByName.get(name) });
+    }
+    // The compiler's built-in linter rules live under `@typespec/compiler`.
+    if (!seen.has(builtInLinterLibraryName)) {
+      infos.push({ name: builtInLinterLibraryName });
+    }
+    return infos;
+  }
+
   function computeLibraryMetadata(
     module: ModuleResolutionResult,
     libDefinition: TypeSpecLibrary<any> | undefined,
@@ -817,10 +914,15 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    const suppressing = findDirectiveSuppressingOnNode(
+      diagnostic.code,
+      node,
+      diagnosticCodeResolver,
+    );
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
+        suppressionTracker?.markUsed(suppressing.node);
         diagnostics.push({
           severity: "error",
           code: "suppress-error",
@@ -830,57 +932,11 @@ async function createProgram(
 
         return false;
       } else {
+        suppressionTracker?.markUsed(suppressing.node);
         return true;
       }
     }
     return false;
-  }
-
-  function findDirectiveSuppressingOnNode(code: string, node: Node): Directive | undefined {
-    let current: Node | undefined = node;
-    do {
-      if (current.directives) {
-        const directive = findDirectiveSuppressingCode(code, current.directives);
-        if (directive) {
-          return directive;
-        }
-      }
-    } while ((current = current.parent));
-    return undefined;
-  }
-
-  /**
-   * Returns the directive node that is suppressing this code.
-   * @param code Code to check for suppression.
-   * @param directives List of directives.
-   * @returns Directive suppressing this code if found, `undefined` otherwise
-   */
-  function findDirectiveSuppressingCode(
-    code: string,
-    directives: readonly DirectiveExpressionNode[],
-  ): Directive | undefined {
-    for (const directive of directives.map((x) => parseDirective(x))) {
-      if (directive.name === "suppress") {
-        if (directive.code === code) {
-          return directive;
-        }
-      }
-    }
-    return undefined;
-  }
-
-  function parseDirective(node: DirectiveExpressionNode): Directive {
-    const args = node.arguments.map((x) => {
-      return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-    });
-    switch (node.target.sv) {
-      case "suppress":
-        return { name: "suppress", code: args[0], message: args[1], node };
-      case "deprecated":
-        return { name: "deprecated", message: args[0], node };
-      default:
-        throw new Error("Unexpected directive name.");
-    }
   }
 
   function getNode(target: Node | Entity | Sym | TemplateInstanceTarget): Node | undefined {

@@ -16,7 +16,7 @@
     "outDir": "dist",
     "rootDir": "./",
     "verbatimModuleSyntax": true,
-    "types": ["@alloy-js/core/testing/matchers"]
+    "types": ["node", "@alloy-js/core/testing/matchers"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
