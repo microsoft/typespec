@@ -92,17 +92,20 @@ union SurfaceCategory {
  * Like `@scenarioDoc`, each target gets exactly one `@surfaceDoc`.
  *
  * ```tsp
- * @surfaceDoc(widgetName, #{
+ * @surfaceDoc(#{
  *   category: "naming",
  *   expected: "widgetName",
+ *   subject: "Widget.defaultName",
  * })
  * ```
+ *
+ * When `subject` is omitted it defaults to the decorated target's name.
  *
  * `expected` is a single canonical, language-agnostic string by default, recast
  * by each emitter. For exact per-language names, pass a `scope → value` dict:
  *
  * ```tsp
- * @surfaceDoc(ioThing, #{
+ * @surfaceDoc(#{
  *   category: "naming",
  *   expected: #{ python: "io_thing", csharp: "IOThing" },
  * })
@@ -110,10 +113,10 @@ union SurfaceCategory {
  */
 auto dec surfaceDoc(
   target: Namespace | Interface | Operation,
-  subject: unknown,
   check: valueof {
     category: SurfaceCategory,
     expected: string | Record<string>,
+    subject?: string,
     doc?: string,
   }
 );

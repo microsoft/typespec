@@ -1,7 +1,6 @@
 import {
   $service,
   Enum,
-  EnumMember,
   getAutoDecoratorTargets,
   getAutoDecoratorValue,
   getNamespaceFullName,
@@ -9,12 +8,9 @@ import {
   Interface,
   listServices,
   Model,
-  ModelProperty,
   Namespace,
   Operation,
   Program,
-  Union,
-  UnionVariant,
 } from "@typespec/compiler";
 import {
   $route,
@@ -237,22 +233,6 @@ export function getScenarioName(
 export type SurfaceDocTarget = Namespace | Interface | Operation;
 
 /**
- * The `subject` of a surface check — the type or member whose generated surface
- * is being asserted. May differ from the annotated {@link SurfaceDocTarget}
- * (e.g. a check on an operation asserts something about a model it returns).
- */
-export type SurfaceSubject =
-  | Namespace
-  | Interface
-  | Operation
-  | Model
-  | Enum
-  | Union
-  | ModelProperty
-  | EnumMember
-  | UnionVariant;
-
-/**
  * The generic, category-agnostic fields the shared runner substitutes into an
  * emitter's `verifiers.json` (as `{expected}`, `{kind}`, `{origin}`). They are
  * derived the same way for every category, so a new category needs no core
@@ -261,10 +241,6 @@ export type SurfaceSubject =
 export interface SurfaceDetails {
   /** The author's `expected` client-surface output for this check. */
   expected?: string;
-  /** The subject's language-agnostic symbol kind (for casing-aware checks). */
-  kind?: string;
-  /** The subject's declaring container (e.g. the client an operation moved from). */
-  origin?: string;
 }
 
 /** A resolved `@surfaceDoc` annotation. */
@@ -280,8 +256,8 @@ export interface SurfaceDoc {
   scenario: string | undefined;
   /** The annotated element (a scenario namespace/interface/operation). */
   target: SurfaceDocTarget;
-  /** The type/member the check is about. */
-  subject: SurfaceSubject;
+  /** The subject of the check — defaults to the target's name when omitted. */
+  subject: string;
   /** The kind of surface assertion (routes the check to a verifier). */
   category: string;
   /** The expected client-surface output for this category. */
@@ -297,30 +273,8 @@ export interface SurfaceDoc {
 }
 
 /** A short prose fallback so the AI path always has something to verify against. */
-function synthesizeDoc(category: string, subject: SurfaceSubject, expected: string): string {
-  const subjectName = typeof subject.name === "string" ? subject.name : "the subject";
-  return `${category}: ${subjectName} → ${expected}`;
-}
-
-function getSurfaceParent(target: SurfaceSubject): SurfaceSubject | undefined {
-  switch (target.kind) {
-    case "Namespace":
-    case "Interface":
-    case "Model":
-    case "Enum":
-    case "Union":
-      return target.namespace;
-    case "Operation":
-      return target.interface ?? target.namespace;
-    case "ModelProperty":
-      return target.model;
-    case "EnumMember":
-      return target.enum;
-    case "UnionVariant":
-      return target.union;
-    default:
-      return undefined;
-  }
+function synthesizeDoc(category: string, subject: string, expected: string): string {
+  return `${category}: ${subject} → ${expected}`;
 }
 
 /**
@@ -329,7 +283,7 @@ function getSurfaceParent(target: SurfaceSubject): SurfaceSubject | undefined {
  * convention `@scenario` uses.
  */
 function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): string | undefined {
-  let current: SurfaceSubject | undefined = target;
+  let current: SurfaceDocTarget | Namespace | Interface | undefined = target;
   while (current) {
     if (
       current.kind === "Namespace" ||
@@ -341,7 +295,13 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
         return name;
       }
     }
-    current = getSurfaceParent(current);
+    if (current.kind === "Namespace" || current.kind === "Interface") {
+      current = current.namespace;
+    } else if (current.kind === "Operation") {
+      current = current.interface ?? current.namespace;
+    } else {
+      break;
+    }
   }
   return undefined;
 }
@@ -350,15 +310,14 @@ function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): s
 const SURFACE_DOC_FQN = "TypeSpec.Spector.surfaceDoc";
 
 /**
- * What the auto dec stores for `@surfaceDoc`. With params
- * `subject: unknown, check: valueof { category, expected, doc? }`,
- * the auto dec stores: `{ subject: Type, check: { category, expected, doc } }`.
+ * What the auto dec stores for `@surfaceDoc`. Single valueof model param `check`:
+ * `{ check: { category, expected, subject?, doc? } }`.
  */
 interface StoredSurfaceDoc {
-  subject: SurfaceSubject;
   check: {
     category: string;
     expected: string | Record<string, string>;
+    subject?: string;
     doc?: string;
   };
 }
@@ -379,16 +338,17 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
     if (!stored) continue;
     const docTarget = target as SurfaceDocTarget;
     const scenario = getEnclosingScenarioName(program, docTarget);
-    const { category, expected, doc } = stored.check;
+    const { category, expected, subject, doc } = stored.check;
+    const resolvedSubject = subject ?? docTarget.name ?? "";
     for (const { expected: exp, scope } of expandExpected(expected)) {
       result.push({
         scenario,
         target: docTarget,
-        subject: stored.subject,
+        subject: resolvedSubject,
         category,
         expected: exp,
         scope,
-        doc: doc ?? synthesizeDoc(category, stored.subject, exp),
+        doc: doc ?? synthesizeDoc(category, resolvedSubject, exp),
       });
     }
   }
@@ -446,46 +406,5 @@ export function buildSurfaceDetails(doc: SurfaceDoc): SurfaceDetails {
   if (doc.expected !== "") {
     details.expected = doc.expected;
   }
-  const kind = getSurfaceKind(doc.subject);
-  if (kind !== undefined) {
-    details.kind = kind;
-  }
-  const origin = getDeclaringContainerName(doc.subject);
-  if (origin !== undefined) {
-    details.origin = origin;
-  }
   return details;
-}
-
-/**
- * Map a surface subject to the language-agnostic symbol kind used by
- * casing-aware `naming` checks so each emitter can recast the expected
- * identifier into its idiomatic casing.
- */
-function getSurfaceKind(target: SurfaceSubject): string | undefined {
-  switch (target.kind) {
-    case "Enum":
-    case "Union":
-      return "enum";
-    case "EnumMember":
-    case "UnionVariant":
-      return "enumvalue";
-    case "Model":
-      return "model";
-    case "ModelProperty":
-      return "property";
-    case "Operation":
-      return "operation";
-    case "Namespace":
-    case "Interface":
-      return "client";
-    default:
-      return undefined;
-  }
-}
-
-/** The name of the client/group an element is declared in — its surface origin. */
-function getDeclaringContainerName(target: SurfaceSubject): string | undefined {
-  const parent = getSurfaceParent(target);
-  return parent && typeof parent.name === "string" && parent.name ? parent.name : undefined;
 }

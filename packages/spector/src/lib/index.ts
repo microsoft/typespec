@@ -7,7 +7,6 @@ export {
   SurfaceDetails,
   SurfaceDoc,
   SurfaceDocTarget,
-  SurfaceSubject,
   buildSurfaceDetails,
   getScenarioDoc,
   getScenarioEndpoints,

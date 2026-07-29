@@ -2,7 +2,7 @@ import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
 import prettier from "prettier";
-import type { SurfaceDetails, SurfaceDoc, SurfaceSubject } from "../lib/decorators.js";
+import type { SurfaceDetails, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
 import { buildSurfaceDetails } from "../lib/decorators.js";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles } from "../scenarios-resolver.js";
@@ -70,19 +70,15 @@ export function createSurfaceChecksManifest(
   const items: SurfaceCheckItem[] = [];
   const usedIds = new Map<string, number>();
   for (const surfaceDoc of surfaceDocs) {
-    const location = getCheckLocation(scenariosPath, surfaceDoc.subject);
-    const target = getSubjectName(surfaceDoc.subject);
+    const location = getCheckLocation(scenariosPath, surfaceDoc.target);
     const details = buildSurfaceDetails(surfaceDoc);
     const scopeSuffix = surfaceDoc.scope ? `_${surfaceDoc.scope.replace(/[^\w]+/g, "-")}` : "";
-    // Every check is identified by its resolved scenario name, so all checks on
-    // one surface scenario share a stable prefix; `uniqueId` disambiguates when
-    // a scenario carries several checks of the same category.
-    const idBase = surfaceDoc.scenario ?? target;
+    const idBase = surfaceDoc.scenario ?? surfaceDoc.subject;
     items.push({
       id: uniqueId(usedIds, `${idBase}_${surfaceDoc.category}${scopeSuffix}`),
       scenario: surfaceDoc.scenario,
       category: surfaceDoc.category,
-      target,
+      target: surfaceDoc.subject,
       ...(surfaceDoc.scope ? { scope: surfaceDoc.scope } : {}),
       doc: surfaceDoc.doc,
       location,
@@ -149,12 +145,11 @@ function uniqueId(used: Map<string, number>, base: string): string {
   return count === 0 ? base : `${base}_${count + 1}`;
 }
 
-function getSubjectName(subject: SurfaceSubject): string {
-  return typeof subject.name === "string" ? subject.name : "";
-}
-
-function getCheckLocation(scenariosPath: string, subject: SurfaceSubject): SurfaceCheckLocation {
-  const tspLocation = getSourceLocation(subject);
+function getCheckLocation(
+  scenariosPath: string,
+  target: SurfaceDoc["target"],
+): SurfaceCheckLocation {
+  const tspLocation = getSourceLocation(target);
   return {
     path: normalizePath(relative(scenariosPath, tspLocation.file.path)),
     start: tspLocation.file.getLineAndCharacterOfPosition(tspLocation.pos),

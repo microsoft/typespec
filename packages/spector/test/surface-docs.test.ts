@@ -45,11 +45,11 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed to clients as ClientExtensibleEnum." })
+      @surfaceDoc(#{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed to clients as ClientExtensibleEnum.", subject: "ServerExtensibleEnum" })
       op getKind(): ServerExtensibleEnum;
     `);
     expect(doc.category).toBe("naming");
-    expect(doc.subject.kind).toBe("Enum");
+    expect(doc.subject).toBe("ServerExtensibleEnum");
     expect(doc.expected).toBe("ClientExtensibleEnum");
     expect(doc.doc).toBe("Exposed to clients as ClientExtensibleEnum.");
   });
@@ -63,7 +63,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum" })
+      @surfaceDoc(#{ category: "naming", expected: "ClientExtensibleEnum", subject: "ServerExtensibleEnum" })
       op getKind(): ServerExtensibleEnum;
     `);
     expect(doc.scenario).toBe("getKind");
@@ -77,7 +77,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
+      @surfaceDoc(#{ category: "access", expected: "internal", subject: "Widget" })
       op get(): Widget;
     `);
     expect(doc.doc).toContain("access");
@@ -93,7 +93,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "brand-new-category", expected: "whatever" })
+      @surfaceDoc(#{ category: "brand-new-category", expected: "whatever", subject: "Widget" })
       op get(): Widget;
     `);
     expect(doc.category).toBe("brand-new-category");
@@ -109,7 +109,7 @@ describe("@surfaceDoc", () => {
       }
 
       @scenario
-      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
+      @surfaceDoc(#{ category: "access", expected: "internal", subject: "Widget" })
       op get(): Widget;
     `,
     );
@@ -126,7 +126,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "access", expected: "internal" })
+      @surfaceDoc(#{ category: "access", expected: "internal", subject: "Widget" })
       op get(): Widget;
     `,
     );
@@ -144,7 +144,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Return the kind.")
-      @surfaceDoc(ServerExtensibleEnum, #{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed as ClientExtensibleEnum." })
+      @surfaceDoc(#{ category: "naming", expected: "ClientExtensibleEnum", doc: "Exposed as ClientExtensibleEnum.", subject: "ServerExtensibleEnum" })
       op getKind(): ServerExtensibleEnum;
     `);
     const item = items["getKind_naming"];
@@ -152,14 +152,14 @@ describe("@surfaceDoc", () => {
     expect(item.category).toBe("naming");
     expect(item.target).toBe("ServerExtensibleEnum");
     expect(item.doc).toContain("Exposed as ClientExtensibleEnum");
-    expect(item.details).toEqual({ expected: "ClientExtensibleEnum", kind: "enum" });
+    expect(item.details).toEqual({ expected: "ClientExtensibleEnum" });
     // A location the verifier can point back to for reporting.
     expect(typeof item.location.path).toBe("string");
     expect(item.location.start.line).toBeGreaterThanOrEqual(0);
     expect(item.location.end.line).toBeGreaterThanOrEqual(item.location.start.line);
   });
 
-  it("derives {expected, kind, origin} for a subject inside a container", async () => {
+  it("derives {expected} for a subject inside a container", async () => {
     const items = await manifestItems(`
       model Widget {
         id: string;
@@ -167,20 +167,20 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget.id, #{ category: "naming", expected: "identifier", doc: "Renamed to identifier." })
+      @surfaceDoc(#{ category: "naming", expected: "identifier", doc: "Renamed to identifier.", subject: "Widget.id" })
       op get(): Widget;
     `);
     const item = items["get_naming"];
     expect(item.category).toBe("naming");
-    expect(item.target).toBe("id");
-    expect(item.details).toEqual({ expected: "identifier", kind: "property", origin: "Widget" });
+    expect(item.target).toBe("Widget.id");
+    expect(item.details).toEqual({ expected: "identifier" });
   });
 
   it("omits `expected` from details when it is blank", async () => {
     const items = await manifestItems(`
       @scenario
       @scenarioDoc("List items.")
-      @surfaceDoc(listItems, #{ category: "paging", expected: "" })
+      @surfaceDoc(#{ category: "paging", expected: "", subject: "listItems" })
       op listItems(): string[];
     `);
     const item = items["listItems_paging"];
@@ -196,7 +196,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "other", expected: "strongly typed", doc: "The response body is a strongly typed model." })
+      @surfaceDoc(#{ category: "other", expected: "strongly typed", doc: "The response body is a strongly typed model.", subject: "Widget" })
       op get(): Widget;
     `);
     const item = items["get_other"];
@@ -215,7 +215,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "naming", expected: "WidgetInternal", doc: "Hidden | renamed to WidgetInternal." })
+      @surfaceDoc(#{ category: "naming", expected: "WidgetInternal", doc: "Hidden | renamed to WidgetInternal.", subject: "Widget" })
       op get(): Widget;
     `,
     );
@@ -232,7 +232,7 @@ describe("@surfaceDoc", () => {
       expect(header).toContain(col);
     }
     // details encoded as key=value.
-    expect(md).toContain("expected=WidgetInternal; kind=model");
+    expect(md).toContain("expected=WidgetInternal");
     // Pipes inside prose are escaped so they don't break the table.
     expect(md).toContain("Hidden \\| renamed to WidgetInternal.");
   });
@@ -248,7 +248,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get the thing.")
-      @surfaceDoc(IOThing, #{ category: "naming", expected: #{ python: "io_thing", csharp: "IOThing" } })
+      @surfaceDoc(#{ category: "naming", expected: #{ python: "io_thing", csharp: "IOThing" }, subject: "IOThing" })
       op get(): IOThing;
     `,
     );
@@ -268,7 +268,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get a widget.")
-      @surfaceDoc(Widget, #{ category: "naming", expected: "Widget" })
+      @surfaceDoc(#{ category: "naming", expected: "Widget", subject: "Widget" })
       op get(): Widget;
     `);
     expect(doc.scope).toBeUndefined();
@@ -283,7 +283,7 @@ describe("@surfaceDoc", () => {
 
       @scenario
       @scenarioDoc("Get the thing.")
-      @surfaceDoc(IOThing, #{ category: "naming", expected: #{ python: "io_thing" } })
+      @surfaceDoc(#{ category: "naming", expected: #{ python: "io_thing" }, subject: "IOThing" })
       op get(): IOThing;
     `,
     );
@@ -291,7 +291,7 @@ describe("@surfaceDoc", () => {
     const item = manifest.items.find((i) => i.id === "get_naming_python");
     expect(item).toBeDefined();
     expect(item!.scope).toBe("python");
-    expect(item!.details).toEqual({ expected: "io_thing", kind: "model" });
+    expect(item!.details).toEqual({ expected: "io_thing" });
     const md = await createSurfaceChecksSummary(manifest);
     expect(md).toContain("io_thing");
     expect(md).toContain("python");
