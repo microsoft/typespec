@@ -400,8 +400,8 @@ catalogs:
       specifier: ^5.0.1
       version: 5.0.1
     tar:
-      specifier: ^7.5.13
-      version: 7.5.20
+      specifier: ^7.5.21
+      version: 7.5.22
     temporal-polyfill:
       specifier: ^1.0.1
       version: 1.0.1
@@ -773,7 +773,7 @@ importers:
         version: 7.8.5
       tar:
         specifier: 'catalog:'
-        version: 7.5.20
+        version: 7.5.22
       temporal-polyfill:
         specifier: 'catalog:'
         version: 1.0.1
@@ -2625,7 +2625,7 @@ importers:
         version: 3.36.0
       tar:
         specifier: 'catalog:'
-        version: 7.5.20
+        version: 7.5.22
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
@@ -10258,8 +10258,8 @@ packages:
   tar-stream@3.2.0:
     resolution: {integrity: sha512-ojzvCvVaNp6aOTFmG7jaRD0meowIAuPc3cMMhSgKiVWws1GyHbGd/xvnyuRKcKlMpt3qvxx6r0hreCNITP9hIg==}
 
-  tar@7.5.20:
-    resolution: {integrity: sha512-9FcyK4PA6+WbzlTM9WhQm6vB5W7cP7dUiPsv1g7YDwEQnQ1CGpK3MGlKk/ITVWMk05kHZuBhmVhiv8LZoy/PFQ==}
+  tar@7.5.22:
+    resolution: {integrity: sha512-MFO/QzvtAOmJbkhOaCTvbGcFN9L9b+JunIsDwaKljSOdcLMea3NJ1k9Usz/rjdfSXTq4dfzfeS7W4p4YOAAHeA==}
     engines: {node: '>=18'}
 
   teex@1.0.1:
@@ -20337,7 +20337,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  tar@7.5.20:
+  tar@7.5.22:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
