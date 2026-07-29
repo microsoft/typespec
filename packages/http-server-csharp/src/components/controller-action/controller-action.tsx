@@ -235,7 +235,7 @@ ${implCall}`;
       async
       virtual
       public
-      returns={code`Task<IActionResult>`}
+      returns={code`Task<${AspNetMvc.IActionResult}>`}
       parameters={parameters}
       attributes={attributes}
       doc={getDocComments($, props.operation.sourceType)}
