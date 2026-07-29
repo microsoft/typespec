@@ -82,21 +82,29 @@ public class FluentProject extends Project {
         this.serviceDescription.simpleDescription = String.format(simpleDescriptionTemplate, serviceName);
         this.serviceDescription.clientDescription = clientDescription;
         // SDK from TypeSpec does not contain autorest tag, use api-version instead.
-        if (apiVersionMap != null) {
-            if (apiVersionMap.size() == 1) {
-                this.serviceDescription.apiVersionDescription
-                    = "Package api-version " + apiVersionMap.values().iterator().next() + ".";
-            } else {
-                this.serviceDescription.apiVersionDescription = "Package api-version " + apiVersionMap.entrySet()
-                    .stream()
-                    .map(e -> e.getKey() + ": " + e.getValue())
-                    .collect(Collectors.joining(", ")) + ".";
-            }
-        } else {
-            this.serviceDescription.apiVersionDescription = "";
-        }
+        this.serviceDescription.apiVersionDescription = apiVersionDescription(apiVersionMap);
 
         this.changelog = new Changelog(this);
+    }
+
+    /**
+     * Builds the api-version description, e.g. "Package api-version 2023-01-01.", from the api-version map.
+     *
+     * @param apiVersionMap the map of client name to api-version.
+     * @return the api-version description, or empty string if the map is null or empty.
+     */
+    public static String apiVersionDescription(Map<String, String> apiVersionMap) {
+        if (apiVersionMap == null || apiVersionMap.isEmpty()) {
+            return "";
+        }
+        if (apiVersionMap.size() == 1) {
+            return "Package api-version " + apiVersionMap.values().iterator().next() + ".";
+        } else {
+            return "Package api-version " + apiVersionMap.entrySet()
+                .stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining(", ")) + ".";
+        }
     }
 
     @Override
