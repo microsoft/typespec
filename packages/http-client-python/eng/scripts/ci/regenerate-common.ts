@@ -670,7 +670,7 @@ export async function cleanGeneratedCode(generatedFolder: string): Promise<void>
   console.log(pc.cyan(`Cleaning generated test packages`));
   console.log(pc.cyan(`${"=".repeat(60)}\n`));
 
-  execSync(`git clean -xdfq -- "${testsGeneratedDir}"`, {
+  execSync(`git clean -x -d -f -q -- "${testsGeneratedDir}"`, {
     cwd: repoDir,
     stdio: ["ignore", "inherit", "inherit"],
   });
