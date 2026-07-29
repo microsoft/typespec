@@ -128,9 +128,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _ => null
             };
 
-            var targetType = attributeStatement is null
-                ? null
-                : GetBuildableAttributeTargetType(attributeStatement);
+            if (attributeStatement is null || !string.Equals(
+                attributeStatement.Type.FullyQualifiedName,
+                s_buildableAttributeType.FullyQualifiedName,
+                StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var targetType = GetBuildableAttributeTargetType(attributeStatement);
             return targetType is null
                 ? null
                 : GetTypeIdentity(targetType);

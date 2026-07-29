@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -1909,6 +1910,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var writer = new TypeProviderWriter(contextDefinition);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task VisitorTypeValuedAttributeDoesNotOverwriteBuildableAttribute()
+        {
+            // A visitor appends a non-buildable attribute that carries a typeof(...) argument for the same model
+            // that already has a generated ModelReaderWriterBuildableAttribute. Back-compat re-keying must key by
+            // the buildable attribute's target type only, so the visitor attribute cannot displace the generated
+            // buildable entry and is instead preserved alongside it.
+            var regularModel = InputFactory.Model("RegularModel", properties:
+            [
+                InputFactory.Property("Property1", InputPrimitiveType.String)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [regularModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            // Resolve the CSharpType used by the generated buildable attribute so the visitor attribute keys to
+            // the exact same type identity.
+            var buildableTargetType = contextDefinition.Attributes
+                .Where(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    typeof(ModelReaderWriterBuildableAttribute).FullName,
+                    StringComparison.Ordinal))
+                .Select(a => a.Arguments.OfType<TypeOfExpression>().First().Type)
+                .Single(t => t.Name == "RegularModel");
+
+            // Simulate a visitor appending [TypeConverter(typeof(RegularModel))] after the generated attributes.
+            var visitorAttributeType = new CSharpType(typeof(System.ComponentModel.TypeConverterAttribute));
+            var visitorAttribute = new AttributeStatement(visitorAttributeType, Snippet.TypeOf(buildableTargetType));
+            contextDefinition.Update(attributes: [.. contextDefinition.Attributes, visitorAttribute]);
+
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            Assert.AreEqual(1, buildableAttributes
+                .Count(a => a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "The generated buildable attribute for RegularModel must survive the visitor's type-valued attribute");
+
+            Assert.IsTrue(contextDefinition.Attributes.Any(a => string.Equals(
+                    a.Type.FullyQualifiedName,
+                    visitorAttributeType.FullyQualifiedName,
+                    StringComparison.Ordinal)
+                && a.Arguments.First().ToDisplayString().Contains("RegularModel")),
+                "The visitor's non-buildable type-valued attribute must be preserved");
         }
 
         [Test]
