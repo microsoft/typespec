@@ -79,11 +79,13 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
     "http-port": {
       type: "number",
       nullable: true,
+      default: null,
       description: "The service http port when hosting the project locally.",
     },
     "https-port": {
       type: "number",
       nullable: true,
+      default: null,
       description: "The service https port when hosting the project locally.",
     },
     "collection-type": {
