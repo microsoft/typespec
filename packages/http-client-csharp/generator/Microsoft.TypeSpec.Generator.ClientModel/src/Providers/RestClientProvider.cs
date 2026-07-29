@@ -639,18 +639,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var convertedItem = paramType.ElementType.IsEnum
                         ? paramType.ElementType.ToSerial(item.Value)
                         : item.Value;
-                    MethodBodyStatement appendItemStatement = uri.AppendQuery(item.Key, convertedItem, true).Terminate();
                     // A string-backed extensible enum serializes via `ToString()`, which returns null for a
                     // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
-                    // `Uri.EscapeDataString`, so guard each value against null/empty before appending.
+                    // `Uri.EscapeDataString`, so cache the serialized value and guard against null/empty before
+                    // appending.
                     if (IsExtensibleStringEnum(paramType.ElementType))
                     {
-                        appendItemStatement = new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), convertedItem)))
+                        forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
+                        forEachStatement.Add(new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), cachedVar)))
                         {
-                            appendItemStatement
-                        };
+                            uri.AppendQuery(item.Key, cachedVar, true).Terminate()
+                        });
                     }
-                    forEachStatement.Add(appendItemStatement);
+                    else
+                    {
+                        forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    }
                     return forEachStatement;
                 }
                 else
@@ -685,18 +689,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     convertedItem = item;
                 }
-                MethodBodyStatement appendItemStatement = uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate();
                 // A string-backed extensible enum serializes via `ToString()`, which returns null for a
                 // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
-                // `Uri.EscapeDataString`, so guard each element against null/empty before appending.
+                // `Uri.EscapeDataString`, so cache the serialized value and guard against null/empty before
+                // appending.
                 if (IsExtensibleStringEnum(paramType.ElementType))
                 {
-                    appendItemStatement = new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), convertedItem)))
+                    forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
+                    forEachStatement.Add(new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), cachedVar)))
                     {
-                        appendItemStatement
-                    };
+                        uri.AppendQuery(Literal(inputQueryParameter.SerializedName), cachedVar, true).Terminate()
+                    });
                 }
-                forEachStatement.Add(appendItemStatement);
+                else
+                {
+                    forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                }
                 return forEachStatement;
             }
         }
