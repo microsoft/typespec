@@ -1,0 +1,41 @@
+name: Dependabot pnpm install
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened]
+    paths:
+      - "**/package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+
+permissions: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+          submodules: recursive
+
+      - uses: ./.github/actions/setup
+
+      - run: pnpm install --no-frozen-lockfile
+        name: Install dependencies
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update lockfile"
+            git push
+          fi

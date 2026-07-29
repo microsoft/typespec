@@ -292,6 +292,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
         }
 
         [Test]
+        public void CodeWriter_WriteProperty_AccessibilityModifierOrder()
+        {
+            var privateProtected = new PropertyProvider($"", MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, typeof(string), "Property1", new AutoPropertyBody(false), new TestTypeProvider());
+            var protectedInternal = new PropertyProvider($"", MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal, typeof(string), "Property2", new AutoPropertyBody(false), new TestTypeProvider());
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteProperty(privateProtected);
+            codeWriter.WriteProperty(protectedInternal);
+
+            var result = codeWriter.ToString(false);
+
+            StringAssert.Contains("private protected string Property1", result);
+            StringAssert.Contains("protected internal string Property2", result);
+        }
+
+        [Test]
         public void CodeWriter_WriteProperty_AutoBody_WithExplicitInterface()
         {
             var property1 = new PropertyProvider($"To test an auto property without a setter", MethodSignatureModifiers.Public, typeof(int), nameof(IList<string>.Count), new AutoPropertyBody(false), new TestTypeProvider(), explicitInterface: typeof(IList<string>));

@@ -60,9 +60,13 @@
     "./internals/prettier-formatter": {
       "import": "./dist/src/internals/prettier-formatter.js"
     },
+    "./internals/standalone": {
+      "import": "./dist/src/internals/standalone.js"
+    },
     "./casing": {
       "import": "./dist/src/casing/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",

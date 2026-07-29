@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { createDiagnosticCodeResolver } from "../../src/core/diagnostic-code.js";
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
 import {
@@ -8,6 +9,7 @@ import {
   type LinterDefinition,
   type LinterRuleContext,
 } from "../../src/index.js";
+import type { MockFile } from "../../src/testing/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -114,6 +116,7 @@ const noModelWithName = createLinterRule({
 async function createTestLinter(
   code: string | Record<string, string>,
   linterDef: LinterDefinition,
+  codeResolver?: ReturnType<typeof createDiagnosticCodeResolver>,
 ): Promise<Linter> {
   let result;
   if (typeof code === "string") {
@@ -140,8 +143,10 @@ async function createTestLinter(
     linter: resolveLinterDefinition("@typespec/test-linter", linterDef),
   };
 
-  const linter = createLinter(result.program, (libName) =>
-    Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+  const linter = createLinter(
+    result.program,
+    (libName) => Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
+    codeResolver,
   );
   return linter;
 }
@@ -399,6 +404,130 @@ describe("(integration) loading in program", () => {
       model Foo {}`);
 
     expectDiagnosticEmpty(diagnostics);
+  });
+});
+
+describe("(integration) short names", () => {
+  async function diagnoseWithLib(
+    code: string,
+    options: {
+      libName: string;
+      alias?: string;
+      enable: string;
+    },
+  ) {
+    const libDir = `node_modules/${options.libName}`;
+    return await Tester.files({
+      [`${libDir}/package.json`]: JSON.stringify({
+        name: options.libName,
+        main: "index.js",
+      }),
+      [`${libDir}/index.js`]: mockFile.js({
+        $lib: createTypeSpecLibrary({
+          name: options.libName,
+          alias: options.alias,
+          diagnostics: {},
+        }),
+        $linter: { rules: [noModelFoo] },
+      }),
+    }).diagnose(`import "${options.libName}";\n${code}`, {
+      compilerOptions: {
+        linterRuleSet: {
+          enable: { [options.enable]: true },
+        },
+      },
+    });
+  }
+
+  it("enables a rule using the scope-stripped short name", async () => {
+    const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+      libName: "@typespec/test-real",
+      enable: "test-real/no-model-foo",
+    });
+    expectDiagnostics(diagnostics, { code: "@typespec/test-real/no-model-foo" });
+  });
+
+  it("enables a rule using a library-declared alias", async () => {
+    const diagnostics = await diagnoseWithLib(`model Foo {}`, {
+      libName: "@azure-tools/typespec-fake",
+      alias: "fake",
+      enable: "fake/no-model-foo",
+    });
+    expectDiagnostics(diagnostics, { code: "@azure-tools/typespec-fake/no-model-foo" });
+  });
+
+  it("suppresses a diagnostic using the short name", async () => {
+    const diagnostics = await diagnoseWithLib(
+      `
+      #suppress "test-real/no-model-foo" "intentional"
+      model Foo {}`,
+      {
+        libName: "@typespec/test-real",
+        enable: "test-real/no-model-foo",
+      },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("suppresses a diagnostic reported with full name using the short name", async () => {
+    const diagnostics = await diagnoseWithLib(
+      `
+      #suppress "fake/no-model-foo" "intentional"
+      model Foo {}`,
+      {
+        libName: "@azure-tools/typespec-fake",
+        alias: "fake",
+        enable: "@azure-tools/typespec-fake/no-model-foo",
+      },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  // Two libraries that both resolve to the short name `http`.
+  function twoConflictingLibs() {
+    const libNames = ["@typespec/http", "typespec-http"];
+    const files: Record<string, MockFile> = {};
+    for (const libName of libNames) {
+      const libDir = `node_modules/${libName}`;
+      files[`${libDir}/package.json`] = JSON.stringify({ name: libName, main: "index.js" });
+      files[`${libDir}/index.js`] = mockFile.js({
+        $lib: createTypeSpecLibrary({ name: libName, diagnostics: {} }),
+        $linter: { rules: [noModelFoo] },
+      });
+    }
+    const imports = libNames.map((n) => `import "${n}";`).join("\n");
+    return { files, imports };
+  }
+
+  it("warns and does not enable a rule when the short name is ambiguous", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(`${imports}\nmodel Foo {}`, {
+      compilerOptions: {
+        linterRuleSet: { enable: { "http/no-model-foo": true } },
+      },
+    });
+    // Only the ambiguity warning, no unknown-rule error and no rule triggered.
+    expectDiagnostics(diagnostics, {
+      code: "ambiguous-short-name",
+      message: /Short name "http" is ambiguous/,
+    });
+  });
+
+  it("warns when suppressing with an ambiguous short name", async () => {
+    const { files, imports } = twoConflictingLibs();
+    const diagnostics = await Tester.files(files).diagnose(
+      `${imports}\n#suppress "http/no-model-foo" "intentional"\nmodel Foo {}`,
+      {
+        compilerOptions: {
+          linterRuleSet: { enable: { "@typespec/http/no-model-foo": true } },
+        },
+      },
+    );
+    // The suppression can't be resolved, so the rule still fires, plus the ambiguity warning.
+    expectDiagnostics(diagnostics, [
+      { code: "ambiguous-short-name", message: /Short name "http" is ambiguous/ },
+      { code: "@typespec/http/no-model-foo" },
+    ]);
   });
 });
 
