@@ -10,7 +10,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.ExtensibleFoo> p10Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.ExtensibleFoo> p11Explode, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
@@ -97,6 +97,26 @@ namespace Sample
                 foreach (var @param in p9Explode)
                 {
                     uri.AppendQuery("p9Explode", ((double)@param), true);
+                }
+            }
+            if (((p10Explode != null) && !((p10Explode is global::Sample.ChangeTrackingList<global::Sample.Models.ExtensibleFoo> changeTrackingList7) && changeTrackingList7.IsUndefined)))
+            {
+                foreach (var @param in p10Explode)
+                {
+                    if (!string.IsNullOrEmpty(@param.ToString()))
+                    {
+                        uri.AppendQuery("p10Explode", @param.ToString(), true);
+                    }
+                }
+            }
+            if (((p11Explode != null) && !((p11Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.ExtensibleFoo> changeTrackingDictionary3) && changeTrackingDictionary3.IsUndefined)))
+            {
+                foreach (var @param in p11Explode)
+                {
+                    if (!string.IsNullOrEmpty(@param.ToString()))
+                    {
+                        uri.AppendQuery(@param.Key, @param.ToString(), true);
+                    }
                 }
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);

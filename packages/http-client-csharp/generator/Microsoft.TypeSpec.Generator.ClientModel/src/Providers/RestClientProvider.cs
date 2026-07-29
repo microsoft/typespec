@@ -639,7 +639,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var convertedItem = paramType.ElementType.IsEnum
                         ? paramType.ElementType.ToSerial(item)
                         : item.Value;
-                    forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    MethodBodyStatement appendItemStatement = uri.AppendQuery(item.Key, convertedItem, true).Terminate();
+                    // A string-backed extensible enum serializes via `ToString()`, which returns null for a
+                    // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
+                    // `Uri.EscapeDataString`, so guard each value against null/empty before appending.
+                    if (IsExtensibleStringEnum(paramType.ElementType))
+                    {
+                        appendItemStatement = new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), convertedItem)))
+                        {
+                            appendItemStatement
+                        };
+                    }
+                    forEachStatement.Add(appendItemStatement);
                     return forEachStatement;
                 }
                 else
@@ -674,10 +685,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     convertedItem = item;
                 }
-                forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                MethodBodyStatement appendItemStatement = uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate();
+                // A string-backed extensible enum serializes via `ToString()`, which returns null for a
+                // default-constructed value. Passing null to `AppendQuery(..., escape: true)` throws in
+                // `Uri.EscapeDataString`, so guard each element against null/empty before appending.
+                if (IsExtensibleStringEnum(paramType.ElementType))
+                {
+                    appendItemStatement = new IfStatement(Not(Static(typeof(string)).Invoke(nameof(string.IsNullOrEmpty), convertedItem)))
+                    {
+                        appendItemStatement
+                    };
+                }
+                forEachStatement.Add(appendItemStatement);
                 return forEachStatement;
             }
         }
+
+        /// <summary>
+        /// Returns <c>true</c> when <paramref name="type"/> is a string-backed extensible enum, which is
+        /// generated as a struct whose <c>ToString()</c> returns the internal (possibly null) string value.
+        /// </summary>
+        private static bool IsExtensibleStringEnum(CSharpType type)
+            => type.IsEnum && type.IsStruct && type.UnderlyingEnumType == typeof(string);
 
         /// <summary>
         /// Builds the statements for a model-typed query parameter that uses form-style `explode`.
