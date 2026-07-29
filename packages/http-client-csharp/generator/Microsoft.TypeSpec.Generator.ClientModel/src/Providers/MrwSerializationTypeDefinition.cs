@@ -184,19 +184,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                baseProvider is ModelProvider;
 
         /// <summary>
-        /// Determines whether a derived model should skip overriding the generated serialization
-        /// <c>*Core</c> methods of its base.
+        /// Gets the hand-authored base type this model derives from, or <c>null</c> when the base is generated.
         /// </summary>
-        /// <remarks>
-        /// External/system base models are represented by a <see cref="SystemObjectModelProvider"/>.
-        /// Such a base only participates in the generated MRW <c>*Core</c> override chain when the
-        /// wrapped framework/referenced type itself follows the model-reader-writer serialization
-        /// pattern (i.e. implements <see cref="IJsonModel{T}"/> or <see cref="IPersistableModel{T}"/>,
-        /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
-        /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
-        /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
-        /// models re-introduce the methods as <c>virtual</c>.
-        /// </remarks>
         private CSharpType? GetCustomSerializationBaseType()
             => _model.BaseModelProvider is null && _model.CustomCodeView?.BaseType is not null
                 ? _model.BaseType
@@ -213,7 +202,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// overrides and the result only compiles on runtimes that support covariant returns.
         /// </remarks>
         private CSharpType? GetCustomMrwBaseRootType()
-            => GetCustomBaseMethodReturnType(s_createCoreMethodNames);
+            => GetCustomSerializationBaseType() is { } baseType
+                ? ModelReaderWriterHelpers.FindMethodInHierarchy(
+                    baseType,
+                    method => s_createCoreMethodNames.Contains(method.Signature.Name),
+                    baseTypesFirst: true)?.Signature.ReturnType
+                : null;
 
         /// <summary>
         /// Determines whether the hand-authored base declares a <c>JsonModelWriteCore</c> method that the
@@ -249,11 +243,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 method.Signature.Parameters[0].Type.Equals(typeof(Utf8JsonWriter)) &&
                 method.Signature.Parameters[1].Type.Equals(typeof(ModelReaderWriterOptions));
 
-        private CSharpType? GetCustomBaseMethodReturnType(IReadOnlySet<string> methodNames)
-            => GetCustomSerializationBaseType() is { } baseType
-                ? GetMethodReturnTypeInHierarchy(baseType, methodNames)
-                : null;
-
+        /// <summary>
+        /// Determines whether a derived model should skip overriding the generated serialization
+        /// <c>*Core</c> methods of its base.
+        /// </summary>
+        /// <remarks>
+        /// External/system base models are represented by a <see cref="SystemObjectModelProvider"/>.
+        /// Such a base only participates in the generated MRW <c>*Core</c> override chain when the
+        /// wrapped framework/referenced type itself follows the model-reader-writer serialization
+        /// pattern (i.e. implements <see cref="IJsonModel{T}"/> or <see cref="IPersistableModel{T}"/>,
+        /// and therefore exposes the overridable <c>*Core</c> methods). When it does, derived models
+        /// must override those methods rather than hide them (otherwise the compiler reports CS0114).
+        /// When it does not (for example a hand-authored base such as <c>ResourceData</c>), derived
+        /// models re-introduce the methods as <c>virtual</c>. The same reasoning applies to a
+        /// hand-authored base, which only participates when it declares the <c>*Core</c> methods.
+        /// </remarks>
         private static bool ShouldSkipDerivedSerializationMethodOverrides(ModelProvider model)
         {
             if (model.BaseModelProvider is null)
@@ -280,12 +284,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return model.BaseModelProvider.ShouldSkipDerivedSerializationMethodOverrides;
         }
-
-        private static CSharpType? GetMethodReturnTypeInHierarchy(CSharpType type, IReadOnlySet<string> methodNames)
-            => ModelReaderWriterHelpers.FindMethodInHierarchy(
-                type,
-                method => methodNames.Contains(method.Signature.Name),
-                baseTypesFirst: true)?.Signature.ReturnType;
 
         protected override ConstructorProvider[] BuildConstructors()
         {
