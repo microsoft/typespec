@@ -1646,6 +1646,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             }
         }
 
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceNameEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            DerivedModelProviderReadingOwnName? provider = null;
+            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnName(inputModel, "ProjectedModel"));
+            Assert.AreEqual("ProjectedModel", provider!.Name);
+        }
+
+        private sealed class DerivedModelProviderReadingOwnName : ModelProvider
+        {
+            private readonly string? _derivedName;
+
+            public DerivedModelProviderReadingOwnName(InputModelType inputModel, string derivedName) : base(inputModel)
+            {
+                _derivedName = derivedName;
+            }
+
+            protected override string BuildName()
+                => _derivedName ?? throw new InvalidOperationException("The derived provider has not finished construction.");
+        }
+
         // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
         // eagerly compute DiscriminatorValueExpression, which read BaseModelProvider and thus
         // virtually dispatched BuildBaseType()/BuildBaseModel() onto a partially-constructed

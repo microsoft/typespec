@@ -53,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return description;
         }
 
-        private readonly bool _isMultiLevelDiscriminator;
+        private bool? _isMultiLevelDiscriminator;
+        private bool IsMultiLevelDiscriminator => _isMultiLevelDiscriminator ??= ComputeIsMultiLevelDiscriminator();
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _additionalObjectPropsFieldType = typeof(IDictionary<string, object>);
@@ -75,7 +76,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _inputModel = inputModel;
             _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
-            _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
 
@@ -188,6 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
             _fullConstructor = null;
+            _isMultiLevelDiscriminator = null;
         }
 
         protected FieldProvider? RawDataField
@@ -765,7 +766,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For multi-level discriminators, add one additional private protected constructor
-            if (_isMultiLevelDiscriminator)
+            if (IsMultiLevelDiscriminator)
             {
                 var protectedConstructor = BuildProtectedInheritanceConstructor();
                 constructors.Add(protectedConstructor);
@@ -945,7 +946,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && _isMultiLevelDiscriminator)))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && IsMultiLevelDiscriminator)))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -954,7 +955,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider._isMultiLevelDiscriminator))
+                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
                         var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
