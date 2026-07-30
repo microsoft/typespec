@@ -102,8 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             if (Interlocked.Exchange(ref _hookInstalled, 1) == 0)
             {
-                AssemblyLoadContext.Default.Resolving += static (context, name) =>
-                    Volatile.Read(ref _active)?.OnResolving(context, name);
+                AssemblyLoadContext.Default.Resolving += static (_, name) =>
+                    Volatile.Read(ref _active)?.Resolve(name);
             }
         }
 
@@ -173,17 +173,24 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return;
             }
 
-            var versionDir = Path.Combine(_globalPackagesFolder, packageId.ToLowerInvariant(), version.ToLowerInvariant());
+            if (!NugetPackageResolver.TryFindPackageInCache(
+                _globalPackagesFolder,
+                packageId,
+                parsedVersion,
+                out var packageInfo))
+            {
+                _debug($"Package '{packageId}' {version} was not found while walking package dependencies.");
+                return;
+            }
+
             string? nuspecPath;
             try
             {
-                nuspecPath = Directory.Exists(versionDir)
-                    ? Directory.EnumerateFiles(versionDir, "*.nuspec").FirstOrDefault()
-                    : null;
+                nuspecPath = Directory.EnumerateFiles(packageInfo.ExpandedPath, "*.nuspec").FirstOrDefault();
             }
             catch (Exception ex)
             {
-                _debug($"Failed to enumerate '{versionDir}' while walking package dependencies: {ex.Message}");
+                _debug($"Failed to enumerate '{packageInfo.ExpandedPath}' while walking package dependencies: {ex.Message}");
                 return;
             }
 
@@ -229,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return group?.Packages ?? Array.Empty<PackageDependency>();
         }
 
-        private Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
+        internal Assembly? Resolve(AssemblyName name)
         {
             var simpleName = name.Name;
             if (string.IsNullOrEmpty(simpleName) || string.IsNullOrEmpty(_globalPackagesFolder))

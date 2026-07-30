@@ -50,6 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             var pkgDir = Path.Combine(versionDir, "lib", "netstandard2.0");
             Directory.CreateDirectory(pkgDir);
             WriteNuspec(versionDir, packageName, version, dependencies);
+            WritePackageMetadata(versionDir);
 
             var references = new List<MetadataReference>
             {
@@ -108,6 +109,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 """;
 
             File.WriteAllText(Path.Combine(versionDir, $"{packageName.ToLowerInvariant()}.nuspec"), nuspec);
+        }
+
+        private static void WritePackageMetadata(string versionDir)
+        {
+            var metadata =
+                """
+                {
+                  "version": 2,
+                  "contentHash": "VGVzdCBwYWNrYWdlIGNvbnRlbnQgaGFzaA==",
+                  "source": "https://example.invalid/v3/index.json"
+                }
+                """;
+            File.WriteAllText(Path.Combine(versionDir, ".nupkg.metadata"), metadata);
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
+using NuGet.Repositories;
 using NuGet.Versioning;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
@@ -88,8 +90,28 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// </summary>
         public static string? FindPackageAssemblyInVersion(string globalPackagesFolder, string packageName, string version)
         {
-            var versionDir = Path.Combine(globalPackagesFolder, packageName.ToLowerInvariant(), version.ToLowerInvariant());
-            return Directory.Exists(versionDir) ? TryFindNearestAssemblyInVersionDir(versionDir, packageName) : null;
+            if (!NuGetVersion.TryParse(version, out var parsedVersion)
+                || !TryFindPackageInCache(globalPackagesFolder, packageName, parsedVersion, out var packageInfo))
+            {
+                return null;
+            }
+
+            return TryFindNearestAssemblyInVersionDir(packageInfo.ExpandedPath, packageName);
+        }
+
+        /// <summary>
+        /// Uses NuGet's local repository implementation to locate one exact package version in the global
+        /// packages folder.
+        /// </summary>
+        public static bool TryFindPackageInCache(
+            string globalPackagesFolder,
+            string packageName,
+            NuGetVersion version,
+            [NotNullWhen(true)] out NuGet.Repositories.LocalPackageInfo? packageInfo)
+        {
+            var localRepository = new NuGetv3LocalRepository(globalPackagesFolder);
+            packageInfo = localRepository.FindPackage(packageName, version);
+            return packageInfo != null;
         }
 
         /// <summary>
