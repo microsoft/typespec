@@ -50,9 +50,13 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
  * Detect whether a Playwright browser can be launched.
  * Returns 'inline-svg' if Playwright is available (server-side SVG rendering),
  * or 'pre-mermaid' as a fallback (client-side rendering, no Playwright needed).
+ * Always returns 'pre-mermaid' in CI environments.
  * @returns {Promise<'inline-svg' | 'pre-mermaid'>}
  */
 async function getMermaidStrategy() {
+  if (process.env.CI) {
+    return "pre-mermaid";
+  }
   try {
     const { chromium } = await import("playwright");
     const browser = await chromium.launch();
