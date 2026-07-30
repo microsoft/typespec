@@ -6,7 +6,7 @@ import {
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "../../src/index.js";
-import { expectDiagnosticEmpty } from "../../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { Tester } from "../tester.js";
 
@@ -108,4 +108,17 @@ it("when using dry-run only call emitter with the capabilities", async () => {
   expect(emitter1.$onEmit).toHaveBeenCalledTimes(1);
   expect(emitter2.$onEmit).not.toHaveBeenCalled();
   expect(emitter3.$onEmit).not.toHaveBeenCalled();
+});
+
+it("reports emitter-not-found when emitter package is not installed", async () => {
+  const diagnostics = await Tester.diagnose("model Foo {}", {
+    compilerOptions: {
+      emit: ["not-installed-emitter"],
+    },
+  });
+
+  expectDiagnostics(diagnostics, {
+    code: "emitter-not-found",
+    message: `Emitter "not-installed-emitter" not found. Make sure to install it with \`npm install not-installed-emitter\`.`,
+  });
 });
