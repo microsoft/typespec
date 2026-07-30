@@ -284,6 +284,7 @@ export function getPagingOperation(
   const hasNavigationInfo =
     result.output.nextLink !== undefined ||
     result.input.pageIndex !== undefined ||
+    result.input.offset !== undefined ||
     result.input.continuationToken !== undefined ||
     result.output.continuationToken !== undefined;
 
