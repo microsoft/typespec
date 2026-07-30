@@ -3449,21 +3449,35 @@ it("emits class for model extending another model with no additional properties"
   );
 });
 
-it("emits correct file name for @friendlyName with template sourceObject", async () => {
-  // Regression test: when @friendlyName uses a template sourceObject (ARM-style),
-  // the concrete instantiation gets the correctly substituted friendly name as its file name.
-  await compileAndValidateMultiple(
+it("emits correct file name for @friendlyName template used as a template parameter default (ARM pattern)", async () => {
+  // Regression test for https://github.com/microsoft/typespec/issues/11454
+  // A model decorated with @friendlyName("{name}...", Resource) is used as an operation template
+  // parameter default (the ARM `TagsUpdateModel<Resource>` pattern). The concrete instantiation must
+  // get the substituted friendly name as its file/class name, and no file with an unresolved
+  // `{name}` placeholder should be emitted.
+  const [result] = await compileAndDiagnose(
     tester,
     `
-      @friendlyName("{name}TagsUpdate", Resource)
-      model TagsUpdate<Resource> {
-        tags?: string;
+      @service(#{title: "Test"})
+      namespace Test {
+        @friendlyName("{name}TagsUpdate", Resource)
+        model TagsUpdateModel<Resource extends {}> {
+          tags?: string;
+        }
+
+        op armTagsPatch<
+          Resource extends {},
+          Properties extends {} = TagsUpdateModel<Resource>
+        >(...Properties): void;
+
+        model FooResource { id: string; }
+
+        @route("/tags") @patch op patch is armTagsPatch<FooResource>;
       }
-
-      model FooResource { id: string; }
-
-      @route("/tags") @get op getTags(): TagsUpdate<FooResource>;
       `,
-    [["FooResourceTagsUpdate.cs", ["public partial class FooResourceTagsUpdate"]]],
   );
+  const files = [...result.fs.fs.keys()];
+  // No emitted file should contain an unresolved template placeholder.
+  const unresolved = files.filter((f) => f.includes("{") || f.includes("}"));
+  deepStrictEqual(unresolved, [], `Unexpected files with unresolved placeholders: ${unresolved}`);
 });

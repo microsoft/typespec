@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-`applyDecoratorToType` now skips executing a decorator if any of its arguments is an unresolved `TemplateParameter` or `TemplateParameterAccess`. This is a safety-net guard — the checker already sets `skipDecorators: true` on template declarations — but makes the protection explicit and robust against future refactoring.
+Fix decorators running with unresolved template parameters when a decorated template is used as a template parameter default of an operation (e.g. `op foo<Resource, Properties = Decorated<Resource>>(...)`, the ARM `TagsUpdateModel<Resource>` pattern). Operations now enter the template declaration scope before resolving template parameter defaults, so decorators on those defaults are no longer executed with the still-unresolved template parameter. This matches the existing behavior for models and interfaces.

@@ -19,6 +19,7 @@ import {
   setMediaTypeHint,
 } from "../../src/lib/decorators.js";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "../../src/testing/index.js";
+import { createTestHost } from "../../src/testing/test-host.js";
 import { Tester } from "../tester.js";
 
 describe("dev comment /** */", () => {
@@ -369,23 +370,58 @@ describe("@friendlyName", () => {
     strictEqual(getFriendlyName(program, B), "BModel");
   });
 
-  it("does not apply @friendlyName decorator on template declaration — only on instantiations", async () => {
-    const { TemplatedModel, FooModel, program } = await Tester.compile(t.code`
-        @friendlyName("{name}Updated", T)
-        model ${t.model("TemplatedModel")}<T> { }
+  it("does not run decorators with unresolved template parameter arguments when a decorated template is used as a template parameter default", async () => {
+    // Regression test for https://github.com/microsoft/typespec/issues/11454
+    // When an operation uses a decorated template as a template parameter default
+    // (e.g. `Properties extends {} = TagsUpdateModel<Resource>`, the ARM tags-update pattern),
+    // checking that default must happen within the template declaration scope so the
+    // decorators on the default type are NOT executed with the still-unresolved template parameter.
+    const host = await createTestHost();
+    const trackArgKinds: string[] = [];
+    host.addJsFile("track.js", {
+      namespace: "Test",
+      $track(_ctx: any, _target: any, arg: any) {
+        trackArgKinds.push(arg?.kind);
+      },
+    });
+    host.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./track.js";
 
-        model ${t.model("FooModel")} extends TemplatedModel<FooModel> {}
-      `);
-    // Template declaration should NOT have a friendly name stored.
-    // Decorators are not applied to template declarations (skipDecorators is true in the checker),
-    // so the unresolved template parameter T never reaches the decorator implementation.
-    strictEqual(getFriendlyName(program, TemplatedModel), undefined);
+      namespace Test {
+        extern dec track(target: unknown, arg: unknown);
+      }
 
-    // The instantiation (accessible as the base of FooModel) should have the correct friendly name
-    // because the decorator is applied with the concrete type FooModel as sourceObject.
-    const instantiation = FooModel.baseModel;
-    ok(instantiation, "FooModel should have a baseModel");
-    strictEqual(getFriendlyName(program, instantiation), "FooModelUpdated");
+      using Test;
+
+      @track(Resource)
+      model TagsUpdateModel<Resource extends {}> {
+        tags?: string;
+      }
+
+      op armTagsPatch<
+        Resource extends {},
+        Properties extends {} = TagsUpdateModel<Resource>
+      >(body: Properties): void;
+
+      model FooResource { id: string; }
+
+      op patch is armTagsPatch<FooResource>;
+      `,
+    );
+    await host.compile("main.tsp");
+
+    // The decorator must only run on the concrete instantiation (FooResource), never with the
+    // unresolved `Resource` template parameter of the operation.
+    ok(
+      !trackArgKinds.includes("TemplateParameter"),
+      `@track should never run with a TemplateParameter argument, but ran with: [${trackArgKinds.join(", ")}]`,
+    );
+    ok(
+      trackArgKinds.includes("Model"),
+      "expected @track to run on the concrete TagsUpdateModel<FooResource> instantiation",
+    );
   });
 
   it(" @friendlyName doesn't carry over to derived models", async () => {
