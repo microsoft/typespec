@@ -2629,6 +2629,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         node.parent,
       );
     }
+    // Enter the template declaration scope before checking the template declaration itself.
+    // `checkTemplateDeclaration` resolves template parameter defaults (e.g.
+    // `Properties extends {} = TagsUpdateModel<Resource>`), which can instantiate types and run
+    // their decorators. Those instantiations still reference the enclosing template parameters, so
+    // they must be treated as being in a template declaration (skipDecorators) to avoid running
+    // decorators with unresolved template parameters. This mirrors what `checkModelStatement` does.
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
     checkTemplateDeclaration(ctx, node);
 
     // If we are instantating operation inside of interface
@@ -2636,7 +2646,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withMapper({ ...ctx.mapper, partial: true });
     }
 
-    if ((ctx.mapper === undefined || ctx.mapper.partial) && node.templateParameters.length > 0) {
+    if (ctx.mapper?.partial && node.templateParameters.length > 0) {
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
