@@ -1,7 +1,7 @@
-import {
-  type InitProjectConfig,
-  type InitProjectTemplate,
-  type InitProjectTemplateEmitterTemplate,
+import type {
+  InitProjectConfig,
+  InitProjectTemplate,
+  InitProjectTemplateEmitterTemplate,
 } from "@typespec/compiler";
 import {
   InitTemplateSchema,
