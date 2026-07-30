@@ -135,7 +135,7 @@ it("does not emit a model class for an @useAuth scheme model", async () => {
     @service(#{ title: "Contoso" })
     @useAuth(MyKeyAuth)
     namespace Contoso {
-      model MyKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "Ocp-Apim-Subscription-Key">;
+      model MyKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "x-api-key">;
       model Widget {
         id: string;
       }
