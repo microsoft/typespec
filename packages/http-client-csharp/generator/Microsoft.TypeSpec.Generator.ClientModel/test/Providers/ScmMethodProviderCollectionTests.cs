@@ -1732,6 +1732,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task MethodParameterSegments_EnumGroupedQueryParam_SerializesToProtocol()
+        {
+            // Options-bag override where a grouped query property is an (extensible) enum, while the
+            // protocol method flattens that parameter to string. The convenience body must serialize
+            // the enum (options.Resampling.ToString()) before passing it to the protocol method;
+            // otherwise the generated code passes the enum where a string is expected and won't compile.
+            var resamplingEnum = InputFactory.StringEnum(
+                "Resampling",
+                [("Nearest", "nearest"), ("Bilinear", "bilinear")],
+                isExtensible: true);
+
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "resampling",
+                        resamplingEnum,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "resampling"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            // Protocol flattens the enum query parameter to string.
+            var resamplingParam = InputFactory.QueryParameter("resampling", InputPrimitiveType.String, isRequired: false, serializedName: "resampling");
+            resamplingParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("resampling", resamplingEnum, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, resamplingParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
         public async Task MethodParameterSegments_BodyParameterSerialization()
         {
             // Test scenario: Body parameter with MethodParameterSegments should be serialized
