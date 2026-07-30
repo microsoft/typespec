@@ -1,4 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {}
+  "compilerOptions": {
+    "verbatimModuleSyntax": true
+  }
 }
