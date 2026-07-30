@@ -96,10 +96,13 @@ union SurfaceCategory {
  *   category: "naming",
  *   expected: "widgetName",
  *   subject: "Widget.defaultName",
+ *   kind: "property",
  * })
  * ```
  *
  * When `subject` is omitted it defaults to the decorated target's name.
+ * When `kind` is provided, emitter verifiers can apply per-kind conventions
+ * (e.g. Python recases properties to snake_case, types to PascalCase).
  *
  * `expected` is a single canonical, language-agnostic string by default, recast
  * by each emitter. For exact per-language names, pass a `scope → value` dict:
@@ -117,6 +120,7 @@ auto dec surfaceDoc(
     category: SurfaceCategory,
     expected: string | Record<string>,
     subject?: string,
+    kind?: string,
     doc?: string,
   }
 );

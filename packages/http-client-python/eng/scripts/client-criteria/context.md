@@ -39,10 +39,11 @@ regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
 ### naming
 
 - the generated identifier equals the `expected` value from `@surfaceDoc`
-  (case-sensitive match). The spec author provides the expected client name
-  already in the correct casing. For Python: `enum`/`model`/`type` →
-  `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
-  `UPPER_SNAKE`.
+  **recast to Python's idiomatic casing for the subject's `kind`**
+  (case-sensitive): `enum`/`model`/`type` → `PascalCase`,
+  `property`/`parameter`/`operation` → `snake_case`, enum value →
+  `UPPER_SNAKE`. The per-kind casing map lives in `verifiers.json`
+  (`{expected:byKind}`); the `@surfaceDoc` carries the subject's `kind`.
 - **exact per-language names:** when a name can't be derived by casing (a
   reserved-word escape, an acronym, a hard rename), the spec author supplies a
   `scope → value` dict on `@surfaceDoc` (e.g. `#{ python: "io_thing" }`). Those

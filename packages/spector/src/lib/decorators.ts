@@ -241,6 +241,8 @@ export type SurfaceDocTarget = Namespace | Interface | Operation;
 export interface SurfaceDetails {
   /** The author's `expected` client-surface output for this check. */
   expected?: string;
+  /** The symbol kind (e.g. "property", "model", "enum", "operation"). */
+  kind?: string;
 }
 
 /** A resolved `@surfaceDoc` annotation. */
@@ -262,6 +264,8 @@ export interface SurfaceDoc {
   category: string;
   /** The expected client-surface output for this category. */
   expected: string;
+  /** The symbol kind (e.g. "property", "model", "enum", "operation") — used by verifiers for per-kind conventions. */
+  kind?: string;
   /**
    * The language scope this check applies to, e.g. `"python"`, `"python,csharp"`,
    * or `"!java"`. Set only when `expected` came from a `scope → value` dict; in
@@ -318,6 +322,7 @@ interface StoredSurfaceDoc {
     category: string;
     expected: string | Record<string, string>;
     subject?: string;
+    kind?: string;
     doc?: string;
   };
 }
@@ -338,7 +343,7 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
     if (!stored) continue;
     const docTarget = target as SurfaceDocTarget;
     const scenario = getEnclosingScenarioName(program, docTarget);
-    const { category, expected, subject, doc } = stored.check;
+    const { category, expected, subject, kind, doc } = stored.check;
     const resolvedSubject = subject ?? docTarget.name ?? "";
     for (const { expected: exp, scope } of expandExpected(expected)) {
       result.push({
@@ -347,6 +352,7 @@ export function listSurfaceDocs(program: Program): SurfaceDoc[] {
         subject: resolvedSubject,
         category,
         expected: exp,
+        kind,
         scope,
         doc: doc ?? synthesizeDoc(category, resolvedSubject, exp),
       });
@@ -405,6 +411,9 @@ export function buildSurfaceDetails(doc: SurfaceDoc): SurfaceDetails {
   const details: SurfaceDetails = {};
   if (doc.expected !== "") {
     details.expected = doc.expected;
+  }
+  if (doc.kind) {
+    details.kind = doc.kind;
   }
   return details;
 }

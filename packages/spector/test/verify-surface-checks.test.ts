@@ -21,7 +21,8 @@ const verifiers = {
   },
   naming: {
     files: ["**/*.py"],
-    find: "\\b{expected}\\b",
+    find: "\\b{expected:byKind}\\b",
+    casing: { enum: "pascal", property: "snake" },
   },
   hierarchy: {
     files: ["**/models/_models.py"],
@@ -52,6 +53,7 @@ beforeAll(async () => {
     `class WidgetsOperations:\n    def get_widget(self):\n        pass\n\nclass GadgetsOperations:\n    def list_gadgets(self):\n        pass\n`,
   );
   await writeFile(join(pkg, "models", "_scoped.py"), `class IOThing:\n    pass\n`);
+  await writeFile(join(pkg, "models", "_props.py"), `class SomeModel:\n    default_name: bool\n`);
 
   verifiersPath = join(root, "verifiers.json");
   await writeFile(verifiersPath, JSON.stringify(verifiers));
@@ -71,14 +73,14 @@ async function run(items: object[], scenario?: string): Promise<VerifySurfaceChe
 }
 
 describe("verify-surface-checks (shared engine)", () => {
-  it("naming: idiomatic casing via {expected} passes on the expected identifier", async () => {
+  it("naming: idiomatic casing via {expected:byKind} passes on the recast identifier", async () => {
     const out = await run([
       {
         id: "n1",
         scenario: "surfacedemo",
         category: "naming",
         target: "ServerExtensibleEnum",
-        details: { expected: "ClientExtensibleEnum" },
+        details: { expected: "ClientExtensibleEnum", kind: "enum" },
         doc: "",
       },
     ]);
@@ -92,11 +94,26 @@ describe("verify-surface-checks (shared engine)", () => {
         scenario: "surfacedemo",
         category: "naming",
         target: "X",
-        details: { expected: "TotallyMadeUp" },
+        details: { expected: "TotallyMadeUp", kind: "enum" },
         doc: "",
       },
     ]);
     expect(out.results[0].status).toBe("fail");
+  });
+
+  it("naming: byKind recases a property to snake_case", async () => {
+    const out = await run([
+      {
+        id: "n3",
+        scenario: "surfacedemo",
+        category: "naming",
+        target: "SomeModel.defaultName",
+        details: { expected: "defaultName", kind: "property" },
+        doc: "",
+      },
+    ]);
+    // expected "defaultName" + kind "property" → snake → "default_name" → found in _props.py
+    expect(out.results[0]).toMatchObject({ status: "pass", how: "deterministic" });
   });
 
   it("access: public export present passes; internal expectation flips it", async () => {
@@ -172,7 +189,7 @@ describe("verify-surface-checks (shared engine)", () => {
         category: "naming",
         target: "IOThing",
         scope: "csharp",
-        details: { expected: "IOThing" },
+        details: { expected: "IOThing", kind: "enum" },
         doc: "",
       },
     ]);
@@ -180,7 +197,7 @@ describe("verify-surface-checks (shared engine)", () => {
     expect(out.needs_ai).toHaveLength(0);
   });
 
-  it("scope: a scoped value is matched verbatim", async () => {
+  it("scope: a scoped value is matched verbatim, bypassing byKind casing", async () => {
     const out = await run([
       {
         id: "s2",
@@ -188,7 +205,7 @@ describe("verify-surface-checks (shared engine)", () => {
         category: "naming",
         target: "IOThing",
         scope: "python",
-        details: { expected: "IOThing" },
+        details: { expected: "IOThing", kind: "enum" },
         doc: "",
       },
     ]);

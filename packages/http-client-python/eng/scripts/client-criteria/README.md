@@ -88,8 +88,12 @@ verifier engine:
 | ------------ | --------------------------------------- |
 | `{target}`   | the `subject` string (or target's name) |
 | `{expected}` | the `expected` value                    |
+| `{kind}`     | the symbol kind (e.g. `property`)       |
 
 Any other key in `details` is also accessible as `{key}` (e.g. `{internal}`).
+Use the `:byKind` modifier (e.g. `{expected:byKind}`) with a `casing` map in
+the verifier to apply per-kind conventions (Python: property → snake_case,
+model → PascalCase, etc.).
 
 ### Adding a category
 

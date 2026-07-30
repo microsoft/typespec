@@ -136,6 +136,8 @@ export interface Rule {
   find: string;
   /** `present` (default), `absent`, `{ absentWhen: <detail key> }`, or `{ whenExpected: { <value>: present|absent } }`. */
   expect?: Expect;
+  /** Per-kind casing map for the `{var:byKind}` modifier; keyed by `details.kind`. */
+  casing?: Record<string, string>;
   /** A second rule AND-ed with this one (e.g. present here AND absent there). */
   also?: Rule;
 }
@@ -216,6 +218,7 @@ function resolveVar(
   mod: string | undefined,
   item: CheckItem,
   _language: string,
+  casingMap: Record<string, string> | undefined,
 ): string | undefined {
   let val: string | undefined;
   if (name === "target") {
@@ -230,16 +233,31 @@ function resolveVar(
   if (val == null) return undefined;
   // A scoped check carries a verbatim per-language value — never recase it.
   if (mod && !item.scope) {
-    val = applyCasing(val, mod);
+    if (mod === "byKind") {
+      const kind = item.details?.["kind"];
+      if (kind && casingMap) {
+        const casingName = casingMap[String(kind)];
+        if (casingName) {
+          val = applyCasing(val, casingName);
+        }
+      }
+    } else {
+      val = applyCasing(val, mod);
+    }
   }
   return val;
 }
 
 /** Compile a regex template; returns null if any placeholder is unresolvable (N/A). */
-function buildRegex(template: string, item: CheckItem, language: string): RegExp | null {
+function buildRegex(
+  template: string,
+  item: CheckItem,
+  language: string,
+  casingMap: Record<string, string> | undefined,
+): RegExp | null {
   let missing = false;
   const source = template.replace(/\{(\w+)(?::(\w+))?\}/g, (_m, v: string, mod?: string) => {
-    const resolved = resolveVar(v, mod, item, language);
+    const resolved = resolveVar(v, mod, item, language, casingMap);
     if (resolved == null) {
       missing = true;
       return "";
@@ -287,13 +305,13 @@ async function runRule(
   pkgDir: string,
   language: string,
 ): Promise<RuleOutcome | null> {
-  const findRe = buildRegex(rule.find, item, language);
+  const findRe = buildRegex(rule.find, item, language, rule.casing);
   if (findRe === null) return null;
 
   const text = await readGlobbed(pkgDir, rule.files);
   let haystacks: string[] = [text];
   if (rule.scope) {
-    const scopeRe = buildRegex(rule.scope, item, language);
+    const scopeRe = buildRegex(rule.scope, item, language, rule.casing);
     if (scopeRe === null) return null;
     haystacks = [...text.matchAll(new RegExp(scopeRe.source, "g"))].map((m) => m[0]);
   }

@@ -65,6 +65,7 @@ export function getSurfaceDoc(
         | "other";
       readonly expected: string | Record<string, string>;
       readonly subject?: string;
+      readonly kind?: string;
       readonly doc?: string;
     }
   | undefined {
@@ -86,6 +87,7 @@ export function setSurfaceDoc(
       | "other";
     readonly expected: string | Record<string, string>;
     readonly subject?: string;
+    readonly kind?: string;
     readonly doc?: string;
   },
 ): void {

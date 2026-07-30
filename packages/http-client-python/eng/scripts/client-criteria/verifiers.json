@@ -1,8 +1,17 @@
 {
-  "_comment": "Declarative routing table for the shared `tsp-spector verify-surface-checks` engine. AUTHORED once per emitter — NOT generated. The engine substitutes placeholders into `find`/`scope`: {target}=the subject name (from @surfaceDoc), {expected}=the expected client-surface output. Add `:casing` to recase, e.g. {expected:snake}, {target:pascal}. `expect`: present (default), absent, {absentWhen:<detailKey>}, or {whenExpected:{<value>:present|absent}}. SCOPE: when a check is scoped to a language, the engine only runs it for the matching language and matches {expected} VERBATIM (casing modifiers are ignored).",
+  "_comment": "Declarative routing table for the shared `tsp-spector verify-surface-checks` engine. AUTHORED once per emitter — NOT generated. The engine substitutes placeholders into `find`/`scope`: {target}=the subject name (from @surfaceDoc), {expected}=the expected client-surface output. Add `:casing` to recase, e.g. {expected:snake}, {target:pascal}. Use `:byKind` to apply per-kind casing from the `casing` map (keyed by `details.kind`). `expect`: present (default), absent, {absentWhen:<detailKey>}, or {whenExpected:{<value>:present|absent}}. SCOPE: when a check is scoped to a language, the engine only runs it for the matching language and matches {expected} VERBATIM (casing modifiers are ignored).",
   "naming": {
     "files": ["**/*.py"],
-    "find": "\\b{expected}\\b"
+    "find": "\\b{expected:byKind}\\b",
+    "casing": {
+      "type": "pascal",
+      "model": "pascal",
+      "enum": "pascal",
+      "property": "snake",
+      "parameter": "snake",
+      "operation": "snake",
+      "enumvalue": "upper_snake"
+    }
   },
   "access": {
     "files": ["**/models/__init__.py"],
