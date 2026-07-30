@@ -218,7 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. factoryMethods];
         }
 
-        private static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
+        internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
         {
             var unavailableTypes = new HashSet<string>(StringComparer.Ordinal);
             if (signature.ReturnType != null)
@@ -246,6 +246,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return;
             }
 
+            if (TryGetArrayElementName(type, out var elementName))
+            {
+                if (!IsTypeAvailable(type.Namespace, elementName, type.DeclaringType?.Name))
+                {
+                    unavailableTypes.Add(string.IsNullOrEmpty(type.Namespace) ? elementName : $"{type.Namespace}.{elementName}");
+                }
+                return;
+            }
+
             var typeFactory = CodeModelGenerator.Instance.TypeFactory;
             if (typeFactory.CSharpTypeMap.Keys.Any(type.AreNamesEqual))
             {
@@ -263,6 +272,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             unavailableTypes.Add(type.FullyQualifiedName);
+        }
+
+        private static bool TryGetArrayElementName(CSharpType type, [NotNullWhen(true)] out string? elementName)
+        {
+            var bracketIndex = type.Name.IndexOf('[');
+            if (bracketIndex <= 0)
+            {
+                elementName = null;
+                return false;
+            }
+
+            elementName = type.Name[..bracketIndex];
+            return true;
+        }
+
+        private static bool IsTypeAvailable(string ns, string name, string? declaringTypeName)
+        {
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.CSharpTypeMap.Keys.Any(
+                type => type.Name == name &&
+                    (string.IsNullOrEmpty(ns) || type.Namespace == ns) &&
+                    type.DeclaringType?.Name == declaringTypeName))
+            {
+                return true;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                ns,
+                name,
+                declaringTypeName,
+                includeReferencedAssemblies: true) != null;
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(
