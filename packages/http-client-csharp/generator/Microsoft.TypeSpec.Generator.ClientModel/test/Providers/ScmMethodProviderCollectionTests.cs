@@ -1736,8 +1736,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         {
             // Options-bag override where a grouped query property is an (extensible) enum, while the
             // protocol method flattens that parameter to string. The convenience body must serialize
-            // the enum (options.Resampling.ToString()) before passing it to the protocol method;
-            // otherwise the generated code passes the enum where a string is expected and won't compile.
+            // the enum (options.Resampling?.ToString(), null-conditional because the property is optional)
+            // before passing it to the protocol method; otherwise the generated code passes the enum
+            // where a string is expected and won't compile.
             var resamplingEnum = InputFactory.StringEnum(
                 "Resampling",
                 [("Nearest", "nearest"), ("Bilinear", "bilinear")],
