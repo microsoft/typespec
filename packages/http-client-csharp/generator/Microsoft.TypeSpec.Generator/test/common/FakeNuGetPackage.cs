@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,16 +32,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         /// types derive from types in another fake package, which is how the dependency-resolution
         /// behavior of the external-type resolver is exercised.
         /// </param>
+        /// <param name="dependencies">
+        /// Package id / version-range pairs to declare in the emitted <c>.nuspec</c>'s
+        /// <c>.NETStandard2.0</c> dependency group, e.g. <c>("Other.Package", "[2.0.0, )")</c>. The
+        /// resolver reads these to pin each dependency to a package version, so use them whenever a test
+        /// needs the package version to differ from the assembly version it ships.
+        /// </param>
         public static string Create(
             string nugetCacheDir,
             string packageName,
             string version,
             string sourceCode,
-            IEnumerable<string>? referencedAssemblyPaths = null)
+            IEnumerable<string>? referencedAssemblyPaths = null,
+            IEnumerable<(string Id, string VersionRange)>? dependencies = null)
         {
-            var pkgDir = Path.Combine(
-                nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
+            var versionDir = Path.Combine(nugetCacheDir, packageName.ToLowerInvariant(), version);
+            var pkgDir = Path.Combine(versionDir, "lib", "netstandard2.0");
             Directory.CreateDirectory(pkgDir);
+            WriteNuspec(versionDir, packageName, version, dependencies);
 
             var references = new List<MetadataReference>
             {
@@ -64,6 +73,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 Assert.IsTrue(result.Success, $"Failed to emit fake assembly for {packageName}");
             }
             return dllPath;
+        }
+
+        /// <summary>
+        /// Writes the <c>.nuspec</c> that a restored package always carries in its version directory. The
+        /// external-type resolver walks these to build the dependency closure, so a package without one is
+        /// resolved only by the assembly-version fallback path.
+        /// </summary>
+        private static void WriteNuspec(
+            string versionDir,
+            string packageName,
+            string version,
+            IEnumerable<(string Id, string VersionRange)>? dependencies)
+        {
+            var dependencyElements = string.Concat(
+                (dependencies ?? []).Select(d =>
+                    $"      <dependency id=\"{d.Id}\" version=\"{d.VersionRange}\" />{Environment.NewLine}"));
+
+            var nuspec =
+                $"""
+                <?xml version="1.0" encoding="utf-8"?>
+                <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+                  <metadata>
+                    <id>{packageName}</id>
+                    <version>{version}</version>
+                    <authors>Test</authors>
+                    <description>Fake package emitted by tests.</description>
+                    <dependencies>
+                      <group targetFramework=".NETStandard2.0">
+                {dependencyElements}      </group>
+                    </dependencies>
+                  </metadata>
+                </package>
+                """;
+
+            File.WriteAllText(Path.Combine(versionDir, $"{packageName.ToLowerInvariant()}.nuspec"), nuspec);
         }
     }
 }

@@ -151,14 +151,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             const string leafPkg = "Test.Dependent.Leaf";
             const string leafTypeName = "Test.Dependent.Leaf.DerivedFromDependencyType";
 
-            var baseDll = CreateFakeNuGetPackage(nugetCacheDir, basePkg, "1.0.0", template: "DependencyPackageSource");
+            // The base package ships package version 2.0.0 but assembly version 1.0.0.0, mirroring real
+            // packages (System.ClientModel 1.14.0 ships assembly version 1.9.0.0). Only its .nuspec says
+            // 2.0.0 is the right version to load.
+            var baseDll = CreateFakeNuGetPackage(
+                nugetCacheDir,
+                basePkg,
+                "2.0.0",
+                template: "DependencyPackageSource",
+                assemblyVersion: "1.0.0.0");
+
+            // A decoy at a higher package version that does *not* declare DependencyBaseType. Resolving the
+            // dependency from the assembly version in the leaf's reference (1.0.0.0) searches for the
+            // highest package at or above 1.0.0 and would land here, leaving the base type unloadable. The
+            // test therefore only passes when the dependency is pinned from the .nuspec closure.
+            CreateFakeNuGetPackage(nugetCacheDir, basePkg, "3.0.0", assemblyVersion: "1.0.0.0");
+
             CreateFakeNuGetPackage(
                 nugetCacheDir,
                 leafPkg,
                 "1.0.0",
                 template: "DependentPackageSource",
                 basePackage: basePkg,
-                referencedAssemblyPaths: [baseDll]);
+                referencedAssemblyPaths: [baseDll],
+                dependencies: [(basePkg, "[2.0.0, )")]);
 
             var external = new InputExternalTypeMetadata(leafTypeName, leafPkg, "1.0.0");
 
@@ -241,17 +257,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             string version,
             string template = "PackageSource",
             string? basePackage = null,
-            IEnumerable<string>? referencedAssemblyPaths = null)
+            IEnumerable<string>? referencedAssemblyPaths = null,
+            string? assemblyVersion = null,
+            IEnumerable<(string Id, string VersionRange)>? dependencies = null)
         {
             // Load the source template from TestData and substitute the package name + version. The
             // template embeds an [assembly: AssemblyVersion("$VERSION$")] attribute so tests can verify
-            // which dll was loaded by inspecting Assembly.GetName().Version. Disk + compile + emit are
-            // delegated to the shared FakeNuGetPackage helper.
+            // which dll was loaded by inspecting Assembly.GetName().Version. The assembly version defaults
+            // to the package version but can be set independently, because real packages routinely ship an
+            // assembly version lower than their package version. Disk + compile + emit are delegated to the
+            // shared FakeNuGetPackage helper.
             var source = Helpers.GetExpectedFromFile(method: template)
                 .Replace("$PACKAGE$", packageName)
-                .Replace("$VERSION$", version)
+                .Replace("$VERSION$", assemblyVersion ?? version)
                 .Replace("$BASEPACKAGE$", basePackage ?? string.Empty);
-            return FakeNuGetPackage.Create(nugetCacheDir, packageName, version, source, referencedAssemblyPaths);
+            return FakeNuGetPackage.Create(
+                nugetCacheDir, packageName, version, source, referencedAssemblyPaths, dependencies);
         }
     }
 }

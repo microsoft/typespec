@@ -29,53 +29,98 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     /// hook <c>Assembly.GetType(identity, throwOnError: false)</c> silently returns <c>null</c> for any
     /// type whose base type lives in a dependency. The external type then appears unresolvable and is
     /// generated instead of referenced.
+    /// <para>
+    /// One instance services one generation run and is owned by that run's resolver cache state. The
+    /// only genuinely process-wide pieces are kept static and documented below: the default context's
+    /// single <c>Resolving</c> event, and the fact that assemblies loaded into it can never be unloaded.
+    /// </para>
     /// </remarks>
-    internal static class NugetAssemblyResolver
+    internal sealed class NugetAssemblyResolver
     {
+        // The default AssemblyLoadContext exposes exactly one process-wide Resolving event, so the handler is
+        // installed once and dispatches to whichever resolver is currently servicing a generation run. Keeping
+        // the subscription static rather than per-instance means repeated runs in one process - the norm under
+        // test - cannot accumulate handlers.
+        private static int _hookInstalled;
+        private static NugetAssemblyResolver? _active;
+
+        private readonly string _globalPackagesFolder;
+        private readonly Action<string> _debug;
+        private readonly Action<MetadataReference> _addMetadataReference;
+
         // Cached resolution per assembly simple name. A null value means resolution was attempted and
         // failed, so repeated references to the same missing dependency don't re-probe the file system.
-        private static readonly ConcurrentDictionary<string, Assembly?> _resolved =
+        private readonly ConcurrentDictionary<string, Assembly?> _resolved =
             new(StringComparer.OrdinalIgnoreCase);
 
         // Tracks assembly paths already registered as Roslyn metadata references.
-        private static readonly ConcurrentDictionary<string, byte> _registeredReferences =
+        private readonly ConcurrentDictionary<string, byte> _registeredReferences =
             new(StringComparer.OrdinalIgnoreCase);
 
         // Package id -> package version, for every package in the dependency closure of an external-type
         // package. Populated from .nuspec files so dependencies bind to the version NuGet would have
         // chosen rather than a version guessed from the referencing assembly's version number.
-        private static readonly ConcurrentDictionary<string, NuGetVersion> _closureVersions =
+        private readonly ConcurrentDictionary<string, NuGetVersion> _closureVersions =
             new(StringComparer.OrdinalIgnoreCase);
 
         // Package version directories whose .nuspec has already been walked.
-        private static readonly ConcurrentDictionary<string, byte> _walkedPackages =
+        private readonly ConcurrentDictionary<string, byte> _walkedPackages =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        // Dependencies that were satisfied by an older copy the generator already deploys, keyed by simple
+        // name. Surfaced in resolution failures so a type that fails to load because of the substitution
+        // reports why instead of just appearing to be missing.
+        private readonly ConcurrentDictionary<string, string> _downgradedDependencies =
             new(StringComparer.OrdinalIgnoreCase);
 
         // Guards against a dependency cycle re-entering resolution for the same name on this thread.
-        [ThreadStatic]
-        private static HashSet<string>? _inProgress;
+        private readonly ThreadLocal<HashSet<string>> _inProgress =
+            new(() => new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
-        private static string? _globalPackagesFolder;
-        private static int _hookInstalled;
+        /// <param name="globalPackagesFolder">The NuGet global packages folder to probe.</param>
+        /// <param name="debug">Receives trace messages describing each resolution decision.</param>
+        /// <param name="addMetadataReference">
+        /// Registers a resolved dependency with the generation run's Roslyn workspaces.
+        /// </param>
+        public NugetAssemblyResolver(
+            string globalPackagesFolder,
+            Action<string> debug,
+            Action<MetadataReference> addMetadataReference)
+        {
+            _globalPackagesFolder = globalPackagesFolder;
+            _debug = debug;
+            _addMetadataReference = addMetadataReference;
+        }
 
         /// <summary>
-        /// Installs the <see cref="AssemblyLoadContext.Resolving"/> hook (once per process) and records the
-        /// NuGet global packages folder to probe. Safe to call repeatedly.
+        /// Makes this the resolver that services dependency loads the default context cannot satisfy,
+        /// installing the process-wide hook on first use. Safe to call repeatedly.
         /// </summary>
-        public static void EnsureRegistered(string globalPackagesFolder)
+        public void Activate()
         {
-            if (string.IsNullOrEmpty(globalPackagesFolder))
-            {
-                return;
-            }
-
-            Volatile.Write(ref _globalPackagesFolder, globalPackagesFolder);
+            Volatile.Write(ref _active, this);
 
             if (Interlocked.Exchange(ref _hookInstalled, 1) == 0)
             {
-                AssemblyLoadContext.Default.Resolving += OnResolving;
+                AssemblyLoadContext.Default.Resolving += static (context, name) =>
+                    Volatile.Read(ref _active)?.OnResolving(context, name);
             }
         }
+
+        /// <summary>
+        /// Stops routing dependency loads to any resolver. Assemblies already loaded into the default
+        /// context stay loaded - they cannot be unloaded - so this only detaches the bookkeeping.
+        /// </summary>
+        public static void Deactivate() => Volatile.Write(ref _active, null);
+
+        /// <summary>
+        /// Describes the dependencies that were satisfied by an older copy shipped with the generator, or
+        /// <c>null</c> when every dependency was resolved at or above the version that was asked for.
+        /// </summary>
+        public string? DescribeDowngradedDependencies() =>
+            _downgradedDependencies.IsEmpty
+                ? null
+                : string.Join("; ", _downgradedDependencies.Values.OrderBy(v => v, StringComparer.Ordinal));
 
         /// <summary>
         /// Records the dependency closure of the package that ships <paramref name="packageAssemblyPath"/> by
@@ -88,9 +133,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// 1.14.0, for example, ships assembly version 1.9.0.0; treating that as a package version resolves the
         /// unrelated 1.9.0 package and produces a <see cref="MissingMethodException"/> at type-load time.
         /// </remarks>
-        public static void RegisterPackageClosure(string globalPackagesFolder, string packageAssemblyPath)
+        public void RegisterPackageClosure(string packageAssemblyPath)
         {
-            if (string.IsNullOrEmpty(globalPackagesFolder) || string.IsNullOrEmpty(packageAssemblyPath))
+            if (string.IsNullOrEmpty(packageAssemblyPath))
             {
                 return;
             }
@@ -103,10 +148,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return;
             }
 
-            WalkPackage(globalPackagesFolder, Path.GetFileName(packageDir), Path.GetFileName(versionDir));
+            WalkPackage(Path.GetFileName(packageDir), Path.GetFileName(versionDir));
         }
 
-        private static void WalkPackage(string globalPackagesFolder, string packageId, string version)
+        private void WalkPackage(string packageId, string version)
         {
             if (!NuGetVersion.TryParse(version, out var parsedVersion))
             {
@@ -128,7 +173,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return;
             }
 
-            var versionDir = Path.Combine(globalPackagesFolder, packageId.ToLowerInvariant(), version.ToLowerInvariant());
+            var versionDir = Path.Combine(_globalPackagesFolder, packageId.ToLowerInvariant(), version.ToLowerInvariant());
             string? nuspecPath;
             try
             {
@@ -138,13 +183,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                Debug($"Failed to enumerate '{versionDir}' while walking package dependencies: {ex.Message}");
+                _debug($"Failed to enumerate '{versionDir}' while walking package dependencies: {ex.Message}");
                 return;
             }
 
             if (nuspecPath == null)
             {
-                Debug($"No .nuspec found for package '{packageId}' {version}; its dependencies will not be pinned.");
+                _debug($"No .nuspec found for package '{packageId}' {version}; its dependencies will not be pinned.");
                 return;
             }
 
@@ -155,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                Debug($"Failed to read '{nuspecPath}': {ex.Message}");
+                _debug($"Failed to read '{nuspecPath}': {ex.Message}");
                 return;
             }
 
@@ -164,7 +209,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 var dependencyVersion = dependency.VersionRange?.MinVersion;
                 if (dependencyVersion != null)
                 {
-                    WalkPackage(globalPackagesFolder, dependency.Id, dependencyVersion.ToNormalizedString());
+                    WalkPackage(dependency.Id, dependencyVersion.ToNormalizedString());
                 }
             }
         }
@@ -184,23 +229,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return group?.Packages ?? Array.Empty<PackageDependency>();
         }
 
-        /// <summary>
-        /// Clears the cached dependency resolutions. Loaded assemblies cannot be unloaded from the default
-        /// context, so this only resets the probe/metadata-reference bookkeeping.
-        /// </summary>
-        internal static void Reset()
-        {
-            _resolved.Clear();
-            _registeredReferences.Clear();
-            _closureVersions.Clear();
-            _walkedPackages.Clear();
-        }
-
-        private static Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
+        private Assembly? OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
             var simpleName = name.Name;
-            var globalPackagesFolder = Volatile.Read(ref _globalPackagesFolder);
-            if (string.IsNullOrEmpty(simpleName) || string.IsNullOrEmpty(globalPackagesFolder))
+            if (string.IsNullOrEmpty(simpleName) || string.IsNullOrEmpty(_globalPackagesFolder))
             {
                 return null;
             }
@@ -210,7 +242,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return cached;
             }
 
-            var inProgress = _inProgress ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var inProgress = _inProgress.Value!;
             if (!inProgress.Add(simpleName))
             {
                 return null;
@@ -225,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // same simple name in the process, and any type they both declare (System.Memory.Data's
                 // System.BinaryData, for example) would exist twice, so signatures mentioning it fail to bind
                 // with a MissingMethodException. Reusing the host's copy keeps exactly one identity per name.
-                var assembly = UseHostAssembly(simpleName) ?? Probe(globalPackagesFolder, simpleName, name.Version);
+                var assembly = UseHostAssembly(simpleName, name.Version) ?? Probe(simpleName, name.Version);
                 _resolved[simpleName] = assembly;
                 return assembly;
             }
@@ -236,15 +268,45 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
-        /// Returns the host's own copy of <paramref name="simpleName"/> when it has one, ignoring version.
+        /// Returns the host's own copy of <paramref name="simpleName"/> when it has one, regardless of version,
+        /// recording a downgrade when that copy is older than the version that was requested.
         /// </summary>
-        private static Assembly? UseHostAssembly(string simpleName)
+        private Assembly? UseHostAssembly(string simpleName, Version? requestedVersion)
+        {
+            var hostAssembly = FindHostAssembly(simpleName);
+            if (hostAssembly == null)
+            {
+                return null;
+            }
+
+            var hostVersion = hostAssembly.GetName().Version;
+            if (requestedVersion != null && hostVersion != null && hostVersion < requestedVersion)
+            {
+                // Not fatal on its own: assembly versions are routinely older than the reference that names
+                // them, and using the host's copy is the only option that keeps one identity per simple name.
+                // It is recorded so that a type which does fail to load can say why.
+                var note =
+                    $"'{simpleName}' was requested at version {requestedVersion} but the generator supplies " +
+                    $"{hostVersion}, which was used to keep a single identity for the types it declares";
+                if (_downgradedDependencies.TryAdd(simpleName, note))
+                {
+                    _debug($"Dependency version downgrade: {note}.");
+                }
+            }
+            else
+            {
+                _debug($"Reusing the generator's '{hostAssembly.GetName()}' for dependency '{simpleName}'.");
+            }
+
+            return hostAssembly;
+        }
+
+        private static Assembly? FindHostAssembly(string simpleName)
         {
             foreach (var loaded in AssemblyLoadContext.Default.Assemblies)
             {
                 if (string.Equals(loaded.GetName().Name, simpleName, StringComparison.OrdinalIgnoreCase))
                 {
-                    Debug($"Reusing already-loaded assembly '{loaded.GetName()}' for dependency '{simpleName}'.");
                     return loaded;
                 }
             }
@@ -253,9 +315,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // which matches any version there; a version-qualified request is what failed to get us here.
             try
             {
-                var assembly = AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(simpleName));
-                Debug($"Resolved dependency '{simpleName}' to the generator's own '{assembly.GetName()}'.");
-                return assembly;
+                return AssemblyLoadContext.Default.LoadFromAssemblyName(new AssemblyName(simpleName));
             }
             catch (Exception)
             {
@@ -264,7 +324,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
         }
 
-        private static Assembly? Probe(string globalPackagesFolder, string simpleName, Version? version)
+        private Assembly? Probe(string simpleName, Version? version)
         {
             // NuGet package ids and assembly simple names match for the overwhelming majority of packages.
             // Prefer the version recorded from the dependency closure: an assembly reference only carries an
@@ -274,15 +334,15 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             if (_closureVersions.TryGetValue(simpleName, out var closureVersion))
             {
                 assemblyPath = NugetPackageResolver.FindPackageAssemblyInVersion(
-                    globalPackagesFolder, simpleName, closureVersion.ToNormalizedString());
+                    _globalPackagesFolder, simpleName, closureVersion.ToNormalizedString());
                 if (assemblyPath == null)
                 {
-                    Debug($"Dependency '{simpleName}' {closureVersion.ToNormalizedString()} is in the closure but is not installed in '{globalPackagesFolder}'.");
+                    _debug($"Dependency '{simpleName}' {closureVersion.ToNormalizedString()} is in the closure but is not installed in '{_globalPackagesFolder}'.");
                 }
                 else
                 {
                     // Dependencies of a dependency are only discoverable once we know which version won.
-                    RegisterPackageClosure(globalPackagesFolder, assemblyPath);
+                    RegisterPackageClosure(assemblyPath);
                 }
             }
 
@@ -290,13 +350,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // reachable through the closure (for example when a .nuspec is missing from the cache).
             if (assemblyPath == null && version != null)
             {
-                assemblyPath = NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, simpleName, version.ToString());
+                assemblyPath = NugetPackageResolver.FindPackageAssembly(_globalPackagesFolder, simpleName, version.ToString());
             }
-            assemblyPath ??= NugetPackageResolver.FindPackageAssembly(globalPackagesFolder, simpleName);
+            assemblyPath ??= NugetPackageResolver.FindPackageAssembly(_globalPackagesFolder, simpleName);
 
             if (assemblyPath == null)
             {
-                Debug($"Could not locate dependency assembly '{simpleName}' under '{globalPackagesFolder}'.");
+                _debug($"Could not locate dependency assembly '{simpleName}' under '{_globalPackagesFolder}'.");
                 return null;
             }
 
@@ -308,7 +368,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                Debug($"Failed to read dependency assembly '{assemblyPath}': {ex.Message}");
+                _debug($"Failed to read dependency assembly '{assemblyPath}': {ex.Message}");
                 return null;
             }
 
@@ -319,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             catch (Exception ex)
             {
-                Debug($"Failed to load dependency assembly '{assemblyPath}': {ex.Message}");
+                _debug($"Failed to load dependency assembly '{assemblyPath}': {ex.Message}");
                 return null;
             }
 
@@ -329,28 +389,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 try
                 {
-                    CodeModelGenerator.Instance.AddMetadataReference(MetadataReference.CreateFromImage(assemblyBytes));
+                    _addMetadataReference(MetadataReference.CreateFromImage(assemblyBytes));
                 }
                 catch (Exception ex)
                 {
-                    Debug($"Failed to add metadata reference for dependency assembly '{assemblyPath}': {ex.Message}");
+                    _debug($"Failed to add metadata reference for dependency assembly '{assemblyPath}': {ex.Message}");
                 }
             }
 
-            Debug($"Resolved dependency assembly '{simpleName}' from '{assemblyPath}'.");
+            _debug($"Resolved dependency assembly '{simpleName}' from '{assemblyPath}'.");
             return assembly;
-        }
-
-        private static void Debug(string message)
-        {
-            try
-            {
-                CodeModelGenerator.Instance.Emitter?.Debug(message);
-            }
-            catch (InvalidOperationException)
-            {
-                // No generator is installed (e.g. a unit test resolving types outside of a generation run).
-            }
         }
     }
 }

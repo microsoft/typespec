@@ -59,6 +59,24 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // the same dll isn't registered twice when it contains multiple referenced types.
             public readonly ConcurrentDictionary<string, byte> AddedAssemblyRefs =
                 new(StringComparer.OrdinalIgnoreCase);
+
+            private readonly object _assemblyResolverLock = new();
+            private NugetAssemblyResolver? _assemblyResolver;
+
+            /// <summary>
+            /// The dependency resolver for this generation run, created on first use and reused for every
+            /// external type resolved by the same generator.
+            /// </summary>
+            public NugetAssemblyResolver GetAssemblyResolver(string globalPackagesFolder, CodeModelGenerator generator)
+            {
+                lock (_assemblyResolverLock)
+                {
+                    return _assemblyResolver ??= new NugetAssemblyResolver(
+                        globalPackagesFolder,
+                        message => generator.Emitter?.Debug(message),
+                        generator.AddMetadataReference);
+                }
+            }
         }
 
         private static CacheState GetState(CodeModelGenerator generator) =>
@@ -167,7 +185,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 // when Reset runs before the first generator is loaded (e.g. a test fixture's SetUp).
             }
 
-            NugetAssemblyResolver.Reset();
+            // The dropped CacheState owned the dependency resolver, so stop routing loads to it. Assemblies
+            // it already loaded stay in the default context; they cannot be unloaded.
+            NugetAssemblyResolver.Deactivate();
         }
 
         private static string MakeKey(InputExternalTypeMetadata external) =>
@@ -206,9 +226,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             // The external assembly is loaded into the default AssemblyLoadContext, which cannot see the
-            // package's own dependencies. Install the NuGet probing hook before loading anything so that
-            // base types and interfaces declared in dependency packages can be resolved.
-            NugetAssemblyResolver.EnsureRegistered(globalPackagesFolder);
+            // package's own dependencies. Activate this run's NuGet probing resolver before loading
+            // anything so that base types and interfaces declared in dependency packages can be resolved.
+            var assemblyResolver = state.GetAssemblyResolver(globalPackagesFolder, generator);
+            assemblyResolver.Activate();
 
             string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
                 globalPackagesFolder, external.Package!, external.MinVersion);
@@ -252,13 +273,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             // Pin every package in this package's dependency closure before loading it, so the resolving
             // hook binds dependencies to the versions NuGet selected rather than guessing from assembly
             // versions (which are routinely lower than the package versions that ship them).
-            NugetAssemblyResolver.RegisterPackageClosure(globalPackagesFolder, assemblyPath);
+            assemblyResolver.RegisterPackageClosure(assemblyPath);
 
             byte[] assemblyBytes;
             try
             {
                 assemblyBytes = await File.ReadAllBytesAsync(assemblyPath).ConfigureAwait(false);
-            }            catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 generator.Emitter?.Debug(
                     $"Failed to read assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
@@ -281,7 +303,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     $"Failed to load assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"assembly '{assemblyPath}' could not be loaded ({ex.Message})"));
+                    $"assembly '{assemblyPath}' could not be loaded ({ex.Message})" +
+                    assemblyResolver.DescribeDowngradedDependencies()));
             }
 
             if (loadedType == null)
@@ -292,7 +315,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     $"Assembly '{assemblyPath}' does not declare external type '{external.Identity}', or one of its dependencies could not be resolved.");
                 return CacheResult(state, key, new ResolutionResult(
                     null,
-                    $"assembly '{assemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved"));
+                    $"assembly '{assemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved" +
+                    assemblyResolver.DescribeDowngradedDependencies()));
             }
 
             // Register the dll as a Roslyn metadata reference exactly once per assembly path so that
