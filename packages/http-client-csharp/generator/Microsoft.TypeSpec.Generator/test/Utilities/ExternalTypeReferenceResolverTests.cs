@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -136,6 +137,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
 
             Assert.IsNull(resolved);
+            StringAssert.Contains(
+                "was not found in the NuGet cache",
+                ExternalTypeReferenceResolver.GetFailureReason(external),
+                "A missing package should be reported as a missing package.");
+        }
+
+        [Test]
+        public void TryResolve_ResolvesTypeWhoseBaseTypeLivesInAnotherPackage()
+        {
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            const string basePkg = "Test.Dependency.Base";
+            const string leafPkg = "Test.Dependent.Leaf";
+            const string leafTypeName = "Test.Dependent.Leaf.DerivedFromDependencyType";
+
+            var baseDll = CreateFakeNuGetPackage(nugetCacheDir, basePkg, "1.0.0", template: "DependencyPackageSource");
+            CreateFakeNuGetPackage(
+                nugetCacheDir,
+                leafPkg,
+                "1.0.0",
+                template: "DependentPackageSource",
+                basePackage: basePkg,
+                referencedAssemblyPaths: [baseDll]);
+
+            var external = new InputExternalTypeMetadata(leafTypeName, leafPkg, "1.0.0");
+
+            var resolved = ExternalTypeReferenceResolver.TryResolve(external);
+
+            // Assembly.Load puts the leaf assembly in the default AssemblyLoadContext, which cannot see
+            // the dependency package. Without the NuGet probing hook, GetType silently returns null here
+            // and the external type gets generated instead of referenced.
+            Assert.IsNotNull(
+                resolved,
+                $"Resolver should load '{leafTypeName}' even though its base type lives in '{basePkg}'. " +
+                $"Failure reason: {ExternalTypeReferenceResolver.GetFailureReason(external)}");
+            Assert.AreEqual(leafTypeName, resolved!.FullName);
+
+            // The whole point of resolving the dependency is that the type is fully usable afterwards:
+            // CSharpType's constructor reads BaseType, IsValueType and IsEnum, all of which throw or
+            // misreport when the dependency assembly is unavailable.
+            Assert.AreEqual($"{basePkg}.DependencyBaseType", resolved.BaseType?.FullName);
+            Assert.IsFalse(resolved.IsValueType);
+            Assert.IsNull(ExternalTypeReferenceResolver.GetFailureReason(external));
+        }
+
+        [Test]
+        public void TryResolve_ReportsFailureReasonWhenTypeMissingFromAssembly()
+        {
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            const string pkgName = "Test.MissingType.Package";
+            CreateFakeNuGetPackage(nugetCacheDir, pkgName, "1.0.0");
+
+            var external = new InputExternalTypeMetadata($"{pkgName}.NotDeclaredAnywhere", pkgName, null);
+
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            StringAssert.Contains(
+                "does not declare the type",
+                ExternalTypeReferenceResolver.GetFailureReason(external),
+                "A located-but-unusable assembly must not be reported as a missing package.");
         }
 
         [Test]
@@ -176,17 +235,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "Pre-walk should add the metadata reference exactly once.");
         }
 
-        private static string CreateFakeNuGetPackage(string nugetCacheDir, string packageName, string version)
+        private static string CreateFakeNuGetPackage(
+            string nugetCacheDir,
+            string packageName,
+            string version,
+            string template = "PackageSource",
+            string? basePackage = null,
+            IEnumerable<string>? referencedAssemblyPaths = null)
         {
             // Load the source template from TestData and substitute the package name + version. The
             // template embeds an [assembly: AssemblyVersion("$VERSION$")] attribute so tests can verify
             // which dll was loaded by inspecting Assembly.GetName().Version. Disk + compile + emit are
             // delegated to the shared FakeNuGetPackage helper.
-            var template = Helpers.GetExpectedFromFile(method: "PackageSource");
-            var source = template
+            var source = Helpers.GetExpectedFromFile(method: template)
                 .Replace("$PACKAGE$", packageName)
-                .Replace("$VERSION$", version);
-            return FakeNuGetPackage.Create(nugetCacheDir, packageName, version, source);
+                .Replace("$VERSION$", version)
+                .Replace("$BASEPACKAGE$", basePackage ?? string.Empty);
+            return FakeNuGetPackage.Create(nugetCacheDir, packageName, version, source, referencedAssemblyPaths);
         }
     }
 }

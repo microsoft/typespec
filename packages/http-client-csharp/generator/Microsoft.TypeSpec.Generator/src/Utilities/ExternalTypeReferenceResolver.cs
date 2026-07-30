@@ -38,11 +38,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         // the entries are released when the generator is collected.
         private static readonly ConditionalWeakTable<CodeModelGenerator, CacheState> _cacheStates = new();
 
+        /// <summary>
+        /// Outcome of a single resolution attempt. <see cref="Type"/> is null when resolution failed, in
+        /// which case <see cref="FailureReason"/> explains why so callers can report an accurate diagnostic
+        /// (a missing package and an unloadable type are very different problems to debug).
+        /// </summary>
+        private sealed record ResolutionResult(Type? Type, string? FailureReason)
+        {
+            public static readonly ResolutionResult NotAttempted = new(null, null);
+        }
+
         private sealed class CacheState
         {
-            // Cached resolution per (Package, Identity, MinVersion) key. Value is the loaded Type, or
-            // null if resolution was attempted and failed (so we don't keep re-trying).
-            public readonly ConcurrentDictionary<string, Lazy<Type?>> Resolved =
+            // Cached resolution per (Package, Identity, MinVersion) key. Value carries the loaded Type, or
+            // the reason resolution failed (so we don't keep re-trying).
+            public readonly ConcurrentDictionary<string, Lazy<ResolutionResult>> Resolved =
                 new(StringComparer.Ordinal);
 
             // Tracks assembly file paths that have already been added as Roslyn metadata references, so
@@ -118,10 +128,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             var state = GetState(CodeModelGenerator.Instance);
             var key = MakeKey(external);
-            var lazy = state.Resolved.GetOrAdd(key, _ => new Lazy<Type?>(
-                () => Task.Run(() => ResolveAsync(external)).GetAwaiter().GetResult(),
+            var lazy = state.Resolved.GetOrAdd(key, _ => new Lazy<ResolutionResult>(
+                () => Task.Run(() => ResolveResultAsync(external)).GetAwaiter().GetResult(),
                 LazyThreadSafetyMode.ExecutionAndPublication));
-            return lazy.Value;
+            return lazy.Value.Type;
+        }
+
+        /// <summary>
+        /// Returns the reason the most recent resolution attempt for <paramref name="external"/> failed, or
+        /// <c>null</c> when it succeeded or was never attempted.
+        /// </summary>
+        public static string? GetFailureReason(InputExternalTypeMetadata? external)
+        {
+            if (external == null)
+            {
+                return null;
+            }
+
+            var state = GetState(CodeModelGenerator.Instance);
+            return state.Resolved.TryGetValue(MakeKey(external), out var lazy) && lazy.IsValueCreated
+                ? lazy.Value.FailureReason
+                : null;
         }
 
         /// <summary>
@@ -129,14 +156,27 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// </summary>
         internal static void Reset()
         {
-            // Drop the entry entirely; the next call rebuilds a fresh CacheState on demand.
-            _cacheStates.Remove(CodeModelGenerator.Instance);
+            try
+            {
+                // Drop the entry entirely; the next call rebuilds a fresh CacheState on demand.
+                _cacheStates.Remove(CodeModelGenerator.Instance);
+            }
+            catch (InvalidOperationException)
+            {
+                // No generator is installed yet, so there is no per-generator state to drop. This happens
+                // when Reset runs before the first generator is loaded (e.g. a test fixture's SetUp).
+            }
+
+            NugetAssemblyResolver.Reset();
         }
 
         private static string MakeKey(InputExternalTypeMetadata external) =>
             $"{external.Package}|{external.Identity}|{external.MinVersion ?? string.Empty}";
 
         private static async Task<Type?> ResolveAsync(InputExternalTypeMetadata external)
+            => (await ResolveResultAsync(external)).Type;
+
+        private static async Task<ResolutionResult> ResolveResultAsync(InputExternalTypeMetadata external)
         {
             var generator = CodeModelGenerator.Instance;
             var state = GetState(generator);
@@ -162,9 +202,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             catch (Exception ex)
             {
                 generator.Emitter?.Debug($"Could not load NuGet settings while resolving '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                return CacheResult(state, key, new ResolutionResult(null, $"NuGet settings could not be loaded ({ex.Message})"));
             }
+
+            // The external assembly is loaded into the default AssemblyLoadContext, which cannot see the
+            // package's own dependencies. Install the NuGet probing hook before loading anything so that
+            // base types and interfaces declared in dependency packages can be resolved.
+            NugetAssemblyResolver.EnsureRegistered(globalPackagesFolder);
 
             string? assemblyPath = NugetPackageResolver.FindPackageAssembly(
                 globalPackagesFolder, external.Package!, external.MinVersion);
@@ -197,21 +241,30 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             if (assemblyPath == null || !File.Exists(assemblyPath))
             {
-                CacheResult(state, key, null);
-                return null;
+                var versionQualifier = string.IsNullOrEmpty(external.MinVersion)
+                    ? string.Empty
+                    : $" (>= {external.MinVersion})";
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"package '{external.Package}'{versionQualifier} was not found in the NuGet cache or any configured feed"));
             }
+
+            // Pin every package in this package's dependency closure before loading it, so the resolving
+            // hook binds dependencies to the versions NuGet selected rather than guessing from assembly
+            // versions (which are routinely lower than the package versions that ship them).
+            NugetAssemblyResolver.RegisterPackageClosure(globalPackagesFolder, assemblyPath);
 
             byte[] assemblyBytes;
             try
             {
                 assemblyBytes = await File.ReadAllBytesAsync(assemblyPath).ConfigureAwait(false);
-            }
-            catch (Exception ex)
+            }            catch (Exception ex)
             {
                 generator.Emitter?.Debug(
                     $"Failed to read assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{assemblyPath}' could not be read ({ex.Message})"));
             }
 
             Type? loadedType;
@@ -226,16 +279,20 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 generator.Emitter?.Debug(
                     $"Failed to load assembly '{assemblyPath}' for external type '{external.Identity}': {ex.Message}");
-                CacheResult(state, key, null);
-                return null;
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{assemblyPath}' could not be loaded ({ex.Message})"));
             }
 
             if (loadedType == null)
             {
+                // Either the type genuinely isn't in the assembly, or one of its dependencies could not be
+                // satisfied even with the NuGet probing hook installed - GetType reports both as null.
                 generator.Emitter?.Debug(
-                    $"Assembly '{assemblyPath}' does not contain external type '{external.Identity}'.");
-                CacheResult(state, key, null);
-                return null;
+                    $"Assembly '{assemblyPath}' does not declare external type '{external.Identity}', or one of its dependencies could not be resolved.");
+                return CacheResult(state, key, new ResolutionResult(
+                    null,
+                    $"assembly '{assemblyPath}' was loaded but does not declare the type, or one of the type's dependencies could not be resolved"));
             }
 
             // Register the dll as a Roslyn metadata reference exactly once per assembly path so that
@@ -248,18 +305,19 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     $"Added metadata reference for external type '{external.Identity}' from {assemblyPath}");
             }
 
-            CacheResult(state, key, loadedType);
-            return loadedType;
+            CacheResult(state, key, new ResolutionResult(loadedType, null));
+            return new ResolutionResult(loadedType, null);
         }
 
-        private static void CacheResult(CacheState state, string key, Type? result)
+        private static ResolutionResult CacheResult(CacheState state, string key, ResolutionResult result)
         {
             // Replace whatever Lazy is in the slot with one that already has the computed value.
             // AddOrUpdate ensures we don't lose a concurrent write.
-            var precomputed = new Lazy<Type?>(() => result, LazyThreadSafetyMode.PublicationOnly);
+            var precomputed = new Lazy<ResolutionResult>(() => result, LazyThreadSafetyMode.PublicationOnly);
             // Force the value to be materialized so IsValueCreated is true.
             _ = precomputed.Value;
             state.Resolved.AddOrUpdate(key, precomputed, (_, _) => precomputed);
+            return result;
         }
 
         private static void CollectExternalTypes(InputLibrary library, IDictionary<string, InputExternalTypeMetadata> collected)
