@@ -1,12 +1,13 @@
 import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
+import * as cs from "@alloy-js/csharp";
 import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
-import type { ModelProperty } from "@typespec/compiler";
+import type { EnumMember, ModelProperty } from "@typespec/compiler";
 import { type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverrides, Output } from "@typespec/emitter-framework";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createServerScalarOverrides, TypeExpression } from "./type-expression.jsx";
+import { createServerScalarOverrides, efRefkey, TypeExpression } from "./type-expression.jsx";
 
 let runner: TesterInstance;
 
@@ -188,5 +189,48 @@ describe("literal types", () => {
         <TypeExpression type={type} />
       </Wrapper>,
     ).toRenderTo("bool");
+  });
+});
+
+describe("enum member types", () => {
+  it("renders a property typed as an enum member using the parent enum type", async () => {
+    const { test } = await runner.compile(`
+      enum Color {
+        red,
+        green,
+      }
+      model Test {
+        @test test: Color.red;
+      }
+    `);
+    const member = (test as ModelProperty).type as EnumMember;
+    // The enum declaration must exist in the render tree for the reference to
+    // resolve; here it stands in for the emitted `Color` enum file.
+    expect(
+      <Wrapper>
+        <cs.EnumDeclaration name="Color" refkey={efRefkey(member.enum)}>
+          Red
+        </cs.EnumDeclaration>
+        <hbr />
+        <TypeExpression type={member} />
+      </Wrapper>,
+    ).toRenderTo(`
+      enum Color
+      {
+          Red
+      }
+      Color
+    `);
+  });
+
+  it("falls back to the primitive value type for non-emitted std-lib enum members", async () => {
+    // `AuthType` lives in the TypeSpec.Http std library and is never emitted,
+    // so a member reference must not become an unresolved enum reference.
+    const type = await compileType("TypeSpec.Http.AuthType.apiKey");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("string");
   });
 });

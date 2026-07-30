@@ -2,9 +2,12 @@ import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
 import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/typekit";
 import { Output } from "@typespec/emitter-framework";
 import { ClassDeclaration } from "@typespec/emitter-framework/csharp";
+import { HttpCanonicalizer } from "@typespec/http-canonicalization";
 import { beforeEach, expect, it } from "vitest";
+import { resolveServiceTypes } from "../../service-resolution.js";
 
 let runner: TesterInstance;
 
@@ -123,6 +126,40 @@ it("renders a model with nullable union property", async () => {
     {
         [JsonPropertyName("name")]
         public required string? Name { get; set; }
+    }
+  `);
+});
+
+it("does not emit a model class for an @useAuth scheme model", async () => {
+  await runner.compile(`
+    @service(#{ title: "Contoso" })
+    @useAuth(MyKeyAuth)
+    namespace Contoso {
+      model MyKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "Ocp-Apim-Subscription-Key">;
+      model Widget {
+        id: string;
+      }
+      @route("/widgets") interface Widgets {
+        @get list(): Widget[];
+      }
+    }
+  `);
+  const tk = $(runner.program);
+  const resolution = resolveServiceTypes(runner.program, tk, new HttpCanonicalizer(tk));
+
+  // Auth scheme models are security metadata and must be excluded from the
+  // emitted payload models (only the regular `Widget` model remains).
+  expect(resolution.models.map((m) => m.name)).toEqual(["Widget"]);
+  expect(
+    <Wrapper>
+      {resolution.models.map((m) => (
+        <ClassDeclaration type={m} />
+      ))}
+    </Wrapper>,
+  ).toRenderTo(`
+    class Widget
+    {
+        public required string Id { get; set; }
     }
   `);
 });
