@@ -776,6 +776,215 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
+        /// Restores previously-published public constructors that the current generation would otherwise
+        /// drop. The primary scenario is a previously required property becoming optional: the corresponding
+        /// parameter is removed from the initialization constructor, which is a source-breaking change for
+        /// callers that construct the model positionally. When the previous public constructor can be safely
+        /// reconstructed - i.e. every one of its extra parameters still maps to a settable property whose
+        /// name and type are unchanged (or a property renamed via a codegen customization but keeping the
+        /// same type) - a back-compat overload is added that chains to the current public constructor and
+        /// assigns the extra properties.
+        /// </summary>
+        protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+        {
+            var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
+
+            if (LastContractView?.Constructors is not { Count: > 0 } previousConstructors)
+            {
+                return constructors;
+            }
+
+            foreach (var previousConstructor in previousConstructors)
+            {
+                // Only public constructors are part of the API surface that callers can depend on.
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    continue;
+                }
+
+                var previousParameters = previousConstructor.Signature.Parameters;
+
+                // A parameterless constructor is always still generated (or intentionally absent); there is
+                // nothing to restore and doing so could collide with an existing constructor.
+                if (previousParameters.Count == 0)
+                {
+                    continue;
+                }
+
+                // If a constructor with the same parameters already exists, there is nothing to restore.
+                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                {
+                    continue;
+                }
+
+                var restoredConstructor = TryBuildRestoredConstructor(previousConstructor, constructors);
+                if (restoredConstructor != null)
+                {
+                    constructors.Add(restoredConstructor);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Restored constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.ToString()))})' to match last contract.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Could not restore constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.ToString()))})' from the last contract; a property name or type has changed.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContractSkipped);
+                }
+            }
+
+            return constructors;
+        }
+
+        /// <summary>
+        /// Attempts to reconstruct <paramref name="previousConstructor"/> as a back-compat overload that
+        /// chains to an existing public constructor. Returns <see langword="null"/> when the constructor
+        /// cannot be safely restored.
+        /// </summary>
+        private ConstructorProvider? TryBuildRestoredConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors)
+        {
+            var previousParameters = previousConstructor.Signature.Parameters;
+
+            // Find the public constructor to chain to: its parameters must form an in-order subsequence of
+            // the previous constructor's parameters (matched by name and type name). Prefer the closest one.
+            ConstructorProvider? targetConstructor = null;
+            foreach (var candidate in currentConstructors)
+            {
+                if (!candidate.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    || candidate.Signature.Parameters.Count >= previousParameters.Count)
+                {
+                    continue;
+                }
+
+                if (IsParameterSubsequence(candidate.Signature.Parameters, previousParameters)
+                    && (targetConstructor == null
+                        || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count))
+                {
+                    targetConstructor = candidate;
+                }
+            }
+
+            if (targetConstructor == null)
+            {
+                return null;
+            }
+
+            var targetParameters = targetConstructor.Signature.Parameters;
+            var restoredParameters = new List<ParameterProvider>(previousParameters.Count);
+            var extraAssignments = new List<(PropertyProvider Property, ParameterProvider Parameter)>();
+            int targetIndex = 0;
+
+            foreach (var previousParameter in previousParameters)
+            {
+                if (targetIndex < targetParameters.Count
+                    && ParametersEquivalent(targetParameters[targetIndex], previousParameter))
+                {
+                    // Kept parameter: reuse the target constructor's parameter so the chained call lines up.
+                    restoredParameters.Add(targetParameters[targetIndex]);
+                    targetIndex++;
+                    continue;
+                }
+
+                // Extra parameter: it must map to a settable property whose type is unchanged.
+                var property = FindRestorableProperty(previousParameter);
+                if (property == null)
+                {
+                    return null;
+                }
+
+                // Preserve the previously published parameter name and type exactly to keep the signature
+                // source-compatible. Reinstate null validation for non-nullable reference types so the
+                // restored constructor matches the behavior the property previously had while required.
+                var restoredParameter = new ParameterProvider(
+                    previousParameter.Name,
+                    previousParameter.Description,
+                    previousParameter.Type,
+                    validation: previousParameter.Type is { IsValueType: false, IsNullable: false }
+                        ? ParameterValidationType.AssertNotNull
+                        : ParameterValidationType.None);
+
+                restoredParameters.Add(restoredParameter);
+                extraAssignments.Add((property, restoredParameter));
+            }
+
+            // Every target parameter must be consumed and at least one extra property must be assigned,
+            // otherwise the restored constructor would be redundant or would produce an invalid chained call.
+            if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
+            {
+                return null;
+            }
+
+            var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
+            foreach (var (property, parameter) in extraAssignments)
+            {
+                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                ValueExpression value = parameter;
+                if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                {
+                    value = parameter.Type.IsNullable ? value.NullConditional().ToList() : value.ToList();
+                }
+
+                bodyStatements.Add(assignee.Assign(value).Terminate());
+            }
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                MethodSignatureModifiers.Public,
+                restoredParameters,
+                initializer: new ConstructorInitializer(false, targetParameters));
+
+            return new ConstructorProvider(signature, bodyStatements, this);
+        }
+
+        private static bool ParametersEquivalent(ParameterProvider left, ParameterProvider right)
+            => left.Name == right.Name && left.Type.AreNamesEqual(right.Type);
+
+        private static bool IsParameterSubsequence(
+            IReadOnlyList<ParameterProvider> subset,
+            IReadOnlyList<ParameterProvider> full)
+        {
+            int matched = 0;
+            foreach (var parameter in full)
+            {
+                if (matched < subset.Count && ParametersEquivalent(subset[matched], parameter))
+                {
+                    matched++;
+                }
+            }
+
+            return matched == subset.Count;
+        }
+
+        /// <summary>
+        /// Finds a settable public property that can receive the value of <paramref name="previousParameter"/>.
+        /// The property must have the same type (ignoring nullability) and either the same name or a name that
+        /// was changed via a codegen customization (matched by <see cref="PropertyProvider.OriginalName"/>).
+        /// </summary>
+        private PropertyProvider? FindRestorableProperty(ParameterProvider previousParameter)
+        {
+            foreach (var property in Properties)
+            {
+                if (!IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                {
+                    continue;
+                }
+
+                var nameMatches = property.AsParameter.Name == previousParameter.Name
+                    || (property.OriginalName != null && property.OriginalName.ToVariableName() == previousParameter.Name);
+
+                if (nameMatches && property.Type.AreNamesEqual(previousParameter.Type))
+                {
+                    return property;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Determines if this model should have a dual constructor pattern.
         /// This is needed when the model shares the same discriminator property name as its base model
         /// AND has derived models, indicating it's an intermediate type in a discriminated union hierarchy.
