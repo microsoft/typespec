@@ -73,11 +73,11 @@ describe("sample config", () => {
     await withTempCatalog(
       {
         "widget/sample-config.yaml":
-          "title: Widget\ndescription: A widget sample.\nplaygrond: true\n",
+          "title: Widget\ndescription: A widget sample.\nunexpected: true\n",
         "widget/main.tsp": "model Widget {}",
       },
       async (root) => {
-        await expect(loadSampleCatalog(root)).rejects.toThrow('unknown field "playgrond"');
+        await expect(loadSampleCatalog(root)).rejects.toThrow('unknown field "unexpected"');
       },
     );
   });
