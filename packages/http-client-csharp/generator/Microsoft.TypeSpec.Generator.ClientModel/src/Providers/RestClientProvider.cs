@@ -692,7 +692,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (IsExtensibleStringEnum(elementType))
             {
                 forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
-                forEachStatement.Add(new IfStatement(Not(StringSnippets.IsNullOrEmpty(cachedVar.As<string>())))
+                forEachStatement.Add(new IfStatement(cachedVar.As<string>().NotEqual(Null))
                 {
                     uri.AppendQuery(key, cachedVar, true).Terminate()
                 });

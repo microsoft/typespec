@@ -104,7 +104,7 @@ namespace Sample
                 foreach (var @param in p10Explode)
                 {
                     string paramStr = @param.ToString();
-                    if (!string.IsNullOrEmpty(paramStr))
+                    if ((paramStr != null))
                     {
                         uri.AppendQuery("p10Explode", paramStr, true);
                     }
@@ -115,7 +115,7 @@ namespace Sample
                 foreach (var @param in p11Explode)
                 {
                     string paramStr = @param.Value.ToString();
-                    if (!string.IsNullOrEmpty(paramStr))
+                    if ((paramStr != null))
                     {
                         uri.AppendQuery(@param.Key, paramStr, true);
                     }
