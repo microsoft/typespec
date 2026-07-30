@@ -1796,8 +1796,8 @@ describe("declaration expressions", () => {
       code: `alias E   =   enum {  a,   b  };`,
       expected: `
 alias E = enum {
-a,
-b,
+  a,
+  b,
 };
 `,
     });
@@ -1808,8 +1808,8 @@ b,
       code: `alias U   =   union {  string,   int32  };`,
       expected: `
 alias U = union {
-string,
-int32,
+  string,
+  int32,
 };
 `,
     });
@@ -1820,7 +1820,7 @@ int32,
       code: `alias M   =   model {  x:   string  };`,
       expected: `
 alias M = model {
-x: string;
+  x: string;
 };
 `,
     });
@@ -1845,7 +1845,7 @@ x: string;
       code: `alias M = model is Base {  x:  string  };`,
       expected: `
 alias M = model is Base {
-x: string;
+  x: string;
 };
 `,
     });
@@ -1856,9 +1856,9 @@ x: string;
       code: `model Foo { nested:   model Inner {  x:  string  }; }`,
       expected: `
 model Foo {
-nested: model Inner {
-  x: string;
-};
+  nested: model Inner {
+    x: string;
+  };
 }
 `,
     });
@@ -1869,8 +1869,8 @@ nested: model Inner {
       code: `alias E = enum Color {red, green};`,
       expected: `
 alias E = enum Color {
-red,
-green,
+  red,
+  green,
 };
 `,
     });
@@ -1881,8 +1881,8 @@ green,
       code: `alias U = union Choice {string, int32};`,
       expected: `
 alias U = union Choice {
-string,
-int32,
+  string,
+  int32,
 };
 `,
     });
@@ -1900,10 +1900,10 @@ int32,
       code: `alias N = model { inner: enum { a, b } };`,
       expected: `
 alias N = model {
-inner: enum {
-  a,
-  b,
-};
+  inner: enum {
+    a,
+    b,
+  };
 };
 `,
     });
@@ -1914,8 +1914,8 @@ inner: enum {
       code: `alias E = @doc("hi")enum {  a, b  };`,
       expected: `
 alias E = @doc("hi") enum {
-a,
-b,
+  a,
+  b,
 };
 `,
     });
@@ -1926,10 +1926,10 @@ b,
       code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
       expected: `
 model Foo {
-status: @doc("the status") enum {
-  active,
-  inactive,
-};
+  status: @doc("the status") enum {
+    active,
+    inactive,
+  };
 }
 `,
     });
@@ -1940,7 +1940,7 @@ status: @doc("the status") enum {
       code: `alias M = @doc("d")model Inner {  x:  string  };`,
       expected: `
 alias M = @doc("d") model Inner {
-x: string;
+  x: string;
 };
 `,
     });
@@ -1951,8 +1951,8 @@ x: string;
       code: `alias U = @doc("d")union {  string, int32  };`,
       expected: `
 alias U = @doc("d") union {
-string,
-int32,
+  string,
+  int32,
 };
 `,
     });
@@ -1970,8 +1970,8 @@ int32,
       code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
       expected: `
 alias E = @doc("hi") @example(1) @friendlyName("E") enum {
-a,
-b,
+  a,
+  b,
 };
 `,
     });
@@ -1982,10 +1982,10 @@ b,
       code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
       expected: `
 model Foo {
-status: @a @b @c enum {
-  active,
-  inactive,
-};
+  status: @a @b @c enum {
+    active,
+    inactive,
+  };
 }
 `,
     });
@@ -1996,10 +1996,10 @@ status: @a @b @c enum {
       code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
       expected: `
 model Foo {
-status: /** the status */ enum {
-  active,
-  inactive,
-};
+  status: /** the status */ enum {
+    active,
+    inactive,
+  };
 }
 `,
     });
@@ -2010,8 +2010,8 @@ status: /** the status */ enum {
       code: `alias E = /** doc */ @a @b enum {  x, y  };`,
       expected: `
 alias E = /** doc */ @a @b enum {
-x,
-y,
+  x,
+  y,
 };
 `,
     });
@@ -2022,10 +2022,10 @@ y,
       code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
       expected: `
 @useType(
-enum Versions {
-  v1,
-  v2,
-}
+  enum Versions {
+    v1,
+    v2,
+  }
 )
 model Foo {}
 `,
@@ -2037,13 +2037,13 @@ model Foo {}
       code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
       expected: `
 model Foo {
-status:
-  @summary("a fairly long summary text here")
-  @example("some-default-example-value")
-  enum {
-    active,
-    inactive,
-  };
+  status:
+    @summary("a fairly long summary text here")
+    @example("some-default-example-value")
+    enum {
+      active,
+      inactive,
+    };
 }
 `,
     });
@@ -2054,12 +2054,12 @@ status:
       code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
       expected: `
 alias E =
-@summary("a fairly long summary text goes here now")
-@example("some-default-value")
-enum {
-  a,
-  b,
-};
+  @summary("a fairly long summary text goes here now")
+  @example("some-default-value")
+  enum {
+    a,
+    b,
+  };
 `,
     });
   });
@@ -2069,13 +2069,13 @@ enum {
       code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
       expected: `
 model Foo {
-status:
-  /** the current lifecycle status of the entity */
-  @example("active")
-  enum {
-    active,
-    inactive,
-  };
+  status:
+    /** the current lifecycle status of the entity */
+    @example("active")
+    enum {
+      active,
+      inactive,
+    };
 }
 `,
     });
@@ -2086,12 +2086,12 @@ status:
       code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
       expected: `
 @useType(
-@summary("a long summary for the versions enum value here")
-@example("v1")
-enum Versions {
-  v1,
-  v2,
-}
+  @summary("a long summary for the versions enum value here")
+  @example("v1")
+  enum Versions {
+    v1,
+    v2,
+  }
 )
 model Foo {}
 `,
