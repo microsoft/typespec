@@ -1155,12 +1155,6 @@ export const $friendlyName: FriendlyNameDecorator = (
 
   // If an object was passed in, use it to format the friendly name
   if (sourceObject) {
-    // Template parameters are not valid source objects - skip storing the friendly name
-    // for template declarations. The decorator will be re-applied when the template is
-    // instantiated with a concrete type, at which point the placeholders can be resolved.
-    if (sourceObject.kind === "TemplateParameter") {
-      return;
-    }
     friendlyName = replaceTemplatedStringFromProperties(friendlyName, sourceObject);
   }
 
