@@ -1093,11 +1093,12 @@ export function createResolver(program: Program): NameResolver {
     }
 
     if (!binding && scope && scope.kind === SyntaxKind.TypeSpecScript) {
-      // check any blockless namespace decls
-      for (const ns of scope.inScopeNamespaces) {
-        const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
-
+      // check the leaf (innermost) blockless namespace decl first — this mirrors how
+      // block-namespace scoping works: the current namespace's own exports take priority.
+      if (scope.inScopeNamespaces.length > 0) {
+        const leafNs = scope.inScopeNamespaces[0];
+        const mergedLeafSymbol = getMergedSymbol(leafNs.symbol);
+        binding = tableLookup(mergedLeafSymbol.exports!, node, options.resolveDecorators);
         if (binding) return resolvedResult(binding);
       }
 
@@ -1127,6 +1128,16 @@ export function createResolver(program: Program): NameResolver {
             usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
         }
         return resolvedResult(usingBinding.symbolSource!);
+      }
+
+      // check parent blockless namespace decls (after global scope and usings so that
+      // global names are not shadowed by intermediate namespace segments in a multi-segment
+      // blockless namespace path such as `namespace A.TypeSpec.B;`)
+      for (let i = 1; i < scope.inScopeNamespaces.length; i++) {
+        const ns = scope.inScopeNamespaces[i];
+        const mergedSymbol = getMergedSymbol(ns.symbol);
+        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
+        if (binding) return resolvedResult(binding);
       }
     }
 

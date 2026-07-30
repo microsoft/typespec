@@ -3,7 +3,13 @@ import { describe, it } from "vitest";
 import type { Program } from "../../src/core/program.js";
 import type { Type } from "../../src/core/types.js";
 import { getTypeName } from "../../src/index.js";
-import { expectDiagnostics, expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  expectTypeEquals,
+  mockFile,
+  t,
+} from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
 describe("compiler: namespaces with blocks", () => {
@@ -340,6 +346,26 @@ describe("compiler: blockless namespaces", () => {
     strictEqual(Foo.operations.size, 1);
     strictEqual(Foo.models.size, 1);
     strictEqual(Foo.namespaces.size, 1);
+  });
+
+  it("does not let intermediate namespace segments shadow global namespace names in using statements", async () => {
+    // Regression test: `namespace _Specs_.TypeSpec.Bar;` creates `_Specs_.TypeSpec` as an
+    // intermediate segment. Previously `using TypeSpec.Http` would incorrectly resolve
+    // `TypeSpec` to `_Specs_.TypeSpec` (found via inScopeNamespaces ancestor) instead of
+    // the global `TypeSpec` namespace.
+    const diagnostics = await Tester.files({
+      "http.tsp": `
+        namespace TypeSpec.Http {
+          model HttpModel {}
+        }
+      `,
+    }).diagnose(`
+      import "./http.tsp";
+      using TypeSpec.Http;
+      namespace _Specs_.TypeSpec.Bar;
+      model M extends HttpModel {}
+    `);
+    expectDiagnosticEmpty(diagnostics);
   });
 });
 
