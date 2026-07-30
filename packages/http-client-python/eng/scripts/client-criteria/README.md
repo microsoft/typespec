@@ -14,13 +14,25 @@ renamed, a method relocated, a model flattened. Today those are checked by hand,
 per language.
 
 **Client surface checks** close that gap. On a spec element that already carries
-`@scenarioDoc`, you add `@surfaceDoc(category, subject, expected, doc?)` — an
-explicit, language-agnostic assertion: the `category` of surface property, the
-`subject` type/member it's about, and the `expected` client-facing output.
-`expected` is normally a single canonical string that each emitter **recasts**
-to its idiomatic form; when a name can't be derived by casing, it can instead be
-a `scope → value` dict (e.g. `#{ python: "io_thing", csharp: "IOThing" }`) whose
+`@scenarioDoc`, you add a `@surfaceDoc` — an explicit, language-agnostic
+assertion about the generated client surface:
+
+```typespec
+@surfaceDoc(#{
+  category: "naming",
+  expected: "defaultName",
+  subject: "Widget",       // optional — defaults to target's name
+  doc: "Explanation...",   // optional
+})
+```
+
+The `category` names what kind of surface property is asserted, `expected` is the
+expected client-facing output, and `subject` identifies what's being checked
+(defaults to the decorated element's name when omitted). `expected` is normally a
+single canonical string; when a name can't be derived by casing, it can be a
+`scope → value` dict (e.g. `#{ python: "io_thing", csharp: "IOThing" }`) whose
 values are matched **verbatim** for their language.
+
 Nothing is inferred from other decorators, so a check is deterministic to read
 and grounded in a real scenario. A precompute step collects every `@surfaceDoc`
 into a shared **checks doc**. Each emitter supplies a **context.md** (what those
@@ -59,25 +71,25 @@ and `expected` say about-what and to-what. `SurfaceCategory` is an **extensible*
 union — the named members are the canonical, tight set, but any string is
 accepted.
 
-| category         | `subject` is…                | `expected` is…                                                                                |
-| ---------------- | ---------------------------- | --------------------------------------------------------------------------------------------- |
-| `naming`         | renamed type/member/op/param | canonical client identifier (recast per language, or a `scope → value` dict matched verbatim) |
-| `access`         | type/operation               | `"internal"` or `"public"`                                                                    |
-| `clientLocation` | operation                    | client/group name it should be surfaced on                                                    |
-| `hierarchy`      | derived model                | base type's client name                                                                       |
-| `flatten`        | the flattened property       | promoted property name(s); blank = just inlined                                               |
-| `paging`         | operation                    | item/element type the pager yields                                                            |
-| `other`          | anything                     | free-form; verified against the prose (AI)                                                    |
+| category         | `subject` is…                | `expected` is…                                          |
+| ---------------- | ---------------------------- | ------------------------------------------------------- |
+| `naming`         | renamed type/member/op/param | expected client identifier (verbatim or with `:casing`) |
+| `access`         | type/operation               | `"internal"` or `"public"`                              |
+| `clientLocation` | operation                    | client/group name it should be surfaced on              |
+| `hierarchy`      | derived model                | base type's client name                                 |
+| `flatten`        | the flattened property       | promoted property name(s); blank = just inlined         |
+| `paging`         | operation                    | item/element type the pager yields                      |
+| `other`          | anything                     | free-form; verified against the prose (AI)              |
 
-The precompute step derives one fixed, category-agnostic set of placeholders for
-**every** category — so the core never needs to know what a category means:
+The precompute step derives a category-agnostic set of placeholders for the
+verifier engine:
 
-| placeholder  | derived from                        |
-| ------------ | ----------------------------------- |
-| `{target}`   | the `subject`'s name                |
-| `{expected}` | the `expected` argument             |
-| `{kind}`     | the `subject`'s symbol kind         |
-| `{origin}`   | the `subject`'s declaring container |
+| placeholder  | derived from                            |
+| ------------ | --------------------------------------- |
+| `{target}`   | the `subject` string (or target's name) |
+| `{expected}` | the `expected` value                    |
+
+Any other key in `details` is also accessible as `{key}` (e.g. `{internal}`).
 
 ### Adding a category
 
@@ -87,7 +99,7 @@ core spector:
 1. Optionally add a member to the `SurfaceCategory` union in spector for
    autocomplete/discoverability (a one-line, backward-compatible change).
 2. In each emitter that wants it deterministic, add a `verifiers.json` entry
-   (using `{target}`/`{expected}`/`{kind}`/`{origin}`) and a `context.md` blurb.
+   (using `{target}`/`{expected}` + casing modifiers) and a `context.md` blurb.
 
 An emitter that adds **nothing** for a category still works: it falls back to
 AI-verifying the prose — exactly how `other` behaves. So promoting a check from
@@ -142,8 +154,3 @@ never reaches AI; every check in the category resolves to `not-applicable`:
 - **How items mark N/A for a language:** per **category** in the emitter's
   `verifiers.json` (`{ "na": true }`), mirroring wire `unsupportedScenarios`;
   the runner reports `not-applicable` (see above).
-
-## Open questions
-
-- Should the manifest record the **resolved per-language symbol name** (so
-  renamed-and-access-controlled types stay mechanically checkable)?

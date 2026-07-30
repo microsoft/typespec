@@ -21,23 +21,11 @@ const verifiers = {
   },
   naming: {
     files: ["**/*.py"],
-    find: "\\b{name:byKind}\\b",
-    casing: { enum: "pascal", property: "snake" },
+    find: "\\b{expected}\\b",
   },
   hierarchy: {
     files: ["**/models/_models.py"],
-    find: "class\\s+{target}\\s*\\([^)]*\\b{base}\\b[^)]*\\)",
-  },
-  "client-location": {
-    files: ["**/operations/_operations.py"],
-    scope: "class\\s+\\w*{client}\\w*[\\s\\S]*?(?=\\nclass |$)",
-    find: "def\\s+{target:snake}\\b",
-    also: {
-      files: ["**/operations/_operations.py"],
-      scope: "class\\s+\\w*{absentFrom}\\w*[\\s\\S]*?(?=\\nclass |$)",
-      find: "def\\s+{target:snake}\\b",
-      expect: "absent",
-    },
+    find: "class\\s+{target}\\s*\\([^)]*\\b{expected}\\b[^)]*\\)",
   },
 };
 
@@ -83,14 +71,14 @@ async function run(items: object[], scenario?: string): Promise<VerifySurfaceChe
 }
 
 describe("verify-surface-checks (shared engine)", () => {
-  it("naming: idiomatic casing via {name:byKind} passes on the recast identifier", async () => {
+  it("naming: idiomatic casing via {expected} passes on the expected identifier", async () => {
     const out = await run([
       {
         id: "n1",
         scenario: "surfacedemo",
         category: "naming",
         target: "ServerExtensibleEnum",
-        details: { name: "ClientExtensibleEnum", kind: "enum" },
+        details: { expected: "ClientExtensibleEnum" },
         doc: "",
       },
     ]);
@@ -104,7 +92,7 @@ describe("verify-surface-checks (shared engine)", () => {
         scenario: "surfacedemo",
         category: "naming",
         target: "X",
-        details: { name: "TotallyMadeUp", kind: "enum" },
+        details: { expected: "TotallyMadeUp" },
         doc: "",
       },
     ]);
@@ -143,7 +131,7 @@ describe("verify-surface-checks (shared engine)", () => {
         scenario: "surfacedemo",
         category: "hierarchy",
         target: "Dog",
-        details: { base: "Pet" },
+        details: { expected: "Pet" },
         doc: "",
       },
     ]);
@@ -154,36 +142,26 @@ describe("verify-surface-checks (shared engine)", () => {
         scenario: "surfacedemo",
         category: "hierarchy",
         target: "Dog",
-        details: { base: "Animal" },
+        details: { expected: "Animal" },
         doc: "",
       },
     ]);
     expect(bad.results[0].status).toBe("fail");
   });
 
-  it("client-location: present on expected client AND absent from the other", async () => {
-    const good = await run([
+  it("client-location: no verifier for this category → needs_ai", async () => {
+    const out = await run([
       {
         id: "c1",
         scenario: "surfacedemo",
         category: "client-location",
         target: "getWidget",
-        details: { client: "Widgets", absentFrom: "Gadgets" },
-        doc: "",
+        details: { expected: "Widgets" },
+        doc: "operation should live on the Widgets client",
       },
     ]);
-    expect(good.results[0].status).toBe("pass");
-    const bad = await run([
-      {
-        id: "c2",
-        scenario: "surfacedemo",
-        category: "client-location",
-        target: "getWidget",
-        details: { client: "Gadgets", absentFrom: "Widgets" },
-        doc: "",
-      },
-    ]);
-    expect(bad.results[0].status).toBe("fail"); // getWidget is on Widgets, not Gadgets
+    expect(out.results).toHaveLength(0);
+    expect(out.needs_ai[0]).toMatchObject({ id: "c1", category: "client-location" });
   });
 
   it("scope: a check scoped to another language is skipped entirely", async () => {
@@ -194,7 +172,7 @@ describe("verify-surface-checks (shared engine)", () => {
         category: "naming",
         target: "IOThing",
         scope: "csharp",
-        details: { name: "IOThing", kind: "enum" },
+        details: { expected: "IOThing" },
         doc: "",
       },
     ]);
@@ -202,7 +180,7 @@ describe("verify-surface-checks (shared engine)", () => {
     expect(out.needs_ai).toHaveLength(0);
   });
 
-  it("scope: a scoped value is matched verbatim, bypassing idiomatic casing", async () => {
+  it("scope: a scoped value is matched verbatim", async () => {
     const out = await run([
       {
         id: "s2",
@@ -210,25 +188,11 @@ describe("verify-surface-checks (shared engine)", () => {
         category: "naming",
         target: "IOThing",
         scope: "python",
-        details: { name: "IOThing", kind: "enum" },
+        details: { expected: "IOThing" },
         doc: "",
       },
     ]);
     expect(out.results[0]).toMatchObject({ status: "pass", how: "deterministic" });
-  });
-
-  it("scope: an unscoped value is still recast (pascal mangles IOThing → no match)", async () => {
-    const out = await run([
-      {
-        id: "s3",
-        scenario: "surfacedemo",
-        category: "naming",
-        target: "IOThing",
-        details: { name: "IOThing", kind: "enum" },
-        doc: "",
-      },
-    ]);
-    expect(out.results[0].status).toBe("fail");
   });
 
   it("no verifier for a category → needs_ai", async () => {
@@ -264,7 +228,7 @@ describe("verify-surface-checks (shared engine)", () => {
             scenario: "surfacedemo",
             category: "hierarchy",
             target: "Dog",
-            details: { base: "Pet" },
+            details: { expected: "Pet" },
             doc: "",
           },
         ],
@@ -299,7 +263,7 @@ describe("verify-surface-checks (shared engine)", () => {
             scenario: "surfacedemo",
             category: "hierarchy",
             target: "Dog",
-            details: { base: "Pet" },
+            details: { expected: "Pet" },
             doc: "",
           },
         ],

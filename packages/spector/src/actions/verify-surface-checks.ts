@@ -33,8 +33,6 @@ export interface CheckItem {
   scope?: string;
   details: Record<string, string | boolean>;
   doc: string;
-  /** Optional per-language resolved names, e.g. `{ "python": "…" }`. */
-  client_names?: Record<string, string>;
 }
 
 /** Parse the checks doc — a Markdown table (the shipped format) or JSON. */
@@ -138,8 +136,6 @@ export interface Rule {
   find: string;
   /** `present` (default), `absent`, `{ absentWhen: <detail key> }`, or `{ whenExpected: { <value>: present|absent } }`. */
   expect?: Expect;
-  /** Per-kind casing map for the `{name:byKind}` modifier. */
-  casing?: Record<string, string>;
   /** A second rule AND-ed with this one (e.g. present here AND absent there). */
   also?: Rule;
 }
@@ -210,21 +206,23 @@ function escapeRegExp(s: string): string {
 
 /**
  * Resolve a `{var[:casing]}` placeholder to a concrete value.
- * `target` → item.target; `name` → resolved client name; anything else → a
- * `details` field. `:byKind` looks up the casing map at `details.kind`.
+ * `target` → item.target (the subject string); `expected` → details.expected;
+ * anything else → a `details` field. `:casing` applies explicit casing (snake,
+ * pascal, etc.). A scoped check carries a verbatim per-language value — never
+ * recase it.
  */
 function resolveVar(
   name: string,
   mod: string | undefined,
   item: CheckItem,
-  language: string,
-  casingMap: Record<string, string> | undefined,
+  _language: string,
 ): string | undefined {
   let val: string | undefined;
   if (name === "target") {
     val = item.target;
-  } else if (name === "name") {
-    val = item.client_names?.[language] ?? (item.details?.name as string | undefined);
+  } else if (name === "expected") {
+    const d = item.details?.["expected"];
+    val = d == null ? undefined : String(d);
   } else {
     const d = item.details?.[name];
     val = d == null ? undefined : String(d);
@@ -232,23 +230,16 @@ function resolveVar(
   if (val == null) return undefined;
   // A scoped check carries a verbatim per-language value — never recase it.
   if (mod && !item.scope) {
-    const casing = mod === "byKind" ? casingMap?.[String(item.details?.kind)] : mod;
-    if (!casing) return undefined; // no casing rule for this kind → N/A
-    val = applyCasing(val, casing);
+    val = applyCasing(val, mod);
   }
   return val;
 }
 
 /** Compile a regex template; returns null if any placeholder is unresolvable (N/A). */
-function buildRegex(
-  template: string,
-  item: CheckItem,
-  language: string,
-  casingMap: Record<string, string> | undefined,
-): RegExp | null {
+function buildRegex(template: string, item: CheckItem, language: string): RegExp | null {
   let missing = false;
   const source = template.replace(/\{(\w+)(?::(\w+))?\}/g, (_m, v: string, mod?: string) => {
-    const resolved = resolveVar(v, mod, item, language, casingMap);
+    const resolved = resolveVar(v, mod, item, language);
     if (resolved == null) {
       missing = true;
       return "";
@@ -296,13 +287,13 @@ async function runRule(
   pkgDir: string,
   language: string,
 ): Promise<RuleOutcome | null> {
-  const findRe = buildRegex(rule.find, item, language, rule.casing);
+  const findRe = buildRegex(rule.find, item, language);
   if (findRe === null) return null;
 
   const text = await readGlobbed(pkgDir, rule.files);
   let haystacks: string[] = [text];
   if (rule.scope) {
-    const scopeRe = buildRegex(rule.scope, item, language, rule.casing);
+    const scopeRe = buildRegex(rule.scope, item, language);
     if (scopeRe === null) return null;
     haystacks = [...text.matchAll(new RegExp(scopeRe.source, "g"))].map((m) => m[0]);
   }

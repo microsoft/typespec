@@ -8,6 +8,7 @@ _The shared `/check-surface` prompt and `tsp-spector verify-surface-checks` read
 - **generated-root:** `packages/http-client-python/tests/generated/<flavor>`
 - **flavors:** `azure`, `unbranded`
 - **checks-doc:** `packages/http-specs/surface-checks.md` _(generated from `@surfaceDoc`, ships with the specs)_
+
 <!-- Markdown table generated from `@surfaceDoc`; both human- and machine-readable (parsed by the shared runner). -->
 
 ### What differs by flavor (branded = azure, unbranded)
@@ -37,20 +38,17 @@ regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
 
 ### naming
 
-- the generated identifier equals the `expected` client name **recast to
-  Python's idiomatic casing for the subject's kind** (case-sensitive):
-  `enum`/`model`/`type` → `PascalCase`, `property`/`parameter`/`operation` →
-  `snake_case`, enum value → `UPPER_SNAKE`. So an enum whose `expected` is
-  `ClientExtensibleEnum` must appear exactly as `ClientExtensibleEnum` (not
-  `client_extensible_enum`). The per-kind casing map lives in `verifiers.json`
-  (`{expected:byKind}`); the manifest carries the subject's `kind` under
-  `details`.
+- the generated identifier equals the `expected` value from `@surfaceDoc`
+  (case-sensitive match). The spec author provides the expected client name
+  already in the correct casing. For Python: `enum`/`model`/`type` →
+  `PascalCase`, `property`/`parameter`/`operation` → `snake_case`, enum value →
+  `UPPER_SNAKE`.
 - **exact per-language names:** when a name can't be derived by casing (a
   reserved-word escape, an acronym, a hard rename), the spec author supplies a
   `scope → value` dict on `@surfaceDoc` (e.g. `#{ python: "io_thing" }`). Those
   checks carry a `scope` column; the engine only runs the ones scoped to
-  `python` and matches `{expected}` **verbatim** (the `:byKind` recast is
-  skipped). The same `naming` routine handles both — no `verifiers.json` change.
+  `python` and matches `{expected}` **verbatim**. The same `naming` routine
+  handles both — no `verifiers.json` change.
 
 ### flatten
 
@@ -62,8 +60,8 @@ regex patterns + casing) consumed by `tsp-spector verify-surface-checks`.
 - an operation group is a class under `operations/_operations.py`; a method is a
   public `def` on it; the **root client** is the main `*Client` class. An
   operation is "on" a client/group when its snake_case name is a method of the
-  matching class. Deterministic: assert the method is present on the `expected`
-  client/group and absent from its `origin` (the one it moved from).
+  matching class. The `expected` value names the client/group where the method
+  should appear.
 
 ### hierarchy
 
