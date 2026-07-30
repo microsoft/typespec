@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-server-csharp"
 ---
 
-Fix generated model file name when `@friendlyName` contains unresolved template parameter placeholders such as `{name}` (e.g. `{name}TagsUpdate`). The file is now named using the PascalCase expansion of the placeholder (e.g. `NameTagsUpdate.cs`) instead of the literal `{name}TagsUpdate.cs`.
+Fix model file name for `@friendlyName` ARM-style template patterns (e.g. `@friendlyName("{name}TagsUpdate", Resource)` on `TagsUpdate<Resource>`). The instantiation now correctly receives the substituted name (e.g. `FooResourceTagsUpdate.cs`) from the compiler.

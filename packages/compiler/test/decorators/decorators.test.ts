@@ -369,18 +369,20 @@ describe("@friendlyName", () => {
     strictEqual(getFriendlyName(program, B), "BModel");
   });
 
-  it("does not store friendly name on template declaration when sourceObject is a TemplateParameter", async () => {
+  it("does not apply @friendlyName decorator on template declaration — only on instantiations", async () => {
     const { TemplatedModel, FooModel, program } = await Tester.compile(t.code`
         @friendlyName("{name}Updated", T)
         model ${t.model("TemplatedModel")}<T> { }
 
         model ${t.model("FooModel")} extends TemplatedModel<FooModel> {}
       `);
-    // Template declaration should NOT have a friendly name stored
-    // (the sourceObject was a TemplateParameter at decoration time)
+    // Template declaration should NOT have a friendly name stored.
+    // Decorators are not applied to template declarations (skipDecorators is true in the checker),
+    // so the unresolved template parameter T never reaches the decorator implementation.
     strictEqual(getFriendlyName(program, TemplatedModel), undefined);
 
     // The instantiation (accessible as the base of FooModel) should have the correct friendly name
+    // because the decorator is applied with the concrete type FooModel as sourceObject.
     const instantiation = FooModel.baseModel;
     ok(instantiation, "FooModel should have a baseModel");
     strictEqual(getFriendlyName(program, instantiation), "FooModelUpdated");

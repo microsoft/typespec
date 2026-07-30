@@ -8739,6 +8739,17 @@ function applyDecoratorToType(
       // If one of the decorator argument is an error don't run it.
       return;
     }
+    if (
+      isType(arg.value) &&
+      (arg.value.kind === "TemplateParameter" || arg.value.kind === "TemplateParameterAccess")
+    ) {
+      // If one of the decorator arguments is an unresolved template parameter or a
+      // template parameter access (e.g. T.name), don't run the decorator.
+      // This is a safety net — decorators should not be invoked on template declarations
+      // (the checker sets skipDecorators: true for those), but this guard ensures
+      // correctness if that protection is ever bypassed.
+      return;
+    }
   }
 
   // Is the decorator definition deprecated?
