@@ -1,0 +1,3 @@
+title: JSON Schema
+description: Generate JSON Schema documents from TypeSpec models and constraints.
+order: 2

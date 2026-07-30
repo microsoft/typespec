@@ -2253,6 +2253,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:^
         version: link:../versioning
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
