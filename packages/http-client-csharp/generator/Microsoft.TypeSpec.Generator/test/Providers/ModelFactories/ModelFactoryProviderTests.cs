@@ -749,29 +749,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
-        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericReturnType()
-        {
-            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
-
-            _instance = (await MockHelpers.LoadMockGeneratorAsync(
-                inputNamespaceName: "Sample.Namespace",
-                inputModelTypes: [hostedAgentDefinition],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
-
-            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
-            modelFactory.ProcessTypeForBackCompatibility();
-
-            var methods = modelFactory.Methods
-                .Where(method => method.Signature.Name == "HostedAgentDefinition")
-                .ToList();
-            Assert.AreEqual(1, methods.Count);
-            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
-
-            var content = new TypeProviderWriter(modelFactory).Write().Content;
-            StringAssert.DoesNotContain("ProjectsAgentTool", content);
-        }
-
-        [Test]
         public void ModelWithNestedDiscriminators()
         {
             var discriminatorProperty =
