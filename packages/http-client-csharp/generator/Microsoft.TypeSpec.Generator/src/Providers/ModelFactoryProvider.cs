@@ -262,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var declaringTypeName = type.DeclaringType?.Name;
-            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 type.Namespace,
                 type.Name,
                 declaringTypeName,
@@ -298,7 +298,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
-            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 ns,
                 name,
                 declaringTypeName,

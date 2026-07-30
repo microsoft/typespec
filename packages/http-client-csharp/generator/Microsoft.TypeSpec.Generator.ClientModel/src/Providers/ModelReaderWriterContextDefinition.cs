@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                         targetType.Namespace,
                         targetType.ClrMetadataName,
                         null,
