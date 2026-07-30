@@ -21,6 +21,8 @@ export interface CSharpServiceEmitterOptions {
   "https-port"?: number;
   /** Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'. */
   "collection-type"?: "array" | "enumerable";
+  /** A list of TypeSpec interface names to exclude from controller and business-logic interface generation. */
+  "exclude-interfaces"?: string[];
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -95,6 +97,13 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       default: "array",
       description:
         "Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.",
+    },
+    "exclude-interfaces": {
+      type: "array",
+      items: { type: "string" },
+      nullable: true,
+      description:
+        "A list of TypeSpec interface names to exclude from controller and business-logic interface generation.",
     },
   },
   required: [],

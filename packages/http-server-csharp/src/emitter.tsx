@@ -41,8 +41,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const serviceName = resolution.serviceNamespaceName ?? "ServiceProject";
   const projectName = options["project-name"] ?? "ServiceProject";
 
+  // Filter out excluded interfaces
+  const excludedInterfaces = new Set(options["exclude-interfaces"] ?? []);
+  const interfaces =
+    excludedInterfaces.size > 0
+      ? resolution.interfaces.filter((iface) => !excludedInterfaces.has(iface.name))
+      : resolution.interfaces;
+
   // Report diagnostic warnings (pre-pass before rendering)
-  reportEmitterDiagnostics(context.program, resolution.interfaces, resolution.canonicalOpsMap);
+  reportEmitterDiagnostics(context.program, interfaces, resolution.canonicalOpsMap);
 
   // Resolve OpenAPI path for SwaggerUI
   let openApiPath: string | undefined = options["openapi-path"];
@@ -52,10 +59,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const effectiveUseSwaggerUI = useSwaggerUI && !!openApiPath;
 
   // Collect interface names for mock registration
-  const interfaceNames = resolution.interfaces.map((iface) => iface.name);
-  const interfaceRegistrations = resolution.interfaces.map(
-    (iface) => `I${iface.name}, ${iface.name}`,
-  );
+  const interfaceNames = interfaces.map((iface) => iface.name);
+  const interfaceRegistrations = interfaces.map((iface) => `I${iface.name}, ${iface.name}`);
 
   // Resolve ports for project files
   let httpPort = options["http-port"] ?? 5000;
@@ -88,7 +93,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                   />
                 </SourceDirectory>
                 <ControllersAndInterfaces
-                  interfaces={resolution.interfaces}
+                  interfaces={interfaces}
                   canonicalOpsMap={resolution.canonicalOpsMap}
                 />
               </SourceDirectory>
@@ -99,7 +104,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
               />
               <Show when={emitMocks}>
                 <MockImplementations
-                  interfaces={resolution.interfaces}
+                  interfaces={interfaces}
                   canonicalOpsMap={resolution.canonicalOpsMap}
                 />
               </Show>
