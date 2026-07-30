@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -274,5 +276,86 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
         protected override bool GetIsEnum() => true;
+
+        protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
+        {
+            // Extensible enum members surface as public static properties whose wire values are stored in
+            // private const `<Member>Value` fields. Both the property names and the const values are
+            // recoverable from the last contract (including a compiled assembly's metadata), so a member
+            // dropped from the current spec can be restored to avoid a source-breaking removal.
+            var lastContractProperties = LastContractView?.Properties;
+            if (lastContractProperties == null || lastContractProperties.Count == 0)
+            {
+                return null;
+            }
+
+            var currentNames = new HashSet<string>(currentValues.Select(v => v.Name), StringComparer.OrdinalIgnoreCase);
+            var lastContractValueFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
+            foreach (var field in LastContractView!.Fields)
+            {
+                lastContractValueFields[field.Name] = field;
+            }
+
+            List<EnumTypeMember>? readdedMembers = null;
+            foreach (var property in lastContractProperties)
+            {
+                // Members that still exist in the current spec or are provided by custom code are left untouched.
+                if (currentNames.Contains(property.Name) || CustomMemberNames.Contains(property.Name))
+                {
+                    continue;
+                }
+
+                // Honor an intentional removal recorded in the ApiCompat baseline.
+                if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMemberSuppressed(Type.FullyQualifiedName, property.Name, 0) == true)
+                {
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Skipping re-add of enum member '{Name}.{property.Name}'; the removal is accepted in the ApiCompat baseline.",
+                        BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                    continue;
+                }
+
+                if (TryResurrectRemovedMember(property, lastContractValueFields, out var resurrectedMember))
+                {
+                    (readdedMembers ??= []).Add(resurrectedMember);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Re-added enum member '{property.Name}' to enum '{Name}' to preserve a member from the last contract.",
+                        BackCompatibilityChangeCategory.EnumMemberAddedFromLastContract);
+                }
+            }
+
+            if (readdedMembers == null)
+            {
+                return null;
+            }
+
+            // Preserve the current spec order and append the restored members at the end.
+            return [.. currentValues, .. readdedMembers];
+        }
+
+        private bool TryResurrectRemovedMember(
+            PropertyProvider lastContractProperty,
+            IReadOnlyDictionary<string, FieldProvider> lastContractValueFields,
+            [NotNullWhen(true)] out EnumTypeMember? member)
+        {
+            member = null;
+
+            // The wire value lives in the private const `<Member>Value` field.
+            var valueFieldName = $"{lastContractProperty.Name}Value";
+            if (!lastContractValueFields.TryGetValue(valueFieldName, out var valueField)
+                || valueField.InitializationValue is not LiteralExpression { Literal: { } literalValue })
+            {
+                return false;
+            }
+
+            var field = new FieldProvider(
+                FieldModifiers.Private | FieldModifiers.Const,
+                EnumUnderlyingType,
+                valueFieldName,
+                this,
+                lastContractProperty.Description,
+                Literal(literalValue));
+            member = new EnumTypeMember(lastContractProperty.Name, field, literalValue);
+            return true;
+        }
     }
 }

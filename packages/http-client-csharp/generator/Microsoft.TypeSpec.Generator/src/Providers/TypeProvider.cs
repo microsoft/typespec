@@ -825,7 +825,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             IReadOnlyList<EnumTypeMember>? updatedEnumValues = null;
             IEnumerable<FieldProvider>? newFields = null;
-            if (this is EnumProvider)
+            IEnumerable<PropertyProvider>? newProperties = null;
+            if (this is EnumProvider enumProvider)
             {
                 var hasFields = LastContractView?.Fields != null && LastContractView.Fields.Count > 0;
                 if (hasFields)
@@ -848,7 +849,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             updatedEnumValues = newEnumValues;
                         }
 
-                        newFields = filteredFields;
+                        // Sync the enum values before rebuilding the member collections from them.
+                        _enumValues = updatedEnumValues;
+
+                        if (enumProvider.IsExtensible)
+                        {
+                            // Extensible enums carry an extra backing `_value` field and surface members
+                            // as properties, so rebuild both from the updated members. Reuse the
+                            // already-visited property instances for members that still exist so only the
+                            // restored members are (re)visited below.
+                            newFields = ApplyCustomizationFilter(BuildFields());
+                            var existingProperties = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
+                            foreach (var property in Properties)
+                            {
+                                existingProperties[property.Name] = property;
+                            }
+                            newProperties = ApplyCustomizationFilter(
+                                BuildProperties().Select(p => existingProperties.TryGetValue(p.Name, out var existing) ? existing : p));
+                        }
+                        else
+                        {
+                            newFields = filteredFields;
+                        }
                     }
                 }
             }
@@ -856,13 +878,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var newMethods = hasMethods ? BuildMethodsForBackCompatibility(Methods) : null;
             var newConstructors = hasConstructors ? BuildConstructorsForBackCompatibility(Constructors) : null;
 
-            if (newFields != null || newMethods != null || newConstructors != null)
+            if (newFields != null || newProperties != null || newMethods != null || newConstructors != null)
             {
-                if (updatedEnumValues != null)
-                {
-                    _enumValues = updatedEnumValues;
-                }
-
                 // Back-compatibility processing intentionally runs after the library visitor pass so
                 // that the contract comparison uses the final, post-visitor member signatures (otherwise
                 // we could incorrectly decide whether a back-compat member is needed). As a result, any
@@ -877,12 +894,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     newConstructors = VisitNewMembers(newConstructors, Constructors, static (member, visitor) => visitor.VisitConstructor(member));
                 }
+                if (newProperties != null)
+                {
+                    newProperties = VisitNewMembers(newProperties, Properties, static (member, visitor) => visitor.VisitProperty(member));
+                }
                 if (newFields != null)
                 {
                     newFields = VisitNewMembers(newFields, Fields, static (member, visitor) => visitor.VisitField(member));
                 }
 
-                Update(fields: newFields, methods: newMethods, constructors: newConstructors);
+                Update(fields: newFields, properties: newProperties, methods: newMethods, constructors: newConstructors);
             }
 
             // Providers whose attributes depend on final generation decisions build their attributes at write

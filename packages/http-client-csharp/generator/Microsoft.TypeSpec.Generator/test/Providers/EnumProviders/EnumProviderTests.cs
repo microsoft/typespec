@@ -650,6 +650,84 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNull(fields[1].InitializationValue);
         }
 
+        // Validates that a member removed from an extensible (string-backed) enum is re-added from the
+        // last contract. Unlike fixed string enums, an extensible enum stores its wire value in a private
+        // const `<Member>Value` field, so the value is recoverable (even from a compiled assembly's
+        // metadata) and the previously shipped member can be restored to avoid a source-breaking removal.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumRemovedValueReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Default, Recover, Third. Current input removes "Third".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            // "Third" is re-added (appended after the current members) as a public static property.
+            var properties = enumType.Properties;
+            Assert.AreEqual(3, properties.Count);
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.AreEqual("Third", properties[2].Name);
+
+            // The re-added member restores its wire value from the last contract's private const field.
+            var thirdValueField = enumType.Fields.SingleOrDefault(f => f.Name == "ThirdValue");
+            Assert.IsNotNull(thirdValueField);
+            Assert.AreEqual("third", (thirdValueField!.InitializationValue as LiteralExpression)?.Literal);
+
+            // The backing `_value` field is preserved when the fields are rebuilt.
+            Assert.IsTrue(enumType.Fields.Any(f => f.Name == "_value"));
+
+            // The corresponding enum value carries the recovered wire value.
+            var thirdMember = enumType.EnumValues.SingleOrDefault(v => v.Name == "Third");
+            Assert.IsNotNull(thirdMember);
+            Assert.AreEqual("third", thirdMember!.Value);
+        }
+
+        // Validates that a removed extensible enum member is NOT re-added when its removal is accepted in
+        // the ApiCompat baseline (recorded as a MembersMustExist suppression), so the generator honors the
+        // intentional removal instead of resurrecting it.
+        [Test]
+        public async Task BackCompat_ExtensibleEnumRemovedValueNotReaddedWhenBaselineAccepts()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile();
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            // Last contract: Default, Recover, Third. Current input removes "Third", but the baseline
+            // accepts that removal, so it must NOT be re-added.
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            var properties = enumType.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.IsFalse(properties.Any(p => p.Name == "Third"));
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.IsFalse(enumType.Fields.Any(f => f.Name == "ThirdValue"));
+        }
+
         // Validates that a removed integer enum member is NOT re-added when its removal is accepted
         // in the ApiCompat baseline (here recorded as an EnumValuesMustMatch suppression), so the
         // generator honors the intentional removal instead of resurrecting it.
