@@ -3448,3 +3448,36 @@ it("emits class for model extending another model with no additional properties"
     ],
   );
 });
+
+it("emits correct file name for @friendlyName template used as a template parameter default (ARM pattern)", async () => {
+  // Regression test for https://github.com/microsoft/typespec/issues/11454
+  // A model decorated with @friendlyName("{name}...", Resource) is used as an operation template
+  // parameter default (the ARM `TagsUpdateModel<Resource>` pattern). The concrete instantiation must
+  // get the substituted friendly name as its file/class name, and no file with an unresolved
+  // `{name}` placeholder should be emitted.
+  const [result] = await compileAndDiagnose(
+    tester,
+    `
+      @service(#{title: "Test"})
+      namespace Test {
+        @friendlyName("{name}TagsUpdate", Resource)
+        model TagsUpdateModel<Resource extends {}> {
+          tags?: string;
+        }
+
+        op armTagsPatch<
+          Resource extends {},
+          Properties extends {} = TagsUpdateModel<Resource>
+        >(...Properties): void;
+
+        model FooResource { id: string; }
+
+        @route("/tags") @patch op patch is armTagsPatch<FooResource>;
+      }
+      `,
+  );
+  const files = [...result.fs.fs.keys()];
+  // No emitted file should contain an unresolved template placeholder.
+  const unresolved = files.filter((f) => f.includes("{") || f.includes("}"));
+  deepStrictEqual(unresolved, [], `Unexpected files with unresolved placeholders: ${unresolved}`);
+});
