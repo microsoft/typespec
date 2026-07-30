@@ -26,6 +26,13 @@ namespace Property {
     {"wireName": true}
     ```
     """)
+  @surfaceDoc(#{
+    category: "naming",
+    subject: "JsonEncodedNameModel.defaultName",
+    expected: "defaultName",
+    kind: "property",
+    doc: "The client property is named `defaultName` even though the wire name is `wireName`.",
+  })
   @post
   op send(@bodyRoot body: JsonEncodedNameModel): NoContentResponse;
 

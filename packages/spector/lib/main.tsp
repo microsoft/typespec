@@ -35,3 +35,92 @@ extern dec scenarioDoc(
   doc: valueof string,
   formatArgs?: Model
 );
+
+/**
+ * The category of a client-surface check: what kind of generated-surface
+ * property is being asserted. This is an **extensible** union — the named
+ * members are the canonical, tight set every emitter understands, but any
+ * string is accepted so a new category can be introduced without changing this
+ * core library. A category an emitter hasn't onboarded a verifier for simply
+ * falls back to being verified against the prose (AI), exactly like `other`.
+ *
+ * Each category fixes what `subject` and `expected` mean:
+ *
+ * | category         | `subject` is…                | `expected` is…                                   |
+ * | ---------------- | ---------------------------- | ------------------------------------------------ |
+ * | `naming`         | renamed type/member/op/param | canonical client identifier (recast per language) |
+ * | `access`         | type/operation               | `"internal"` or `"public"`                        |
+ * | `clientLocation` | operation                    | client/group name it should be surfaced on        |
+ * | `hierarchy`      | derived model                | base type's client name                           |
+ * | `flatten`        | the flattened property       | promoted property name(s); blank = just inlined   |
+ * | `paging`         | operation                    | item/element type the pager yields                |
+ * | `other`          | anything                     | free-form; verified against the prose (AI)        |
+ */
+union SurfaceCategory {
+  string,
+
+  /** Client-facing identifier of `subject` (recast to the language's idiomatic casing). */
+  naming: "naming",
+
+  /** Public vs internal visibility of `subject` on the client surface. */
+  access: "access",
+
+  /** Which client or operation group an operation is surfaced on. */
+  clientLocation: "client-location",
+
+  /** Base type `subject` extends on the client surface. */
+  hierarchy: "hierarchy",
+
+  /** Nested model properties inlined onto the parent model. */
+  flatten: "flatten",
+
+  /** `subject` surfaces as a pageable collection of an item type. */
+  paging: "paging",
+
+  /** No mechanical rule — verified against the prose (AI residual). */
+  other: "other",
+}
+
+/**
+ * Describe one expected property of the **generated SDK surface** — something a
+ * wire test can't see, such as a client rename, an access change, an operation
+ * relocated to another client, or a reshaped inheritance hierarchy. Mirrors
+ * `@scenarioDoc`, but for the surface instead of the wire.
+ *
+ * `@surfaceDoc` may only be applied to an element that also carries
+ * `@scenarioDoc`, so every surface check is grounded in a documented scenario.
+ * Like `@scenarioDoc`, each target gets exactly one `@surfaceDoc`.
+ *
+ * ```tsp
+ * @surfaceDoc(#{
+ *   category: "naming",
+ *   expected: "widgetName",
+ *   subject: "Widget.defaultName",
+ *   kind: "property",
+ * })
+ * ```
+ *
+ * When `subject` is omitted it defaults to the decorated target's name.
+ * When `kind` is provided, emitter verifiers can apply per-kind conventions
+ * (e.g. Python recases properties to snake_case, types to PascalCase).
+ *
+ * `expected` is a single canonical, language-agnostic string by default, recast
+ * by each emitter. For exact per-language names, pass a `scope → value` dict:
+ *
+ * ```tsp
+ * @surfaceDoc(#{
+ *   category: "naming",
+ *   expected: #{ python: "io_thing", csharp: "IOThing" },
+ * })
+ * ```
+ */
+auto dec surfaceDoc(
+  target: Namespace | Interface | Operation,
+  check: valueof {
+    category: SurfaceCategory,
+    expected: string | Record<string>,
+    subject?: string,
+    kind?: string,
+    doc?: string,
+  }
+);

@@ -43,6 +43,12 @@ op postValid(@body input: Siamese): NoContentResponse;
   {"name": "abc", "age": 32, "smart": true}
   ```
   """)
+@surfaceDoc(#{
+  category: "hierarchy",
+  subject: "Siamese",
+  expected: "Cat",
+  doc: "The `Siamese` model extends `Cat` as its base type on the client surface.",
+})
 @route("/valid")
 @get
 op getValid(): Siamese;

@@ -1,6 +1,8 @@
 import {
   $service,
   Enum,
+  getAutoDecoratorTargets,
+  getAutoDecoratorValue,
   getNamespaceFullName,
   getTypeName,
   Interface,
@@ -220,4 +222,198 @@ export function getScenarioName(
     return undefined;
   }
   return resolveScenarioName(target, name);
+}
+
+/**
+ * The element `@surfaceDoc` is applied to. To keep surface checks grounded in a
+ * real scenario, this must be a `@scenario`/`@scenarioDoc` element (enforced in
+ * `loadSurfaceDocs` while the manifest is built), so the union matches
+ * `@scenarioDoc`'s target.
+ */
+export type SurfaceDocTarget = Namespace | Interface | Operation;
+
+/**
+ * The generic, category-agnostic fields the shared runner substitutes into an
+ * emitter's `verifiers.json` (as `{expected}`, `{kind}`, `{origin}`). They are
+ * derived the same way for every category, so a new category needs no core
+ * change — only a `verifiers.json` entry (or the AI fallback).
+ */
+export interface SurfaceDetails {
+  /** The author's `expected` client-surface output for this check. */
+  expected?: string;
+  /** The symbol kind (e.g. "property", "model", "enum", "operation"). */
+  kind?: string;
+}
+
+/** A resolved `@surfaceDoc` annotation. */
+export interface SurfaceDoc {
+  /**
+   * The resolved name of the enclosing `@scenario` this check belongs to (named
+   * the way `@scenario`s are, e.g. `Payload_Pageable_PageSize_listWithPageSize`).
+   * Every surface check is grounded in — and identified by — its scenario, so
+   * multiple checks on one scenario share this name. `undefined` only if the
+   * annotated element has no enclosing `@scenario` (which `loadSurfaceDocs`
+   * rejects, since `@surfaceDoc` requires `@scenarioDoc`).
+   */
+  scenario: string | undefined;
+  /** The annotated element (a scenario namespace/interface/operation). */
+  target: SurfaceDocTarget;
+  /** The subject of the check — defaults to the target's name when omitted. */
+  subject: string;
+  /** The kind of surface assertion (routes the check to a verifier). */
+  category: string;
+  /** The expected client-surface output for this category. */
+  expected: string;
+  /** The symbol kind (e.g. "property", "model", "enum", "operation") — used by verifiers for per-kind conventions. */
+  kind?: string;
+  /**
+   * The language scope this check applies to, e.g. `"python"`, `"python,csharp"`,
+   * or `"!java"`. Set only when `expected` came from a `scope → value` dict; in
+   * that case the value is matched **verbatim**. Unset = all languages (recast).
+   */
+  scope?: string;
+  /** Natural-language description (author-supplied, or synthesized for fallback). */
+  doc: string;
+}
+
+/** A short prose fallback so the AI path always has something to verify against. */
+function synthesizeDoc(category: string, subject: string, expected: string): string {
+  return `${category}: ${subject} → ${expected}`;
+}
+
+/**
+ * Build a scenario-style name by walking up an element's containers and joining
+ * their names, stopping at the (unnamed) global or the `_Specs_` root — the same
+ * convention `@scenario` uses.
+ */
+function getEnclosingScenarioName(program: Program, target: SurfaceDocTarget): string | undefined {
+  let current: SurfaceDocTarget | Namespace | Interface | undefined = target;
+  while (current) {
+    if (
+      current.kind === "Namespace" ||
+      current.kind === "Interface" ||
+      current.kind === "Operation"
+    ) {
+      const name = getScenarioName(program, current);
+      if (name) {
+        return name;
+      }
+    }
+    if (current.kind === "Namespace" || current.kind === "Interface") {
+      current = current.namespace;
+    } else if (current.kind === "Operation") {
+      current = current.interface ?? current.namespace;
+    } else {
+      break;
+    }
+  }
+  return undefined;
+}
+
+/** The FQN used by the auto dec for `@surfaceDoc`. */
+const SURFACE_DOC_FQN = "TypeSpec.Spector.surfaceDoc";
+
+/**
+ * What the auto dec stores for `@surfaceDoc`. Single valueof model param `check`:
+ * `{ check: { category, expected, subject?, doc? } }`.
+ */
+interface StoredSurfaceDoc {
+  check: {
+    category: string;
+    expected: string | Record<string, string>;
+    subject?: string;
+    kind?: string;
+    doc?: string;
+  };
+}
+
+/**
+ * Collect every `@surfaceDoc` in the program into a list of language-agnostic
+ * surface docs. Analogous to {@link listScenarios}, but for the generated
+ * surface instead of the wire. Each entry records the author-supplied category,
+ * subject, and expected output verbatim — nothing is inferred from other
+ * decorators. Feeds the `surface-checks.md` checks doc.
+ */
+export function listSurfaceDocs(program: Program): SurfaceDoc[] {
+  const targets = getAutoDecoratorTargets(program, SURFACE_DOC_FQN);
+  const result: SurfaceDoc[] = [];
+  for (const [target] of targets) {
+    const stored = getAutoDecoratorValue(program, SURFACE_DOC_FQN, target) as
+      StoredSurfaceDoc | undefined;
+    if (!stored) continue;
+    const docTarget = target as SurfaceDocTarget;
+    const scenario = getEnclosingScenarioName(program, docTarget);
+    const { category, expected, subject, kind, doc } = stored.check;
+    const resolvedSubject = subject ?? docTarget.name ?? "";
+    for (const { expected: exp, scope } of expandExpected(expected)) {
+      result.push({
+        scenario,
+        target: docTarget,
+        subject: resolvedSubject,
+        category,
+        expected: exp,
+        kind,
+        scope,
+        doc: doc ?? synthesizeDoc(category, resolvedSubject, exp),
+      });
+    }
+  }
+  return result.sort(
+    (a, b) =>
+      (a.scenario ?? "").localeCompare(b.scenario ?? "") ||
+      a.category.localeCompare(b.category) ||
+      (a.scope ?? "").localeCompare(b.scope ?? ""),
+  );
+}
+
+/**
+ * Surface docs whose annotated target does not also carry `@scenarioDoc`.
+ *
+ * `@surfaceDoc` must sit on an element that also has `@scenarioDoc` so every
+ * surface check is grounded in a documented scenario. This is enforced while
+ * the surface-checks manifest is built (see `loadSurfaceDocs`) rather than as a
+ * compiler `$onValidate` hook, so it never activates spector's other,
+ * currently-dormant scenario validations for consumers that only compile specs.
+ */
+export function listSurfaceDocsMissingScenarioDoc(program: Program): SurfaceDocTarget[] {
+  const targets = getAutoDecoratorTargets(program, SURFACE_DOC_FQN);
+  const result: SurfaceDocTarget[] = [];
+  for (const [target] of targets) {
+    const docTarget = target as SurfaceDocTarget;
+    if (getScenarioDoc(program, docTarget) === undefined) {
+      result.push(docTarget);
+    }
+  }
+  return result;
+}
+
+/**
+ * Normalize an author's `expected` into one entry per check. A bare string is a
+ * single, unscoped (idiomatically recast) check; a `scope → value` dict yields
+ * one verbatim check per scope key.
+ */
+function expandExpected(
+  expected: string | Record<string, string>,
+): { expected: string; scope?: string }[] {
+  if (typeof expected === "string") {
+    return [{ expected }];
+  }
+  return Object.entries(expected).map(([scope, value]) => ({ expected: value, scope }));
+}
+
+/**
+ * Build the generic, category-agnostic detail fields the shared runner
+ * substitutes into `verifiers.json`. Derived the same way for every category so
+ * a new category needs no core change: `expected` verbatim, plus the subject's
+ * `kind` (for casing) and `origin` (its declaring container).
+ */
+export function buildSurfaceDetails(doc: SurfaceDoc): SurfaceDetails {
+  const details: SurfaceDetails = {};
+  if (doc.expected !== "") {
+    details.expected = doc.expected;
+  }
+  if (doc.kind) {
+    details.kind = doc.kind;
+  }
+  return details;
 }
