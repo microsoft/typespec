@@ -21,6 +21,7 @@ import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -60,6 +61,7 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
+  InfoContext,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -70,6 +72,7 @@ import {
   Namespace,
   NoTarget,
   Node,
+  OnInfoHook,
   PerfReporter,
   SourceFile,
   Sym,
@@ -78,6 +81,7 @@ import {
   TemplateInstanceTarget,
   Tracer,
   Type,
+  TypeInfo,
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
@@ -118,6 +122,22 @@ export interface Program {
     cb: (program: Program) => void | Promise<void>,
     LibraryMetadata: LibraryMetadata,
   ): void;
+  /**
+   * Register a provider that contributes extra information about types. Libraries wire this up
+   * by exporting a `$onInfo` hook; it is discovered automatically by the compiler.
+   * @internal
+   */
+  registerInfoProvider(provider: OnInfoHook, metadata: LibraryMetadata): void;
+  /**
+   * Query the registered `$onInfo` providers for extra information about the given type. Returns
+   * the merged information contributed by every library, or `undefined` when none contributed.
+   * Providers are run lazily and never mutate the type graph. Used by the language server for
+   * hover docs and by tooling.
+   *
+   * Requires the experimental `type-info-hook` compiler feature to be enabled; returns
+   * `undefined` otherwise.
+   */
+  getTypeInfo(target: Type): TypeInfo | undefined;
   /** @internal */
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
@@ -175,6 +195,11 @@ interface Validator {
   callback: (
     program: Program,
   ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
+}
+
+interface InfoProvider {
+  metadata: LibraryMetadata;
+  callback: OnInfoHook;
 }
 
 interface TypeSpecLibraryReference {
@@ -238,6 +263,7 @@ async function createProgram(
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
+  const infoProviders: InfoProvider[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
@@ -300,6 +326,39 @@ async function createProgram(
     },
     onValidate(cb, metadata) {
       validateCbs.push({ callback: cb, metadata });
+    },
+    registerInfoProvider(provider, metadata) {
+      infoProviders.push({ callback: provider, metadata });
+    },
+    getTypeInfo(target) {
+      if (!isCompilerFeatureEnabled(program, "type-info-hook")) {
+        return undefined;
+      }
+      const contents: string[] = [];
+      const context: InfoContext = { program, target };
+      for (const provider of infoProviders) {
+        let result: TypeInfo | undefined;
+        try {
+          result = provider.callback(context);
+        } catch (error: any) {
+          if (options.designTimeBuild) {
+            program.reportDiagnostic(
+              createDiagnostic({
+                code: "on-validate-fail",
+                format: { error: error.stack },
+                target: NoTarget,
+              }),
+            );
+            continue;
+          } else {
+            throw new ExternalError({ kind: "info", metadata: provider.metadata, error });
+          }
+        }
+        if (result) {
+          contents.push(result.content);
+        }
+      }
+      return contents.length > 0 ? { content: contents.join("\n\n") } : undefined;
     },
     getGlobalNamespaceType,
     resolveTypeReference,

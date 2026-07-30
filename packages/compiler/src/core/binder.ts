@@ -179,6 +179,14 @@ export function createBinder(program: Program): Binder {
                 : ({ type: "file" } satisfies FileLibraryMetadata);
             program.onValidate(member as any, metadata);
             continue;
+          } else if (name === "onInfo") {
+            const context = getLocationContext(program, sourceFile);
+            const metadata =
+              context.type === "library"
+                ? context.metadata
+                : ({ type: "file" } satisfies FileLibraryMetadata);
+            program.registerInfoProvider(member as any, metadata);
+            continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.
             continue;

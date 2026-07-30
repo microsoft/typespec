@@ -836,11 +836,48 @@ describe("template access", () => {
   });
 });
 
+describe("$onInfo hook", () => {
+  it("appends info entries contributed by a library to the hover", async () => {
+    const hover = await getHoverAtCursorWithInfoHook(`
+        import "./info.js";
+        op wr┆ite(): void;
+      `);
+    const value = getHoverValue(hover);
+    ok(value);
+    ok(value.includes("op-info:write"), `Expected info entry in hover, got: ${value}`);
+  });
+
+  it("does not add anything when the provider returns undefined for the type", async () => {
+    const hover = await getHoverAtCursorWithInfoHook(`
+        import "./info.js";
+        model Fo┆o {}
+      `);
+    const value = getHoverValue(hover);
+    ok(value);
+    ok(!value.includes("op-info:"), `Expected no info entry, got: ${value}`);
+  });
+});
+
 async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undefined> {
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost();
   testHost.addJsFile("dec-types.js", {
     $single: () => {},
+  });
+  const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
+  return await testHost.server.getHover({
+    textDocument,
+    position: textDocument.positionAt(pos),
+  });
+}
+
+async function getHoverAtCursorWithInfoHook(sourceWithCursor: string): Promise<Hover | undefined> {
+  const { source, pos } = extractCursor(sourceWithCursor);
+  const testHost = await createTestServerHost();
+  testHost.addOrUpdateDocument("tspconfig.yaml", `features:\n  - type-info-hook\n`);
+  testHost.addJsFile("info.js", {
+    $onInfo: ({ target }: { target: { kind: string; name?: string } }) =>
+      target.kind === "Operation" ? { content: `op-info:${target.name}` } : undefined,
   });
   const textDocument = testHost.addOrUpdateDocument("test.tsp", source);
   return await testHost.server.getHover({

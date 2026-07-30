@@ -2351,6 +2351,37 @@ export type SemanticNodeListener = {
 } & TypeListeners &
   ValueListeners;
 
+/**
+ * Extra information about a type contributed by a library through the `$onInfo` hook. Used to
+ * enrich IDE hover documentation and to answer queries (e.g. from AI agents/tooling).
+ */
+export interface TypeInfo {
+  /** Markdown content describing this information, e.g. ``"`HTTP Route`: `GET /pets/{id}`"``. */
+  readonly content: string;
+}
+
+/**
+ * Context passed to a library's `$onInfo` hook. Additional properties may be added over time.
+ */
+export interface InfoContext {
+  /** The current program. */
+  readonly program: Program;
+  /** The type the information is being requested for. */
+  readonly target: Type;
+}
+
+/**
+ * Library hook returning extra information about a given type.
+ *
+ * A library provides this by exporting a `$onInfo` function (typically via {@link defineInfoHook}).
+ * Unlike `$onValidate`, this hook is never run during compilation and must not mutate the type
+ * graph. It is invoked lazily and on demand (e.g. by the language server when computing hover
+ * documentation, or by tooling querying {@link Program.getTypeInfo}).
+ *
+ * This hook is gated behind the experimental `type-info-hook` compiler feature.
+ */
+export type OnInfoHook = (context: InfoContext) => TypeInfo | undefined;
+
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,

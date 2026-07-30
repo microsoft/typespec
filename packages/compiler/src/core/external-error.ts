@@ -30,7 +30,7 @@ export type Colors =
   | "bgWhite";
 
 export interface ExternalErrorInfo {
-  kind: "emitter" | "validator";
+  kind: "emitter" | "validator" | "info";
   error: unknown;
   metadata: LibraryMetadata;
 }
@@ -56,7 +56,9 @@ function renderExternalErrorInfo(
     color(
       kind === "emitter"
         ? `Emitter "${metadata.name}" crashed! This is a bug.`
-        : `Library "${metadata.name}" $onValidate crashed! This is a bug.`,
+        : kind === "info"
+          ? `Library "${metadata.name}" $onInfo crashed! This is a bug.`
+          : `Library "${metadata.name}" $onValidate crashed! This is a bug.`,
       "red",
     ),
   ];

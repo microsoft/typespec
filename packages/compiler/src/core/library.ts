@@ -8,6 +8,7 @@ import {
   JSONSchemaValidator,
   LinterDefinition,
   LinterRuleDefinition,
+  OnInfoHook,
   PackageFlags,
   StateDef,
   TypeSpecLibrary,
@@ -112,6 +113,23 @@ export function definePackageFlags(flags: PackageFlags): PackageFlags {
 
 export function defineLinter(def: LinterDefinition): LinterDefinition {
   return def;
+}
+
+/**
+ * Define a `$onInfo` hook that contributes extra information about types to IDE hover
+ * documentation and tooling. This helper only provides typing; export the result as `$onInfo`
+ * from your library's entry point.
+ *
+ * @example
+ * ```ts
+ * export const $onInfo = defineInfoHook(({ program, target }) => {
+ *   if (target.kind !== "Operation") return undefined;
+ *   return [{ content: `Operation ${target.name}` }];
+ * });
+ * ```
+ */
+export function defineInfoHook(hook: OnInfoHook): OnInfoHook {
+  return hook;
 }
 
 /** Create a new linter rule. */

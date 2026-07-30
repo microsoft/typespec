@@ -244,6 +244,7 @@ const sidebar: SidebarItem[] = [
       "extending-typespec/basics",
       "extending-typespec/diagnostics",
       "extending-typespec/create-decorators",
+      "extending-typespec/providing-info",
       "extending-typespec/linters",
       "extending-typespec/codefixes",
       "extending-typespec/testing",

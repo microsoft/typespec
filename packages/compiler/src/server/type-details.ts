@@ -64,7 +64,30 @@ export async function getSymbolDetails(
     );
   }
 
+  const infoType = resolveSymbolType(program, symbol);
+  if (infoType) {
+    const info = program.getTypeInfo(infoType);
+    if (info) {
+      lines.push(info.content);
+    }
+  }
+
   return lines.join("\n\n");
+}
+
+/** Resolve the {@link Type} a symbol refers to, if any. */
+function resolveSymbolType(program: Program, symbol: Sym): Type | undefined {
+  if (symbol.type) {
+    return symbol.type;
+  }
+  const symNode = getSymNode(symbol);
+  if (symNode) {
+    const entity = program.checker.getTypeOrValueForNode(symNode);
+    if (entity && isType(entity)) {
+      return entity;
+    }
+  }
+  return undefined;
 }
 
 function getSymbolDocumentation(program: Program, symbol: Sym) {

@@ -15,6 +15,10 @@ export const compilerFeatures = {
     description:
       "Allows use of auto decorator declarations without experimental warnings in project code.",
   },
+  "type-info-hook": {
+    description:
+      "Enables the experimental `$onInfo` hook allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+  },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 
 export type CompilerFeatureName = keyof typeof compilerFeatures;
