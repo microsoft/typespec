@@ -189,9 +189,7 @@ class TypesSerializer(BaseSerializer):
         property — are kept, ensuring no forward reference is left undefined.
         """
         needed = self._types_file_model_names
-        candidates = [
-            m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed
-        ]
+        candidates = [m for m in self._models if m.base != "json" and not m.discriminated_subtypes and m.name in needed]
         seen_names: dict[str, "ModelType"] = {}
         result: list["ModelType"] = []
         for m in candidates:

@@ -135,22 +135,6 @@ When you open a PR against this package:
 
 Both must pass before your PR can be merged.
 
-### Manual Regeneration Testing
-
-You can manually trigger the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow in `azure-sdk-for-python` to regenerate tests. The workflow checks out `microsoft/typespec` (at the ref you specify, defaulting to `main`), builds the regeneration infrastructure, installs the target emitter from npm, and runs the full regeneration.
-
-### Post-Release: Updating azure-sdk-for-python
-
-Once a new version of this emitter is released, follow these steps to update `azure-sdk-for-python`:
-
-1. Follow skill [emitter-package-update](https://github.com/Azure/azure-sdk-for-python/tree/main/.github/skills/emitter-package-update) to **create a PR** to update `eng/emitter-package.json` and `eng/emitter-package-lock.json` and submit them to `azure-sdk-for-python`.
-
-2. **Automatic regeneration**: Once the PR merges to `main`, the [TypeSpec Python Regenerate Tests](https://github.com/Azure/azure-sdk-for-python/actions/workflows/typespec-python-regenerate.yml) workflow triggers automatically (it watches for changes to `eng/emitter-package.json`). It regenerates all test code and creates a follow-up issue with the updated generated files.
-
-3. **Generated code location**: The regenerated tests are checked in at [`eng/tools/azure-sdk-tools/emitter/generated`](https://github.com/Azure/azure-sdk-for-python/tree/typespec-python-generated-tests/eng/tools/azure-sdk-tools/emitter/generated) in `azure-sdk-for-python`, split into:
-   - `azure/` — Tests generated with the branded emitter (Azure HTTP specs)
-   - `unbranded/` — Tests generated with the unbranded emitter (HTTP specs)
-
 ## Release Process
 
 The release process for `@typespec/http-client-python` follows these steps:

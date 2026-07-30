@@ -127,7 +127,7 @@ public class Postprocessor {
             jsonReader -> jsonReader.readArray(JsonReader::getString));
 
         return configurationFiles == null || configurationFiles.isEmpty()
-            ? JavaSettings.getInstance().getAutorestSettings().getOutputFolder()
+            ? JavaSettings.getInstance().getProjectSettings().getOutputFolder()
             : configurationFiles.stream().filter(key -> !key.contains(".autorest")).findFirst().orElse(null);
     }
 
@@ -199,7 +199,7 @@ public class Postprocessor {
                 // get existing file path
                 // use output-folder from autorest, if exists and is absolute path
                 String projectBaseDirectoryPath = null;
-                String outputFolderPath = JavaSettings.getInstance().getAutorestSettings().getOutputFolder();
+                String outputFolderPath = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
                 if (Paths.get(outputFolderPath).isAbsolute()) {
                     projectBaseDirectoryPath = outputFolderPath;
                 }

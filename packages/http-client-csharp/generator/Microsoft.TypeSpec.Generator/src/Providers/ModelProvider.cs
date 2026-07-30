@@ -218,6 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
         /// </summary>
@@ -910,7 +911,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider is not null && !HasBaseModelProviderCycle())
+            else if (BaseModelProvider is not null && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }

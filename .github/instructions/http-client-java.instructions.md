@@ -92,6 +92,21 @@ npx tsp compile <path-to-tsp> --emit @azure-tools/typespec-client-generator-core
 
 This writes `tcgc-output/tcgc-output.yaml` (keys starting with `__` are omitted). It changes no code; the dump is verification-only, so do NOT commit it — delete it when done.
 
+### Test on a real Azure service spec
+
+Smoke-test a generator change against a real service spec from `azure-rest-api-specs`, generating into an actual `azure-sdk-for-java` package. Use this for behavior the spector-style specs do not exercise (for example `sdk-integration` output such as `CHANGELOG.md`). Works the same for data-plane and management (Fluent Lite / Premium) — only the emitter options differ (see the service's `tspconfig.yaml`). Assumes both repos are cloned locally with TypeSpec library versions matching the emitter's.
+
+1. Install the local emitter into the test module: `pwsh Setup.ps1` in `generator/http-client-generator-test`.
+2. The service spec resolves emitters from **its own** `node_modules` (the published `@azure-tools/typespec-java`, not your local build). Do NOT swap jars or hand-edit `node_modules`. Instead, `robocopy $specDir $tmp *.tsp /S` the spec's `*.tsp` files (preserving layout) into a temp folder under the test module, so resolution falls back to the test module's `node_modules` (your fresh emitter + all azure libs). Copy any sibling spec folders the entry imports via relative paths too; shared/common models pulled from libraries (for example ARM common-types) resolve from `node_modules` and need not be copied. The copy has no `tspconfig.yaml`, so only your `--emit` runs.
+3. Compile the entry (`client.tsp`, else `main.tsp`) with the emitter options from the service's real `tspconfig.yaml` (`@azure-tools/typespec-java` block), pointing `emitter-output-dir` at the **real** SDK package. Generating into the existing package is also what drives `sdk-integration` detection:
+   ```
+   npx tsp compile <copied-entry.tsp> --emit "@typespec/http-client-java" \
+     --option "@typespec/http-client-java.emitter-output-dir=<sdk-package-abs-path>" \
+     --option "@typespec/http-client-java.<key>=<value>"   # namespace, service-name, flavor=azure, (premium), ...
+   ```
+4. Verify the change your feature/fix is expected to produce (for example `git --no-pager diff -- <sdk-package>/<changed-file>`).
+5. Clean up — generation overwrites the whole package. Restore it (`git checkout` + `git clean -fdq` on the package) and delete the temp copy. Do not commit generated changes to either external repo.
+
 ## Emitting static helper classes from resource templates
 
 Some helpers are shipped verbatim as resource templates rather than built up in code:

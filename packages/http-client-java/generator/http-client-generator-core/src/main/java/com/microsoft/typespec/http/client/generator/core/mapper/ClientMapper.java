@@ -139,6 +139,19 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 .map(o -> parseHeader(o, settings))
                 .filter(Objects::nonNull));
 
+        // For operations that opt in to returning response headers as a strongly-typed model
+        // (@clientOption "responseHeadersAsModel"), the operations are nested under clients (data-plane
+        // code model), not the top-level operation groups, so parse their header schema here as well.
+        Stream<ObjectSchema> responseHeaderModelTypes = codeModel.getClients()
+            .stream()
+            .flatMap(c -> c.getOperationGroups().stream())
+            .flatMap(og -> og.getOperations().stream())
+            .filter(o -> o.getConvenienceApi() != null && o.getConvenienceApi().isResponseHeadersAsModel())
+            .map(o -> parseHeader(o, settings))
+            .filter(Objects::nonNull);
+
+        autoRestModelTypes = Stream.concat(autoRestModelTypes, responseHeaderModelTypes);
+
         List<ClientModel> clientModelsFromCodeModel = autoRestModelTypes.distinct()
             .map(autoRestCompositeType -> Mappers.getModelMapper().map(autoRestCompositeType))
             .filter(Objects::nonNull)
@@ -181,12 +194,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         Map<ServiceClient, com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client> serviceClientsMap
             = new LinkedHashMap<>();
 
-        boolean multipleClientsWithOperationsPresent = codeModel.getClients()
-            .stream()
-            .flatMap(client -> client.getOperationGroups().stream())
-            .flatMap(og -> og.getOperations().stream())
-            .findAny()
-            .isPresent();
+        boolean multipleClientsWithOperationsPresent = !CoreUtils.isNullOrEmpty(codeModel.getClients())
+            && codeModel.getClients()
+                .stream()
+                .flatMap(client -> client.getOperationGroups().stream())
+                .flatMap(og -> og.getOperations().stream())
+                .findAny()
+                .isPresent();
 
         boolean singleClientOperationsPresent
             = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).findAny().isPresent();
@@ -561,6 +575,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
         String name = CodeNamer.getPlural(operation.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(operation.getLanguage().getJava().getName()) + "Headers";
+        // Honor the "rename-model" option for this synthesized header model. The schema is created here,
+        // after the SchemaRenamer preprocessor pass (which only visits schemas in the code model), so the
+        // rename must be applied explicitly, keyed by the generated header model name.
+        String renamedName = settings.getJavaNamesForRenameModel().get(name);
+        if (!CoreUtils.isNullOrEmpty(renamedName)) {
+            name = renamedName;
+        }
         Map<String, Schema> headerMap = new LinkedHashMap<>();
         Map<String, String> headerClientNameMap = new LinkedHashMap<>();
         Map<String, XmsExtensions> headerExtensions = new LinkedHashMap<>();
@@ -584,10 +605,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         headerSchema.setStronglyTypedHeader(true);
         headerSchema.setUsage(new LinkedHashSet<>(List.of(SchemaContext.OUTPUT)));
 
-        // TODO (weidxu): at present we do not generate convenience API with Header model
-//        if (operation.getConvenienceApi() != null) {
-//            headerSchema.getUsage().add(SchemaContext.CONVENIENCE_API);
-//        }
+        // When the operation opts in to returning response headers as a convenience model
+        // (@clientOption "responseHeadersAsModel"), the strongly-typed header class is surfaced as a
+        // public model and used as the return type of the convenience method. Marking it PUBLIC ensures
+        // it is generated (data-plane models are only generated when public or internal).
+        if (operation.getConvenienceApi() != null && operation.getConvenienceApi().isResponseHeadersAsModel()) {
+            headerSchema.getUsage().add(SchemaContext.PUBLIC);
+        }
 
         for (Map.Entry<String, Schema> header : headerMap.entrySet()) {
             Property property = new Property();

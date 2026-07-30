@@ -343,6 +343,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
+        // Snapshot of the attributes as they were before the first Update call
+        private HashSet<MethodBodyStatement>? _originalAttributes;
+
         public IReadOnlyList<AttributeStatement> Attributes
         {
             get
@@ -360,20 +363,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
-
-        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite() => BuildAttributesForWrite();
-
         /// <summary>
-        /// Builds the attributes emitted by the writer. Providers whose generated attributes depend on final
-        /// generation decisions can override this without replacing attributes updated by visitors.
-        /// </summary>
-        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForWrite() => GetAttributes();
-
-        /// <summary>
-        /// Indicates whether this provider's attributes should contribute to reference-map analysis.
+        /// Indicates whether this provider's attributes are stable enough to be cached and analyzed by the
+        /// reference map. Providers whose generated attributes depend on final generation decisions return
+        /// <c>false</c> so their attributes are rebuilt at write time.
         /// </summary>
         protected internal virtual bool ShouldAnalyzeAttributesInReferenceMap => true;
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributesForWrite()
+        {
+            if (ShouldAnalyzeAttributesInReferenceMap)
+            {
+                return _attributes ??= BuildAttributes();
+            }
+
+            return RebuildAttributes();
+        }
+
+        // Rebuilds the generated attributes (including any back-compatibility additions) from the finalized
+        // generation state and re-attaches the attributes a visitor contributed on top of the previously
+        // generated set. Providers whose attributes depend on final generation decisions may have cached a
+        // value during reference-map analysis, so the generated portion is always recomputed here.
+        private IReadOnlyList<MethodBodyStatement> RebuildAttributes()
+        {
+            var visitorAdditions = _attributes is null || _originalAttributes is null
+                ? []
+                : _attributes.Where(a => !_originalAttributes.Contains(a)).ToList();
+
+            var result = BuildAttributesForBackCompatibility([.. BuildAttributes(), .. visitorAdditions]);
+
+            // Exclude the visitor additions from the snapshot so they stay identifiable when the generated set is rebuilt.
+            var visitorSet = new HashSet<MethodBodyStatement>(visitorAdditions);
+            _originalAttributes = [.. result.Where(a => !visitorSet.Contains(a))];
+            return _attributes = result;
+        }
 
         /// <summary>
         /// Determines whether a provider remains in the generated output after reference-map analysis.
@@ -636,6 +659,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
+            _originalAttributes = null;
             _deprecated = null;
             _description = null;
             _type = null;
@@ -722,6 +746,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
+                // For providers whose generated attributes are rebuilt at write time, remember the attributes
+                // as they were before the first update so GetAttributesForWrite can preserve the additions.
+                if (!ShouldAnalyzeAttributesInReferenceMap)
+                {
+                    _originalAttributes ??= [.. Attributes];
+                }
                 _attributes = [.. attributes];
             }
 
@@ -854,6 +884,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 Update(fields: newFields, methods: newMethods, constructors: newConstructors);
             }
+
+            // Providers whose attributes depend on final generation decisions build their attributes at write
+            // time; materialize them here (applying attribute back-compatibility) so reads before the write
+            // reflect the result. The generated portion is refreshed again at write against the final state.
+            if (!ShouldAnalyzeAttributesInReferenceMap)
+            {
+                RebuildAttributes();
+            }
         }
 
         // Runs newly-added back-compatibility members through every registered visitor while leaving
@@ -903,6 +941,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
             => null;
+
+        /// <summary>
+        /// Returns this type's attributes with backward compatibility applied against
+        /// <see cref="LastContractView"/>. The default implementation applies no back-compatibility and
+        /// returns the attributes unchanged. Override to restore attributes that were present in the last contract.
+        /// </summary>
+        protected internal virtual IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
+            => originalAttributes;
 
         /// <summary>
         /// Returns this type's methods with backward compatibility applied against
