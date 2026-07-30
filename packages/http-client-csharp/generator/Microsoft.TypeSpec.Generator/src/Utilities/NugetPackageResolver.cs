@@ -109,6 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             NuGetVersion version,
             [NotNullWhen(true)] out NuGet.Repositories.LocalPackageInfo? packageInfo)
         {
+            // cspell: disable-next-line
             var localRepository = new NuGetv3LocalRepository(globalPackagesFolder);
             packageInfo = localRepository.FindPackage(packageName, version);
             return packageInfo != null;

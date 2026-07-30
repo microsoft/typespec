@@ -113,6 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 
         private static void WritePackageMetadata(string versionDir)
         {
+            // cspell: disable
             var metadata =
                 """
                 {
@@ -121,6 +122,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                   "source": "https://example.invalid/v3/index.json"
                 }
                 """;
+            // cspell: enable
             File.WriteAllText(Path.Combine(versionDir, ".nupkg.metadata"), metadata);
         }
     }
