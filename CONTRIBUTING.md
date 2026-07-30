@@ -4,12 +4,36 @@ This section goes over the setup of the repo for development.
 
 ## Repo setup
 
-- Install [Node.js](https://nodejs.org/) 24 LTS
-- Install [pnpm](https://pnpm.io/)
+You need [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/). Pick
+whichever of the following options you prefer to install them.
+
+### Option 1: Use mise (recommended)
+
+[mise](https://mise.jdx.dev/getting-started.html) installs the repository's
+development tools consistently across platforms. Install mise and
+[activate it for your shell](https://mise.jdx.dev/getting-started.html#activate-mise),
+then, from the repository root, run:
+
+```bash
+mise install
+```
+
+This installs the exact tool versions recorded in `mise.toml` and `mise.lock`
+(Node.js and pnpm).
+
+### Option 2: Install the tools yourself
+
+If you prefer to manage tools yourself (or use another version manager), just
+install [Node.js](https://nodejs.org/). We support all active
+[Node.js LTS](https://nodejs.org/en/about/previous-releases) versions, so any of
+them works. pnpm self-manages its version from the `packageManager` field in
+`package.json`, so you only need to install pnpm itself:
 
 ```bash
 npm install -g pnpm
 ```
+
+### Install and build
 
 - Install dependencies
 
