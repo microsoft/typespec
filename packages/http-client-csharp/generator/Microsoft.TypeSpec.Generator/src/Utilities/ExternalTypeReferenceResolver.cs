@@ -329,8 +329,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     $"Added metadata reference for external type '{external.Identity}' from {assemblyPath}");
             }
 
-            CacheResult(state, key, new ResolutionResult(loadedType, null));
-            return new ResolutionResult(loadedType, null);
+            return CacheResult(state, key, new ResolutionResult(loadedType, null));
         }
 
         private static ResolutionResult CacheResult(CacheState state, string key, ResolutionResult result)
