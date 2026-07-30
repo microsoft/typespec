@@ -1,4 +1,4 @@
-import { TokenCredential } from "@azure/identity";
+import type { TokenCredential } from "@azure/identity";
 import {
   AnonymousCredential,
   BlobServiceClient,
@@ -7,7 +7,7 @@ import {
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
 import { eq as semverEq, gt as semverGt, valid as semverValid } from "semver";
-import {
+import type {
   CoverageReport,
   GeneratorMetadata,
   ResolvedCoverageReport,
