@@ -73,6 +73,12 @@ const initJsIntegrity = computeSriHash("1ds-init.js");
 
     .main {
       flex: 1;
+      /* Lay out page content as a column so pages can opt into filling the
+         available height (e.g. the playground) via `flex: 1` on their content,
+         rather than hard-coding `100vh - var(--header-height)`, which does not
+         account for the real rendered header height. */
+      display: flex;
+      flex-direction: column;
       background-color: var(--colorNeutralBackground1);
     }
 
