@@ -33,11 +33,64 @@ it("emit error if missing pageItems property", async () => {
   });
 });
 
+it("emit warning when @list has no paging navigation information", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @list op list(): {
+      @pageItems items: string[];
+    };
+  `);
+
+  expectDiagnostics(diagnostics, {
+    code: "list-no-paging-navigation",
+    severity: "warning",
+    message: `Paged operation 'list' has no paging navigation. Add a @nextLink, @pageIndex, or @continuationToken property to enable pagination.`,
+  });
+});
+
+it("no warning when @list has @nextLink", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @list op list(): {
+      @pageItems items: string[];
+      @nextLink next: string;
+    };
+  `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
+it("no warning when @list has @pageIndex", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @list op list(@pageIndex page: int32): {
+      @pageItems items: string[];
+    };
+  `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
+it("no warning when @list has @continuationToken in output", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @list op list(): {
+      @pageItems items: string[];
+      @continuationToken token: string;
+    };
+  `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
+it("no warning when @list has @continuationToken in input", async () => {
+  const diagnostics = await Tester.diagnose(`
+    @list op list(@continuationToken token?: string): {
+      @pageItems items: string[];
+    };
+  `);
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("identifies inherited paging properties", async () => {
   const diagnostics = await Tester.diagnose(`
     model ListTestResult {
       @pageItems
       values: string[];
+      @nextLink next: string;
     }
     model ExtendedListTestResult extends ListTestResult {}
 
@@ -71,7 +124,7 @@ describe("emit conflict diagnostic if multiple properties are annotated with the
     @list op list(
       @${name} prop1: ${type};
       @${name} prop2: ${type};
-    ): { @pageItems items: string[] };
+    ): { @pageItems items: string[]; @nextLink next: string; };
   `);
 
     expectDiagnostics(diagnostics, [
@@ -99,6 +152,7 @@ describe("emit conflict diagnostic if multiple properties are annotated with the
       @${name} next: ${type};
       @${name} nextToo: ${type};
       ${name !== "pageItems" ? "@pageItems items: string[];" : ""}
+      ${!["nextLink", "continuationToken"].includes(name) ? "@nextLink nav: string;" : ""}
     };
   `);
 
@@ -125,7 +179,7 @@ describe("collect paging properties", () => {
     const { list, prop, program } = await Tester.compile(t.code`
       @list op ${t.op("list")}(
         @${name} ${t.modelProperty("prop")}: ${type};
-      ): { @pageItems items: string[] };
+      ): { @pageItems items: string[]; @nextLink next: string; };
     `);
 
     const paging = ignoreDiagnostics(getPagingOperation(program, list));
@@ -145,6 +199,7 @@ describe("collect paging properties", () => {
         @list op ${t.op("list")}(): {
           @${name} ${t.modelProperty("prop")}: ${type};
           ${name !== "pageItems" ? "@pageItems items: string[];" : ""}
+          ${name !== "nextLink" && name !== "continuationToken" ? "@nextLink nav: string;" : ""}
         };
       `);
 
@@ -164,7 +219,7 @@ describe("collect nested paging properties", () => {
     const { list, prop, program } = await Tester.compile(t.code`
       @list op ${t.op("list")}(
         @${name} ${t.modelProperty("prop")}: ${type};
-      ): { @pageItems items: string[] };
+      ): { @pageItems items: string[]; @nextLink next: string; };
     `);
 
     const paging = ignoreDiagnostics(getPagingOperation(program, list));
@@ -183,6 +238,7 @@ describe("collect nested paging properties", () => {
         @list op ${t.op("list")}(): {
           results : { @pageItems items: string[]; };
           pagination: { @${name} ${t.modelProperty("prop")}: ${type} };
+          ${name !== "nextLink" && name !== "continuationToken" ? "@nextLink nav: string;" : ""}
         };
       `);
 
@@ -199,6 +255,7 @@ describe("collect nested paging properties", () => {
     const { list, program } = await Tester.compile(t.code`
         @list op ${t.op("list")}(): {
           results : { @pageItems items: string[]; };
+          @nextLink next: string;
         };
       `);
 

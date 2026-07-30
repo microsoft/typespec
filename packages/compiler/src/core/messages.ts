@@ -1013,6 +1013,12 @@ const diagnostics = {
       default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
     },
   },
+  "list-no-paging-navigation": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Paged operation '${"operationName"}' has no paging navigation. Add a @nextLink, @pageIndex, or @continuationToken property to enable pagination.`,
+    },
+  },
   /**
    * Service
    */

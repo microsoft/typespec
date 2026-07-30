@@ -280,6 +280,23 @@ export function getPagingOperation(
     );
     return diags.wrap(undefined);
   }
+
+  const hasNavigationInfo =
+    result.output.nextLink !== undefined ||
+    result.input.pageIndex !== undefined ||
+    result.input.continuationToken !== undefined ||
+    result.output.continuationToken !== undefined;
+
+  if (!hasNavigationInfo) {
+    diags.add(
+      createDiagnostic({
+        code: "list-no-paging-navigation",
+        format: { operationName: op.name },
+        target: op,
+      }),
+    );
+  }
+
   return diags.wrap(result);
 }
 
