@@ -675,18 +675,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
-        // Validates that a parameter whose spec name is not in the last contract keeps its current name.
+        // Validates that a parameter is not positionally restored when no last-contract method matches
+        // the current method's signature (here the last-contract Foo takes an int, the current takes a string).
         [Test]
         public async Task BuildMethodsForBackCompatibilityKeepsUnpublishedParameterName()
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            // "brandNewParam" has no counterpart in the last contract (TestClient.Foo(oldParam)).
+            // "brandNewParam" has no counterpart in the last contract (TestClient.Foo(int oldParam)).
             var inputParameter = InputFactory.QueryParameter("brandNewParam", InputPrimitiveType.String, isRequired: true);
             var parameter = new ParameterProvider(inputParameter);
             var fooMethod = new MethodProvider(
                 new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
                 Snippet.Return(parameter),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // Validates the positional fallback: when a spec parameter's previously-published name matches
+        // neither its current name nor its spec original name (e.g. a rename by a different generator),
+        // it is restored from the last-contract method that matches by signature (name and parameter types).
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityRestoresRenamedParameterBySignatureMatch()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The spec name equals the current name ("newParam"), so it is not discoverable by spec name;
+            // only a signature match against the last-contract Foo(string oldParam) can restore "oldParam".
+            var inputParameter = InputFactory.QueryParameter("newParam", InputPrimitiveType.String, isRequired: true);
+
+            var parameter = new ParameterProvider(inputParameter);
+            var fooMethod = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [parameter]),
+                new MethodBodyStatement[]
+                {
+                    Snippet.This.Invoke("Validate", parameter).Terminate(),
+                    Snippet.Return(parameter),
+                },
                 new TestTypeProvider());
 
             var typeProvider = new TestTypeProvider(name: "TestClient", methods: [fooMethod]);
