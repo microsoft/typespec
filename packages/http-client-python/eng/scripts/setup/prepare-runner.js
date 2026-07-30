@@ -7,8 +7,8 @@
 // used.  When running in the repository itself (dev context) the TypeScript
 // source is loaded directly via Node.js native type stripping.
 import { existsSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const compiledPath = join(__dirname, "../../../dist/scripts/setup/prepare.js");
