@@ -67,12 +67,6 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
         }
 
-        [Obsolete($"Use {nameof(FindForTypeInCurrentCompilation)} instead.")]
-        public TypeProvider? FindForTypeInCustomization(string ns, string name, string? declaringTypeName = null, bool includeReferencedAssemblies = false)
-        {
-            return FindForTypeInCurrentCompilation(ns, name, declaringTypeName, includeReferencedAssemblies);
-        }
-
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
             return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
