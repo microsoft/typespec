@@ -15,6 +15,10 @@ import { makeServiceCall } from "./helper.js";
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
 
+/** How long to wait for the server under test to accept connections before giving up. */
+const SERVER_READY_TIMEOUT_MS = 60_000;
+const SERVER_POLL_INTERVAL_MS = 1_000;
+
 export interface ServerTestDiagnostics {
   scenarioName: string;
   message: string;
@@ -131,21 +135,33 @@ async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Wait for the server under test to accept connections.
+ * The base url can point to any server implementing the specs(not only the tsp-spector mock server)
+ * so any http response is considered as ready.
+ */
 async function waitForServer(baseUrl: string) {
   logger.debug(`Executing server tests with base URL: ${baseUrl}`);
+  const deadline = Date.now() + SERVER_READY_TIMEOUT_MS;
+  let lastError: unknown;
   let retry = 0;
 
-  while (retry < 3) {
+  while (Date.now() < deadline) {
     try {
       await fetch(baseUrl);
-      break;
+      logger.info(`  ${baseUrl} is ready!`);
+      return;
     } catch (e) {
+      lastError = e;
       retry++;
-      logger.info("Retrying...");
-      await delay(retry * 1000);
+      logger.info(`Server is not ready yet, retrying...(${retry})`);
+      await delay(SERVER_POLL_INTERVAL_MS);
     }
   }
-  logger.info(`  ${baseUrl} is ready!`);
+
+  throw new Error(
+    `Server at ${baseUrl} did not become ready within ${SERVER_READY_TIMEOUT_MS / 1000}s: ${lastError}`,
+  );
 }
 
 export async function serverTest(scenariosPath: string, options: ServerTestOptions = {}) {
@@ -202,14 +218,10 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
 
   if (successfullScenarios.length === 0 && failureDiagnostics.length === 0) {
     logger.error("No scenarios were executed");
-    process.exit(-1);
+    return exit(1);
   }
 
-  if (successfullScenarios.length > 0) log("Successfull scenarios");
-  successfullScenarios.forEach((diagnostic) => {
-    log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
-  });
-
+  // Failures are printed first so they don't get lost at the bottom of a large log.
   if (failureDiagnostics.length > 0) {
     log("Failed scenarios");
     failureDiagnostics.forEach((diagnostic) => {
@@ -217,12 +229,28 @@ export async function serverTest(scenariosPath: string, options: ServerTestOptio
       log(`${diagnostic.message}`);
     });
   }
-  log(pc.bold(pc.green(`✓ ${scenarioEntries.length} passed`)));
+
+  if (successfullScenarios.length > 0) log("Successfull scenarios");
+  successfullScenarios.forEach((diagnostic) => {
+    log(`${pc.green("✓")} Scenario: ${pc.cyan(diagnostic.name)}`);
+  });
+
+  log(pc.bold(pc.green(`✓ ${successfullScenarios.length} passed`)));
   if (failureDiagnostics.length > 0) {
     log(pc.red(`✘ ${failureDiagnostics.length} failed`));
   }
 
-  process.exit(failureDiagnostics.length > 0 ? 1 : 0);
+  return exit(failureDiagnostics.length > 0 ? 1 : 0);
+}
+
+/**
+ * Exit with the given code without losing any buffered output.
+ * `process.exit()` discards pending writes when stdout is a pipe(e.g. in CI) which would
+ * otherwise truncate the diagnostics printed above.
+ */
+function exit(code: number) {
+  process.exitCode = code;
+  process.stdout.write("", () => process.exit(code));
 }
 
 function log(message: string) {
