@@ -188,7 +188,7 @@ setup_shell() {
   if [ "$CURRENT_SHELL" = "zsh" ]; then
     CONF_FILE=${ZDOTDIR:-$HOME}/.zshrc
     ensure_containing_dir_exists "$CONF_FILE"
-    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
       info "TypeSpec path already configured in $CONF_FILE, skipping."
       return
     fi
@@ -205,7 +205,7 @@ setup_shell() {
   elif [ "$CURRENT_SHELL" = "fish" ]; then
     CONF_FILE=$HOME/.config/fish/conf.d/tsp.fish
     ensure_containing_dir_exists "$CONF_FILE"
-    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
       info "TypeSpec path already configured in $CONF_FILE, skipping."
       return
     fi
@@ -226,7 +226,7 @@ setup_shell() {
       CONF_FILE=$HOME/.bashrc
     fi
     ensure_containing_dir_exists "$CONF_FILE"
-    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2> /dev/null; then
       info "TypeSpec path already configured in $CONF_FILE, skipping."
       return
     fi
