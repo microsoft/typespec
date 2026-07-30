@@ -2347,6 +2347,115 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_RequiredToOptionalConstructorIsRestored()
+        {
+            // "resources" was required in the last contract (so the initialization constructor
+            // accepted it), but the current spec relaxes it to optional which would otherwise drop
+            // it from the constructor. The previously published constructor should be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // Before back-compat processing the public constructor only takes "name".
+            var publicCtorBefore = modelProvider!.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtorBefore);
+            Assert.AreEqual(1, publicCtorBefore!.Signature.Parameters.Count);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // After back-compat processing the previously published (name, resources) constructor is restored.
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, resources) constructor to be restored for back compat");
+            Assert.AreEqual("name", restoredCtor!.Signature.Parameters[0].Name);
+            Assert.AreEqual("resources", restoredCtor.Signature.Parameters[1].Name);
+            Assert.IsTrue(restoredCtor.Signature.Parameters[1].Type.Equals(typeof(string)));
+
+            // It chains to the current (name) constructor and assigns the extra property in its body.
+            var initializer = restoredCtor.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsFalse(initializer!.IsBase);
+            Assert.AreEqual(1, initializer.Arguments.Count);
+            Assert.AreEqual("name", initializer.Arguments[0].ToDisplayString());
+
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
+            // A required non-nullable reference type restores its null validation.
+            Assert.IsTrue(body.Contains("Argument.AssertNotNull(resources"), $"Expected null validation for resources, was: {body}");
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenPropertyRemoved()
+        {
+            // "resources" existed in the last contract constructor but has been removed entirely from
+            // the current spec, so the previous constructor cannot be safely restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var twoParamPublicCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(twoParamPublicCtor, "The constructor should not be restored when a property was removed");
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenLastContractMissing()
+        {
+            // No last contract exists for the model, so nothing should be restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+            Assert.IsNull(modelProvider!.LastContractView);
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var twoParamPublicCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(twoParamPublicCtor);
+        }
+
+        [Test]
         public async Task TestBuildProperties_WithObjectAdditionalPropertiesBackwardCompatibility()
         {
             // Create a model with unknown additional properties (which would normally generate BinaryData)

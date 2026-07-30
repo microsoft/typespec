@@ -873,6 +873,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var targetParameters = targetConstructor.Signature.Parameters;
             var restoredParameters = new List<ParameterProvider>(previousParameters.Count);
+            var initializerArguments = new List<ParameterProvider>(targetParameters.Count);
             var extraAssignments = new List<(PropertyProvider Property, ParameterProvider Parameter)>();
             int targetIndex = 0;
 
@@ -881,8 +882,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (targetIndex < targetParameters.Count
                     && ParametersEquivalent(targetParameters[targetIndex], previousParameter))
                 {
-                    // Kept parameter: reuse the target constructor's parameter so the chained call lines up.
-                    restoredParameters.Add(targetParameters[targetIndex]);
+                    // Kept parameter: it is forwarded to the chained constructor, which performs any
+                    // validation, so drop validation here to avoid emitting a redundant null check.
+                    var keptParameter = targetParameters[targetIndex];
+                    if (keptParameter.Validation != ParameterValidationType.None)
+                    {
+                        keptParameter = new ParameterProvider(
+                            keptParameter.Name,
+                            keptParameter.Description,
+                            keptParameter.Type,
+                            keptParameter.DefaultValue,
+                            validation: ParameterValidationType.None);
+                    }
+
+                    restoredParameters.Add(keptParameter);
+                    // Forward the restored constructor's own parameter to the chained call so the emitted
+                    // variable reference matches the parameter declared on this constructor.
+                    initializerArguments.Add(keptParameter);
                     targetIndex++;
                     continue;
                 }
@@ -934,7 +950,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 $"Initializes a new instance of {Type:C}",
                 MethodSignatureModifiers.Public,
                 restoredParameters,
-                initializer: new ConstructorInitializer(false, targetParameters));
+                initializer: new ConstructorInitializer(false, initializerArguments));
 
             return new ConstructorProvider(signature, bodyStatements, this);
         }
