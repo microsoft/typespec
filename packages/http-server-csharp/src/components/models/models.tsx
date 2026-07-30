@@ -84,7 +84,7 @@ export function Models(props: ModelsProps): Children {
   );
 }
 
-interface ServerClassDeclarationProps {
+export interface ServerClassDeclarationProps {
   type: Model;
   emitName?: string;
 }
@@ -95,7 +95,7 @@ interface ServerClassDeclarationProps {
  * - No `[JsonPropertyName]` attributes
  * - No nullable `?` suffix on reference types (string, byte[], etc.)
  */
-function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
+export function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
   const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
   const className = namePolicy.getName(props.emitName ?? props.type.name, "class");
