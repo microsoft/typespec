@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -787,17 +788,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
         {
-            var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
-
             if (LastContractView?.Constructors is not { Count: > 0 } previousConstructors)
             {
-                return constructors;
+                return base.BuildConstructorsForBackCompatibility(originalConstructors);
             }
+
+            var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
 
             foreach (var previousConstructor in previousConstructors)
             {
-                // Only public constructors are part of the API surface that callers can depend on.
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                // Only public/protected constructors are part of the API surface that callers can depend on.
+                if (!IsPublicApi(previousConstructor.Signature.Modifiers))
                 {
                     continue;
                 }
@@ -817,8 +818,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var restoredConstructor = TryBuildRestoredConstructor(previousConstructor, constructors);
-                if (restoredConstructor != null)
+                if (TryBuildRestoredConstructor(previousConstructor, constructors, out var restoredConstructor))
                 {
                     constructors.Add(restoredConstructor);
                     CodeModelGenerator.Instance.Emitter.Info(
@@ -838,29 +838,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Attempts to reconstruct <paramref name="previousConstructor"/> as a back-compat overload that
-        /// chains to an existing public constructor. Returns <see langword="null"/> when the constructor
-        /// cannot be safely restored.
+        /// chains to an existing public constructor. Returns <see langword="true"/> and sets
+        /// <paramref name="restoredConstructor"/> when the constructor can be safely restored; otherwise
+        /// returns <see langword="false"/>.
         /// </summary>
-        private ConstructorProvider? TryBuildRestoredConstructor(
+        private bool TryBuildRestoredConstructor(
             ConstructorProvider previousConstructor,
-            IReadOnlyList<ConstructorProvider> currentConstructors)
+            IReadOnlyList<ConstructorProvider> currentConstructors,
+            [NotNullWhen(true)] out ConstructorProvider? restoredConstructor)
         {
+            restoredConstructor = null;
             var previousParameters = previousConstructor.Signature.Parameters;
 
             // Find the public constructor to chain to: its parameters must form an in-order subsequence of
-            // the previous constructor's parameters (matched by name and type name). Prefer the closest one.
+            // the previous constructor's parameters. Prefer the closest one.
             ConstructorProvider? targetConstructor = null;
             foreach (var candidate in currentConstructors)
             {
-                if (!candidate.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                if (!IsPublicApi(candidate.Signature.Modifiers)
                     || candidate.Signature.Parameters.Count >= previousParameters.Count)
                 {
                     continue;
                 }
 
-                if (IsParameterSubsequence(candidate.Signature.Parameters, previousParameters)
-                    && (targetConstructor == null
-                        || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count))
+                // Check whether this candidate would improve on the current target before performing the
+                // more expensive subsequence lookup.
+                if ((targetConstructor == null
+                        || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count)
+                    && IsParameterSubsequence(candidate.Signature.Parameters, previousParameters))
                 {
                     targetConstructor = candidate;
                 }
@@ -868,7 +873,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (targetConstructor == null)
             {
-                return null;
+                return false;
             }
 
             var targetParameters = targetConstructor.Signature.Parameters;
@@ -880,7 +885,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousParameter in previousParameters)
             {
                 if (targetIndex < targetParameters.Count
-                    && ParametersEquivalent(targetParameters[targetIndex], previousParameter))
+                    && targetParameters[targetIndex].Equals(previousParameter))
                 {
                     // Kept parameter: it is forwarded to the chained constructor, which performs any
                     // validation, so drop validation here to avoid emitting a redundant null check.
@@ -892,6 +897,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             keptParameter.Description,
                             keptParameter.Type,
                             keptParameter.DefaultValue,
+                            wireInfo: keptParameter.WireInfo,
                             validation: ParameterValidationType.None);
                     }
 
@@ -907,16 +913,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var property = FindRestorableProperty(previousParameter);
                 if (property == null)
                 {
-                    return null;
+                    return false;
                 }
 
                 // Preserve the previously published parameter name and type exactly to keep the signature
-                // source-compatible. Reinstate null validation for non-nullable reference types so the
-                // restored constructor matches the behavior the property previously had while required.
+                // source-compatible, carrying the wire info from the current property so serialization is
+                // unchanged. Reinstate null validation for non-nullable reference types so the restored
+                // constructor matches the behavior the property previously had while required.
                 var restoredParameter = new ParameterProvider(
                     previousParameter.Name,
                     previousParameter.Description,
                     previousParameter.Type,
+                    wireInfo: property.AsParameter.WireInfo,
                     validation: previousParameter.Type is { IsValueType: false, IsNullable: false }
                         ? ParameterValidationType.AssertNotNull
                         : ParameterValidationType.None);
@@ -929,7 +937,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // otherwise the restored constructor would be redundant or would produce an invalid chained call.
             if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
             {
-                return null;
+                return false;
             }
 
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
@@ -948,15 +956,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var signature = new ConstructorSignature(
                 Type,
                 $"Initializes a new instance of {Type:C}",
-                MethodSignatureModifiers.Public,
+                previousConstructor.Signature.Modifiers,
                 restoredParameters,
                 initializer: new ConstructorInitializer(false, initializerArguments));
 
-            return new ConstructorProvider(signature, bodyStatements, this);
+            restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
+            return true;
         }
-
-        private static bool ParametersEquivalent(ParameterProvider left, ParameterProvider right)
-            => left.Name == right.Name && left.Type.AreNamesEqual(right.Type);
 
         private static bool IsParameterSubsequence(
             IReadOnlyList<ParameterProvider> subset,
@@ -965,7 +971,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             int matched = 0;
             foreach (var parameter in full)
             {
-                if (matched < subset.Count && ParametersEquivalent(subset[matched], parameter))
+                if (matched < subset.Count && subset[matched].Equals(parameter))
                 {
                     matched++;
                 }
@@ -981,7 +987,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         private PropertyProvider? FindRestorableProperty(ParameterProvider previousParameter)
         {
-            foreach (var property in Properties)
+            foreach (var property in CanonicalView.Properties)
             {
                 if (!IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
                 {
