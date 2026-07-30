@@ -349,21 +349,20 @@ describe("compiler: blockless namespaces", () => {
   });
 
   it("does not let intermediate namespace segments shadow global namespace names in using statements", async () => {
-    // Regression test: `namespace _Specs_.TypeSpec.Bar;` creates `_Specs_.TypeSpec` as an
-    // intermediate segment. Previously `using TypeSpec.Http` would incorrectly resolve
-    // `TypeSpec` to `_Specs_.TypeSpec` (found via inScopeNamespaces ancestor) instead of
-    // the global `TypeSpec` namespace.
+    // Regression test: `namespace X.A.C;` creates `X.A` as an intermediate segment.
+    // Previously `using A.B` would incorrectly resolve `A` to `X.A` (found via
+    // inScopeNamespaces ancestor) instead of the global `A` namespace.
     const diagnostics = await Tester.files({
-      "http.tsp": `
-        namespace TypeSpec.Http {
-          model HttpModel {}
+      "lib.tsp": `
+        namespace A.B {
+          model BModel {}
         }
       `,
     }).diagnose(`
-      import "./http.tsp";
-      using TypeSpec.Http;
-      namespace _Specs_.TypeSpec.Bar;
-      model M extends HttpModel {}
+      import "./lib.tsp";
+      using A.B;
+      namespace X.A.C;
+      model M extends BModel {}
     `);
     expectDiagnosticEmpty(diagnostics);
   });
