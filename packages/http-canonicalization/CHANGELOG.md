@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-canonicalization
 
+## 0.16.2
+
+### Bug Fixes
+
+- [#11456](https://github.com/microsoft/typespec/pull/11456) Re-release to realign the `@typespec/emitter-framework` dependency (Alloy `0.24`). The previous `0.16.1` still required `@typespec/emitter-framework@^0.17.0` (Alloy `0.22`), which caused `npm` installs of `@typespec/http-server-csharp` to load two incompatible `@alloy-js/core` versions ("Multiple versions of Alloy are loaded").
+
+
 ## 0.16.1
 
 ### Bump dependencies
