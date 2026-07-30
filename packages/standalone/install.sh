@@ -95,7 +95,7 @@ parse_args() {
       #   shift # past value
       #   ;;
       -s | --skip-shell)
-        SKIP_SHELL="true"
+        skip_shell="true"
         shift # past argument
         ;;
       --version)
@@ -188,6 +188,10 @@ setup_shell() {
   if [ "$CURRENT_SHELL" = "zsh" ]; then
     CONF_FILE=${ZDOTDIR:-$HOME}/.zshrc
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Zsh. Appending the following to $CONF_FILE:"
     {
       echo ''
@@ -201,6 +205,10 @@ setup_shell() {
   elif [ "$CURRENT_SHELL" = "fish" ]; then
     CONF_FILE=$HOME/.config/fish/conf.d/tsp.fish
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Fish. Appending the following to $CONF_FILE:"
     {
       echo ''
@@ -218,6 +226,10 @@ setup_shell() {
       CONF_FILE=$HOME/.bashrc
     fi
     ensure_containing_dir_exists "$CONF_FILE"
+    if grep -qF "TYPESPEC_PATH" "$CONF_FILE" 2>/dev/null; then
+      info "TypeSpec path already configured in $CONF_FILE, skipping."
+      return
+    fi
     echo "Installing for Bash. Appending the following to $CONF_FILE:"
     {
       echo ''
