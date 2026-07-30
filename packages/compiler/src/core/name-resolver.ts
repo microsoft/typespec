@@ -159,6 +159,13 @@ export interface NameResolver {
 
 interface ResolveTypReferenceOptions {
   resolveDecorators?: boolean;
+  /**
+   * When true, global scope is checked before inScopeNamespaces at the TypeSpecScript scope.
+   * Used when resolving `using` statement targets so that e.g. `using TypeSpec.Http` always
+   * refers to the global TypeSpec namespace regardless of any blockless namespace declaration
+   * that creates a same-named intermediate segment (e.g. `namespace _Specs_.TypeSpec.Bar`).
+   */
+  resolveGlobalFirst?: boolean;
 }
 
 // This needs to be global to be sure to not reallocate per program.
@@ -1093,15 +1100,6 @@ export function createResolver(program: Program): NameResolver {
     }
 
     if (!binding && scope && scope.kind === SyntaxKind.TypeSpecScript) {
-      // check the leaf (innermost) blockless namespace decl first — this mirrors how
-      // block-namespace scoping works: the current namespace's own exports take priority.
-      if (scope.inScopeNamespaces.length > 0) {
-        const leafNs = scope.inScopeNamespaces[0];
-        const mergedLeafSymbol = getMergedSymbol(leafNs.symbol);
-        binding = tableLookup(mergedLeafSymbol.exports!, node, options.resolveDecorators);
-        if (binding) return resolvedResult(binding);
-      }
-
       // check "global scope" declarations
       const globalBinding = tableLookup(
         globalNamespaceNode.symbol.exports!,
@@ -1112,32 +1110,61 @@ export function createResolver(program: Program): NameResolver {
       // check using types
       const usingBinding = tableLookup(scope.locals, node, options.resolveDecorators);
 
-      if (globalBinding && usingBinding) {
-        return ambiguousResult([globalBinding, usingBinding]);
-      } else if (globalBinding) {
-        return resolvedResult(globalBinding);
-      } else if (usingBinding) {
-        if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
-          return ambiguousResult([
-            ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
-              []),
-          ]);
+      if (options.resolveGlobalFirst) {
+        // When resolving `using` statement targets, check global scope first so that
+        // e.g. `using TypeSpec.Http` always finds the global TypeSpec namespace rather
+        // than an intermediate segment such as `_Specs_.TypeSpec` introduced by a
+        // blockless namespace declaration like `namespace _Specs_.TypeSpec.Bar;`.
+        if (globalBinding) {
+          return resolvedResult(globalBinding);
         }
-        if (usingBinding.flags & SymbolFlags.Using && usingBinding.symbolSource) {
-          usedUsingSym.get(scope)?.add(usingBinding.symbolSource) ??
-            usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
-        }
-        return resolvedResult(usingBinding.symbolSource!);
-      }
 
-      // check parent blockless namespace decls (after global scope and usings so that
-      // global names are not shadowed by intermediate namespace segments in a multi-segment
-      // blockless namespace path such as `namespace A.TypeSpec.B;`)
-      for (let i = 1; i < scope.inScopeNamespaces.length; i++) {
-        const ns = scope.inScopeNamespaces[i];
-        const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
-        if (binding) return resolvedResult(binding);
+        // check any blockless namespace decls
+        for (const ns of scope.inScopeNamespaces) {
+          const mergedSymbol = getMergedSymbol(ns.symbol);
+          binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
+          if (binding) return resolvedResult(binding);
+        }
+
+        if (usingBinding) {
+          if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
+            return ambiguousResult([
+              ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
+                []),
+            ]);
+          }
+          if (usingBinding.flags & SymbolFlags.Using && usingBinding.symbolSource) {
+            usedUsingSym.get(scope)?.add(usingBinding.symbolSource) ??
+              usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
+          }
+          return resolvedResult(usingBinding.symbolSource!);
+        }
+      } else {
+        // Normal resolution: check any blockless namespace decls first (inner scope before
+        // outer), then global scope and usings with ambiguity detection.
+        for (const ns of scope.inScopeNamespaces) {
+          const mergedSymbol = getMergedSymbol(ns.symbol);
+          binding = tableLookup(mergedSymbol.exports!, node, options.resolveDecorators);
+          if (binding) return resolvedResult(binding);
+        }
+
+        if (globalBinding && usingBinding) {
+          return ambiguousResult([globalBinding, usingBinding]);
+        } else if (globalBinding) {
+          return resolvedResult(globalBinding);
+        } else if (usingBinding) {
+          if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
+            return ambiguousResult([
+              ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
+                []),
+            ]);
+          }
+          if (usingBinding.flags & SymbolFlags.Using && usingBinding.symbolSource) {
+            usedUsingSym.get(scope)?.add(usingBinding.symbolSource) ??
+              usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
+          }
+          return resolvedResult(usingBinding.symbolSource!);
+        }
       }
     }
 
@@ -1253,6 +1280,7 @@ export function createResolver(program: Program): NameResolver {
       const parentNs = using.parent!;
       const { finalSymbol: usedSym, resolutionResult: usedSymResult } = resolveTypeReference(
         using.name,
+        { resolveGlobalFirst: true },
       );
       if (~usedSymResult & ResolutionResultFlags.Resolved) {
         continue; // Keep going and count on checker to report those errors.
