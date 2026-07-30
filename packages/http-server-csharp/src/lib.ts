@@ -21,8 +21,8 @@ export interface CSharpServiceEmitterOptions {
   "https-port"?: number;
   /** Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'. */
   "collection-type"?: "array" | "enumerable";
-  /** A list of TypeSpec interface names to exclude from controller and business-logic interface generation. */
-  "exclude-interfaces"?: string[];
+  /** When true, generates a controller and business-logic interface for the ARM Operations endpoint. Default is false. */
+  "include-operations-controller"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -98,12 +98,12 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       description:
         "Specifies the collection type to use: 'array' or 'enumerable'. The default is 'array'.",
     },
-    "exclude-interfaces": {
-      type: "array",
-      items: { type: "string" },
+    "include-operations-controller": {
+      type: "boolean",
       nullable: true,
+      default: false,
       description:
-        "A list of TypeSpec interface names to exclude from controller and business-logic interface generation.",
+        "When true, generates a controller and business-logic interface for the ARM Operations endpoint. Default is false.",
     },
   },
   required: [],

@@ -41,12 +41,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   const serviceName = resolution.serviceNamespaceName ?? "ServiceProject";
   const projectName = options["project-name"] ?? "ServiceProject";
 
-  // Filter out excluded interfaces
-  const excludedInterfaces = new Set(options["exclude-interfaces"] ?? []);
-  const interfaces =
-    excludedInterfaces.size > 0
-      ? resolution.interfaces.filter((iface) => !excludedInterfaces.has(iface.name))
-      : resolution.interfaces;
+  // Filter out Operations controller/interface unless explicitly requested
+  const includeOperationsController = options["include-operations-controller"] ?? false;
+  const interfaces = includeOperationsController
+    ? resolution.interfaces
+    : resolution.interfaces.filter((iface) => !isOperationsInterface(iface.name));
 
   // Report diagnostic warnings (pre-pass before rendering)
   reportEmitterDiagnostics(context.program, interfaces, resolution.canonicalOpsMap);
@@ -132,4 +131,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
   const overwrite = options.overwrite ?? false;
   await writeOutputWithOverwrite(context.program, output, context.emitterOutputDir, overwrite);
+}
+
+/** Returns true for interfaces whose name is exactly "Operations". */
+function isOperationsInterface(name: string): boolean {
+  return name === "Operations";
 }

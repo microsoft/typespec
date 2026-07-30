@@ -33,8 +33,8 @@ beforeEach(async () => {
   tester = await ApiTester.createInstance();
 });
 
-describe("exclude-interfaces option", () => {
-  it("generates all controllers and interfaces when no exclusions are specified", async () => {
+describe("include-operations-controller option", () => {
+  it("excludes the Operations controller and interface by default", async () => {
     const fs = await compile(
       tester,
       `
@@ -45,6 +45,26 @@ describe("exclude-interfaces option", () => {
         @route("/widgets") @get list(): string[];
       }
     `,
+    );
+
+    assertFileNotEmitted(fs, "OperationsController.cs");
+    assertFileNotEmitted(fs, "IOperations.cs");
+    assertFileEmitted(fs, "WidgetsController.cs");
+    assertFileEmitted(fs, "IWidgets.cs");
+  });
+
+  it("includes the Operations controller and interface when option is true", async () => {
+    const fs = await compile(
+      tester,
+      `
+      interface Operations {
+        @route("/operations") @get list(): string[];
+      }
+      interface Widgets {
+        @route("/widgets") @get list(): string[];
+      }
+    `,
+      { "skip-format": true, "include-operations-controller": true },
     );
 
     assertFileEmitted(fs, "OperationsController.cs");
@@ -53,52 +73,32 @@ describe("exclude-interfaces option", () => {
     assertFileEmitted(fs, "IWidgets.cs");
   });
 
-  it("skips controller and interface files for excluded interfaces", async () => {
-    const fs = await compile(
+  it("does not exclude synthetic namespace-level Operations interfaces (only exact 'Operations' name is excluded)", async () => {
+    // Namespace-level operations produce a synthetic `${ns.name}Operations` interface
+    // (e.g. ContosoOperations). These are kept; only an interface literally named "Operations" is excluded.
+    const [result] = await compileAndDiagnose(
       tester,
       `
-      interface Operations {
-        @route("/operations") @get list(): string[];
-      }
-      interface Widgets {
-        @route("/widgets") @get list(): string[];
+      @service(#{title: "Contoso"})
+      namespace Contoso {
+        @route("/operations") @get op listOps(): string[];
+        interface Widgets {
+          @route("/widgets") @get list(): string[];
+        }
       }
     `,
-      { "skip-format": true, "exclude-interfaces": ["Operations"] },
+      { "skip-format": true },
     );
+    const fs = result.fs;
 
-    assertFileNotEmitted(fs, "OperationsController.cs");
-    assertFileNotEmitted(fs, "IOperations.cs");
+    // Synthetic ContosoOperations interface is NOT named "Operations" so it is still emitted
+    assertFileEmitted(fs, "ContosoOperationsController.cs");
+    assertFileEmitted(fs, "IContosoOperations.cs");
     assertFileEmitted(fs, "WidgetsController.cs");
     assertFileEmitted(fs, "IWidgets.cs");
   });
 
-  it("excludes multiple interfaces when multiple names are provided", async () => {
-    const fs = await compile(
-      tester,
-      `
-      interface Operations {
-        @route("/operations") @get list(): string[];
-      }
-      interface Widgets {
-        @route("/widgets") @get list(): string[];
-      }
-      interface Gadgets {
-        @route("/gadgets") @get list(): string[];
-      }
-    `,
-      { "skip-format": true, "exclude-interfaces": ["Operations", "Widgets"] },
-    );
-
-    assertFileNotEmitted(fs, "OperationsController.cs");
-    assertFileNotEmitted(fs, "IOperations.cs");
-    assertFileNotEmitted(fs, "WidgetsController.cs");
-    assertFileNotEmitted(fs, "IWidgets.cs");
-    assertFileEmitted(fs, "GadgetsController.cs");
-    assertFileEmitted(fs, "IGadgets.cs");
-  });
-
-  it("has no effect when the excluded interface name does not exist", async () => {
+  it("does not affect non-Operations interfaces when option is false (default)", async () => {
     const fs = await compile(
       tester,
       `
@@ -106,7 +106,6 @@ describe("exclude-interfaces option", () => {
         @route("/widgets") @get list(): string[];
       }
     `,
-      { "skip-format": true, "exclude-interfaces": ["Operations"] },
     );
 
     assertFileEmitted(fs, "WidgetsController.cs");
