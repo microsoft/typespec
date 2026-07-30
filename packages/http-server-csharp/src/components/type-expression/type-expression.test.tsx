@@ -2,8 +2,8 @@ import { Tester } from "#test/tester.js";
 import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { createCSharpNamePolicy, SourceFile } from "@alloy-js/csharp";
-import type { EnumMember, ModelProperty } from "@typespec/compiler";
-import { type TesterInstance } from "@typespec/compiler/testing";
+import type { ModelProperty } from "@typespec/compiler";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverrides, Output } from "@typespec/emitter-framework";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -194,21 +194,21 @@ describe("literal types", () => {
 
 describe("enum member types", () => {
   it("renders a property typed as an enum member using the parent enum type", async () => {
-    const { test } = await runner.compile(`
-      enum Color {
+    const { Color } = await runner.compile(t.code`
+      enum ${t.enum("Color")} {
         red,
         green,
       }
       model Test {
-        @test test: Color.red;
+        test: Color.red;
       }
     `);
-    const member = (test as ModelProperty).type as EnumMember;
+    const member = Color.members.get("red")!;
     // The enum declaration must exist in the render tree for the reference to
     // resolve; here it stands in for the emitted `Color` enum file.
     expect(
       <Wrapper>
-        <cs.EnumDeclaration name="Color" refkey={efRefkey(member.enum)}>
+        <cs.EnumDeclaration name="Color" refkey={efRefkey(Color)}>
           Red
         </cs.EnumDeclaration>
         <hbr />

@@ -132,16 +132,13 @@ it("renders a model with nullable union property", async () => {
 
 it("does not emit a model class for an @useAuth scheme model", async () => {
   await runner.compile(`
-    @service(#{ title: "Contoso" })
+    @service
     @useAuth(MyKeyAuth)
-    namespace Contoso {
-      model MyKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "x-api-key">;
-      model Widget {
-        id: string;
-      }
-      @route("/widgets") interface Widgets {
-        @get list(): Widget[];
-      }
+    namespace Contoso;
+
+    model MyKeyAuth is ApiKeyAuth<ApiKeyLocation.header, "x-api-key">;
+    model Widget {
+      id: string;
     }
   `);
   const tk = $(runner.program);
