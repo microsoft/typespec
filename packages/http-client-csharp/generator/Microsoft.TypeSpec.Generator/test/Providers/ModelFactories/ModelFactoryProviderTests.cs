@@ -661,6 +661,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var toolsParameter = methods[0].Signature.Parameters.Single();
+            Assert.AreEqual(typeof(IEnumerable<>), toolsParameter.Type.FrameworkType);
+            Assert.AreEqual(typeof(Uri), toolsParameter.Type.Arguments.Single().FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
         public void ModelWithNestedDiscriminators()
         {
             var discriminatorProperty =
