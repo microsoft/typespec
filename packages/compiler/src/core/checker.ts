@@ -4962,22 +4962,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return newTacker;
     }
 
-    // The file-level (blockless) namespace node, if any. A using that appears after
-    // this namespace declaration is scoped to it (like a using inside a block namespace),
-    // and should be tracked separately from usings that appear before it.
-    const fileNamespaceNode = file.inScopeNamespaces[0];
-
     for (const using of file.usings) {
       const ns = using.parent!;
-      // If the using appears after the blockless namespace declaration, treat it as
-      // scoped to that namespace for duplicate detection. This is consistent with how
-      // usings inside block namespaces are handled and avoids false-positive
-      // duplicate-using errors when the same namespace is imported both before and
-      // after a blockless namespace declaration.
-      const sym =
-        fileNamespaceNode !== undefined && using.pos >= fileNamespaceNode.pos
-          ? getMergedSymbol(fileNamespaceNode.symbol)
-          : getMergedSymbol(ns.symbol);
+      const sym = getMergedSymbol(ns.symbol);
       const tracker = getTracker(sym);
       const targetSym = resolver.getNodeLinks(using.name).resolvedSymbol;
       if (!targetSym) continue;

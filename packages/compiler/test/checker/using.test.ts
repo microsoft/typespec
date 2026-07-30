@@ -123,41 +123,6 @@ describe("compiler: using statements", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("doesn't consider using before file namespace and using inside file namespace as duplicate", async () => {
-      const diagnostics = await Tester.files({
-        "a.tsp": `namespace A { model AModel {} }`,
-        "b.tsp": `
-          import "./a.tsp";
-          using A;
-          namespace B;
-          using A;
-        `,
-      }).diagnose(`
-        import "./a.tsp";
-        import "./b.tsp";
-      `);
-      expectDiagnosticEmpty(diagnostics);
-    });
-
-    it("throws errors for duplicate usings inside a blockless namespace", async () => {
-      const diagnostics = await Tester.files({
-        "a.tsp": `namespace A { model AModel {} }`,
-        "b.tsp": `
-          import "./a.tsp";
-          namespace B;
-          using A;
-          using A;
-        `,
-      }).diagnose(`
-        import "./a.tsp";
-        import "./b.tsp";
-      `);
-      expectDiagnostics(diagnostics, [
-        { code: "duplicate-using", message: 'duplicate using of "A" namespace' },
-        { code: "duplicate-using", message: 'duplicate using of "A" namespace' },
-      ]);
-    });
-
     it("throws errors for duplicate imported usings", async () => {
       const diagnostics = await Tester.files({
         "a.tsp": `
