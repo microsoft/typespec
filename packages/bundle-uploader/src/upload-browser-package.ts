@@ -1,10 +1,10 @@
 import type { TokenCredential } from "@azure/identity";
-import {
+import type {
   AnonymousCredential,
-  BlobServiceClient,
   ContainerClient,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
+import { BlobServiceClient } from "@azure/storage-blob";
 import type { BundleManifest, TypeSpecBundle, TypeSpecBundleFile } from "@typespec/bundler";
 import { join } from "path/posix";
 import { pkgsContainer, storageAccountName } from "./constants.js";

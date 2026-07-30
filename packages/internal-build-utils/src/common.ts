@@ -1,4 +1,5 @@
-import { ChildProcess, type SpawnOptions } from "child_process";
+import type { ChildProcess } from "child_process";
+import { type SpawnOptions } from "child_process";
 import { spawn } from "cross-spawn";
 
 export class CommandFailedError extends Error {
