@@ -2,7 +2,7 @@
 
 :warning: **This package is highly experimental and may be subject to breaking changes and bugs.** Please expect that your code may need to be updated as this package evolves, and please report any issues you encounter.
 
-TypeSpec HTTP server code generator for JavaScript
+TypeSpec HTTP server code generator for JavaScript.
 
 ## Install
 
