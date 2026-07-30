@@ -1,3 +1,6 @@
+// NOTE: This file is LEGACY only. Do NOT add new tests here.
+// Add new tests to the co-located component `*.test.tsx` files (or another dedicated
+// test file) instead.
 import { resolveVirtualPath, TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";

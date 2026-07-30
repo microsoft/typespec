@@ -30,6 +30,7 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
     "skip-format": {
       type: "boolean",
       nullable: true,
+      default: false,
       description:
         "Skips formatting of generated C# Types.  By default, C# files are formatted using 'dotnet format'.",
     },
@@ -78,11 +79,13 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
     "http-port": {
       type: "number",
       nullable: true,
+      default: null,
       description: "The service http port when hosting the project locally.",
     },
     "https-port": {
       type: "number",
       nullable: true,
+      default: null,
       description: "The service https port when hosting the project locally.",
     },
     "collection-type": {
