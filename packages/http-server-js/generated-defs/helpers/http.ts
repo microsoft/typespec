@@ -10,7 +10,7 @@ const lines = [
   "// Copyright (c) Microsoft Corporation.",
   "// Licensed under the MIT License.",
   "",
-  "import { HttpContext } from \"./router.js\";",
+  "import type { HttpContext } from \"./router.js\";",
   "",
   "export const HTTP_RESPONDER = Symbol.for(\"@typespec/http-server-js.HttpResponder\");",
   "",
