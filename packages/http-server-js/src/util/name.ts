@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Namespace, Type } from "@typespec/compiler";
+import type { Namespace, Type } from "@typespec/compiler";
 
 /**
  * A TypeSpec type that may be attached to a namespace.

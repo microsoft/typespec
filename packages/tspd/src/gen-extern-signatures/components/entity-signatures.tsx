@@ -1,17 +1,9 @@
-import {
-  For,
-  Output,
-  OutputDirectory,
-  Refkey,
-  refkey,
-  render,
-  Show,
-  StatementList,
-} from "@alloy-js/core";
+import type { OutputDirectory, Refkey } from "@alloy-js/core";
+import { For, Output, refkey, render, Show, StatementList } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
+import type { Program } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
+import type { DecoratorSignature, EntitySignature, FunctionSignature } from "../types.js";
 import { AutoDecoratorAccessors } from "./auto-decorator-accessors.js";
 import { DecoratorSignatureType, ValueOfModelTsInterfaceBody } from "./decorator-signature-type.js";
 import { DollarDecoratorsType } from "./dollar-decorators-type.js";

@@ -1,19 +1,18 @@
-import { code, For, join, List, Refkey, refkey } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { code, For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {
-  getSourceLocation,
+import type {
   IntrinsicScalarName,
-  isArrayModelType,
-  isUnknownType,
   MixedParameterConstraint,
   Model,
   Program,
   Scalar,
-  type Type,
 } from "@typespec/compiler";
-import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { getSourceLocation, isArrayModelType, isUnknownType, type Type } from "@typespec/compiler";
+import type { DocTag } from "@typespec/compiler/ast";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature } from "../types.js";
+import type { DecoratorSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
 
 export interface DecoratorSignatureProps {

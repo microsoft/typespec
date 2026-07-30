@@ -1,18 +1,14 @@
-import {
-  compile,
-  createDiagnosticCollector,
-  Diagnostic,
-  joinPaths,
-  NodeHost,
-} from "@typespec/compiler";
+import type { Diagnostic } from "@typespec/compiler";
+import { compile, createDiagnosticCollector, joinPaths, NodeHost } from "@typespec/compiler";
 import { mkdir, writeFile } from "fs/promises";
 import prettier from "prettier";
 import { generateJsApiDocs } from "./api-docs.js";
 import { renderReadme } from "./emitters/markdown.js";
 import { renderToAstroStarlightMarkdown } from "./emitters/starlight.js";
-import { extractLibraryRefDocs, ExtractRefDocOptions, extractRefDocs } from "./extractor.js";
+import type { ExtractRefDocOptions } from "./extractor.js";
+import { extractLibraryRefDocs, extractRefDocs } from "./extractor.js";
 import { writeTypekitDocs } from "./typekit-docs.js";
-import { TypeSpecRefDocBase } from "./types.js";
+import type { TypeSpecRefDocBase } from "./types.js";
 import { readPackageJson } from "./utils/misc.js";
 
 export interface GenerateLibraryDocsOptions {
