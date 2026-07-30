@@ -661,6 +661,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tool", externalTool)
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(typeof(Uri), methods[0].Signature.Parameters.Single().Type.FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
         public async Task BackCompatibility_SkipsMethodWithUnavailableGenericParameterType()
         {
             var externalTool = InputFactory.Model(
@@ -689,6 +720,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var toolsParameter = methods[0].Signature.Parameters.Single();
             Assert.AreEqual(typeof(IEnumerable<>), toolsParameter.Type.FrameworkType);
             Assert.AreEqual(typeof(Uri), toolsParameter.Type.Arguments.Single().FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableReturnType()
+        {
+            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericReturnType()
+        {
+            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
 
             var content = new TypeProviderWriter(modelFactory).Write().Content;
             StringAssert.DoesNotContain("ProjectsAgentTool", content);
