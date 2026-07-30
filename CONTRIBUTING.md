@@ -24,11 +24,13 @@ pnpm install-conflict # This will reset the lockfile to the upstream version and
 pnpm build
 ```
 
-- (Optional) Install [Playwright](https://playwright.dev/) browsers for UI testing
+- (Optional) Install [Playwright](https://playwright.dev/) browsers for UI testing and server-side Mermaid diagram rendering in the website
 
 ```bash
-npx playwright install
+npx playwright install --with-deps chromium
 ```
+
+> **Note:** Without Playwright, `pnpm build` still succeeds. Mermaid diagrams in the website will fall back to client-side rendering instead of being pre-rendered as SVGs.
 
 - Start the build in watch mode to automatically rebuild on save
 
