@@ -2396,6 +2396,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
             // A required non-nullable reference type restores its null validation.
             Assert.IsTrue(body.Contains("Argument.AssertNotNull(resources"), $"Expected null validation for resources, was: {body}");
+
+            // Validate the full generated model, including the restored constructor, against the expected output.
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -2453,6 +2458,87 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                 && c.Signature.Parameters.Count == 2);
             Assert.IsNull(twoParamPublicCtor);
+        }
+
+        [Test]
+        public async Task BackCompat_OptionalValueTypeConstructorParameterIsRestored()
+        {
+            // "count" was a required value type in the last contract, so the initialization constructor
+            // accepted it. Relaxing it to optional drops it; the previously published constructor is
+            // restored, and because it is a value type no null validation is emitted.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, count) constructor to be restored for back compat");
+            Assert.AreEqual("count", restoredCtor!.Signature.Parameters[1].Name);
+            // The restored parameter keeps the previously published non-nullable value type.
+            Assert.IsTrue(restoredCtor.Signature.Parameters[1].Type.Equals(typeof(int)));
+            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[1].Validation);
+
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("Count = count"), $"Expected the body to assign Count, was: {body}");
+            // Value types never emit a null check.
+            Assert.IsFalse(body.Contains("AssertNotNull"), $"Did not expect null validation for a value type, was: {body}");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_RenamedPropertyConstructorIsRestored()
+        {
+            // The spec property "resources" is renamed to "ResourceList" via a [CodeGenMember]
+            // customization. The previously published constructor's "resources" parameter must still
+            // be matched to the renamed property (via its OriginalName) so the constructor is restored.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_RenamedPropertyConstructorIsRestored_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            var restoredCtor = modelProvider.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(restoredCtor, "Expected the (name, resources) constructor to be restored for back compat");
+            // The restored parameter keeps the previously published (pre-rename) name.
+            Assert.AreEqual("resources", restoredCtor!.Signature.Parameters[1].Name);
+
+            // The body assigns the current, renamed property.
+            var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(body.Contains("ResourceList = resources"), $"Expected the body to assign the renamed property, was: {body}");
         }
 
         [Test]
