@@ -1,10 +1,11 @@
 // NOTE: This file is LEGACY only. Do NOT add new tests here.
 // Add new tests to the co-located component `*.test.tsx` files (or another dedicated
 // test file) instead.
-import { resolveVirtualPath, TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
+import type { TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
+import { resolveVirtualPath } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { CSharpServiceEmitterOptions } from "../src/lib.js";
+import type { CSharpServiceEmitterOptions } from "../src/lib.js";
 import { ApiTester, compileAndDiagnose, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(fs: TestFileSystem, fileName: string): [string, string] {

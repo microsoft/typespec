@@ -16,7 +16,7 @@ import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
 import { reportEmitterDiagnostics } from "./diagnostics.js";
-import { CSharpServiceEmitterOptions } from "./lib.js";
+import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
 import { resolveServiceTypes } from "./service-resolution.js";
 import { getFreePort } from "./utils/port.js";
