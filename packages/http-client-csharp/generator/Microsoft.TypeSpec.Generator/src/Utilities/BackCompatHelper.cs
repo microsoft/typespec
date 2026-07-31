@@ -358,7 +358,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var previousMethod in previousMethods)
             {
                 var previousSignature = previousMethod.Signature;
-                if (!MethodProviderHelpers.IsPublicApi(previousSignature.Modifiers) ||
+                if (previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
+                    !MethodProviderHelpers.IsPublicApi(previousSignature.Modifiers) ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;
@@ -373,6 +374,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 {
                     var candidateSignature = candidate.Signature;
                     bool candidateIsAccessible = MethodProviderHelpers.IsPublicApi(candidateSignature.Modifiers);
+
+                    if (candidateSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
+                        != previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static))
+                    {
+                        continue;
+                    }
 
                     if (MethodSignature.MethodSignatureComparer.Equals(candidateSignature, previousSignature))
                     {

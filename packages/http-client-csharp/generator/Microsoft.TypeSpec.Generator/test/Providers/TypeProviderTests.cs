@@ -508,6 +508,90 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        // TypeProvider: a STATIC method whose value-type parameter had its nullability removed gets a hidden
+        // static overload that unwraps the previously-nullable parameter with .Value and delegates through
+        // the declaring type (not `this`), since a static method cannot use an instance receiver.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilityAddsStaticOverloadForRelaxedNullableValueTypeParameter()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published static GetData(string data, FileFormatType? value = default, bool
+            // flag = default); the current generation makes the extensible-enum 'value' non-nullable and
+            // required. The required string 'data' produces an argument assertion in the method body.
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            var enumInput = InputFactory.StringEnum("fileFormatType", [("json", "json"), ("xml", "xml")], isExtensible: true, usage: InputModelTypeUsage.Input);
+            var data = typeFactory.CreateParameter(InputFactory.QueryParameter("data", InputPrimitiveType.String, isRequired: true))!;
+            var value = typeFactory.CreateParameter(InputFactory.QueryParameter("value", enumInput, isRequired: true))!;
+            var flag = typeFactory.CreateParameter(InputFactory.QueryParameter("flag", InputPrimitiveType.Boolean))!;
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Static, new CSharpType(typeof(string)), $"", [data, value, flag]),
+                Snippet.Return(data),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "StaticNullabilityChangeType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: a previous STATIC method and a current INSTANCE method (or vice versa) are different
+        // APIs. The generated shim would preserve the previous signature's static-ness while delegating to
+        // the current method via the wrong receiver (e.g. `this.GetData(...)` inside a static shim, CS0026),
+        // so a candidate whose static modifier differs must be rejected and no overload added.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOverloadWhenStaticnessDiffers()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published static GetData(int param1); the current generation exposes an
+            // instance GetData(int param1, bool param2 = default). Because the static-ness differs, the new
+            // optional-parameter overload must not be resurrected.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "StaticnessMismatchType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the current instance method remains; no hidden static back-compat overload was added.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        // TypeProvider: an abstract method has no body, so the delegating back-compat shim (which must have a
+        // body) cannot preserve the previous 'abstract' modifier without producing invalid C#. Abstract
+        // methods are therefore skipped entirely and no overload is added.
+        [Test]
+        public async Task BuildMethodsForBackCompatibilitySkipsOverloadForAbstractMethod()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // The last contract published abstract GetData(int param1); the current generation exposes
+            // GetData(int param1, bool param2 = default). Because the previous method is abstract, no
+            // delegating overload can be generated.
+            var param1 = new ParameterProvider("param1", $"", new CSharpType(typeof(int)));
+            var param2 = new ParameterProvider("param2", $"", new CSharpType(typeof(bool)), defaultValue: Snippet.Default, location: ParameterLocation.Query);
+            var getData = new MethodProvider(
+                new MethodSignature("GetData", $"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), $"", [param1, param2]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "AbstractMethodType", ns: "Test", methods: [getData]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            // Only the current method remains; no hidden back-compat overload was added.
+            var actual = new TypeProviderWriter(typeProvider).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         [Test]
         public async Task BuildMethodsForBackCompatibilityAddsNullableOverloadForUnresolvedCustomValueTypeParameter()
         {

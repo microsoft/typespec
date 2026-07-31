@@ -397,6 +397,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsFalse(doIt.IsPartialMethod, "Partial methods with bodies should not be treated as customization signals.");
         }
 
+        // Validates that reading a symbol maps the 'abstract' modifier onto the method signature so
+        // downstream consumers (e.g. the back-compat overload pass) can faithfully detect abstract methods.
+        [Test]
+        public async Task ValidateAbstractMethodModifierIsDetected()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var symbol = CompilationHelper.GetSymbol(compilation!.Assembly.Modules.First().GlobalNamespace, "WithAbstract")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            var abstractMethod = provider.Methods.Single(m => m.Signature.Name == "AbstractMethod");
+            Assert.IsTrue(abstractMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected AbstractMethod to carry the Abstract modifier.");
+
+            var virtualMethod = provider.Methods.Single(m => m.Signature.Name == "VirtualMethod");
+            Assert.IsFalse(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract), "Expected VirtualMethod to not carry the Abstract modifier.");
+            Assert.IsTrue(virtualMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual), "Expected VirtualMethod to carry the Virtual modifier.");
+        }
+
         [Test]
         public async Task BodyDependenciesIncludeUsingNamespaceCandidatesForUnresolvedTypeSyntax()
         {
