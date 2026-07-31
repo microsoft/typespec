@@ -1,8 +1,9 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { SyntaxKind, TypeSpecScriptNode } from "../src/ast/index.js";
+import type { TypeSpecScriptNode } from "../src/ast/index.js";
+import { SyntaxKind } from "../src/ast/index.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
-import { Node } from "../src/core/types.js";
+import type { Node } from "../src/core/types.js";
 import { extractCursor } from "../src/testing/source-utils.js";
 import { dumpAST } from "./ast-test-utils.js";
 

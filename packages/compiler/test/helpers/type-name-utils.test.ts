@@ -1,6 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { TypeNameOptions, getTypeName } from "../../src/index.js";
+import type { TypeNameOptions } from "../../src/index.js";
+import { getTypeName } from "../../src/index.js";
 import { Tester } from "../tester.js";
 
 async function getNameFor(code: string, options: TypeNameOptions = {}) {

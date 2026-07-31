@@ -3,9 +3,8 @@ import { ignoreDiagnostics } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
+import type { DiagnosticTarget, NoTarget } from "../core/types.js";
 import {
-  DiagnosticTarget,
-  NoTarget,
   type ObjectValue,
   type Scalar,
   type ScalarValue,

@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { CodeAction, CodeActionKind, Diagnostic, Range } from "vscode-languageserver";
-import { createTestServerHost, TestServerHost } from "../../src/testing/test-server-host.js";
+import type { CodeAction, Diagnostic } from "vscode-languageserver";
+import { CodeActionKind, Range } from "vscode-languageserver";
+import type { TestServerHost } from "../../src/testing/test-server-host.js";
+import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 let host: TestServerHost;
 

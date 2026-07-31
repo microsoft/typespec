@@ -1,7 +1,13 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import { DecoratorContext, Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
+import type {
+  DecoratorContext,
+  Diagnostic,
+  Model,
+  StringLiteral,
+  Type,
+} from "../../src/core/types.js";
 import { isUnknownType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,

@@ -1,5 +1,5 @@
 import { assert, expect, it } from "vitest";
-import { Scalar } from "../../src/index.js";
+import type { Scalar } from "../../src/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { getTypes } from "./utils.js";
 

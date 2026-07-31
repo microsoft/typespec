@@ -1,23 +1,16 @@
-import {
+import type {
   CodeAction,
-  CodeActionKind,
   CodeActionParams,
-  CompletionList,
   CompletionParams,
   CreateFile,
   DefinitionParams,
-  DiagnosticSeverity,
-  DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
   DocumentHighlight,
-  DocumentHighlightKind,
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  FileChangeType,
   FoldingRange,
-  FoldingRangeKind,
   FoldingRangeParams,
   Hover,
   HoverParams,
@@ -26,15 +19,12 @@ import {
   InitializeResult,
   Location,
   MarkupContent,
-  MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  Range,
   ReferenceParams,
   RenameFilesParams,
   RenameParams,
   SemanticTokens,
-  SemanticTokensBuilder,
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
@@ -43,13 +33,25 @@ import {
   TextDocumentChangeEvent,
   TextDocumentEdit,
   TextDocumentIdentifier,
-  TextDocumentSyncKind,
-  TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import {
+  CodeActionKind,
+  CompletionList,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  DocumentHighlightKind,
+  FileChangeType,
+  FoldingRangeKind,
+  MarkupKind,
+  Range,
+  SemanticTokensBuilder,
+  TextDocumentSyncKind,
+  TextEdit,
+} from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
@@ -60,7 +62,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -74,7 +76,7 @@ import { type Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
-import {
+import type {
   AugmentDecoratorStatementNode,
   CodeFixEdit,
   CompilerHost,
@@ -84,25 +86,25 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
-  NoTarget,
   PositionDetail,
   ProcessedLog,
   SourceFile,
-  SyntaxKind,
   TextRange,
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { NoTarget, SyntaxKind } from "../core/types.js";
 import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
 import { validateTemplateDefinitions } from "../init/init-template-validate.js";
-import { InitTemplate } from "../init/init-template.js";
+import type { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
-import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
+import type { ResolveModuleHost } from "../module-resolver/index.js";
+import { resolveModule } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
-import { ClientConfigProvider } from "./client-config-provider.js";
+import type { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
@@ -111,7 +113,7 @@ import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
-import { ServerCompileOptions } from "./server-compile-manager.js";
+import type { ServerCompileOptions } from "./server-compile-manager.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -119,12 +121,11 @@ import {
   getSymbolDetails,
   getTemplateParameterDocumentation,
 } from "./type-details.js";
-import {
+import type {
   CompileResult,
   InitProjectConfig,
   InitProjectContext,
   InternalCompileResult,
-  SemanticTokenKind,
   Server,
   ServerCustomCapacities,
   ServerDiagnostic,
@@ -134,6 +135,7 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
+import { SemanticTokenKind } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
 export function createServer(

@@ -3,8 +3,9 @@
 
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
-import { Declaration, Modifier, ModifierFlags, SyntaxKind } from "./types.js";
+import type { Program } from "./program.js";
+import type { Declaration, Modifier } from "./types.js";
+import { ModifierFlags, SyntaxKind } from "./types.js";
 
 /**
  * The compatibility of modifiers for a given declaration node type.

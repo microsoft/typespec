@@ -5,7 +5,7 @@ import {
   printIdentifier as printIdentifierString,
   splitLines,
 } from "../../core/helpers/syntax-utils.js";
-import {
+import type {
   AliasStatementNode,
   ArrayExpressionNode,
   ArrayLiteralNode,
@@ -36,7 +36,6 @@ import {
   ModelSpreadPropertyNode,
   ModelStatementNode,
   Node,
-  NodeFlags,
   NumericLiteralNode,
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
@@ -50,7 +49,6 @@ import {
   StringLiteralNode,
   StringTemplateExpressionNode,
   StringTemplateSpanNode,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
@@ -64,10 +62,11 @@ import {
   UsingStatementNode,
   ValueOfExpressionNode,
 } from "../../core/types.js";
-import { FlattenedNamespaceStatementNode } from "../types.js";
+import { NodeFlags, SyntaxKind } from "../../core/types.js";
+import type { FlattenedNamespaceStatementNode } from "../types.js";
 import { commentHandler } from "./comment-handler.js";
 import { needsParens } from "./needs-parens.js";
-import { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
+import type { DecorableNode, PrettierChildPrint, TypeSpecPrettierOptions } from "./types.js";
 import { util } from "./util.js";
 
 const {

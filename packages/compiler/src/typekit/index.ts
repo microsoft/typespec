@@ -2,9 +2,11 @@ import type { Program } from "../core/program.js";
 import { Realm } from "../experimental/realm.js";
 import { type Typekit } from "./define-kit.js";
 
-export { createDiagnosable, Diagnosable } from "./create-diagnosable.js";
+export { createDiagnosable } from "./create-diagnosable.js";
+export type { Diagnosable } from "./create-diagnosable.js";
 export { defineKit, type Typekit } from "./define-kit.js";
-export {
+export { UnionKit } from "./kits/index.js";
+export type {
   ArrayKit,
   BuiltinKit,
   EntityKit,
@@ -24,7 +26,6 @@ export {
   TupleKit,
   TypeTypekit,
   UnionDescriptor,
-  UnionKit,
   UnionVariantDescriptor,
   UnionVariantKit,
   ValueKit,

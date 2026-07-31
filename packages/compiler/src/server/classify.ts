@@ -8,15 +8,16 @@ import {
   Token,
   TokenFlags,
 } from "../core/scanner.js";
-import {
+import type {
   IdentifierNode,
   Node,
   StringLiteralNode,
-  SyntaxKind,
   TextRange,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { SemanticToken, SemanticTokenKind } from "./types.js";
+import { SyntaxKind } from "../core/types.js";
+import type { SemanticToken } from "./types.js";
+import { SemanticTokenKind } from "./types.js";
 
 /**
  * Compute the semantic tokens for the given AST.

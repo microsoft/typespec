@@ -10,19 +10,12 @@ import {
   getMinValueExclusive,
 } from "../../core/intrinsic-type-state.js";
 import { isNeverType } from "../../core/type-utils.js";
-import {
-  Entity,
-  Enum,
-  Model,
-  Namespace,
-  Node,
-  Scalar,
-  Union,
-  type Type,
-} from "../../core/types.js";
+import type { Entity, Enum, Model, Namespace, Node, Scalar, Union } from "../../core/types.js";
+import { type Type } from "../../core/types.js";
 import { getDoc, getSummary, isErrorModel } from "../../lib/decorators.js";
 import { resolveEncodedName } from "../../lib/encoded-names.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
