@@ -1,4 +1,5 @@
-import { createDiagnosticCollector, Diagnostic, ModelProperty } from "@typespec/compiler";
+import type { Diagnostic, ModelProperty } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { createDiagnostic } from "./lib.js";
 
 /**
