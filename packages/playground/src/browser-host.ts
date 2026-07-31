@@ -290,6 +290,21 @@ export interface BrowserHostOptions {
 }
 
 /**
+ * Split the libraries to load into the ones to import now and the ones to import on demand.
+ * @internal
+ */
+export function splitDeferredLibraries(
+  libsToLoad: readonly string[],
+  deferredEmitters: readonly string[] = [],
+): { eager: string[]; deferred: string[] } {
+  const deferredSet = new Set(deferredEmitters);
+  return {
+    eager: libsToLoad.filter((x) => !deferredSet.has(x)),
+    deferred: libsToLoad.filter((x) => deferredSet.has(x)),
+  };
+}
+
+/**
  * Create the browser host from the list of libraries.
  * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
  * @param importOptions Import configuration.
@@ -301,18 +316,15 @@ export async function createBrowserHost(
   importOptions: LibraryImportOptions = {},
   options: BrowserHostOptions = {},
 ): Promise<BrowserHost> {
-  const deferredEmitters = new Set(options.deferredEmitters ?? []);
-  const eagerLibs = libsToLoad.filter((x) => !deferredEmitters.has(x));
+  const { eager, deferred } = splitDeferredLibraries(libsToLoad, options.deferredEmitters);
 
   const [libraries, compiler] = await Promise.all([
-    loadLibraries(eagerLibs, importOptions),
+    loadLibraries(eager, importOptions),
     importTypeSpecCompiler(importOptions),
   ]);
 
   const deferredLibraries = Object.fromEntries(
-    libsToLoad
-      .filter((x) => deferredEmitters.has(x))
-      .map((name) => [name, () => importPlaygroundLibrary(name, importOptions)] as const),
+    deferred.map((name) => [name, () => importPlaygroundLibrary(name, importOptions)] as const),
   );
 
   return createBrowserHostInternal({

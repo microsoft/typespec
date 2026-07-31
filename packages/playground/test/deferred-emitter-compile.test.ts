@@ -1,12 +1,13 @@
 import { readFile, readdir } from "fs/promises";
+import { createRequire } from "module";
 import { dirname, join, relative } from "path";
-import { fileURLToPath, pathToFileURL } from "url";
+import { pathToFileURL } from "url";
 import { describe, expect, it } from "vitest";
 import type { LoadedPlaygroundTspLibrary } from "../src/browser-host.js";
 import { createBrowserHostInternal, resolveVirtualPath } from "../src/browser-host.js";
 
 const compilerRoot = dirname(
-  fileURLToPath(await import.meta.resolve!("@typespec/compiler/package.json")),
+  createRequire(import.meta.url).resolve("@typespec/compiler/package.json"),
 );
 
 async function collectFiles(dir: string, root: string): Promise<Record<string, string>> {
@@ -71,10 +72,7 @@ function fakeEmitterLibrary(
         "index.js": {
           $onEmit: async (context: any) => {
             onEmit(context.emitterOutputDir);
-            await context.program.host.writeFile(
-              join(context.emitterOutputDir, "out.txt"),
-              "emitted",
-            );
+            await context.program.host.writeFile(`${context.emitterOutputDir}/out.txt`, "emitted");
           },
         },
       },
@@ -119,6 +117,6 @@ describe("compiling with a deferred emitter", () => {
     });
     expect(after.diagnostics.map((x) => `${x.code}: ${x.message}`)).toEqual([]);
     expect(emitted).toBe(1);
-    expect((await host.readFile(join(emitterOutputDir!, "out.txt"))).text).toEqual("emitted");
+    expect((await host.readFile(`${emitterOutputDir!}/out.txt`)).text).toEqual("emitted");
   });
 });
