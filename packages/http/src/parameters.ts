@@ -1,14 +1,9 @@
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  ModelProperty,
-  Operation,
-  Program,
-} from "@typespec/compiler";
+import type { Diagnostic, ModelProperty, Operation, Program } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { getOperationVerb, getPathOptions, getQueryOptions } from "./decorators.js";
 import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
-import {
+import type {
   HttpOperation,
   HttpOperationParameter,
   HttpOperationParameters,
