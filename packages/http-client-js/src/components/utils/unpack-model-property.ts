@@ -1,4 +1,5 @@
-import { isNullType, ModelProperty, Type } from "@typespec/compiler";
+import type { ModelProperty, Type } from "@typespec/compiler";
+import { isNullType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 
 /**
