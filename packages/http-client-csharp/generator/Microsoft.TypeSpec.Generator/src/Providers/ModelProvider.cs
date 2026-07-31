@@ -794,10 +794,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
+            var restorablePropertyLookup = BuildRestorablePropertyLookup();
 
             foreach (var previousConstructor in previousConstructors)
             {
-                // Only public/protected constructors are part of the API surface that callers can depend on.
                 if (!IsPublicApi(previousConstructor.Signature.Modifiers))
                 {
                     continue;
@@ -805,9 +805,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 var previousParameters = previousConstructor.Signature.Parameters;
 
-                // A parameterless constructor is always still generated (or intentionally absent); there is
-                // nothing to restore and doing so could collide with an existing constructor.
                 if (previousParameters.Count == 0)
+                {
+                    continue;
+                }
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -820,14 +823,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // If the removal of this constructor has been accepted in the ApiCompat baseline (in either
-                // the xml or txt format), the break is intentional and must not be resurrected.
-                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
-                {
-                    continue;
-                }
-
-                if (TryBuildRestoredConstructor(previousConstructor, constructors, out var restoredConstructor))
+                if (TryBuildRestoredConstructor(previousConstructor, constructors, restorablePropertyLookup, out var restoredConstructor))
                 {
                     constructors.Add(restoredConstructor);
                     CodeModelGenerator.Instance.Emitter.Info(
@@ -848,6 +844,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool TryBuildRestoredConstructor(
             ConstructorProvider previousConstructor,
             IReadOnlyList<ConstructorProvider> currentConstructors,
+            Dictionary<string, PropertyProvider> restorablePropertyLookup,
             [NotNullWhen(true)] out ConstructorProvider? restoredConstructor)
         {
             restoredConstructor = null;
@@ -901,7 +898,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Extra parameter: it must map to a settable property whose type is unchanged.
-                var property = FindRestorableProperty(previousParameter);
+                var property = FindRestorableProperty(restorablePropertyLookup, previousParameter);
                 if (property == null)
                 {
                     return false;
@@ -955,10 +952,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<ParameterProvider> subset,
             IReadOnlyList<ParameterProvider> full)
         {
+            if (subset.Count > full.Count)
+            {
+                return false;
+            }
+
             int matched = 0;
             foreach (var parameter in full)
             {
-                if (matched < subset.Count && subset[matched].Equals(parameter))
+                if (matched == subset.Count)
+                {
+                    break;
+                }
+
+                if (subset[matched].Equals(parameter))
                 {
                     matched++;
                 }
@@ -968,12 +975,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Finds a settable public property that can receive the value of <paramref name="previousParameter"/>.
-        /// The property must have the same type (ignoring nullability) and either the same name or a name that
-        /// was changed via a codegen customization (matched by <see cref="PropertyProvider.OriginalName"/>).
+        /// Builds a lookup of settable public properties keyed by the name a constructor parameter would
+        /// use, so a dropped last-contract parameter can be resolved to its property in a single lookup. A
+        /// property is registered under its current parameter name and, when it was renamed via a codegen
+        /// customization, also under its <see cref="PropertyProvider.OriginalName"/> (the direct name wins
+        /// on collision).
         /// </summary>
-        private PropertyProvider? FindRestorableProperty(ParameterProvider previousParameter)
+        private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
         {
+            var lookup = new Dictionary<string, PropertyProvider>();
             foreach (var property in CanonicalView.Properties)
             {
                 if (!IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
@@ -981,13 +991,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var nameMatches = property.AsParameter.Name == previousParameter.Name
-                    || (property.OriginalName != null && property.OriginalName.ToVariableName() == previousParameter.Name);
+                lookup[property.AsParameter.Name] = property;
+            }
 
-                if (nameMatches && property.Type.AreNamesEqual(previousParameter.Type))
+            foreach (var property in CanonicalView.Properties)
+            {
+                if (!IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null
+                    || property.OriginalName == null)
                 {
-                    return property;
+                    continue;
                 }
+
+                var originalVariableName = property.OriginalName.ToVariableName();
+                if (!lookup.ContainsKey(originalVariableName))
+                {
+                    lookup[originalVariableName] = property;
+                }
+            }
+
+            return lookup;
+        }
+
+        /// <summary>
+        /// Finds a settable public property that can receive the value of <paramref name="previousParameter"/>.
+        /// The property is resolved from <paramref name="restorablePropertyLookup"/> by the parameter name and
+        /// must have the same type (ignoring nullability).
+        /// </summary>
+        private static PropertyProvider? FindRestorableProperty(
+            Dictionary<string, PropertyProvider> restorablePropertyLookup,
+            ParameterProvider previousParameter)
+        {
+            if (restorablePropertyLookup.TryGetValue(previousParameter.Name, out var property)
+                && property.Type.AreNamesEqual(previousParameter.Type))
+            {
+                return property;
             }
 
             return null;
