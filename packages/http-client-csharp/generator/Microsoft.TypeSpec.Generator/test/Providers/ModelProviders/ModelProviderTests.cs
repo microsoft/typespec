@@ -2393,11 +2393,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("name", initializer.Arguments[0].ToDisplayString());
 
             var body = restoredCtor.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[0].Validation);
+            Assert.IsFalse(body.Contains("Argument.AssertNotNull(name"), $"Did not expect duplicated name validation in restored constructor, was: {body}");
             Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
-            // The extra parameter is cloned from the now-optional property, so it carries the property's
-            // (optional) validation - i.e. no null check is emitted for it.
-            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[1].Validation);
-            Assert.IsFalse(body.Contains("Argument.AssertNotNull(resources"), $"Did not expect null validation for the optional resources parameter, was: {body}");
+            Assert.AreEqual(ParameterValidationType.AssertNotNull, restoredCtor.Signature.Parameters[1].Validation);
+            Assert.IsTrue(body.Contains("Argument.AssertNotNull(resources"), $"Expected null validation for restored resources parameter, was: {body}");
 
             // Validate the full generated model, including the restored constructor, against the expected output.
             var writer = new TypeProviderWriter(modelProvider);

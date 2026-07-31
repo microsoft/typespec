@@ -887,31 +887,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (targetIndex < targetParameters.Count
                     && targetParameters[targetIndex].Equals(previousParameter))
                 {
-                    // Kept parameter: forward the target constructor's parameter (with its existing
-                    // validation) to the chained call so the emitted variable reference matches the
-                    // parameter declared on this constructor.
-                    var keptParameter = targetParameters[targetIndex];
+                    var keptParameter = PartialMethodCustomization.CloneParameterWithName(
+                        targetParameters[targetIndex],
+                        previousParameter.Name,
+                        removeDefault: false,
+                        validation: ParameterValidationType.None);
                     restoredParameters.Add(keptParameter);
                     initializerArguments.Add(keptParameter);
                     targetIndex++;
                     continue;
                 }
 
-                // Extra parameter: it must map to a settable property whose type is unchanged.
                 if (!restorablePropertyLookup.TryGetValue(previousParameter.Name, out var property)
                     || !property.Type.AreNamesEqual(previousParameter.Type))
                 {
                     return false;
                 }
 
-                // Clone the current property's parameter under the previously published name (dropping any
-                // default value so the restored positional parameter matches the previous signature). This
-                // carries the current wire info and validation, keeping serialization and null-checking
-                // behavior consistent with the property.
+                var restoredValidation = previousParameter.Validation != ParameterValidationType.None
+                    ? previousParameter.Validation
+                    : !previousParameter.Type.IsValueType && !previousParameter.Type.IsNullable
+                        ? ParameterValidationType.AssertNotNull
+                        : ParameterValidationType.None;
                 var restoredParameter = PartialMethodCustomization.CloneParameterWithName(
-                    property.AsParameter,
+                    previousParameter,
                     previousParameter.Name,
-                    removeDefault: true);
+                    removeDefault: true,
+                    validation: restoredValidation,
+                    wireInfo: property.AsParameter.WireInfo);
 
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));

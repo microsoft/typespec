@@ -28,8 +28,6 @@ namespace Sample.Models
 
         public MockInputModel(string name, int count) : this(name)
         {
-            global::Sample.Argument.AssertNotNull(name, nameof(name));
-
             Count = count;
         }
 
