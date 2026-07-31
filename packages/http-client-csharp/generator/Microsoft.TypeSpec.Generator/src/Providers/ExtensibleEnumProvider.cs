@@ -348,8 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 EnumUnderlyingType,
                 valueFieldName,
                 this,
-                lastContractProperty.Description,
-                Literal(literalValue));
+                initializationValue: Literal(literalValue));
             member = new EnumTypeMember(lastContractProperty.Name, field, literalValue);
             return true;
         }
