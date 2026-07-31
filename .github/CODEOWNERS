@@ -15,7 +15,7 @@ cspell.yaml
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga @iscai-msft @catalinaperalta @timotheeguerin @markcowl
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
 /docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
 /website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
 
