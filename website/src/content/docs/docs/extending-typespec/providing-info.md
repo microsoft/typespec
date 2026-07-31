@@ -50,6 +50,24 @@ export const $onInfo = defineInfoHook(({ program, target }) => {
 A `TypeInfo` currently has a single `content` field: the markdown content to show for this
 piece of information.
 
+## How it is displayed
+
+In the IDE, the contributed content is appended after the type's signature and documentation,
+separated by a horizontal rule so it is clearly distinguishable from the type's own doc
+comment:
+
+```md
+op read(id: string): void
+
+Reads a pet.
+
+---
+
+`HTTP Route`: `GET /pets/{id}`
+
+`Responses`: `204`
+```
+
 ## Important constraints
 
 Unlike [`$onValidate`](./diagnostics.md), the `$onInfo` hook:

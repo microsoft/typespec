@@ -68,6 +68,11 @@ export async function getSymbolDetails(
   if (infoType) {
     const info = program.getTypeInfo(infoType);
     if (info) {
+      // Separate library contributed info from the type's own signature/documentation with a
+      // horizontal rule so it is clearly not part of the doc comment.
+      if (lines.length > 0) {
+        lines.push("---");
+      }
       lines.push(info.content);
     }
   }

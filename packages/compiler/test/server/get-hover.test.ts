@@ -837,14 +837,17 @@ describe("template access", () => {
 });
 
 describe("$onInfo hook", () => {
-  it("appends info entries contributed by a library to the hover", async () => {
+  it("appends info contributed by a library to the hover, separated by a horizontal rule", async () => {
     const hover = await getHoverAtCursorWithInfoHook(`
         import "./info.js";
         op wr┆ite(): void;
       `);
     const value = getHoverValue(hover);
     ok(value);
-    ok(value.includes("op-info:write"), `Expected info entry in hover, got: ${value}`);
+    ok(
+      value.endsWith("\n\n---\n\nop-info:write"),
+      `Expected info separated from the signature by a horizontal rule, got: ${value}`,
+    );
   });
 
   it("does not add anything when the provider returns undefined for the type", async () => {
