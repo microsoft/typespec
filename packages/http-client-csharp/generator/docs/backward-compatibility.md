@@ -493,7 +493,6 @@ public readonly partial struct OperationStatusType : IEquatable<OperationStatusT
 
 **Key Points:**
 
-- The member's property name and its wire value are read from the previously published assembly's metadata (no debug symbols required)
 - Members that already exist in the current spec, are provided by custom code, or whose removal is accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) are not re-added
 - Restored members are appended after the current spec's members, preserving the current spec's order
 

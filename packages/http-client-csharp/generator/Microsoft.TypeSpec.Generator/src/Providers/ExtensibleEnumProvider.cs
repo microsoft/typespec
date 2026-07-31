@@ -292,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 lastContractValueFields.TryAdd(field.Name, field);
             }
 
-            List<EnumTypeMember>? readdedMembers = null;
+            List<EnumTypeMember>? restoredMembers = null;
             foreach (var property in lastContractProperties)
             {
                 // Members that still exist in the current spec or are provided by custom code are left untouched.
@@ -312,20 +312,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (TryResurrectRemovedMember(property, lastContractValueFields, out var resurrectedMember))
                 {
-                    (readdedMembers ??= []).Add(resurrectedMember);
+                    (restoredMembers ??= []).Add(resurrectedMember);
                     CodeModelGenerator.Instance.Emitter.Debug(
                         $"Re-added enum member '{property.Name}' to enum '{Name}' to preserve a member from the last contract.",
                         BackCompatibilityChangeCategory.EnumMemberAddedFromLastContract);
                 }
             }
 
-            if (readdedMembers == null)
+            if (restoredMembers == null)
             {
                 return null;
             }
 
             // Preserve the current spec order and append the restored members at the end.
-            return [.. currentValues, .. readdedMembers];
+            return [.. currentValues, .. restoredMembers];
         }
 
         private bool TryResurrectRemovedMember(

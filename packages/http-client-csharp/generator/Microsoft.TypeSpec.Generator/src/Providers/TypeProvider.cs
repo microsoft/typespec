@@ -850,7 +850,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         }
 
                         // Sync the enum values before rebuilding the member collections from them.
-                        _enumValues = updatedEnumValues;
+                        if (updatedEnumValues != null)
+                        {
+                            _enumValues = updatedEnumValues;
+                        }
 
                         if (enumProvider.IsExtensible)
                         {
@@ -862,7 +865,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             var existingFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
                             foreach (var field in Fields)
                             {
-                                existingFields[field.Name] = field;
+                                existingFields.TryAdd(field.Name, field);
                             }
                             newFields = ApplyCustomizationFilter(
                                 BuildFields().Select(f => existingFields.TryGetValue(f.Name, out var existing) ? existing : f));
@@ -870,7 +873,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             var existingProperties = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
                             foreach (var property in Properties)
                             {
-                                existingProperties[property.Name] = property;
+                                existingProperties.TryAdd(property.Name, property);
                             }
                             newProperties = ApplyCustomizationFilter(
                                 BuildProperties().Select(p => existingProperties.TryGetValue(p.Name, out var existing) ? existing : p));
