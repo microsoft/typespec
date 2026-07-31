@@ -24,6 +24,18 @@ function Invoke($command, $executePath=$packageRoot)
     }
 }
 
+function Get-ParallelThrottleLimit {
+    param (
+        [Parameter(Mandatory = $true)]
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]$ProcessorCount,
+        [ValidateRange(1, [int]::MaxValue)]
+        [int]$Maximum = 8
+    )
+
+    return [Math]::Min($Maximum, $ProcessorCount)
+}
+
 function Get-TspCommand {
     param (
         [string]$specFile,
@@ -191,6 +203,7 @@ function Set-LaunchSettings {
 }
 
 Export-ModuleMember -Function "Invoke"
+Export-ModuleMember -Function "Get-ParallelThrottleLimit"
 Export-ModuleMember -Function "Get-TspCommand"
 Export-ModuleMember -Function "Refresh-Build"
 Export-ModuleMember -Function "Compare-Paths"

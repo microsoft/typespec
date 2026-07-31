@@ -580,9 +580,9 @@ try {
                 }
             }
             
-            # Discover service directories with tsp-location.yaml referencing any of the matched emitter patterns
+            # Discover SDK projects with tsp-location.yaml referencing any of the matched emitter patterns
             $tspLocations = Get-ChildItem -Path (Join-Path $tempDir "sdk") -Filter "tsp-location.yaml" -Recurse
-            $serviceDirectories = @()
+            $sdkProjects = @()
             foreach ($tspLocation in $tspLocations) {
                 $content = Get-Content $tspLocation.FullName -Raw
                 $matched = $false
@@ -594,41 +594,126 @@ try {
                 }
                 if ($matched) {
                     $relativePath = $tspLocation.DirectoryName -replace ".*[\\/]sdk[\\/]", ""
-                    $serviceDirectory = $relativePath -replace "[\\/].*", ""
-                    if ($serviceDirectories -notcontains $serviceDirectory) {
-                        $serviceDirectories += $serviceDirectory
+                    $pathSegments = $relativePath -split "[\\/]"
+                    $srcPath = Join-Path $tspLocation.DirectoryName "src"
+                    $projectFiles = @(Get-ChildItem -Path $srcPath -Filter "*.csproj" -File -ErrorAction SilentlyContinue)
+                    if ($projectFiles.Count -ne 1) {
+                        Register-StepFailure "Expected one SDK project under $srcPath but found $($projectFiles.Count). Skipping $relativePath."
+                        continue
+                    }
+
+                    $sdkProjects += [pscustomobject]@{
+                        Service = $pathSegments[0]
+                        Library = $pathSegments[-1]
+                        ProjectPath = $projectFiles[0].FullName
                     }
                 }
             }
 
-            if ($serviceDirectories.Count -eq 0) {
+            if ($sdkProjects.Count -eq 0) {
                 Write-Host "No SDK libraries found matching emitter patterns. Skipping SDK regeneration."
             } else {
-                $serviceProj = Join-Path $tempDir "eng/service.proj"
-
-                # Service directories whose libraries share a single code generator plugin that each
-                # library's generation builds into a common output folder. These services are regenerated
-                # serially since they share a common plugin project that shouldn't be built in parallel.
-                $serialCodeGenServiceDirectories = @("ai")
-
-                foreach ($serviceDirectory in $serviceDirectories) {
-                    Write-Host "Regenerating code for service directory: $serviceDirectory"
-                    $previousErrorAction = $ErrorActionPreference
-                    $ErrorActionPreference = "Continue"
-                    try {
-                        $generateCommand = "dotnet msbuild $serviceProj /restore /t:GenerateCode /p:Trace=true /p:ServiceDirectory=$serviceDirectory"
-                        if ($serialCodeGenServiceDirectories -contains $serviceDirectory) {
-                            $generateCommand += " /m:1 /p:BuildInParallel=false"
-                        }
-                        Invoke $generateCommand $tempDir
-                        if ($LASTEXITCODE -ne 0) {
-                            Register-StepFailure "Code generation failed for $serviceDirectory with exit code $LASTEXITCODE. Continuing with next service directory."
-                        }
-                    } catch {
-                        Register-StepFailure "Code generation failed for $serviceDirectory`: $($_.Exception.Message). Continuing with next service directory."
-                    } finally {
-                        $ErrorActionPreference = $previousErrorAction
+                $sdkProjects = @($sdkProjects | Sort-Object -Property ProjectPath -Unique)
+                $setupStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+                $regenerationSetupSucceeded = $true
+                $previousErrorAction = $ErrorActionPreference
+                $ErrorActionPreference = "Continue"
+                try {
+                    $tspClientDir = Join-Path $tempDir "eng/common/tsp-client"
+                    Write-Host "##[section]Pre-installing tsp-client..."
+                    Invoke "npm ci --prefix `"$tspClientDir`"" $tempDir
+                    if ($LASTEXITCODE -ne 0) {
+                        Register-StepFailure "Failed to pre-install tsp-client. Skipping SDK regeneration."
+                        $regenerationSetupSucceeded = $false
                     }
+
+                    if ($regenerationSetupSucceeded) {
+                        $codeGenerationTargetPath = Join-Path $tempDir "eng/CodeGeneration.targets"
+                        Write-Host "##[section]Pre-building the shared client plugin..."
+                        Invoke "dotnet build `"$codeGenerationTargetPath`" /t:BuildPlugin /p:TypeSpecInput=temp" $tempDir
+                        if ($LASTEXITCODE -ne 0) {
+                            Register-StepFailure "Failed to pre-build the shared client plugin. Skipping SDK regeneration."
+                            $regenerationSetupSucceeded = $false
+                        }
+                    }
+                } catch {
+                    Register-StepFailure "SDK regeneration setup failed: $($_.Exception.Message). Skipping SDK regeneration."
+                    $regenerationSetupSucceeded = $false
+                } finally {
+                    $ErrorActionPreference = $previousErrorAction
+                }
+
+                $setupStopwatch.Stop()
+
+                if ($regenerationSetupSucceeded) {
+                    $cpuCores = [Environment]::ProcessorCount
+                    $throttleLimit = Get-ParallelThrottleLimit -ProcessorCount $cpuCores
+                    $completed = [System.Collections.Concurrent.ConcurrentBag[int]]::new()
+                    $totalCount = $sdkProjects.Count
+                    $regenerationStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+                    Write-Host "##[section]Regenerating $totalCount SDK projects with $throttleLimit concurrent jobs (detected $cpuCores logical processors)..."
+                    $results = $sdkProjects | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
+                        $sdkProject = $_
+                        $completedBag = $using:completed
+                        $total = $using:totalCount
+                        $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+                        try {
+                            $output = & dotnet msbuild $sdkProject.ProjectPath /t:GenerateCode /p:Trace=true /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
+                            $exitCode = $LASTEXITCODE
+                            $timingOutput = @($output | Where-Object { "$_" -match "Total Elapsed time" })
+
+                            $completedBag.Add(1)
+                            $currentCount = $completedBag.Count
+                            $status = if ($exitCode -eq 0) { "passed" } else { "failed" }
+                            Write-Host "[$currentCount/$total] $($sdkProject.Library) $status in $($stopwatch.Elapsed)"
+                            foreach ($timingLine in $timingOutput) {
+                                Write-Host "  $timingLine"
+                            }
+
+                            [pscustomobject]@{
+                                Service = $sdkProject.Service
+                                Library = $sdkProject.Library
+                                Success = $exitCode -eq 0
+                                ExitCode = $exitCode
+                                Elapsed = $stopwatch.Elapsed
+                                Output = if ($exitCode -eq 0) { "" } else { $output -join [Environment]::NewLine }
+                            }
+                        } catch {
+                            $completedBag.Add(1)
+                            $currentCount = $completedBag.Count
+                            Write-Host "[$currentCount/$total] $($sdkProject.Library) failed in $($stopwatch.Elapsed)"
+                            [pscustomobject]@{
+                                Service = $sdkProject.Service
+                                Library = $sdkProject.Library
+                                Success = $false
+                                ExitCode = -1
+                                Elapsed = $stopwatch.Elapsed
+                                Output = $_.Exception.ToString()
+                            }
+                        } finally {
+                            $stopwatch.Stop()
+                        }
+                    }
+
+                    $regenerationStopwatch.Stop()
+                    $failedResults = @($results | Where-Object { -not $_.Success })
+                    foreach ($result in $failedResults) {
+                        Write-Host "##[error]$($result.Library) generation output:`n$($result.Output)"
+                        Register-StepFailure "Code generation failed for $($result.Library) in service $($result.Service) with exit code $($result.ExitCode)."
+                    }
+
+                    Write-Host "##[section]SDK regeneration timing summary"
+                    Write-Host "Setup: $($setupStopwatch.Elapsed)"
+                    Write-Host "Project regeneration: $($regenerationStopwatch.Elapsed)"
+                    Write-Host "Succeeded: $($results.Count - $failedResults.Count)"
+                    Write-Host "Failed: $($failedResults.Count)"
+                    Write-Host "Slowest projects:"
+                    $results |
+                        Sort-Object -Property Elapsed -Descending |
+                        Select-Object -First 20 |
+                        ForEach-Object { Write-Host "  $($_.Library): $($_.Elapsed)" }
                 }
             }
         }

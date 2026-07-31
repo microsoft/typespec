@@ -957,7 +957,7 @@ try {
         $failedCount = 0
     } else {
         
-        # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
+        # Determine parallel execution throttle limit based on available logical processors, capped at 8.
         $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
             (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
         } elseif ($IsMacOS) {
@@ -966,7 +966,7 @@ try {
             [int](nproc)
         }
         
-        $throttleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+        $throttleLimit = Get-ParallelThrottleLimit -ProcessorCount $cpuCores
         
         Write-Host "Using $throttleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
         Write-Host ""
@@ -1033,7 +1033,7 @@ try {
             } else {
                 Push-Location $buildPath
                 try {
-                    $output = & dotnet build /t:GenerateCode /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
+                    $output = & dotnet msbuild /t:GenerateCode /p:SkipTspClientInstall=true /p:SkipBuildPlugin=true 2>&1
                     $exitCode = $LASTEXITCODE
                     
                     if ($exitCode -ne 0) {
