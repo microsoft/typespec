@@ -984,11 +984,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if (property.OriginalName != null)
                 {
-                    var originalVariableName = property.OriginalName.ToVariableName();
-                    if (!lookup.ContainsKey(originalVariableName))
-                    {
-                        lookup[originalVariableName] = property;
-                    }
+                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
                 }
             }
 
