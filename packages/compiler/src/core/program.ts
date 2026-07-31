@@ -21,7 +21,6 @@ import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-import { isCompilerFeatureEnabled } from "./features.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -134,8 +133,8 @@ export interface Program {
    * Providers are run lazily and never mutate the type graph. Used by the language server for
    * hover docs and by tooling.
    *
-   * Requires the experimental `type-info-hook` compiler feature to be enabled; returns
-   * `undefined` otherwise.
+   * Only libraries that opted into the experimental `type-info-hook` feature in their own
+   * `tspconfig.yaml` contribute; consumers do not need to enable anything.
    */
   getTypeInfo(target: Type): TypeInfo | undefined;
   /** @internal */
@@ -331,9 +330,6 @@ async function createProgram(
       infoProviders.push({ callback: provider, metadata });
     },
     getTypeInfo(target) {
-      if (!isCompilerFeatureEnabled(program, "type-info-hook")) {
-        return undefined;
-      }
       const contents: string[] = [];
       const context: InfoContext = { program, target };
       for (const provider of infoProviders) {

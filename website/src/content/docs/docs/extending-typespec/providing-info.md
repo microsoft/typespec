@@ -9,14 +9,17 @@ operation. This information is shown in IDE hover tooltips and can also be queri
 programmatically by tooling (such as AI agents).
 
 :::caution
-This is an experimental feature. It must be enabled with the `type-info-hook`
-[compiler feature flag](../handbook/configuration/configuration.md) in your `tspconfig.yaml`:
+This is an experimental feature. A library must opt in by enabling the `type-info-hook`
+[compiler feature](../handbook/configuration/configuration.md) in **its own** `tspconfig.yaml`:
 
 ```yaml
+kind: project
 features:
   - type-info-hook
 ```
 
+The opt-in is scoped to the package declaring the hook — consumers of the library do not need
+to enable anything to see the information.
 :::
 
 ## The `$onInfo` hook
@@ -62,7 +65,7 @@ libraries — the `content` from every library is simply concatenated.
 
 Tooling can query all registered providers for a given type with `program.getTypeInfo`,
 which merges the contributions from every library into a single `TypeInfo` (or `undefined`
-when nothing is contributed or the feature is disabled):
+when nothing is contributed):
 
 ```ts
 const info = program.getTypeInfo(type);

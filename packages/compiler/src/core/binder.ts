@@ -1,5 +1,6 @@
 import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
+import { isCompilerFeatureEnabled } from "./features.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
@@ -180,12 +181,17 @@ export function createBinder(program: Program): Binder {
             program.onValidate(member as any, metadata);
             continue;
           } else if (name === "onInfo") {
-            const context = getLocationContext(program, sourceFile);
-            const metadata =
-              context.type === "library"
-                ? context.metadata
-                : ({ type: "file" } satisfies FileLibraryMetadata);
-            program.registerInfoProvider(member as any, metadata);
+            // `$onInfo` is experimental: only respect it when the library (or project) that
+            // declares the hook opted into the `type-info-hook` feature in its own
+            // `tspconfig.yaml`. Consumers do not need to enable anything.
+            if (isCompilerFeatureEnabled(program, "type-info-hook", sourceFile)) {
+              const context = getLocationContext(program, sourceFile);
+              const metadata =
+                context.type === "library"
+                  ? context.metadata
+                  : ({ type: "file" } satisfies FileLibraryMetadata);
+              program.registerInfoProvider(member as any, metadata);
+            }
             continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.

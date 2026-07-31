@@ -4,4 +4,4 @@ packages:
   - "@typespec/http"
 ---
 
-Add an `$onInfo` provider that surfaces the resolved HTTP route (verb and URI template) and response status codes of an operation. This is shown when hovering an operation in the IDE and can be queried programmatically via `program.getTypeInfo(operation)`. Requires the experimental `type-info-hook` compiler feature flag.
+Add an `$onInfo` provider that surfaces the resolved HTTP route (verb and URI template) and response status codes of an operation. This is shown when hovering an operation in the IDE and can be queried programmatically via `program.getTypeInfo(operation)`.
