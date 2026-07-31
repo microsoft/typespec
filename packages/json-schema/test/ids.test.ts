@@ -90,6 +90,30 @@ describe("explicit ids with $id", () => {
       { bundleId: "types.json" },
     );
 
-    assert.strictEqual(schemas["types.json"].$defs.Foo.$id, "http://example.org/bar");
+    assert.strictEqual(schemas["types.json"].$defs.bar.$id, "http://example.org/bar");
+  });
+
+  it("uses explicit id values as $defs keys in bundle mode", async () => {
+    const schemas = await emitSchema(
+      `
+      @jsonSchema
+      namespace StringExpressions {
+        model Equals { equals: string; }
+      }
+
+      @jsonSchema
+      namespace IntegerExpressions {
+        model Equals { equals: integer; }
+      }
+
+      @@id(StringExpressions.Equals, "StringEquals");
+      @@id(IntegerExpressions.Equals, "IntegerEquals");
+      `,
+      { bundleId: "types.json" },
+      { emitNamespace: false },
+    );
+
+    assert.strictEqual(schemas["types.json"].$defs.StringEquals.properties.equals.type, "string");
+    assert.strictEqual(schemas["types.json"].$defs.IntegerEquals.properties.equals.type, "integer");
   });
 });
