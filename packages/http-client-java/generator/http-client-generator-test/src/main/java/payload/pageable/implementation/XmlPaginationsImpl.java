@@ -157,7 +157,14 @@ public final class XmlPaginationsImpl {
             .withContext(
                 context -> service.listWithContinuation(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "Pets"), null, null));
+                getXmlValues(res.getValue(), reader -> {
+                    try {
+                        return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"),
+                            XML_SERIALIZER);
+                    } catch (javax.xml.stream.XMLStreamException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }, "Pets", "Pet"), null, null));
     }
 
     /**
@@ -225,7 +232,13 @@ public final class XmlPaginationsImpl {
         Response<BinaryData> res
             = service.listWithContinuationSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "Pets"), null, null);
+            getXmlValues(res.getValue(), reader -> {
+                try {
+                    return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"), XML_SERIALIZER);
+                } catch (javax.xml.stream.XMLStreamException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "Pets", "Pet"), null, null);
     }
 
     /**
@@ -288,7 +301,14 @@ public final class XmlPaginationsImpl {
             .withContext(
                 context -> service.listWithNextLink(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "Pets"), getNextLink(res.getValue(), "NextLink"), null));
+                getXmlValues(res.getValue(), reader -> {
+                    try {
+                        return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"),
+                            XML_SERIALIZER);
+                    } catch (javax.xml.stream.XMLStreamException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
     }
 
     /**
@@ -346,7 +366,13 @@ public final class XmlPaginationsImpl {
         Response<BinaryData> res
             = service.listWithNextLinkSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "Pets"), getNextLink(res.getValue(), "NextLink"), null);
+            getXmlValues(res.getValue(), reader -> {
+                try {
+                    return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"), XML_SERIALIZER);
+                } catch (javax.xml.stream.XMLStreamException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
     }
 
     /**
@@ -408,7 +434,14 @@ public final class XmlPaginationsImpl {
             .withContext(context -> service.listWithNextLinkNext(nextLink, this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "Pets"), getNextLink(res.getValue(), "NextLink"), null));
+                getXmlValues(res.getValue(), reader -> {
+                    try {
+                        return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"),
+                            XML_SERIALIZER);
+                    } catch (javax.xml.stream.XMLStreamException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
     }
 
     /**
@@ -438,7 +471,13 @@ public final class XmlPaginationsImpl {
         Response<BinaryData> res = service.listWithNextLinkNextSync(nextLink, this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "Pets"), getNextLink(res.getValue(), "NextLink"), null);
+            getXmlValues(res.getValue(), reader -> {
+                try {
+                    return BinaryData.fromObject(payload.pageable.models.XmlPet.fromXml(reader, "Pet"), XML_SERIALIZER);
+                } catch (javax.xml.stream.XMLStreamException e) {
+                    throw new IllegalStateException(e);
+                }
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {
@@ -464,5 +503,57 @@ public final class XmlPaginationsImpl {
         } catch (RuntimeException e) {
             return null;
         }
+    }
+
+    private static final com.azure.core.util.serializer.ObjectSerializer XML_SERIALIZER
+        = XmlSerializerProviders.createInstance();
+
+    private List<BinaryData> getXmlValues(BinaryData binaryData,
+        java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+            reader.nextElement();
+            return getXmlValues(reader, valueReader, path, 0);
+        } catch (javax.xml.stream.XMLStreamException e) {
+            throw new IllegalStateException("Failed to read XML pageable response.", e);
+        }
+    }
+
+    private List<BinaryData> getXmlValues(com.azure.xml.XmlReader reader,
+        java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String[] path, int pathIndex)
+        throws javax.xml.stream.XMLStreamException {
+        List<BinaryData> values = new java.util.ArrayList<>();
+        while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {
+            if (!reader.elementNameMatches(path[pathIndex])) {
+                reader.skipElement();
+            } else if (pathIndex == path.length - 1) {
+                values.add(valueReader.apply(reader));
+            } else {
+                values.addAll(getXmlValues(reader, valueReader, path, pathIndex + 1));
+            }
+        }
+        return values;
+    }
+
+    private String getXmlNextLink(BinaryData binaryData, String... path) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+            reader.nextElement();
+            return getXmlNextLink(reader, path, 0);
+        } catch (javax.xml.stream.XMLStreamException e) {
+            throw new IllegalStateException("Failed to read XML pageable response.", e);
+        }
+    }
+
+    private String getXmlNextLink(com.azure.xml.XmlReader reader, String[] path, int pathIndex)
+        throws javax.xml.stream.XMLStreamException {
+        while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {
+            if (!reader.elementNameMatches(path[pathIndex])) {
+                reader.skipElement();
+            } else if (pathIndex == path.length - 1) {
+                return reader.getStringElement();
+            } else {
+                return getXmlNextLink(reader, path, pathIndex + 1);
+            }
+        }
+        return null;
     }
 }

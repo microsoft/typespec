@@ -58,6 +58,46 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected ClientMethodTemplate() {
     }
 
+    private static boolean isXmlPagingResponse(ClientMethod clientMethod) {
+        return clientMethod.getProxyMethod().getRawResponseBodyType().isUsedInXml();
+    }
+
+    private static String xmlPageItemsExpression(ClientMethod clientMethod) {
+        ModelPropertySegment pageItemsSegment = clientMethod.getMethodPageDetails()
+            .getPageItemsPropertyReference()
+            .get(clientMethod.getMethodPageDetails().getPageItemsPropertyReference().size() - 1);
+        IType pageItemsType = pageItemsSegment.getProperty().getClientType();
+        if (!(pageItemsType instanceof GenericType)) {
+            throw new IllegalStateException("XML pageable items must be a list of generated models.");
+        }
+        IType[] typeArguments = ((GenericType) pageItemsType).getTypeArguments();
+        if (typeArguments.length != 1 || !(typeArguments[0] instanceof ClassType)) {
+            throw new IllegalStateException("XML pageable items must be a list of generated models.");
+        }
+
+        ClassType itemType = (ClassType) typeArguments[0];
+        String itemElementName = pageItemsSegment.getProperty().getXmlListElementName();
+        if (itemElementName == null || itemElementName.isEmpty()) {
+            throw new IllegalStateException("XML pageable item element name is required.");
+        }
+
+        return "getXmlValues(res.getValue(), reader -> { try { return BinaryData.fromObject(" + itemType.getFullName()
+            + ".fromXml(reader, " + ClassType.STRING.defaultValueExpression(itemElementName)
+            + "), XML_SERIALIZER); } catch (javax.xml.stream.XMLStreamException e) { throw new IllegalStateException(e); } }, "
+            + xmlPropertyPath(clientMethod.getMethodPageDetails().getPageItemsPropertyReference(), itemElementName)
+            + ")";
+    }
+
+    private static String xmlPropertyPath(List<ModelPropertySegment> propertyReference) {
+        return propertyReference.stream()
+            .map(segment -> ClassType.STRING.defaultValueExpression(segment.getProperty().getXmlName()))
+            .collect(Collectors.joining(", "));
+    }
+
+    private static String xmlPropertyPath(List<ModelPropertySegment> propertyReference, String itemElementName) {
+        return xmlPropertyPath(propertyReference) + ", " + ClassType.STRING.defaultValueExpression(itemElementName);
+    }
+
     private static String serializedPropertyPath(List<ModelPropertySegment> propertyReference) {
         return propertyReference.stream()
             .map(segment -> ClassType.STRING.defaultValueExpression(segment.getProperty().getSerializedName()))
@@ -991,7 +1031,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         function.line("res.getRequest(),");
         function.line("res.getStatusCode(),");
         function.line("res.getHeaders(),");
-        if (settings.isDataPlaneClient()) {
+        if (isXmlPagingResponse(clientMethod)) {
+            function.line("%s,", xmlPageItemsExpression(clientMethod));
+        } else if (settings.isDataPlaneClient()) {
             function.line("getValues(res.getValue(), %s),",
                 serializedPropertyPath(clientMethod.getMethodPageDetails().getPageItemsPropertyReference()));
         } else {
@@ -999,7 +1041,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
         }
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-            if (settings.isDataPlaneClient()) {
+            if (isXmlPagingResponse(clientMethod)) {
+                function.line("getXmlNextLink(res.getValue(), %s),",
+                    xmlPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
+            } else if (settings.isDataPlaneClient()) {
                 function.line("getNextLink(res.getValue(), %s),",
                     serializedPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
             } else {
@@ -1454,7 +1499,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (settings.isDataPlaneClient() && settings.isAzureV1()) {
+                    if (isXmlPagingResponse(clientMethod)) {
+                        function.line("%s,", xmlPageItemsExpression(clientMethod));
+                    } else if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                         function.line("getValues(res.getValue(), %s),", serializedPropertyPath(
                             clientMethod.getMethodPageDetails().getPageItemsPropertyReference()));
                     } else {
@@ -1462,7 +1509,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (settings.isDataPlaneClient() && settings.isAzureV1()) {
+                        if (isXmlPagingResponse(clientMethod)) {
+                            function.line("getXmlNextLink(res.getValue(), %s),",
+                                xmlPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
+                        } else if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                             function.line("getNextLink(res.getValue(), %s),", serializedPropertyPath(
                                 clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
                         } else {

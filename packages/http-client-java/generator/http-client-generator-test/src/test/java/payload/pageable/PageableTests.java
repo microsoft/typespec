@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import payload.pageable.models.Pet;
+import payload.pageable.models.XmlPet;
 import payload.pageable.serverdrivenpagination.alternateinitialverb.models.Filter;
 
 public class PageableTests {
@@ -45,12 +46,20 @@ public class PageableTests {
         assertPetIds(builder.buildServerDrivenPaginationAlternateInitialVerbClient().post(new Filter("foo eq bar")));
     }
 
+    @Test
+    public void testXmlListWithNextLink() {
+        PagedIterable<XmlPet> pagedIterable = builder.buildXmlPaginationClient().listWithNextLink();
+
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(XmlPet::getId).collect(Collectors.toList()));
+    }
+
     /*
      * Continuation-token scenarios are intentionally not covered here. Azure V1 currently emits a single-page
      * PagedIterable for them because it does not propagate a response continuation token into the next request.
      *
-     * XML paging is also intentionally not covered. Azure V1 extracts page data from BinaryData as JSON, so XML
-     * pageable responses cannot be read.
+     * XML continuation-token paging is also intentionally not covered because it has the same token propagation
+     * limitation.
      */
 
     private static void assertPetIds(PagedIterable<Pet> pagedIterable) {
