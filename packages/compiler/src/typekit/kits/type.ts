@@ -10,8 +10,16 @@ import {
   getMinValueExclusive,
 } from "../../core/intrinsic-type-state.js";
 import { isNeverType } from "../../core/type-utils.js";
-import type { Entity, Enum, Model, Namespace, Node, Scalar, Union } from "../../core/types.js";
-import { type Type } from "../../core/types.js";
+import type {
+  Entity,
+  Enum,
+  Model,
+  Namespace,
+  Node,
+  Scalar,
+  Type,
+  Union,
+} from "../../core/types.js";
 import { getDoc, getSummary, isErrorModel } from "../../lib/decorators.js";
 import { resolveEncodedName } from "../../lib/encoded-names.js";
 import type { Diagnosable } from "../create-diagnosable.js";

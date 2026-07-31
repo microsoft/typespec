@@ -1,6 +1,6 @@
 import type { Program } from "../core/program.js";
 import { Realm } from "../experimental/realm.js";
-import { type Typekit } from "./define-kit.js";
+import type { Typekit } from "./define-kit.js";
 
 export { createDiagnosable } from "./create-diagnosable.js";
 export type { Diagnosable } from "./create-diagnosable.js";

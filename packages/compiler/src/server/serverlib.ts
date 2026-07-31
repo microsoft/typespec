@@ -72,7 +72,7 @@ import {
   normalizePath,
   resolvePath,
 } from "../core/path-utils.js";
-import { type Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";

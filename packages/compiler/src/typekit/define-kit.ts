@@ -1,4 +1,4 @@
-import { type Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import type { Realm } from "../experimental/realm.js";
 
 /**

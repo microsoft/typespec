@@ -5,7 +5,7 @@ import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
 import { decoratorApplication } from "../utils.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { type UnionKit } from "./union.js";
+import type { UnionKit } from "./union.js";
 
 /**
  * Describes an enum type for creation.

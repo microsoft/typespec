@@ -3,13 +3,14 @@ import { ignoreDiagnostics } from "../core/diagnostics.js";
 import type { Program } from "../core/program.js";
 import { getProperty } from "../core/semantic-walker.js";
 import { isArrayModelType, isUnknownType } from "../core/type-utils.js";
-import type { DiagnosticTarget, NoTarget } from "../core/types.js";
-import {
-  type ObjectValue,
-  type Scalar,
-  type ScalarValue,
-  type Type,
-  type Value,
+import type {
+  DiagnosticTarget,
+  NoTarget,
+  ObjectValue,
+  Scalar,
+  ScalarValue,
+  Type,
+  Value,
 } from "../core/types.js";
 import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
 
