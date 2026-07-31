@@ -58,8 +58,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected ClientMethodTemplate() {
     }
 
-    private static boolean isXmlPagingResponse(ClientMethod clientMethod) {
-        return clientMethod.getProxyMethod().getRawResponseBodyType().isUsedInXml();
+    private static boolean isXmlPagingResponse(ClientMethod clientMethod, JavaSettings settings) {
+        return settings.isDataPlaneClient()
+            && settings.isAzureV1()
+            && clientMethod.getProxyMethod().getRawResponseBodyType().isUsedInXml();
     }
 
     private static String xmlPageItemsExpression(ClientMethod clientMethod) {
@@ -1031,7 +1033,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         function.line("res.getRequest(),");
         function.line("res.getStatusCode(),");
         function.line("res.getHeaders(),");
-        if (isXmlPagingResponse(clientMethod)) {
+        if (isXmlPagingResponse(clientMethod, settings)) {
             function.line("%s,", xmlPageItemsExpression(clientMethod));
         } else if (settings.isDataPlaneClient()) {
             function.line("getValues(res.getValue(), %s),",
@@ -1041,7 +1043,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
         }
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-            if (isXmlPagingResponse(clientMethod)) {
+            if (isXmlPagingResponse(clientMethod, settings)) {
                 function.line("getXmlNextLink(res.getValue(), %s),",
                     xmlPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
             } else if (settings.isDataPlaneClient()) {
@@ -1499,7 +1501,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (isXmlPagingResponse(clientMethod)) {
+                    if (isXmlPagingResponse(clientMethod, settings)) {
                         function.line("%s,", xmlPageItemsExpression(clientMethod));
                     } else if (settings.isDataPlaneClient() && settings.isAzureV1()) {
                         function.line("getValues(res.getValue(), %s),", serializedPropertyPath(
@@ -1509,7 +1511,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (isXmlPagingResponse(clientMethod)) {
+                        if (isXmlPagingResponse(clientMethod, settings)) {
                             function.line("getXmlNextLink(res.getValue(), %s),",
                                 xmlPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
                         } else if (settings.isDataPlaneClient() && settings.isAzureV1()) {
