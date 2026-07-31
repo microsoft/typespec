@@ -22,6 +22,7 @@ assertion about the generated client surface:
   category: "naming",
   expected: "defaultName",
   subject: "Widget",       // optional — defaults to target's name
+  kind: "property",        // optional — enables per-kind casing in verifiers
   doc: "Explanation...",   // optional
 })
 ```
