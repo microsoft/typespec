@@ -78,6 +78,13 @@ export class ConvenienceApi extends Metadata {
   }
 
   requests?: Array<Request>;
+
+  /**
+   * Whether the convenience method returns the significant response headers as a strongly-typed model
+   * (opt-in via the "responseHeadersAsModel" client option). Only applicable to data-plane operations
+   * that have response headers but no response body.
+   */
+  responseHeadersAsModel?: boolean;
 }
 
 export interface Request extends Metadata {

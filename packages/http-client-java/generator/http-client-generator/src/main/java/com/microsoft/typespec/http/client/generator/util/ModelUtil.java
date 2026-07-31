@@ -16,7 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 public final class ModelUtil {
 
     public static boolean isGeneratingModel(ClientModel model) {
-
         if (JavaSettings.getInstance().isAzureV2()) {
             return model.getImplementationDetails() != null
                 && (model.getImplementationDetails().isPublic()

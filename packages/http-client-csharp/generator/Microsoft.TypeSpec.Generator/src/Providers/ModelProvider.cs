@@ -27,12 +27,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            if (_isDiscriminatedBaseType)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
-                var derivedClassesDescription =
-                    "Please note this is the abstract base class. The derived classes available for instantiation are: ";
+                var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
+                    : "Please note this is the base class. The derived classes available for instantiation are: ";
                 bool addComma = publicDerivedModels.Count > 2;
                 for (int i = 0; i < publicDerivedModels.Count; i++)
                 {
@@ -65,11 +66,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
+
+        private readonly bool _isDiscriminatedBaseType;
+
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
+            _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
@@ -148,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Try to find the type in the customization compilation. Referenced assemblies are
                 // included so custom bases from framework or external packages are represented by
                 // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     baseType.Namespace,
                     baseType.Name,
                     baseType.DeclaringType?.Name,
@@ -213,6 +218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
         /// </summary>
@@ -324,7 +330,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (_inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null)
+            if (_isDiscriminatedBaseType)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
@@ -905,7 +911,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider is not null && !HasBaseModelProviderCycle())
+            else if (BaseModelProvider is not null && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
@@ -1355,7 +1361,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsUnion => type,
                 _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
-                _ => CSharpType.FromUnion([type])
+                _ => CSharpType.FromUnion([type], false, UnionItemTypeReferenceKind.MetadataOnly)
             };
         }
 

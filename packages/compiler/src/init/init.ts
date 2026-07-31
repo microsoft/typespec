@@ -319,12 +319,18 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
+/** @internal */
+export function isTemplateCompatibleWithTspVersion(template: InitTemplate): boolean {
   const currentCompilerVersion = MANIFEST.version;
-  return (
-    template.compilerVersion === undefined ||
-    semver.gte(currentCompilerVersion, template.compilerVersion)
-  );
+  if (template.compilerVersion === undefined) {
+    return true;
+  }
+  // If it's a plain version (e.g., "1.2.3"), treat it as >= for backward compatibility
+  if (semver.valid(template.compilerVersion)) {
+    return semver.gte(currentCompilerVersion, template.compilerVersion);
+  }
+  // Otherwise treat it as a semver range (e.g., "^1.2.3", ">=1.2.3")
+  return semver.satisfies(currentCompilerVersion, template.compilerVersion);
 }
 
 async function validateTemplate(template: any, index: LoadedTemplateIndex): Promise<boolean> {

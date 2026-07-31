@@ -55,7 +55,7 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())
@@ -223,6 +223,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getPartialUpdate() != null) {
             SETTINGS_MAP.put("partial-update", options.getPartialUpdate());
+        }
+        if (options.getRequiredFieldsAsConstructorArgs() != null) {
+            SETTINGS_MAP.put("required-fields-as-ctor-args", options.getRequiredFieldsAsConstructorArgs());
         }
         if (!CoreUtils.isNullOrEmpty(options.getServiceVersions())) {
             SETTINGS_MAP.put("service-versions", options.getServiceVersions());

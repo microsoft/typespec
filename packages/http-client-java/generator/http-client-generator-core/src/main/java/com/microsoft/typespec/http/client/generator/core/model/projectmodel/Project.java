@@ -151,7 +151,7 @@ public class Project {
 
     protected void findSdkRepositoryUri() {
         JavaSettings settings = JavaSettings.getInstance();
-        String outputFolder = settings.getAutorestSettings().getOutputFolder();
+        String outputFolder = settings.getProjectSettings().getOutputFolder();
         if (outputFolder != null) {
             Path path = Paths.get(outputFolder).normalize();
             List<String> pathSegment = new ArrayList<>();
@@ -182,41 +182,31 @@ public class Project {
 
     private String findSdkFolder() {
         JavaSettings settings = JavaSettings.getInstance();
-        String sdkFolder = settings.getAutorestSettings().getJavaSdksFolder();
-        if (sdkFolder == null) {
-            LOGGER.info("'java-sdks-folder' parameter not available");
-        } else {
-            if (!Paths.get(sdkFolder).isAbsolute()) {
-                LOGGER.info("'java-sdks-folder' parameter is not an absolute path");
-                sdkFolder = null;
-            }
-        }
+        String sdkFolder = null;
 
         // try to deduct it from "output-folder"
-        if (sdkFolder == null) {
-            String outputFolder = settings.getAutorestSettings().getOutputFolder();
-            if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
-                Path path = Paths.get(outputFolder).normalize();
-                while (path != null) {
-                    if (path.getFileName() == null) {
-                        // likely the case of "C:\"
-                        path = null;
-                        break;
-                    }
-
-                    Path childPath = path;
-                    path = path.getParent();
-
-                    if (isRepoSdkFolder(childPath)) {
-                        // childPath = azure-sdk-for-java/sdk, path = azure-sdk-for-java
-                        break;
-                    }
+        String outputFolder = settings.getProjectSettings().getOutputFolder();
+        if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
+            Path path = Paths.get(outputFolder).normalize();
+            while (path != null) {
+                if (path.getFileName() == null) {
+                    // likely the case of "C:\"
+                    path = null;
+                    break;
                 }
-                if (path != null) {
-                    LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter",
-                        path.toString());
-                    sdkFolder = path.toString();
+
+                Path childPath = path;
+                path = path.getParent();
+
+                if (isRepoSdkFolder(childPath)) {
+                    // childPath = azure-sdk-for-java/sdk, path = azure-sdk-for-java
+                    break;
                 }
+            }
+            if (path != null) {
+                LOGGER.info("'azure-sdk-for-java' SDK folder '{}' deduced from 'output-folder' parameter",
+                    path.toString());
+                sdkFolder = path.toString();
             }
         }
 
@@ -327,7 +317,7 @@ public class Project {
 
     protected void findPomDependencies() {
         JavaSettings settings = JavaSettings.getInstance();
-        String outputFolder = settings.getAutorestSettings().getOutputFolder();
+        String outputFolder = settings.getProjectSettings().getOutputFolder();
         if (outputFolder != null && Paths.get(outputFolder).isAbsolute()) {
             Path pomPath = Paths.get(outputFolder, "pom.xml");
 

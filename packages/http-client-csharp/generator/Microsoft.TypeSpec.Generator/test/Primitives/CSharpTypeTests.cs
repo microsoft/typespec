@@ -661,5 +661,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         private class TestBaseType
         {
         }
+
+        [TestCase("MyNs", "SimpleType", ExpectedResult = "SimpleType")]
+        [TestCase("MyNs", "SimpleType`1", ExpectedResult = "SimpleType`1")]
+        public string ClrMetadataName_SimpleType(string ns, string name)
+        {
+            var type = new CSharpType(name, ns, false, false, null, [], true, false);
+            return type.ClrMetadataName;
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_OneTypeArg()
+        {
+            var argType = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("GenericType", "MyNs", false, false, null, [argType], true, false);
+            Assert.AreEqual("GenericType`1", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericType_TwoTypeArgs()
+        {
+            var arg1 = new CSharpType("TKey", "MyNs", false, false, null, [], true, false);
+            var arg2 = new CSharpType("TValue", "MyNs", false, false, null, [], true, false);
+            var type = new CSharpType("DictionaryType", "MyNs", false, false, null, [arg1, arg2], true, false);
+            Assert.AreEqual("DictionaryType`2", type.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_NestedType()
+        {
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_GenericNestedType()
+        {
+            var arg = new CSharpType("T", "MyNs", false, false, null, [], true, false);
+            var outerType = new CSharpType("Outer", "MyNs", false, false, null, [arg], true, false);
+            var innerType = new CSharpType("Inner", "MyNs", false, false, outerType, [], true, false);
+            Assert.AreEqual("Outer`1+Inner", innerType.ClrMetadataName);
+        }
+
+        [Test]
+        public void ClrMetadataName_LazilyComputedAndCached()
+        {
+            var type = new CSharpType("MyType", "MyNs", false, false, null, [], true, false);
+            var first = type.ClrMetadataName;
+            var second = type.ClrMetadataName;
+            Assert.AreSame(first, second);
+        }
     }
 }

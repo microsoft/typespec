@@ -11,6 +11,7 @@ import {
   type Union,
 } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
+import { getAllHttpServices, resolveAuthentication } from "@typespec/http";
 import type {
   HttpCanonicalizer,
   OperationHttpCanonicalization,
@@ -78,7 +79,11 @@ export function resolveServiceTypes(
   collectEnumsFromNamespaces(globalNs, enums, unionEnums);
 
   // Phase 5: Model discovery (namespace models + operation-referenced models)
-  const models = getServiceModels($, globalNs);
+  // Auth scheme models (e.g. those referenced by `@useAuth`) are protocol metadata,
+  // not payload data, so they must not be emitted as C# model classes (aligns with
+  // the OpenAPI3 emitter, which emits them under `components.securitySchemes`).
+  const authModels = getAuthSchemeModels(program);
+  const models = getServiceModels($, globalNs, authModels);
 
   // Phase 6: Canonicalize all HTTP operations
   const canonicalOpsMap = canonicalizeAllInterfaces(canonicalizer, interfaces);
@@ -154,14 +159,18 @@ function canonicalizeAllInterfaces(
 /**
  * Retrieves all models from the program that should be emitted.
  * Includes namespace-level models AND models referenced by operations.
+ *
+ * @param authModels Models that back authentication schemes; these are excluded
+ * from emission because they represent protocol metadata rather than payloads.
  */
-function getServiceModels($: Typekit, globalNs: TspNamespace): Model[] {
+function getServiceModels($: Typekit, globalNs: TspNamespace, authModels: Set<Model>): Model[] {
   const models: Model[] = [];
   const seen = new Set<Model>();
 
   function addModel(model: Model) {
     if (seen.has(model)) return;
     seen.add(model);
+    if (authModels.has(model)) return;
     if (shouldEmitModel($, model)) {
       models.push(model);
     }
@@ -173,7 +182,7 @@ function getServiceModels($: Typekit, globalNs: TspNamespace): Model[] {
   }
   for (const ns of globalNs.namespaces.values()) {
     if (isStdNamespace(ns)) continue;
-    collectModelsFromNamespace($, ns, models, seen);
+    collectModelsFromNamespace($, ns, models, seen, authModels);
   }
 
   // Walk operations to discover referenced models (template instantiations, etc.)
@@ -267,16 +276,35 @@ function collectModelsFromNamespace(
   ns: TspNamespace,
   models: Model[],
   seen: Set<Model>,
+  authModels: Set<Model>,
 ): void {
   for (const model of ns.models?.values() ?? []) {
-    if (!seen.has(model) && shouldEmitModel($, model)) {
+    if (!seen.has(model) && !authModels.has(model) && shouldEmitModel($, model)) {
       seen.add(model);
       models.push(model);
     }
   }
   for (const childNs of ns.namespaces?.values() ?? []) {
-    collectModelsFromNamespace($, childNs, models, seen);
+    collectModelsFromNamespace($, childNs, models, seen, authModels);
   }
+}
+
+/**
+ * Collects the models that back authentication schemes for every HTTP service.
+ * These correspond to `@useAuth` scheme models (e.g. `ApiKeyAuth`, `BearerAuth`)
+ * and are emitted as security metadata, not as payload model classes.
+ */
+function getAuthSchemeModels(program: Program): Set<Model> {
+  const authModels = new Set<Model>();
+  const [services] = getAllHttpServices(program);
+  for (const service of services) {
+    for (const scheme of resolveAuthentication(service).schemes) {
+      if (scheme.model) {
+        authModels.add(scheme.model);
+      }
+    }
+  }
+  return authModels;
 }
 
 function shouldEmitModel($: Typekit, model: Model): boolean {
