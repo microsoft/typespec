@@ -9,16 +9,56 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import payload.pageable.models.Pet;
+import payload.pageable.serverdrivenpagination.alternateinitialverb.models.Filter;
 
 public class PageableTests {
 
     private final PageableClientBuilder builder = new PageableClientBuilder();
 
     @Test
-    public void testNestedLink() {
-        PagedIterable<Pet> pagedIterable = builder.buildServerDrivenPaginationClient().nestedLink();
+    public void testLink() {
+        assertPetIds(builder.buildServerDrivenPaginationClient().link());
+    }
 
-        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+    @Test
+    public void testLinkString() {
+        assertPetIds(builder.buildServerDrivenPaginationClient().linkString());
+    }
+
+    @Test
+    public void testNestedLink() {
+        assertPetIds(builder.buildServerDrivenPaginationClient().nestedLink());
+    }
+
+    @Test
+    public void testListWithoutContinuation() {
+        assertPetIds(builder.buildPageSizeClient().listWithoutContinuation());
+    }
+
+    @Test
+    public void testListWithPageSize() {
+        assertPetIds(builder.buildPageSizeClient().listWithPageSize(2), "1", "2");
+    }
+
+    @Test
+    public void testPost() {
+        assertPetIds(builder.buildServerDrivenPaginationAlternateInitialVerbClient().post(new Filter("foo eq bar")));
+    }
+
+    /*
+     * Continuation-token scenarios are intentionally not covered here. Azure V1 currently emits a single-page
+     * PagedIterable for them because it does not propagate a response continuation token into the next request.
+     *
+     * XML paging is also intentionally not covered. Azure V1 extracts page data from BinaryData as JSON, so XML
+     * pageable responses cannot be read.
+     */
+
+    private static void assertPetIds(PagedIterable<Pet> pagedIterable) {
+        assertPetIds(pagedIterable, "1", "2", "3", "4");
+    }
+
+    private static void assertPetIds(PagedIterable<Pet> pagedIterable, String... expectedIds) {
+        Assertions.assertEquals(List.of(expectedIds),
             pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
     }
 }
