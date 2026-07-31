@@ -1054,6 +1054,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var inputStringEnum = InputFactory.StringEnum(
                 "foo",
                 stringEnumValues);
+            var inputExtensibleStringEnum = InputFactory.StringEnum(
+                "extensibleFoo",
+                stringEnumValues,
+                isExtensible: true);
             var inputIntEnum = InputFactory.Int32Enum(
                 "intFoo",
                 intEnumValues);
@@ -1078,6 +1082,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.QueryParameter("p7Explode", InputFactory.Dictionary(inputIntEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p8Explode", InputFactory.Array(inputFloatEnum), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p9Explode", InputFactory.Array(inputDoubleEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p10Explode", InputFactory.Array(inputExtensibleStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p11Explode", InputFactory.Dictionary(inputExtensibleStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p12", inputExtensibleStringEnum, isRequired: true),
+                InputFactory.QueryParameter("p13", new InputNullableType(inputExtensibleStringEnum), isRequired: false),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",
