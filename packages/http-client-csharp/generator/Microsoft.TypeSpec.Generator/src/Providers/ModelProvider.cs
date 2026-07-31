@@ -904,16 +904,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                var restoredValidation = previousParameter.Validation != ParameterValidationType.None
-                    ? previousParameter.Validation
-                    : !previousParameter.Type.IsValueType && !previousParameter.Type.IsNullable
-                        ? ParameterValidationType.AssertNotNull
-                        : ParameterValidationType.None;
+
                 var restoredParameter = PartialMethodCustomization.CloneParameterWithName(
                     previousParameter,
                     previousParameter.Name,
                     removeDefault: true,
-                    validation: restoredValidation,
+                    validation: property.AsParameter.Validation,
                     wireInfo: property.AsParameter.WireInfo);
 
                 restoredParameters.Add(restoredParameter);

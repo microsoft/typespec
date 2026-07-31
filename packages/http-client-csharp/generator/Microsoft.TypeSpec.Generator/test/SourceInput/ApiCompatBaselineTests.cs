@@ -407,8 +407,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
             // Ns.Ctors..ctor() has no parameters; the canonical signature is empty on both sides.
             Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Ctors", ".ctor", []));
 
-            // The parameterless constructor must not match a constructor overload that takes arguments.
-            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Missing", ".ctor", []));
+            // Ns.Foo only has a constructor overload that takes arguments in the baseline, so querying
+            // its parameterless constructor must not match that overload.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Foo", ".ctor", []));
         }
 
         [Test]
