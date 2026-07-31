@@ -1,5 +1,6 @@
 import pc from "picocolors";
-import { Sym, SymbolFlags, SymbolLinks, SyntaxKind } from "../types.js";
+import type { Sym, SymbolLinks } from "../types.js";
+import { SymbolFlags, SyntaxKind } from "../types.js";
 
 /**
  * @internal

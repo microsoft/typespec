@@ -1,17 +1,17 @@
 import { Ajv, type ErrorObject, type Options } from "ajv";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { YamlPathTarget, YamlScript } from "../yaml/types.js";
+import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { isPathAbsolute } from "./path-utils.js";
-import {
+import type {
   Diagnostic,
   DiagnosticTarget,
   JSONSchemaType,
   JSONSchemaValidator,
-  NoTarget,
   SourceFile,
 } from "./types.js";
+import { NoTarget } from "./types.js";
 
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;

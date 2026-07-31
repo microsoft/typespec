@@ -1,7 +1,8 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getDiscriminatedUnionFromInheritance } from "../../src/core/helpers/discriminator-utils.js";
-import { Model, Program, getDiscriminator } from "../../src/index.js";
+import type { Model, Program } from "../../src/index.js";
+import { getDiscriminator } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,

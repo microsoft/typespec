@@ -2,7 +2,8 @@ import { Realm } from "../experimental/realm.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import type { Mutable } from "../utils/misc.js";
+import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -30,7 +31,7 @@ import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { checkModifiers } from "./modifiers.js";
-import { NameResolver } from "./name-resolver.js";
+import type { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,
@@ -51,7 +52,7 @@ import {
   isType,
   isValue,
 } from "./type-utils.js";
-import {
+import type {
   AliasStatementNode,
   ArrayExpressionNode,
   ArrayLiteralNode,
@@ -89,7 +90,6 @@ import {
   FunctionType,
   FunctionTypeExpressionNode,
   FunctionValue,
-  IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
   Interface,
@@ -114,7 +114,6 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -130,7 +129,6 @@ import {
   ObjectValuePropertyDescriptor,
   Operation,
   OperationStatementNode,
-  ResolutionResultFlags,
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
@@ -152,10 +150,8 @@ import {
   StringTemplateTailNode,
   StringValue,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameter,
   TemplateParameterAccess,
@@ -182,6 +178,13 @@ import {
   Value,
   ValueWithTemplate,
   VoidType,
+} from "./types.js";
+import {
+  IdentifierKind,
+  ModifierFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
 } from "./types.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;

@@ -1,12 +1,12 @@
 import { loadTypeSpecConfigForPath } from "../config/config-loader.js";
 import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
+import type { SystemHost, Diagnostic as TypeSpecDiagnostic } from "../core/types.js";
 import { doIO, loadFile } from "../utils/io.js";
 import { resolveTspMain } from "../utils/misc.js";
 import { debugLoggers } from "./debug.js";
-import { FileSystemCache } from "./file-system-cache.js";
-import { ServerLog } from "./types.js";
+import type { FileSystemCache } from "./file-system-cache.js";
+import type { ServerLog } from "./types.js";
 
 export async function resolveEntrypointFile(
   host: SystemHost,

@@ -1,5 +1,5 @@
-import { EmitterOptions, TypeSpecConfig } from "../config/types.js";
-import { LinterRuleSet, ParseOptions } from "./types.js";
+import type { EmitterOptions, TypeSpecConfig } from "../config/types.js";
+import type { LinterRuleSet, ParseOptions } from "./types.js";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;

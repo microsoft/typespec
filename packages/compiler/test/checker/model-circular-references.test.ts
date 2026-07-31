@@ -1,6 +1,6 @@
 import assert, { strictEqual } from "assert";
 import { it } from "vitest";
-import { Model, Type } from "../../src/core/types.js";
+import type { Model, Type } from "../../src/core/types.js";
 import { t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
