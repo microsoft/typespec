@@ -1,11 +1,5 @@
-import {
-  expandDyns,
-  matchValues,
-  MockApiDefinition,
-  MockBody,
-  ResolverConfig,
-  ValidationError,
-} from "@typespec/spec-api";
+import type { MockApiDefinition, MockBody, ResolverConfig } from "@typespec/spec-api";
+import { expandDyns, matchValues, ValidationError } from "@typespec/spec-api";
 import micromatch from "micromatch";
 import { inspect } from "node:util";
 import pc from "picocolors";

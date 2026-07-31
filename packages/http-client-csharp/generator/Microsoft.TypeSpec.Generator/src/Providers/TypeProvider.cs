@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                 generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
                 _declaringTypeName.Value);
