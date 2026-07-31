@@ -9,13 +9,13 @@ cspell.yaml
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @JoshLove-msft @iscai-msft @timotheeguerin @l0lawrence @xirzec
+/eng/emitters/                               @JoshLove-msft @iscai-msft @timotheeguerin @l0lawrence @xirzec @markcowl @catalinaperalta
 /docs/samples/client/                        @lmazuel @JoshLove-msft @iscai-msft @weidongxu-microsoft @haolingdong-msft @XiaofeiCao @tadelesh @msyyc @xirzec @timotheeguerin @qiaozha @MaryGao @l0lawrence
 
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga @iscai-msft @catalinaperalta @timotheeguerin @markcowl
 /docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
 /website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jsquire @joseharriaga
 
@@ -29,13 +29,13 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence @kashifkhan @xirzec
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence @kashifkhan @xirzec
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence @kashifkhan @xirzec @markcowl
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @catalinaperalta @ChenxiJiang333 @l0lawrence @kashifkhan @xirzec @markcowl
 
 ######################
 # JavaScript
 ######################
-/packages/http-client-js/                    @timotheeguerin @qiaozha @MaryGao @xirzec @markcowl @maorleger
+/packages/http-client-js/                    @timotheeguerin @qiaozha @MaryGao @xirzec @markcowl @maorleger @iscai-msft @catalinaperalta
 
 ######################
 # IDE
