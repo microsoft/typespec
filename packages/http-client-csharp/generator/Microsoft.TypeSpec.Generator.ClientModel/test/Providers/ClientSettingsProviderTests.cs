@@ -924,7 +924,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomAudience");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomAudience");
             Assert.IsNotNull(typeProvider, "CustomAudience should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -954,7 +954,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomPriority");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomPriority");
             Assert.IsNotNull(typeProvider, "CustomPriority should be found in custom code");
 
             var body = new List<MethodBodyStatement>();
@@ -985,7 +985,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization("SampleNamespace", "CustomComplex");
+                .FindForTypeInCurrentCompilation("SampleNamespace", "CustomComplex");
             Assert.IsNotNull(typeProvider, "CustomComplex should be found in custom code");
 
             var body = new List<MethodBodyStatement>();

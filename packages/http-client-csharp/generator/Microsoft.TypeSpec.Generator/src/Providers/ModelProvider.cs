@@ -153,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Try to find the type in the customization compilation. Referenced assemblies are
                 // included so custom bases from framework or external packages are represented by
                 // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     baseType.Namespace,
                     baseType.Name,
                     baseType.DeclaringType?.Name,

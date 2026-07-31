@@ -443,7 +443,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = await Helpers.GetCompilationFromDirectoryAsync();
             var sourceInputModel = new SourceInputModel(compilation, lastContract: null);
 
-            var nestedType = sourceInputModel.FindForTypeInCustomization("Sample", "Target", "Outer+Middle");
+            var nestedType = sourceInputModel.FindForTypeInCurrentCompilation("Sample", "Target", "Outer+Middle");
 
             Assert.IsNotNull(nestedType);
             Assert.AreEqual("Sample.Outer+Middle+Target", ((NamedTypeSymbolProvider)nestedType!).MetadataName);

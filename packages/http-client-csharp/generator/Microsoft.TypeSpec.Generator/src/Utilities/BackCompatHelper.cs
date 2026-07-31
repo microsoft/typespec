@@ -167,7 +167,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
                     var parameter = currentParameters[i];
-                    string? preservedName;
+                    string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null)
@@ -178,26 +178,22 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         }
 
                         var originalName = inputParameter.OriginalName;
-                        if (string.IsNullOrEmpty(originalName))
+                        if (!string.IsNullOrEmpty(originalName))
                         {
-                            continue;
+                            preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
                         }
-
-                        preservedName = FindPreviousParameterName(lastContractView, originalName, method.Signature.Name);
                     }
-                    else
+
+                    // Fall back to a positional match for synthesized parameters
+                    if (string.IsNullOrEmpty(preservedName))
                     {
-                        // Positional fallback for synthesized parameters (e.g. model factory methods).
                         if (!matchingPreviousResolved)
                         {
                             matchingPrevious = FindMethodWithSameSignatureIgnoringNames(previousMethods, method.Signature);
                             matchingPreviousResolved = true;
                         }
 
-                        var previousParameters = matchingPrevious?.Signature.Parameters;
-                        preservedName = previousParameters is not null && previousParameters.Count == currentParameters.Count
-                            ? previousParameters[i].Name
-                            : null;
+                        preservedName = matchingPrevious?.Signature.Parameters[i].Name;
                     }
 
                     // A casing-only difference is still a source-breaking rename for named arguments,
