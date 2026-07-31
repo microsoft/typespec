@@ -98,16 +98,15 @@ describe("explicit ids with $id", () => {
       `
       @jsonSchema
       namespace StringExpressions {
+        @id("StringEquals")
         model Equals { equals: string; }
       }
 
       @jsonSchema
       namespace IntegerExpressions {
+        @id("IntegerEquals")
         model Equals { equals: integer; }
       }
-
-      @@id(StringExpressions.Equals, "StringEquals");
-      @@id(IntegerExpressions.Equals, "IntegerEquals");
       `,
       { bundleId: "types.json" },
       { emitNamespace: false },
