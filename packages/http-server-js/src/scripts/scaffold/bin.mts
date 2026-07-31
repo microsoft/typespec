@@ -5,31 +5,28 @@
 
 import { hsjsDependencies } from "../../../generated-defs/package.json.js";
 
-import {
-  compile,
-  formatDiagnostic,
-  NodeHost,
-  OperationContainer,
-  resolveCompilerOptions,
-  ResolveCompilerOptionsOptions,
-} from "@typespec/compiler";
+import type { OperationContainer, ResolveCompilerOptionsOptions } from "@typespec/compiler";
+import { compile, formatDiagnostic, NodeHost, resolveCompilerOptions } from "@typespec/compiler";
 
-import { getHttpService, HttpOperation, HttpService } from "@typespec/http";
-import { spawn as _spawn, SpawnOptions } from "node:child_process";
+import type { HttpOperation, HttpService } from "@typespec/http";
+import { getHttpService } from "@typespec/http";
+import type { SpawnOptions } from "node:child_process";
+import { spawn as _spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import readline from "node:readline/promises";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
-import { createInitialContext, createModule, isModule, JsContext, Module } from "../../ctx.js";
+import type { JsContext, Module } from "../../ctx.js";
+import { createInitialContext, createModule, isModule } from "../../ctx.js";
 import { parseCase } from "../../util/case.js";
 
-import { SupportedOpenAPIDocuments } from "@typespec/openapi3";
+import type { SupportedOpenAPIDocuments } from "@typespec/openapi3";
 import { module as httpHelperModule } from "../../../generated-defs/helpers/http.js";
 import { module as routerModule } from "../../../generated-defs/helpers/router.js";
 import { emitOptionsType } from "../../common/interface.js";
 import { emitTypeReference, isValueLiteralType } from "../../common/reference.js";
 import { canonicalizeHttpOperation } from "../../http/operation.js";
-import { JsEmitterOptions } from "../../lib.js";
+import type { JsEmitterOptions } from "../../lib.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { createOnceQueue } from "../../util/once-queue.js";
