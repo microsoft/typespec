@@ -805,12 +805,6 @@ const diagnostics = {
       default: paramMessage`onValidate failed with errors. ${"error"}`,
     },
   },
-  "on-info-fail": {
-    severity: "error",
-    messages: {
-      default: paramMessage`onInfo failed with errors. ${"error"}`,
-    },
-  },
   "invalid-emitter": {
     severity: "error",
     messages: {

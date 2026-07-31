@@ -330,6 +330,9 @@ async function createProgram(
       infoProviders.push({ callback: provider, metadata });
     },
     getTypeInfo(target) {
+      if (infoProviders.length === 0) {
+        return undefined;
+      }
       const contents: string[] = [];
       const context: InfoContext = { program, target };
       for (const provider of infoProviders) {
@@ -337,13 +340,13 @@ async function createProgram(
         try {
           result = provider.callback(context);
         } catch (error: any) {
+          // This runs lazily, long after compilation finished, so a crashing provider must not
+          // mutate the program's diagnostics. In a design time build (language server) trace it
+          // and carry on so a broken library cannot take down hover or completion.
           if (options.designTimeBuild) {
-            program.reportDiagnostic(
-              createDiagnostic({
-                code: "on-info-fail",
-                format: { error: error.stack },
-                target: NoTarget,
-              }),
+            trace(
+              "info-provider.crash",
+              `Library "${provider.metadata.name ?? "<unnamed>"}" $onInfo crashed: ${error.stack}`,
             );
             continue;
           } else {

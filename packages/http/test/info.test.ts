@@ -21,4 +21,37 @@ describe("http: $onInfo", () => {
 
     expect($onInfo({ program, target: Pet })).toBeUndefined();
   });
+
+  it("formats a status code range", async () => {
+    const { program, read } = await Tester.compile(t.code`
+      @error model Error {
+        @statusCode @minValue(400) @maxValue(499) code: int32;
+      }
+      @route("/pets") @get op ${t.op("read")}(): void | Error;
+    `);
+
+    expect($onInfo({ program, target: read })?.content).toContain("`Responses`: `204`, `400-499`");
+  });
+
+  it("formats a default (`*`) status code", async () => {
+    const { program, read } = await Tester.compile(t.code`
+      @error model Error { message: string; }
+      @route("/pets") @get op ${t.op("read")}(): void | Error;
+    `);
+
+    expect($onInfo({ program, target: read })?.content).toContain("`Responses`: `204`, `*`");
+  });
+
+  // Guards against the hook being silently dropped: this exercises the real registration path
+  // (binder + `type-info-hook` opt-in from this package's own `tspconfig.yaml`) rather than
+  // calling `$onInfo` directly.
+  it("is registered by the compiler so `program.getTypeInfo` returns the route", async () => {
+    const { program, read } = await Tester.compile(t.code`
+      @route("/pets/{id}") @get op ${t.op("read")}(@path id: string): void;
+    `);
+
+    expect(program.getTypeInfo(read)).toEqual({
+      content: "`HTTP Route`: `GET /pets/{id}`\n\n`Responses`: `204`",
+    });
+  });
 });

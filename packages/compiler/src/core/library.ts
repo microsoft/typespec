@@ -122,9 +122,9 @@ export function defineLinter(def: LinterDefinition): LinterDefinition {
  *
  * @example
  * ```ts
- * export const $onInfo = defineInfoHook(({ program, target }) => {
+ * export const $onInfo = defineInfoHook(({ target }) => {
  *   if (target.kind !== "Operation") return undefined;
- *   return [{ content: `Operation ${target.name}` }];
+ *   return { content: `Operation ${target.name}` };
  * });
  * ```
  */

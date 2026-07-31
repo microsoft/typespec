@@ -54,19 +54,53 @@ describe("compiler: $onInfo hook", () => {
     expect(runner.program.getTypeInfo(foo)).toBeUndefined();
   });
 
+  const crashingHook = mockFile.js({
+    $onInfo: () => {
+      throw new Error("boom");
+    },
+  });
+
   it("wraps provider crashes in an ExternalError", async () => {
     const runner = await Tester.files({
-      "info.js": mockFile.js({
-        $onInfo: () => {
-          throw new Error("boom");
-        },
-      }),
+      "info.js": crashingHook,
     })
       .import("./info.js")
       .createInstance();
 
     const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, projectFeature);
     expect(() => runner.program.getTypeInfo(foo)).toThrow(ExternalError);
+  });
+
+  it("swallows provider crashes in a design time build without mutating program diagnostics", async () => {
+    const runner = await Tester.files({ "info.js": crashingHook })
+      .import("./info.js")
+      .createInstance();
+
+    const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, {
+      compilerOptions: { ...projectFeature.compilerOptions, designTimeBuild: true },
+    });
+
+    // `getTypeInfo` runs long after compilation, so a crash must not append to the (cached)
+    // program's diagnostics nor break the editor.
+    const before = runner.program.diagnostics.length;
+    expect(runner.program.getTypeInfo(foo)).toBeUndefined();
+    expect(runner.program.getTypeInfo(foo)).toBeUndefined();
+    expect(runner.program.diagnostics.length).toBe(before);
+  });
+
+  it("keeps collecting from healthy providers when one crashes in a design time build", async () => {
+    const runner = await Tester.files({
+      "crash.js": crashingHook,
+      "ok.js": opInfoHook("still here"),
+    })
+      .import("./crash.js", "./ok.js")
+      .createInstance();
+
+    const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, {
+      compilerOptions: { ...projectFeature.compilerOptions, designTimeBuild: true },
+    });
+
+    expect(runner.program.getTypeInfo(foo)).toEqual({ content: "still here" });
   });
 
   describe("feature is scoped to the library declaring the hook", () => {

@@ -10,7 +10,7 @@ programmatically by tooling (such as AI agents).
 
 :::caution
 This is an experimental feature. A library must opt in by enabling the `type-info-hook`
-[compiler feature](../handbook/configuration/configuration.md) in **its own** `tspconfig.yaml`:
+[compiler feature](../handbook/configuration/configuration.mdx) in **its own** `tspconfig.yaml`:
 
 ```yaml
 kind: project
@@ -20,6 +20,17 @@ features:
 
 The opt-in is scoped to the package declaring the hook — consumers of the library do not need
 to enable anything to see the information.
+
+Because the opt-in is read from the published package, make sure `tspconfig.yaml` is actually
+shipped — add it to `files` in your `package.json`, otherwise the hook is silently ignored
+once the library is installed from a registry:
+
+```json
+{
+  "files": ["lib/**/*.tsp", "tspconfig.yaml", "dist/**"]
+}
+```
+
 :::
 
 ## The `$onInfo` hook
