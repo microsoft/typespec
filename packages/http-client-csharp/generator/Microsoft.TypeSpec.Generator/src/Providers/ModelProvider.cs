@@ -904,13 +904,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-
                 var restoredParameter = PartialMethodCustomization.CloneParameterWithName(
-                    previousParameter,
+                    property.AsParameter,
                     previousParameter.Name,
-                    removeDefault: true,
-                    validation: property.AsParameter.Validation,
-                    wireInfo: property.AsParameter.WireInfo);
+                    removeDefault: true);
 
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
