@@ -41,33 +41,39 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 **Type:** `"yaml" | "json"`
 
 Serialize the schema as either yaml or json.
+Default `yaml`, if not specified infer from the `output-file` extension.
 
 ### `int64-strategy`
 
 **Type:** `"string" | "number"`
 
-How to handle 64 bit integers on the wire. Options are:
+How to handle 64-bit integers on the wire. Options are:
 
-- string: serialize as a string (widely interoperable)
-- number: serialize as a number (not widely interoperable)
+- string: Serialize as a string (widely interoperable)
+- number: Serialize as a number (not widely interoperable)
 
 ### `bundleId`
 
 **Type:** `string`
 
-When provided, bundle all the schemas into a single json schema document with schemas under $defs. The provided id is the id of the root document and is also used for the file name.
+When provided, bundle all the schemas into a single JSON Schema document
+with schemas under $defs. The provided id is the id of the root document
+and is also used for the file name.
 
 ### `emitAllModels`
 
 **Type:** `boolean`
 
-When true, emit all model declarations to JSON Schema without requiring the @jsonSchema decorator.
+When true, emit all model declarations to JSON Schema without requiring
+the `@jsonSchema` decorator.
 
 ### `emitAllRefs`
 
 **Type:** `boolean`
 
-When true, emit all references as json schema files, even if the referenced type does not have the `@jsonSchema` decorator or is not within a namespace with the `@jsonSchema` decorator.
+When true, emit all references as JSON Schema files, even if the referenced
+type does not have the `@jsonSchema` decorator or is not within a namespace
+with the `@jsonSchema` decorator.
 
 ### `seal-object-schemas`
 
@@ -77,7 +83,6 @@ When true, emit all references as json schema files, even if the referenced type
 
 If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
 if not explicitly specified elsewhere.
-Default: `false`
 
 ### `polymorphic-models-strategy`
 
@@ -85,12 +90,8 @@ Default: `false`
 
 **Default:** `"ignore"`
 
-Strategy for emitting models with the @discriminator decorator:
+Strategy for emitting models with the discriminator decorator.
 
-- ignore: Emit as regular object schema (default). Derived models use allOf to reference their base model.
+- ignore: Emit as regular object schema (default)
 - oneOf: Emit a oneOf schema with references to all derived models (closed union)
 - anyOf: Emit an anyOf schema with references to all derived models (open union)
-
-When using oneOf or anyOf, derived models will inline all properties from their base model
-instead of using allOf references. This avoids circular references in the generated schemas,
-since the base model references derived models via oneOf/anyOf.

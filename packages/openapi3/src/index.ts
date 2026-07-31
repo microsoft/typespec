@@ -2,7 +2,7 @@ export const namespace = "TypeSpec.OpenAPI";
 
 export { convertOpenAPI3Document } from "./cli/actions/convert/convert.js";
 export { $oneOf, $useRef, getOneOf, getRef } from "./decorators.js";
-export { $lib } from "./lib.js";
+export { $flags, $lib } from "./lib.js";
 export {
   $onEmit,
   getOpenAPI3,

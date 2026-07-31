@@ -126,3 +126,112 @@ describe("format: absolute-path", () => {
     });
   });
 });
+
+describe("compiler: emitter options defined in TypeSpec", () => {
+  const tspOptionsEmitter = createTypeSpecLibrary({
+    name: "tsp-options-emitter",
+    diagnostics: {},
+  });
+
+  async function diagnoseEmitterOptions(
+    options: Record<string, unknown>,
+    { optedIn = true }: { optedIn?: boolean } = {},
+  ): Promise<readonly Diagnostic[]> {
+    return Tester.files({
+      "node_modules/tsp-options-emitter/package.json": JSON.stringify({
+        main: "index.js",
+        exports: {
+          ".": "./index.js",
+          "./options": { typespec: "./options.tsp" },
+        },
+      }),
+      "node_modules/tsp-options-emitter/options.tsp": `model EmitterOptions {
+        name?: string;
+        count?: int32;
+        format?: "yaml" | "json";
+      }`,
+      "node_modules/tsp-options-emitter/index.js": mockFile.js({
+        $lib: tspOptionsEmitter,
+        $onEmit: () => {},
+        ...(optedIn ? { $flags: { experimentalEmitterOptions: true } } : {}),
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["tsp-options-emitter"],
+        options: {
+          "tsp-options-emitter": options,
+        },
+      },
+    });
+  }
+
+  it("passes valid options", async () => {
+    const diagnostics = await diagnoseEmitterOptions({
+      "emitter-output-dir": "/out",
+      name: "hello",
+      count: 3,
+      format: "json",
+    });
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emits diagnostic for an unknown property", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ "not-an-option": true });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: `Unknown property "not-an-option"`,
+    });
+  });
+
+  it("emits diagnostic for an invalid value type", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ count: "not a number" });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: `Type '"not a number"' is not assignable to type 'int32'`,
+    });
+  });
+
+  it("emits diagnostic for a value outside an allowed union", async () => {
+    const diagnostics = await diagnoseEmitterOptions({ format: "xml" });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options",
+      message: `Value "xml" is not one of the allowed values: "yaml", "json"`,
+    });
+  });
+
+  it("does not validate options when the emitter has not opted in", async () => {
+    const diagnostics = await diagnoseEmitterOptions(
+      { "not-an-option": true, count: "not a number" },
+      { optedIn: false },
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("attributes errors in the emitter's own options file to the emitter author", async () => {
+    const diagnostics = await Tester.files({
+      "node_modules/tsp-options-emitter/package.json": JSON.stringify({
+        main: "index.js",
+        exports: {
+          ".": "./index.js",
+          "./options": { typespec: "./options.tsp" },
+        },
+      }),
+      "node_modules/tsp-options-emitter/options.tsp": `model EmitterOptions {
+        name?: NotARealType;
+      }`,
+      "node_modules/tsp-options-emitter/index.js": mockFile.js({
+        $lib: tspOptionsEmitter,
+        $onEmit: () => {},
+        $flags: { experimentalEmitterOptions: true },
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["tsp-options-emitter"],
+        options: { "tsp-options-emitter": {} },
+      },
+    });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-emitter-options-definition",
+    });
+  });
+});
