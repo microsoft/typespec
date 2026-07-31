@@ -58,6 +58,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected ClientMethodTemplate() {
     }
 
+    private static String serializedPropertyPath(List<ModelPropertySegment> propertyReference) {
+        return propertyReference.stream()
+            .map(segment -> ClassType.STRING.defaultValueExpression(segment.getProperty().getSerializedName()))
+            .collect(Collectors.joining(", "));
+    }
+
     public static ClientMethodTemplate getInstance() {
         return INSTANCE;
     }
@@ -986,16 +992,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         function.line("res.getStatusCode(),");
         function.line("res.getHeaders(),");
         if (settings.isDataPlaneClient()) {
-            function.line("getValues(res.getValue(), \"%s\"),",
-                clientMethod.getMethodPageDetails().getSerializedItemName());
+            function.line("getValues(res.getValue(), %s),",
+                serializedPropertyPath(clientMethod.getMethodPageDetails().getPageItemsPropertyReference()));
         } else {
             function.line("res.getValue().%s(),",
                 CodeNamer.getModelNamer().modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
         }
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             if (settings.isDataPlaneClient()) {
-                function.line("getNextLink(res.getValue(), \"%s\"),",
-                    clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                function.line("getNextLink(res.getValue(), %s),",
+                    serializedPropertyPath(clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
             } else {
                 function.line(nextLinkLine(clientMethod));
             }
@@ -1449,16 +1455,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
                     if (settings.isDataPlaneClient() && settings.isAzureV1()) {
-                        function.line("getValues(res.getValue(), \"%s\"),",
-                            clientMethod.getMethodPageDetails().getSerializedItemName());
+                        function.line("getValues(res.getValue(), %s),", serializedPropertyPath(
+                            clientMethod.getMethodPageDetails().getPageItemsPropertyReference()));
                     } else {
                         function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                         if (settings.isDataPlaneClient() && settings.isAzureV1()) {
-                            function.line("getNextLink(res.getValue(), \"%s\"),",
-                                clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                            function.line("getNextLink(res.getValue(), %s),", serializedPropertyPath(
+                                clientMethod.getMethodPageDetails().getNextLinkPropertyReference()));
                         } else {
                             function.line(nextLinkLine(clientMethod));
                         }

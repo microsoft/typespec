@@ -246,17 +246,23 @@ public class TemplateUtil {
      * @param classBlock Java class block
      */
     private static void writePagingHelperMethods(JavaClass classBlock) {
-        classBlock.privateMethod("List<BinaryData> getValues(BinaryData binaryData, String path)", block -> {
+        classBlock.privateMethod("List<BinaryData> getValues(BinaryData binaryData, String... path)", block -> {
             block.line("try {");
-            block.line("Map<?, ?> obj = binaryData.toObject(Map.class);");
-            block.line("List<?> values = (List<?>) obj.get(path);");
+            block.line("Object value = binaryData.toObject(Map.class);");
+            block.line("for (String segment : path) {");
+            block.indent(() -> block.line("value = ((Map<?, ?>) value).get(segment);"));
+            block.line("}");
+            block.line("List<?> values = (List<?>) value;");
             block.line("return values.stream().map(BinaryData::fromObject).collect(Collectors.toList());");
             block.line("} catch (RuntimeException e) { return null; }");
         });
-        classBlock.privateMethod("String getNextLink(BinaryData binaryData, String path)", block -> {
+        classBlock.privateMethod("String getNextLink(BinaryData binaryData, String... path)", block -> {
             block.line("try {");
-            block.line("Map<?, ?> obj = binaryData.toObject(Map.class);");
-            block.line("return (String) obj.get(path);");
+            block.line("Object value = binaryData.toObject(Map.class);");
+            block.line("for (String segment : path) {");
+            block.indent(() -> block.line("value = ((Map<?, ?>) value).get(segment);"));
+            block.line("}");
+            block.line("return (String) value;");
             block.line("} catch (RuntimeException e) { return null; }");
         });
     }
