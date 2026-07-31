@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 describe("implicit ids", () => {
@@ -112,7 +112,7 @@ describe("explicit ids with $id", () => {
       { emitNamespace: false },
     );
 
-    assert.strictEqual(schemas["types.json"].$defs.StringEquals.properties.equals.type, "string");
-    assert.strictEqual(schemas["types.json"].$defs.IntegerEquals.properties.equals.type, "integer");
+    expect(schemas["types.json"].$defs.StringEquals.properties.equals.type).toBe("string");
+    expect(schemas["types.json"].$defs.IntegerEquals.properties.equals.type).toBe("integer");
   });
 });
