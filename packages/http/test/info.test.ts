@@ -1,6 +1,5 @@
 import { t } from "@typespec/compiler/testing";
-import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { $onInfo } from "../src/info.js";
 import { Tester } from "./test-host.js";
 
@@ -10,7 +9,7 @@ describe("http: $onInfo", () => {
       @route("/pets/{id}") @get op ${t.op("read")}(@path id: string): void;
     `);
 
-    deepStrictEqual($onInfo({ program, target: read }), {
+    expect($onInfo({ program, target: read })).toEqual({
       content: "`HTTP Route`: `GET /pets/{id}`\n\n`Responses`: `204`",
     });
   });
@@ -20,6 +19,6 @@ describe("http: $onInfo", () => {
       model ${t.model("Pet")} {}
     `);
 
-    deepStrictEqual($onInfo({ program, target: Pet }), undefined);
+    expect($onInfo({ program, target: Pet })).toBeUndefined();
   });
 });

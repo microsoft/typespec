@@ -1,5 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ExternalError } from "../src/core/external-error.js";
 import type { CompilerOptions } from "../src/core/options.js";
 import type { InfoContext } from "../src/core/types.js";
@@ -34,7 +33,7 @@ describe("compiler: $onInfo hook", () => {
       .createInstance();
 
     const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, projectFeature);
-    deepStrictEqual(runner.program.getTypeInfo(foo), { content: "a\n\nb" });
+    expect(runner.program.getTypeInfo(foo)).toEqual({ content: "a\n\nb" });
   });
 
   it("returns undefined when no provider contributes for the type", async () => {
@@ -43,7 +42,7 @@ describe("compiler: $onInfo hook", () => {
       .createInstance();
 
     const { foo } = await runner.compile(t.code`model ${t.model("foo")} {}`, projectFeature);
-    strictEqual(runner.program.getTypeInfo(foo), undefined);
+    expect(runner.program.getTypeInfo(foo)).toBeUndefined();
   });
 
   it("ignores the hook when the declaring project did not enable the `type-info-hook` feature", async () => {
@@ -52,7 +51,7 @@ describe("compiler: $onInfo hook", () => {
       .createInstance();
 
     const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`);
-    strictEqual(runner.program.getTypeInfo(foo), undefined);
+    expect(runner.program.getTypeInfo(foo)).toBeUndefined();
   });
 
   it("wraps provider crashes in an ExternalError", async () => {
@@ -67,13 +66,7 @@ describe("compiler: $onInfo hook", () => {
       .createInstance();
 
     const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, projectFeature);
-    let error: unknown;
-    try {
-      runner.program.getTypeInfo(foo);
-    } catch (e) {
-      error = e;
-    }
-    ok(error instanceof ExternalError, "Expected getTypeInfo to throw an ExternalError");
+    expect(() => runner.program.getTypeInfo(foo)).toThrow(ExternalError);
   });
 
   describe("feature is scoped to the library declaring the hook", () => {
@@ -92,21 +85,21 @@ describe("compiler: $onInfo hook", () => {
 
       // The consumer does NOT enable the feature; the library's opt-in is enough.
       const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`);
-      deepStrictEqual(runner.program.getTypeInfo(foo), { content: "from-lib" });
+      expect(runner.program.getTypeInfo(foo)).toEqual({ content: "from-lib" });
     });
 
     it("ignores the hook when the library does not enable the feature", async () => {
       const runner = await testerWithLib().createInstance();
 
       const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`);
-      strictEqual(runner.program.getTypeInfo(foo), undefined);
+      expect(runner.program.getTypeInfo(foo)).toBeUndefined();
     });
 
     it("enabling the feature in the consumer project does not enable it for library code", async () => {
       const runner = await testerWithLib().createInstance();
 
       const { foo } = await runner.compile(t.code`op ${t.op("foo")}(): void;`, projectFeature);
-      strictEqual(runner.program.getTypeInfo(foo), undefined);
+      expect(runner.program.getTypeInfo(foo)).toBeUndefined();
     });
   });
 });

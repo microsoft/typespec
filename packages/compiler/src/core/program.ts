@@ -340,7 +340,7 @@ async function createProgram(
           if (options.designTimeBuild) {
             program.reportDiagnostic(
               createDiagnostic({
-                code: "on-validate-fail",
+                code: "on-info-fail",
                 format: { error: error.stack },
                 target: NoTarget,
               }),
