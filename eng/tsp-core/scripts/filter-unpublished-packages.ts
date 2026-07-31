@@ -72,7 +72,7 @@ async function isPackagePublished(name: string, version: string): Promise<boolea
   try {
     // Encode package name for URL (handles scoped packages like @typespec/compiler)
     const encodedName = encodeURIComponent(name).replace(/%2F/g, "/");
-    const registryUrl = `https://registry.npmjs.org/${encodedName}`;
+    const registryUrl = `https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/${encodedName}`;
 
     const response = await fetch(registryUrl);
 
