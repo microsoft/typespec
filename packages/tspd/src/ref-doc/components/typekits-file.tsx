@@ -1,15 +1,8 @@
-import {
-  code,
-  For,
-  Output,
-  OutputDirectory,
-  OutputFile,
-  render,
-  traverseOutput,
-} from "@alloy-js/core";
+import type { OutputDirectory, OutputFile } from "@alloy-js/core";
+import { code, For, Output, render, traverseOutput } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import { format as prettierFormat } from "prettier";
-import { TypekitCollection } from "../typekit-docs.js";
+import type { TypekitCollection } from "../typekit-docs.js";
 import { TypekitSection } from "./typekit-section.js";
 
 export function createTypekitDocs(typekit: TypekitCollection) {
