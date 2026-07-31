@@ -660,6 +660,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                         public readonly partial struct MockInputEnum
                         {
                             private const string RecoverValue = "recover";
+                            private const string NullValue = null;
                             private const int Answer = 42;
                         }
                     }
@@ -680,6 +681,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var answer = fields["Answer"];
             Assert.IsInstanceOf<LiteralExpression>(answer.InitializationValue);
             Assert.AreEqual(42, (answer.InitializationValue as LiteralExpression)!.Literal);
+
+            Assert.IsTrue(fields.ContainsKey("NullValue"));
+            var nullValue = fields["NullValue"];
+            Assert.IsInstanceOf<LiteralExpression>(nullValue.InitializationValue);
+            Assert.IsNull((nullValue.InitializationValue as LiteralExpression)!.Literal);
         }
 
         // Validates that a non-const field carries no recovered initialization value.

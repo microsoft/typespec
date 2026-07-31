@@ -249,7 +249,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
         {
-            if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
+            if (fieldSymbol.HasConstantValue)
             {
                 return Literal(fieldSymbol.ConstantValue);
             }
