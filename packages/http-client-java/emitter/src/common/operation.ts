@@ -1,15 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import {
-  ApiVersion,
-  Aspect,
-  ImplementationLocation,
-  Metadata,
-  Parameter,
-  Response,
-  SchemaType,
-} from "@autorest/codemodel";
-import { DeepPartial } from "@azure-tools/codegen";
-import { LongRunningMetadata } from "./long-running-metadata.js";
+import type { ApiVersion, Parameter, Response } from "@autorest/codemodel";
+import { Aspect, ImplementationLocation, Metadata, SchemaType } from "@autorest/codemodel";
+import type { DeepPartial } from "@azure-tools/codegen";
+import type { LongRunningMetadata } from "./long-running-metadata.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
 export interface Operation extends Aspect {
