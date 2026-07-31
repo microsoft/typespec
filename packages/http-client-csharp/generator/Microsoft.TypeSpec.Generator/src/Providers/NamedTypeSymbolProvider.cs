@@ -249,10 +249,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
         {
-            // Constant fields expose their value through metadata, so we can recover it even from a
-            // compiled last-contract assembly without debug symbols. This covers both enum members and
-            // the private const backing fields of an extensible enum (e.g. `<Member>Value`), which lets
-            // back-compat restore an extensible enum member that was dropped from the current spec.
             if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
             {
                 return Literal(fieldSymbol.ConstantValue);

@@ -279,10 +279,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
-            // Extensible enum members surface as public static properties whose wire values are stored in
-            // private const `<Member>Value` fields. Both the property names and the const values are
-            // recoverable from the last contract (including a compiled assembly's metadata), so a member
-            // dropped from the current spec can be restored to avoid a source-breaking removal.
             var lastContractProperties = LastContractView?.Properties;
             if (lastContractProperties == null || lastContractProperties.Count == 0)
             {
@@ -293,7 +289,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lastContractValueFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
             foreach (var field in LastContractView!.Fields)
             {
-                lastContractValueFields[field.Name] = field;
+                lastContractValueFields.TryAdd(field.Name, field);
             }
 
             List<EnumTypeMember>? readdedMembers = null;

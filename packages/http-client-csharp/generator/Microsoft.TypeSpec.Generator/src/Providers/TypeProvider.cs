@@ -856,9 +856,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             // Extensible enums carry an extra backing `_value` field and surface members
                             // as properties, so rebuild both from the updated members. Reuse the
-                            // already-visited property instances for members that still exist so only the
-                            // restored members are (re)visited below.
-                            newFields = ApplyCustomizationFilter(BuildFields());
+                            // already-visited field and property instances for members that still exist so
+                            // any visitor mutations are preserved and only the restored members are
+                            // (re)visited below.
+                            var existingFields = new Dictionary<string, FieldProvider>(StringComparer.Ordinal);
+                            foreach (var field in Fields)
+                            {
+                                existingFields[field.Name] = field;
+                            }
+                            newFields = ApplyCustomizationFilter(
+                                BuildFields().Select(f => existingFields.TryGetValue(f.Name, out var existing) ? existing : f));
+
                             var existingProperties = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
                             foreach (var property in Properties)
                             {

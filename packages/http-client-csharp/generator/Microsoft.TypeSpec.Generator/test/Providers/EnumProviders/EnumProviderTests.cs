@@ -680,18 +680,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("Recover", properties[1].Name);
             Assert.AreEqual("Third", properties[2].Name);
 
-            // The re-added member restores its wire value from the last contract's private const field.
-            var thirdValueField = enumType.Fields.SingleOrDefault(f => f.Name == "ThirdValue");
-            Assert.IsNotNull(thirdValueField);
-            Assert.AreEqual("third", (thirdValueField!.InitializationValue as LiteralExpression)?.Literal);
-
-            // The backing `_value` field is preserved when the fields are rebuilt.
-            Assert.IsTrue(enumType.Fields.Any(f => f.Name == "_value"));
-
-            // The corresponding enum value carries the recovered wire value.
+            // The corresponding enum value carries the wire value recovered from the last contract.
             var thirdMember = enumType.EnumValues.SingleOrDefault(v => v.Name == "Third");
             Assert.IsNotNull(thirdMember);
             Assert.AreEqual("third", thirdMember!.Value);
+
+            // Validate the full generated output, including the restored const `<Member>Value` field
+            // and the preserved backing `_value` field.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
         // Validates that a removed extensible enum member is NOT re-added when its removal is accepted in

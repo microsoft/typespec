@@ -451,10 +451,7 @@ public enum SampleEnum
 
 ### Extensible Enum Members
 
-Extensible enums are generated as `readonly partial struct` types whose members are exposed as public static properties, with each member's wire value stored in a private `const` backing field (`<Member>Value`). Because both the property name and its wire value are recoverable from the last contract — including from a compiled assembly's metadata — the generator can re-add an extensible enum member that was dropped from the current spec, avoiding a source-breaking removal.
-
-> [!NOTE]
-> Unlike fixed **string** enums (where the wire value is not recoverable from the last contract), extensible enums keep the wire value in a `const` field, so removed members can be safely restored.
+Extensible enums (C# `readonly partial struct` types) preserve their previously shipped members by comparing the current spec against the last contract. The generator re-adds an extensible enum member that was dropped from the current spec, restoring it with its original wire value to avoid removing a previously shipped member.
 
 #### Scenario: Removed Extensible Enum Member Re-added
 
