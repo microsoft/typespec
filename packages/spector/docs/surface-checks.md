@@ -154,7 +154,7 @@ never reaches AI; every check in the category resolves to `not-applicable`:
 - **Where the precomputed checks doc ships:** alongside the specs, exactly like
   the scenario summary. `packages/http-specs` runs
   `tsp-spector generate-surface-checks ./specs` (wired into `regen-docs`) to
-  produce a committed `surface-checks.md`, the same way
+  produce a committed `surface-checks.json`, the same way
   `generate-scenarios-summary` produces `spec-summary.md`.
 - **How items mark N/A for a language:** per **category** in the emitter's
   `verifiers.json` (`{ "na": true }`), mirroring wire `unsupportedScenarios`;

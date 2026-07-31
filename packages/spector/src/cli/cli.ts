@@ -94,7 +94,7 @@ async function main() {
     )
     .command(
       "generate-surface-checks <scenariosPaths..>",
-      "Precompute the surface-checks doc (Markdown, from @surfaceDoc) for all specs.",
+      "Precompute the surface-checks doc (JSON, from @surfaceDoc) for all specs.",
       (cmd) => {
         return cmd
           .positional("scenariosPaths", {
@@ -105,8 +105,8 @@ async function main() {
           })
           .option("outputFile", {
             type: "string",
-            description: "Path to the generated surface-checks doc (Markdown).",
-            default: join(process.cwd(), "surface-checks.md"),
+            description: "Path to the generated surface-checks doc (JSON).",
+            default: join(process.cwd(), "surface-checks.json"),
           });
       },
       async (args) => {

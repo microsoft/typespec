@@ -1,7 +1,6 @@
 import { getSourceLocation, normalizePath } from "@typespec/compiler";
 import { relative } from "path";
 import pc from "picocolors";
-import prettier from "prettier";
 import type { SurfaceDetails, SurfaceDoc, SurfaceDocTarget } from "../lib/decorators.js";
 import { buildSurfaceDetails } from "../lib/decorators.js";
 import { logger } from "../logger.js";
@@ -90,53 +89,21 @@ export function createSurfaceChecksManifest(
 }
 
 /**
- * Render a {@link SurfaceChecksManifest} as a single Markdown document that is
- * both human-readable and machine-readable: the table below is the source of
- * truth consumed by the shared `verify-surface-checks` runner, and is also easy
- * to read in review. The
- * `details` column encodes category-specific expectations as `key=value` pairs
- * separated by `; ` (booleans as `true`/`false`).
+ * Render a {@link SurfaceChecksManifest} as a JSON document consumed by the
+ * shared `verify-surface-checks` runner. Each item includes id, scenario,
+ * category, target, scope, details, and doc.
  */
-export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): Promise<string> {
-  const lines = [
-    `# Surface checks`,
-    ``,
-    `Generated from \`@surfaceDoc\` annotations. This table is both the human summary`,
-    `and the machine-readable checks doc parsed by the shared \`verify-surface-checks\` runner.`,
-    ``,
-    `| id | scenario | category | target | scope | details | doc |`,
-    `| --- | --- | --- | --- | --- | --- | --- |`,
-  ];
-  for (const item of manifest.items) {
-    const cells = [
-      item.id,
-      item.scenario ?? "",
-      item.category,
-      item.target,
-      item.scope ?? "",
-      renderDetails(item.details),
-      escapeCell(item.doc),
-    ];
-    lines.push(`| ${cells.join(" | ")} |`);
-  }
-  return prettier.format(lines.join("\n"), { parser: "markdown" });
-}
-
-/** Encode `details` as `key=value; key=value` for the Markdown table cell. */
-function renderDetails(details: SurfaceDetails | undefined): string {
-  if (!details) {
-    return "";
-  }
-  return escapeCell(
-    Object.entries(details)
-      .map(([k, v]) => `${k}=${v}`)
-      .join("; "),
-  );
-}
-
-/** Escape characters that would break a Markdown table cell. */
-function escapeCell(text: string): string {
-  return text.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\n/g, " ");
+export function createSurfaceChecksSummary(manifest: SurfaceChecksManifest): string {
+  const items = manifest.items.map((item) => ({
+    id: item.id,
+    scenario: item.scenario ?? "",
+    category: item.category,
+    target: item.target,
+    ...(item.scope ? { scope: item.scope } : {}),
+    details: item.details ?? {},
+    doc: item.doc,
+  }));
+  return JSON.stringify({ items }, null, 2) + "\n";
 }
 
 function uniqueId(used: Map<string, number>, base: string): string {

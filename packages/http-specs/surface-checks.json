@@ -1,0 +1,65 @@
+{
+  "items": [
+    {
+      "id": "Payload_Pageable_PageSize_listWithoutContinuation_paging",
+      "scenario": "Payload_Pageable_PageSize_listWithoutContinuation",
+      "category": "paging",
+      "target": "listWithoutContinuation",
+      "details": {
+        "expected": "Pet"
+      },
+      "doc": "Single-page pageable operation yielding `Pet` elements, no continuation."
+    },
+    {
+      "id": "Payload_Pageable_PageSize_listWithPageSize_paging",
+      "scenario": "Payload_Pageable_PageSize_listWithPageSize",
+      "category": "paging",
+      "target": "listWithPageSize",
+      "details": {
+        "expected": "Pet"
+      },
+      "doc": "Page-size-driven pageable operation yielding `Pet` elements."
+    },
+    {
+      "id": "Payload_Pageable_ServerDrivenPagination_link_paging",
+      "scenario": "Payload_Pageable_ServerDrivenPagination_link",
+      "category": "paging",
+      "target": "link",
+      "details": {
+        "expected": "Pet"
+      },
+      "doc": "The paginated operation yields `Pet` elements."
+    },
+    {
+      "id": "Serialization_EncodedName_Json_Property_send_naming",
+      "scenario": "Serialization_EncodedName_Json_Property_send",
+      "category": "naming",
+      "target": "JsonEncodedNameModel.defaultName",
+      "details": {
+        "expected": "defaultName",
+        "kind": "property"
+      },
+      "doc": "The client property is named `defaultName` even though the wire name is `wireName`."
+    },
+    {
+      "id": "Type_Model_Inheritance_NotDiscriminated_getValid_hierarchy",
+      "scenario": "Type_Model_Inheritance_NotDiscriminated_getValid",
+      "category": "hierarchy",
+      "target": "Siamese",
+      "details": {
+        "expected": "Cat"
+      },
+      "doc": "The `Siamese` model extends `Cat` as its base type on the client surface."
+    },
+    {
+      "id": "Type_Model_Inheritance_SingleDiscriminator_getModel_hierarchy",
+      "scenario": "Type_Model_Inheritance_SingleDiscriminator_getModel",
+      "category": "hierarchy",
+      "target": "Sparrow",
+      "details": {
+        "expected": "Bird"
+      },
+      "doc": "The `Sparrow` model extends `Bird` as its base type on the client surface."
+    }
+  ]
+}

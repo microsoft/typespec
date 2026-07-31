@@ -35,58 +35,10 @@ export interface CheckItem {
   doc: string;
 }
 
-/** Parse the checks doc — a Markdown table (the shipped format) or JSON. */
+/** Parse the checks doc (JSON format). */
 export function parseChecksDoc(text: string): CheckItem[] {
-  const trimmed = text.trimStart();
-  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-    const data = JSON.parse(text);
-    return Array.isArray(data) ? data : data.items;
-  }
-  const rows: CheckItem[] = [];
-  let headerSeen = false;
-  for (const raw of text.split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line.startsWith("|")) continue;
-    const cells = line
-      .replace(/^\|/, "")
-      .replace(/\|$/, "")
-      .split(/(?<!\\)\|/)
-      .map((c) => c.trim().replace(/\\\|/g, "|"));
-    if (!headerSeen) {
-      if (cells[0] === "id") headerSeen = true;
-      continue;
-    }
-    if (cells.every((c) => /^[- ]*$/.test(c))) continue; // separator row
-    if (cells.length < 7) continue;
-    const [id, scenario, category, target, scope, details, doc] = cells;
-    rows.push({
-      id,
-      scenario: scenario || undefined,
-      category,
-      target,
-      scope: scope || undefined,
-      details: parseDetails(details),
-      doc,
-    });
-  }
-  return rows;
-}
-
-/** `key=value; key=value` → object; `true`/`false` become booleans. */
-function parseDetails(cell: string): Record<string, string | boolean> {
-  const out: Record<string, string | boolean> = {};
-  for (const pair of cell.split(";")) {
-    const p = pair.trim();
-    if (!p || !p.includes("=")) continue;
-    const i = p.indexOf("=");
-    const k = p.slice(0, i).trim();
-    const v = p
-      .slice(i + 1)
-      .trim()
-      .replace(/\\\|/g, "|");
-    out[k] = v === "true" ? true : v === "false" ? false : v;
-  }
-  return out;
+  const data = JSON.parse(text);
+  return Array.isArray(data) ? data : data.items;
 }
 
 /**

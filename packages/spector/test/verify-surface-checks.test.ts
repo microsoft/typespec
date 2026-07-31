@@ -298,13 +298,20 @@ describe("verify-surface-checks (shared engine)", () => {
     expect(out.needs_ai).toHaveLength(0);
   });
 
-  it("parseChecksDoc reads a Markdown table with details + escaped pipes", () => {
-    const md = [
-      "| id | scenario | category | target | scope | details | doc |",
-      "| --- | --- | --- | --- | --- | --- | --- |",
-      "| x1 | S | access | Widget | | internal=true | Hidden \\| renamed. |",
-    ].join("\n");
-    const items = parseChecksDoc(md);
+  it("parseChecksDoc reads a JSON checks doc", () => {
+    const json = JSON.stringify({
+      items: [
+        {
+          id: "x1",
+          scenario: "S",
+          category: "access",
+          target: "Widget",
+          details: { internal: true },
+          doc: "Hidden | renamed.",
+        },
+      ],
+    });
+    const items = parseChecksDoc(json);
     expect(items[0]).toMatchObject({
       id: "x1",
       scenario: "S",

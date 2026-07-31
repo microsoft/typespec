@@ -206,7 +206,7 @@ describe("@surfaceDoc", () => {
 
   // --- rendering ----------------------------------------------------------
 
-  it("renders a single Markdown table that carries every routable field", async () => {
+  it("renders a JSON checks doc that carries every routable field", async () => {
     const { program } = await Tester.compile(
       `
       model Widget {
@@ -220,21 +220,22 @@ describe("@surfaceDoc", () => {
     `,
     );
     const manifest = createSurfaceChecksManifest(".", "1.0.0", "abc123", listSurfaceDocs(program));
-    const md = await createSurfaceChecksSummary(manifest);
+    const json = createSurfaceChecksSummary(manifest);
+    const data = JSON.parse(json);
 
     // The rendered doc is idempotent: no volatile version/commit provenance.
-    expect(md).not.toContain("commit:");
-    expect(md).toContain("Generated from `@surfaceDoc` annotations.");
-    // Table header with the routable columns (prettier pads cell widths).
-    const header = md.split("\n").find((l) => l.includes("| id"));
-    expect(header).toBeDefined();
-    for (const col of ["id", "scenario", "category", "target", "scope", "details", "doc"]) {
-      expect(header).toContain(col);
-    }
-    // details encoded as key=value.
-    expect(md).toContain("expected=WidgetInternal");
-    // Pipes inside prose are escaped so they don't break the table.
-    expect(md).toContain("Hidden \\| renamed to WidgetInternal.");
+    expect(json).not.toContain("commit:");
+    // Structured items with all routable fields.
+    expect(data.items).toHaveLength(1);
+    const item = data.items[0];
+    expect(item).toMatchObject({
+      category: "naming",
+      target: "Widget",
+      details: { expected: "WidgetInternal" },
+      doc: "Hidden | renamed to WidgetInternal.",
+    });
+    expect(item.id).toBeDefined();
+    expect(item.scenario).toBeDefined();
   });
 
   // --- per-language exact names (scope → value dict) ----------------------

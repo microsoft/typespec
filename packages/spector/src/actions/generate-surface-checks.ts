@@ -21,7 +21,7 @@ export async function generateSurfaceChecks({
     process.exit(-1);
   }
 
-  const summary = await createSurfaceChecksSummary(manifest);
+  const summary = createSurfaceChecksSummary(manifest);
   await writeFile(outputFile, summary);
   logger.info(
     `${pc.green("✓")} Surface checks doc generated at ${outputFile} (${manifest.items.length} checks).`,
