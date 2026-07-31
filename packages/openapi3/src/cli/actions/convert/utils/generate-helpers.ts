@@ -1,4 +1,4 @@
-import { Context } from "./context.js";
+import type { Context } from "./context.js";
 import { supportedHttpMethods } from "./supported-http-methods.js";
 
 export function generateHelpers(context: Context): string {

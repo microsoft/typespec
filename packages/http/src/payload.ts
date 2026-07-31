@@ -1,4 +1,4 @@
-import {
+import type {
   DiagnosticResult,
   LiteralType,
   Model,
@@ -9,6 +9,8 @@ import {
   Tuple,
   Type,
   Union,
+} from "@typespec/compiler";
+import {
   createDiagnosticCollector,
   filterModelProperties,
   getDiscriminator,
@@ -22,16 +24,13 @@ import { DuplicateTracker } from "@typespec/compiler/utils";
 import { getContentTypes } from "./content-types.js";
 import { isCookieParam, isHeader, isPathParam, isQueryParam, isStatusCode } from "./decorators.js";
 import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
-import {
-  GetHttpPropertyOptions,
-  HeaderProperty,
-  HttpProperty,
-  resolvePayloadProperties,
-} from "./http-property.js";
+import type { GetHttpPropertyOptions, HeaderProperty, HttpProperty } from "./http-property.js";
+import { resolvePayloadProperties } from "./http-property.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
-import { Visibility } from "./metadata.js";
-import { HttpFileModel, getHttpFileModel, getHttpPart } from "./private.decorators.js";
-import {
+import type { Visibility } from "./metadata.js";
+import type { HttpFileModel } from "./private.decorators.js";
+import { getHttpFileModel, getHttpPart } from "./private.decorators.js";
+import type {
   HttpOperationFileBody,
   HttpOperationModelPart,
   HttpOperationMultipartBody,

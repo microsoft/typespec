@@ -1,9 +1,7 @@
 import { existsSync } from "fs";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import {
-  MarketplaceExtension,
-  downloadVsixFromMarketplace,
-} from "../../src/core/cli/download-vsix.js";
+import type { MarketplaceExtension } from "../../src/core/cli/download-vsix.js";
+import { downloadVsixFromMarketplace } from "../../src/core/cli/download-vsix.js";
 
 const EXTENSION: MarketplaceExtension = {
   publisher: "typespec",

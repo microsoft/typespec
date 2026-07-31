@@ -1,4 +1,4 @@
-import {
+import type {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
   OpenAPI3Responses,
@@ -8,8 +8,8 @@ import {
   Refable,
   SupportedOpenAPIDocuments,
 } from "../../../../types.js";
-import { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
+import type { Context } from "../utils/context.js";
 import { transformComponentParameters } from "./transform-component-parameters.js";
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";

@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
+import type { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiForVersions } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 

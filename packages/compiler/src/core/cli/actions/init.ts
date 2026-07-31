@@ -1,8 +1,8 @@
 import { InitTemplateError, initTypeSpecProject } from "../../../init/init.js";
 import type { TemplateSource } from "../../../init/template-source/index.js";
 import { resolvePath } from "../../path-utils.js";
-import { Diagnostic } from "../../types.js";
-import { CliCompilerHost } from "../types.js";
+import type { Diagnostic } from "../../types.js";
+import type { CliCompilerHost } from "../types.js";
 
 export interface InitArgs {
   templatesUrl?: string;

@@ -1,17 +1,17 @@
-import { DiagnosticCodeResolver } from "./diagnostic-code.js";
+import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { defineCodeFix, getSourceLocation } from "./diagnostics.js";
 import { builtInLinterLibraryName } from "./linter.js";
 import { compilerDiagnosticCodes } from "./messages.js";
 import { visitChildren } from "./parser.js";
-import { SourceResolution } from "./source-loader.js";
-import {
+import type { SourceResolution } from "./source-loader.js";
+import type {
   CodeFix,
   Directive,
   DirectiveExpressionNode,
   Node,
   SuppressDirective,
-  SyntaxKind,
 } from "./types.js";
+import { SyntaxKind } from "./types.js";
 
 export interface UnusedSuppression {
   directive: SuppressDirective;
