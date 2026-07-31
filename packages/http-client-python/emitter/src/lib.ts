@@ -1,9 +1,7 @@
-import {
-  SdkContext,
-  SdkType,
-  UnbrandedSdkEmitterOptions,
-} from "@azure-tools/typespec-client-generator-core";
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import type { SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
+import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
+import type { JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
 export interface PythonEmitterOptions {
   "api-version"?: string;
