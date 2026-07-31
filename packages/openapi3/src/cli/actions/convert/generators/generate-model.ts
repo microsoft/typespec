@@ -1,6 +1,6 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Encoding, Refable, SupportedOpenAPISchema } from "../../../../types.js";
-import {
+import type { OpenAPI3Encoding, Refable, SupportedOpenAPISchema } from "../../../../types.js";
+import type {
   TypeSpecAlias,
   TypeSpecDataTypes,
   TypeSpecEnum,
@@ -9,7 +9,7 @@ import {
   TypeSpecScalar,
   TypeSpecUnion,
 } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators, generateDirectives } from "./generate-decorators.js";

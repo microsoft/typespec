@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
+import type { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
