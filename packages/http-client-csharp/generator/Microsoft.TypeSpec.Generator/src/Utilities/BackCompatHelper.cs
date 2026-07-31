@@ -51,6 +51,35 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         }
 
         /// <summary>
+        /// Returns true when the removal of a previously-published constructor — identified by the
+        /// enclosing type's fully-qualified name and the exact parameter types — has been accepted in the
+        /// ApiCompat baseline, in which case back compatibility must not restore it. Constructors are
+        /// recorded in the baseline as the <c>.ctor</c> member of their declaring type. Emits an
+        /// informational log entry when a suppression is honored.
+        /// </summary>
+        public static bool IsConstructorRemovalAcceptedInBaseline(TypeProvider enclosingType, ConstructorSignature previousSignature)
+        {
+            var parameterTypes = new CSharpType[previousSignature.Parameters.Count];
+            for (int i = 0; i < parameterTypes.Length; i++)
+            {
+                parameterTypes[i] = previousSignature.Parameters[i].Type;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.IsMethodRemovalSuppressed(
+                    enclosingType.Type.FullyQualifiedName,
+                    ".ctor",
+                    parameterTypes) != true)
+            {
+                return false;
+            }
+
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Skipping back-compat for '{enclosingType.Type.FullyQualifiedName}..ctor'; removal is accepted in the ApiCompat baseline.",
+                BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+            return true;
+        }
+
+        /// <summary>
         /// Finds the current method that has the same parameter set as <paramref name="previousSignature"/>
         /// (matched by name and return type) but in a different order, or null when there is none.
         /// </summary>

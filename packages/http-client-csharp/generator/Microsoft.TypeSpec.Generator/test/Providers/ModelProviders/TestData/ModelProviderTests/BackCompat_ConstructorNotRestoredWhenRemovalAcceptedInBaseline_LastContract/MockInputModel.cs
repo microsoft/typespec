@@ -2,9 +2,9 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        // In the last contract "resources" existed and was part of the constructor, but
-        // the current spec removes the property entirely. Because there is no matching
-        // property to assign, the previous constructor cannot be safely restored.
+        // In the last contract "resources" was required so the initialization constructor
+        // accepted it. The current spec relaxes it to optional, which would normally cause the
+        // previous constructor to be restored - but here its removal is accepted in the baseline.
         public MockInputModel(string name, string resources)
         {
             Name = name;

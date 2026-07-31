@@ -9,8 +9,8 @@ namespace Sample.Models
             Resources = resources;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public string Resources { get; set; }
+        public string Resources { get; }
     }
 }

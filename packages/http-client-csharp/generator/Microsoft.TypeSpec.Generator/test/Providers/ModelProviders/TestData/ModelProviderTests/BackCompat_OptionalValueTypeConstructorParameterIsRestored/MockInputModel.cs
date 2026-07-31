@@ -11,8 +11,8 @@ namespace Sample.Models
             Count = count;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
 
-        public int Count { get; set; }
+        public int Count { get; }
     }
 }

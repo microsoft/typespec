@@ -19,22 +19,20 @@ namespace Sample.Models
             Name = name;
         }
 
-        internal MockInputModel(string name, int count, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string name, string resourceList, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
-            Count = count;
+            ResourceList = resourceList;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
-        public MockInputModel(string name, int count) : this(name)
+        public MockInputModel(string name, string resources) : this(name)
         {
             global::Sample.Argument.AssertNotNull(name, nameof(name));
 
-            Count = count;
+            ResourceList = resources;
         }
 
         public string Name { get; }
-
-        public int Count { get; set; }
     }
 }

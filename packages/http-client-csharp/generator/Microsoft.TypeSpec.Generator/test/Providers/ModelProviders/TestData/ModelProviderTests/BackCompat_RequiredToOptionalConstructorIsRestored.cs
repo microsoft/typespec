@@ -28,7 +28,7 @@ namespace Sample.Models
 
         public MockInputModel(string name, string resources) : this(name)
         {
-            global::Sample.Argument.AssertNotNull(resources, nameof(resources));
+            global::Sample.Argument.AssertNotNull(name, nameof(name));
 
             Resources = resources;
         }

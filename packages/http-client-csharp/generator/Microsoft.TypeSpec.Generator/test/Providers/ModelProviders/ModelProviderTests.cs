@@ -2394,8 +2394,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var body = restoredCtor.BodyStatements!.ToDisplayString();
             Assert.IsTrue(body.Contains("Resources = resources"), $"Expected the body to assign Resources, was: {body}");
-            // A required non-nullable reference type restores its null validation.
-            Assert.IsTrue(body.Contains("Argument.AssertNotNull(resources"), $"Expected null validation for resources, was: {body}");
+            // The extra parameter is cloned from the now-optional property, so it carries the property's
+            // (optional) validation - i.e. no null check is emitted for it.
+            Assert.AreEqual(ParameterValidationType.None, restoredCtor.Signature.Parameters[1].Validation);
+            Assert.IsFalse(body.Contains("Argument.AssertNotNull(resources"), $"Did not expect null validation for the optional resources parameter, was: {body}");
 
             // Validate the full generated model, including the restored constructor, against the expected output.
             var writer = new TypeProviderWriter(modelProvider);
@@ -2429,6 +2431,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                 && c.Signature.Parameters.Count == 2);
             Assert.IsNull(twoParamPublicCtor, "The constructor should not be restored when a property was removed");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -2458,6 +2464,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                 && c.Signature.Parameters.Count == 2);
             Assert.IsNull(twoParamPublicCtor);
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]
@@ -2496,7 +2506,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var body = restoredCtor.BodyStatements!.ToDisplayString();
             Assert.IsTrue(body.Contains("Count = count"), $"Expected the body to assign Count, was: {body}");
             // Value types never emit a null check.
-            Assert.IsFalse(body.Contains("AssertNotNull"), $"Did not expect null validation for a value type, was: {body}");
+            Assert.IsFalse(body.Contains("AssertNotNull(count"), $"Did not expect null validation for a value type, was: {body}");
 
             var writer = new TypeProviderWriter(modelProvider);
             var file = writer.Write();
@@ -2539,6 +2549,97 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // The body assigns the current, renamed property.
             var body = restoredCtor.BodyStatements!.ToDisplayString();
             Assert.IsTrue(body.Contains("ResourceList = resources"), $"Expected the body to assign the renamed property, was: {body}");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(".txt")]
+        [TestCase(".xml")]
+        public async Task BackCompat_ConstructorNotRestoredWhenRemovalAcceptedInBaseline(string baselineExtension)
+        {
+            // "resources" was required in the last contract and is now optional, which would normally
+            // cause the previous (name, resources) constructor to be restored. However its removal is
+            // accepted in the ApiCompat baseline (tested in both the txt and xml formats), so the
+            // constructor must not be resurrected.
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: baselineExtension);
+
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenRemovalAcceptedInBaseline_LastContract"),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            modelProvider!.ProcessTypeForBackCompatibility();
+
+            // The (name, resources) constructor removal is accepted in the baseline, so it is not restored.
+            var restoredCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(restoredCtor, "The constructor should not be restored when its removal is accepted in the baseline");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode()
+        {
+            // "resources" was required in the last contract and is now optional, which would normally
+            // cause the previous (name, resources) constructor to be restored. Here the user has replaced
+            // that constructor with their own custom implementation, so the generator must not add a
+            // colliding back-compat overload.
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("resources", InputPrimitiveType.String, isRequired: false),
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompat_ConstructorNotRestoredWhenReplacedByCustomCode_LastContract"));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The custom (name, resources) constructor lives in the canonical view.
+            var customCtor = modelProvider!.CanonicalView.Constructors.SingleOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(customCtor, "Expected the custom (name, resources) constructor to be present");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            // Because the custom code already provides the (name, resources) constructor, the generator
+            // must not restore a colliding overload of its own.
+            var restoredCtor = modelProvider.Constructors.FirstOrDefault(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && c.Signature.Parameters.Count == 2);
+            Assert.IsNull(restoredCtor, "The constructor should not be restored when it is replaced by custom code");
+
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [Test]

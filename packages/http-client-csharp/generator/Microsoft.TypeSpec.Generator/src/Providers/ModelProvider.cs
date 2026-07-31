@@ -812,8 +812,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                // If a constructor with the same parameters already exists, there is nothing to restore.
-                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                // If a constructor with the same parameters already exists - either still generated or
+                // supplied by custom code (which lives in the canonical view) - there is nothing to restore.
+                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters))
+                    || CanonicalView.Constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                {
+                    continue;
+                }
+
+                // If the removal of this constructor has been accepted in the ApiCompat baseline (in either
+                // the xml or txt format), the break is intentional and must not be resurrected.
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -836,12 +845,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return constructors;
         }
 
-        /// <summary>
-        /// Attempts to reconstruct <paramref name="previousConstructor"/> as a back-compat overload that
-        /// chains to an existing public constructor. Returns <see langword="true"/> and sets
-        /// <paramref name="restoredConstructor"/> when the constructor can be safely restored; otherwise
-        /// returns <see langword="false"/>.
-        /// </summary>
         private bool TryBuildRestoredConstructor(
             ConstructorProvider previousConstructor,
             IReadOnlyList<ConstructorProvider> currentConstructors,
@@ -887,23 +890,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (targetIndex < targetParameters.Count
                     && targetParameters[targetIndex].Equals(previousParameter))
                 {
-                    // Kept parameter: it is forwarded to the chained constructor, which performs any
-                    // validation, so drop validation here to avoid emitting a redundant null check.
+                    // Kept parameter: forward the target constructor's parameter (with its existing
+                    // validation) to the chained call so the emitted variable reference matches the
+                    // parameter declared on this constructor.
                     var keptParameter = targetParameters[targetIndex];
-                    if (keptParameter.Validation != ParameterValidationType.None)
-                    {
-                        keptParameter = new ParameterProvider(
-                            keptParameter.Name,
-                            keptParameter.Description,
-                            keptParameter.Type,
-                            keptParameter.DefaultValue,
-                            wireInfo: keptParameter.WireInfo,
-                            validation: ParameterValidationType.None);
-                    }
-
                     restoredParameters.Add(keptParameter);
-                    // Forward the restored constructor's own parameter to the chained call so the emitted
-                    // variable reference matches the parameter declared on this constructor.
                     initializerArguments.Add(keptParameter);
                     targetIndex++;
                     continue;
@@ -916,18 +907,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                // Preserve the previously published parameter name and type exactly to keep the signature
-                // source-compatible, carrying the wire info from the current property so serialization is
-                // unchanged. Reinstate null validation for non-nullable reference types so the restored
-                // constructor matches the behavior the property previously had while required.
-                var restoredParameter = new ParameterProvider(
+                // Clone the current property's parameter under the previously published name (dropping any
+                // default value so the restored positional parameter matches the previous signature). This
+                // carries the current wire info and validation, keeping serialization and null-checking
+                // behavior consistent with the property.
+                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(
+                    property.AsParameter,
                     previousParameter.Name,
-                    previousParameter.Description,
-                    previousParameter.Type,
-                    wireInfo: property.AsParameter.WireInfo,
-                    validation: previousParameter.Type is { IsValueType: false, IsNullable: false }
-                        ? ParameterValidationType.AssertNotNull
-                        : ParameterValidationType.None);
+                    removeDefault: true);
 
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
