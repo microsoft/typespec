@@ -1,8 +1,9 @@
-import { Refkey, refkey } from "@alloy-js/core";
-import * as ts from "@alloy-js/typescript";
+import type { Refkey } from "@alloy-js/core";
+import { refkey } from "@alloy-js/core";
+import type * as ts from "@alloy-js/typescript";
 import { useTransformNamePolicy } from "@typespec/emitter-framework";
 import * as ef from "@typespec/emitter-framework/typescript";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 import { hasDefaultValue } from "../utils/parameters.jsx";
 import { getOperationOptionsTypeRefkey } from "./operation-options.jsx";
 
