@@ -222,7 +222,13 @@ export class OpenAPI3SchemaEmitterBase<
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
     for (const child of derivedModels) {
-      this.emitter.emitTypeReference(child);
+      if (this._visibilityUsage.isUnreachable(child)) {
+        // Unreachable derived models will be emitted by processUnreferencedSchemas with
+        // Visibility.All context. Force the same context here to avoid a duplicate declaration.
+        this.emitter.emitTypeReference(child, { referenceContext: { visibility: Visibility.All } });
+      } else {
+        this.emitter.emitTypeReference(child);
+      }
     }
 
     this.applyDiscriminator(model, schema as any);

@@ -8,6 +8,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -18,6 +20,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ModelReaderWriterContextDefinition : TypeProvider
     {
         private const string DefaultObsoleteDiagnosticId = "CS0618";
+        private const string ExperimentalAttributeFullName = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
+        private static readonly CSharpType s_buildableAttributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
         private static readonly CSharpTypeNameComparer s_cSharpTypeNameComparer = new CSharpTypeNameComparer();
         private static readonly TypeProviderTypeNameComparer s_typeProviderNameComparer = new TypeProviderTypeNameComparer();
 
@@ -32,17 +36,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override CSharpType BuildBaseType() => typeof(ModelReaderWriterContext);
 
+        // Buildable attributes depend on the final set of providers selected by the reference map.
+        // They are rebuilt at write time while non-buildable attributes, including visitor updates, are preserved.
+        protected override bool ShouldAnalyzeAttributesInReferenceMap => false;
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attributes = new Dictionary<string, MethodBodyStatement>();
+            var customizedBuildableTypes = BuildCustomizedBuildableTypes();
 
             // Add ModelReaderWriterBuildableAttribute for all IPersistableModel types
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(type));
+                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
+                {
+                    continue;
+                }
+
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(type));
 
                 string experimentalTypeJustification = $"{type} is experimental and may change in future versions.";
                 string obsoleteTypeJustification = $"{type} is obsolete and may be removed in future versions.";
@@ -56,24 +68,192 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                // Use the full attribute type name to ensure proper compilation
-                var attributeType = new CSharpType(typeof(ModelReaderWriterBuildableAttribute));
-                var attributeStatement = new AttributeStatement(attributeType, TypeOf(provider.Type));
+                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
+                {
+                    continue;
+                }
 
-                string experimentalTypeJustification = $"{provider.Type} is experimental and may change in future versions.";
-                string obsoleteTypeJustification = $"{provider.Type} is obsolete and may be removed in future versions.";
+                var attributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(provider.Type));
 
                 // If the type is experimental or obsolete, we add a suppression for it
                 AddAttributeForType(
                     attributes,
                     attributeStatement,
                     provider,
-                    experimentalTypeJustification,
-                    obsoleteTypeJustification);
+                    provider.Type.FullyQualifiedName);
             }
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 })
+            {
+                return originalAttributes;
+            }
+
+            // Re-key the generated buildable attributes so last-contract entries can be deduplicated against
+            // them and the combined set can be re-sorted; any non-buildable attributes are preserved as-is.
+            var attributes = new Dictionary<string, MethodBodyStatement>();
+            var others = new List<MethodBodyStatement>();
+            foreach (var attribute in originalAttributes)
+            {
+                var identity = GetBuildableAttributeIdentity(attribute);
+                if (identity != null)
+                {
+                    attributes[identity] = attribute;
+                }
+                else
+                {
+                    others.Add(attribute);
+                }
+            }
+
+            AddLastContractBuildableAttributes(attributes, BuildCustomizedBuildableTypes());
+
+            return [.. attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value), .. others];
+        }
+
+        private static string? GetBuildableAttributeIdentity(MethodBodyStatement attribute)
+        {
+            var attributeStatement = attribute switch
+            {
+                AttributeStatement direct => direct,
+                SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>(),
+                _ => null
+            };
+
+            if (attributeStatement is null || !string.Equals(
+                attributeStatement.Type.FullyQualifiedName,
+                s_buildableAttributeType.FullyQualifiedName,
+                StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var targetType = GetBuildableAttributeTargetType(attributeStatement);
+            return targetType is null
+                ? null
+                : GetTypeIdentity(targetType);
+        }
+
+        private void AddLastContractBuildableAttributes(
+            Dictionary<string, MethodBodyStatement> attributes,
+            HashSet<string> customizedBuildableTypes)
+        {
+            if (LastContractView?.Attributes is not { Count: > 0 } lastContractAttributes)
+            {
+                return;
+            }
+
+            var outputLibraryProviders = new Dictionary<string, TypeProvider>(StringComparer.Ordinal);
+            foreach (var provider in ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders)
+            {
+                outputLibraryProviders.TryAdd(GetTypeIdentity(provider.Type), provider);
+            }
+
+            foreach (var attribute in lastContractAttributes)
+            {
+                if (!string.Equals(
+                    attribute.Type.FullyQualifiedName,
+                    s_buildableAttributeType.FullyQualifiedName,
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var targetType = GetBuildableAttributeTargetType(attribute);
+                if (targetType is null)
+                {
+                    continue;
+                }
+
+                var identity = GetTypeIdentity(targetType);
+
+                TypeProvider? resolvedProvider;
+                if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
+                {
+                    if (!ShouldWriteProvider(outputLibraryProvider))
+                    {
+                        continue;
+                    }
+                    resolvedProvider = outputLibraryProvider;
+                }
+                else
+                {
+                    resolvedProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                        targetType.Namespace,
+                        targetType.ClrMetadataName,
+                        null,
+                        includeReferencedAssemblies: true);
+
+                    if (resolvedProvider is null)
+                    {
+                        continue;
+                    }
+                }
+
+                if (attributes.ContainsKey(identity) || customizedBuildableTypes.Contains(identity))
+                {
+                    continue;
+                }
+
+                var newAttributeStatement = new AttributeStatement(s_buildableAttributeType, TypeOf(targetType));
+
+                AddAttributeForType(
+                    attributes,
+                    newAttributeStatement,
+                    resolvedProvider,
+                    identity);
+            }
+        }
+
+        private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)
+        {
+            foreach (var argument in attribute.Arguments)
+            {
+                if (argument is TypeOfExpression typeOf)
+                {
+                    return typeOf.Type;
+                }
+            }
+
+            return null;
+        }
+
+        private HashSet<string> BuildCustomizedBuildableTypes()
+        {
+            var customizedTypes = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var attribute in CustomCodeView?.Attributes ?? [])
+            {
+                if (!string.Equals(
+                    attribute.Type.FullyQualifiedName,
+                    s_buildableAttributeType.FullyQualifiedName,
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                foreach (var argument in attribute.Arguments)
+                {
+                    if (argument is TypeOfExpression typeOf)
+                    {
+                        customizedTypes.Add(GetTypeIdentity(typeOf.Type));
+                    }
+                }
+            }
+
+            return customizedTypes;
+        }
+
+        private static string GetTypeIdentity(CSharpType type)
+        {
+            var name = type.FullyQualifiedName.TrimStart('.');
+            return type.Arguments.Count == 0
+                ? name
+                : $"{name}<{string.Join(",", type.Arguments.Select(GetTypeIdentity))}>";
         }
 
         /// <summary>
@@ -87,7 +267,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var visitedBaseProviders = new HashSet<TypeProvider>(ReferenceEqualityComparer.Instance);
             var buildableProviders = new HashSet<TypeProvider>(s_typeProviderNameComparer);
             var buildableTypes = new HashSet<CSharpType>(s_cSharpTypeNameComparer);
-
             // Base-model traversal can encounter equivalent provider instances that are not reference-equal to
             // the output-library roots, so keep the output-library provider set name-comparable.
             var contextEligibleOutputProviders = new HashSet<TypeProvider>(
@@ -97,8 +276,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process each output-library provider recursively to discover types from methods and properties.
             foreach (var provider in contextEligibleOutputProviders)
             {
+                if (!ShouldWriteProvider(provider))
+                {
+                    continue;
+                }
+
                 // Only output-library providers get standalone context entries.
-                if (ImplementsModelReaderWriter(provider))
+                if (ShouldAddStandaloneBuildableProvider(provider))
                 {
                     buildableProviders.Add(provider);
                 }
@@ -190,9 +374,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Traverse base model properties for discoverable types, but do not add the base model
                 // itself as a context entry unless it was in the output-library seed set.
-                if (visitedBaseProviders.Add(modelProvider.BaseModelProvider))
+                var baseModelProvider = modelProvider.BaseModelProvider;
+                if (visitedBaseProviders.Add(baseModelProvider))
                 {
-                    CollectBuildableTypesRecursiveCore(modelProvider.BaseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
+                    CollectBuildableTypesRecursiveCore(baseModelProvider, visitedTypes, visitedTypeProviders, visitedBaseProviders, buildableProviders, buildableTypes);
                 }
             }
             else
@@ -220,6 +405,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             try
             {
+                if (!IsResolvableBuildableType(frameworkType))
+                {
+                    return;
+                }
+
                 buildableTypes.Add(frameworkType.FrameworkType);
                 var type = frameworkType.FrameworkType;
                 var properties = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -266,7 +456,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Check if the type is a framework type and implements the model reader/writer interface, also skip MRW interface types
             // If the type doesn't implement MRW, we don't need to process its properties, it can't apply MRW anyway
-            return ImplementsModelReaderWriter(type.FrameworkType) && !IsModelReaderWriterInterfaceType(type);
+            return ModelReaderWriterHelpers.ImplementsModelReaderWriter(type.FrameworkType) &&
+                !ModelReaderWriterHelpers.IsModelReaderWriterInterface(type);
         }
 
         private static CSharpType GetInnerMostElement(CSharpType type)
@@ -307,7 +498,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Unwrap generic framework wrappers such as Response<T>.
-            while (type.IsFrameworkType && type.Arguments.Count == 1 && !ImplementsModelReaderWriter(type.FrameworkType))
+            while (type.IsFrameworkType && type.Arguments.Count == 1 &&
+                !ModelReaderWriterHelpers.ImplementsModelReaderWriter(type.FrameworkType))
             {
                 type = type.Arguments[0];
             }
@@ -337,7 +529,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return false;
             }
 
-            if (!type.IsFrameworkType && provider is not null && ImplementsModelReaderWriter(provider))
+            if (!type.IsFrameworkType && provider is not null && ModelReaderWriterHelpers.ImplementsModelReaderWriter(provider))
             {
                 return true;
             }
@@ -382,69 +574,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return buffer.Slice(0, index).ToString();
         }
 
-        private static bool ImplementsModelReaderWriter(Type type)
+        private static bool ShouldAddStandaloneBuildableProvider(TypeProvider provider)
+            => IsResolvableBuildableType(provider.Type)
+                && ModelReaderWriterHelpers.ImplementsModelReaderWriter(provider)
+                && HasWritableModelReaderWriterSerialization(provider);
+
+        private static bool HasWritableModelReaderWriterSerialization(TypeProvider provider)
         {
-            if (type.IsEnum || type.IsValueType)
-            {
-                return false;
-            }
-
-            return type.GetInterfaces().Any(i => i.Name == "IPersistableModel`1" || i.Name == "IJsonModel`1");
-        }
-
-        private static bool ImplementsModelReaderWriter(TypeProvider typeProvider)
-        {
-            // skip known serialization as their enclosed models are ensured to be buildable
-            if (typeProvider is MrwSerializationTypeDefinition)
-            {
-                return false;
-            }
-
-            if (typeProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Any())
+            if (provider is not ModelProvider)
             {
                 return true;
             }
 
-            // check if the provider implements IPersistableModel or IJsonModel
-            foreach (var implementedType in typeProvider.Implements)
-            {
-                if (IsModelReaderWriterInterfaceType(implementedType))
-                {
-                    return true;
-                }
-            }
-
-            // Also consider serialization providers that may implement MRW
-            foreach (var serializationProvider in typeProvider.SerializationProviders)
-            {
-                if (ImplementsModelReaderWriter(serializationProvider))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return provider.SerializationProviders
+                .OfType<MrwSerializationTypeDefinition>()
+                .Any(ShouldWriteProvider);
         }
 
         private static void AddAttributeForType(
             Dictionary<string, MethodBodyStatement> attributes,
             AttributeStatement attributeStatement,
             TypeProvider typeProvider,
-            string experimentalTypeJustification,
-            string obsoleteTypeJustification)
+            string key)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            var key = typeProvider.Type.FullyQualifiedName;
-
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+                string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));
             }
             else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+                string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), justification));
             }
             else
             {
@@ -461,11 +625,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var key = frameworkType.FullName ?? frameworkType.Name;
 
-            var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
-                .FirstOrDefault();
-            if (experimentalAttr != null)
+            // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
+            // target netstandard2.0 polyfill their own System.Diagnostics.CodeAnalysis.ExperimentalAttribute,
+            // which is a distinct Type from the BCL one; an identity-based GetCustomAttributes(typeof(...)) match
+            // misses it, leaving the buildable registration to surface the experimental diagnostic unsuppressed.
+            // Reading the attribute data by name covers both the BCL and polyfilled attributes.
+            var experimentalData = frameworkType.GetCustomAttributesData()
+                .FirstOrDefault(a => string.Equals(a.AttributeType.FullName, ExperimentalAttributeFullName, StringComparison.Ordinal));
+            if (experimentalData != null)
             {
-                var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                var diagnosticId = experimentalData.ConstructorArguments.Count > 0
+                    ? experimentalData.ConstructorArguments[0].Value as string
+                    : null;
                 attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
                 return;
             }
@@ -481,11 +652,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             attributes.Add(key, attributeStatement);
-        }
-
-        private static bool IsModelReaderWriterInterfaceType(CSharpType type)
-        {
-            return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
         }
 
         /// <summary>

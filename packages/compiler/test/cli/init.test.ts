@@ -1,9 +1,14 @@
-import { afterAll, afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CliCompilerHost } from "../../src/core/cli/types.js";
-import { CompilerPackageRoot } from "../../src/core/node-host.js";
 import { resolvePath } from "../../src/core/path-utils.js";
 import { LogSink } from "../../src/index.js";
-import { initTypeSpecProject } from "../../src/init/init.js";
+import { InitTemplate } from "../../src/init/init-template.js";
+import {
+  initTypeSpecProject,
+  InitTypeSpecProjectOptions,
+  isTemplateCompatibleWithTspVersion,
+} from "../../src/init/init.js";
+import { UriTemplateSource } from "../../src/init/template-source/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
 import { TestFileSystem } from "../../src/testing/types.js";
 import { parseYaml as coreParseYaml } from "../../src/yaml/parser.js";
@@ -88,17 +93,19 @@ const TEST_SCAFFOLDING = {
 };
 
 async function createTestFSWithCliCompilerHost(): Promise<
-  TestFileSystem & { compilerHost: CliCompilerHost }
+  TestFileSystem & {
+    compilerHost: CliCompilerHost;
+    init: (directory: string, options?: InitTypeSpecProjectOptions) => Promise<void>;
+  }
 > {
   const testHost = await createTestFileSystem();
 
-  testHost.fs.set(
-    resolvePath(CompilerPackageRoot, "templates", "scaffolding.json"),
-    JSON.stringify(TEST_SCAFFOLDING),
-  );
+  const executionRoot = testHost.compilerHost.getExecutionRoot();
+  const templatesRoot = resolvePath(executionRoot, "templates");
+  testHost.fs.set(resolvePath(templatesRoot, "scaffolding.json"), JSON.stringify(TEST_SCAFFOLDING));
 
   testHost.fs.set(
-    resolvePath(CompilerPackageRoot, "templates", "withParams", "tspconfig.yaml"),
+    resolvePath(templatesRoot, "withParams", "tspconfig.yaml"),
     `
 emit: @typespec/openapi3
 options:
@@ -125,7 +132,12 @@ parameters:
   };
 
   Object.assign(testHost.compilerHost as CliCompilerHost, { logSink });
-  return testHost as TestFileSystem & { compilerHost: CliCompilerHost };
+  const compilerHost = testHost.compilerHost as CliCompilerHost;
+  // Serve the built-in templates from the test file system rather than the real compiler package.
+  const internalTemplateSource = UriTemplateSource.fromDirectory(compilerHost, templatesRoot);
+  const init = (directory: string, options: InitTypeSpecProjectOptions = {}) =>
+    initTypeSpecProject(compilerHost, directory, { ...options, internalTemplateSource });
+  return Object.assign(testHost as TestFileSystem & { compilerHost: CliCompilerHost }, { init });
 }
 
 function parseJson(host: CliCompilerHost, path: string): Promise<Record<string, any>> {
@@ -142,9 +154,9 @@ afterAll(() => {
 });
 
 it("should create a new project with the specified template", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
   });
@@ -157,10 +169,10 @@ it("should create a new project with the specified template", async () => {
 });
 
 it("does not ask for permission if directory has files", async () => {
-  const { fs, compilerHost } = await createTestFSWithCliCompilerHost();
+  const { fs, compilerHost, init } = await createTestFSWithCliCompilerHost();
   fs.set("/tmp/test-project/some-file.txt", "content");
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
   });
@@ -169,9 +181,9 @@ it("does not ask for permission if directory has files", async () => {
 });
 
 it("should support overriding project name", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
     "project-name": "custom-project-name",
@@ -182,9 +194,9 @@ it("should support overriding project name", async () => {
 });
 
 it("should support overriding emitters", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
     emitters: ["@typespec/openapi3", "@typespec/http-client-csharp"],
@@ -195,8 +207,8 @@ it("should support overriding emitters", async () => {
 });
 
 it("defaults to initialValue for parameters", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
+  await init("/tmp/test-project", {
     template: "withParams",
     "no-prompt": true,
     args: ["param1=value1"],
@@ -211,8 +223,8 @@ it("defaults to initialValue for parameters", async () => {
 });
 
 it("should support passing in arguments", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
+  await init("/tmp/test-project", {
     template: "withParams",
     "no-prompt": true,
     args: ["param1=value1", "param2=value2", "param3=value3"],
@@ -227,9 +239,9 @@ it("should support passing in arguments", async () => {
 });
 
 it("can't add emitters not specified by the template", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
     emitters: ["@typespec/openapi3", "@typespec/http-client-csharp", "my-fake-emitter"],
@@ -240,10 +252,10 @@ it("can't add emitters not specified by the template", async () => {
 });
 
 it("should throw an error if no template is specified with no-prompt", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { init } = await createTestFSWithCliCompilerHost();
 
   await expect(
-    initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    init("/tmp/test-project", {
       "no-prompt": true,
     }),
   ).rejects.toThrowError(
@@ -252,10 +264,10 @@ it("should throw an error if no template is specified with no-prompt", async () 
 });
 
 it("should throw an error if the specified template does not exist", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { init } = await createTestFSWithCliCompilerHost();
 
   await expect(
-    initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    init("/tmp/test-project", {
       template: "non-existent-template",
       "no-prompt": true,
     }),
@@ -263,10 +275,10 @@ it("should throw an error if the specified template does not exist", async () =>
 });
 
 it("should throw an error if a required argument is not provided", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { init } = await createTestFSWithCliCompilerHost();
 
   await expect(
-    initTypeSpecProject(compilerHost, "/tmp/test-project", {
+    init("/tmp/test-project", {
       template: "withParams",
       "no-prompt": true,
     }),
@@ -276,9 +288,9 @@ it("should throw an error if a required argument is not provided", async () => {
 });
 
 it("should resolve package versions from npm registry", async () => {
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
 
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
   });
@@ -292,12 +304,48 @@ it("should resolve package versions from npm registry", async () => {
 it("should fallback to 'latest' when npm registry is unreachable", async () => {
   fetchMock.mockRejectedValue(new Error("Network error"));
 
-  const { compilerHost } = await createTestFSWithCliCompilerHost();
-  await initTypeSpecProject(compilerHost, "/tmp/test-project", {
+  const { compilerHost, init } = await createTestFSWithCliCompilerHost();
+  await init("/tmp/test-project", {
     template: "foo",
     "no-prompt": true,
   });
 
   const packageJson = await parseJson(compilerHost, "/tmp/test-project/package.json");
   expect(packageJson.dependencies["@typespec/compiler"]).toBe("latest");
+});
+
+describe("isTemplateCompatibleWithTspVersion", () => {
+  function makeTemplate(compilerVersion: string | undefined): InitTemplate {
+    return {
+      title: "Test",
+      description: "Test template",
+      compilerVersion,
+    };
+  }
+
+  it("returns true when compilerVersion is undefined", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(undefined))).toBe(true);
+  });
+
+  it("returns true when plain version is less than or equal to current (backward compat: plain version means >=)", () => {
+    // Current version is 1.14.0; a plain version <= current should be compatible
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("0.44.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("1.0.0"))).toBe(true);
+  });
+
+  it("returns false when plain version is greater than current", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("99.0.0"))).toBe(false);
+  });
+
+  it("returns true when semver range is satisfied by current version", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^1.0.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(">=1.0.0"))).toBe(true);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^1.14.0"))).toBe(true);
+  });
+
+  it("returns false when semver range is not satisfied by current version", () => {
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^2.0.0"))).toBe(false);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate(">=99.0.0"))).toBe(false);
+    expect(isTemplateCompatibleWithTspVersion(makeTemplate("^0.50.0"))).toBe(false);
+  });
 });

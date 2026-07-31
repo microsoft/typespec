@@ -137,3 +137,6 @@ jobs:
 
       - run: pnpm run check-catalog
         name: Check catalog usage
+
+      - run: pnpm run check-lockfile
+        name: Check lockfile has no tarball URLs

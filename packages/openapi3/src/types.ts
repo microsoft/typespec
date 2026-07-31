@@ -51,8 +51,7 @@ export interface OpenAPI3Document extends Extensions {
  * a particular service definition.
  */
 export type OpenAPI3ServiceRecord =
-  | OpenAPI3UnversionedServiceRecord
-  | OpenAPI3VersionedServiceRecord;
+  OpenAPI3UnversionedServiceRecord | OpenAPI3VersionedServiceRecord;
 
 export interface OpenAPI3UnversionedServiceRecord {
   /** The service that generated this OpenAPI document */
@@ -131,14 +130,7 @@ export interface OpenAPI3Tag extends Extensions {
 }
 
 export type OpenAPI3HttpMethod =
-  | "get"
-  | "put"
-  | "post"
-  | "delete"
-  | "options"
-  | "head"
-  | "patch"
-  | "trace";
+  "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
 
 export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
 
@@ -751,13 +743,7 @@ export interface Ref<T> {
 export type Refable<T> = Ref<T> | T;
 
 export type JsonSchemaType =
-  | "array"
-  | "boolean"
-  | "integer"
-  | "null"
-  | "number"
-  | "object"
-  | "string";
+  "array" | "boolean" | "integer" | "null" | "number" | "object" | "string";
 
 export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocabularies & {
   /**

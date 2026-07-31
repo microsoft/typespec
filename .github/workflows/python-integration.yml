@@ -67,12 +67,15 @@ jobs:
       - name: Build
         run: pnpm turbo run --filter "@azure-tools/typespec-python..." build
 
-      - name: Use pinned http-specs versions
-        run: |
-          rm -rf core/packages/http-specs/dist
-          cp -r core/packages/http-client-python/node_modules/@typespec/http-specs/dist core/packages/http-specs/dist
-          rm -rf packages/azure-http-specs/dist
-          cp -r core/packages/http-client-python/node_modules/@azure-tools/azure-http-specs/dist packages/azure-http-specs/dist
+      - name: Build http-specs and azure-http-specs from source
+        # Build the mock servers from the checked-out typespec-azure (+ PR core)
+        # source, so the mock stays in lockstep with the client that is
+        # regenerated from the same source below. Previously these build outputs
+        # were overwritten with the versions resolved via http-client-python's
+        # package.json pin, which caused client/mock spec skew whenever
+        # typespec-azure main advanced a spec beyond the pinned bundle and failed
+        # otherwise-green PRs. See microsoft/typespec#11348.
+        run: pnpm turbo run build --filter "@typespec/http-specs..." --filter "@azure-tools/azure-http-specs..."
 
       - name: Prepare Python environment
         run: pnpm run prepare

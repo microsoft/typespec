@@ -17,6 +17,7 @@ import {
   DocumentSymbolParams,
   FileChangeType,
   FoldingRange,
+  FoldingRangeKind,
   FoldingRangeParams,
   Hover,
   HoverParams,
@@ -176,7 +177,11 @@ export function createServer(
     log,
     clientConfigsProvider,
   });
-  let currentDiagnosticIndex = new Map<number, Diagnostic>();
+  interface DiagnosticIndexEntry {
+    readonly diagnostic: Diagnostic;
+    readonly fileUri: string;
+  }
+  let currentDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
   let diagnosticIdCounter = 0;
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -669,13 +674,29 @@ export function createServer(
           rangeStartSingleLines = comment.pos;
         }
       } else if (rangeStartSingleLines !== -1) {
-        addRange(rangeStartSingleLines, comment.end);
+        addRange(rangeStartSingleLines, comment.end, FoldingRangeKind.Comment);
         rangeStartSingleLines = -1;
       } else {
-        addRange(comment.pos, comment.end);
+        addRange(comment.pos, comment.end, FoldingRangeKind.Comment);
       }
     }
+    addRangesForImports();
     visitChildren(ast, addRangesForNode);
+    function addRangesForImports() {
+      const statements = ast!.statements;
+      let runStart = -1;
+      for (let i = 0; i <= statements.length; i++) {
+        const isImport = i < statements.length && statements[i].kind === SyntaxKind.ImportStatement;
+        if (isImport) {
+          if (runStart === -1) {
+            runStart = i;
+          }
+        } else if (runStart !== -1) {
+          addRange(statements[runStart].pos, statements[i - 1].end, FoldingRangeKind.Imports);
+          runStart = -1;
+        }
+      }
+    }
     function addRangesForNode(node: Node) {
       if (node.kind === SyntaxKind.Doc) {
         return; // fold doc comments as regular comments
@@ -691,16 +712,20 @@ export function createServer(
       visitChildren(node, addRangesForNode);
     }
     return ranges;
-    function addRange(startPos: number, endPos: number) {
+    function addRange(startPos: number, endPos: number, kind?: FoldingRangeKind) {
       const start = file.getLineAndCharacterOfPosition(startPos);
       const end = file.getLineAndCharacterOfPosition(endPos);
       if (start.line !== end.line) {
-        ranges.push({
+        const range: FoldingRange = {
           startLine: start.line,
           startCharacter: start.character,
           endLine: end.line,
           endCharacter: end.character,
-        });
+        };
+        if (kind !== undefined) {
+          range.kind = kind;
+        }
+        ranges.push(range);
       }
     }
   }
@@ -768,7 +793,7 @@ export function createServer(
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
-    const newDiagnosticIndex = new Map<number, Diagnostic>();
+    const newDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -841,7 +866,7 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        newDiagnosticIndex.set(diagnostic.data.id, each);
+        newDiagnosticIndex.set(diagnostic.data.id, { diagnostic: each, fileUri: diagDocument.uri });
       }
     }
 
@@ -873,7 +898,10 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        newDiagnosticIndex.set(diagnostic.data.id, unusedSuppressionDiagnostic);
+        newDiagnosticIndex.set(diagnostic.data.id, {
+          diagnostic: unusedSuppressionDiagnostic,
+          fileUri: diagDocument.uri,
+        });
       }
     }
 
@@ -1390,12 +1418,17 @@ export function createServer(
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const actions = [];
-    for (const vsDiag of params.context.diagnostics) {
-      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
-      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+    const fileUri = params.textDocument.uri;
+    const actions: CodeAction[] = [];
 
-      for (const fix of tspDiag.codefixes ?? []) {
+    // Track fix IDs seen in the current selection to generate "Fix all" actions
+    const fixIdsInSelection = new Set<string>();
+
+    for (const vsDiag of params.context.diagnostics) {
+      const entry = currentDiagnosticIndex.get(vsDiag.data?.id);
+      if (entry === undefined || entry.diagnostic.codefixes === undefined) continue;
+
+      for (const fix of entry.diagnostic.codefixes) {
         const codeAction: CodeAction = {
           title: fix.label,
           kind: CodeActionKind.QuickFix,
@@ -1403,6 +1436,35 @@ export function createServer(
           data: { diagId: vsDiag.data?.id, fixId: fix.id },
         };
         actions.push(codeAction);
+        fixIdsInSelection.add(fix.id);
+      }
+    }
+
+    // Build a map of fixId -> { count, label } for all diagnostics in the current file
+    const fixIdInfoInFile = new Map<string, { count: number; label: string }>();
+    for (const entry of currentDiagnosticIndex.values()) {
+      if (entry.fileUri !== fileUri) continue;
+      for (const fix of entry.diagnostic.codefixes ?? []) {
+        const existing = fixIdInfoInFile.get(fix.id);
+        if (existing) {
+          existing.count++;
+        } else {
+          fixIdInfoInFile.set(fix.id, { count: 1, label: fix.label });
+        }
+      }
+    }
+
+    // Add "Fix all: X" actions for codefixes that appear multiple times in the file
+    const addedFixAllIds = new Set<string>();
+    for (const fixId of fixIdsInSelection) {
+      const info = fixIdInfoInFile.get(fixId);
+      if (info && info.count > 1 && !addedFixAllIds.has(fixId)) {
+        addedFixAllIds.add(fixId);
+        actions.push({
+          title: `Fix all: ${info.label}`,
+          kind: CodeActionKind.QuickFix,
+          data: { fixAllInFile: { fixId, fileUri } },
+        });
       }
     }
 
@@ -1410,13 +1472,30 @@ export function createServer(
   }
 
   async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
-    const { diagId, fixId } = codeAction.data ?? {};
-    if (diagId !== undefined && fixId) {
-      const diag = currentDiagnosticIndex.get(diagId);
-      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
-      if (codeFix) {
-        const edits = await resolveCodeFix(codeFix);
-        codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+    const data = codeAction.data ?? {};
+    if (data.fixAllInFile !== undefined) {
+      const { fixId, fileUri } = data.fixAllInFile;
+      const allEdits: CodeFixEdit[] = [];
+      for (const entry of currentDiagnosticIndex.values()) {
+        if (entry.fileUri !== fileUri) continue;
+        const codeFix = entry.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          allEdits.push(...edits);
+        }
+      }
+      if (allEdits.length > 0) {
+        codeAction.edit = { documentChanges: convertCodeFixEdits(allEdits) };
+      }
+    } else {
+      const { diagId, fixId } = data;
+      if (diagId !== undefined && fixId) {
+        const entry = currentDiagnosticIndex.get(diagId);
+        const codeFix = entry?.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+        }
       }
     }
     return codeAction;
@@ -1588,9 +1667,7 @@ export function createServer(
 }
 
 type SignatureHelpNode =
-  | DecoratorExpressionNode
-  | AugmentDecoratorStatementNode
-  | TypeReferenceNode;
+  DecoratorExpressionNode | AugmentDecoratorStatementNode | TypeReferenceNode;
 
 function getSignatureHelpNodeAtPosition(
   script: TypeSpecScriptNode,

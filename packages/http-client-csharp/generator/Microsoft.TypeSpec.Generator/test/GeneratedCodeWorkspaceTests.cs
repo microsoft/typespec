@@ -97,6 +97,30 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.NotNull(fooMethod, "Foo method should be found in the SimpleType");
         }
 
+        [TestCase(Category = EvaluatedFrameworkTestCategory)]
+        public async Task TestLoadBaselineContractUsesPackageNameWhenNamespaceDiffers()
+        {
+            const string ns = "Service.Namespace";
+            const string packageName = "Service.Package";
+            var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
+            CreateTestAssemblyAndProjectFile(
+                nugetCacheDir,
+                "TestNamespace.csproj",
+                packageName,
+                ns,
+                $"{packageName}.csproj");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: ns,
+                outputPath: _projectDir,
+                configuration: $"{{\"package-name\": \"{packageName}\"}}");
+
+            var compilation = await GeneratedCodeWorkspace.LoadBaselineContract();
+
+            Assert.NotNull(compilation, "Compilation should not be null");
+            Assert.NotNull(compilation!.GetTypeByMetadataName($"{ns}.SimpleType"));
+        }
+
         [Test]
         public async Task AddPackageReferencesFromProject_AddsReferencesFromCsproj()
         {
@@ -336,11 +360,18 @@ namespace {packageName}
             return dllPath;
         }
 
-        private void CreateTestAssemblyAndProjectFile(string nugetCacheDir, string csProjectFileName)
+        private void CreateTestAssemblyAndProjectFile(
+            string nugetCacheDir,
+            string csProjectFileName,
+            string? packageName = null,
+            string? namespaceName = null,
+            string? destinationProjectFileName = null)
         {
-            var ns = csProjectFileName.StartsWith("TestNamespaceUnevaluatedFrameworkValue")
+            var ns = namespaceName ?? (csProjectFileName.StartsWith("TestNamespaceUnevaluatedFrameworkValue")
                 ? "TestNamespaceUnevaluatedFrameworkValue"
-                : "TestNamespace";
+                : "TestNamespace");
+            packageName ??= ns;
+            destinationProjectFileName ??= csProjectFileName;
 
             var syntaxTree = CSharpSyntaxTree.ParseText($@"
 namespace {ns}
@@ -377,19 +408,19 @@ namespace {ns}
                 Assert.Fail("Failed to open test project file.");
             }
 
-            var csProjDestination = Path.Combine(_projectDir!, "src", csProjectFileName);
+            var csProjDestination = Path.Combine(_projectDir!, "src", destinationProjectFileName);
             projectRoot!.Save(csProjDestination);
 
             var compilation = CSharpCompilation.Create(
-                ns,
+                packageName,
                 [syntaxTree],
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-            var nugetPackageDir = Path.Combine(nugetCacheDir, ns.ToLowerInvariant(), version, "lib", "netstandard2.0");
+            var nugetPackageDir = Path.Combine(nugetCacheDir, packageName.ToLowerInvariant(), version, "lib", "netstandard2.0");
             Directory.CreateDirectory(nugetPackageDir);
 
-            var dllPath = Path.Combine(nugetPackageDir, $"{ns}.dll");
+            var dllPath = Path.Combine(nugetPackageDir, $"{packageName}.dll");
             var emitResult = compilation.Emit(dllPath);
             Assert.IsTrue(emitResult.Success, $"Failed to emit test assembly: ${string.Join(", ", emitResult.Diagnostics)}");
         }

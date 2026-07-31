@@ -41,7 +41,7 @@ public final class LossiesImpl {
 
     /**
      * Initializes an instance of LossiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     LossiesImpl(DurationClientImpl client) {
@@ -95,7 +95,7 @@ public final class LossiesImpl {
 
     /**
      * The intSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -113,7 +113,7 @@ public final class LossiesImpl {
 
     /**
      * The intSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -130,7 +130,7 @@ public final class LossiesImpl {
 
     /**
      * The intMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -148,7 +148,7 @@ public final class LossiesImpl {
 
     /**
      * The intMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

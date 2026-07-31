@@ -23,7 +23,7 @@ from ..models.primitive_types import (
 )
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-from ..models.utils import NamespaceType
+from ..models.utils import NamespaceType, add_to_pylint_disable
 
 
 def _get_xml_deserializer_name(prop: Property) -> Optional[str]:  # pylint: disable=too-many-return-statements
@@ -77,7 +77,10 @@ def _documentation_string(
     prop: Property, description_keyword: str, docstring_type_keyword: str, **kwargs: Any
 ) -> list[str]:
     retval: list[str] = []
-    sphinx_prefix = f":{description_keyword} {prop.client_name}:"
+    doc_name = (
+        prop.wire_name if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE else prop.client_name
+    )
+    sphinx_prefix = f":{description_keyword} {doc_name}:"
     description = prop.description(is_operation_file=False).replace("\\", "\\\\")
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
     # In the types file, use type_annotation (the serialized form) for docstrings
@@ -85,7 +88,7 @@ def _documentation_string(
         doc_type = prop.type.type_annotation(**kwargs)
     else:
         doc_type = prop.type.docstring_type(**kwargs)
-    retval.append(f":{docstring_type_keyword} {prop.client_name}: {doc_type}")
+    retval.append(f":{docstring_type_keyword} {doc_name}: {doc_type}")
     return retval
 
 
@@ -199,6 +202,16 @@ class _ModelSerializer(BaseSerializer, ABC):
     def pylint_disable(self, model: ModelType) -> str:
         return "  # pylint: disable=" + ", ".join(self.pylint_disable_items(model))
 
+    def class_pylint_disable(self, model: ModelType) -> str:
+        """Class-level pylint disables for the model declaration line."""
+        retval = model.pylint_disable()
+        # When the model's only constructor is ``def __init__(self, *args, **kwargs)`` (i.e. no
+        # typed overload is generated), the guideline checker reports the ``*args`` vararg as an
+        # undocumented param. There is no meaningful param to document, so silence the check.
+        if not self.need_init(model) and self.initialize_properties(model):
+            retval = add_to_pylint_disable(retval, "docstring-missing-param")
+        return retval
+
     def global_pylint_disables(self) -> str:
         return ""
 
@@ -244,7 +257,7 @@ class MsrestModelSerializer(_ModelSerializer):
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
-        return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
 
     @staticmethod
     def get_properties_to_initialize(model: ModelType) -> list[Property]:
@@ -407,7 +420,17 @@ class DpgModelSerializer(_ModelSerializer):
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
             basename += f", discriminator='{model.discriminator_value}'"
-        return f"class {model.name}({basename}):{model.pylint_disable()}"
+        return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
+
+    def class_pylint_disable(self, model: ModelType) -> str:
+        retval = super().class_pylint_disable(model)
+        # DPG models render an empty ``@overload def __init__(self, *, ...)`` body, so the
+        # guideline checker validates the keyword-only arguments against the *class* docstring.
+        # We only document those arguments as instance variables (``:ivar:``) to avoid a redundant
+        # ``:keyword:`` entry per property, so silence the keyword/keyword-only correlation check.
+        if self._init_line_parameters(model):
+            retval = add_to_pylint_disable(retval, "docstring-keyword-should-match-keyword-only")
+        return retval
 
     @staticmethod
     def get_properties_to_declare(model: ModelType) -> list[Property]:

@@ -3,7 +3,6 @@
 
 package parameters.query;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class QueryTests {
@@ -17,7 +16,6 @@ public class QueryTests {
     }
 
     @Test
-    @Disabled("Blocked until @typespec/http-specs publishes the dollar-sign route fix")
     public void testDollarSign() {
         specialCharClient.dollarSign("status eq 'active'");
     }

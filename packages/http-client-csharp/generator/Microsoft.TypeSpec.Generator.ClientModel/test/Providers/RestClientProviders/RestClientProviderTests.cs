@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -101,6 +103,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier201"));
             //validate _pipelineMessageClassifier204 isn't present
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
+        }
+
+        [Test]
+        public void BodyDependencyTypesDoNotRootRequestBodyModels()
+        {
+            var requestBody = InputFactory.Model("CreateWidgetRequest");
+            var operation = InputFactory.Operation(
+                "CreateWidget",
+                parameters: [InputFactory.BodyParameter("body", requestBody, isRequired: true)]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                methods: [InputFactory.BasicServiceMethod("CreateWidget", operation)]);
+            var restClient = new ClientProvider(inputClient).RestClient;
+
+            Assert.IsFalse(restClient.BodyDependencyTypes.Any(t => t.Name == requestBody.Name));
         }
 
         [Test]
@@ -272,6 +289,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("skillId", methodParameters[0].Name);
             Assert.AreEqual("content", methodParameters[1].Name);
             Assert.AreEqual("contentType", methodParameters[2].Name);
+            Assert.AreEqual(typeof(string), methodParameters[2].Type.FrameworkType);
+            Assert.AreEqual(!isRequired, methodParameters[2].Type.IsNullable);
+            Assert.AreEqual(
+                isRequired ? ParameterValidationType.AssertNotNullOrEmpty : ParameterValidationType.None,
+                methodParameters[2].Validation);
+        }
+
+        [Test]
+        public void ProtocolContentTypeParameterUsesTypeFactory()
+        {
+            var contentTypeEnum = InputFactory.StringEnum(
+                "ContentTypeEnum",
+                [("application/json", "application/json")],
+                isExtensible: true);
+            var contentTypeParameter = InputFactory.MethodParameter(
+                "contentType",
+                InputFactory.Union([contentTypeEnum], "contentType"),
+                isRequired: true,
+                location: InputRequestLocation.Header,
+                serializedName: "Content-Type");
+            var operation = InputFactory.Operation(
+                "Upload",
+                parameters: [contentTypeParameter]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [contentTypeParameter]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var factoryCalled = false;
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [client],
+                createParameterCore: parameter =>
+                {
+                    factoryCalled = true;
+                    return new ParameterProvider(parameter);
+                });
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+            factoryCalled = false;
+
+            var methodParameters = RestClientProvider.GetMethodParameters(
+                serviceMethod,
+                ScmMethodKind.Protocol,
+                clientProvider!);
+
+            Assert.IsTrue(factoryCalled);
+            Assert.AreEqual(1, methodParameters.Count);
+            Assert.AreEqual(typeof(string), methodParameters[0].Type.FrameworkType);
+            Assert.AreEqual(ParameterValidationType.AssertNotNullOrEmpty, methodParameters[0].Validation);
         }
 
         [Test]
@@ -360,6 +428,240 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("skillId", methodParameters[0].Name);
             Assert.AreEqual("content", methodParameters[1].Name);
             Assert.AreEqual("contentType", methodParameters[2].Name); // contentType after body
+        }
+
+        [Test]
+        public async Task ContentTypeOrderPreservedFromLastContractViewWithNamedBody()
+        {
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("schemaContent", InputPrimitiveType.String, isRequired: true);
+            var groupNameParam = InputFactory.PathParameter("groupName", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("schemaName", InputPrimitiveType.String, isRequired: true);
+            var methodGroupNameParam = InputFactory.MethodParameter(
+                "groupName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Path);
+            var methodSchemaNameParam = InputFactory.MethodParameter(
+                "schemaName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Path);
+            var methodContentTypeParam = InputFactory.MethodParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                serializedName: "Content-Type",
+                location: InputRequestLocation.Header);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "schemaContent",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "RegisterSchema",
+                parameters: [groupNameParam, pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "RegisterSchema",
+                operation,
+                parameters: [methodGroupNameParam, methodSchemaNameParam, methodContentTypeParam, methodBodyParam]);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.AreEqual(4, methodParameters.Count);
+            Assert.AreEqual("groupName", methodParameters[0].Name);
+            Assert.AreEqual("schemaName", methodParameters[1].Name);
+            Assert.AreEqual("contentType", methodParameters[2].Name);
+            Assert.AreEqual("content", methodParameters[3].Name);
+
+            var convenienceMethodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            Assert.AreEqual(4, convenienceMethodParameters.Count);
+            Assert.AreEqual("groupName", convenienceMethodParameters[0].Name);
+            Assert.AreEqual("schemaName", convenienceMethodParameters[1].Name);
+            Assert.AreEqual("contentType", convenienceMethodParameters[2].Name);
+            Assert.AreEqual("schemaContent", convenienceMethodParameters[3].Name);
+        }
+
+        [Test]
+        public async Task ContentTypeAfterBodyInLastContractViewWithNamedBody()
+        {
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter("schemaContent", InputPrimitiveType.String, isRequired: true);
+            var groupNameParam = InputFactory.PathParameter("groupName", InputPrimitiveType.String, isRequired: true);
+            var pathParam = InputFactory.PathParameter("schemaName", InputPrimitiveType.String, isRequired: true);
+            var methodGroupNameParam = InputFactory.MethodParameter(
+                "groupName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Path);
+            var methodSchemaNameParam = InputFactory.MethodParameter(
+                "schemaName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Path);
+            var methodContentTypeParam = InputFactory.MethodParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                serializedName: "Content-Type",
+                location: InputRequestLocation.Header);
+            var methodBodyParam = InputFactory.MethodParameter(
+                "schemaContent",
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+
+            var operation = InputFactory.Operation(
+                "RegisterSchema",
+                parameters: [groupNameParam, pathParam, contentTypeHeader, bodyParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "RegisterSchema",
+                operation,
+                parameters: [methodGroupNameParam, methodSchemaNameParam, methodContentTypeParam, methodBodyParam]);
+
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var convenienceMethodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            Assert.AreEqual(4, convenienceMethodParameters.Count);
+            Assert.AreEqual("groupName", convenienceMethodParameters[0].Name);
+            Assert.AreEqual("schemaName", convenienceMethodParameters[1].Name);
+            Assert.AreEqual("schemaContent", convenienceMethodParameters[2].Name);
+            Assert.AreEqual("contentType", convenienceMethodParameters[3].Name);
+        }
+
+        [TestCase("content")]
+        [TestCase("schemaContent")]
+        public void ContentTypeOrderWithoutLastContractDoesNotDependOnBodyName(string bodyName)
+        {
+            var contentTypeEnum = InputFactory.StringEnum("ContentTypeEnum",
+                [("application/json", "application/json"), ("application/xml", "application/xml")],
+                isExtensible: true);
+            var contentTypeHeader = InputFactory.HeaderParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                isContentType: true,
+                serializedName: "Content-Type");
+            var bodyParam = InputFactory.BodyParameter(bodyName, InputPrimitiveType.String, isRequired: true);
+            var methodContentTypeParam = InputFactory.MethodParameter(
+                "contentType",
+                contentTypeEnum,
+                isRequired: true,
+                serializedName: "Content-Type",
+                location: InputRequestLocation.Header);
+            var methodBodyParam = InputFactory.MethodParameter(
+                bodyName,
+                InputPrimitiveType.String,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+            var operation = InputFactory.Operation("Upload", parameters: [contentTypeHeader, bodyParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [methodContentTypeParam, methodBodyParam]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = MockHelpers.LoadMockGenerator(clients: () => [client]);
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+
+            var methodParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider);
+
+            Assert.AreEqual(bodyName, methodParameters[0].Name);
+            Assert.AreEqual("contentType", methodParameters[1].Name);
+        }
+
+        [Test]
+        public void ContentTypeOrderUsesBodyMetadataWhenLastContractHasMultipleBinaryDataParameters()
+        {
+            var checksumParam = InputFactory.MethodParameter(
+                "checksum",
+                InputPrimitiveType.Base64,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+            var contentTypeParam = InputFactory.MethodParameter(
+                "contentType",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "Content-Type",
+                location: InputRequestLocation.Header);
+            var payloadParam = InputFactory.MethodParameter(
+                "payload",
+                InputPrimitiveType.Base64,
+                isRequired: true,
+                location: InputRequestLocation.Body);
+            var operation = InputFactory.Operation(
+                "Upload",
+                parameters: [
+                    InputFactory.QueryParameter("checksum", InputPrimitiveType.Base64, isRequired: true),
+                    InputFactory.HeaderParameter("Content-Type", InputPrimitiveType.String, isRequired: true, isContentType: true),
+                    InputFactory.BodyParameter("payload", InputPrimitiveType.Base64, isRequired: true)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Upload",
+                operation,
+                parameters: [checksumParam, contentTypeParam, payloadParam]);
+            var lastContractView = new LastContractTestTypeProvider();
+            lastContractView.Update(methods:
+            [
+                new MethodProvider(
+                    new MethodSignature(
+                        "Upload",
+                        null,
+                        MethodSignatureModifiers.Public,
+                        null,
+                        null,
+                        [
+                            new ParameterProvider("checksum", $"", typeof(BinaryData)),
+                            new ParameterProvider("contentType", $"", typeof(string)),
+                            new ParameterProvider("payload", $"", typeof(BinaryData))
+                        ]),
+                    MethodBodyStatement.Empty,
+                    lastContractView)
+            ]);
+            var provider = new LastContractTestTypeProvider(lastContractView);
+            var method = typeof(RestClientProvider).GetMethod("HasContentTypeBeforeBodyInLastContract", BindingFlags.NonPublic | BindingFlags.Static)!;
+
+            var shouldPreserveOrder = (bool)method.Invoke(null, [serviceMethod, provider])!;
+
+            Assert.IsTrue(shouldPreserveOrder);
         }
 
         [Test]
@@ -736,38 +1038,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             }
 
             Assert.Fail("Expected Exception to be thrown.");
-        }
-
-        [Test]
-        public void TestBuildCreateRequestMethodWithExplodedModelQueryParameter()
-        {
-            var filterModel = InputFactory.Model(
-                "filterOptions",
-                properties:
-                [
-                    InputFactory.Property("field", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true),
-                ]);
-            var operation = InputFactory.Operation(
-                "sampleOp",
-                parameters: [InputFactory.QueryParameter("filter", filterModel, isRequired: true, explode: true)]);
-            var client = InputFactory.Client(
-                "TestClient",
-                methods: [InputFactory.BasicServiceMethod("Test", operation)]);
-            var clientProvider = new ClientProvider(client);
-            var restClientProvider = new MockClientProvider(client, clientProvider);
-
-            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateSampleOpRequest");
-            Assert.IsNotNull(method);
-            var body = method!.BodyStatements!.ToDisplayString();
-
-            // A model-typed query parameter with `explode` is expanded into one query entry per
-            // property (RFC 6570 form explode) using each property's wire name, instead of serializing
-            // the whole object via ConvertToString (which produced the type name).
-            Assert.IsTrue(body.Contains("uri.AppendQuery(\"field\", filter.Field, true);"), body);
-            Assert.IsTrue(body.Contains("uri.AppendQuery(\"value\", filter.Value, true);"), body);
-            Assert.IsFalse(body.Contains("AppendQuery(\"filter\""), body);
-            Assert.IsFalse(body.Contains("ConvertToString(filter)"), body);
         }
 
         [Test]
@@ -1436,6 +1706,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: hasPrefix.ToString()), file.Content);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestCollectionHeaderPrefix_AddsHelperRequiredByRequestApi(bool useDefaultRequestApi)
+        {
+            if (!useDefaultRequestApi)
+            {
+                MockHelpers.LoadMockGenerator(httpRequestApi: TestHttpRequestApi.Instance);
+            }
+
+            var metadataHeaderParam = InputFactory.HeaderParameter(
+                "metadata",
+                InputFactory.Dictionary(InputPrimitiveType.String),
+                isRequired: true,
+                serializedName: "x-ms-meta",
+                collectionHeaderPrefix: "x-ms-meta-");
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters: [metadataHeaderParam]),
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "metadata",
+                        InputFactory.Dictionary(InputPrimitiveType.String),
+                        isRequired: true,
+                        location: InputRequestLocation.Header)
+                ]);
+            var restClient = new ClientProvider(
+                InputFactory.Client("TestClient", methods: [inputServiceMethod])).RestClient;
+
+            Assert.AreEqual(
+                useDefaultRequestApi,
+                restClient.HelperDependencyTypes.Contains(
+                    ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition.Type));
+        }
+
 
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
@@ -1739,6 +2046,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             protected override PropertyProvider[] BuildProperties() => [];
 
             protected override TypeProvider[] BuildNestedTypes() => [];
+        }
+
+        private class LastContractTestTypeProvider : TypeProvider
+        {
+            private readonly MethodProvider[] _methods;
+            private readonly TypeProvider? _lastContractView;
+
+            public LastContractTestTypeProvider(params MethodProvider[] methods)
+            {
+                _methods = methods;
+            }
+
+            public LastContractTestTypeProvider(TypeProvider lastContractView)
+            {
+                _methods = [];
+                _lastContractView = lastContractView;
+            }
+
+            protected override string BuildName() => "TestClient";
+            protected override string BuildNamespace() => "Sample";
+            protected override string BuildRelativeFilePath() => "TestClient.cs";
+            protected internal override MethodProvider[] BuildMethods() => _methods;
+            private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => _lastContractView;
         }
 
         private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
@@ -2191,6 +2521,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "Generated code should use corrected parameter name 'maxPageSize'");
             Assert.IsTrue(file.Content.Contains("uri.AppendQuery(\"maxpagesize\""),
                 "Generated code should use the serialized name 'maxpagesize' in the query string");
+        }
+
+        private sealed record TestHttpRequestApi : HttpRequestApi
+        {
+            public static TestHttpRequestApi Instance { get; } = new(Empty);
+
+            public TestHttpRequestApi(ValueExpression original)
+                : base(typeof(object), original)
+            {
+            }
+
+            public override Type UriBuilderType => typeof(UriBuilder);
+
+            public override MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments)
+                => Original.Invoke("SetHeaders", arguments).Terminate();
+
+            public override MethodBodyStatement AddCollectionHeaders(ValueExpression prefix, ValueExpression headers)
+                => Original.Invoke("AddCollectionHeaders", [prefix, headers]).Terminate();
+
+            public override ValueExpression Content() => Original;
+
+            public override ValueExpression ClientRequestId() => Original;
+
+            public override HttpRequestApi FromExpression(ValueExpression original)
+                => new TestHttpRequestApi(original);
+
+            public override HttpRequestApi ToExpression() => this;
         }
     }
 }

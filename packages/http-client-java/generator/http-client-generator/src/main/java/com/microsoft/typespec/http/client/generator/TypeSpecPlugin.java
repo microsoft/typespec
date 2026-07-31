@@ -55,7 +55,7 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())
@@ -127,6 +127,17 @@ public class TypeSpecPlugin extends Javagen {
                     ClientModelUtil.GENERIC_MULTI_PART_FORM_DATA_HELPER_CLASS_NAME,
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             }
+        }
+
+        // XmlSerializer, only for the azure-core (v1) data-plane flavor
+        final boolean generateXmlSerializer = JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
+            && client.getModels().stream().filter(ModelUtil::isGeneratingModel).anyMatch(ClientModel::isUsedInXml);
+        if (generateXmlSerializer) {
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.XML_SERIALIZER_CLASS_NAME);
+            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                ClientModelUtil.XML_SERIALIZER_PROVIDERS_CLASS_NAME);
         }
 
         // OperationLocationPollingStrategy
@@ -212,6 +223,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getPartialUpdate() != null) {
             SETTINGS_MAP.put("partial-update", options.getPartialUpdate());
+        }
+        if (options.getRequiredFieldsAsConstructorArgs() != null) {
+            SETTINGS_MAP.put("required-fields-as-ctor-args", options.getRequiredFieldsAsConstructorArgs());
         }
         if (!CoreUtils.isNullOrEmpty(options.getServiceVersions())) {
             SETTINGS_MAP.put("service-versions", options.getServiceVersions());

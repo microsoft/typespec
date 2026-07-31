@@ -33,7 +33,7 @@ from .parameter import (
 )
 from .parameter_list import ParameterList
 from .model_type import ModelType
-from .primitive_types import BinaryIteratorType, BinaryType
+from .primitive_types import BinaryIteratorType, BinaryType, ByteArraySchema
 from .base import BaseType
 from .combined_type import CombinedType
 from .request_builder import OverloadedRequestBuilder, RequestBuilder
@@ -224,7 +224,15 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def need_import_iobase(self) -> bool:
-        return self.parameters.has_body and isinstance(self.parameters.body_parameter.type, CombinedType)
+        if not (self.parameters.has_body and isinstance(self.parameters.body_parameter.type, CombinedType)):
+            return False
+        # For a binary `bytes` body the combined type is `bytes` + `IO[bytes]`. Both overloads
+        # serialize to raw content, so the body serialization collapses to a single assignment
+        # without an `isinstance` branch. In that case `IOBase` is never referenced, so avoid
+        # importing it to prevent an unused-import lint error in the generated code.
+        if any(isinstance(t, ByteArraySchema) for t in self.parameters.body_parameter.type.types):
+            return False
+        return True
 
     @staticmethod
     def has_kwargs_to_pop_with_default(

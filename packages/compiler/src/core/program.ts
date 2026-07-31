@@ -11,6 +11,12 @@ import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import {
+  DiagnosticCodeResolver,
+  LibraryNameInfo,
+  createDiagnosticCodeResolver,
+  formatShortNameCandidates,
+} from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveEmitterOptions, validateEmitterOptionsAgainstModel } from "./emitter-options.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
@@ -45,6 +51,7 @@ import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
 import {
   SuppressionTracker,
   createSuppressionTracker,
+  findAmbiguousSuppressions,
   findDirectiveSuppressingOnNode,
   findDuplicateSuppressions,
 } from "./suppression-tracking.js";
@@ -76,6 +83,12 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
+
+/**
+ * The current stage of the compilation pipeline.
+ * Stages progress in order: parsing → checking → validating → linting → emitting.
+ */
+export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
 
 export interface Program {
   compilerOptions: CompilerOptions;
@@ -126,6 +139,9 @@ export interface Program {
   /** @internal */
   readonly suppressionTracker: SuppressionTracker | undefined;
 
+  /** @internal Resolver for short/full diagnostic and linter rule codes. */
+  readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
+
   getGlobalNamespaceType(): Namespace;
 
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
@@ -143,6 +159,11 @@ export interface Program {
 
   /** @internal Main type graph. */
   readonly typeGraph: TypeGraph;
+
+  /** @internal */
+  setCurrentStage(stage: CompilationStage): void;
+  /** @internal */
+  readonly currentStage: CompilationStage;
 }
 
 interface EmitterRef {
@@ -197,6 +218,7 @@ export async function compile(
   };
   const timer = perf.startTimer();
   // Emitter stage
+  program.setCurrentStage("emitting");
   for (const emitter of program.emitters) {
     // If in dry mode run and an emitter doesn't support it we have to skip it.
     if (program.compilerOptions.dryRun && !emitter.library.definition?.capabilities?.dryRun) {
@@ -297,9 +319,17 @@ async function createTypeGraph(
     return { typeGraph, reusedProgram: oldProgram };
   }
 
+  const diagnosticCodeResolver = createDiagnosticCodeResolver(
+    collectLibraryNameInfos(sourceLoader.resolution),
+  );
+  mutate(program).diagnosticCodeResolver = diagnosticCodeResolver;
+
   // Set up suppression tracking for this graph now that sources are resolved, so
   // diagnostics reported during checking can be marked as suppressed.
-  mutate(program).suppressionTracker = createSuppressionTracker(sourceLoader.resolution);
+  mutate(program).suppressionTracker = createSuppressionTracker(
+    sourceLoader.resolution,
+    diagnosticCodeResolver,
+  );
 
   program.reportDiagnostics(
     findDuplicateSuppressions(sourceLoader.resolution).map(({ directive }) =>
@@ -308,6 +338,16 @@ async function createTypeGraph(
         format: { code: directive.code },
         target: directive.node,
       }),
+    ),
+  );
+  program.reportDiagnostics(
+    findAmbiguousSuppressions(sourceLoader.resolution, diagnosticCodeResolver).map(
+      ({ directive, shortName, candidates }) =>
+        createDiagnostic({
+          code: "ambiguous-short-name",
+          format: { shortName, candidates: formatShortNameCandidates(candidates) },
+          target: directive.node,
+        }),
     ),
   );
 
@@ -320,6 +360,7 @@ async function createTypeGraph(
   mutate(typeGraph).globalNamespace = checker.getGlobalNamespaceType();
   program.checker = checker; // Update current checker for back compat
 
+  program.setCurrentStage("checking");
   runtimeStats.checker = perf.time(() => checker.checkProgram());
 
   complexityStats.createdTypes = checker.stats.createdTypes;
@@ -481,6 +522,7 @@ async function createProgram(
   const complexityStats: ComplexityStats = {} as any;
   let error = false;
   let continueToNextStage = true;
+  let currentStage: CompilationStage = "parsing";
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -512,6 +554,13 @@ async function createProgram(
     reportDiagnostics,
     reportDuplicateSymbols,
     suppressionTracker: undefined,
+    diagnosticCodeResolver: undefined,
+    get currentStage() {
+      return currentStage;
+    },
+    setCurrentStage(stage) {
+      currentStage = stage;
+    },
     hasError() {
       return error;
     },
@@ -545,12 +594,6 @@ async function createProgram(
 
   await loadEmitters(basedir, emit, emitterOptions ?? {});
 
-  const linter = createLinter(program, (name) => loadLibrary(basedir, name));
-  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
-  if (options.linterRuleSet) {
-    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
-  }
-
   // let GC reclaim old program, we do not reuse it beyond this point.
   const { typeGraph, reusedProgram } = await createTypeGraph(
     program,
@@ -566,11 +609,22 @@ async function createProgram(
   program.checker = typeGraph.checker;
   Object.assign(complexityStats, typeGraph.complexityStats);
 
+  const linter = createLinter(
+    program,
+    (name) => loadLibrary(basedir, name),
+    program.diagnosticCodeResolver,
+  );
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
+  if (options.linterRuleSet) {
+    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
+  }
+
   if (!continueToNextStage) {
     return { program, shouldAbort: true };
   }
 
   // onValidate stage
+  program.setCurrentStage("validating");
   await runValidators();
 
   validateRequiredImports();
@@ -580,6 +634,7 @@ async function createProgram(
   }
 
   // Linter stage
+  program.setCurrentStage("linting");
   const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
@@ -1030,7 +1085,11 @@ async function createProgram(
       return false; // Can't find target cannot be suppressed.
     }
 
-    const suppressing = findDirectiveSuppressingOnNode(diagnostic.code, node);
+    const suppressing = findDirectiveSuppressingOnNode(
+      diagnostic.code,
+      node,
+      program.diagnosticCodeResolver,
+    );
     if (suppressing) {
       if (diagnostic.severity === "error") {
         // Cannot suppress errors.
@@ -1106,6 +1165,27 @@ async function createProgram(
   ): [Entity | undefined, readonly Diagnostic[]] {
     return program.typeGraph.resolveTypeOrValueReference(reference);
   }
+}
+
+function collectLibraryNameInfos(sourceResolution: SourceResolution): LibraryNameInfo[] {
+  const aliasByName = new Map<string, string>();
+  for (const jsFile of sourceResolution.jsSourceFiles.values()) {
+    const lib = jsFile.esmExports?.$lib as TypeSpecLibrary<any> | undefined;
+    if (lib?.name && lib.alias) {
+      aliasByName.set(lib.name, lib.alias);
+    }
+  }
+
+  const infos: LibraryNameInfo[] = [];
+  const seen = new Set<string>();
+  for (const name of sourceResolution.loadedLibraries.keys()) {
+    seen.add(name);
+    infos.push({ name, alias: aliasByName.get(name) });
+  }
+  if (!seen.has(builtInLinterLibraryName)) {
+    infos.push({ name: builtInLinterLibraryName });
+  }
+  return infos;
 }
 
 /**

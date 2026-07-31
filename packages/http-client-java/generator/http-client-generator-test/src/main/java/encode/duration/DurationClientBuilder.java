@@ -206,7 +206,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the DurationClientBuilder.
      */
@@ -218,7 +218,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of DurationClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of DurationClientImpl.
      */
     @Generated
@@ -274,7 +274,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of QueryAsyncClient class.
-     *
+     * 
      * @return an instance of QueryAsyncClient.
      */
     @Generated
@@ -284,7 +284,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of PropertyAsyncClient class.
-     *
+     * 
      * @return an instance of PropertyAsyncClient.
      */
     @Generated
@@ -294,7 +294,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of HeaderAsyncClient class.
-     *
+     * 
      * @return an instance of HeaderAsyncClient.
      */
     @Generated
@@ -304,7 +304,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of LossyAsyncClient class.
-     *
+     * 
      * @return an instance of LossyAsyncClient.
      */
     @Generated
@@ -314,7 +314,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of QueryClient class.
-     *
+     * 
      * @return an instance of QueryClient.
      */
     @Generated
@@ -324,7 +324,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of PropertyClient class.
-     *
+     * 
      * @return an instance of PropertyClient.
      */
     @Generated
@@ -334,7 +334,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of HeaderClient class.
-     *
+     * 
      * @return an instance of HeaderClient.
      */
     @Generated
@@ -344,7 +344,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of LossyClient class.
-     *
+     * 
      * @return an instance of LossyClient.
      */
     @Generated

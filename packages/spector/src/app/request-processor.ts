@@ -43,12 +43,20 @@ const processResponse = (
   }
 
   if (mockResponse.body) {
-    const raw =
-      typeof mockResponse.body.rawContent === "string" ||
-      Buffer.isBuffer(mockResponse.body.rawContent)
-        ? mockResponse.body.rawContent
-        : mockResponse.body.rawContent?.serialize(resolverConfig);
-    response.contentType(mockResponse.body.contentType).send(raw);
+    response.contentType(mockResponse.body.contentType);
+
+    if (mockResponse.body.streamChunks) {
+      for (const chunk of mockResponse.body.streamChunks) {
+        response.write(chunk);
+      }
+    } else {
+      const raw =
+        typeof mockResponse.body.rawContent === "string" ||
+        Buffer.isBuffer(mockResponse.body.rawContent)
+          ? mockResponse.body.rawContent
+          : mockResponse.body.rawContent?.serialize(resolverConfig);
+      response.send(raw);
+    }
   }
 
   response.end();

@@ -20,7 +20,7 @@ import java.util.List;
 public interface LroesClient {
     /**
      * Create a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -36,7 +36,7 @@ public interface LroesClient {
 
     /**
      * Create a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -53,7 +53,7 @@ public interface LroesClient {
 
     /**
      * Create a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -67,7 +67,7 @@ public interface LroesClient {
 
     /**
      * Create a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param resource Resource create parameters.
@@ -82,7 +82,7 @@ public interface LroesClient {
 
     /**
      * The export operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -97,7 +97,7 @@ public interface LroesClient {
 
     /**
      * The export operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -113,7 +113,7 @@ public interface LroesClient {
 
     /**
      * The export operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -127,7 +127,7 @@ public interface LroesClient {
 
     /**
      * The export operation.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param body The content of the action request.
@@ -142,7 +142,7 @@ public interface LroesClient {
 
     /**
      * Delete a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -155,7 +155,7 @@ public interface LroesClient {
 
     /**
      * Delete a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -169,7 +169,7 @@ public interface LroesClient {
 
     /**
      * Delete a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -181,7 +181,7 @@ public interface LroesClient {
 
     /**
      * Delete a Order.
-     *
+     * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param orderName The name of the Order.
      * @param context The context to associate with this operation.
@@ -194,7 +194,7 @@ public interface LroesClient {
 
     /**
      * The exportArray operation.
-     *
+     * 
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -206,7 +206,7 @@ public interface LroesClient {
 
     /**
      * The exportArray operation.
-     *
+     * 
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -220,7 +220,7 @@ public interface LroesClient {
 
     /**
      * The exportArray operation.
-     *
+     * 
      * @param body The request body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
@@ -232,7 +232,7 @@ public interface LroesClient {
 
     /**
      * The exportArray operation.
-     *
+     * 
      * @param body The request body.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

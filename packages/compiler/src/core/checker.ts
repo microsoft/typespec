@@ -355,10 +355,10 @@ export interface Checker {
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T extends Type extends any ? CreateTypeProps : never>(
+  createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
-  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
@@ -2627,6 +2627,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         node.parent,
       );
     }
+    // Enter the template declaration scope before checking the template declaration itself.
+    // `checkTemplateDeclaration` resolves template parameter defaults (e.g.
+    // `Properties extends {} = TagsUpdateModel<Resource>`), which can instantiate types and run
+    // their decorators. Those instantiations still reference the enclosing template parameters, so
+    // they must be treated as being in a template declaration (skipDecorators) to avoid running
+    // decorators with unresolved template parameters. This mirrors what `checkModelStatement` does.
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
     checkTemplateDeclaration(ctx, node);
 
     // If we are instantating operation inside of interface
@@ -2634,7 +2644,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withMapper({ ...ctx.mapper, partial: true });
     }
 
-    if ((ctx.mapper === undefined || ctx.mapper.partial) && node.templateParameters.length > 0) {
+    if (ctx.mapper?.partial && node.templateParameters.length > 0) {
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
@@ -7957,7 +7967,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  function createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" } {
     createType(typeDef);
@@ -7981,7 +7991,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
    */
-  function createType<T extends Type extends any ? CreateTypeProps : never>(
+  function createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
     stats.createdTypes++;

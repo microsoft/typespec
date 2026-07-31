@@ -37,9 +37,7 @@ import { Realm } from "./realm.js";
  * @experimental
  */
 export type MutatorRecord<T extends Type> =
-  | MutatorReplaceRecord<T>
-  | MutatorMutateRecord<T>
-  | MutatorFn<T>;
+  MutatorReplaceRecord<T> | MutatorMutateRecord<T> | MutatorFn<T>;
 
 /**
  * Common functionality for mutator records.

@@ -1994,7 +1994,9 @@ function createOAPIEmitter(
             securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
             continue;
           default:
-            securityOption[httpAuthRef.auth.id] = [];
+            // Requirement scopes for any scheme that carries them (e.g.
+            // openIdConnect). Schemes without scopes resolve to an empty array.
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
         }
       }
       return securityOption;

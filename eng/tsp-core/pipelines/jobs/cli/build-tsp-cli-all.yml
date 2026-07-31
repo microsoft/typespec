@@ -7,10 +7,8 @@ jobs:
     parameters:
       platform: linux-arm64
 
-  - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
-    parameters:
-      platform: macos-x64
-
+  # macos-x64 is intentionally not built: Node.js SEA does not support x64 macOS and the produced
+  # binary segfaults at startup (nodejs/node#62893).
   - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
     parameters:
       platform: macos-arm64

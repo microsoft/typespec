@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import { it } from "vitest";
-import { supportedVersions, worksFor } from "./works-for.js";
+import { describe, it } from "vitest";
+import { OpenAPISpecHelpers, supportedVersions, worksFor } from "./works-for.js";
 
 worksFor(supportedVersions, ({ openApiFor }) => {
   it("set the service title with @service", async () => {
@@ -77,6 +77,71 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         name: "Apache 2.0",
         url: "http://www.apache.org/licenses/LICENSE-2.0.html",
       },
+    });
+  });
+});
+
+describe("license identifier", () => {
+  it("OpenAPI 3.1+ emits license identifier as 'identifier' field", async () => {
+    const res = await OpenAPISpecHelpers["3.1.0"].openApiFor(
+      `
+      @service
+      @info(#{
+        license: #{
+          name: "MIT",
+          identifier: "MIT",
+        },
+      })
+      namespace Foo {
+        op test(): string;
+      }
+      `,
+    );
+    deepStrictEqual(res.info.license, {
+      name: "MIT",
+      identifier: "MIT",
+    });
+  });
+
+  it("OpenAPI 3.2 emits license identifier as 'identifier' field", async () => {
+    const res = await OpenAPISpecHelpers["3.2.0"].openApiFor(
+      `
+      @service
+      @info(#{
+        license: #{
+          name: "MIT",
+          identifier: "MIT",
+        },
+      })
+      namespace Foo {
+        op test(): string;
+      }
+      `,
+    );
+    deepStrictEqual(res.info.license, {
+      name: "MIT",
+      identifier: "MIT",
+    });
+  });
+
+  it("OpenAPI 3.0 emits license identifier as 'x-oai-license-identifier' extension", async () => {
+    const res = await OpenAPISpecHelpers["3.0.0"].openApiFor(
+      `
+      @service
+      @info(#{
+        license: #{
+          name: "MIT",
+          identifier: "MIT",
+        },
+      })
+      namespace Foo {
+        op test(): string;
+      }
+      `,
+    );
+    deepStrictEqual(res.info.license, {
+      name: "MIT",
+      "x-oai-license-identifier": "MIT",
     });
   });
 });
