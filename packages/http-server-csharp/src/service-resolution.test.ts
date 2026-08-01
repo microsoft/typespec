@@ -19,14 +19,14 @@ async function resolve(code: string): Promise<ServiceTypeResolution> {
 
 it("excludes models declared outside the service namespace that are not referenced", async () => {
   const resolution = await resolve(`
-    namespace Library {
+    namespace Other {
       model Used { name: string; }
       model Unused { name: string; }
     }
 
     @service
     namespace Contoso {
-      model Widget { id: string; used: Library.Used; }
+      model Widget { id: string; used: Other.Used; }
       op read(): Widget;
     }
   `);
@@ -36,7 +36,7 @@ it("excludes models declared outside the service namespace that are not referenc
 
 it("excludes enums and union enums declared outside the service namespace that are not referenced", async () => {
   const resolution = await resolve(`
-    namespace Library {
+    namespace Other {
       enum UsedEnum { red, blue }
       enum UnusedEnum { up, down }
       union UsedUnion { "on", "off" }
@@ -45,7 +45,7 @@ it("excludes enums and union enums declared outside the service namespace that a
 
     @service
     namespace Contoso {
-      model Widget { color: Library.UsedEnum; state: Library.UsedUnion; }
+      model Widget { color: Other.UsedEnum; state: Other.UsedUnion; }
       op read(): Widget;
     }
   `);
@@ -54,9 +54,9 @@ it("excludes enums and union enums declared outside the service namespace that a
   expect(resolution.unionEnums.map((u) => u.name)).toEqual(["UsedUnion"]);
 });
 
-it("discovers types referenced transitively through operations only", async () => {
+it("discovers types referenced transitively by an operation", async () => {
   const resolution = await resolve(`
-    namespace Library {
+    namespace Other {
       model Envelope { detail: Detail; }
       model Detail { kind: Kind; }
       enum Kind { simple, complex }
@@ -65,7 +65,7 @@ it("discovers types referenced transitively through operations only", async () =
 
     @service
     namespace Contoso {
-      op read(): Library.Envelope;
+      op read(): Other.Envelope;
     }
   `);
 
@@ -75,9 +75,9 @@ it("discovers types referenced transitively through operations only", async () =
 
 it("does not create interfaces for operations declared outside the service namespace", async () => {
   const resolution = await resolve(`
-    namespace Library {
-      interface LibraryOps {
-        @route("/lib") libRead(): void;
+    namespace Other {
+      interface OtherOps {
+        @route("/other") otherRead(): void;
       }
     }
 
@@ -92,9 +92,9 @@ it("does not create interfaces for operations declared outside the service names
   expect(resolution.interfaces.map((i) => i.name)).toEqual(["Widgets"]);
 });
 
-it("emits every user namespace when no service is declared", async () => {
+it("emits every namespace when no service is declared", async () => {
   const resolution = await resolve(`
-    namespace Library {
+    namespace Other {
       model Standalone { name: string; }
     }
 

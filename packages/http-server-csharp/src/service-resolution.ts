@@ -53,8 +53,8 @@ export interface ServiceTypeResolution {
  * namespace traversals that previously occurred in individual components.
  *
  * Only types declared in the service namespace(s) are emitted unconditionally.
- * Types coming from imported libraries are emitted only when the service
- * references them, directly or transitively.
+ * Types declared elsewhere are emitted only when the service references them,
+ * directly or transitively.
  *
  * Ordering:
  * 1. Service namespace discovery
@@ -152,9 +152,8 @@ interface TypeCollector {
  * Collects every type that should be emitted: the declarations of the service
  * namespace(s) plus everything the service references, directly or transitively.
  *
- * Types declared by imported libraries (`Azure.Core`, `Azure.ResourceManager`, ...)
- * are only emitted when the service actually references them; emitting the rest
- * would generate dead code for constructs the service never exposes.
+ * Types declared outside those namespaces are only emitted when referenced, so
+ * that the emitter does not generate dead code for types the service never exposes.
  *
  * @param authModels Models that back authentication schemes; these are excluded
  * from emission because they represent protocol metadata rather than payloads.

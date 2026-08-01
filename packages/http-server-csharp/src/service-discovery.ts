@@ -14,9 +14,8 @@ import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
  * Collects the namespaces whose declarations are emitted even when nothing references them.
  *
  * When the spec declares one or more services, only the service namespaces and their
- * sub-namespaces qualify. Types coming from imported libraries (`Azure.Core`,
- * `Azure.ResourceManager`, ...) live outside of those namespaces and are therefore only
- * emitted when the service actually references them.
+ * sub-namespaces qualify; types declared elsewhere are emitted only when the service
+ * references them.
  *
  * When no service is declared there is nothing to anchor the emit on, so every
  * non-standard namespace is treated as part of the service.

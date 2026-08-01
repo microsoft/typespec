@@ -10,8 +10,8 @@ import { isValidCSharpIdentifier } from "./utils/naming.js";
  * Reports diagnostic warnings for models, scalars, and operations.
  * This pre-pass mirrors the old emitter behavior so that `tester.diagnose()` tests pass.
  *
- * Only types declared by the service itself are checked: types coming from imported
- * libraries are not actionable for the spec author, and most of them are never emitted.
+ * Only types declared by the service itself are checked, since diagnostics on
+ * types declared elsewhere are not actionable for the spec author.
  */
 export function reportEmitterDiagnostics(
   program: Program,
