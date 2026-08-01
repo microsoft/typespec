@@ -1,9 +1,5 @@
 import type { Interface, Model, Program } from "@typespec/compiler";
-import {
-  isStdNamespace,
-  isTemplateDeclaration,
-  type Namespace as TspNamespace,
-} from "@typespec/compiler";
+import { isTemplateDeclaration, type Namespace as TspNamespace } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { assignAnonymousName } from "./components/models/anonymous-models.js";
@@ -13,18 +9,23 @@ import { isValidCSharpIdentifier } from "./utils/naming.js";
 /**
  * Reports diagnostic warnings for models, scalars, and operations.
  * This pre-pass mirrors the old emitter behavior so that `tester.diagnose()` tests pass.
+ *
+ * Only types declared by the service itself are checked: types coming from imported
+ * libraries are not actionable for the spec author, and most of them are never emitted.
  */
 export function reportEmitterDiagnostics(
   program: Program,
   interfaces: Interface[],
   canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>,
+  serviceNamespaces: Set<TspNamespace>,
 ): void {
   const tk = $(program);
   const visited = new Set<Model>();
 
-  // Walk all models in the service namespace(s) to check properties
-  for (const ns of program.getGlobalNamespaceType().namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
+  // Walk the models declared by the service to check properties
+  const globalNs = program.getGlobalNamespaceType();
+  for (const ns of serviceNamespaces) {
+    if (ns === globalNs) continue;
     walkNamespaceModels(program, ns, tk, visited);
   }
 
@@ -129,12 +130,6 @@ function walkNamespaceModels(
         }
       }
     }
-  }
-
-  // Recurse into sub-namespaces
-  for (const childNs of ns.namespaces.values()) {
-    if (isStdNamespace(childNs)) continue;
-    walkNamespaceModels(program, childNs, tk, visited);
   }
 }
 

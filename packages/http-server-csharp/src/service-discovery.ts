@@ -2,11 +2,51 @@ import type { Interface } from "@typespec/compiler";
 import {
   isStdNamespace,
   isTemplateDeclaration,
+  listServices,
   type Operation,
+  type Program,
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
 import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
+
+/**
+ * Collects the namespaces whose declarations are emitted even when nothing references them.
+ *
+ * When the spec declares one or more services, only the service namespaces and their
+ * sub-namespaces qualify. Types coming from imported libraries (`Azure.Core`,
+ * `Azure.ResourceManager`, ...) live outside of those namespaces and are therefore only
+ * emitted when the service actually references them.
+ *
+ * When no service is declared there is nothing to anchor the emit on, so every
+ * non-standard namespace is treated as part of the service.
+ */
+export function getDeclarationNamespaces(program: Program): Set<TspNamespace> {
+  const namespaces = new Set<TspNamespace>();
+  const globalNs = program.getGlobalNamespaceType();
+
+  function addWithChildren(ns: TspNamespace): void {
+    if (namespaces.has(ns)) return;
+    namespaces.add(ns);
+    for (const child of ns.namespaces.values()) {
+      if (isStdNamespace(child)) continue;
+      addWithChildren(child);
+    }
+  }
+
+  const services = listServices(program);
+  if (services.length === 0) {
+    addWithChildren(globalNs);
+    return namespaces;
+  }
+
+  // Declarations at the global namespace level are always authored by the spec itself.
+  namespaces.add(globalNs);
+  for (const service of services) {
+    addWithChildren(service.type);
+  }
+  return namespaces;
+}
 
 /**
  * Collects all interfaces from the service namespace(s).
@@ -15,6 +55,7 @@ import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
  */
 export function getServiceInterfaces(
   program: ReturnType<typeof useTsp>["$"]["program"],
+  serviceNamespaces: Set<TspNamespace> = getDeclarationNamespaces(program),
 ): Interface[] {
   const interfaces: Interface[] = [];
   const globalNs = program.getGlobalNamespaceType();
@@ -54,15 +95,10 @@ export function getServiceInterfaces(
         interfaces.push(syntheticIface);
       }
     }
-
-    for (const childNs of ns.namespaces?.values() ?? []) {
-      if (isStdNamespace(childNs)) continue;
-      collectFromNamespace(childNs);
-    }
   }
 
-  for (const ns of globalNs.namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
+  for (const ns of serviceNamespaces) {
+    if (ns === globalNs) continue;
     collectFromNamespace(ns);
   }
   return interfaces;
