@@ -1,15 +1,18 @@
-import {
-  listAllServiceNamespaces,
+import type {
   SdkClientType,
   SdkHttpOperation,
   SdkHttpParameter,
   SdkMethodParameter,
   SdkModelPropertyType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  listAllServiceNamespaces,
   isReadOnly as tcgcIsReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
-import { getNamespaceFullName, Namespace } from "@typespec/compiler";
+import type { Namespace } from "@typespec/compiler";
+import { getNamespaceFullName } from "@typespec/compiler";
 import { Visibility } from "@typespec/http";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 
 export function getClientNamespaceString(context: CSharpEmitterContext): string | undefined {
   const packageName = context.emitContext.options["package-name"];
