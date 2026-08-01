@@ -1,8 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "verbatimModuleSyntax": true
+    "noEmit": true
   },
   "include": ["src/**/*"],
   "sourceMap": true
