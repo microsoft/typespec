@@ -1300,8 +1300,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (segments is not { Count: > 1 })
                 {
-                    var match = protocolParameters.FirstOrDefault(
-                        p => string.Equals(p.Name, createRequestParameter.Name, StringComparison.OrdinalIgnoreCase));
+                    var match = FindUngroupedArgument(protocolParameters, createRequestParameter);
                     if (match is null)
                     {
                         return null;
@@ -1337,6 +1336,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return arguments;
+        }
+
+        /// <summary>
+        /// Locates the protocol parameter to forward for a <c>CreateRequest</c> parameter that was not
+        /// folded into the options bag. The name alone is not reliable: a bag named after the request
+        /// options parameter causes that parameter to be renamed, so the original name now resolves to
+        /// the bag. The type disambiguates in that case.
+        /// </summary>
+        private static ParameterProvider? FindUngroupedArgument(
+            IReadOnlyList<ParameterProvider> protocolParameters,
+            ParameterProvider createRequestParameter)
+        {
+            foreach (var parameter in protocolParameters)
+            {
+                if (string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.OrdinalIgnoreCase)
+                    && parameter.Type.Equals(createRequestParameter.Type))
+                {
+                    return parameter;
+                }
+            }
+
+            ParameterProvider? typeMatch = null;
+            foreach (var parameter in protocolParameters)
+            {
+                if (!parameter.Type.Equals(createRequestParameter.Type))
+                {
+                    continue;
+                }
+
+                if (typeMatch is not null)
+                {
+                    return null;
+                }
+
+                typeMatch = parameter;
+            }
+
+            return typeMatch;
         }
 
         private ParameterProvider ProcessOptionalParameters(

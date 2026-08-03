@@ -1887,6 +1887,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.That(protocolBody, Does.Contain("options.Filter"));
             Assert.That(protocolBody, Does.Contain("options.Top"));
 
+            // The renamed request options parameter must be the one forwarded to CreateRequest. Matching
+            // CreateRequest's trailing parameter by name alone resolves to the options bag, which does not compile.
+            Assert.That(
+                protocolBody,
+                Does.Contain($"options.Top, {parameters[1].Name})"),
+                $"CreateRequest must receive '{parameters[1].Name}', but body was: {protocolBody}");
+
             // The convenience method forwards the bag straight through rather than unpacking it.
             var convenienceMethod = methodCollection.FirstOrDefault(
                 m => m.Kind == ScmMethodKind.Convenience && !m.Signature.Name.EndsWith("Async"));
