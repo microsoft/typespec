@@ -9,47 +9,212 @@ permissions:
 jobs:
   build:
     name: "Build & Regenerate"
+    runs-on: ubuntu-latest
     if: |
       !startsWith(github.head_ref, 'dependabot/') &&
       !startsWith(github.head_ref, 'publish/') &&
       !startsWith(github.head_ref, 'backmerge/') &&
       !startsWith(github.head_ref, 'revert-')
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: build
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Regenerate
+        run: npm run regenerate
+        working-directory: packages/http-client-python
+
+      - name: Check for unstaged changes
+        run: npm run check-unstaged
+        working-directory: packages/http-client-python
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-generated
+          path: |
+            packages/http-client-python/tests/generated
+            packages/http-client-python/dist
+            packages/http-client-python/generator/dist
+          retention-days: 1
 
   test:
     name: "Mock API Tests"
     needs: build
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Test
+        run: npm run test:generator -- --env=test
+        working-directory: packages/http-client-python
 
   typecheck:
     name: "Type Checking"
     needs: build
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Mypy & Pyright
+        run: npm run test:generator -- --env=mypy,pyright
+        working-directory: packages/http-client-python
 
   lint:
     name: "Lint & Format"
     needs: build
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Pylint
+        run: npm run test:generator -- --env=lint
+        working-directory: packages/http-client-python
+
+      - name: Lint source
+        run: npm run lint
+        working-directory: packages/http-client-python
+
+      - name: Format check source
+        run: npm run format:check
+        working-directory: packages/http-client-python
 
   docs:
     name: "Docs Validation"
     needs: build
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: API View & Sphinx
+        run: npm run test:generator -- --env=apiview,sphinx
+        working-directory: packages/http-client-python
 
   windows-test:
     name: "Build & Test (Windows)"
     needs: build
-    uses: ./.github/workflows/ci-python-template.yml
-    with:
-      check: windows-test
-      runner: windows-latest
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        run: |
+          npm install --ignore-scripts
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Test
+        run: npm run test:generator -- --env=test
+        working-directory: packages/http-client-python

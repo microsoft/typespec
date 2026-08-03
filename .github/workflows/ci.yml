@@ -52,8 +52,6 @@ jobs:
               - 'packages/http-client-python/**'
               - '.github/workflows/ci.yml'
               - '.github/workflows/ci-python.yml'
-              - '.github/workflows/ci-python-template.yml'
-              - '.github/workflows/python-integration.yml'
 
   core:
     needs: changes
