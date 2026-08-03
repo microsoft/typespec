@@ -1421,10 +1421,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return false;
                 }
 
+                if (!SegmentsPreserveRequiredness(parameter, segments))
+                {
+                    return false;
+                }
+
                 hasGroupedParameter = true;
             }
 
             return hasGroupedParameter;
+        }
+
+        /// <summary>
+        /// A required wire parameter must map to a required property so the bag's constructor forces callers
+        /// to supply it. TCGC does not validate this, and when it does not hold, grouping the protocol method
+        /// would silently drop the compile-time guarantee that the flattened signature provides.
+        /// </summary>
+        private static bool SegmentsPreserveRequiredness(InputParameter parameter, IReadOnlyList<InputMethodParameter> segments)
+        {
+            if (!parameter.IsRequired)
+            {
+                return true;
+            }
+
+            var currentType = segments[0].Type;
+            for (int i = 1; i < segments.Count; i++)
+            {
+                if (currentType is not InputModelType model)
+                {
+                    return false;
+                }
+
+                var property = FindPropertyInHierarchy(model, segments[i].Name);
+                if (property is null || !property.IsRequired)
+                {
+                    return false;
+                }
+
+                currentType = property.Type;
+            }
+
+            return true;
+        }
+
+        private static InputModelProperty? FindPropertyInHierarchy(InputModelType model, string name)
+        {
+            for (var current = model; current != null; current = current.BaseModel)
+            {
+                foreach (var property in current.Properties)
+                {
+                    if (property.SerializedName == name
+                        || string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return property;
+                    }
+                }
+            }
+
+            return null;
         }
 
         private static bool HasLiteralContentTypeHeader(InputOperation operation)

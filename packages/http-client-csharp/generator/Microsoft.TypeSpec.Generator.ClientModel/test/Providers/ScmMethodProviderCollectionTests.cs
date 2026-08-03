@@ -1894,6 +1894,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.That(
                 convenienceMethod!.BodyStatements!.ToDisplayString(),
                 Does.Contain("this.GetWidget(options, cancellationToken.ToRequestOptions())"));
+
+            // The bag now carries parameters that used to be required method parameters, so its public
+            // constructor must still force callers to supply the required ones.
+            var optionsProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(optionsModel);
+            Assert.IsNotNull(optionsProvider);
+            var publicCtor = optionsProvider!.Constructors.FirstOrDefault(
+                c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicCtor, "options bag should expose a public constructor");
+            var ctorParams = publicCtor!.Signature.Parameters.Select(p => p.Name).ToList();
+            Assert.That(ctorParams, Does.Contain("id"), $"required property must be a required ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+            Assert.That(ctorParams, Does.Not.Contain("filter"), $"optional property must not be a ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+            Assert.That(ctorParams, Does.Not.Contain("top"), $"optional property must not be a ctor arg, but ctor was: ({string.Join(", ", ctorParams)})");
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_RequiredParamOptionalInBag_ProtocolStaysFlattened()
+        {
+            // https://github.com/microsoft/typespec/issues/11214
+            // TCGC does not validate that a required wire parameter maps to a required bag property, so
+            // the bag's constructor would not force callers to supply it. Grouping the protocol method
+            // would drop the compile-time guarantee the flattened signature provides, so it stays flat.
+            var optionsModel = InputFactory.Model(
+                "GetWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "id"),
+                ]);
+
+            var optionsMethodParameter = InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments: [optionsMethodParameter, InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: false)]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget",
+                InputFactory.Operation("GetWidget", parameters: [idParam], responses: [InputFactory.OperationResponse([200])]),
+                parameters: [optionsMethodParameter]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+
+            var parameters = protocolMethod!.Signature.Parameters;
+            var actual = string.Join(", ", parameters.Select(p => $"{p.Type.Name} {p.Name}"));
+
+            // The bag's constructor cannot force `id`, so the protocol method must keep requiring it directly.
+            var publicCtor = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(optionsModel)!.Constructors
+                .FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(publicCtor!.Signature.Parameters.Select(p => p.Name), Does.Not.Contain("id"));
+
+            Assert.IsFalse(parameters.Any(p => p.Type.Name == "GetWidgetOptions"), $"protocol must stay flattened, but was: ({actual})");
+            Assert.IsTrue(parameters.Any(p => p.Name == "id"), $"required parameter must stay on the signature, but was: ({actual})");
         }
 
         [Test]
