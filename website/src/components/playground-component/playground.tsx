@@ -20,6 +20,12 @@ export interface WebsitePlaygroundProps {
   versionData: VersionData;
 }
 
+/**
+ * Emitters that ship a heavy runtime and are not referenced by `import` statements in TypeSpec
+ * source, so they can be imported the first time they are selected instead of on page load.
+ */
+const deferredEmitters = ["@typespec/http-client-csharp", "@typespec/http-client-python"];
+
 export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
   const theme = useTheme();
 
@@ -35,6 +41,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
     <StandalonePlayground
       {...TypeSpecPlaygroundConfig}
       libraries={imports}
+      deferredEmitters={deferredEmitters}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       emitterOptions={{
         "@typespec/http-client-python": { debounce: 1000 },

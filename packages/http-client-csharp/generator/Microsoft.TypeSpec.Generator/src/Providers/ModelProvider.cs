@@ -53,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return description;
         }
 
-        private readonly bool _isMultiLevelDiscriminator;
+        private bool? _isMultiLevelDiscriminator;
+        private bool IsMultiLevelDiscriminator => _isMultiLevelDiscriminator ??= ComputeIsMultiLevelDiscriminator();
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _additionalObjectPropsFieldType = typeof(IDictionary<string, object>);
@@ -75,7 +76,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _inputModel = inputModel;
             _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
-            _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => IsPublicApi(p.Modifiers))
+                .Where(p => MethodProviderHelpers.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -188,6 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
             _fullConstructor = null;
+            _isMultiLevelDiscriminator = null;
         }
 
         protected FieldProvider? RawDataField
@@ -630,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // surface: changing the type of an internal/private generated property is not
                 // a source-breaking change, and the last-contract map already excludes
                 // non-public-API entries.
-                if (IsPublicApi(outputProperty.Modifiers) &&
+                if (MethodProviderHelpers.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
@@ -765,7 +766,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For multi-level discriminators, add one additional private protected constructor
-            if (_isMultiLevelDiscriminator)
+            if (IsMultiLevelDiscriminator)
             {
                 var protectedConstructor = BuildProtectedInheritanceConstructor();
                 constructors.Add(protectedConstructor);
@@ -945,7 +946,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && _isMultiLevelDiscriminator)))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && IsMultiLevelDiscriminator)))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -954,7 +955,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider._isMultiLevelDiscriminator))
+                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
                         var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
@@ -1416,9 +1417,5 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
-
-        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
-            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }

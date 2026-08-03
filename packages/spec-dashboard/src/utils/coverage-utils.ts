@@ -1,5 +1,5 @@
-import { ScenarioData } from "@typespec/spec-coverage-sdk";
-import { GeneratorCoverageSuiteReport } from "../apis.js";
+import type { ScenarioData } from "@typespec/spec-coverage-sdk";
+import type { GeneratorCoverageSuiteReport } from "../apis.js";
 
 /**
  * Calculates the ratio of completed (pass, not-applicable, not-supported) scenarios.

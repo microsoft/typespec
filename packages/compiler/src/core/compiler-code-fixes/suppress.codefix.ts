@@ -1,6 +1,6 @@
 import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
+import type { Diagnostic } from "../types.js";
 import {
-  Diagnostic,
   NoTarget,
   SyntaxKind,
   type CodeFix,

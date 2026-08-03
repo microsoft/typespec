@@ -1,5 +1,6 @@
 import { ok } from "assert";
-import { spawn, SpawnOptions } from "child_process";
+import type { SpawnOptions } from "child_process";
+import { spawn } from "child_process";
 import { readdir, readFile, rm, writeFile } from "fs/promises";
 import { dirname, join, relative, resolve } from "pathe";
 import { fileURLToPath } from "url";

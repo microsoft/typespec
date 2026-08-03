@@ -1,15 +1,17 @@
 import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import type { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
-import { CompilerOptions, EmitContext, Program } from "@typespec/compiler";
-import { createTestHost, TestHost } from "@typespec/compiler/testing";
+import type { CompilerOptions, EmitContext, Program } from "@typespec/compiler";
+import type { TestHost } from "@typespec/compiler/testing";
+import { createTestHost } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/logger-level.js";
-import { CSharpEmitterOptions } from "../../../src/options.js";
-import { createCSharpEmitterContext, CSharpEmitterContext } from "../../../src/sdk-context.js";
+import type { CSharpEmitterOptions } from "../../../src/options.js";
+import type { CSharpEmitterContext } from "../../../src/sdk-context.js";
+import { createCSharpEmitterContext } from "../../../src/sdk-context.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({

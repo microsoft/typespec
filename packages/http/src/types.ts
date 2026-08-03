@@ -1,4 +1,4 @@
-import {
+import type {
   DiagnosticResult,
   Interface,
   ListOperationOptions,
@@ -11,8 +11,8 @@ import {
   Tuple,
   Type,
 } from "@typespec/compiler";
-import { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
-import { HeaderProperty, HttpProperty } from "./http-property.js";
+import type { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { HeaderProperty, HttpProperty } from "./http-property.js";
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
