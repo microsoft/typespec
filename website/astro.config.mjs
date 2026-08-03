@@ -46,6 +46,36 @@ const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 
 const initJsIntegrity = computeSriHash("1ds-init.js");
 
+/**
+ * Detect whether a Playwright browser can be launched.
+ * In CI environments, always returns 'inline-svg' for server-side SVG pre-rendering.
+ * Locally, returns 'inline-svg' if Playwright is available, or 'pre-mermaid' as a
+ * fallback for client-side rendering when Playwright is not installed.
+ * @returns {Promise<'inline-svg' | 'pre-mermaid'>}
+ */
+async function getMermaidStrategy() {
+  if (process.env.CI) {
+    return "inline-svg";
+  }
+  try {
+    const { chromium } = await import("playwright");
+    const browser = await chromium.launch();
+    await browser.close();
+    return "inline-svg";
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[rehype-mermaid] Playwright is not available or browser system dependencies are missing.\n" +
+        "  Mermaid diagrams will use client-side rendering (pre-mermaid strategy).\n" +
+        "  To enable server-side SVG rendering, install Playwright:\n" +
+        "    npx playwright install --with-deps chromium",
+    );
+    return "pre-mermaid";
+  }
+}
+
+const mermaidStrategy = await getMermaidStrategy();
+
 // https://astro.build/config
 export default defineConfig({
   base,
@@ -135,7 +165,7 @@ export default defineConfig({
     // @ts-expect-error wrong type
     remarkPlugins: [remarkHeadingID],
     rehypePlugins: [
-      rehypeMermaid,
+      [rehypeMermaid, { strategy: mermaidStrategy }],
       [rehypeAstroRelativeMarkdownLinks, { base, collectionBase: false, trailingSlash: "always" }],
     ],
     shikiConfig: {

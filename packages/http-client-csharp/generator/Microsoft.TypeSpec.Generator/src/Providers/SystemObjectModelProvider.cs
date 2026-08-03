@@ -95,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return [.. frameworkType.GetInterfaces().Select(type => CreateInterfaceType(type, typeArguments))];
             }
 
-            return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+            return [.. CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     SystemType.Namespace,
                     SystemType.Name,
                     declaringTypeName: SystemType.DeclaringType?.Name,

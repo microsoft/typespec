@@ -1,8 +1,8 @@
-import { Diagnostic, DiagnosticTarget, Program, Type } from "@typespec/compiler";
-import { HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
+import type { Diagnostic, DiagnosticTarget, Program, Type } from "@typespec/compiler";
+import type { HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
 import { isDefaultResponse } from "@typespec/openapi";
 import { createDiagnostic } from "./lib.js";
-import { OpenAPI3StatusCode } from "./types.js";
+import type { OpenAPI3StatusCode } from "./types.js";
 
 export function getOpenAPI3StatusCodes(
   program: Program,

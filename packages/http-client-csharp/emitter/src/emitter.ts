@@ -1,23 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, SdkContext } from "@azure-tools/typespec-client-generator-core";
-import {
-  createDiagnosticCollector,
-  Diagnostic,
-  EmitContext,
-  Program,
-  resolvePath,
-} from "@typespec/compiler";
+import type { SdkContext } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
+import type { Diagnostic, EmitContext, Program } from "@typespec/compiler";
+import { createDiagnosticCollector, resolvePath } from "@typespec/compiler";
 import { serializeCodeModel } from "./code-model-writer.js";
 import { generate } from "./emit-generate.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
-import { CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { createCSharpEmitterContext, CSharpEmitterContext } from "./sdk-context.js";
-import { CodeModel } from "./type/code-model.js";
-import { Configuration } from "./type/configuration.js";
+import type { CSharpEmitterOptions } from "./options.js";
+import { resolveOptions } from "./options.js";
+import type { CSharpEmitterContext } from "./sdk-context.js";
+import { createCSharpEmitterContext } from "./sdk-context.js";
+import type { CodeModel } from "./type/code-model.js";
+import type { Configuration } from "./type/configuration.js";
 
 /**
  * Creates a code model by executing the full emission logic.

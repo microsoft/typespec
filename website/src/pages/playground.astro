@@ -20,9 +20,25 @@ const latestVersion = versions[0];
   })}
 />
 <BaseLayout footer={false}>
-  <div style={{ height: "calc(100vh - var(--header-height))", width: "100%" }}>
+  <div class="playground-container">
     <AsyncPlayground client:only="react" latestVersion={latestVersion}>
       <LoadingSpinner slot="fallback" message="Loading playground..." />
     </AsyncPlayground>
   </div>
 </BaseLayout>
+
+<style>
+  /* Fill the remaining height provided by the base layout's `.main` flex column
+     instead of subtracting a fixed `--header-height`, which is smaller than the
+     real rendered header and caused the page to overflow with a vertical
+     scrollbar. `display: grid` gives the playground (which fills via
+     `height: 100%`) a definite track to resolve against — a flex-sized block on
+     its own is not treated as a definite height for percentage-height children,
+     which would otherwise collapse the playground. */
+  .playground-container {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: grid;
+  }
+</style>

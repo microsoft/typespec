@@ -822,6 +822,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 modifiers |= MethodSignatureModifiers.Sealed;
             }
+            if (methodSymbol.IsAbstract)
+            {
+                modifiers |= MethodSignatureModifiers.Abstract;
+            }
             if (methodSymbol.IsAsync)
             {
                 modifiers |= MethodSignatureModifiers.Async;

@@ -1,15 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  err,
-  isMatcher,
-  type MatchResult,
-  matchValues,
-  MockValueMatcher,
-  ok,
-} from "../src/match-engine.js";
+import type { MockValueMatcher } from "../src/match-engine.js";
+import { err, isMatcher, type MatchResult, matchValues, ok } from "../src/match-engine.js";
 import { match } from "../src/matchers/index.js";
 import { expandDyns, json } from "../src/response-utils.js";
-import { ResolverConfig } from "../src/types.js";
+import type { ResolverConfig } from "../src/types.js";
 
 describe("isMatcher", () => {
   it("should return true for a matcher", () => {

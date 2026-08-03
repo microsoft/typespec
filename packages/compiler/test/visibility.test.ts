@@ -3,8 +3,8 @@
 
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { VisibilityFilter } from "../src/core/visibility/core.js";
-import type { EnumMember, EnumValue, FunctionContext } from "../src/index.js";
+import type { VisibilityFilter } from "../src/core/visibility/core.js";
+import type { EnumMember, EnumValue, FunctionContext, Model, ModelProperty } from "../src/index.js";
 import {
   $visibility,
   addVisibilityModifiers,
@@ -16,8 +16,6 @@ import {
   hasVisibility,
   isSealed,
   isVisible,
-  Model,
-  ModelProperty,
   removeVisibilityModifiers,
   resetVisibilityModifiersForClass,
   sealVisibilityModifiers,

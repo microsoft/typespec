@@ -1,14 +1,14 @@
 import { ignoreDiagnostics } from "../../core/diagnostics.js";
-import {
-  DiscriminatedUnion,
-  getDiscriminatedUnion,
-} from "../../core/helpers/discriminator-utils.js";
+import type { DiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
+import { getDiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
 import type { Entity, Enum, Type, Union, UnionVariant } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import type { DecoratorArgs } from "../utils.js";
+import { decoratorApplication } from "../utils.js";
 
 /**
  * A descriptor for a union type.

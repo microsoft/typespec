@@ -2,7 +2,8 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { it } from "vitest";
 import type { Program } from "../../src/core/program.js";
 import { type DecoratorContext, type Model, type Type } from "../../src/core/types.js";
-import { mockFile, t, TemplateWithMarkers } from "../../src/testing/index.js";
+import type { TemplateWithMarkers } from "../../src/testing/index.js";
+import { mockFile, t } from "../../src/testing/index.js";
 import { createRekeyableMap } from "../../src/utils/misc.js";
 import { Tester } from "../tester.js";
 

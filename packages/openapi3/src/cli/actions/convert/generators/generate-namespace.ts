@@ -1,5 +1,5 @@
-import { TypeSpecNamespace } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { TypeSpecNamespace } from "../interfaces.js";
+import type { Context } from "../utils/context.js";
 import { generateDataType } from "./generate-model.js";
 import { generateOperation } from "./generate-operation.js";
 

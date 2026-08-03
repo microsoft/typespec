@@ -1,15 +1,15 @@
-import { DiagnosticHandler } from "../core/diagnostics.js";
+import type { DiagnosticHandler } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { createSourceFile } from "../core/source-file.js";
-import {
+import type {
   CompilerHost,
   Diagnostic,
   DiagnosticTarget,
-  NoTarget,
   SourceFile,
   SystemHost,
 } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
 
 export interface FileHandlingOptions {
   allowFileNotFound?: boolean;

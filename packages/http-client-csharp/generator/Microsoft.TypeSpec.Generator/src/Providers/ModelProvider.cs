@@ -98,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => IsPublicApi(p.Modifiers))
+                .Where(p => MethodProviderHelpers.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -153,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Try to find the type in the customization compilation. Referenced assemblies are
                 // included so custom bases from framework or external packages are represented by
                 // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     baseType.Namespace,
                     baseType.Name,
                     baseType.DeclaringType?.Name,
@@ -631,7 +631,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // surface: changing the type of an internal/private generated property is not
                 // a source-breaking change, and the last-contract map already excludes
                 // non-public-API entries.
-                if (IsPublicApi(outputProperty.Modifiers) &&
+                if (MethodProviderHelpers.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
@@ -1417,9 +1417,5 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
-
-        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
-            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }

@@ -1,5 +1,5 @@
-import { TypeSpecProtobufDecorators } from "../generated-defs/TypeSpec.Protobuf.js";
-import { TypeSpecProtobufPrivateDecorators } from "../generated-defs/TypeSpec.Protobuf.Private.js";
+import type { TypeSpecProtobufDecorators } from "../generated-defs/TypeSpec.Protobuf.js";
+import type { TypeSpecProtobufPrivateDecorators } from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import {
   $_map,
   $externRef,

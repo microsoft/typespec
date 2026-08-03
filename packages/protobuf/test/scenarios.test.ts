@@ -8,7 +8,7 @@ import { formatDiagnostic, resolvePath } from "@typespec/compiler";
 import { createTester, findTestPackageRoot } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "fs/promises";
-import { ProtobufEmitterOptions } from "../src/lib.js";
+import type { ProtobufEmitterOptions } from "../src/lib.js";
 
 const pkgRoot = await findTestPackageRoot(import.meta.url);
 const SCENARIOS_DIRECTORY = resolvePath(pkgRoot, "test/scenarios");

@@ -1,5 +1,5 @@
 import { describe, it } from "vitest";
-import { Diagnostic } from "../../src/core/types.js";
+import type { Diagnostic } from "../../src/core/types.js";
 import { expectDiagnostics } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

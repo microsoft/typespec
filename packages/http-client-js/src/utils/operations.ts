@@ -1,9 +1,11 @@
-import { Model, ModelProperty, Operation, Union } from "@typespec/compiler";
+import type { Model, ModelProperty, Operation, Union } from "@typespec/compiler";
+import type {
+  unsafe_Mutator as Mutator,
+  unsafe_MutatorRecord,
+} from "@typespec/compiler/experimental";
 import {
   unsafe_mutateSubgraph as mutateSubgraph,
-  unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
-  unsafe_MutatorRecord,
 } from "@typespec/compiler/experimental";
 import { $, type Typekit } from "@typespec/compiler/typekit";
 

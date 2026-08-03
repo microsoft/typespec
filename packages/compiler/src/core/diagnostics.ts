@@ -1,23 +1,20 @@
 import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
-import {
+import type {
   CodeFix,
   Diagnostic,
   DiagnosticResult,
   DiagnosticTarget,
   LogSink,
   Node,
-  NodeFlags,
-  NoTarget,
   RelatedSourceLocation,
   SourceLocation,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   TypeSpecDiagnosticTarget,
   Value,
 } from "./types.js";
+import { NodeFlags, NoTarget, SymbolFlags, SyntaxKind } from "./types.js";
 
 export type WriteLine = (text?: string) => void;
 export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
