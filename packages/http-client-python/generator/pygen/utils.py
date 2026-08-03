@@ -32,16 +32,15 @@ def is_typeddict_only(options: Any) -> bool:
     """Whether generation is TypedDict-only.
 
     True for TypeSpec input where no concrete models mode is selected (``models-mode: none``,
-    normalized to a falsy value) and ``generate-typeddict`` is enabled. Swagger ``models-mode:
-    none`` is left as a plain no-models mode because it never sets ``tsp_file``.
-
-    ``options`` may be an :class:`OptionsDict` (where ``models-mode`` is already normalized to a
-    falsy value) or a plain mapping (where it may still be the string ``"none"``). Both forms are
-    treated as "no concrete models".
+    normalized to a falsy value by :class:`OptionsDict`) and ``generate-typeddict`` is enabled.
+    Swagger ``models-mode: none`` is left as a plain no-models mode because it never sets
+    ``tsp_file``.
     """
-    models_mode = options.get("models-mode")
-    no_models = not models_mode or models_mode == "none"
-    return bool(options.get("tsp_file")) and no_models and bool(options.get("generate-typeddict", True))
+    return (
+        bool(options.get("tsp_file"))
+        and not options.get("models-mode")
+        and bool(options.get("generate-typeddict", True))
+    )
 
 
 def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
