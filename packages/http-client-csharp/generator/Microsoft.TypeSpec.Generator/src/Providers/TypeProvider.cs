@@ -1005,7 +1005,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousMethod in previousMethods)
             {
                 if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
-                    || !MethodProviderHelpers.IsPublicApi(previousMethod.Signature.Modifiers)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;

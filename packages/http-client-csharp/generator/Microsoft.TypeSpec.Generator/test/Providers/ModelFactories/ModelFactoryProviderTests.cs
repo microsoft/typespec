@@ -408,6 +408,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_SkipsNonPublicPreviousMethod()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+
+            // The last contract exposes an internal factory method that no longer exists in the current
+            // contract. It is surfaced in the last-contract view (metadata import includes non-public members)
+            // but is not part of the public compatibility surface.
+            Assert.IsTrue(modelFactory.LastContractView!.Methods.Any(m =>
+                m.Signature.Name == "PublicModel1OldName"
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // No back-compat shim is generated for the internal previous method.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
         {
             // The previous contract contains a "PublicModel1OldName" factory method that no longer

@@ -1120,18 +1120,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // When a service method is supplied, scope the search to methods whose name matches
             // the current service method (allowing for sync/async pairing) so that a common
             // parameter name (e.g. "id") on multiple methods can't cross-match.
-            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
-            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods;
+            var lastContractMethods = backCompatProvider.LastContractView?.Methods
+                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
             if (lastContractMethods != null && serviceMethod != null)
             {
                 var serviceMethodName = serviceMethod.Name;
-                scopedMethods = lastContractMethods.Where(m =>
+                lastContractMethods = lastContractMethods.Where(m =>
                     string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
             }
 
             // Check if the original wire name exists in LastContractView for backward compatibility.
-            var existingParam = scopedMethods
+            var existingParam = lastContractMethods
                 ?.SelectMany(method => method.Signature.Parameters)
                 .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;

@@ -138,15 +138,11 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        public static bool IsPublicApi(MethodSignatureModifiers modifiers)
-            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
-
         private static bool ShouldSkipParameterValidation(MethodSignatureBase signature, TypeProvider enclosingType)
         {
             // Skip parameter validation for methods that are not public or protected on a public type.
             return !enclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                || !IsPublicApi(signature.Modifiers);
+                || !MethodSignatureHelper.IsPublicApi(signature.Modifiers);
         }
     }
 }

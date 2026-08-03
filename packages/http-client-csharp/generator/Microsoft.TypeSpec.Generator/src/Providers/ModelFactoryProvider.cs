@@ -116,7 +116,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers) ||
+                    currentMethodSignatures.Contains(previousMethod.Signature))
                 {
                     continue;
                 }
