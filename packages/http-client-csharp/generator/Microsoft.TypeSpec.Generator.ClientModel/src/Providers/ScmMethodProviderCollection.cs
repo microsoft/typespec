@@ -1112,6 +1112,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
             }
 
+            // A grouped options bag adopted by the protocol method can carry the same name as the request
+            // options/context parameter, which would emit a duplicate parameter name. Rename the request
+            // options parameter when that happens.
+            requestOptionsParameter = ResolveRequestOptionsNameCollision(
+                requestOptionsParameter,
+                requiredParameters,
+                optionalParameters);
+
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
 
@@ -1196,6 +1204,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
+        private static ParameterProvider ResolveRequestOptionsNameCollision(
+            ParameterProvider requestOptionsParameter,
+            IReadOnlyList<ParameterProvider> requiredParameters,
+            IReadOnlyList<ParameterProvider> optionalParameters)
+        {
+            var otherParameters = requiredParameters.Concat(optionalParameters).ToList();
+            if (!otherParameters.Any(p => string.Equals(p.Name, requestOptionsParameter.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return requestOptionsParameter;
+            }
+
+            var baseName = "request"
+                + char.ToUpperInvariant(requestOptionsParameter.Name[0])
+                + requestOptionsParameter.Name.Substring(1);
+            var uniqueName = baseName;
+            var suffix = 1;
+            while (otherParameters.Any(p => string.Equals(p.Name, uniqueName, StringComparison.OrdinalIgnoreCase)))
+            {
+                uniqueName = baseName + suffix++;
+            }
+
+            return new ParameterProvider(
+                uniqueName,
+                requestOptionsParameter.Description,
+                requestOptionsParameter.Type,
+                requestOptionsParameter.DefaultValue,
+                location: requestOptionsParameter.Location,
+                wireInfo: requestOptionsParameter.WireInfo,
+                validation: requestOptionsParameter.Validation,
+                inputParameter: requestOptionsParameter.InputParameter);
+        }
+
         // The protocol method orders its parameters required-first (optional parameters and the
         // request options/context parameter are moved to the end so they can have default values).
         // This order can differ from the CreateRequest method's parameter order, which follows the
@@ -1204,11 +1244,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // parameter with the request body). Reorder the arguments to match the CreateRequest
         // signature by mapping each CreateRequest parameter to the protocol parameter with the same
         // name. If the names cannot be reconciled, fall back to the original positional behavior.
-        private static ValueExpression[] BuildCreateRequestArguments(
+        private ValueExpression[] BuildCreateRequestArguments(
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> bodyParameters)
         {
             var createRequestParameters = createRequestSignature.Parameters;
+
+            // When the protocol method exposes an options bag, its parameters no longer line up with the
+            // CreateRequest method's flattened wire parameters. Expand each grouped parameter back out of
+            // the bag (e.g. `options.Top`) so CreateRequest still receives the individual values.
+            if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
+            {
+                var groupedArguments = BuildGroupedCreateRequestArguments(createRequestParameters, bodyParameters);
+                if (groupedArguments is not null)
+                {
+                    return groupedArguments;
+                }
+            }
+
             if (createRequestParameters.Count == bodyParameters.Count)
             {
                 var arguments = new ValueExpression[createRequestParameters.Count];
@@ -1232,6 +1285,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. bodyParameters.Select(p => (ValueExpression)p)];
+        }
+
+        private static ValueExpression[]? BuildGroupedCreateRequestArguments(
+            IReadOnlyList<ParameterProvider> createRequestParameters,
+            IReadOnlyList<ParameterProvider> protocolParameters)
+        {
+            var arguments = new ValueExpression[createRequestParameters.Count];
+
+            for (int i = 0; i < createRequestParameters.Count; i++)
+            {
+                var createRequestParameter = createRequestParameters[i];
+                var segments = createRequestParameter.InputParameter?.MethodParameterSegments;
+
+                if (segments is not { Count: > 1 })
+                {
+                    var match = protocolParameters.FirstOrDefault(
+                        p => string.Equals(p.Name, createRequestParameter.Name, StringComparison.OrdinalIgnoreCase));
+                    if (match is null)
+                    {
+                        return null;
+                    }
+
+                    arguments[i] = match;
+                    continue;
+                }
+
+                var groupParameter = protocolParameters.FirstOrDefault(
+                    p => string.Equals(p.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase));
+                if (groupParameter is null
+                    || !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(groupParameter.Type, out var typeProvider)
+                    || typeProvider is not ModelProvider groupModel)
+                {
+                    return null;
+                }
+
+                var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
+                var propertyExpression = groupModel.GetPropertyExpression(groupParameter, propertySegments, out var leafProperty);
+
+                // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
+                if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
+                {
+                    if (leafProperty.Type.IsNullable)
+                    {
+                        propertyExpression = propertyExpression.NullConditional();
+                    }
+                    propertyExpression = leafProperty.Type.ToSerial(propertyExpression);
+                }
+
+                arguments[i] = propertyExpression;
+            }
+
+            return arguments;
         }
 
         private ParameterProvider ProcessOptionalParameters(
