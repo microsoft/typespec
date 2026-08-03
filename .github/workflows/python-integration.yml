@@ -29,6 +29,7 @@ jobs:
     uses: ./.github/workflows/ci-python-template.yml
     with:
       check: build
+      use-typespec-azure: true
 
   test:
     name: "Mock API Tests"
@@ -36,6 +37,7 @@ jobs:
     uses: ./.github/workflows/ci-python-template.yml
     with:
       check: test
+      use-typespec-azure: true
 
   typecheck:
     name: "Type Checking"
@@ -43,6 +45,7 @@ jobs:
     uses: ./.github/workflows/ci-python-template.yml
     with:
       check: typecheck
+      use-typespec-azure: true
 
   lint:
     name: "Lint & Format"
@@ -50,6 +53,7 @@ jobs:
     uses: ./.github/workflows/ci-python-template.yml
     with:
       check: lint
+      use-typespec-azure: true
 
   docs:
     name: "Docs Validation"
@@ -57,3 +61,4 @@ jobs:
     uses: ./.github/workflows/ci-python-template.yml
     with:
       check: docs
+      use-typespec-azure: true

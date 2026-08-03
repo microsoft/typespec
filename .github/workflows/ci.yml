@@ -23,15 +23,15 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-slim
     outputs:
-      core: ${{ steps.filter.outputs.core }}
-      python: ${{ steps.filter.outputs.python }}
+      core: ${{ steps.core-filter.outputs.core }}
+      python: ${{ steps.python-filter.outputs.python }}
     steps:
       - uses: actions/checkout@v7
       # cspell:ignore dorny
       - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4
-        id: filter
+        id: core-filter
         with:
-          predicate-quantifier: "some-with-excludes"
+          predicate-quantifier: "every"
           filters: |
             core:
               - '**'
@@ -44,6 +44,10 @@ jobs:
               - '!packages/http-client-csharp/**'
               - '!packages/http-client-java/**'
               - '!packages/http-client-python/**'
+      - uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4
+        id: python-filter
+        with:
+          filters: |
             python:
               - 'packages/http-client-python/**'
               - '.github/workflows/ci.yml'
