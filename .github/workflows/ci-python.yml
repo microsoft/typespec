@@ -1,14 +1,12 @@
-name: Python Integration
+name: Python CI
 
 on:
   workflow_call:
-  # Allow manual triggering
-  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   python:
-    name: Python Integration
+    name: Python CI
     uses: ./.github/workflows/ci-python-template.yml
