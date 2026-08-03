@@ -31,16 +31,16 @@ def description_ends_with_code_block(description: str) -> bool:
 def is_typeddict_only(options: Any) -> bool:
     """Whether generation is TypedDict-only.
 
-    The deprecated ``models-mode: typeddict`` is represented internally as ``models-mode: none``
-    together with ``generate-typeddict`` enabled. It only applies to TypeSpec
-    input; swagger ``models-mode: none`` is left as a plain no-models mode.
+    True for TypeSpec input where no concrete models mode is selected (``models-mode: none``,
+    normalized to a falsy value) and ``generate-typeddict`` is enabled. Swagger ``models-mode:
+    none`` is left as a plain no-models mode because it never sets ``tsp_file``.
 
     ``options`` may be an :class:`OptionsDict` (where ``models-mode`` is already normalized to a
-    falsy value) or a plain mapping (where it may still be the string ``"none"``/``"typeddict"``).
-    Both the normalized and un-normalized forms are treated as "no concrete models".
+    falsy value) or a plain mapping (where it may still be the string ``"none"``). Both forms are
+    treated as "no concrete models".
     """
     models_mode = options.get("models-mode")
-    no_models = not models_mode or models_mode in ("none", "typeddict")
+    no_models = not models_mode or models_mode == "none"
     return bool(options.get("tsp_file")) and no_models and bool(options.get("generate-typeddict", True))
 
 
