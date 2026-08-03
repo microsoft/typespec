@@ -38,6 +38,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
 
+        protected override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
+            => originalEnumValues;
+
         protected override MethodProvider[] BuildMethods()
         {
             // for string-based extensible enums, we are using `ToString` as its serialization
