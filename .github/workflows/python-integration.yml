@@ -1,11 +1,7 @@
 name: Python Integration
 
 on:
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "packages/http-client-python/**"
-      - ".github/workflows/python-integration.yml"
+  workflow_call:
   # Allow manual triggering
   workflow_dispatch:
 
@@ -13,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-python-integration-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -32,13 +28,15 @@ jobs:
           repository: Azure/typespec-azure
           submodules: recursive
 
-      - name: Update core submodule to PR commit
-        if: github.event_name == 'pull_request'
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           cd core
-          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch pr ${{ github.event.pull_request.head.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
 
       - uses: ./.github/actions/setup
 
@@ -116,13 +114,15 @@ jobs:
           repository: Azure/typespec-azure
           submodules: recursive
 
-      - name: Update core submodule to PR commit
-        if: github.event_name == 'pull_request'
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           cd core
-          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch pr ${{ github.event.pull_request.head.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
 
       - uses: ./.github/actions/setup
 
@@ -158,13 +158,15 @@ jobs:
           repository: Azure/typespec-azure
           submodules: recursive
 
-      - name: Update core submodule to PR commit
-        if: github.event_name == 'pull_request'
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           cd core
-          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch pr ${{ github.event.pull_request.head.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
 
       - uses: ./.github/actions/setup
 
@@ -197,13 +199,15 @@ jobs:
           repository: Azure/typespec-azure
           submodules: recursive
 
-      - name: Update core submodule to PR commit
-        if: github.event_name == 'pull_request'
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           cd core
-          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch pr ${{ github.event.pull_request.head.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
 
       - uses: ./.github/actions/setup
 
@@ -244,13 +248,15 @@ jobs:
           repository: Azure/typespec-azure
           submodules: recursive
 
-      - name: Update core submodule to PR commit
-        if: github.event_name == 'pull_request'
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: |
           cd core
-          git remote add pr https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git fetch pr ${{ github.event.pull_request.head.sha }}
-          git checkout ${{ github.event.pull_request.head.sha }}
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
 
       - uses: ./.github/actions/setup
 
@@ -271,4 +277,56 @@ jobs:
 
       - name: API View & Sphinx
         run: pnpm run test:python:e2e --env apiview,sphinx
+        working-directory: packages/typespec-python
+
+  windows-test:
+    name: "Build & Test (Windows)"
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Azure/typespec-azure repo
+        uses: actions/checkout@v7
+        with:
+          repository: Azure/typespec-azure
+          submodules: recursive
+
+      - name: Update core submodule to TypeSpec commit
+        env:
+          TYPESPEC_REPOSITORY: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}
+          TYPESPEC_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        shell: bash
+        run: |
+          cd core
+          git remote add typespec https://github.com/$TYPESPEC_REPOSITORY.git
+          git fetch typespec $TYPESPEC_REF
+          git checkout $TYPESPEC_REF
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-python
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: .
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build http-client-python from PR
+        run: |
+          npm install --ignore-scripts
+          npm run build
+        working-directory: core/packages/http-client-python
+
+      - name: Build
+        run: pnpm turbo run --filter "@azure-tools/typespec-python..." build
+
+      - name: Prepare Python environment
+        run: pnpm run prepare
+        working-directory: packages/typespec-python
+
+      - name: Test
+        run: pnpm run test:python:e2e
         working-directory: packages/typespec-python
