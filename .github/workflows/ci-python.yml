@@ -7,6 +7,49 @@ permissions:
   contents: read
 
 jobs:
-  python:
-    name: Python CI
+  build:
+    name: "Build & Regenerate"
+    if: |
+      !startsWith(github.head_ref, 'dependabot/') &&
+      !startsWith(github.head_ref, 'publish/') &&
+      !startsWith(github.head_ref, 'backmerge/') &&
+      !startsWith(github.head_ref, 'revert-')
     uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: build
+
+  test:
+    name: "Mock API Tests"
+    needs: build
+    uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: test
+
+  typecheck:
+    name: "Type Checking"
+    needs: build
+    uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: typecheck
+
+  lint:
+    name: "Lint & Format"
+    needs: build
+    uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: lint
+
+  docs:
+    name: "Docs Validation"
+    needs: build
+    uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: docs
+
+  windows-test:
+    name: "Build & Test (Windows)"
+    needs: build
+    uses: ./.github/workflows/ci-python-template.yml
+    with:
+      check: windows-test
+      runner: windows-latest
