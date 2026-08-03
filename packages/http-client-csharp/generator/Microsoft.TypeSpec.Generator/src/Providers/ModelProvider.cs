@@ -798,7 +798,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousConstructor in previousConstructors)
             {
-                if (!IsPublicApi(previousConstructor.Signature.Modifiers))
+                if (!MethodProviderHelpers.IsPublicApi(previousConstructor.Signature.Modifiers))
                 {
                     continue;
                 }
@@ -855,7 +855,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorProvider? targetConstructor = null;
             foreach (var candidate in currentConstructors)
             {
-                if (!IsPublicApi(candidate.Signature.Modifiers)
+                if (!MethodProviderHelpers.IsPublicApi(candidate.Signature.Modifiers)
                     || candidate.Signature.Parameters.Count >= previousParameters.Count)
                 {
                     continue;
@@ -975,7 +975,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lookup = new Dictionary<string, PropertyProvider>();
             foreach (var property in CanonicalView.Properties)
             {
-                if (!IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                if (!MethodProviderHelpers.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
                 {
                     continue;
                 }
