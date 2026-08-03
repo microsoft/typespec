@@ -1652,22 +1652,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inputModel = InputFactory.Model("MockInputModel", access: "public");
             MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
 
-            DerivedModelProviderReadingOwnName? provider = null;
-            Assert.DoesNotThrow(() => provider = new DerivedModelProviderReadingOwnName(inputModel, "ProjectedModel"));
+            TestModelProvider? provider = null;
+            Assert.DoesNotThrow(() => provider = new TestModelProvider(inputModel, "ProjectedModel"));
             Assert.AreEqual("ProjectedModel", provider!.Name);
-        }
-
-        private sealed class DerivedModelProviderReadingOwnName : ModelProvider
-        {
-            private readonly string? _derivedName;
-
-            public DerivedModelProviderReadingOwnName(InputModelType inputModel, string derivedName) : base(inputModel)
-            {
-                _derivedName = derivedName;
-            }
-
-            protected override string BuildName()
-                => _derivedName ?? throw new InvalidOperationException("The derived provider has not finished construction.");
         }
 
         // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
@@ -2271,7 +2258,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             MockHelpers.LoadMockGenerator();
             var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
             // Use the subclass to ensure we populate serialization providers
-            var modelProvider = new TestModelProvider(inputModel);
+            var modelProvider = new TestModelProvider(inputModel, "TestModel");
 
             var serializationProviders = modelProvider.SerializationProviders;
             Assert.IsNotNull(serializationProviders);
@@ -2295,9 +2282,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         private class TestModelProvider : ModelProvider
         {
-            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            private readonly string? _name;
+
+            public TestModelProvider(InputModelType inputModel, string name) : base(inputModel)
             {
+                _name = name;
             }
+
+            protected override string BuildName()
+                => _name ?? throw new InvalidOperationException("The derived provider has not finished construction.");
 
             protected override TypeProvider[] BuildSerializationProviders()
             {
