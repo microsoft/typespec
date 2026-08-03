@@ -47,7 +47,8 @@ class OptionsDict(MutableMapping):
     def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
         # 'models-mode: typeddict' is deprecated. Represent it internally as 'none' models-mode with
-        # TypedDict generation enabled, so the rest of the codebase only reasons about dpg/msrest/none.
+        # TypedDict generation enabled, so the rest of the codebase reasons in terms of models-mode
+        # plus the generate-typeddict flag.
         if self._data.get("models-mode") == "typeddict":
             self._data["generate-typeddict"] = True
         for key in list(self._data):
