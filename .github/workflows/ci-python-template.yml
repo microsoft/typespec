@@ -51,7 +51,15 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - uses: ./.github/actions/setup-python
+      - name: Set up integration Python
+        if: ${{ inputs.use-typespec-azure }}
+        uses: ./.github/actions/setup-python
+
+      - name: Set up local Python
+        if: ${{ !inputs.use-typespec-azure }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
 
       - name: Download generated artifacts
         if: inputs.check != 'build'
