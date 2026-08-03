@@ -1379,8 +1379,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
-                p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName &&
-                MethodSignatureHelper.IsPublicApi(p.Modifiers));
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
+                p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)
             {
