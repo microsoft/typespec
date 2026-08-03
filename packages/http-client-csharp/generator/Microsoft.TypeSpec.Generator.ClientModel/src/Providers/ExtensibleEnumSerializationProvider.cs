@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             => [.. originalMethods];
 
         protected override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> originalEnumValues)
-            => originalEnumValues;
+            => base.BuildEnumValuesForBackCompatibility(originalEnumValues);
 
         protected override MethodProvider[] BuildMethods()
         {
