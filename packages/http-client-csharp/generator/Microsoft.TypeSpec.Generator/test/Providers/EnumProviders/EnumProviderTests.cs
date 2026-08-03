@@ -691,6 +691,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        // Validates that a removed extensible enum member that was NON-public in the last contract is not
+        // re-added: only public members are part of the compatibility surface, and the last-contract view
+        // also surfaces non-public members (e.g. an internal member added via custom code).
+        [Test]
+        public async Task BackCompat_ExtensibleEnumNonPublicValueNotReadded()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: (inputType) => typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Last contract: Default, Recover (public), Internal (internal). Current input removes "Internal".
+            var input = InputFactory.StringEnum("mockInputEnum", [
+                ("Default", "default"),
+                ("Recover", "recover"),
+            ], isExtensible: true);
+
+            var enumType = EnumProvider.Create(input);
+            Assert.IsFalse(enumType is ApiVersionEnumProvider);
+
+            enumType.EnsureBuilt();
+            enumType.ProcessTypeForBackCompatibility();
+
+            // The non-public "Internal" member is not part of the public contract, so it is not re-added.
+            var properties = enumType.Properties;
+            Assert.AreEqual(2, properties.Count);
+            Assert.IsFalse(properties.Any(p => p.Name == "Internal"));
+            Assert.AreEqual("Default", properties[0].Name);
+            Assert.AreEqual("Recover", properties[1].Name);
+            Assert.IsFalse(enumType.Fields.Any(f => f.Name == "InternalValue"));
+
+            // Validate the full generated output; "Internal" (property and its const `InternalValue` field) is absent.
+            var content = new TypeProviderWriter(enumType).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         // Validates that a removed extensible enum member is NOT re-added when its removal is accepted in
         // the ApiCompat baseline (recorded as a MembersMustExist suppression), so the generator honors the
         // intentional removal instead of resurrecting it. Runs against both the text and XML baseline
