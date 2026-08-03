@@ -177,7 +177,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def generate_typeddict_only(self) -> bool:
-        """Whether this is the deprecated TypedDict-only generation ('models-mode: none' + TypedDicts)."""
+        """Whether this is TypedDict-only generation ('models-mode: none' + TypedDicts)."""
         return is_typeddict_only(self.options)
 
     @property
