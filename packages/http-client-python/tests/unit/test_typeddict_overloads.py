@@ -14,18 +14,17 @@ instead keep the body as a plain single type so no ``@overload`` is emitted.
 from pygen.preprocess import PreProcessPlugin, add_overloads_for_body_param
 
 
-def _plugin(models_mode: str, **kwargs) -> PreProcessPlugin:
+def _plugin(models_mode: str, generate_typeddict: bool = True) -> PreProcessPlugin:
     return PreProcessPlugin(
         output_folder="",
         **{
             "version-tolerant": True,
             "models-mode": models_mode,
-            "generate-typeddict": True,
+            "generate-typeddict": generate_typeddict,
             "tsp_file": True,
             "show-operations": True,
             "show-send-request": True,
             "builders-visibility": "public",
-            **kwargs,
         },
     )
 
@@ -95,13 +94,15 @@ def test_typeddict_only_single_body_emits_no_overload():
 def test_models_mode_none_maps_to_typeddict_only():
     """User-facing ``models-mode: none`` (TypeSpec) behaves as typeddict-only.
 
-    ``generate-typeddict`` defaults to ``True``, so ``none`` is remapped to the
-    internal typeddict-only mode by ``OptionsDict``. A lone TypedDict body variant
-    must still NOT emit a single ``@overload``.
+    ``generate-typeddict`` defaults to ``True``, so ``none`` generates TypedDicts.
+    Internally ``models-mode`` stays ``none`` (falsy) and typeddict-only generation
+    is expressed via ``generate_typeddict_only``. A lone TypedDict body variant must
+    still NOT emit a single ``@overload``.
     """
     plugin = _plugin("none")
-    # OptionsDict normalizes none + generate-typeddict -> internal typeddict mode.
-    assert plugin.options["models-mode"] == "typeddict"
+    # models-mode stays 'none' (falsy); TypedDict-only is expressed via generate_typeddict_only.
+    assert plugin.options["models-mode"] is False
+    assert plugin.options.generate_typeddict_only is True
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
@@ -129,7 +130,7 @@ def test_dpg_mode_still_emits_multiple_overloads():
 
 def test_dpg_mode_can_disable_typeddict_autogeneration():
     """Opting out reverts to the pre-TypedDict overloads: model + raw-JSON + binary."""
-    plugin = _plugin("dpg", **{"generate-typeddict": False})
+    plugin = _plugin("dpg", generate_typeddict=False)
     code_model, yaml_data, model_type = _json_model_operation()
     body_parameter = yaml_data["bodyParameter"]
 
@@ -149,7 +150,7 @@ def test_dpg_mode_can_disable_typeddict_autogeneration():
 
 def test_spread_body_opt_out_keeps_json_overload():
     """Spread bodies revert to pre-TypedDict: flattened + single-body JSON + binary."""
-    plugin = _plugin("dpg", **{"generate-typeddict": False})
+    plugin = _plugin("dpg", generate_typeddict=False)
     spread_body = _json_spread_body_parameter("CreateRequest", "Contoso.Widget")
     yaml_data = {
         "name": "create",

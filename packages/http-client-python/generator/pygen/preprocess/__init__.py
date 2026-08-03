@@ -87,12 +87,10 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any], skip_single_body_jso
     ``skip_single_body_json`` is the authoritative signal, computed by
     ``add_body_param_type``, for whether a TypedDict-style overload was inserted
     to replace the single-body raw-JSON overload on the spread (``base: json``)
-    path. It is True whenever TypedDicts are generated -- i.e. for the internal
-    ``dpg`` mode (with ``generate-typeddict`` on) and the internal ``typeddict``
-    mode (which the user-facing ``models-mode: none`` remaps to). It is False
-    when TypedDict generation is disabled (``generate-typeddict: false``), in
-    which case the single-body raw-JSON overload is kept, matching pre-TypedDict
-    behavior.
+    path. It is True for both models-mode: dpg (generate-typeddict on) and
+    the TypedDict-only mode (models-mode: none with generate-typeddict on), and
+    False when TypedDict generation is disabled (in which case the single-body
+    raw-JSON overload is kept, matching pre-TypedDict behavior).
     """
     body_parameter = yaml_data["bodyParameter"]
     if not (
@@ -451,7 +449,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             body_parameter
             and body_parameter["type"]["type"] == "bytes"
             and is_binary_body
-            and self.options["models-mode"] != "typeddict"
+            and not self.options.generate_typeddict_only
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
             body_parameter["type"] = {
@@ -475,9 +473,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
             )
             is_dpg_model = model_type.get("base") == "dpg"
             is_json_model = model_type.get("base") == "json"
-            # ``typeddict`` is now an internal-only models-mode: the user-facing
-            # ``models-mode: none`` (with generate-typeddict on) remaps to it.
-            is_typeddict_only = self.options["models-mode"] == "typeddict"
+            is_typeddict_only = self.options.generate_typeddict_only
 
             body_parameter["type"] = {
                 "type": "combined",

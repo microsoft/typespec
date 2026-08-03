@@ -39,15 +39,18 @@ def test_generate_typeddict_can_be_disabled():
 
 def test_models_mode_none_with_tsp_generates_typeddict_by_default():
     # For TypeSpec input, models-mode=none keeps TypedDict generation on by
-    # default, represented internally as the typeddict-only mode.
+    # default. Internally models-mode stays 'none' (falsy); TypedDict-only
+    # generation is expressed via generate_typeddict_only.
     options = OptionsDict({"models-mode": "none", "tsp_file": "main.tsp"})
-    assert options["models-mode"] == "typeddict"
+    assert options["models-mode"] is False
+    assert options.generate_typeddict_only is True
 
 
 def test_models_mode_none_with_tsp_and_generate_typeddict_false_is_nothing():
     # Opting out of TypedDicts on top of models-mode=none produces no models.
     options = OptionsDict({"models-mode": "none", "tsp_file": "main.tsp", "generate-typeddict": False})
     assert options["models-mode"] is False
+    assert options.generate_typeddict_only is False
 
 
 def test_models_mode_none_without_tsp_stays_false():
@@ -66,7 +69,11 @@ def test_models_mode_typeddict_is_deprecated_but_accepted(caplog):
 
     with caplog.at_level(logging.WARNING):
         options = OptionsDict({"models-mode": "typeddict", "tsp_file": "main.tsp"})
-    assert options["models-mode"] == "typeddict"
+    # Deprecated 'typeddict' is normalized to 'none' (falsy) with TypedDict
+    # generation on, i.e. represented via generate_typeddict_only.
+    assert options["models-mode"] is False
+    assert options["generate-typeddict"] is True
+    assert options.generate_typeddict_only is True
     assert any("deprecated" in record.getMessage() for record in caplog.records)
 
 

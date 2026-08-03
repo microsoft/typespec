@@ -28,6 +28,22 @@ def description_ends_with_code_block(description: str) -> bool:
     return all(not line.strip() or line.startswith((" ", "\t")) for line in lines[directives[-1] + 1 :])
 
 
+def is_typeddict_only(options: Any) -> bool:
+    """Whether generation is TypedDict-only.
+
+    The deprecated ``models-mode: typeddict`` is represented internally as ``models-mode: none``
+    together with ``generate-typeddict`` enabled. It only applies to TypeSpec
+    input; swagger ``models-mode: none`` is left as a plain no-models mode.
+
+    ``options`` may be an :class:`OptionsDict` (where ``models-mode`` is already normalized to a
+    falsy value) or a plain mapping (where it may still be the string ``"none"``/``"typeddict"``).
+    Both the normalized and un-normalized forms are treated as "no concrete models".
+    """
+    models_mode = options.get("models-mode")
+    no_models = not models_mode or models_mode in ("none", "typeddict")
+    return bool(options.get("tsp_file")) and no_models and bool(options.get("generate-typeddict", True))
+
+
 def update_enum_value(name: str, value: Any, description: str, enum_type: dict[str, Any]) -> dict[str, Any]:
     return {
         "name": name,
