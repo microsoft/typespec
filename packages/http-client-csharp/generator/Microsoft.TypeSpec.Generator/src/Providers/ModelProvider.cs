@@ -795,6 +795,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
             var restorablePropertyLookup = BuildRestorablePropertyLookup();
+            IReadOnlyList<ConstructorProvider> candidateConstructors = CustomCodeView?.Constructors is { Count: > 0 } customConstructors
+                ? [.. constructors, .. customConstructors]
+                : constructors;
 
             foreach (var previousConstructor in previousConstructors)
             {
@@ -805,13 +808,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 var previousParameters = previousConstructor.Signature.Parameters;
 
-                if (previousParameters.Count == 0)
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
                 {
                     continue;
                 }
 
-                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
+                // A previously published accessible parameterless constructor is dropped when the current
+                // generation makes a property required. Restore it and drop the generated mocking constructor
+                // so it is not a duplicate. An accessible parameterless constructor (generated or custom code)
+                // counts as already present; an inaccessible generated mocking constructor does not.
+                if (previousParameters.Count == 0)
                 {
+                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers))
+                        && !CanonicalView.Constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers)))
+                    {
+                        var parameterlessConstructor = BuildBackCompatParameterlessConstructor(previousConstructor, candidateConstructors);
+                        RemoveGeneratedMockingConstructor(constructors);
+                        constructors.Add(parameterlessConstructor);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Restored parameterless constructor '{Name}()' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                    }
+
                     continue;
                 }
 
@@ -823,7 +841,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (TryBuildRestoredConstructor(previousConstructor, constructors, restorablePropertyLookup, out var restoredConstructor))
+                if (TryBuildRestoredConstructor(previousConstructor, candidateConstructors, restorablePropertyLookup, out var restoredConstructor))
                 {
                     constructors.Add(restoredConstructor);
                     CodeModelGenerator.Instance.Emitter.Info(
@@ -944,6 +962,47 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
+        private ConstructorProvider BuildBackCompatParameterlessConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors)
+        {
+            // Prefer the public or protected constructor with the fewest required parameters, then a
+            // private-protected one; a null target yields a standalone constructor.
+            const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
+            var target = currentConstructors
+                .Where(c => c.Signature.Parameters.Count > 0
+                    && (MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers) || (c.Signature.Modifiers & privateProtected) == privateProtected))
+                .MinBy(c => (MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers) ? 0 : 1, c.Signature.Parameters.Count(p => p.DefaultValue is null)));
+
+            ConstructorInitializer? initializer = target is null
+                ? null
+                : new ConstructorInitializer(false, [.. target.Signature.Parameters.Select(_ => Snippet.Default)]);
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                previousConstructor.Signature.Modifiers,
+                parameters: [],
+                initializer: initializer);
+
+            return new ConstructorProvider(signature, MethodBodyStatement.Empty, this);
+        }
+
+        private void RemoveGeneratedMockingConstructor(List<ConstructorProvider> constructors)
+        {
+            constructors.RemoveAll(c => c.Signature.Parameters.Count == 0);
+
+            foreach (var serializationProvider in SerializationProviders)
+            {
+                var serializationConstructors = serializationProvider.Constructors;
+                if (serializationConstructors.Any(c => c.Signature.Parameters.Count == 0))
+                {
+                    serializationProvider.Update(
+                        constructors: [.. serializationConstructors.Where(c => c.Signature.Parameters.Count != 0)]);
+                }
+            }
+        }
+
         private static bool IsParameterSubsequence(
             IReadOnlyList<ParameterProvider> subset,
             IReadOnlyList<ParameterProvider> full)
@@ -980,7 +1039,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                lookup[property.AsParameter.Name] = property;
+                lookup.TryAdd(property.AsParameter.Name, property);
 
                 if (property.OriginalName != null)
                 {

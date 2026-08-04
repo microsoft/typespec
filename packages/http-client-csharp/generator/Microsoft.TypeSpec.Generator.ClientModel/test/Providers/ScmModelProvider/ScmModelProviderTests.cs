@@ -206,6 +206,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public async Task BackCompat_ParameterlessConstructorRestoredRemovesMockingConstructor()
+        {
+            // The last contract published a parameterless `protected BaseModel()`. The current generation
+            // makes the discriminator required, so the abstract base's initialization constructor now takes a
+            // parameter and the parameterless constructor is dropped. It is restored, and the generated
+            // parameterless mocking constructor on the serialization partial is removed to avoid a duplicate.
+            var derivedInputModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "baseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel } });
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "BaseModel");
+
+            model.ProcessTypeForBackCompatibility();
+
+            // The model gains the restored standalone parameterless constructor.
+            var modelContent = new TypeProviderWriter(model).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Model"), modelContent);
+
+            // The serialization partial no longer carries the parameterless mocking constructor (avoids CS0111).
+            var serializationContent = new TypeProviderWriter(model.SerializationProviders.Single()).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Serialization"), serializationContent);
+        }
+
+        [Test]
         public void TestDynamicModelWithUnionAdditionalProps()
         {
             var inputModel = InputFactory.Model(
