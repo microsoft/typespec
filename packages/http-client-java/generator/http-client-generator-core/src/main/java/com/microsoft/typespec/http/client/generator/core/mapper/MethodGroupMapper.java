@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -166,7 +167,9 @@ public class MethodGroupMapper implements IMapper<OperationGroup, MethodGroupCli
                 .collect(Collectors.toList()));
         }
 
-        builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(methodGroup));
+        builder.apiMetadata(
+            new ApiMetadata.Builder().crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(methodGroup))
+                .build());
 
         return builder.build();
     }
