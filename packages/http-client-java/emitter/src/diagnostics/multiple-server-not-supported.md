@@ -17,7 +17,9 @@ Java client generation stops because the emitter cannot select a supported clien
 )
 @server("https://example.com", "Global")
 @server("http://localhost:3000", "Local")
-namespace Contoso;
+namespace Contoso {
+  op read(): string;
+}
 ```
 
 ## Diagnostic Message
@@ -39,5 +41,7 @@ Expose one server endpoint, or reduce the alternatives to a supported endpoint c
     region: string,
   }
 )
-namespace Contoso;
+namespace Contoso {
+  op read(): string;
+}
 ```
