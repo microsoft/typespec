@@ -1,12 +1,12 @@
 vi.resetModules();
 
-import { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
-import { TestHost } from "@typespec/compiler/testing";
+import type { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
+import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { getAllModelDecorators } from "../../src/lib/type-converter.js";
-import { InputNamespace } from "../../src/type/input-type.js";
+import type { InputNamespace } from "../../src/type/input-type.js";
 import {
   createCSharpSdkContext,
   createEmitterContext,

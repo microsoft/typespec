@@ -1,11 +1,12 @@
-import { expect, it, Mock, vitest } from "vitest";
-import {
+import type { Mock } from "vitest";
+import { expect, it, vitest } from "vitest";
+import type {
   CompilerOptions,
-  createTypeSpecLibrary,
   Diagnostic,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "../../src/index.js";
+import { createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { Tester } from "../tester.js";

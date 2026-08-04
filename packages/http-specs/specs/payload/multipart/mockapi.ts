@@ -1,11 +1,5 @@
-import {
-  MockRequest,
-  multipart,
-  passOnSuccess,
-  ScenarioMockApi,
-  ValidationError,
-  withServiceKeys,
-} from "@typespec/spec-api";
+import type { MockRequest, ScenarioMockApi } from "@typespec/spec-api";
+import { multipart, passOnSuccess, ValidationError, withServiceKeys } from "@typespec/spec-api";
 import { jpgFile, pngFile } from "../../helper.js";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};

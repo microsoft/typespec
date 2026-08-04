@@ -1,11 +1,12 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { stringify } from "yaml";
-import { TypeSpecRawConfig } from "../src/config/types.js";
-import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
-import { CompilerOptions } from "../src/core/options.js";
+import type { TypeSpecRawConfig } from "../src/config/types.js";
+import type { CompileCliArgs } from "../src/core/cli/actions/compile/args.js";
+import { getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
+import type { CompilerOptions } from "../src/core/options.js";
+import type { TestHost } from "../src/testing/index.js";
 import {
-  TestHost,
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,

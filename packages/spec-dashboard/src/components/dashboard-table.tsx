@@ -1,15 +1,16 @@
 import { mergeClasses, Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
-import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
+import type { ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import type { FunctionComponent } from "react";
+import { useCallback, useMemo, useState } from "react";
+import type { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { getCompletedRatio } from "../utils/coverage-utils.js";
 import style from "./dashboard-table.module.css";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 import { ScenarioStatusBox } from "./scenario-status.js";
 import { RowLabelCell } from "./tree-table/row-label-cell.js";
-import { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
+import type { ManifestTreeNode, TreeTableRow } from "./tree-table/types.js";
 
 export interface DashboardTableProps {
   coverageSummary: CoverageSummary;

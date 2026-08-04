@@ -1,5 +1,5 @@
 import { parseArgs } from "util";
-import { ConvertCliArgs } from "./actions/convert/args.js";
+import type { ConvertCliArgs } from "./actions/convert/args.js";
 import { convertAction } from "./actions/convert/convert-file.js";
 import { createCliHost } from "./utils.js";
 

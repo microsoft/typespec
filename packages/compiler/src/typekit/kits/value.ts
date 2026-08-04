@@ -14,7 +14,8 @@ import type {
   Type,
   Value,
 } from "../../core/types.js";
-import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
+import type { Diagnosable } from "../create-diagnosable.js";
+import { createDiagnosable } from "../create-diagnosable.js";
 import { defineKit } from "../define-kit.js";
 
 /**

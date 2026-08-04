@@ -1,22 +1,19 @@
 import pc from "picocolors";
-import { EmitterOptions } from "../config/types.js";
+import type { EmitterOptions } from "../config/types.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
 import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
-import { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
-import { PackageJson } from "../types/package-json.js";
+import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/types.js";
+import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
-import { Checker, createChecker } from "./checker.js";
+import type { Checker } from "./checker.js";
+import { createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
-import {
-  DiagnosticCodeResolver,
-  LibraryNameInfo,
-  createDiagnosticCodeResolver,
-  formatShortNameCandidates,
-} from "./diagnostic-code.js";
+import type { DiagnosticCodeResolver, LibraryNameInfo } from "./diagnostic-code.js";
+import { createDiagnosticCodeResolver, formatShortNameCandidates } from "./diagnostic-code.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -32,29 +29,29 @@ import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolveModuleHost } from "./module-host.js";
-import { NameResolver, createResolver } from "./name-resolver.js";
-import { Numeric } from "./numeric.js";
-import { CompilerOptions } from "./options.js";
+import type { NameResolver } from "./name-resolver.js";
+import { createResolver } from "./name-resolver.js";
+import type { Numeric } from "./numeric.js";
+import type { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createPerfReporter, perf } from "./perf.js";
+import type { SourceLoader, SourceResolution } from "./source-loader.js";
 import {
-  SourceLoader,
-  SourceResolution,
   createSourceLoader,
   loadJsFile,
   moduleResolutionErrorToDiagnostic,
 } from "./source-loader.js";
 import { createStateAccessors } from "./state-accessors.js";
-import { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import type { ComplexityStats, RuntimeStats, Stats } from "./stats.js";
+import type { SuppressionTracker } from "./suppression-tracking.js";
 import {
-  SuppressionTracker,
   createSuppressionTracker,
   findAmbiguousSuppressions,
   findDirectiveSuppressingOnNode,
   findDuplicateSuppressions,
 } from "./suppression-tracking.js";
-import {
+import type {
   CompilerHost,
   Diagnostic,
   EmitContext,
@@ -68,12 +65,10 @@ import {
   LogSink,
   ModuleLibraryMetadata,
   Namespace,
-  NoTarget,
   Node,
   PerfReporter,
   SourceFile,
   Sym,
-  SymbolFlags,
   SymbolTable,
   TemplateInstanceTarget,
   Tracer,
@@ -81,6 +76,7 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
+import { NoTarget, SymbolFlags } from "./types.js";
 
 /**
  * The current stage of the compilation pipeline.
