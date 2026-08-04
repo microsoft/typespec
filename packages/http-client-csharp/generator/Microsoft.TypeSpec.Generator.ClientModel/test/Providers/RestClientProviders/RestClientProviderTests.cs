@@ -723,6 +723,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNull(
                 protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
                 "Only public last-contract methods should be used for parameter name back compatibility.");
+
+            var restClientProvider = new MockClientProvider(client, clientProvider!);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: "Generated"), file.Content);
         }
 
         [Test]
