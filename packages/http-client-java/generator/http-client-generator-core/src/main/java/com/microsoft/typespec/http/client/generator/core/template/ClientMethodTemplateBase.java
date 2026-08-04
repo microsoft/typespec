@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -88,42 +89,22 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isAzureV1()) {
                 // special handling for paging method
                 if (clientMethod.getType().isPaging()) {
-                    String itemName = clientMethod.getMethodPageDetails().getItemName();
-                    // rawResponseType has properties: 'value' and 'nextLink'
-                    IType rawResponseType = clientMethod.getProxyMethod().getRawResponseBodyType();
-                    if (!(rawResponseType instanceof ClassType)) {
-                        throw new IllegalStateException(String.format(
-                            "clientMethod.getProxyMethod().getRawResponseBodyType() should be ClassType for paging method. rawResponseType = %s",
-                            rawResponseType.toString()));
+                    List<ModelPropertySegment> pageItemsPropertyReference
+                        = clientMethod.getMethodPageDetails().getPageItemsPropertyReference();
+                    IType valueListType = pageItemsPropertyReference.get(pageItemsPropertyReference.size() - 1)
+                        .getProperty()
+                        .getClientType();
+                    if (!(valueListType instanceof IterableType)) {
+                        throw new IllegalStateException(
+                            "Page items property must be List or Iterable. ResponseType = " + valueListType);
                     }
-                    ClientModel model = ClientModelUtil.getClientModel(((ClassType) rawResponseType).getName());
-                    Map<String, ClientModelProperty> properties = new LinkedHashMap<>();
-                    traverseProperties(model, properties);
-                    responseBodyType = properties.values()
-                        .stream()
-                        .filter(property -> property.getName().equals(itemName))
-                        .map(ClientModelProperty::getClientType)
-                        .map(valueListType -> {
-                            // value type is List<T>, we need to get the typeArguments
-                            if (!(valueListType instanceof IterableType)) {
-                                throw new IllegalStateException(
-                                    "Type of 'value' property must be List or Iterable, for paging method. ResponseType = "
-                                        + rawResponseType);
-                            }
-                            IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
-                            if (listTypeArgs.length == 0) {
-                                throw new IllegalStateException(
-                                    "List or Iterable type does not have template argument. ResponseType = "
-                                        + rawResponseType);
-                            }
-                            return listTypeArgs[0];
-                        })
-                        .findFirst()
-                        .orElse(null);
-                    if (responseBodyType == null) {
-                        throw new IllegalStateException(itemName
-                            + " not found in properties of rawResponseType. rawResponseType = " + rawResponseType);
+                    IType[] listTypeArgs = ((IterableType) valueListType).getTypeArguments();
+                    if (listTypeArgs.length == 0) {
+                        throw new IllegalStateException(
+                            "Page items List or Iterable does not have a template argument. ResponseType = "
+                                + valueListType);
                     }
+                    responseBodyType = listTypeArgs[0];
                 } else {
                     responseBodyType = clientMethod.getProxyMethod().getRawResponseBodyType();
                 }

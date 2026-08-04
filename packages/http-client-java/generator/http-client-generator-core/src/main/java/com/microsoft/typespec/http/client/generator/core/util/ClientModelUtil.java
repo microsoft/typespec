@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ApiMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -92,9 +93,12 @@ public class ClientModelUtil {
             // 1. ServiceClient has operations
             // 2. ServiceClient has sub clients
 
-            AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
-                .serviceClient(serviceClient)
-                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
+            AsyncSyncClient.Builder builder
+                = new AsyncSyncClient.Builder().packageName(packageName)
+                    .serviceClient(serviceClient)
+                    .apiMetadata(new ApiMetadata.Builder()
+                        .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client))
+                        .build());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -129,7 +133,7 @@ public class ClientModelUtil {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
                 .methodGroupClient(methodGroupClient)
-                .crossLanguageDefinitionId(methodGroupClient.getCrossLanguageDefinitionId());
+                .apiMetadata(methodGroupClient.getApiMetadata());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
