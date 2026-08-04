@@ -118,6 +118,8 @@ async function formatEmitter(check: boolean): Promise<boolean> {
   const args = check
     ? [
         "--check",
+        "--config",
+        "eng/scripts/ci/config/prettier-ci.json",
         "emitter/",
         "eng/scripts/",
         "*.json",
@@ -127,6 +129,8 @@ async function formatEmitter(check: boolean): Promise<boolean> {
       ]
     : [
         "--write",
+        "--config",
+        "eng/scripts/ci/config/prettier-ci.json",
         "emitter/",
         "eng/scripts/",
         "*.json",

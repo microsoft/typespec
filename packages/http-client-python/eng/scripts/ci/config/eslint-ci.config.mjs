@@ -1,7 +1,6 @@
 // @ts-check
 // Standalone eslint config for http-client-python package
 // This config is used in CI where monorepo dependencies may not be available
-import eslint from "@eslint/js";
 import { dirname } from "path";
 import tsEslint from "typescript-eslint";
 import { fileURLToPath } from "url";
@@ -12,7 +11,6 @@ export default [
   {
     ignores: ["**/dist/**/*", "**/node_modules/**/*"],
   },
-  eslint.configs.recommended,
   ...tsEslint.configs.recommended,
   {
     languageOptions: {
