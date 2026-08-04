@@ -155,11 +155,7 @@ function parseSampleConfig(
   }
 
   if (value.directory === true) {
-    validateKnownKeys(
-      value,
-      new Set(["directory", "label", "danger", "playground"]),
-      configPath,
-    );
+    validateKnownKeys(value, new Set(["directory", "label", "danger", "playground"]), configPath);
     validateOptionalString(value, "label", configPath);
     validateOptionalString(value, "danger", configPath);
     validateOptionalBoolean(value, "playground", configPath);
