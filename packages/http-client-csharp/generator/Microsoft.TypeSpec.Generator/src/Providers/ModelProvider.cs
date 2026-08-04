@@ -817,7 +817,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // generation makes a property required. Restore it and drop the generated mocking constructor
                 // so it is not a duplicate. An accessible parameterless constructor (generated or custom code)
                 // counts as already present; an inaccessible generated mocking constructor does not.
-                if (previousParameters.Count == 0)
+                if (!Type.IsStruct && previousParameters.Count == 0)
                 {
                     if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers))
                         && !CanonicalView.Constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers)))

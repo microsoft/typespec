@@ -246,6 +246,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public async Task BackCompat_StructParameterlessConstructorNotMovedFromSerialization()
+        {
+            // A struct always exposes a public parameterless constructor via its serialization (mocking)
+            // constructor, so the last contract's parameterless constructor is already present. It must not
+            // be moved onto the model partial, which would be pointless churn with no public API change.
+            var inputModel = InputFactory.Model(
+                "structModel",
+                modelAsStruct: true,
+                properties:
+                [
+                    InputFactory.Property("prop", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
+
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>().Single(t => t.Name == "StructModel");
+
+            model.ProcessTypeForBackCompatibility();
+
+            Assert.IsFalse(model.Constructors.Any(c => c.Signature.Parameters.Count == 0),
+                "Struct model must not gain a parameterless constructor on the model partial.");
+            Assert.IsTrue(model.SerializationProviders.Single().Constructors.Any(c => c.Signature.Parameters.Count == 0),
+                "Struct serialization partial must retain its parameterless constructor.");
+        }
+
+        [Test]
         public void TestDynamicModelWithUnionAdditionalProps()
         {
             var inputModel = InputFactory.Model(
