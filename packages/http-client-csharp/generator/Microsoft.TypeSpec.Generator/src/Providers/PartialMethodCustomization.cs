@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -155,6 +156,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return renamed;
+        }
+
+        /// <summary>
+        /// Renames the generator parameters in place using the customer's partial declaration
+        /// parameter names while preserving the existing parameter instances.
+        /// </summary>
+        /// <remarks>
+        /// Use this when a method body has already been constructed with the generator
+        /// parameters. Body expressions may hold cached <see cref="Expressions.VariableExpression"/>
+        /// instances from those parameters, so replacing the parameters with clones would update
+        /// the signature but leave the body referencing the old declarations.
+        /// </remarks>
+        public static IReadOnlyList<ParameterProvider> RenameParametersInPlace(
+            IReadOnlyList<ParameterProvider> generatorParameters,
+            IReadOnlyList<ParameterProvider> customParameters,
+            bool removeDefaults)
+        {
+            for (int i = 0; i < generatorParameters.Count && i < customParameters.Count; i++)
+            {
+                var generatedParameter = generatorParameters[i];
+                generatedParameter.Update(name: customParameters[i].Name);
+                if (removeDefaults)
+                {
+                    generatedParameter.DefaultValue = null;
+                }
+            }
+
+            return generatorParameters;
         }
 
         /// <summary>
