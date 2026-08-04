@@ -2,6 +2,7 @@ import type { Interface } from "@typespec/compiler";
 import {
   isStdNamespace,
   isTemplateDeclaration,
+  listServices,
   type Operation,
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
@@ -12,12 +13,16 @@ import { getCSharpIdentifier, NameCasingType } from "./utils/naming.js";
  * Collects all interfaces from the service namespace(s).
  * Also creates synthetic interfaces for namespace-level operations
  * (following the old emitter pattern: `${namespaceName}Operations`).
+ *
+ * Only collects from `@service`-decorated namespaces to avoid including interfaces
+ * from library namespaces (e.g. Azure.ResourceManager) that share the same interface
+ * names, which would cause duplicate class names with a `_2` suffix in the generated C#.
+ * Falls back to scanning all non-std namespaces when no `@service` is present (e.g. tests).
  */
 export function getServiceInterfaces(
   program: ReturnType<typeof useTsp>["$"]["program"],
 ): Interface[] {
   const interfaces: Interface[] = [];
-  const globalNs = program.getGlobalNamespaceType();
 
   function collectFromNamespace(ns: TspNamespace): void {
     // Collect explicit TypeSpec interfaces
@@ -61,9 +66,20 @@ export function getServiceInterfaces(
     }
   }
 
-  for (const ns of globalNs.namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
-    collectFromNamespace(ns);
+  const services = listServices(program);
+  if (services.length > 0) {
+    // Restrict to @service-decorated namespaces to avoid picking up interfaces from
+    // library namespaces (e.g. Azure.ResourceManager) that would cause duplicate names.
+    for (const service of services) {
+      collectFromNamespace(service.type);
+    }
+  } else {
+    // Fallback: no @service decorator – scan all non-std top-level namespaces as before.
+    const globalNs = program.getGlobalNamespaceType();
+    for (const ns of globalNs.namespaces.values()) {
+      if (isStdNamespace(ns)) continue;
+      collectFromNamespace(ns);
+    }
   }
   return interfaces;
 }

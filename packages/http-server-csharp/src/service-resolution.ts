@@ -2,6 +2,7 @@ import {
   getNamespaceFullName,
   isStdNamespace,
   isTemplateDeclaration,
+  listServices,
   type Enum,
   type Interface,
   type Model,
@@ -83,7 +84,7 @@ export function resolveServiceTypes(
   // not payload data, so they must not be emitted as C# model classes (aligns with
   // the OpenAPI3 emitter, which emits them under `components.securitySchemes`).
   const authModels = getAuthSchemeModels(program);
-  const models = getServiceModels($, globalNs, authModels);
+  const models = getServiceModels($, program, authModels);
 
   // Phase 6: Canonicalize all HTTP operations
   const canonicalOpsMap = canonicalizeAllInterfaces(canonicalizer, interfaces);
@@ -160,10 +161,20 @@ function canonicalizeAllInterfaces(
  * Retrieves all models from the program that should be emitted.
  * Includes namespace-level models AND models referenced by operations.
  *
+ * Only seeds the initial collection from `@service`-decorated namespaces to avoid
+ * picking up models from library namespaces (e.g. Azure.ResourceManager.CommonTypes)
+ * that share names with service models and would cause duplicate class names with a
+ * `_2` suffix.  Models that are transitively referenced by service operations are still
+ * discovered and emitted via discoverReferencedModels / discoverModelsInType regardless
+ * of which namespace they live in.
+ *
+ * Falls back to scanning all non-std namespaces when no `@service` is present.
+ *
  * @param authModels Models that back authentication schemes; these are excluded
  * from emission because they represent protocol metadata rather than payloads.
  */
-function getServiceModels($: Typekit, globalNs: TspNamespace, authModels: Set<Model>): Model[] {
+function getServiceModels($: Typekit, program: Program, authModels: Set<Model>): Model[] {
+  const globalNs = program.getGlobalNamespaceType();
   const models: Model[] = [];
   const seen = new Set<Model>();
 
@@ -176,30 +187,54 @@ function getServiceModels($: Typekit, globalNs: TspNamespace, authModels: Set<Mo
     }
   }
 
-  // Collect from namespaces
-  for (const model of globalNs.models.values()) {
-    addModel(model);
-  }
-  for (const ns of globalNs.namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
-    collectModelsFromNamespace($, ns, models, seen, authModels);
-  }
-
-  // Walk operations to discover referenced models (template instantiations, etc.)
-  const visited = new Set<Type>();
-  for (const ns of globalNs.namespaces.values()) {
-    if (isStdNamespace(ns)) continue;
-    discoverReferencedModels($, ns, addModel, visited);
-  }
-
-  // Walk all collected model properties to discover anonymous sub-models
-  const modelsSnapshot = [...models];
-  for (const model of modelsSnapshot) {
-    for (const prop of model.properties.values()) {
-      discoverModelsInType($, prop.type, addModel, visited);
+  const services = listServices(program);
+  if (services.length > 0) {
+    // Only include models defined in the service namespace. Models from other namespaces
+    // are not included unless they are transitively referenced by service operations.
+    for (const service of services) {
+      collectModelsFromNamespace($, service.type, models, seen, authModels);
     }
-    if (model.baseModel) {
-      discoverModelsInType($, model.baseModel, addModel, visited);
+
+    // Walk operations in service namespaces to discover referenced models.
+    const visited = new Set<Type>();
+    for (const service of services) {
+      discoverReferencedModels($, service.type, addModel, visited);
+    }
+
+    // Walk all collected model properties to discover anonymous sub-models.
+    const modelsSnapshot = [...models];
+    for (const model of modelsSnapshot) {
+      for (const prop of model.properties.values()) {
+        discoverModelsInType($, prop.type, addModel, visited);
+      }
+      if (model.baseModel) {
+        discoverModelsInType($, model.baseModel, addModel, visited);
+      }
+    }
+  } else {
+    // Fallback: no @service decorator – behave as before and scan all non-std namespaces.
+    for (const model of globalNs.models.values()) {
+      addModel(model);
+    }
+    for (const ns of globalNs.namespaces.values()) {
+      if (isStdNamespace(ns)) continue;
+      collectModelsFromNamespace($, ns, models, seen, authModels);
+    }
+
+    const visited = new Set<Type>();
+    for (const ns of globalNs.namespaces.values()) {
+      if (isStdNamespace(ns)) continue;
+      discoverReferencedModels($, ns, addModel, visited);
+    }
+
+    const modelsSnapshot = [...models];
+    for (const model of modelsSnapshot) {
+      for (const prop of model.properties.values()) {
+        discoverModelsInType($, prop.type, addModel, visited);
+      }
+      if (model.baseModel) {
+        discoverModelsInType($, model.baseModel, addModel, visited);
+      }
     }
   }
 
