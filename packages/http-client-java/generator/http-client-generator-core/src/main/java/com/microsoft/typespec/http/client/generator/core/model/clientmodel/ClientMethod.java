@@ -646,7 +646,7 @@ public class ClientMethod {
         protected OperationInstrumentationInfo instrumentationInfo;
         protected ClientMethod overloadedClientMethod;
 
-        public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
+        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.apiMetadata = apiMetadata.newBuilder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
             return this;
         }
