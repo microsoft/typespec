@@ -8,13 +8,8 @@ permissions:
 
 jobs:
   build:
-    name: "Build & Regenerate"
+    name: "Build & Regenerate (Linux)"
     runs-on: ubuntu-latest
-    if: |
-      !startsWith(github.head_ref, 'dependabot/') &&
-      !startsWith(github.head_ref, 'publish/') &&
-      !startsWith(github.head_ref, 'backmerge/') &&
-      !startsWith(github.head_ref, 'revert-')
     steps:
       - uses: actions/checkout@v7
 
@@ -203,8 +198,7 @@ jobs:
         working-directory: packages/http-client-python
 
   windows-test:
-    name: "Build & Test (Windows)"
-    needs: build
+    name: "Build & Regenerate && Test (Windows)"
     runs-on: windows-latest
     steps:
       - name: Enable Git long paths
@@ -218,20 +212,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Download generated artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: python-generated
-          path: .
-
       - name: Install repo dependencies
         run: pnpm install
 
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run install
+          npm run setup
           .\venv\Scripts\python.exe eng\scripts\setup\prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Regenerate
+        run: npm run regenerate
         working-directory: packages/http-client-python
 
       - name: Test
