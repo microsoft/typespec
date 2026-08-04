@@ -2214,6 +2214,9 @@ importers:
       '@typespec/events':
         specifier: workspace:^
         version: link:../events
+      '@typespec/graphql':
+        specifier: workspace:^
+        version: link:../graphql
       '@typespec/html-program-viewer':
         specifier: workspace:^
         version: link:../html-program-viewer
