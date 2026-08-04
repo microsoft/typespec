@@ -5,12 +5,12 @@ import { describe, expect, it } from "vitest";
 import { buildPlaygroundSamples } from "../src/build-playground-samples.js";
 
 describe("build playground samples", () => {
-  it("derives ordered samples, categories, emitters, and linter options", async () => {
+  it("derives categories, emitters, and linter options", async () => {
     await withTempDirectory(async (root) => {
       await writeFiles(root, {
-        "specs/http/sample-config.yaml": "directory: true\nlabel: HTTP\norder: 1\n",
+        "specs/http/sample-config.yaml": "directory: true\nlabel: HTTP\n",
         "specs/http/widgets/sample-config.yaml":
-          "title: Widgets\ndescription: A widget service.\norder: 1\n",
+          "title: Widgets\ndescription: A widget service.\n",
         "specs/http/widgets/main.tsp": "model Widget {}",
         "specs/http/base.yaml":
           'emit:\n  - "@typespec/openapi3"\nlinter:\n  extends:\n    - "@typespec/http/all"\n',
