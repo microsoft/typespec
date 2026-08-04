@@ -4,7 +4,7 @@ This diagnostic is issued when an Azure-flavored multipart operation would produ
 
 The convenience API is generated, but the protocol API is omitted for the operation.
 
-## ❌ Incorrect Usage
+## Example Usage
 
 ```typespec
 model UploadForm {
@@ -15,22 +15,16 @@ model UploadForm {
 op upload(@header contentType: "multipart/form-data", @multipartBody body: UploadForm): void;
 ```
 
-```yaml
-options:
-  "@typespec/http-client-java":
-    flavor: azure
-```
-
 ## Diagnostic Message
 
 ```text
 Operation 'upload' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.
 ```
 
-## ✅ How to Fix
+## How to Address
 
-Use the generated convenience API. If a protocol API is required, redesign the operation to use a supported non-multipart request body.
+No change is required. Use the generated convenience API for the multipart operation.
 
 ## Suppression
 
-The warning can be suppressed when omitting the protocol API is expected and the convenience API is sufficient.
+It is safe to ignore or suppress this notification when the generated convenience API is sufficient.
