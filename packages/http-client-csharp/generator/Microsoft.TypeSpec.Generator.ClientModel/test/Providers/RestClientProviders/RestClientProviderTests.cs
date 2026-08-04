@@ -7,8 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -695,6 +695,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNull(
                 protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
                 "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
+        }
+
+        [Test]
+        public async Task ParameterNamePreservedFromInternalLastContractMethod()
+        {
+            var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(name: "newParam");
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            // Preserving a previously-published parameter name only renames an existing parameter (it never
+            // adds members), so the last contract is respected regardless of the owning method's accessibility.
+            Assert.IsNotNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Parameter name should be restored from the previously-published name even on internal last-contract methods.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
+
+            var restClientProvider = new MockClientProvider(client, clientProvider!);
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(parameters: "Generated"), file.Content);
         }
 
         [Test]

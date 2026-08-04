@@ -233,7 +233,8 @@ namespace Microsoft.TypeSpec.Generator
             project = project
                 .AddMetadataReferences(metadataReferences)
                 .WithCompilationOptions(new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
+                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable)
+                    .WithMetadataImportOptions(MetadataImportOptions.All));
             return await project.GetCompilationAsync();
         }
 

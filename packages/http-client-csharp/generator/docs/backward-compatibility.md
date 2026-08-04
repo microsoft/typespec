@@ -16,6 +16,8 @@
     - [Explicit (Non-contiguous) Values Preserved](#scenario-explicit-non-contiguous-values-preserved)
     - [Removed Integer Enum Member Re-added](#scenario-removed-integer-enum-member-re-added)
     - [Baseline-Accepted Removal Honored](#scenario-baseline-accepted-removal-honored)
+  - [Extensible Enum Members](#extensible-enum-members)
+    - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
@@ -448,6 +450,53 @@ public enum SampleEnum
 
 - Suppressed members are matched by the declaring enum's fully-qualified name and the member name
 - This lets a library intentionally drop a previously shipped enum member once the removal is reviewed and recorded in the baseline
+
+### Extensible Enum Members
+
+Extensible enums (C# `readonly partial struct` types) preserve their previously shipped members by comparing the current spec against the last contract. The generator re-adds an extensible enum member that was dropped from the current spec, restoring it with its original wire value to avoid removing a previously shipped member.
+
+#### Scenario: Removed Extensible Enum Member Re-added
+
+**Description:** When an extensible enum member present in the last contract is dropped from the current spec, the generator restores it — as a public static property backed by its recovered `const` wire value — to keep the previously shipped API.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+Current TypeSpec removes `Running`. **Generated Result:** `Running` is re-added (appended after the current members) with its original wire value:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+**Key Points:**
+
+- Members that already exist in the current spec, are provided by custom code, or whose removal is accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) are not re-added
+- Restored members are appended after the current spec's members, preserving the current spec's order
 
 ### API Version Enum
 
