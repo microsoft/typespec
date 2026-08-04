@@ -655,7 +655,7 @@ Previous version exposed a parameterless constructor:
 ```csharp
 public partial class Widget
 {
-    public Widget()
+    protected Widget()
     {
     }
 
@@ -668,7 +668,7 @@ Current TypeSpec makes `name` required:
 ```csharp
 public partial class Widget
 {
-    public Widget(string name)
+    protected Widget(string name)
     {
         Name = name;
     }
@@ -680,7 +680,7 @@ public partial class Widget
 **Generated Compatibility Result:**
 
 ```csharp
-public Widget() : this(default)
+protected Widget() : this(default)
 {
 }
 ```
