@@ -2,7 +2,7 @@
 // These tests verify that the emitter correctly restricts collection to @service-decorated
 // namespaces and does not pick up unreachable types from non-service namespaces.
 
-import { TesterInstance } from "@typespec/compiler/testing";
+import type { TesterInstance } from "@typespec/compiler/testing";
 import assert from "assert";
 import { beforeEach, it } from "vitest";
 import { ApiTester, compileAndDiagnose } from "./test-host.js";
