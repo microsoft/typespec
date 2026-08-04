@@ -52,10 +52,26 @@ export async function resolveTypeSpecCli(
   }
 }
 
+let missingRuntimeDiagnosisReported = false;
+
+/**
+ * Whether the last {@link resolveTypeSpecServer} call already told the user, with
+ * specific guidance, that the compiler was found but no runtime is on PATH.
+ *
+ * That resolution still returns a `tsp` command as a last resort, so the spawn
+ * usually fails afterwards and the caller reports a generic "executable was not
+ * found". Since the compiler *was* found, that generic message contradicts the
+ * specific one; callers use this to keep it out of the notification area.
+ */
+export function wasMissingRuntimeDiagnosisReported(): boolean {
+  return missingRuntimeDiagnosisReported;
+}
+
 export async function resolveTypeSpecServer(
   activityId: string,
   context: ExtensionContext,
 ): Promise<Executable | undefined> {
+  missingRuntimeDiagnosisReported = false;
   const checkNodePromise = checkInstalledNode();
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
@@ -184,6 +200,7 @@ export async function resolveTypeSpecServer(
       [],
       { showPopup: true, showOutput: true },
     );
+    missingRuntimeDiagnosisReported = true;
     telemetryClient.logOperationDetailTelemetry(activityId, {
       compilerStartType: "standalone-tsp-cli-fallback",
       error: "Neither node nor tsp is available in PATH. Compiler found but cannot be started.",
