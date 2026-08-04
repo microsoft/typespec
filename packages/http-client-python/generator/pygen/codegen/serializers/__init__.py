@@ -32,6 +32,7 @@ from .request_builders_serializer import RequestBuildersSerializer
 from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
 from .test_serializer import TestSerializer, TestGeneralSerializer
+from .types_init_serializer import TypesInitSerializer
 from .types_serializer import TypesSerializer
 from .unions_serializer import UnionsSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
@@ -218,24 +219,19 @@ class JinjaSerializer(ReaderAndWriter):
                     enums=[] if is_typeddict_mode else client_namespace_type.enums,
                 )
 
-            # write types.py per namespace (alongside models/)
-            # Only generate types.py if at least one model/enum would be imported via types
+            # write types/ package per namespace (alongside models/)
+            # Only generate types if at least one model/enum would be imported via types
             # in operations (the model itself volunteers this via is_used_in_operations_via_types)
             has_types_models = any(
                 m.is_used_in_operations_via_types for m in client_namespace_type.models if m.base != "json"
             )
             has_types_enums = any(e.is_typeddict_mode for e in client_namespace_type.enums)
             if has_types_models or has_types_enums:
-                generation_dir = self.code_model.get_generation_dir(client_namespace)
-                self.write_file(
-                    generation_dir / Path("types.py"),
-                    TypesSerializer(
-                        code_model=self.code_model,
-                        env=env,
-                        client_namespace=client_namespace,
-                        models=client_namespace_type.models,
-                        enums=client_namespace_type.enums if is_typeddict_mode else None,
-                    ).serialize(),
+                self._serialize_and_write_types_folder(
+                    env=env,
+                    namespace=client_namespace,
+                    models=client_namespace_type.models,
+                    enums=client_namespace_type.enums if is_typeddict_mode else [],
                 )
 
             if not self.code_model.options["models-mode"]:
@@ -347,6 +343,32 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)
+
+    def _serialize_and_write_types_folder(
+        self, env: Environment, namespace: str, models: list[ModelType], enums: list[EnumType]
+    ) -> None:
+        generation_dir = self.code_model.get_generation_dir(namespace)
+        types_path = generation_dir / "types"
+        types_serializer = TypesSerializer(
+            code_model=self.code_model,
+            env=env,
+            client_namespace=namespace,
+            models=models,
+            enums=enums,
+        )
+        self.remove_file(generation_dir / Path("types.py"))
+        self.write_file(types_path / Path("_types.py"), types_serializer.serialize())
+        self.write_file(
+            types_path / Path("__init__.py"),
+            TypesInitSerializer(
+                code_model=self.code_model,
+                env=env,
+                models=types_serializer.typeddict_models,
+                discriminated_bases=types_serializer.discriminated_base_models,
+                enums=types_serializer.literal_enums,
+            ).serialize(),
+        )
+        self._keep_patch_file(types_path / Path("_patch.py"), env)
 
     def _serialize_and_write_rest_layer(self, env: Environment, namespace_path: Path) -> None:
         rest_path = namespace_path / Path(self.code_model.rest_layer_name)

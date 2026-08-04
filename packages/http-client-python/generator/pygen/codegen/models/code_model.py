@@ -113,6 +113,10 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def get_imported_namespace_for_model(imported_namespace: str) -> str:
         return imported_namespace + ".models"
 
+    @staticmethod
+    def get_imported_namespace_for_types(imported_namespace: str) -> str:
+        return imported_namespace + ".types"
+
     def get_imported_namespace_for_operation(self, imported_namespace: str, async_mode: bool = False) -> str:
         module_namespace = f".{self.operations_folder_name(imported_namespace)}"
         return self.get_imported_namespace_for_client(imported_namespace, async_mode) + module_namespace
