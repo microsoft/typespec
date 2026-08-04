@@ -125,7 +125,7 @@ public class ClientModel {
     /**
      * The cross language definition id for the model.
      */
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     // Set of non-final properties that are set on access.
     // This pattern is used as when the ClientModel is initialized the ModelMapper may not have mapped all models
@@ -201,7 +201,7 @@ public class ClientModel {
         this.stronglyTypedHeader = stronglyTypedHeader;
         this.implementationDetails = implementationDetails;
         this.usedInXml = usedInXml;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
         this.serializationFormats = serializationFormats;
     }
 
@@ -211,7 +211,11 @@ public class ClientModel {
      * @return the cross language definition id for the model.
      */
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**

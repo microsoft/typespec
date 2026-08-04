@@ -19,7 +19,7 @@ public class AsyncSyncClient {
     private final ServiceClient serviceClient;
 
     private final List<ConvenienceMethod> convenienceMethods;
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     // There is also reference from Client to ClientBuilder via "@ServiceClient(builder = ClientBuilder.class)"
     // clientBuilder can be null, if builder is disabled via "disable-client-builder"
@@ -32,11 +32,15 @@ public class AsyncSyncClient {
         this.methodGroupClient = methodGroupClient;
         this.serviceClient = serviceClient;
         this.convenienceMethods = convenienceMethods;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**

@@ -9,7 +9,7 @@ import java.util.List;
  * A container for the types associated for accessing a specific service.
  */
 public class Client {
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     /**
      * The name of this service client.
@@ -111,12 +111,16 @@ public class Client {
         this.liveTests = liveTests;
         this.unionModels = unionModels;
         this.clientMethodExamples = clientMethodExamples;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
         this.graalVmConfig = graalVmConfig;
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public final String getClientName() {

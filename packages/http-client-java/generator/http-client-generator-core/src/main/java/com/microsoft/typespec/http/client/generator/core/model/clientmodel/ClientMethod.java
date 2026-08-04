@@ -29,7 +29,7 @@ public class ClientMethod {
         "StatusCheckPollingStrategy", "SyncDefaultPollingStrategy", "SyncChainedPollingStrategy",
         "SyncOperationResourcePollingStrategy", "SyncLocationPollingStrategy", "SyncStatusCheckPollingStrategy");
 
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
     /**
      * The description of this ClientMethod.
      */
@@ -138,7 +138,7 @@ public class ClientMethod {
             .methodPollingDetails(methodPollingDetails)
             .methodDocumentation(externalDocumentation)
             .operationInstrumentationInfo(instrumentationInfo)
-            .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
+            .apiMetadata(apiMetadata)
             .hasWithContextOverload(hasWithContextOverload)
             .overloadedClientMethod(overloadedClientMethod);
     }
@@ -172,9 +172,9 @@ public class ClientMethod {
         String groupedParameterTypeName, MethodPageDetails methodPageDetails,
         ParameterTransformations parameterTransformations, JavaVisibility methodVisibility,
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
-        MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
-        String crossLanguageDefinitionId, boolean hasWithContextOverload,
-        OperationInstrumentationInfo instrumentationInfo, ClientMethod overloadedClientMethod) {
+        MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation, ApiMetadata apiMetadata,
+        boolean hasWithContextOverload, OperationInstrumentationInfo instrumentationInfo,
+        ClientMethod overloadedClientMethod) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -204,7 +204,7 @@ public class ClientMethod {
         this.methodPollingDetails = methodPollingDetails;
         this.externalDocumentation = externalDocumentation;
         this.methodVisibilityInWrapperClient = methodVisibilityInWrapperClient;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = apiMetadata;
         this.hasWithContextOverload = hasWithContextOverload;
         if (isPageStreamingType() && methodPageDetails != null) {
             this.parametersDeclaration = getMethodInputParameters().stream()
@@ -249,7 +249,11 @@ public class ClientMethod {
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public final String getDescription() {
@@ -636,14 +640,24 @@ public class ClientMethod {
         protected ImplementationDetails implementationDetails;
         protected MethodPollingDetails methodPollingDetails;
         protected ExternalDocumentation externalDocumentation;
-        protected String crossLanguageDefinitionId;
+        protected ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         protected boolean hasWithContextOverload;
         protected boolean hidePageableParams;
         protected OperationInstrumentationInfo instrumentationInfo;
         protected ClientMethod overloadedClientMethod;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+            this.apiMetadata = apiMetadata.newBuilder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
+            return this;
+        }
+
+        public Builder devMessage(String devMessage) {
+            this.apiMetadata = apiMetadata.newBuilder().devMessage(devMessage).build();
+            return this;
+        }
+
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -910,7 +924,7 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo,
+                externalDocumentation, apiMetadata, hasWithContextOverload, instrumentationInfo,
                 overloadedClientMethod);
         }
     }

@@ -58,7 +58,7 @@ public class MethodGroupClient {
 
     private final List<ServiceClientProperty> properties;
 
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     /**
      * Create a new MethodGroupClient with the provided properties.
@@ -91,7 +91,7 @@ public class MethodGroupClient {
             ? classBaseName
             : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className);
         this.properties = properties;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
     }
 
     public final String getPackage() {
@@ -143,7 +143,11 @@ public class MethodGroupClient {
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**

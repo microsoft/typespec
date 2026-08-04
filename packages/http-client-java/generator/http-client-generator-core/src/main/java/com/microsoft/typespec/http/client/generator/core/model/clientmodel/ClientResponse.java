@@ -12,7 +12,7 @@ public final class ClientResponse {
     private String description;
     private IType headersType;
     private IType bodyType;
-    private String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
 
     private ClientResponse(String name, String packageKeyword, String description, IType headersType, IType bodyType,
         String crossLanguageDefinitionId) {
@@ -21,7 +21,7 @@ public final class ClientResponse {
         this.description = description;
         this.headersType = headersType;
         this.bodyType = bodyType;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
     }
 
     public String getName() {
@@ -45,7 +45,11 @@ public final class ClientResponse {
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public static class Builder {

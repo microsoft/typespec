@@ -34,7 +34,7 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
 
     private final ImplementationDetails implementationDetails;
 
-    private String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
     private final String fromMethodName;
     private final String toMethodName;
 
@@ -58,13 +58,17 @@ public class EnumType implements IType, ConvertToJsonTypeTrait, ConvertFromJsonT
         this.values = values;
         this.elementType = elementType;
         this.implementationDetails = implementationDetails;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
         this.fromMethodName = fromMethodName;
         this.toMethodName = toMethodName;
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     public final String getName() {

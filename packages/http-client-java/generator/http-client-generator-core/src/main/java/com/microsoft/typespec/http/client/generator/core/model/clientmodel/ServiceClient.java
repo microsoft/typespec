@@ -12,7 +12,7 @@ import java.util.Set;
  * The details of a ServiceClient.
  */
 public class ServiceClient {
-    private final String crossLanguageDefinitionId;
+    private final ApiMetadata apiMetadata;
     /**
      * The package that this service client belongs to.
      */
@@ -132,7 +132,7 @@ public class ServiceClient {
         this.baseUrl = baseUrl;
         this.pipelinePolicyDetails = pipelinePolicyDetails;
         this.clientAccessorMethods = clientAccessorMethods;
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
     }
 
     public final String getPackage() {
@@ -275,7 +275,11 @@ public class ServiceClient {
     }
 
     public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+        return apiMetadata.getCrossLanguageDefinitionId();
+    }
+
+    public ApiMetadata getApiMetadata() {
+        return apiMetadata;
     }
 
     /**

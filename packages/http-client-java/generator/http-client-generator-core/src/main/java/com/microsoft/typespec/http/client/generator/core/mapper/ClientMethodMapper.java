@@ -287,9 +287,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
         if (operation.getLanguage().getJava() != null
             && !CoreUtils.isNullOrEmpty(operation.getLanguage().getJava().getComment())) {
-            // API comment.
-            builder.implementationDetails(
-                new ImplementationDetails.Builder().comment(operation.getLanguage().getJava().getComment()).build());
+            builder.devMessage(operation.getLanguage().getJava().getComment());
         }
 
         if (operation.getExternalDocs() != null) {
