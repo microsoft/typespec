@@ -320,7 +320,7 @@ export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<str
     {
       "package-name": "typetest-model-usage-typeddictonly",
       namespace: "typetest.model.usage.typeddictonly",
-      "models-mode": "typeddict",
+      "models-mode": "none",
     },
   ],
   "type/model/visibility": [
