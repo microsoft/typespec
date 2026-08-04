@@ -698,7 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
-        public async Task ParameterNameNotPreservedFromInternalLastContractMethod()
+        public async Task ParameterNamePreservedFromInternalLastContractMethod()
         {
             var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
             queryParam.Update(name: "newParam");
@@ -717,12 +717,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
 
             var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
 
+            // Preserving a previously-published parameter name only renames an existing parameter (it never
+            // adds members), so the last contract is respected regardless of the owning method's accessibility.
             Assert.IsNotNull(
-                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
-                "Parameter name should not be restored from internal last-contract methods.");
-            Assert.IsNull(
                 protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
-                "Only public last-contract methods should be used for parameter name back compatibility.");
+                "Parameter name should be restored from the previously-published name even on internal last-contract methods.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
 
             var restClientProvider = new MockClientProvider(client, clientProvider!);
             var writer = new TypeProviderWriter(restClientProvider);

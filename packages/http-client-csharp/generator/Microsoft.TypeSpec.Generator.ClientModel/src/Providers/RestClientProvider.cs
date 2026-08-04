@@ -1121,11 +1121,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // the current service method (allowing for sync/async pairing) so that a common
             // parameter name (e.g. "id") on multiple methods can't cross-match.
             var lastContractMethods = backCompatProvider.LastContractView?.Methods;
-            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods?.Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
-            if (scopedMethods != null && serviceMethod != null)
+            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods;
+            if (lastContractMethods != null && serviceMethod != null)
             {
                 var serviceMethodName = serviceMethod.Name;
-                scopedMethods = scopedMethods.Where(m =>
+                scopedMethods = lastContractMethods.Where(m =>
                     string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
             }

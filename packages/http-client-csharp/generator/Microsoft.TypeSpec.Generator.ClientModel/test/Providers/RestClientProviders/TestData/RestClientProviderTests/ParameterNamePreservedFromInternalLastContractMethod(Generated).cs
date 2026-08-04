@@ -8,11 +8,11 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetSomethingRequest(string newParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetSomethingRequest(string oldParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
-            uri.AppendQuery("oldParam", newParam, true);
+            uri.AppendQuery("oldParam", oldParam, true);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
