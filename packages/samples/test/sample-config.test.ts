@@ -6,18 +6,18 @@ import { describe, expect, it } from "vitest";
 import { loadSampleCatalog } from "../src/sample-config.js";
 
 describe("sample config", () => {
-  it("loads the canonical playground samples in configured order", async () => {
+  it("loads the canonical playground samples in path order", async () => {
     const packageRoot = await findTestPackageRoot(import.meta.url);
     const catalog = await loadSampleCatalog(resolve(packageRoot, "specs"));
 
     expect(catalog.samples.filter((x) => x.playground).map((x) => x.config.title)).toEqual([
+      "GraphQL",
+      "JSON Schema",
+      "Protobuf kiosk",
       "HTTP service",
       "REST framework",
       "API versioning",
       "Discriminated unions",
-      "Protobuf kiosk",
-      "JSON Schema",
-      "GraphQL",
     ]);
   });
 

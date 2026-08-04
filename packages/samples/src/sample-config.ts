@@ -8,7 +8,6 @@ export interface SampleConfig {
   description: string;
   llmstxt?: boolean;
   danger?: string;
-  order?: number;
   playground?: boolean;
 }
 
@@ -16,14 +15,12 @@ export interface SampleDirectoryConfig {
   directory: true;
   label?: string;
   danger?: string;
-  order?: number;
   playground?: boolean;
 }
 
 export interface SampleCategory {
   id: string;
   label: string;
-  order?: number;
 }
 
 export interface SampleEntry {
@@ -100,7 +97,6 @@ export async function loadSampleCatalog(specsDir: string): Promise<SampleCatalog
         ? {
             id: categoryConfig.id,
             label: categoryConfig.config.label ?? formatLabel(categoryConfig.id.split("/").at(-1)!),
-            order: categoryConfig.config.order,
           }
         : undefined,
       playground:
@@ -119,13 +115,7 @@ export async function loadSampleCatalog(specsDir: string): Promise<SampleCatalog
     }
   }
 
-  samples.sort(
-    (a, b) =>
-      (a.category?.order ?? Number.POSITIVE_INFINITY) -
-        (b.category?.order ?? Number.POSITIVE_INFINITY) ||
-      (a.config.order ?? Number.POSITIVE_INFINITY) - (b.config.order ?? Number.POSITIVE_INFINITY) ||
-      a.id.localeCompare(b.id),
-  );
+  samples.sort((a, b) => a.id.localeCompare(b.id));
 
   return { samples, directories };
 
@@ -167,19 +157,18 @@ function parseSampleConfig(
   if (value.directory === true) {
     validateKnownKeys(
       value,
-      new Set(["directory", "label", "danger", "order", "playground"]),
+      new Set(["directory", "label", "danger", "playground"]),
       configPath,
     );
     validateOptionalString(value, "label", configPath);
     validateOptionalString(value, "danger", configPath);
-    validateOptionalNumber(value, "order", configPath);
     validateOptionalBoolean(value, "playground", configPath);
     return value as unknown as SampleDirectoryConfig;
   }
 
   validateKnownKeys(
     value,
-    new Set(["directory", "title", "description", "llmstxt", "danger", "order", "playground"]),
+    new Set(["directory", "title", "description", "llmstxt", "danger", "playground"]),
     configPath,
   );
   if (value.directory !== undefined && value.directory !== false) {
@@ -189,7 +178,6 @@ function parseSampleConfig(
   validateRequiredString(value, "description", configPath);
   validateOptionalBoolean(value, "llmstxt", configPath);
   validateOptionalString(value, "danger", configPath);
-  validateOptionalNumber(value, "order", configPath);
   validateOptionalBoolean(value, "playground", configPath);
   return value as unknown as SampleConfig;
 }
@@ -264,16 +252,6 @@ function validateOptionalString(
 ): void {
   if (value[key] !== undefined && typeof value[key] !== "string") {
     throw new Error(`Sample config at ${configPath} has invalid "${key}"; expected a string.`);
-  }
-}
-
-function validateOptionalNumber(
-  value: Record<string, unknown>,
-  key: string,
-  configPath: string,
-): void {
-  if (value[key] !== undefined && typeof value[key] !== "number") {
-    throw new Error(`Sample config at ${configPath} has invalid "${key}"; expected a number.`);
   }
 }
 
