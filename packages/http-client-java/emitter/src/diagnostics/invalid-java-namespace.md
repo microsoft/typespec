@@ -2,7 +2,7 @@ This diagnostic is issued when a generated Java package segment is a reserved Ja
 
 ## Impact
 
-The emitter changes the package segment to a legal Java identifier, so the generated package differs from the requested namespace.
+The emitter appends `namespace` to the reserved package segment, so the generated package differs from the requested namespace.
 
 ## ❌ Incorrect Usage
 
@@ -16,7 +16,7 @@ The derived Java namespace contains the reserved keyword `public`.
 ## Diagnostic Message
 
 ```text
-Namespace 'contoso.public' contains reserved Java keywords, replaced it with 'contoso.public_'.
+Namespace 'contoso.public' contains reserved Java keywords, replaced it with 'contoso.publicnamespace'.
 ```
 
 ## ✅ How to Fix
@@ -30,4 +30,4 @@ namespace Contoso.PublicApi;
 
 ## Suppression
 
-Suppress the warning only when the escaped package name is intentionally accepted.
+Suppress the warning only when the adjusted package name is intentionally accepted.
