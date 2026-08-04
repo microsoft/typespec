@@ -91,7 +91,7 @@ public class Client {
         List<ServiceClient> serviceClients, ModuleInfo moduleInfo, List<AsyncSyncClient> syncClients,
         List<AsyncSyncClient> asyncClients, List<ClientBuilder> clientBuilders, List<ProtocolExample> protocolExamples,
         List<LiveTests> liveTests, List<UnionModel> unionModels, List<ClientMethodExample> clientMethodExamples,
-        String crossLanguageDefinitionId, GraalVmConfig graalVmConfig) {
+        ApiMetadata apiMetadata, GraalVmConfig graalVmConfig) {
         this.clientName = clientName;
         this.clientDescription = clientDescription;
         this.enums = enums;
@@ -111,12 +111,8 @@ public class Client {
         this.liveTests = liveTests;
         this.unionModels = unionModels;
         this.clientMethodExamples = clientMethodExamples;
-        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
+        this.apiMetadata = apiMetadata;
         this.graalVmConfig = graalVmConfig;
-    }
-
-    public String getCrossLanguageDefinitionId() {
-        return apiMetadata.getCrossLanguageDefinitionId();
     }
 
     public ApiMetadata getApiMetadata() {
@@ -231,10 +227,10 @@ public class Client {
         private List<UnionModel> unionModels = List.of();
         private List<ClientMethodExample> clientMethodExamples = List.of();
         private GraalVmConfig graalVmConfig;
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -447,8 +443,8 @@ public class Client {
             }
             return new Client(clientName, clientDescription, enums, exceptions, xmlSequenceWrappers, responseModels,
                 models, packageInfos, manager, serviceClient, serviceClients, moduleInfo, syncClients, asyncClients,
-                clientBuilders, protocolExamples, liveTests, unionModels, clientMethodExamples,
-                crossLanguageDefinitionId, graalVmConfig);
+                clientBuilders, protocolExamples, liveTests, unionModels, clientMethodExamples, apiMetadata,
+                graalVmConfig);
         }
     }
 }

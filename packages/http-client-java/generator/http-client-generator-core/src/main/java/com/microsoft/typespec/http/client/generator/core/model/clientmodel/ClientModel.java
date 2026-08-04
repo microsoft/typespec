@@ -170,7 +170,7 @@ public class ClientModel {
      * @param stronglyTypedHeader Whether this model is a strongly-typed HTTP headers class.
      * @param implementationDetails The implementation details for the model.
      * @param usedInXml Whether the model is used in XML serialization.
-     * @param crossLanguageDefinitionId The cross language definition id for the model.
+     * @param apiMetadata The API metadata for the model.
      */
     protected ClientModel(String packageKeyword, String name, List<String> imports, String description,
         boolean isPolymorphic, ClientModelProperty polymorphicDiscriminator, String polymorphicDiscriminatorName,
@@ -178,7 +178,7 @@ public class ClientModel {
         String xmlName, String xmlNamespace, List<ClientModelProperty> properties,
         List<ClientModelPropertyReference> propertyReferences, IType modelType, boolean stronglyTypedHeader,
         ImplementationDetails implementationDetails, boolean usedInXml, Set<String> serializationFormats,
-        String crossLanguageDefinitionId) {
+        ApiMetadata apiMetadata) {
         this.packageName = packageKeyword;
         this.name = name;
         this.fullName = packageName + "." + name;
@@ -201,7 +201,7 @@ public class ClientModel {
         this.stronglyTypedHeader = stronglyTypedHeader;
         this.implementationDetails = implementationDetails;
         this.usedInXml = usedInXml;
-        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
+        this.apiMetadata = apiMetadata;
         this.serializationFormats = serializationFormats;
     }
 
@@ -210,10 +210,6 @@ public class ClientModel {
      *
      * @return the cross language definition id for the model.
      */
-    public String getCrossLanguageDefinitionId() {
-        return apiMetadata.getCrossLanguageDefinitionId();
-    }
-
     public ApiMetadata getApiMetadata() {
         return apiMetadata;
     }
@@ -646,7 +642,7 @@ public class ClientModel {
         private boolean stronglyTypedHeader;
         private ImplementationDetails implementationDetails;
         private boolean usedInXml;
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
         private Set<String> serializationFormats = Set.of();
 
         /**
@@ -853,13 +849,13 @@ public class ClientModel {
         }
 
         /**
-         * Sets the cross language definition id for the model.
+         * Sets the API metadata for the model.
          *
-         * @param crossLanguageDefinitionId the cross language definition id for the model.
+         * @param apiMetadata the API metadata for the model.
          * @return the Builder itself
          */
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -883,7 +879,7 @@ public class ClientModel {
             return new ClientModel(packageName, name, imports, description, isPolymorphic, polymorphicDiscriminator,
                 polymorphicDiscriminatorName, serializedName, needsFlatten, parentModelName, derivedModels, xmlName,
                 xmlNamespace, properties, propertyReferences, modelType, stronglyTypedHeader, implementationDetails,
-                usedInXml, serializationFormats, crossLanguageDefinitionId);
+                usedInXml, serializationFormats, apiMetadata);
         }
     }
 }

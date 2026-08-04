@@ -138,8 +138,7 @@ public class ClientMethod {
             .methodPollingDetails(methodPollingDetails)
             .methodDocumentation(externalDocumentation)
             .operationInstrumentationInfo(instrumentationInfo)
-            .crossLanguageDefinitionId(apiMetadata.getCrossLanguageDefinitionId())
-            .devMessage(apiMetadata.getDevMessage())
+            .apiMetadata(apiMetadata)
             .hasWithContextOverload(hasWithContextOverload)
             .overloadedClientMethod(overloadedClientMethod);
     }
@@ -247,10 +246,6 @@ public class ClientMethod {
         return Objects.hash(returnValue.getType(), name, getParametersDeclaration(), onlyRequiredParameters, type,
             requiredNullableParameterExpressions, isGroupedParameterRequired, groupedParameterTypeName,
             parameterTransformations, methodVisibility);
-    }
-
-    public String getCrossLanguageDefinitionId() {
-        return apiMetadata.getCrossLanguageDefinitionId();
     }
 
     public ApiMetadata getApiMetadata() {
@@ -647,13 +642,8 @@ public class ClientMethod {
         protected OperationInstrumentationInfo instrumentationInfo;
         protected ClientMethod overloadedClientMethod;
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.apiMetadata = apiMetadata.newBuilder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
-            return this;
-        }
-
-        public Builder devMessage(String devMessage) {
-            this.apiMetadata = apiMetadata.newBuilder().devMessage(devMessage).build();
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 

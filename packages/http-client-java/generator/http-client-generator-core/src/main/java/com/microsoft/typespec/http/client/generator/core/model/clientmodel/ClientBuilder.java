@@ -25,13 +25,13 @@ public class ClientBuilder {
     private final ApiMetadata apiMetadata;
 
     public ClientBuilder(String packageName, String className, ServiceClient serviceClient,
-        List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients, String crossLanguageDefinitionId) {
+        List<AsyncSyncClient> syncClients, List<AsyncSyncClient> asyncClients, ApiMetadata apiMetadata) {
         this.packageName = Objects.requireNonNull(packageName);
         this.className = Objects.requireNonNull(className);
         this.serviceClient = Objects.requireNonNull(serviceClient);
         this.syncClients = Objects.requireNonNull(syncClients);
         this.asyncClients = Objects.requireNonNull(asyncClients);
-        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
+        this.apiMetadata = apiMetadata;
     }
 
     public String getPackageName() {
@@ -78,10 +78,6 @@ public class ClientBuilder {
 
     public List<ClientBuilderTrait> getBuilderTraits() {
         return this.builderTraits;
-    }
-
-    public String getCrossLanguageDefinitionId() {
-        return apiMetadata.getCrossLanguageDefinitionId();
     }
 
     public ApiMetadata getApiMetadata() {

@@ -26,17 +26,13 @@ public class AsyncSyncClient {
     private ClientBuilder clientBuilder;
 
     private AsyncSyncClient(String packageName, String className, MethodGroupClient methodGroupClient,
-        ServiceClient serviceClient, List<ConvenienceMethod> convenienceMethods, String crossLanguageDefinitionId) {
+        ServiceClient serviceClient, List<ConvenienceMethod> convenienceMethods, ApiMetadata apiMetadata) {
         this.packageName = packageName;
         this.className = className;
         this.methodGroupClient = methodGroupClient;
         this.serviceClient = serviceClient;
         this.convenienceMethods = convenienceMethods;
-        this.apiMetadata = new ApiMetadata.Builder().crossLanguageDefinitionId(crossLanguageDefinitionId).build();
-    }
-
-    public String getCrossLanguageDefinitionId() {
-        return apiMetadata.getCrossLanguageDefinitionId();
+        this.apiMetadata = apiMetadata;
     }
 
     public ApiMetadata getApiMetadata() {
@@ -129,7 +125,7 @@ public class AsyncSyncClient {
         private ServiceClient serviceClient;
 
         private List<ConvenienceMethod> convenienceMethods = List.of();
-        private String crossLanguageDefinitionId;
+        private ApiMetadata apiMetadata = new ApiMetadata.Builder().build();
 
         /**
          * Sets the class name.
@@ -186,8 +182,8 @@ public class AsyncSyncClient {
             return this;
         }
 
-        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
-            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+        public Builder apiMetadata(ApiMetadata apiMetadata) {
+            this.apiMetadata = apiMetadata;
             return this;
         }
 
@@ -198,7 +194,7 @@ public class AsyncSyncClient {
          */
         public AsyncSyncClient build() {
             return new AsyncSyncClient(packageName, className, methodGroupClient, serviceClient, convenienceMethods,
-                crossLanguageDefinitionId);
+                apiMetadata);
         }
     }
 }

@@ -36,8 +36,9 @@ public class ApiMetadataTests {
             .description("Gets a widget.")
             .parameters(List.of())
             .returnValue(new ReturnValue("the widget", ClassType.STRING))
-            .crossLanguageDefinitionId("Example.Widget.get")
-            .devMessage("Convenience API is not generated.")
+            .apiMetadata(new ApiMetadata.Builder().crossLanguageDefinitionId("Example.Widget.get")
+                .devMessage("Convenience API is not generated.")
+                .build())
             .build();
 
         Assertions.assertEquals("Example.Widget.get", method.getApiMetadata().getCrossLanguageDefinitionId());
