@@ -9,8 +9,7 @@ describe("build playground samples", () => {
     await withTempDirectory(async (root) => {
       await writeFiles(root, {
         "specs/http/sample-config.yaml": "directory: true\nlabel: HTTP\n",
-        "specs/http/widgets/sample-config.yaml":
-          "title: Widgets\ndescription: A widget service.\n",
+        "specs/http/widgets/sample-config.yaml": "title: Widgets\ndescription: A widget service.\n",
         "specs/http/widgets/main.tsp": "model Widget {}",
         "specs/http/base.yaml":
           'emit:\n  - "@typespec/openapi3"\nlinter:\n  extends:\n    - "@typespec/http/all"\n',
