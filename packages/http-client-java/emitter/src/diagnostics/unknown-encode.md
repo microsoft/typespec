@@ -28,4 +28,4 @@ scalar CustomDateTime extends utcDateTime;
 
 ## Suppression
 
-Do not suppress this warning unless the fallback Java representation and wire format have been verified.
+Suppress this warning only when the fallback Java representation and wire format have been verified, or when the generated Java library will be customized to implement the intended encoding.
