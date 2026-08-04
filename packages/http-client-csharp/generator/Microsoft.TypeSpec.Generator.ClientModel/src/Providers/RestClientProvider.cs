@@ -1114,38 +1114,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : null;
         }
 
-        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider, InputServiceMethod? serviceMethod = null)
+        private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider, bool preserveFromLastContract, InputServiceMethod? serviceMethod = null)
         {
-            // Look up the parameter's original (spec) name in the previous contract.
-            // When a service method is supplied, scope the search to methods whose name matches
-            // the current service method (allowing for sync/async pairing) so that a common
-            // parameter name (e.g. "id") on multiple methods can't cross-match.
-            var lastContractMethods = backCompatProvider.LastContractView?.Methods;
-            IEnumerable<MethodProvider>? scopedMethods = lastContractMethods?.Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
-            if (scopedMethods != null && serviceMethod != null)
+            if (preserveFromLastContract)
             {
-                var serviceMethodName = serviceMethod.Name;
-                scopedMethods = scopedMethods.Where(m =>
-                    string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Check if the original wire name exists in LastContractView for backward compatibility.
-            var existingParam = scopedMethods
-                ?.SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
-                ?.Name;
-
-            if (existingParam != null)
-            {
-                // Preserve the exact name (including casing) from the previous contract for backward compatibility
-                if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
+                // Look up the parameter's original (spec) name in the previous contract.
+                // When a service method is supplied, scope the search to methods whose name matches
+                // the current service method (allowing for sync/async pairing) so that a common
+                // parameter name (e.g. "id") on multiple methods can't cross-match.
+                var lastContractMethods = backCompatProvider.LastContractView?.Methods;
+                IEnumerable<MethodProvider>? scopedMethods = lastContractMethods?.Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
+                if (scopedMethods != null && serviceMethod != null)
                 {
-                    CodeModelGenerator.Instance.Emitter.Debug(
-                        $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').",
-                        BackCompatibilityChangeCategory.ParameterNamePreserved);
+                    var serviceMethodName = serviceMethod.Name;
+                    scopedMethods = scopedMethods.Where(m =>
+                        string.Equals(m.Signature.Name, serviceMethodName, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(m.Signature.Name, serviceMethodName + "Async", StringComparison.OrdinalIgnoreCase));
                 }
-                proposedName = existingParam;
+
+                // Check if the original wire name exists in LastContractView for backward compatibility.
+                var existingParam = scopedMethods
+                    ?.SelectMany(method => method.Signature.Parameters)
+                    .FirstOrDefault(p => string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))
+                    ?.Name;
+
+                if (existingParam != null)
+                {
+                    // Preserve the exact name (including casing) from the previous contract for backward compatibility
+                    if (!string.Equals(proposedName, existingParam, StringComparison.Ordinal))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Preserved parameter name '{existingParam}' on '{backCompatProvider.Name}' from last contract (instead of '{proposedName}').",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
+                    }
+                    proposedName = existingParam;
+                }
             }
 
             // Use the updated name
@@ -1207,6 +1210,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
+        private static bool ShouldPreserveParameterNamesFromLastContract(InputServiceMethod serviceMethod, ScmMethodKind methodType, ClientProvider client)
+        {
+            if (serviceMethod.Accessibility != "public" ||
+                !client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal) ||
+                client.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private))
+            {
+                return false;
+            }
+
+            return methodType switch
+            {
+                ScmMethodKind.Protocol => serviceMethod.Operation.GenerateProtocolMethod,
+                ScmMethodKind.Convenience => serviceMethod.Operation.GenerateConvenienceMethod && serviceMethod.Parameters.All(p =>
+                    ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(p.Type)?.IsPublic == true),
+                _ => false
+            };
+        }
+
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
@@ -1225,6 +1247,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
 
             var pageSizeParameterName = GetPageSizeParameterName(serviceMethod as InputPagingServiceMethod);
+            var preserveParameterNamesFromLastContract = ShouldPreserveParameterNamesFromLastContract(serviceMethod, methodType, client);
 
             ModelProvider? spreadSource = null;
             if (methodType == ScmMethodKind.Convenience)
@@ -1277,7 +1300,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
                     if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
-                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, serviceMethod);
+                        UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, preserveParameterNamesFromLastContract, serviceMethod);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
@@ -1288,7 +1311,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             : pageSizeParameterName;
                         // For page size parameters, normalize badly-cased "maxpagesize" variants to proper camelCase, but always
                         // respect backcompat.
-                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client.BackCompatProvider, serviceMethod);
+                        UpdateParameterNameWithBackCompat(inputParam, updatedPageSizeParameterName, client.BackCompatProvider, preserveParameterNamesFromLastContract, serviceMethod);
                     }
                 }
 
@@ -1297,7 +1320,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generalizes back-compat name preservation beyond the paging-specific renames
                 // above so that any rename emitted by the generator falls back to the prior name
                 // when one was already published.
-                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
+                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, preserveParameterNamesFromLastContract, serviceMethod);
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)

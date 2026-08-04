@@ -7,8 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -695,6 +695,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.IsNull(
                 protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
                 "When 'oldParam' is preserved, the renamed 'newParam' must not appear.");
+        }
+
+        [Test]
+        public async Task ParameterNameNotPreservedForInternalProtocolMethod()
+        {
+            var queryParam = InputFactory.QueryParameter("oldParam", InputPrimitiveType.String, isRequired: true);
+            queryParam.Update(name: "newParam");
+
+            var operation = InputFactory.Operation("GetSomething", generateProtocolMethod: false, parameters: [queryParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: nameof(ParameterNamePreservedFromLastContractView)));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var protocolParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, clientProvider!);
+
+            Assert.IsNotNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "Internal protocol parameters should keep the current generated name.");
+            Assert.IsNull(
+                protocolParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Parameter names from the last contract are only restored for public API methods.");
+        }
+
+        [Test]
+        public async Task ParameterNameNotPreservedForConvenienceMethodWithInternalParameterType()
+        {
+            var internalModel = InputFactory.Model("InternalModel", access: "internal", usage: InputModelTypeUsage.Input);
+            var bodyParam = InputFactory.BodyParameter("oldParam", internalModel, isRequired: true);
+            var methodParam = InputFactory.MethodParameter("oldParam", internalModel, isRequired: true, location: InputRequestLocation.Body);
+            methodParam.Update(name: "newParam");
+
+            var operation = InputFactory.Operation("GetSomething", parameters: [bodyParam]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSomething", operation, parameters: [methodParam]);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                inputModels: () => [internalModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: nameof(ParameterNamePreservedFromLastContractView)));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methodParams = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, clientProvider!);
+
+            Assert.IsNotNull(
+                methodParams.FirstOrDefault(p => string.Equals(p.Name, "newParam", StringComparison.Ordinal)),
+                "Convenience parameters on internal methods should keep the current generated name.");
+            Assert.IsNull(
+                methodParams.FirstOrDefault(p => string.Equals(p.Name, "oldParam", StringComparison.Ordinal)),
+                "Parameter names from the last contract are only restored for public API methods.");
         }
 
         [Test]
