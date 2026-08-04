@@ -19,6 +19,7 @@
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
+    - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
@@ -588,6 +589,59 @@ public abstract partial class SearchIndexerDataIdentity
 - The constructor must have matching parameters (same count, types, and names)
 - The modifier is changed from `private protected` to `public`
 - No additional constructors are generated; only the accessibility is adjusted
+
+#### Scenario: Required Property Becomes Optional
+
+**Description:** When a required model property becomes optional, the current initialization constructor no longer includes that property. To preserve source compatibility for callers that construct the model positionally, the generator restores the previously published public constructor as an overload. The restored overload chains to the closest current public constructor and assigns the now-optional property.
+
+**Example:**
+
+Previous version required both properties:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
+
+    public string Name { get; }
+    public string Description { get; }
+}
+```
+
+Current TypeSpec makes `description` optional:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+    public string Description { get; set; }
+}
+```
+
+**Generated Compatibility Result:**
+
+```csharp
+public Widget(string name, string description) : this(name)
+{
+    Description = description;
+}
+```
+
+**Key Points:**
+
+- The previous constructor must be public and no generated or custom constructor may already have the same parameters.
+- Every parameter removed from the current constructor must map to a public, settable property with the same type. Properties renamed through a code-generation customization are supported.
+- The current constructor used for chaining must have parameters that match an in-order subset of the previous constructor's parameters.
+- If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
 
 ### Parameter Naming
 
