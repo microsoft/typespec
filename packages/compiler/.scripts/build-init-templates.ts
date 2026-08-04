@@ -108,9 +108,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
   },
   "library-tsp": {
     target: "library",
-    title: "TypeSpec shared spec library",
-    description:
-      "Create a library of reusable TypeSpec types shared between specs. No TypeScript needed.",
+    title: "Common types library",
+    description: "Create a library of reusable TypeSpec types shared between specs.",
     compilerVersion: minCompilerVersion,
     libraries: [],
     files: [

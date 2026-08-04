@@ -1,4 +1,4 @@
-namespace {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}};
+namespace MyOrg.CommonTypes;
 
 /**
  * __Example Model__

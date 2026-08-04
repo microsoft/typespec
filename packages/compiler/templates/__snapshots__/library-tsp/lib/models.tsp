@@ -1,4 +1,4 @@
-namespace LibraryTsp;
+namespace MyOrg.CommonTypes;
 
 /**
  * __Example Model__
