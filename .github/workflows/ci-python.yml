@@ -31,6 +31,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: Regenerate
@@ -77,6 +78,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: Test
@@ -109,6 +111,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: Mypy & Pyright
@@ -141,6 +144,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: Pylint
@@ -181,6 +185,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: API View & Sphinx
@@ -192,6 +197,9 @@ jobs:
     needs: build
     runs-on: windows-latest
     steps:
+      - name: Enable Git long paths
+        run: git config --system core.longpaths true
+
       - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
@@ -213,6 +221,7 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
+          npm run prepare
         working-directory: packages/http-client-python
 
       - name: Test
