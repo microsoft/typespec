@@ -31,11 +31,20 @@ jobs:
         run: |
           npm install --ignore-scripts --package-lock=false
           npm run setup
-          npm run prepare
+        working-directory: packages/http-client-python
+
+      - name: Prepare Python environment
+        run: venv/bin/python eng/scripts/setup/prepare.py
         working-directory: packages/http-client-python
 
       - name: Regenerate
         run: npm run regenerate
+        working-directory: packages/http-client-python
+
+      - name: Pre-build wheels
+        run: |
+          venv/bin/python tests/install_packages.py build azure tests
+          venv/bin/python tests/install_packages.py build unbranded tests
         working-directory: packages/http-client-python
 
       - name: Check for unstaged changes
@@ -48,6 +57,7 @@ jobs:
           name: python-generated
           path: |
             packages/http-client-python/tests/generated
+            packages/http-client-python/tests/.wheels
             packages/http-client-python/dist
             packages/http-client-python/generator/dist
           retention-days: 1
@@ -77,8 +87,8 @@ jobs:
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run setup
-          npm run prepare
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
         working-directory: packages/http-client-python
 
       - name: Test
@@ -110,8 +120,8 @@ jobs:
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run setup
-          npm run prepare
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
         working-directory: packages/http-client-python
 
       - name: Mypy & Pyright
@@ -143,8 +153,8 @@ jobs:
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run setup
-          npm run prepare
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
         working-directory: packages/http-client-python
 
       - name: Pylint
@@ -184,8 +194,8 @@ jobs:
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run setup
-          npm run prepare
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
         working-directory: packages/http-client-python
 
       - name: API View & Sphinx
@@ -220,8 +230,8 @@ jobs:
       - name: Setup http-client-python
         run: |
           npm install --ignore-scripts --package-lock=false
-          npm run setup
-          npm run prepare
+          npm run install
+          .\venv\Scripts\python.exe eng\scripts\setup\prepare.py
         working-directory: packages/http-client-python
 
       - name: Test
