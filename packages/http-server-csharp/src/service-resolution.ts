@@ -251,19 +251,21 @@ function discoverTypes($: Typekit, type: Type, collector: TypeCollector, visited
         }
         return;
       }
+      // `HttpPart<T>` is an empty envelope that the emitter unwraps to its payload
+      // type, so `T` is only reachable through the template arguments.
+      if (isHttpPartModel(type)) {
+        const payload = type.templateMapper!.args[0];
+        if (payload?.entityKind === "Type") {
+          discoverTypes($, payload, collector, visited);
+        }
+        return;
+      }
       collector.addModel(type);
       for (const prop of type.properties.values()) {
         discoverTypes($, prop.type, collector, visited);
       }
       if (type.baseModel) {
         discoverTypes($, type.baseModel, collector, visited);
-      }
-      if (type.templateMapper) {
-        for (const arg of type.templateMapper.args) {
-          if (arg.entityKind === "Type") {
-            discoverTypes($, arg, collector, visited);
-          }
-        }
       }
       return;
     case "Union":
@@ -326,7 +328,7 @@ function shouldEmitModel($: Typekit, model: Model): boolean {
   if ($.array.is(model)) return false;
   if ($.record.is(model)) return false;
   if (isTemplateDeclaration(model)) return false;
-  if (model.name === "HttpPart" && model.templateMapper) return false;
+  if (isHttpPartModel(model)) return false;
   if (isMultipartBodyContainer(model)) return false;
   if (model.templateMapper) return true;
   if (model.namespace && isStdNamespace(model.namespace)) return false;
@@ -347,9 +349,14 @@ function isMultipartBodyContainer(model: Model): boolean {
 
 function isHttpPartType(type: Type): boolean {
   if (type.kind !== "Model") return false;
-  if (type.name === "HttpPart" && type.templateMapper) return true;
+  if (isHttpPartModel(type)) return true;
   if (type.indexer?.value) {
     return isHttpPartType(type.indexer.value);
   }
   return false;
+}
+
+/** Whether a model is an instantiation of `HttpPart<T>`. */
+function isHttpPartModel(model: Model): boolean {
+  return model.name === "HttpPart" && model.templateMapper !== undefined;
 }

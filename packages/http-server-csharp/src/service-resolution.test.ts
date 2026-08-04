@@ -92,6 +92,41 @@ it("does not create interfaces for operations declared outside the service names
   expect(resolution.interfaces.map((i) => i.name)).toEqual(["Widgets"]);
 });
 
+it("does not emit template arguments that the instantiation never exposes", async () => {
+  const resolution = await resolve(`
+    namespace Other {
+      model Trait { detail: TraitDetail; }
+      model TraitDetail { name: string; }
+      model Envelope<Item, Traits> { items: Item[]; }
+    }
+
+    @service
+    namespace Contoso {
+      model Widget { id: string; }
+      op read(): Other.Envelope<Widget, Other.Trait>;
+    }
+  `);
+
+  expect(resolution.models.map((m) => m.name).sort()).toEqual(["Envelope", "Widget"]);
+});
+
+it("discovers the payload type of an HttpPart", async () => {
+  const resolution = await resolve(`
+    namespace Other {
+      model Payload { name: string; }
+    }
+
+    @service
+    namespace Contoso {
+      model Form { part: HttpPart<Other.Payload>; }
+      @post op upload(@multipartBody body: Form): void;
+    }
+  `);
+
+  expect(resolution.models.map((m) => m.name)).toContain("Payload");
+  expect(resolution.models.map((m) => m.name)).not.toContain("HttpPart");
+});
+
 it("emits every namespace when no service is declared", async () => {
   const resolution = await resolve(`
     namespace Other {
