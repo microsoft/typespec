@@ -77,7 +77,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: python-generated
-          path: .
+          path: packages/http-client-python
 
       - name: Install repo dependencies
         run: pnpm install
@@ -111,7 +111,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: python-generated
-          path: .
+          path: packages/http-client-python
 
       - name: Install repo dependencies
         run: pnpm install
@@ -145,7 +145,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: python-generated
-          path: .
+          path: packages/http-client-python
 
       - name: Install repo dependencies
         run: pnpm install
@@ -187,7 +187,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: python-generated
-          path: .
+          path: packages/http-client-python
 
       - name: Install repo dependencies
         run: pnpm install
