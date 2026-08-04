@@ -189,9 +189,8 @@ function getServiceModels($: Typekit, program: Program, authModels: Set<Model>):
 
   const services = listServices(program);
   if (services.length > 0) {
-    // Restrict initial collection to @service-decorated namespaces to avoid picking up
-    // models from library namespaces (e.g. Azure.ResourceManager) that would otherwise
-    // cause duplicate class name collisions (the infamous `_2` suffix bug).
+    // Only include models defined in the service namespace. Models from other namespaces
+    // are not included unless they are transitively referenced by service operations.
     for (const service of services) {
       collectModelsFromNamespace($, service.type, models, seen, authModels);
     }
