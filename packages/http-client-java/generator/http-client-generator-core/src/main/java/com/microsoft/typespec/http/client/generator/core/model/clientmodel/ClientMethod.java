@@ -138,7 +138,8 @@ public class ClientMethod {
             .methodPollingDetails(methodPollingDetails)
             .methodDocumentation(externalDocumentation)
             .operationInstrumentationInfo(instrumentationInfo)
-            .apiMetadata(apiMetadata)
+            .crossLanguageDefinitionId(apiMetadata.getCrossLanguageDefinitionId())
+            .devMessage(apiMetadata.getDevMessage())
             .hasWithContextOverload(hasWithContextOverload)
             .overloadedClientMethod(overloadedClientMethod);
     }
@@ -653,11 +654,6 @@ public class ClientMethod {
 
         public Builder devMessage(String devMessage) {
             this.apiMetadata = apiMetadata.newBuilder().devMessage(devMessage).build();
-            return this;
-        }
-
-        public Builder apiMetadata(ApiMetadata apiMetadata) {
-            this.apiMetadata = apiMetadata;
             return this;
         }
 
