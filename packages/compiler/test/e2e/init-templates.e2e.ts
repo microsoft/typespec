@@ -178,6 +178,7 @@ describe("Init templates e2e tests", () => {
     it("rest", () => scaffoldTemplateSnapshot("rest"));
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
     it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
+    it("library-tsp", () => scaffoldTemplateSnapshot("library-tsp"));
   });
 
   describe("validate templates", () => {
@@ -206,6 +207,13 @@ describe("Init templates e2e tests", () => {
       await fixture.checkCommand("npm", ["run", "build"]);
       await fixture.checkCommand("npm", ["run", "test"]);
       await fixture.checkCommand("npm", ["run", "lint"]);
+      await fixture.checkCommand("npm", ["run", "format"]);
+    });
+
+    it("validate library-tsp template", async () => {
+      const fixture = await scaffoldTemplateForTest("library-tsp");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["run", "build"]);
       await fixture.checkCommand("npm", ["run", "format"]);
     });
   });
