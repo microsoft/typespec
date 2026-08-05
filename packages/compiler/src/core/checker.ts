@@ -11,6 +11,7 @@ import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
+import { createQualifyReferenceCodeFix } from "./compiler-code-fixes/qualify-reference.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import {
   compilerAssert,
@@ -7251,6 +7252,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Check that using statements are targeting valid symbols.
    */
   function checkUsings(ctx: CheckContext, node: UsingStatementNode) {
+    if (reportUsingBeforeFileNamespace(node)) {
+      return errorType;
+    }
     const usedSym = resolveTypeReferenceSym(ctx.withMapper(undefined), node.name);
     if (usedSym) {
       if (~usedSym.flags & SymbolFlags.Namespace) {
@@ -7259,6 +7263,45 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     // If this was used to get a type this is invalid, only used for validation.
     return errorType;
+  }
+
+  /**
+   * A `using` declared before the file(blockless) namespace resolves from the global namespace.
+   * When such a using fails to resolve but would have resolved relative to the file namespace report a dedicated
+   * error suggesting the fully qualified name instead of the generic unknown identifier one.
+   * @returns `true` when the dedicated diagnostic was reported.
+   */
+  function reportUsingBeforeFileNamespace(node: UsingStatementNode): boolean {
+    if (node.scopeNamespace !== undefined) return false;
+    const file = node.parent;
+    if (file?.kind !== SyntaxKind.TypeSpecScript || file.inScopeNamespaces.length === 0) {
+      return false;
+    }
+    const result = resolver.getNodeLinks(node.name).resolutionResult;
+    if (
+      result === undefined ||
+      (result & (ResolutionResultFlags.NotFound | ResolutionResultFlags.Unknown)) === 0
+    ) {
+      return false;
+    }
+
+    const suggestion = resolveNameInFileNamespaces(file, node.name);
+    if (suggestion === undefined) return false;
+
+    reportCheckerDiagnostic(
+      createDiagnostic({
+        code: "using-before-file-namespace",
+        format: {
+          name: typeReferenceToString(node.name),
+          suggestion: getFullyQualifiedSymbolName(suggestion),
+        },
+        target: node.name,
+        codefixes: [
+          createQualifyReferenceCodeFix(node.name, getFullyQualifiedSymbolName(suggestion)),
+        ],
+      }),
+    );
+    return true;
   }
 
   /**
@@ -7271,6 +7314,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       node = node.parent;
     }
     return node?.kind === SyntaxKind.UsingStatement && node.scopeNamespace === undefined;
+  }
+
+  /** Try to resolve the given namespace reference relative to the namespaces the file is scoped to. */
+  function resolveNameInFileNamespaces(
+    file: TypeSpecScriptNode,
+    name: IdentifierNode | MemberExpressionNode,
+  ): Sym | undefined {
+    const segments: string[] = [];
+    let current: IdentifierNode | MemberExpressionNode = name;
+    while (current.kind === SyntaxKind.MemberExpression) {
+      if (current.selector !== ".") return undefined;
+      segments.unshift(current.id.sv);
+      current = current.base;
+    }
+    segments.unshift(current.sv);
+
+    for (const ns of file.inScopeNamespaces) {
+      let sym: Sym | undefined = getMergedSymbol(ns.symbol);
+      for (const segment of segments) {
+        if (sym === undefined || ~sym.flags & SymbolFlags.Namespace) {
+          sym = undefined;
+          break;
+        }
+        sym = resolver.getAugmentedSymbolTable(getMergedSymbol(sym).exports!).get(segment);
+      }
+      if (sym !== undefined && sym.flags & SymbolFlags.Namespace) {
+        return sym;
+      }
+    }
+    return undefined;
   }
 
   function checkDecorators(
