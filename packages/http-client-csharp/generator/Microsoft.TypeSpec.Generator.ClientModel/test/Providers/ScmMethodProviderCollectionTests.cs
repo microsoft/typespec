@@ -1883,24 +1883,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // The protocol method expands the bag when calling CreateRequest, which still takes the
             // individual wire parameters.
             var protocolBody = protocolMethod.BodyStatements!.ToDisplayString();
-            Assert.That(protocolBody, Does.Contain("options.Id"));
-            Assert.That(protocolBody, Does.Contain("options.Filter"));
-            Assert.That(protocolBody, Does.Contain("options.Top"));
-
-            // The renamed request options parameter must be the one forwarded to CreateRequest. Matching
-            // CreateRequest's trailing parameter by name alone resolves to the options bag, which does not compile.
-            Assert.That(
-                protocolBody,
-                Does.Contain($"options.Top, {parameters[1].Name})"),
-                $"CreateRequest must receive '{parameters[1].Name}', but body was: {protocolBody}");
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Protocol"), protocolBody);
 
             // The convenience method forwards the bag straight through rather than unpacking it.
             var convenienceMethod = methodCollection.FirstOrDefault(
                 m => m.Kind == ScmMethodKind.Convenience && !m.Signature.Name.EndsWith("Async"));
             Assert.IsNotNull(convenienceMethod);
-            Assert.That(
-                convenienceMethod!.BodyStatements!.ToDisplayString(),
-                Does.Contain("this.GetWidget(options, cancellationToken.ToRequestOptions())"));
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Convenience"),
+                convenienceMethod!.BodyStatements!.ToDisplayString());
 
             // The bag now carries parameters that used to be required method parameters, so its public
             // constructor must still force callers to supply the required ones.
@@ -1958,6 +1949,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsFalse(parameters.Any(p => p.Type.Name == "GetWidgetOptions"), $"protocol must stay flattened, but was: ({actual})");
             Assert.IsTrue(parameters.Any(p => p.Name == "id"), $"required parameter must stay on the signature, but was: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
         }
 
         [Test]
@@ -2007,6 +2001,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(3, parameters.Count, $"actual: ({actual})");
             Assert.IsTrue(parameters.Any(p => p.IsContentParameter), $"raw body must be preserved, but was: ({actual})");
             Assert.IsTrue(parameters.Any(p => p.Type.Name == "CreateWidgetOptions"), $"actual: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
         }
 
         [Test]
@@ -2048,6 +2045,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             Assert.IsTrue(parameters.Any(p => p.IsContentParameter), $"raw body must be preserved, but was: ({actual})");
             Assert.IsFalse(parameters.Any(p => p.Type.Name == "RequestModel"), $"protocol must stay flattened, but was: ({actual})");
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
         }
 
         [Test]
