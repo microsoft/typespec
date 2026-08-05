@@ -1,4 +1,4 @@
-import { TypeSpecServer, TypeSpecServiceInfo, TypeSpecTagMetadata } from "../interfaces.js";
+import type { TypeSpecServer, TypeSpecServiceInfo, TypeSpecTagMetadata } from "../interfaces.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateNamespaceName } from "../utils/generate-namespace-name.js";
 import { toTspValues } from "../utils/tsp-values.js";

@@ -1,5 +1,5 @@
 import { TypekitPrototype, type Typekit } from "../../typekit/define-kit.js";
-import { Realm } from "../realm.js";
+import type { Realm } from "../realm.js";
 
 /**
  * Create a new Typekit that operates in the given realm.

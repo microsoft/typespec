@@ -15,6 +15,7 @@
     "jsx": "react-jsx",
     "checkJs": true,
     "allowJs": true,
+    "verbatimModuleSyntax": true,
     "lib": ["DOM", "ES2022"],
     "types": ["vite/client"]
   },

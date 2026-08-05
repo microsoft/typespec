@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { StringLiteral, Type } from "../../src/core/types.js";
+import type { StringLiteral, Type } from "../../src/core/types.js";
 import { listServices } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";

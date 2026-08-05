@@ -1,21 +1,17 @@
+import type { DecoratorContext, Model, ModelProperty, Program, Type } from "@typespec/compiler";
 import {
   $invisible,
   $removeVisibility,
   $visibility,
-  DecoratorContext,
   getKeyName,
   getTypeName,
   isErrorType,
   isKey,
-  Model,
-  ModelProperty,
-  Program,
   setTypeSpecNamespace,
-  Type,
 } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
 import { $path } from "@typespec/http";
-import { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
+import type { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { CycleTracker } from "./utils/cycle-tracker/cycle-tracker.js";
 

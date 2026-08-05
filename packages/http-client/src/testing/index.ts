@@ -1,5 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import type { TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { createTestLibrary } from "@typespec/compiler/testing";
 import { fileURLToPath } from "url";
 
 /** @deprecated Use `createTester` from `@typespec/compiler/testing` instead */

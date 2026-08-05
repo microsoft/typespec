@@ -1,5 +1,6 @@
 import { beforeAll, expect, it } from "vitest";
-import { getDoc, Program, Union } from "../../src/index.js";
+import type { Program, Union } from "../../src/index.js";
+import { getDoc } from "../../src/index.js";
 import { $ } from "../../src/typekit/index.js";
 import { createContextMock, getTypes } from "./utils.js";
 

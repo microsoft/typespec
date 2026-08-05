@@ -18,7 +18,7 @@ import { validateDecoratorTarget, validateDecoratorUniqueOnNode } from "../core/
 import { compilerAssert } from "../core/diagnostics.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
-import {
+import type {
   DecoratorApplication,
   DecoratorContext,
   DecoratorFunction,
@@ -33,10 +33,10 @@ import {
   Union,
   UnionVariant,
 } from "../core/types.js";
+import type { GeneratedVisibilityFilter } from "../core/visibility/core.js";
 import {
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
-  GeneratedVisibilityFilter,
   getRawVisibilityStore,
   isVisible,
   removeVisibilityModifiers,
@@ -45,13 +45,8 @@ import {
   VisibilityFilter,
 } from "../core/visibility/core.js";
 import { getLifecycleVisibilityEnum } from "../core/visibility/lifecycle.js";
-import {
-  MutableType,
-  mutateSubgraph,
-  Mutator,
-  MutatorFlow,
-  setAlwaysMutate,
-} from "../experimental/mutators.js";
+import type { MutableType, Mutator } from "../experimental/mutators.js";
+import { mutateSubgraph, MutatorFlow, setAlwaysMutate } from "../experimental/mutators.js";
 import { $ } from "../typekit/index.js";
 import { useStateMap } from "../utils/index.js";
 import { mutate } from "../utils/misc.js";

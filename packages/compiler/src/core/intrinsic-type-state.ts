@@ -1,7 +1,7 @@
 // Contains all intrinsic data setter or getter
 // Anything that the TypeSpec check might should be here.
 
-import { DiscriminatedOptions } from "../../generated-defs/TypeSpec.js";
+import type { DiscriminatedOptions } from "../../generated-defs/TypeSpec.js";
 import { createStateSymbol } from "../lib/utils.js";
 import { useStateMap } from "../utils/state-accessor.js";
 import { isNumeric, type Numeric } from "./numeric.js";

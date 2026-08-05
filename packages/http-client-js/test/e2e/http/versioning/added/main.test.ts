@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
+import type { ModelV1, ModelV2 } from "../../../generated/versioning/added/src/index.js";
 import {
   AddedClient,
   EnumV1,
   EnumV2,
   InterfaceV2Client,
-  ModelV1,
-  ModelV2,
   Versions,
 } from "../../../generated/versioning/added/src/index.js";
 

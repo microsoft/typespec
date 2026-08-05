@@ -57,8 +57,8 @@
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
     "build": "vite build",
     "watch": "vite build --watch",
-    "storybook": "sb dev",
-    "build:storybook": "sb build",
+    "storybook": "storybook dev",
+    "build:storybook": "storybook build",
     "preview": "pnpm build && vite preview",
     "start": "vite",
     "test": "vitest run",
@@ -98,7 +98,6 @@
   "devDependencies": {
     "@babel/core": "catalog:",
     "@playwright/test": "catalog:",
-    "@storybook/cli": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",

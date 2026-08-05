@@ -77,9 +77,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
-        self.is_typed_dict_only: bool = (
-            self.yaml_data.get("typedDictOnly", False) or code_model.options["models-mode"] == "typeddict"
-        )
+        self.is_typed_dict_only: bool = self.yaml_data.get("typedDictOnly", False) or code_model.generate_typeddict_only
 
     @property
     def is_usage_output(self) -> bool:

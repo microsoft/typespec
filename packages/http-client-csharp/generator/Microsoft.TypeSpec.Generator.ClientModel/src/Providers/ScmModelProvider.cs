@@ -661,6 +661,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             bool needsBackCompat = LastContractView.Properties.Any(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (needsBackCompat)

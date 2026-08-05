@@ -1,16 +1,19 @@
-import { SpawnSyncOptionsWithStringEncoding, spawnSync } from "child_process";
+import type { SpawnSyncOptionsWithStringEncoding } from "child_process";
+import { spawnSync } from "child_process";
 import pc from "picocolors";
 import { inspect } from "util";
 import { logDiagnostics } from "../diagnostics.js";
-import { Colors, ExternalError } from "../external-error.js";
+import type { Colors } from "../external-error.js";
+import { ExternalError } from "../external-error.js";
 import { createConsoleSink } from "../logger/console-sink.js";
 import { createLogger } from "../logger/logger.js";
 import { createTracer } from "../logger/tracer.js";
 import { createDiagnostic } from "../messages.js";
 import { NodeHost } from "../node-host.js";
 import { getBaseFileName } from "../path-utils.js";
-import { CompilerHost, Diagnostic, NoTarget } from "../types.js";
-import { CliCompilerHost } from "./types.js";
+import type { CompilerHost, Diagnostic } from "../types.js";
+import { NoTarget } from "../types.js";
+import type { CliCompilerHost } from "./types.js";
 
 // ENOENT checking and handles spaces poorly in some cases.
 const isCmdOnWindows = ["code", "code-insiders", "npm"];

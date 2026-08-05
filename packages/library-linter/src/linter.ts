@@ -1,4 +1,4 @@
-import { Namespace, Program, Type } from "@typespec/compiler";
+import type { Namespace, Program, Type } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { reportDiagnostic } from "./lib.js";
 

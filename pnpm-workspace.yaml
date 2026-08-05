@@ -35,9 +35,9 @@ catalog:
   "@azure/storage-blob": ^12.31.0
   "@babel/code-frame": ^7.29.0
   "@babel/core": ^7.29.0
-  "@chronus/chronus": ^1.3.1
-  "@chronus/github": ^1.0.6
-  "@chronus/github-pr-commenter": ^1.0.6
+  "@chronus/chronus": ^1.5.0
+  "@chronus/github": ^1.2.0
+  "@chronus/github-pr-commenter": ^1.1.1
   "@docsearch/css": ^4.6.2
   "@docsearch/js": ^4.6.2
   "@expressive-code/core": ^0.44.0
@@ -57,7 +57,6 @@ catalog:
   "@scalar/json-magic": ^0.12.15
   "@scalar/openapi-parser": ^0.28.6
   "@scalar/openapi-types": ^0.9.1
-  "@storybook/cli": ^10.3.5
   "@storybook/react-vite": ^10.3.5
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^7.0.0
