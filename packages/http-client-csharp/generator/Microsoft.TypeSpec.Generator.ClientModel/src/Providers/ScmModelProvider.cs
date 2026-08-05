@@ -216,40 +216,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         if (JsonPatchField != null)
                         {
                             updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
-                            if (HasDynamicProperties)
-                            {
-#pragma warning disable SCME0001
-                                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
-                            }
-                        }
-                        else if (HasDynamicProperties && BaseJsonPatchProperty.Value is not null)
-                        {
-                            // Derived model has dynamic properties but inherits the JsonPatch field from base
-                            // We need to call SetPropagators on the inherited patch field
-#pragma warning disable SCME0001
-                            updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
-#pragma warning restore SCME0001
                         }
 
+                        AddJsonPatchPropagators(updatedBody);
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
-                else if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties && constructor.BodyStatements != null)
+                else if (constructor.BodyStatements != null)
                 {
-                    // Remove the additional binary data properties initialization from the init constructor
-                    var updatedBody = constructor.BodyStatements
-                        .Where(s => s is not ExpressionStatement
-                        {
-                            Expression: AssignmentExpression
+                    List<MethodBodyStatement> updatedBody;
+                    if (JsonPatchField != null && SupportsBinaryDataAdditionalProperties && !NeedsBackCompatAdditionalProperties)
+                    {
+                        // Remove the additional binary data properties initialization from the init constructor
+                        updatedBody = constructor.BodyStatements
+                            .Where(s => s is not ExpressionStatement
                             {
-                                Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
-                            }
-                        })
-                        .ToList();
-                    constructor.Update(bodyStatements: updatedBody);
+                                Expression: AssignmentExpression
+                                {
+                                    Variable: MemberExpression { MemberName: AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName }
+                                }
+                            })
+                            .ToList();
+                    }
+                    else
+                    {
+                        updatedBody = [.. constructor.BodyStatements];
+                    }
+
+                    bool addedPropagators = AddJsonPatchPropagators(updatedBody);
+                    constructor.Update(
+                        bodyStatements: updatedBody,
+                        suppressions: addedPropagators
+                            ? [JsonPatchSuppression, .. constructor.Suppressions]
+                            : constructor.Suppressions);
                 }
             }
+        }
+
+        private bool AddJsonPatchPropagators(List<MethodBodyStatement> statements)
+        {
+            if (!HasDynamicProperties)
+            {
+                return false;
+            }
+
+#pragma warning disable SCME0001
+            if (JsonPatchField != null)
+            {
+                statements.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+                return true;
+            }
+
+            if (BaseJsonPatchProperty.Value is not null)
+            {
+                statements.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+                return true;
+            }
+#pragma warning restore SCME0001
+
+            return false;
         }
 
         private List<ConstructorProvider>? BuildMultipartFileConstructors(List<ConstructorProvider> existingConstructors)

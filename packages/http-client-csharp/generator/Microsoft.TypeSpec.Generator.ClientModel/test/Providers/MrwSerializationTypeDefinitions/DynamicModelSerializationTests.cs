@@ -86,11 +86,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
 
-            // Also validate that the propagate method is called from the serialization constructor
-            var constructor =
+            // Also validate that the propagate method is called from every construction path
+            var serializationConstructor =
                 model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
-            Assert.IsNotNull(constructor);
-            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+            Assert.IsNotNull(serializationConstructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", serializationConstructor!.BodyStatements!.ToDisplayString());
+
+            var publicConstructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", publicConstructor!.BodyStatements!.ToDisplayString());
+            Assert.IsNotEmpty(publicConstructor.Suppressions);
         }
 
         [Test]
@@ -1420,12 +1426,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsFalse(methods.Any(m => m.Signature.Name == "PropagateGet"), "Derived model should not have PropagateGet method when no dynamic properties exist");
             Assert.IsFalse(methods.Any(m => m.Signature.Name == "PropagateSet"), "Derived model should not have PropagateSet method when no dynamic properties exist");
 
-            // The derived model constructor should NOT call SetPropagators
-            var derivedConstructor =
-                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
-            if (derivedConstructor != null)
+            // No constructor should call SetPropagators when there are no dynamic properties
+            foreach (var constructor in model.Constructors.Where(c => c.BodyStatements != null))
             {
-                StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when no dynamic properties exist");
+                StringAssert.DoesNotContain("SetPropagators", constructor.BodyStatements!.ToDisplayString(), "Model constructors should not call SetPropagators when no dynamic properties exist");
             }
         }
 
