@@ -52,14 +52,14 @@ catalogs:
       specifier: ^7.29.0
       version: 7.29.7
     '@chronus/chronus':
-      specifier: ^1.4.0
-      version: 1.4.0
+      specifier: ^1.5.0
+      version: 1.5.0
     '@chronus/github':
-      specifier: ^1.1.0
-      version: 1.1.0
+      specifier: ^1.2.0
+      version: 1.2.0
     '@chronus/github-pr-commenter':
-      specifier: ^1.1.0
-      version: 1.1.0
+      specifier: ^1.1.1
+      version: 1.1.1
     '@docsearch/css':
       specifier: ^4.6.2
       version: 4.6.3
@@ -486,13 +486,13 @@ importers:
     devDependencies:
       '@chronus/chronus':
         specifier: 'catalog:'
-        version: 1.4.0
+        version: 1.5.0
       '@chronus/github':
         specifier: 'catalog:'
-        version: 1.1.0
+        version: 1.2.0
       '@chronus/github-pr-commenter':
         specifier: 'catalog:'
-        version: 1.1.0
+        version: 1.1.1
       '@microsoft/api-extractor':
         specifier: 'catalog:'
         version: 7.58.9(@types/node@26.1.1)
@@ -3489,18 +3489,18 @@ packages:
   '@chevrotain/types@11.1.2':
     resolution: {integrity: sha512-U+HFai5+zmJCkK86QsaJtoITlboZHBqrVketcO2ROv865xfCMSFpELQoz1GkX5GzME8pTa+3kbKrZHQtI0gdbw==}
 
-  '@chronus/chronus@1.4.0':
-    resolution: {integrity: sha512-JAFQSWsmIoCptmlL++n2C6PzNVpmjWS+671g48ENcTK7zGI/qiBe/unb2AW3K77NAGy87DTNFfvPxa6FchhSdw==}
+  '@chronus/chronus@1.5.0':
+    resolution: {integrity: sha512-HRuATKfcfPZe940m9JqvFeZGRQcue/+z9EJoTr0eVfKcIVMpU1vyJzQmJfjcm10ZLYe3ZuFTNIYlbgZXz6WwWg==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  '@chronus/github-pr-commenter@1.1.0':
-    resolution: {integrity: sha512-D0qhoWIoZcnum+XWi5rJ9zBHkOvMZDxU1/hPgw9QQWd3Jg5DDuX/BQw7Wp6US1/rJosPUDkPnJxZncUcnrwKzQ==}
+  '@chronus/github-pr-commenter@1.1.1':
+    resolution: {integrity: sha512-YHSLzW8XByWkt4hd1diAy+RbUxBL4ZOxxyoqYRwHiD3VrTPzRaZ+bmeinOFzZPYKRiGMffZx9YkcKiIjKv4/3Q==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
-  '@chronus/github@1.1.0':
-    resolution: {integrity: sha512-LfEvkJWqF0rL3u1iTmcn6rYxBxwXqqAEYMPlU7UPHXhV+eBkGf5YazCSpB+EMr3tx/oKCFBDBMSUtMvmUCHv6w==}
+  '@chronus/github@1.2.0':
+    resolution: {integrity: sha512-iqiUtRcHGclEQR3Y7Q1z+z6RRqKppUIDHw83cSMJByFESlxIbDDIHZbxQCININqZBULCJ8WnT+HLM+Zu4eDzqw==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
@@ -9851,6 +9851,10 @@ packages:
     resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
     engines: {node: '>= 18'}
 
+  smol-toml@1.7.1:
+    resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
+    engines: {node: '>= 18'}
+
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
@@ -10992,6 +10996,10 @@ packages:
     resolution: {integrity: sha512-4UEqdc2RYGHZc7Doyqkrqiln3p9X2DZVxaGbwhn2pi7MrRagKaOcIKe8L3OxYcbhXLgLFUS3zAYuQjKBQgmuNg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
+  yargs@18.1.0:
+    resolution: {integrity: sha512-2rAgRKu54VsHkqI0/tYkmluGXHD4KW7yZoycuqDQ15QOTnc2VVfy0nN/1eMhnQLO00A+dwtK20xuCnc1YGeUyg==}
+    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
+
   yauzl@3.4.0:
     resolution: {integrity: sha512-jIH9yLR9wqr0wOS0TpBvo/g/2UgZH5qePVbjgRliiF0BYvOZyaBknKsF+x9Iht0O6sqgnB93rCICdOZFecJuDw==}
     engines: {node: '>=12'}
@@ -11222,7 +11230,7 @@ snapshots:
       picomatch: 4.0.5
       retext-smartypants: 6.2.0
       shiki: 4.3.1
-      smol-toml: 1.7.0
+      smol-toml: 1.7.1
       unified: 11.0.5
 
   '@astrojs/language-server@2.16.12(prettier-plugin-astro@0.14.1)(prettier@3.9.5)(typescript@6.0.3)':
@@ -11791,7 +11799,7 @@ snapshots:
 
   '@chevrotain/types@11.1.2': {}
 
-  '@chronus/chronus@1.4.0':
+  '@chronus/chronus@1.5.0':
     dependencies:
       cross-spawn: 7.0.6
       globby: 16.2.2
@@ -11802,26 +11810,26 @@ snapshots:
       pluralize: 8.0.0
       prompts: 2.4.2
       semver: 7.8.5
-      smol-toml: 1.7.0
+      smol-toml: 1.7.1
       std-env: 4.2.0
       yaml: 2.9.0
-      yargs: 18.0.0
+      yargs: 18.1.0
       zod: 4.4.3
 
-  '@chronus/github-pr-commenter@1.1.0':
+  '@chronus/github-pr-commenter@1.1.1':
     dependencies:
-      '@chronus/github': 1.1.0
+      '@chronus/github': 1.2.0
       '@octokit/rest': 22.0.1
 
-  '@chronus/github@1.1.0':
+  '@chronus/github@1.2.0':
     dependencies:
-      '@chronus/chronus': 1.4.0
+      '@chronus/chronus': 1.5.0
       '@octokit/graphql': 9.0.3
       '@octokit/rest': 22.0.1
       cross-spawn: 7.0.6
       octokit: 5.0.5
       picocolors: 1.1.1
-      yargs: 18.0.0
+      yargs: 18.1.0
 
   '@clack/core@1.4.3':
     dependencies:
@@ -16086,7 +16094,7 @@ snapshots:
     dependencies:
       '@cspell/cspell-types': 10.0.1
       comment-json: 5.0.0
-      smol-toml: 1.7.0
+      smol-toml: 1.7.1
       yaml: 2.9.0
 
   cspell-dictionary@10.0.1:
@@ -19643,6 +19651,8 @@ snapshots:
 
   smol-toml@1.7.0: {}
 
+  smol-toml@1.7.1: {}
+
   source-map-js@1.2.1: {}
 
   source-map@0.6.1: {}
@@ -20656,6 +20666,15 @@ snapshots:
       escalade: 3.2.0
       get-caller-file: 2.0.5
       string-width: 7.2.0
+      y18n: 5.0.8
+      yargs-parser: 22.0.0
+
+  yargs@18.1.0:
+    dependencies:
+      cliui: 9.0.1
+      escalade: 3.2.0
+      get-caller-file: 2.0.5
+      string-width: 8.2.2
       y18n: 5.0.8
       yargs-parser: 22.0.0
 
