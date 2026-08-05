@@ -282,6 +282,12 @@ const diagnostics = {
       default: "Using must refer to a namespace",
     },
   },
+  "using-before-file-namespace": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Unknown identifier ${"name"}. \`using\` statements declared before the file namespace are resolved from the global namespace. Did you mean ${"suggestion"}?`,
+    },
+  },
   "invalid-type-ref": {
     severity: "error",
     messages: {
