@@ -97,8 +97,5 @@
   },
   "dependencies": {
     "@azure/identity": "^4.13.0"
-  },
-  "overrides": {
-    "fast-uri": "^3.1.4"
   }
 }
