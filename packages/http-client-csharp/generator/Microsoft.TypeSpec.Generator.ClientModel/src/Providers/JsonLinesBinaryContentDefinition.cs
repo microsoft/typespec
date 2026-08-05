@@ -128,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 out var writer));
             loop.Add(writer.As<Utf8JsonWriter>().WriteObjectValue(value.As(_t), wireOptions));
             loop.Add(writer.As<Utf8JsonWriter>().FlushAsync(cancellationToken).Terminate());
-            loop.Add(Declare("bytes", typeof(byte[]), buffer.Invoke(nameof(MemoryStream.ToArray)), out var bytes));
+            loop.Add(Declare("bytes", typeof(byte[]), buffer.As<MemoryStream>().ToArray(), out var bytes));
             loop.Add(Static(Type).Invoke(
                 "WriteJsonAsync",
                 [stream, bytes, cancellationToken],
@@ -316,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 signature,
                 new MethodBodyStatement[]
                 {
-                    Return(data.Invoke("ToObjectFromJson", [], [_t]))
+                    Return(data.As<BinaryData>().ToObjectFromJson(_t))
                 },
                 this);
         }

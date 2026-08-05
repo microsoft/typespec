@@ -21,6 +21,7 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     internal class ScmMethodProviderCollectionTests
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
@@ -107,8 +108,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
+            StringAssert.Contains(
+                ScmMethodProviderCollection.StreamingResultDiagnosticId,
+                client!.DisabledFileWarnings.Single().DisableStatement.ToDisplayString());
 
-            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
             Assert.AreEqual(2, methodCollection.Count);
             Assert.IsFalse(methodCollection.Any(method =>
                 method.Signature.Name == "Receive" &&
@@ -748,6 +752,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
+        #pragma warning restore SCME0005
         }
 
         // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Streaming.Jsonl._Basic
 {
     public partial class Basic
@@ -30,3 +31,4 @@ namespace Streaming.Jsonl._Basic
         public virtual Task<AsyncStreamingClientResult<Info>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.

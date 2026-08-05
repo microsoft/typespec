@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             streamingType.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             streamingType.ValueType = valueType ?? throw new JsonException("InputStreamingType must have a valueType.");
             streamingType.ContentTypes = contentTypes ?? [];
-            streamingType.StreamKind = streamKind ?? "jsonl";
+            streamingType.StreamKind = streamKind ?? InputStreamingType.JsonLinesStreamKind;
             streamingType.TerminalEventType = terminalEventType;
             streamingType.TerminalEventValue = terminalEventValue;
             return streamingType;

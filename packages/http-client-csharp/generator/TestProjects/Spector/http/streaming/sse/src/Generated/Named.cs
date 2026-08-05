@@ -9,6 +9,7 @@ using System.Net.ServerSentEvents;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 namespace Streaming.Sse._Named
 {
     public partial class Named
@@ -24,3 +25,4 @@ namespace Streaming.Sse._Named
         public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReceiveAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }
+#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.

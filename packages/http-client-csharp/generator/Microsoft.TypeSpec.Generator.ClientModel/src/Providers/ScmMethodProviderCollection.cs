@@ -34,6 +34,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
+        internal const string StreamingResultDiagnosticId = "SCME0005";
+        internal const string StreamingResultSuppressionJustification =
+            "Type is for evaluation purposes only and is subject to change or removal in future updates.";
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
@@ -42,6 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
         private readonly bool _generateConvenienceMethod;
+        private readonly Lazy<InputStreamingType?> _streamingResponse;
 
         private ClientProvider Client { get; }
         protected InputServiceMethod ServiceMethod { get; }
@@ -76,6 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
             _generateConvenienceMethod = ServiceMethod.Operation.GenerateConvenienceMethod;
+            _streamingResponse = new(GetStreamingResponseCore);
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -88,7 +93,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool shouldMakeParametersRequired = ShouldMakeProtocolMethodParametersRequired();
 
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
-            if (GetStreamingResponse() != null)
+            if (_streamingResponse.Value != null)
             {
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
@@ -217,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
-            var streamingResponse = GetStreamingResponse();
+            var streamingResponse = _streamingResponse.Value;
 
             MethodBodyStatement[] methodBody;
             TypeProvider? collection = null;
@@ -241,15 +246,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                         This.Invoke(_createRequestMethod.Signature, protocolArguments),
                         out var message),
-                    message.Property("BufferResponse").Assign(False).Terminate(),
+                    message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate(),
                     Return(CreateStreamingResultExpression(
                         streamingResponse,
-                        client.PipelineProperty.Invoke(
-                            "ProcessMessageAsync",
-                            [message, requestOptions],
-                            true,
-                            true,
-                            extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type),
+                        client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
+                            message,
+                            requestOptions.ToApi<HttpRequestOptionsApi>(),
+                            true),
                         signatureParameters[^1],
                         useConvenienceType: true))
                 ];
@@ -1222,8 +1225,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
-                var streamingResponse = GetStreamingResponse();
+                var streamingResponse = _streamingResponse.Value;
                 methodBody =
                 [
                     UsingDeclare("message", ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
@@ -1231,20 +1233,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
-                        : new MethodBodyStatement[] { message.Property("BufferResponse").Assign(False).Terminate() },
+                        : new MethodBodyStatement[] { message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate() },
                     Return(streamingResponse != null
                         ? CreateStreamingResultExpression(
                             streamingResponse,
-                            client.PipelineProperty.Invoke(
-                                processMessageName,
-                                [message, requestOptionsParameter],
-                                isAsync,
-                                true,
-                                extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type),
+                            client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
+                                message,
+                                requestOptionsParameter.ToApi<HttpRequestOptionsApi>(),
+                                isAsync),
                             cancellationToken: null,
                             useConvenienceType: false)
                         : ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                            .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
+                            .PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
+                                message,
+                                requestOptionsParameter.ToApi<HttpRequestOptionsApi>(),
+                                isAsync)))
                 ];
             }
 
@@ -1418,7 +1421,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (streamingResponse != null)
             {
                 responseBodyType = GetRawStreamingItemType(streamingResponse);
-                var resultType = new CSharpType(typeof(AsyncStreamingClientResult<>), responseBodyType);
+                var resultType = AsyncStreamingClientResultSnippets.Of(responseBodyType);
                 return new CSharpType(typeof(Task<>), resultType);
             }
 
@@ -1433,9 +1436,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (response?.BodyType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
-                var resultType = new CSharpType(
-                    typeof(AsyncStreamingClientResult<>),
-                    responseBodyType ?? throw new InvalidOperationException("Unable to resolve streaming response type."));
+                var resultType = AsyncStreamingClientResultSnippets.Of(responseBodyType);
                 return isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
             }
 
@@ -1465,23 +1466,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private static CSharpType GetRawStreamingItemType(InputStreamingType streamingType)
-            => streamingType.StreamKind == "sse"
-                ? new CSharpType(typeof(SseItem<>), typeof(BinaryData))
-                : typeof(BinaryData);
+        {
+            var binaryDataType = CreateRequiredCSharpType(
+                InputPrimitiveType.Any,
+                streamingType,
+                "Unable to resolve the raw streaming item type.");
+            return streamingType.StreamKind == InputStreamingType.SseStreamKind
+                ? new CSharpType(typeof(SseItem<>), binaryDataType)
+                : binaryDataType;
+        }
 
         private static CSharpType GetConvenienceStreamingItemType(InputStreamingType streamingType)
         {
-            if (streamingType.StreamKind != "sse")
+            if (streamingType.StreamKind != InputStreamingType.SseStreamKind)
             {
-                return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingType.ValueType)
-                    ?? throw new InvalidOperationException("Unable to resolve JSON Lines stream item type.");
+                return CreateRequiredCSharpType(
+                    streamingType.ValueType,
+                    streamingType,
+                    "Unable to resolve JSON Lines stream item type.");
             }
 
             var payloadType = GetSseConveniencePayloadType(streamingType);
             var payloadCSharpType = payloadType is null
-                ? typeof(BinaryData)
-                : ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(payloadType)
-                    ?? throw new InvalidOperationException("Unable to resolve SSE stream item type.");
+                ? CreateRequiredCSharpType(
+                    InputPrimitiveType.Any,
+                    streamingType,
+                    "Unable to resolve the raw SSE stream item type.")
+                : CreateRequiredCSharpType(
+                    payloadType,
+                    streamingType,
+                    "Unable to resolve SSE stream item type.");
             return new CSharpType(typeof(SseItem<>), payloadCSharpType);
         }
 
@@ -1516,7 +1530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? cancellationToken,
             bool useConvenienceType)
         {
-            if (streamingType.StreamKind == "sse")
+            if (streamingType.StreamKind == InputStreamingType.SseStreamKind)
             {
                 var terminalPredicate = CreateSseTerminalPredicate(streamingType);
                 var payloadType = useConvenienceType
@@ -1524,16 +1538,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : null;
                 if (payloadType != null)
                 {
-                    var payloadCSharpType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(payloadType)
-                        ?? throw new InvalidOperationException("Unable to resolve SSE stream item type.");
+                    var payloadCSharpType = CreateRequiredCSharpType(
+                        payloadType,
+                        streamingType,
+                        "Unable to resolve SSE stream item type.");
                     var parser = CreateSseParser(payloadType, payloadCSharpType);
                     var arguments = cancellationToken != null
                         ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
                         : [response, parser, terminalPredicate];
-                    return Static(typeof(AsyncStreamingClientResult)).Invoke(
-                        "CreateSse",
-                        arguments,
-                        [payloadCSharpType]);
+                    return AsyncStreamingClientResultSnippets.CreateSse(
+                        response,
+                        arguments[1..],
+                        payloadCSharpType);
                 }
 
                 var rawArguments = cancellationToken != null
@@ -1541,20 +1557,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : terminalPredicate == Null
                         ? [response]
                         : [response, terminalPredicate];
-                return Static(typeof(AsyncStreamingClientResult)).Invoke("CreateSse", rawArguments);
+                return AsyncStreamingClientResultSnippets.CreateSse(response, rawArguments[1..]);
             }
 
             if (!useConvenienceType)
             {
-                return Static(typeof(AsyncStreamingClientResult)).Invoke(
-                    "CreateJsonLines",
+                return AsyncStreamingClientResultSnippets.CreateJsonLines(
+                    response,
                     cancellationToken != null
-                        ? [response, cancellationToken]
-                        : [response]);
+                        ? [cancellationToken]
+                        : []);
             }
 
-            var itemType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(streamingType.ValueType)
-                ?? throw new InvalidOperationException("Unable to resolve JSON Lines stream item type.");
+            var itemType = CreateRequiredCSharpType(
+                streamingType.ValueType,
+                streamingType,
+                "Unable to resolve JSON Lines stream item type.");
             var jsonLinesContentType = new JsonLinesBinaryContentDefinition().Type.MakeGenericType([itemType]);
             var deserializeMethod = streamingType.ValueType is InputModelType
                 ? "DeserializeModel"
@@ -1571,10 +1589,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     response,
                     Static(jsonLinesContentType).Property(deserializeMethod)
                 ];
-            return Static(typeof(AsyncStreamingClientResult)).Invoke(
-                "CreateJsonLines",
-                jsonLinesArguments,
-                [itemType]);
+            return AsyncStreamingClientResultSnippets.CreateJsonLines(
+                response,
+                jsonLinesArguments[1..],
+                itemType);
         }
 
         private static ValueExpression CreateSseTerminalPredicate(InputStreamingType streamingType)
@@ -1663,12 +1681,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(responseType);
         }
 
-        private InputStreamingType? GetStreamingResponse()
+        private static CSharpType CreateRequiredCSharpType(
+            InputType inputType,
+            InputStreamingType streamingType,
+            string message)
+        {
+            var cSharpType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+            if (cSharpType != null)
+            {
+                return cSharpType;
+            }
+
+            ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                DiagnosticCodes.UnsupportedStreamingType,
+                message,
+                streamingType.CrossLanguageDefinitionId,
+                EmitterDiagnosticSeverity.Error);
+            throw new InvalidOperationException(message);
+        }
+
+        private InputStreamingType? GetStreamingResponseCore()
             => ServiceMethod.Operation.Responses
                 .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType as InputStreamingType;
 
         private bool HasStreamingRequestOrResponse()
-            => GetStreamingResponse() != null ||
+            => _streamingResponse.Value != null ||
                 ServiceMethod.Parameters.Any(parameter => parameter.Type is InputStreamingType);
 
         private bool ShouldMakeProtocolMethodParametersRequired()

@@ -10,12 +10,15 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// </summary>
     public sealed class InputStreamingType : InputType
     {
+        public const string JsonLinesStreamKind = "jsonl";
+        public const string SseStreamKind = "sse";
+
         public InputStreamingType(
             string name,
             string crossLanguageDefinitionId,
             InputType valueType,
             IReadOnlyList<string> contentTypes,
-            string streamKind = "jsonl",
+            string streamKind = JsonLinesStreamKind,
             string? terminalEventType = null,
             string? terminalEventValue = null)
             : base(name)

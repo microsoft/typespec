@@ -30,6 +30,7 @@ import {
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
 import {
+  compilerAssert,
   createDiagnosticCollector,
   Diagnostic,
   getDeprecated,
@@ -784,7 +785,11 @@ function fromSdkStreamMetadata(
 ): [InputStreamingType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const originalType = streamMetadata.originalType;
-  const streamKind = getStreamKind(streamMetadata)!;
+  const streamKind = getStreamKind(streamMetadata);
+  compilerAssert(
+    streamKind !== undefined,
+    "Stream metadata must have a supported stream kind before it is converted.",
+  );
   let terminalEventType: string | undefined;
   let terminalEventValue: string | undefined;
 
