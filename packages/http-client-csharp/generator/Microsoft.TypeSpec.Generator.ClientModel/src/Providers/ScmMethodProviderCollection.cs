@@ -207,7 +207,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, convenienceBodyParameters, true)];
+                var createRequestSignature = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation).Signature;
+                methodBody =
+                [
+                    .. GetPagingMethodBody(
+                        collection,
+                        createRequestSignature,
+                        convenienceBodyParameters,
+                        true,
+                        [.. protocolMethod.Signature.Parameters])
+                ];
             }
             else if (responseBodyType is null)
             {
@@ -1136,7 +1145,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Partial methods cannot have optional parameters in the implementation.
                 var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                    customSignature.Parameters,
+                    parameters,
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
@@ -1169,7 +1178,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, bodyParameters, false)];
+                methodBody = [.. GetPagingMethodBody(collection, createRequestMethod.Signature, bodyParameters, false)];
             }
             else
             {
@@ -1289,8 +1298,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression[]? BuildGroupedCreateRequestArguments(
             IReadOnlyList<ParameterProvider> createRequestParameters,
-            IReadOnlyList<ParameterProvider> protocolParameters)
+            IReadOnlyList<ParameterProvider> protocolParameters,
+            Func<ParameterProvider, ValueExpression>? getArgument = null)
         {
+            getArgument ??= parameter => parameter;
             var arguments = new ValueExpression[createRequestParameters.Count];
 
             for (int i = 0; i < createRequestParameters.Count; i++)
@@ -1306,12 +1317,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         return null;
                     }
 
-                    arguments[i] = match;
+                    arguments[i] = getArgument(match);
                     continue;
                 }
 
                 var groupParameter = protocolParameters.FirstOrDefault(
-                    p => string.Equals(p.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase));
+                    p => string.Equals(p.InputParameter?.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(p.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase));
                 if (groupParameter is null
                     || !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(groupParameter.Type, out var typeProvider)
                     || typeProvider is not ModelProvider groupModel)
@@ -1320,7 +1332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
-                var propertyExpression = groupModel.GetPropertyExpression(groupParameter, propertySegments, out var leafProperty);
+                var propertyExpression = groupModel.GetPropertyExpression(getArgument(groupParameter), propertySegments, out var leafProperty);
 
                 // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
                 if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
@@ -1443,19 +1455,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
+            MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
-            bool isConvenience)
+            bool isConvenience,
+            IReadOnlyList<ParameterProvider>? pagingProtocolParameters = null)
         {
             if (isConvenience)
             {
+                var conversionStatements = GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations);
+                var protocolArguments = GetProtocolMethodArguments(declarations);
+
+                IReadOnlyList<ValueExpression> constructorArguments = protocolArguments;
+                if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
+                {
+                    var protocolParameters = pagingProtocolParameters
+                        ?? throw new InvalidOperationException("Paging protocol parameters are required to expand grouped arguments.");
+                    var argumentMap = new Dictionary<ParameterProvider, ValueExpression>();
+                    for (int i = 0; i < protocolParameters.Count; i++)
+                    {
+                        argumentMap[protocolParameters[i]] = protocolArguments[i];
+                    }
+
+                    constructorArguments = BuildGroupedCreateRequestArguments(
+                        createRequestSignature.Parameters,
+                        protocolParameters,
+                        parameter => argumentMap[parameter]) ?? protocolArguments;
+                }
+
                 return
                     [
-                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                        .. conversionStatements,
                         Return(New.Instance(
                         collection.Type,
                         [
                             This,
-                            .. GetProtocolMethodArguments(declarations)
+                            .. constructorArguments
                         ]))
                     ];
             }
@@ -1464,7 +1498,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 collection.Type,
                 [
                     This,
-                    .. parameters
+                    .. BuildCreateRequestArguments(createRequestSignature, parameters)
                 ]));
         }
 

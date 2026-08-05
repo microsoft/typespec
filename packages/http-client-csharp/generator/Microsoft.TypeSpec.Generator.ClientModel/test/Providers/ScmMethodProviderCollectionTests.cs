@@ -1907,6 +1907,132 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task OptionsBagOverride_PagingMethodExpandsBagForCollectionResult()
+        {
+            var optionsModel = InputFactory.Model(
+                "GetWidgetsOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                ]);
+            var itemModel = InputFactory.Model(
+                "Widget",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
+            var optionsMethodParameter = InputFactory.MethodParameter(
+                "options",
+                optionsModel,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "Page",
+                    properties: [InputFactory.Property("items", InputFactory.Array(itemModel))]));
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "GetWidgets",
+                InputFactory.Operation("GetWidgets", parameters: [idParam, filterParam], responses: [response]),
+                parameters: [optionsMethodParameter],
+                pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [optionsModel, itemModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol && !m.Signature.Name.EndsWith("Async"));
+            var convenienceMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Convenience && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.IsNotNull(convenienceMethod);
+            Assert.IsTrue(protocolMethod!.Signature.Parameters.Any(p => p.Type.Name == "GetWidgetsOptions"));
+
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Protocol"),
+                protocolMethod.BodyStatements!.ToDisplayString());
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("Convenience"),
+                convenienceMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task OptionsBagOverride_CustomProtocolParameterNamesPreserveGroupedMapping()
+        {
+            var optionsModel = InputFactory.Model(
+                "GetWidgetOptions",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "id"),
+                    InputFactory.Property("filter", InputPrimitiveType.String, isRequired: false, isHttpMetadata: true, wireName: "filter"),
+                ]);
+            var optionsMethodParameter = InputFactory.MethodParameter(
+                "options",
+                optionsModel,
+                isRequired: true,
+                location: InputRequestLocation.Query);
+
+            var idParam = InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true);
+            idParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true),
+            ]);
+            var filterParam = InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: false, serializedName: "filter");
+            filterParam.Update(methodParameterSegments:
+            [
+                optionsMethodParameter,
+                InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget",
+                InputFactory.Operation(
+                    "GetWidget",
+                    parameters: [idParam, filterParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters: [optionsMethodParameter]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [optionsModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            var protocolMethod = methodCollection.FirstOrDefault(
+                m => m.Kind == ScmMethodKind.Protocol
+                    && m.IsPartialMethod
+                    && !m.Signature.Name.EndsWith("Async"));
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual("renamedOptions", protocolMethod!.Signature.Parameters[0].Name);
+            Assert.AreEqual("renamedRequestOptions", protocolMethod.Signature.Parameters[1].Name);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(),
+                protocolMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
         public async Task OptionsBagOverride_RequiredParamOptionalInBag_ProtocolStaysFlattened()
         {
             // https://github.com/microsoft/typespec/issues/11214
