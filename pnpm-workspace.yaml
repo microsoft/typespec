@@ -89,14 +89,14 @@ catalog:
   "@vscode/vsce": ^3.7.1
   ajv: ^8.18.0
   ajv-formats: ^3.0.1
-  astro: ^7.0.9
+  astro: ^7.1.0
   astro-expressive-code: ^0.44.0
   astro-rehype-relative-markdown-links: ^0.19.0
   c8: ^12.0.0
   change-case: ^5.4.4
   chokidar: ^5.0.0
   clsx: ^2.1.1
-  concurrently: ^10.0.0
+  concurrently: ^10.0.4
   cross-env: ^10.1.0
   cross-spawn: ^7.0.6
   cspell: ^10.0.0
@@ -150,7 +150,7 @@ catalog:
   strip-json-comments: ^5.0.3
   swagger-ui-dist: ^5.32.2
   swagger-ui-express: ^5.0.1
-  tar: ^7.5.13
+  tar: ^7.5.21
   temporal-polyfill: ^1.0.1
   tree-sitter-c-sharp: ^0.23.1
   tree-sitter-java: ^0.23.5
