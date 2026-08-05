@@ -22,6 +22,14 @@
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Ctors.#ctor(System.String,System.Int32)</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:Ns.Ctors.#ctor</Target>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
     <Target>M:Ns.Foo.get_Kind</Target>
   </Suppression>
   <Suppression>
