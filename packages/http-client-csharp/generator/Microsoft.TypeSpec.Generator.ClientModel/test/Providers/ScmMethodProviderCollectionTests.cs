@@ -217,6 +217,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
         }
 
+        [Test]
+        public async Task SpreadListUsesCanonicalPropertyWhenCustomConstructorParameterHasNoProperty()
+        {
+            var spreadModel = InputFactory.Model(
+                "listSpreadModel",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "CreateMessage",
+                InputFactory.Operation(
+                    "CreateMessage",
+                    parameters:
+                    [
+                        InputFactory.BodyParameter(
+                            "spread",
+                            spreadModel,
+                            isRequired: true,
+                            scope: InputParameterScope.Spread),
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter(
+                        "items",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        isRequired: true,
+                        scope: InputParameterScope.Spread),
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+
+            var convenienceMethods = methodCollection.Where(m => m.Signature.Parameters.All(p => p.Name != "content")).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            foreach (var method in convenienceMethods)
+            {
+                StringAssert.Contains(
+                    "global::Sample.Models.ListSpreadModel spreadModel = new global::Sample.Models.ListSpreadModel((items?.ToList() as global::System.Collections.Generic.IList<string> ?? new global::Sample.ChangeTrackingList<string>()), default);",
+                    method.BodyStatements!.ToDisplayString());
+            }
+        }
+
         // Validate that spread model correctly instantiates optional dictionary properties
         [Test]
         public async Task SpreadModelWithOptionalDictionaryIsNotNull()
@@ -1678,6 +1727,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Before the fix, building the body threw because the grouped query property was
             // looked up only by wire name ("band_index") while the segment carried the client
             // name ("bandIndex").
+            var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
+        public async Task MethodParameterSegments_EnumGroupedQueryParam_SerializesToProtocol()
+        {
+            // Options-bag override where a grouped query property is an (extensible) enum, while the
+            // protocol method flattens that parameter to string. The convenience body must serialize
+            // the enum (options.Resampling?.ToString(), null-conditional because the property is optional)
+            // before passing it to the protocol method; otherwise the generated code passes the enum
+            // where a string is expected and won't compile.
+            var resamplingEnum = InputFactory.StringEnum(
+                "Resampling",
+                [("Nearest", "nearest"), ("Bilinear", "bilinear")],
+                isExtensible: true);
+
+            var optionsModel = InputFactory.Model(
+                "GetPointOptions",
+                properties:
+                [
+                    InputFactory.Property(
+                        "resampling",
+                        resamplingEnum,
+                        isRequired: false,
+                        isHttpMetadata: true,
+                        wireName: "resampling"),
+                ]);
+
+            var collectionIdParam = InputFactory.PathParameter("collectionId", InputPrimitiveType.String, isRequired: true);
+            // Protocol flattens the enum query parameter to string.
+            var resamplingParam = InputFactory.QueryParameter("resampling", InputPrimitiveType.String, isRequired: false, serializedName: "resampling");
+            resamplingParam.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("resampling", resamplingEnum, isRequired: false),
+            ]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetPoint",
+                InputFactory.Operation(
+                    "GetPoint",
+                    parameters: [collectionIdParam, resamplingParam],
+                    responses: [InputFactory.OperationResponse([200])]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("collectionId", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("options", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m =>
+                m.Signature.Name == "GetPoint" &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "CancellationToken"));
+            Assert.IsNotNull(convenienceMethod);
+
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
         }

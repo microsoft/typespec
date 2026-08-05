@@ -18,10 +18,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
             foreach (var inputClient in inputClients)
             {
+                CreateClientProviders(inputClient);
+            }
+
+            foreach (var inputClient in inputClients)
+            {
                 BuildClient(inputClient, types);
             }
 
             return [.. types];
+        }
+
+        private static void CreateClientProviders(InputClient inputClient)
+        {
+            foreach (var child in inputClient.Children)
+            {
+                CreateClientProviders(child);
+            }
+
+            ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
         }
 
         private static void BuildClient(InputClient inputClient, HashSet<TypeProvider> types)
@@ -65,13 +80,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         protected override TypeProvider[] BuildTypeProviders()
         {
             var baseTypes = base.BuildTypeProviders();
-            var systemOptionalProvider = new SystemOptionalDefinition();
 
             for (var i = 0; i < baseTypes.Length; i++)
             {
                 if (baseTypes[i] is OptionalDefinition)
                 {
-                    baseTypes[i] = systemOptionalProvider;
+                    baseTypes[i] = ScmCodeModelGenerator.Instance.SystemOptionalDefinition;
                 }
             }
 
@@ -80,14 +94,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 ..BuildClientTypes(),
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
-                new TypeFormattersDefinition(),
+                ScmCodeModelGenerator.Instance.TypeFormattersDefinition,
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
-                new ClientPipelineExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
                 new CancellationTokenExtensionsDefinition(),
-                new PipelineRequestHeadersExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.PipelineRequestHeadersExtensionsDefinition,
                 .. GetMultipartFormDataTypes(),
                 new ModelReaderWriterContextDefinition()
             ];

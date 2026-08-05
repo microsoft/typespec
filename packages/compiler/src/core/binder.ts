@@ -3,7 +3,7 @@ import { compilerAssert } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
-import {
+import type {
   AliasStatementNode,
   ConstStatementNode,
   Declaration,
@@ -22,25 +22,22 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   MutableSymbolTable,
   NamespaceStatementNode,
   Node,
-  NodeFlags,
   OperationStatementNode,
   ScalarConstructorNode,
   ScalarStatementNode,
   ScopeNode,
   Sym,
-  SymbolFlags,
   SymbolTable,
-  SyntaxKind,
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
 } from "./types.js";
+import { ModifierFlags, NodeFlags, SymbolFlags, SyntaxKind } from "./types.js";
 
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules

@@ -1,3 +1,4 @@
+import type { Schema, SecurityScheme } from "@autorest/codemodel";
 import {
   AnySchema,
   ApiVersion,
@@ -29,11 +30,9 @@ import {
   Property,
   Relations,
   Response,
-  Schema,
   SchemaResponse,
   SchemaType,
   Security,
-  SecurityScheme,
   SerializationStyle,
   StringSchema,
   TimeSchema,
@@ -43,10 +42,9 @@ import {
   VirtualParameter,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
-import {
+import type {
   CreateSdkContextOptions,
   DecoratedType,
-  InitializedByFlags,
   SdkArrayType,
   SdkBodyParameter,
   SdkBuiltInType,
@@ -71,6 +69,9 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  InitializedByFlags,
   UsageFlags,
   createSdkContext,
   getAllModels,
@@ -81,16 +82,18 @@ import {
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
-import {
+import type {
   EmitContext,
   Interface,
   Namespace,
-  NoTarget,
   Operation,
   Program,
   Type,
   TypeNameOptions,
   Union,
+} from "@typespec/compiler";
+import {
+  NoTarget,
   getDoc,
   getNamespaceFullName,
   getOverloadedOperation,
@@ -99,23 +102,13 @@ import {
   isRecordModelType,
   listServices,
 } from "@typespec/compiler";
-import {
-  Authentication,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
-  Visibility,
-  getAuthentication,
-} from "@typespec/http";
+import type { Authentication, HttpStatusCodeRange, HttpStatusCodesEntry } from "@typespec/http";
+import { Visibility, getAuthentication } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
-import {
-  Client as CodeModelClient,
-  EncodedProperty,
-  EncodedSchema,
-  PageableContinuationToken,
-  Serializable,
-} from "./common/client.js";
+import type { EncodedProperty, EncodedSchema, Serializable } from "./common/client.js";
+import { Client as CodeModelClient, PageableContinuationToken } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -123,7 +116,8 @@ import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
 import { ConstantSchema, ConstantValue } from "./common/schemas/constant.js";
 import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
-import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
+import type { SchemaUsage } from "./common/schemas/usage.js";
+import { SchemaContext } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
@@ -140,7 +134,8 @@ import {
   operationIsMultipart,
   operationIsMultipleContentTypes,
 } from "./operation-utils.js";
-import { DevOptions, EmitterOptions, LIB_NAME } from "./options.js";
+import type { DevOptions, EmitterOptions } from "./options.js";
+import { LIB_NAME } from "./options.js";
 import {
   BYTES_KNOWN_ENCODING,
   DATETIME_KNOWN_ENCODING,
@@ -203,6 +198,7 @@ export interface EmitterOptionsDev {
   "enable-subclient"?: boolean;
 
   // not recommended to set
+  "required-fields-as-ctor-args"?: boolean;
   "group-etag-headers"?: boolean;
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
@@ -1049,6 +1045,24 @@ export class CodeModelBuilder {
           codeModelOperation.convenienceApi.language.java ?? new Language();
         codeModelOperation.convenienceApi.language.java.name = convenienceApiName;
       }
+
+      // opt-in: return significant response headers as a strongly-typed model from the convenience method
+      const responseHeadersAsModel = getClientOptions(sdkMethod, "responseHeadersAsModel") as
+        boolean | undefined;
+      if (responseHeadersAsModel === true) {
+        if (sdkMethod.response.type !== undefined) {
+          // the model is built purely from response headers, hence the operation must not have a response body
+          this.program.reportDiagnostic(
+            createDiagnostic({
+              code: "response-headers-as-model-with-body",
+              format: { operationName: operationName },
+              target: sdkMethod.__raw ?? NoTarget,
+            }),
+          );
+        } else {
+          codeModelOperation.convenienceApi.responseHeadersAsModel = true;
+        }
+      }
     }
     if (diagnostic) {
       codeModelOperation.language.java = codeModelOperation.language.java ?? new Language();
@@ -1185,22 +1199,6 @@ export class CodeModelBuilder {
       pageItemsResponseProperty && pageItemsResponseProperty.length > 0
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
-
-    if (
-      this.isAzureV1() &&
-      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
-    ) {
-      // TCGC should have verified that pageItems exists
-
-      // Azure V1 does not support nested page items
-      reportDiagnostic(this.program, {
-        code: "nested-page-items-not-supported",
-        target:
-          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
-            ?.__raw ?? NoTarget,
-      });
-      return;
-    }
 
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"

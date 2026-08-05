@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { resolvePackageImports } from "../../../src/module-resolver/esm/resolve-package-imports.js";
-import { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
+import type { EsmResolutionContext } from "../../../src/module-resolver/esm/utils.js";
 
 const context: Omit<EsmResolutionContext, "specifier"> = {
   packageUrl: "file:///test/",

@@ -1,13 +1,9 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { numericRanges } from "../../src/core/numeric-ranges.js";
+import type { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
-import {
-  DecoratorContext,
-  DecoratorFunction,
-  Model,
-  setTypeSpecNamespace,
-} from "../../src/index.js";
+import type { DecoratorContext, DecoratorFunction, Model } from "../../src/index.js";
+import { setTypeSpecNamespace } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

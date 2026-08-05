@@ -1,5 +1,5 @@
 import { joinPaths } from "../core/path-utils.js";
-import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
+import type { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
 export class LibraryProvider {
   private libPackageFilterResultCache = new Map<string, boolean>();

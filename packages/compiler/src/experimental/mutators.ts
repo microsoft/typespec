@@ -1,9 +1,9 @@
 import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
 import { isNumeric } from "../core/numeric.js";
-import { Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
-import {
+import type {
   DecoratedType,
   Decorator,
   DecoratorArgument,
@@ -37,9 +37,7 @@ import { Realm } from "./realm.js";
  * @experimental
  */
 export type MutatorRecord<T extends Type> =
-  | MutatorReplaceRecord<T>
-  | MutatorMutateRecord<T>
-  | MutatorFn<T>;
+  MutatorReplaceRecord<T> | MutatorMutateRecord<T> | MutatorFn<T>;
 
 /**
  * Common functionality for mutator records.

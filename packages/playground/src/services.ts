@@ -1,5 +1,7 @@
 import {
   TypeSpecLanguageConfiguration,
+  type CodeFix,
+  type CodeFixEdit,
   type Diagnostic,
   type DiagnosticTarget,
   type NoTarget,
@@ -137,10 +139,11 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   const { createServer } = host.compiler;
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
-    capabilities: {},
+    capabilities: { workspace: { workspaceFolders: true } },
     processId: 1,
-    workspaceFolders: [],
-    rootUri: "inmemory://",
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    rootUri: null,
+    workspaceFolders: [{ name: "<root>", uri: "inmemory://" }],
   });
   serverLib.initialized({});
 
@@ -395,7 +398,27 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       const compiler = _currentCompiler;
       if (!compiler) return { actions: [], dispose: () => {} };
 
+      // First pass: collect all fixes across the whole file, grouped by fix id,
+      // so we can offer "Fix all" when the same fix appears more than once.
+      const fixIdToFixes = new Map<string, CodeFix[]>();
+      for (const diag of _currentDiagnostics) {
+        if (!diag.codefixes?.length) continue;
+        const loc = compiler.getSourceLocation(diag.target, { locateId: true });
+        if (!loc || loc.file.path !== "/test/main.tsp") continue;
+        for (const fix of diag.codefixes) {
+          let fixes = fixIdToFixes.get(fix.id);
+          if (!fixes) {
+            fixes = [];
+            fixIdToFixes.set(fix.id, fixes);
+          }
+          fixes.push(fix);
+        }
+      }
+
+      // Second pass: emit per-instance actions for range-overlapping diagnostics,
+      // plus a "Fix all" action for any fix id that appears more than once.
       const actions: monaco.languages.CodeAction[] = [];
+      const fixAllAdded = new Set<string>();
       for (const diag of _currentDiagnostics) {
         if (!diag.codefixes?.length) continue;
         const loc = compiler.getSourceLocation(diag.target, { locateId: true });
@@ -405,41 +428,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
 
         for (const fix of diag.codefixes) {
           const edits = await compiler.resolveCodeFix(fix);
-          const workspaceEdits: monaco.languages.IWorkspaceTextEdit[] = edits
-            .filter((edit) => edit.file.path === "/test/main.tsp")
-            .map((edit) => {
-              const start = edit.file.getLineAndCharacterOfPosition(edit.pos);
-              if (edit.kind === "insert-text") {
-                return {
-                  resource: model.uri,
-                  textEdit: {
-                    range: {
-                      startLineNumber: start.line + 1,
-                      startColumn: start.character + 1,
-                      endLineNumber: start.line + 1,
-                      endColumn: start.character + 1,
-                    },
-                    text: edit.text,
-                  },
-                  versionId: undefined,
-                };
-              } else {
-                const end = edit.file.getLineAndCharacterOfPosition(edit.end);
-                return {
-                  resource: model.uri,
-                  textEdit: {
-                    range: {
-                      startLineNumber: start.line + 1,
-                      startColumn: start.character + 1,
-                      endLineNumber: end.line + 1,
-                      endColumn: end.character + 1,
-                    },
-                    text: edit.text,
-                  },
-                  versionId: undefined,
-                };
-              }
-            });
+          const workspaceEdits = codeFixEditsToMonacoEdits(model, edits);
 
           if (workspaceEdits.length > 0) {
             actions.push({
@@ -447,6 +436,22 @@ export async function registerMonacoLanguage(host: BrowserHost) {
               kind: "quickfix",
               edit: { edits: workspaceEdits },
             });
+          }
+
+          // Add "Fix all" if the same fix id appears more than once in the file.
+          const fixes = fixIdToFixes.get(fix.id);
+          if (fixes && fixes.length > 1 && !fixAllAdded.has(fix.id)) {
+            fixAllAdded.add(fix.id);
+            const allEdits = (
+              await Promise.all(fixes.map((f) => compiler.resolveCodeFix(f)))
+            ).flatMap((e) => codeFixEditsToMonacoEdits(model, e));
+            if (allEdits.length > 0) {
+              actions.push({
+                title: `Fix all: ${fix.label}`,
+                kind: "quickfix",
+                edit: { edits: allEdits },
+              });
+            }
           }
         }
       }
@@ -507,6 +512,47 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
     releaseDocumentSemanticTokens() {},
   });
+}
+
+function codeFixEditsToMonacoEdits(
+  model: monaco.editor.ITextModel,
+  edits: CodeFixEdit[],
+): monaco.languages.IWorkspaceTextEdit[] {
+  return edits
+    .filter((edit) => edit.file.path === "/test/main.tsp")
+    .map((edit) => {
+      const start = edit.file.getLineAndCharacterOfPosition(edit.pos);
+      if (edit.kind === "insert-text") {
+        return {
+          resource: model.uri,
+          textEdit: {
+            range: {
+              startLineNumber: start.line + 1,
+              startColumn: start.character + 1,
+              endLineNumber: start.line + 1,
+              endColumn: start.character + 1,
+            },
+            text: edit.text,
+          },
+          versionId: undefined,
+        };
+      } else {
+        const end = edit.file.getLineAndCharacterOfPosition(edit.end);
+        return {
+          resource: model.uri,
+          textEdit: {
+            range: {
+              startLineNumber: start.line + 1,
+              startColumn: start.character + 1,
+              endLineNumber: end.line + 1,
+              endColumn: end.character + 1,
+            },
+            text: edit.text,
+          },
+          versionId: undefined,
+        };
+      }
+    });
 }
 
 export function getMonacoRange(

@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 @ServiceClient(builder = XmlClientBuilder.class, isAsync = true)
 public final class XmlErrorValueAsyncClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final XmlErrorValuesImpl serviceClient;
@@ -86,6 +86,6 @@ public final class XmlErrorValueAsyncClient {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(SimpleModel.class, SERIALIZER));
+            .map(protocolMethodData -> protocolMethodData.toObject(SimpleModel.class, XML_SERIALIZER));
     }
 }

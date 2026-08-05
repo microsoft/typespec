@@ -26,7 +26,7 @@ import payload.xml.models.SimpleModel;
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class XmlErrorValueClient {
     @Generated
-    private static final ObjectSerializer SERIALIZER = XmlSerializerProviders.createInstance();
+    private static final ObjectSerializer XML_SERIALIZER = XmlSerializerProviders.createInstance();
 
     @Generated
     private final XmlErrorValuesImpl serviceClient;
@@ -82,6 +82,6 @@ public final class XmlErrorValueClient {
     public SimpleModel get() {
         // Generated convenience method for getWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class, SERIALIZER);
+        return getWithResponse(requestOptions).getValue().toObject(SimpleModel.class, XML_SERIALIZER);
     }
 }

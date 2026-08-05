@@ -27,12 +27,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var description = DocHelpers.GetFormattableDescription(_inputModel.Summary, _inputModel.Doc) ??
                               $"The {Name}.";
-            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
+            if (_isDiscriminatedBaseType)
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
-                var derivedClassesDescription =
-                    "Please note this is the abstract base class. The derived classes available for instantiation are: ";
+                var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
+                    ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
+                    : "Please note this is the base class. The derived classes available for instantiation are: ";
                 bool addComma = publicDerivedModels.Count > 2;
                 for (int i = 0; i < publicDerivedModels.Count; i++)
                 {
@@ -52,7 +53,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return description;
         }
 
-        private readonly bool _isMultiLevelDiscriminator;
+        private bool? _isMultiLevelDiscriminator;
+        private bool IsMultiLevelDiscriminator => _isMultiLevelDiscriminator ??= ComputeIsMultiLevelDiscriminator();
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly CSharpType _additionalObjectPropsFieldType = typeof(IDictionary<string, object>);
@@ -65,12 +67,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
+
+        private readonly bool _isDiscriminatedBaseType;
+
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
+            _isDiscriminatedBaseType = inputModel.DiscriminatorProperty is not null && inputModel.DiscriminatorValue is null;
             _useObjectAdditionalProperties = new Lazy<bool>(ShouldUseObjectAdditionalProperties);
         }
 
@@ -93,7 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -148,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Try to find the type in the customization compilation. Referenced assemblies are
                 // included so custom bases from framework or external packages are represented by
                 // normal symbol-backed providers.
-                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
+                var baseTypeProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
                     baseType.Namespace,
                     baseType.Name,
                     baseType.DeclaringType?.Name,
@@ -183,6 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _additionalPropertyFields = null;
             _additionalPropertyProperties = null;
             _fullConstructor = null;
+            _isMultiLevelDiscriminator = null;
         }
 
         protected FieldProvider? RawDataField
@@ -213,6 +219,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
         /// </summary>
@@ -324,7 +331,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 declarationModifiers |= TypeSignatureModifiers.Internal;
             }
 
-            if (_inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null)
+            if (_isDiscriminatedBaseType)
             {
                 declarationModifiers |= TypeSignatureModifiers.Abstract;
             }
@@ -622,9 +629,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // Apply back-compat type replacement only for properties on the public API
                 // surface: changing the type of an internal/private generated property is not
-                // a source-breaking change, and the last-contract map already excludes
-                // non-public-API entries.
-                if (IsPublicApi(outputProperty.Modifiers) &&
+                // a source-breaking change
+                if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
@@ -759,7 +765,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // For multi-level discriminators, add one additional private protected constructor
-            if (_isMultiLevelDiscriminator)
+            if (IsMultiLevelDiscriminator)
             {
                 var protectedConstructor = BuildProtectedInheritanceConstructor();
                 constructors.Add(protectedConstructor);
@@ -905,7 +911,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
-            else if (BaseModelProvider is not null && !HasBaseModelProviderCycle())
+            else if (BaseModelProvider is not null && BaseModelProvider.ShouldUseFullConstructorInDerivedTypes && !HasBaseModelProviderCycle())
             {
                 baseParameters.AddRange(BaseModelProvider.FullConstructor.Signature.Parameters);
             }
@@ -939,7 +945,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && _isMultiLevelDiscriminator)))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && IsMultiLevelDiscriminator)))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -948,7 +954,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider._isMultiLevelDiscriminator))
+                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                     {
                         var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
                         var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
@@ -1355,7 +1361,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _ when type.IsUnion => type,
                 _ when type.IsList => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0])]),
                 _ when type.IsDictionary => type.MakeGenericType([ReplaceUnverifiableType(type.Arguments[0]), ReplaceUnverifiableType(type.Arguments[1])]),
-                _ => CSharpType.FromUnion([type])
+                _ => CSharpType.FromUnion([type], false, UnionItemTypeReferenceKind.MetadataOnly)
             };
         }
 
@@ -1373,6 +1379,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)
@@ -1410,9 +1417,5 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return $"_additional{name.ToIdentifierName()}Properties";
         }
-
-        private static bool IsPublicApi(MethodSignatureModifiers modifiers)
-            => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
     }
 }

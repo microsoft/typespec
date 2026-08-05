@@ -1,5 +1,5 @@
-import { Interface, Namespace } from "@typespec/compiler";
-import { HttpOperation } from "@typespec/http";
+import type { Interface, Namespace } from "@typespec/compiler";
+import type { HttpOperation } from "@typespec/http";
 
 export interface InternalClient {
   kind: "Client";

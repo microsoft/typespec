@@ -40,6 +40,8 @@ See [Configuring output directory for more info](https://typespec.io/docs/handbo
 
 **Type:** `boolean`
 
+**Default:** `false`
+
 Skips formatting of generated C# Types. By default, C# files are formatted using 'dotnet format'.
 
 ### `output-type`
@@ -94,11 +96,15 @@ The name of the generated project.
 
 **Type:** `number`
 
+**Default:** `null`
+
 The service http port when hosting the project locally.
 
 ### `https-port`
 
 **Type:** `number`
+
+**Default:** `null`
 
 The service https port when hosting the project locally.
 

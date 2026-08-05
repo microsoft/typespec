@@ -1,4 +1,4 @@
-import { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
+import type { TypeSpecDecorators, TypeSpecFunctions } from "../../generated-defs/TypeSpec.js";
 import {
   $discriminator,
   $doc,

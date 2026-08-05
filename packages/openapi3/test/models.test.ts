@@ -1,4 +1,4 @@
-import { DiagnosticTarget } from "@typespec/compiler";
+import type { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";

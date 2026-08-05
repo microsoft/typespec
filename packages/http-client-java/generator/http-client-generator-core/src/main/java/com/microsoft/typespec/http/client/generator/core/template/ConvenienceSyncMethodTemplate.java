@@ -86,9 +86,17 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     protected void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
         String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses) {
 
-        IType responseBodyType = getResponseBodyType(convenienceMethod);
-        IType protocolResponseBodyType = getResponseBodyType(protocolMethod);
+        IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
+        IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync && isResponseHeadersAsModel(convenienceMethod)) {
+            // The convenience method returns the strongly-typed response-headers model, built from the response
+            // headers of the protocol method (which returns Response<Void>).
+            methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
+            methodBlock.methodReturn(String.format("new %1$s(protocolMethodResponse.getHeaders())", responseBodyType));
+            return;
+        }
 
         String convertFromResponse
             = convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse ? "" : ".getValue()";
@@ -184,20 +192,6 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
             statement);
     }
 
-    private IType getResponseBodyType(ClientMethod method) {
-        // no need to care about LRO
-        IType type = method.getReturnValue().getType();
-        if (type instanceof GenericType
-            && (ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
-                || (ClassType.PAGED_ITERABLE.getName().equals(((GenericType) type).getName())))) {
-            type = ((GenericType) type).getTypeArguments()[0];
-        } else if (isResponseBase(type)) {
-            // TODO: ResponseBase is not in use, hence it may have bug
-            type = ((GenericType) type).getTypeArguments()[1];
-        }
-        return type;
-    }
-
     private boolean isResponseBase(IType type) {
         return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
     }
@@ -205,7 +199,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
         Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
-        String serializerArgument = xmlSerializerArgument(mimeType);
+        String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
                 String basicText = invocationExpression + ".toString()";

@@ -522,7 +522,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static CSharpType? TryGetStructUnderlyingType(CSharpType type)
         {
             var typeProvider = CodeModelGenerator.Instance.SourceInputModel
-                .FindForTypeInCustomization(type.Namespace, type.Name);
+                .FindForTypeInCurrentCompilation(type.Namespace, type.Name);
 
             if (typeProvider == null)
             {

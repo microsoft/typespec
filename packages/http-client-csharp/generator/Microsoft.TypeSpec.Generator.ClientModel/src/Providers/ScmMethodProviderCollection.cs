@@ -29,7 +29,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmMethodProviderCollection : IReadOnlyList<ScmMethodProvider>
     {
         private readonly MethodProvider _createRequestMethod;
-        private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
@@ -458,10 +457,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Get wire name from the parameter's property if available, otherwise resolve
                 // from the model's properties by matching the parameter name to a property name.
-                var wireName = param.Property?.WireInfo?.SerializedName;
+                var property = param.Property;
+                var wireName = property?.WireInfo?.SerializedName;
                 if (wireName == null)
                 {
                     propertyWireNames.TryGetValue(param.Name, out wireName);
+                }
+
+                if (property == null && wireName != null)
+                {
+                    property = spreadSource.CanonicalView.Properties.FirstOrDefault(
+                        p => string.Equals(p.WireInfo?.SerializedName, wireName, StringComparison.OrdinalIgnoreCase));
                 }
 
                 ParameterProvider? convenienceParam = null;
@@ -474,7 +480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (convenienceParam.Type.IsList)
                     {
-                        var interfaceType = param.Property!.WireInfo?.IsReadOnly == true
+                        var interfaceType = property?.WireInfo?.IsReadOnly == true
                             ? new CSharpType(typeof(IReadOnlyList<>), convenienceParam.Type.Arguments)
                             : new CSharpType(typeof(IList<>), convenienceParam.Type.Arguments);
                         expressions.Add(new AsExpression(convenienceParam.NullConditional().ToList(), interfaceType)
@@ -910,7 +916,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
                         typeProvider is ModelProvider paramModel)
                     {
-                        AddArgument(protocolParam, paramModel.GetPropertyExpression(convenienceParam, propertySegments));
+                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments, out var leafProperty);
+
+                        // When the options property is an enum but the protocol method flattens it to its
+                        // serialized (string/number) form, serialize it before forwarding, mirroring the
+                        // conversion applied to non-grouped enum convenience parameters below.
+                        if (leafProperty.Type.IsEnum && !protocolParam.Type.IsEnum)
+                        {
+                            if (leafProperty.Type.IsNullable)
+                            {
+                                propertyExpression = propertyExpression.NullConditional();
+                            }
+                            propertyExpression = leafProperty.Type.ToSerial(propertyExpression);
+                        }
+
+                        AddArgument(protocolParam, propertyExpression);
                     }
                 }
                 else
@@ -1152,7 +1172,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         This.Invoke(createRequestMethod.Signature,
                             BuildCreateRequestArguments(createRequestMethod.Signature, bodyParameters)), out var message),
                     Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client
-                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type)))
+                        .PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition.Type)))
                 ];
             }
 

@@ -25,6 +25,9 @@ namespace Microsoft.TypeSpec.Generator
             => _changeTrackingDictionaryProvider ??= new();
         private ChangeTrackingDictionaryDefinition? _changeTrackingDictionaryProvider;
 
+        private OptionalDefinition? _optionalProvider;
+        private OptionalDefinition OptionalProvider => _optionalProvider ??= new();
+
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
@@ -41,8 +44,6 @@ namespace Microsoft.TypeSpec.Generator
 
         private IReadOnlyList<LibraryVisitor> Visitors => CodeModelGenerator.Instance.Visitors;
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
-
-        internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
 
         protected internal TypeFactory()
         {
@@ -101,11 +102,6 @@ namespace Microsoft.TypeSpec.Generator
                         if (unionInput != null)
                         {
                             unionInputs.Add(unionInput);
-                            // we only keep the type if it is not framework type and not literal
-                            if (!unionInput.IsFrameworkType && !unionInput.IsLiteral)
-                            {
-                                UnionVariantTypesToKeep.Add(unionInput.Name);
-                            }
                         }
                     }
                     type = CSharpType.FromUnion(unionInputs);
@@ -303,15 +299,15 @@ namespace Microsoft.TypeSpec.Generator
                 _ => enumProvider,
             };
 
-            if (enumType.Access == "public")
-            {
-                CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
-            }
-
             EnumCache.Add(enumCacheKey, enumProvider);
 
             if (enumProvider != null)
             {
+                if (enumType.Access == "public")
+                {
+                    CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
+                }
+
                 CSharpTypeMap[enumProvider.Type] = enumProvider;
                 TypeProvidersByName[enumProvider.Type.Name] = enumProvider;
             }
@@ -362,13 +358,14 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // Neither path resolved the type — emit a diagnostic that explains what was attempted.
-            // Each branch is a self-contained sentence so the final message reads naturally and
-            // doesn't repeat "could not be resolved".
-            var details = string.IsNullOrEmpty(externalProperties.Package)
-                ? "no package metadata was provided"
-                : string.IsNullOrEmpty(externalProperties.MinVersion)
-                    ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
-                    : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed";
+            // Prefer the concrete reason recorded by the resolver (missing package, unloadable assembly,
+            // unsatisfied dependency, ...) so the message points at the actual problem.
+            var details = ExternalTypeReferenceResolver.GetFailureReason(externalProperties)
+                ?? (string.IsNullOrEmpty(externalProperties.Package)
+                    ? "no package metadata was provided"
+                    : string.IsNullOrEmpty(externalProperties.MinVersion)
+                        ? $"package '{externalProperties.Package}' was not found in the NuGet cache or any configured feed"
+                        : $"package '{externalProperties.Package}' (>= {externalProperties.MinVersion}) was not found in the NuGet cache or any configured feed");
 
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",

@@ -55,7 +55,7 @@ public class TypeSpecPlugin extends Javagen {
     }
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
-        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings, false);
+        JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())
@@ -129,8 +129,9 @@ public class TypeSpecPlugin extends Javagen {
             }
         }
 
-        // XmlSerializer
+        // XmlSerializer, only for the azure-core (v1) data-plane flavor
         final boolean generateXmlSerializer = JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
             && client.getModels().stream().filter(ModelUtil::isGeneratingModel).anyMatch(ClientModel::isUsedInXml);
         if (generateXmlSerializer) {
             javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
@@ -222,6 +223,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getPartialUpdate() != null) {
             SETTINGS_MAP.put("partial-update", options.getPartialUpdate());
+        }
+        if (options.getRequiredFieldsAsConstructorArgs() != null) {
+            SETTINGS_MAP.put("required-fields-as-ctor-args", options.getRequiredFieldsAsConstructorArgs());
         }
         if (!CoreUtils.isNullOrEmpty(options.getServiceVersions())) {
             SETTINGS_MAP.put("service-versions", options.getServiceVersions());
@@ -370,17 +374,17 @@ public class TypeSpecPlugin extends Javagen {
         client.getAsyncClients()
             .forEach(asyncClient -> crossLanguageDefinitionsMap.put(
                 asyncClient.getPackageName() + "." + asyncClient.getClassName(),
-                asyncClient.getCrossLanguageDefinitionId()));
+                asyncClient.getApiMetadata().getCrossLanguageDefinitionId()));
 
         client.getSyncClients()
             .forEach(syncClient -> crossLanguageDefinitionsMap.put(
                 syncClient.getPackageName() + "." + syncClient.getClassName(),
-                syncClient.getCrossLanguageDefinitionId()));
+                syncClient.getApiMetadata().getCrossLanguageDefinitionId()));
 
         client.getClientBuilders()
             .forEach(clientBuilder -> crossLanguageDefinitionsMap.put(
                 clientBuilder.getPackageName() + "." + clientBuilder.getClassName(),
-                clientBuilder.getCrossLanguageDefinitionId()));
+                clientBuilder.getApiMetadata().getCrossLanguageDefinitionId()));
 
         // Method
         for (AsyncSyncClient asyncClient : client.getAsyncClients()) {
@@ -391,13 +395,13 @@ public class TypeSpecPlugin extends Javagen {
                     .filter(method -> !method.getName().endsWith("Async"))
                     .forEach(method -> crossLanguageDefinitionsMap.put(
                         asyncClient.getPackageName() + "." + asyncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
+                        method.getApiMetadata().getCrossLanguageDefinitionId()));
 
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
                     crossLanguageDefinitionsMap.put(
                         asyncClient.getPackageName() + "." + asyncClient.getClassName() + "."
                             + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                        convenienceMethod.getProtocolMethod().getApiMetadata().getCrossLanguageDefinitionId());
                 }
             }
         }
@@ -410,13 +414,13 @@ public class TypeSpecPlugin extends Javagen {
                     .filter(method -> !method.getName().endsWith("Async"))
                     .forEach(method -> crossLanguageDefinitionsMap.put(
                         syncClient.getPackageName() + "." + syncClient.getClassName() + "." + method.getName(),
-                        method.getCrossLanguageDefinitionId()));
+                        method.getApiMetadata().getCrossLanguageDefinitionId()));
 
                 if (!convenienceMethod.getProtocolMethod().getName().endsWith("Async")) {
                     crossLanguageDefinitionsMap.put(
                         syncClient.getPackageName() + "." + syncClient.getClassName() + "."
                             + convenienceMethod.getProtocolMethod().getName(),
-                        convenienceMethod.getProtocolMethod().getCrossLanguageDefinitionId());
+                        convenienceMethod.getProtocolMethod().getApiMetadata().getCrossLanguageDefinitionId());
                 }
             }
         }
@@ -424,13 +428,13 @@ public class TypeSpecPlugin extends Javagen {
         // Client model
         client.getModels().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         // Enum
         client.getEnums().stream().filter(ModelUtil::isGeneratingModel).forEach(model -> {
             crossLanguageDefinitionsMap.put(model.getPackage() + "." + model.getName(),
-                model.getCrossLanguageDefinitionId());
+                model.getApiMetadata().getCrossLanguageDefinitionId());
         });
 
         return crossLanguageDefinitionsMap;

@@ -1,7 +1,8 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { describe, expect, it, vi } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Model, SyntaxKind, Type } from "../../src/core/types.js";
+import type { Model, Type } from "../../src/core/types.js";
+import { SyntaxKind } from "../../src/core/types.js";
 import { Numeric, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,

@@ -671,6 +671,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void UnverifiableAdditionalPropertyTypeIsMetadataOnly()
+        {
+            var valueModel = InputFactory.Model("ValueModel");
+            var dictionaryModel = new ModelProvider(
+                InputFactory.Model(
+                    "DictionaryModel",
+                    properties: [],
+                    additionalProperties: valueModel));
+
+            var valueType = dictionaryModel.Properties
+                .Single(property => property.IsAdditionalProperties)
+                .Type
+                .ElementType;
+
+            Assert.IsTrue(valueType.IsUnion);
+            Assert.AreEqual(UnionItemTypeReferenceKind.MetadataOnly, valueType.UnionItemTypeReferenceKind);
+            Assert.AreEqual("ValueModel", valueType.UnionItemTypes.Single().Name);
+        }
+
+        [Test]
         public void TestAdditionalPropertiesPropertyNamesAndAccessors()
         {
             // model with multiple additional properties
@@ -1538,6 +1558,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.ToList());
+            Assert.IsTrue(modelProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(ProviderReferenceMapAnalyzer.ShouldWriteProvider(modelProvider));
         }
 
         [Test]
@@ -1577,12 +1602,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         // Regression test for two complementary fixes:
         //
-        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor;
-        //    registration is performed by TypeFactory.CreateModel after construction completes.
-        //    This mirrors the EnumProvider lifecycle and prevents a virtual call chain
-        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) from
-        //    being dispatched on a partially-constructed derived ModelProvider whose override
-        //    reads derived-class fields that are still uninitialized.
+        // 1. ModelProvider no longer registers itself with AddTypeToKeep from its constructor,
+        //    so construction does not dispatch a virtual call chain
+        //    (AddTypeToKeep -> TypeProvider.Type -> BaseType -> virtual BuildBaseType()) on a
+        //    partially-constructed derived ModelProvider whose override reads derived-class fields
+        //    that are still uninitialized.
         //
         // 2. AddTypeToKeep(TypeProvider) defers FQN resolution until the keep set is consumed,
         //    so even ctor-time callers cannot force premature TypeProvider.Type evaluation.
@@ -1620,6 +1644,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 _ = _derivedInputModel.DiscriminatorValue;
                 return base.BuildBaseType();
             }
+        }
+
+        [Test]
+        public void DerivedModelProviderConstructionDoesNotForceNameEvaluation()
+        {
+            var inputModel = InputFactory.Model("MockInputModel", access: "public");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            TestModelProvider? provider = null;
+            Assert.DoesNotThrow(() => provider = new TestModelProvider(inputModel, "ProjectedModel"));
+            Assert.AreEqual("ProjectedModel", provider!.Name);
         }
 
         // Regression for the second virtual-call-in-ctor offender: ModelProvider..ctor used to
@@ -2223,7 +2258,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             MockHelpers.LoadMockGenerator();
             var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String)]);
             // Use the subclass to ensure we populate serialization providers
-            var modelProvider = new TestModelProvider(inputModel);
+            var modelProvider = new TestModelProvider(inputModel, "TestModel");
 
             var serializationProviders = modelProvider.SerializationProviders;
             Assert.IsNotNull(serializationProviders);
@@ -2247,9 +2282,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         private class TestModelProvider : ModelProvider
         {
-            public TestModelProvider(InputModelType inputModel) : base(inputModel)
+            private readonly string? _name;
+
+            public TestModelProvider(InputModelType inputModel, string name) : base(inputModel)
             {
+                _name = name;
             }
+
+            protected override string BuildName()
+                => _name ?? throw new InvalidOperationException("The derived provider has not finished construction.");
 
             protected override TypeProvider[] BuildSerializationProviders()
             {
@@ -2335,6 +2376,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(2, propertyType.Arguments.Count, "Dictionary should have 2 type arguments");
             Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
             Assert.AreEqual(typeof(object), propertyType.Arguments[1].FrameworkType, "Value type should be object for backward compatibility");
+        }
+
+        [Test]
+        public async Task TestBuildProperties_NonPublicObjectAdditionalPropertiesNotUsedForBackwardCompatibility()
+        {
+            var inputModel = InputFactory.Model(
+                "TestModel",
+                usage: InputModelTypeUsage.Input,
+                properties: [InputFactory.Property("Name", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: InputPrimitiveType.Any);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(modelProvider);
+
+            // The last contract's object AdditionalProperties property is non-public, so it is not part of the
+            // contract and must not force object additional properties; BinaryData is preserved.
+            var additionalPropertiesProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "AdditionalProperties");
+            Assert.IsNotNull(additionalPropertiesProperty, "AdditionalProperties property should be generated");
+
+            var propertyType = additionalPropertiesProperty!.Type;
+            Assert.IsTrue(propertyType.IsDictionary, "Property should be a dictionary type");
+            Assert.AreEqual(typeof(string), propertyType.Arguments[0].FrameworkType, "Key type should be string");
+            Assert.AreEqual(typeof(BinaryData), propertyType.Arguments[1].FrameworkType, "Value type should stay BinaryData");
         }
 
         [TestCase(InputModelTypeUsage.Output | InputModelTypeUsage.Xml, false, TestName = "XmlOnly_OutputOnly_NoField")]

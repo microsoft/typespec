@@ -2,7 +2,8 @@ import { Realm } from "../experimental/realm.js";
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { $ } from "../typekit/index.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import type { Mutable } from "../utils/misc.js";
+import { MultiKeyMap, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createAutoDecoratorImplementation } from "./auto-decorator.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
@@ -30,7 +31,7 @@ import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { checkModifiers } from "./modifiers.js";
-import { NameResolver } from "./name-resolver.js";
+import type { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
   exprIsBareIdentifier,
@@ -51,7 +52,7 @@ import {
   isType,
   isValue,
 } from "./type-utils.js";
-import {
+import type {
   AliasStatementNode,
   ArrayExpressionNode,
   ArrayLiteralNode,
@@ -89,7 +90,6 @@ import {
   FunctionType,
   FunctionTypeExpressionNode,
   FunctionValue,
-  IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
   Interface,
@@ -114,7 +114,6 @@ import {
   ModelProperty,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   Namespace,
   NamespaceStatementNode,
   NeverType,
@@ -130,7 +129,6 @@ import {
   ObjectValuePropertyDescriptor,
   Operation,
   OperationStatementNode,
-  ResolutionResultFlags,
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
@@ -152,10 +150,8 @@ import {
   StringTemplateTailNode,
   StringValue,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameter,
   TemplateParameterAccess,
@@ -182,6 +178,13 @@ import {
   Value,
   ValueWithTemplate,
   VoidType,
+} from "./types.js";
+import {
+  IdentifierKind,
+  ModifierFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
 } from "./types.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
@@ -355,10 +358,10 @@ export interface Checker {
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
-  createType<T extends Type extends any ? CreateTypeProps : never>(
+  createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
-  createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
@@ -2629,6 +2632,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         node.parent,
       );
     }
+    // Enter the template declaration scope before checking the template declaration itself.
+    // `checkTemplateDeclaration` resolves template parameter defaults (e.g.
+    // `Properties extends {} = TagsUpdateModel<Resource>`), which can instantiate types and run
+    // their decorators. Those instantiations still reference the enclosing template parameters, so
+    // they must be treated as being in a template declaration (skipDecorators) to avoid running
+    // decorators with unresolved template parameters. This mirrors what `checkModelStatement` does.
+    if (ctx.mapper === undefined && node.templateParameters.length > 0) {
+      ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
+    }
+
     checkTemplateDeclaration(ctx, node);
 
     // If we are instantating operation inside of interface
@@ -2636,7 +2649,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ctx = ctx.withMapper({ ...ctx.mapper, partial: true });
     }
 
-    if ((ctx.mapper === undefined || ctx.mapper.partial) && node.templateParameters.length > 0) {
+    if (ctx.mapper?.partial && node.templateParameters.length > 0) {
       ctx = ctx.withFlags(CheckFlags.InTemplateDeclaration);
     }
 
@@ -7959,7 +7972,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   // the types here aren't ideal and could probably be refactored.
 
-  function createAndFinishType<T extends Type extends any ? CreateTypeProps : never>(
+  function createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" } {
     createType(typeDef);
@@ -7983,7 +7996,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /**
    * Given the own-properties of a type, returns a fully-initialized type.
    */
-  function createType<T extends Type extends any ? CreateTypeProps : never>(
+  function createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; entityKind: "Type" } {
     stats.createdTypes++;

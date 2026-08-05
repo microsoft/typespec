@@ -22,8 +22,8 @@ import { parseArgs } from "util";
 
 import {
   buildTaskGroups,
+  cleanGeneratedCode,
   getSubdirectories,
-  prepareBaselineOfGeneratedCode,
   preprocess,
   RegenerateContext,
   RegenerateFlags,
@@ -256,7 +256,7 @@ async function main() {
   const startTime = performance.now();
   let success: boolean;
 
-  await prepareBaselineOfGeneratedCode(GENERATED_FOLDER);
+  await cleanGeneratedCode(GENERATED_FOLDER);
 
   if (flavor) {
     success = await regenerateFlavor(flavor, name, debug, jobs);

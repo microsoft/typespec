@@ -18,6 +18,20 @@ from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
 def _make_code_model(models_mode="dpg"):
+    options = {
+        "show-send-request": True,
+        "builders-visibility": "public",
+        "show-operations": True,
+        "models-mode": models_mode,
+        "flavor": "unbranded",
+        "client-side-validation": False,
+    }
+    # The deprecated 'typeddict' models-mode is represented internally as models-mode
+    # none (falsy) + generate-typeddict enabled on a TypeSpec input.
+    if models_mode == "typeddict":
+        options["models-mode"] = None
+        options["generate-typeddict"] = True
+        options["tsp_file"] = True
     return CodeModel(
         {
             "clients": [
@@ -32,21 +46,14 @@ def _make_code_model(models_mode="dpg"):
             ],
             "namespace": "namespace",
         },
-        options={
-            "show-send-request": True,
-            "builders-visibility": "public",
-            "show-operations": True,
-            "models-mode": models_mode,
-            "flavor": "unbranded",
-            "client-side-validation": False,
-        },
+        options=options,
     )
 
 
 def _make_model(code_model, name, model_cls=None, properties=None):
     """Create a model of the given class attached to code_model."""
     if model_cls is None:
-        if code_model.options["models-mode"] == "typeddict":
+        if code_model.generate_typeddict_only:
             model_cls = TypedDictModelType
         elif code_model.options["models-mode"] == "dpg":
             model_cls = DPGModelType
@@ -366,6 +373,36 @@ def test_models_mode_typeddict_serialize_contains_class():
     output = ts.serialize()
     assert "class Foo(TypedDict, total=False):" in output
     assert "TypedDict" in output
+
+
+def test_models_mode_typeddict_docstring_uses_wire_name():
+    """TypedDict docstrings in types.py should document the on-the-wire property name."""
+    code_model = _make_code_model(models_mode="typeddict")
+    string_type = build_type({"type": "string"}, code_model)
+    model = TypedDictModelType(
+        yaml_data={"name": "Foo", "type": "model", "snakeCaseName": "foo", "usage": 2},
+        code_model=code_model,
+        properties=[
+            Property(
+                yaml_data={
+                    "wireName": "paramName",
+                    "clientName": "param_name",
+                    "optional": True,
+                },
+                code_model=code_model,
+                type=string_type,
+            )
+        ],
+    )
+    code_model.model_types = [model]
+
+    env = _make_env()
+    output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
+
+    assert ":ivar paramName:" in output
+    assert ":vartype paramName: str" in output
+    assert ":ivar param_name:" not in output
+    assert ":vartype param_name:" not in output
 
 
 def test_types_file_has_no_named_unions():

@@ -101,7 +101,7 @@ Expected behavior: Should render numbered list properly.
 
 - Endpoint: `get /documentation/text-formatting/bold`
 
-Expected behavior: Text between \*\* should render as bold.
+Expected behavior: Text between ** should render as bold.
 
 ### Documentation_TextFormatting_combinedFormatting
 
@@ -115,7 +115,7 @@ Expected behavior: Should handle nested and combined formatting.
 - Endpoint: `get /documentation/text-formatting/italic`
 
 Test italic text formatting using _single asterisks_.
-Expected behavior: Text between \* should render as italic.
+Expected behavior: Text between * should render as italic.
 
 ### Encode_Array_Property_commaDelimited
 

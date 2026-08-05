@@ -120,6 +120,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedSummary, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [TestCase(true, "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        [TestCase(false, "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        public void DiscriminatedBaseDescriptionReflectsAbstractness(bool isAbstract, string expectedDescription)
+        {
+            MockHelpers.LoadMockGenerator();
+            // When not abstract, simulate a downstream emitter that does not model the discriminated base type as abstract.
+            var baseModel = isAbstract
+                ? CodeModelGenerator.Instance.TypeFactory.CreateModel(_baseModel)!
+                : new NonAbstractModelProvider(_baseModel);
+            Assert.AreEqual(isAbstract, baseModel.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            // The discriminated base description should reference derived models regardless of abstractness.
+            Assert.IsNotNull(baseModel.XmlDocs.Summary);
+            StringAssert.Contains(expectedDescription, baseModel.XmlDocs.Summary!.ToDisplayString());
+        }
+
+        private class NonAbstractModelProvider : ModelProvider
+        {
+            public NonAbstractModelProvider(InputModelType inputModel) : base(inputModel)
+            {
+            }
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            {
+                return base.BuildDeclarationModifiers() & ~TypeSignatureModifiers.Abstract;
+            }
+        }
+
         [Test]
         public void DiscriminatorPropertyShouldBeInternal()
         {

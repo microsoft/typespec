@@ -1,11 +1,7 @@
 import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  MarkupKind,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind } from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
@@ -759,6 +755,52 @@ describe("identifiers", () => {
         documentation: {
           kind: MarkupKind.Markdown,
           value: "(enum member)\n```typespec\n`enum`.`foo-bar`\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in member expression without backticks", async () => {
+    const completions = await complete(
+      `
+      model Test {
+        auto: string;
+      }
+      alias A = Test.au┆
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nTest.auto: string\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes keyword property name in model body without backticks", async () => {
+    const completions = await complete(
+      `
+      model Base {
+        auto: string;
+      }
+      model Child extends Base {
+        au┆
+      }
+      `,
+    );
+    check(completions, [
+      {
+        label: "auto",
+        insertText: "auto",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nBase.auto: string\n```",
         },
       },
     ]);
