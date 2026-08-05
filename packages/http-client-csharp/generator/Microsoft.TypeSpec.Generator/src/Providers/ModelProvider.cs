@@ -800,7 +800,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousConstructor in previousConstructors)
             {
-                if (!MethodProviderHelpers.IsPublicApi(previousConstructor.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
                 {
                     continue;
                 }
@@ -818,8 +818,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // counts as already present; an inaccessible generated mocking constructor does not.
                 if (!Type.IsStruct && previousParameters.Count == 0)
                 {
-                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers))
-                        && !CanonicalView.Constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers)))
+                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                        && !CanonicalView.Constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
                     {
                         var parameterlessConstructor = BuildBackCompatParameterlessConstructor(previousConstructor, candidateConstructors);
                         RemoveGeneratedMockingConstructor(constructors);
@@ -872,7 +872,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorProvider? targetConstructor = null;
             foreach (var candidate in currentConstructors)
             {
-                if (!MethodProviderHelpers.IsPublicApi(candidate.Signature.Modifiers)
+                if (!MethodSignatureHelper.IsPublicApi(candidate.Signature.Modifiers)
                     || candidate.Signature.Parameters.Count >= previousParameters.Count)
                 {
                     continue;
@@ -970,8 +970,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
             var target = currentConstructors
                 .Where(c => c.Signature.Parameters.Count > 0
-                    && (MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers) || (c.Signature.Modifiers & privateProtected) == privateProtected))
-                .MinBy(c => (MethodProviderHelpers.IsPublicApi(c.Signature.Modifiers) ? 0 : 1, c.Signature.Parameters.Count(p => p.DefaultValue is null)));
+                    && (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) || (c.Signature.Modifiers & privateProtected) == privateProtected))
+                .MinBy(c => (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) ? 0 : 1, c.Signature.Parameters.Count(p => p.DefaultValue is null)));
 
             ConstructorInitializer? initializer = target is null
                 ? null
@@ -1033,7 +1033,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lookup = new Dictionary<string, PropertyProvider>();
             foreach (var property in CanonicalView.Properties)
             {
-                if (!MethodProviderHelpers.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
                 {
                     continue;
                 }
