@@ -90,7 +90,7 @@
     "@typespec/xml": "0.84.0",
     "@vitest/coverage-v8": "^4.1.8",
     "@vitest/ui": "^4.1.8",
-    "c8": "^10.1.2",
+    "c8": "^12.0.0",
     "rimraf": "~6.0.1",
     "typescript": "~5.8.2",
     "vitest": "^4.1.8"
