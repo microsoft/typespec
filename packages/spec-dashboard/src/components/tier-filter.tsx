@@ -1,5 +1,5 @@
 import { Tab, TabList } from "@fluentui/react-components";
-import { FunctionComponent } from "react";
+import type { FunctionComponent } from "react";
 import style from "./dashboard.module.css";
 export interface TierFilterProps {
   allTiers?: string[];

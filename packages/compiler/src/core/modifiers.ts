@@ -3,17 +3,16 @@
 
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
-import { Program } from "./program.js";
-import {
+import type { Program } from "./program.js";
+import type {
   Declaration,
   EnumDeclarationExpressionNode,
   ModelDeclarationExpressionNode,
   Modifier,
-  ModifierFlags,
   ScalarDeclarationExpressionNode,
-  SyntaxKind,
   UnionDeclarationExpressionNode,
 } from "./types.js";
+import { ModifierFlags, SyntaxKind } from "./types.js";
 
 /**
  * The compatibility of modifiers for a given declaration node type.

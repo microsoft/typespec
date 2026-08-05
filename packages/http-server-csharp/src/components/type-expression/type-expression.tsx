@@ -1,5 +1,5 @@
 import { code, type Children } from "@alloy-js/core";
-import type { Scalar, Type } from "@typespec/compiler";
+import { isStdNamespace, type Namespace, type Scalar, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { Experimental_ComponentOverridesConfig, useTsp } from "@typespec/emitter-framework";
 import {
@@ -43,6 +43,18 @@ export function TypeExpression(props: TypeExpressionProps): Children {
       } catch {
         return code`${type.name ?? "object"}`;
       }
+    case "EnumMember": {
+      // A property typed as a specific enum member (e.g. `kind: Color.red`) uses
+      // the parent enum type in C#. Std-lib enums (e.g. auth `AuthType`) are not
+      // emitted, so fall back to the member's underlying primitive value type.
+      if (isInStdLibNamespace(type.enum.namespace)) {
+        if (typeof type.value === "number") {
+          return Number.isInteger(type.value) ? code`int` : code`double`;
+        }
+        return code`string`;
+      }
+      return code`${efRefkey(type.enum)}`;
+    }
     case "Tuple":
       // Tuple of values — use the type of the first element as array
       if (type.values.length > 0) {
@@ -156,6 +168,21 @@ export function TypeExpression(props: TypeExpressionProps): Children {
         return code`object`;
       }
   }
+}
+
+/**
+ * Returns true when the namespace (or any of its ancestors) is a TypeSpec
+ * standard-library namespace. Enums declared under the std library (e.g.
+ * `TypeSpec.Http.AuthType`) are never emitted, so references to their members
+ * must fall back to a primitive type instead of an (unresolved) enum reference.
+ */
+function isInStdLibNamespace(namespace: Namespace | undefined): boolean {
+  let current = namespace;
+  while (current) {
+    if (isStdNamespace(current)) return true;
+    current = current.namespace;
+  }
+  return false;
 }
 
 function resolveUnionType($: Typekit, union: import("@typespec/compiler").Union): Children {

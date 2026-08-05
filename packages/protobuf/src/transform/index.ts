@@ -1,36 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  compilerAssert,
+import type {
   DiagnosticTarget,
   Enum,
-  formatDiagnostic,
-  getDoc,
-  getEffectiveModelType,
-  getFriendlyName,
-  getTypeName,
   Interface,
   IntrinsicType,
-  isDeclaredInNamespace,
-  isTemplateInstance,
-  isType,
   Model,
   ModelProperty,
   Namespace,
   Operation,
   Program,
-  resolvePath,
   Scalar,
   StringLiteral,
   Type,
   Union,
 } from "@typespec/compiler";
+import {
+  compilerAssert,
+  formatDiagnostic,
+  getDoc,
+  getEffectiveModelType,
+  getFriendlyName,
+  getTypeName,
+  isDeclaredInNamespace,
+  isTemplateInstance,
+  isType,
+  resolvePath,
+} from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { capitalize } from "@typespec/compiler/casing";
-import {
-  map,
-  matchType,
+import type {
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
   ProtoFieldDeclaration,
@@ -43,14 +43,13 @@ import {
   ProtoScalar,
   ProtoTopLevelDeclaration,
   ProtoType,
-  ref,
-  scalar,
   ScalarIntegralName,
-  StreamingMode,
-  unreachable,
 } from "../ast.js";
-import { ProtobufEmitterOptions, reportDiagnostic, state } from "../lib.js";
-import { $field, isMap, Reservation } from "../proto.js";
+import { map, matchType, ref, scalar, StreamingMode, unreachable } from "../ast.js";
+import type { ProtobufEmitterOptions } from "../lib.js";
+import { reportDiagnostic, state } from "../lib.js";
+import type { Reservation } from "../proto.js";
+import { $field, isMap } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map

@@ -1,18 +1,22 @@
 import { pathToFileURL } from "url";
-import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver";
+import type { Diagnostic, TextDocumentIdentifier } from "vscode-languageserver";
+import { FileChangeType } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
-import { IdentifierNode, SyntaxKind } from "../core/types.js";
+import type { IdentifierNode } from "../core/types.js";
+import { SyntaxKind } from "../core/types.js";
 import { createClientConfigProvider } from "../server/client-config-provider.js";
-import { Server, ServerHost, createServer } from "../server/index.js";
-import { ServerCompileOptions } from "../server/server-compile-manager.js";
+import type { Server, ServerHost } from "../server/index.js";
+import { createServer } from "../server/index.js";
+import type { ServerCompileOptions } from "../server/server-compile-manager.js";
 import { createStringMap } from "../utils/misc.js";
 import { createTestFileSystem } from "./fs.js";
-import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
+import type { TestHostOptions } from "./test-compiler-host.js";
+import { StandardTestLibrary } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
-import { TestFileSystem } from "./types.js";
+import type { TestFileSystem } from "./types.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;

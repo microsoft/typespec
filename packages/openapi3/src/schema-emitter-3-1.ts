@@ -1,22 +1,17 @@
-import {
-  ArrayBuilder,
+import type {
   AssetEmitter,
-  createAssetEmitter,
   EmitterOutput,
-  ObjectBuilder,
   Placeholder,
-  setProperty,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import {
-  compilerAssert,
+  ArrayBuilder,
+  createAssetEmitter,
+  ObjectBuilder,
+  setProperty,
+} from "@typespec/asset-emitter";
+import type {
   Enum,
-  getDiscriminatedUnion,
-  getDoc,
-  getExamples,
-  getMaxValueExclusive,
-  getMinValueExclusive,
-  getSummary,
   IntrinsicScalarName,
   IntrinsicType,
   Model,
@@ -28,19 +23,29 @@ import {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
-import { MetadataInfo } from "@typespec/http";
+import {
+  compilerAssert,
+  getDiscriminatedUnion,
+  getDoc,
+  getExamples,
+  getMaxValueExclusive,
+  getMinValueExclusive,
+  getSummary,
+} from "@typespec/compiler";
+import type { MetadataInfo } from "@typespec/http";
 import { getOneOf } from "./decorators.js";
 import { serializeExample } from "./examples.js";
-import { JsonSchemaModule } from "./json-schema.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import type { JsonSchemaModule } from "./json-schema.js";
+import type { OpenAPI3EmitterOptions } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
-import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
-import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import type { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
+import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
-import { JsonType, OpenAPISchema3_1 } from "./types.js";
+import type { JsonType, OpenAPISchema3_1 } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
-import { VisibilityUsageTracker } from "./visibility-usage.js";
-import { XmlModule } from "./xml-module.js";
+import type { VisibilityUsageTracker } from "./visibility-usage.js";
+import type { XmlModule } from "./xml-module.js";
 
 function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,

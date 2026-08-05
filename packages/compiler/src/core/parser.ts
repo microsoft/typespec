@@ -1,7 +1,8 @@
 import { isArray, mutate } from "../utils/misc.js";
 import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
-import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import type { CompilerDiagnostics } from "./messages.js";
+import { createDiagnostic } from "./messages.js";
 import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
@@ -20,7 +21,7 @@ import {
   TokenDisplay,
   TokenFlags,
 } from "./scanner.js";
-import {
+import type {
   AliasStatementNode,
   AnyKeywordNode,
   ArrayLiteralNode,
@@ -60,7 +61,6 @@ import {
   FunctionParameterNode,
   FunctionTypeExpressionNode,
   IdentifierContext,
-  IdentifierKind,
   IdentifierNode,
   ImportStatementNode,
   InterfaceStatementNode,
@@ -74,11 +74,9 @@ import {
   ModelSpreadPropertyNode,
   ModelStatementNode,
   Modifier,
-  ModifierFlags,
   NamespaceStatementNode,
   NeverKeywordNode,
   Node,
-  NodeFlags,
   NumericLiteralNode,
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
@@ -100,7 +98,6 @@ import {
   StringTemplateSpanNode,
   StringTemplateTailNode,
   Sym,
-  SyntaxKind,
   TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
@@ -115,6 +112,7 @@ import {
   ValueOfExpressionNode,
   VoidKeywordNode,
 } from "./types.js";
+import { IdentifierKind, ModifierFlags, NodeFlags, SyntaxKind } from "./types.js";
 
 /**
  * Callback to parse each element in a delimited list

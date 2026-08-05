@@ -1,6 +1,7 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { getDoc, StringTemplate } from "../../src/index.js";
+import type { StringTemplate } from "../../src/index.js";
+import { getDoc } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,

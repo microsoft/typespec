@@ -1,8 +1,9 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
-import { FunctionComponent, useState } from "react";
-import { CoverageSummary } from "../apis.js";
+import type { FunctionComponent } from "react";
+import { useState } from "react";
+import type { CoverageSummary } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
-import { TierConfig } from "../utils/tier-filtering-utils.js";
+import type { TierConfig } from "../utils/tier-filtering-utils.js";
 import { CoverageOverview } from "./coverage-overview.js";
 import { DashboardTable } from "./dashboard-table.js";
 import style from "./dashboard.module.css";

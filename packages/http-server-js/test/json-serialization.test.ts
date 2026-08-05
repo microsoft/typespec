@@ -1,5 +1,6 @@
-import { Model, ModelProperty } from "@typespec/compiler";
-import { BasicTestRunner, createTestRunner } from "@typespec/compiler/testing";
+import type { Model, ModelProperty } from "@typespec/compiler";
+import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { createTestRunner } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import {
@@ -7,7 +8,7 @@ import {
   requiresJsonSerialization,
 } from "../src/common/serialization/json.js";
 import { createInitialContext } from "../src/ctx.js";
-import { JsEmitterOptions } from "../src/lib.js";
+import type { JsEmitterOptions } from "../src/lib.js";
 import { objectLiteralProperty, parseCase } from "../src/util/case.js";
 import { keywordSafe } from "../src/util/keywords.js";
 

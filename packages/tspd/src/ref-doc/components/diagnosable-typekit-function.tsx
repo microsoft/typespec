@@ -1,8 +1,9 @@
 import { List } from "@alloy-js/core";
 import * as md from "@alloy-js/markdown";
 import * as ts from "@alloy-js/typescript";
-import { Excerpt, ExcerptToken } from "@microsoft/api-extractor-model";
-import { TypekitFunctionDoc } from "../typekit-docs.js";
+import type { Excerpt } from "@microsoft/api-extractor-model";
+import { ExcerptToken } from "@microsoft/api-extractor-model";
+import type { TypekitFunctionDoc } from "../typekit-docs.js";
 
 export interface DiagnosableTypekitFunctionProps {
   readonly typekit: TypekitFunctionDoc;

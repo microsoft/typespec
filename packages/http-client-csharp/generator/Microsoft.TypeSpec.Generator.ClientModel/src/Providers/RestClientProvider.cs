@@ -58,6 +58,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
+
         protected override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];
@@ -637,9 +640,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         valueExpression.AsDictionary(paramType),
                         out KeyValuePairExpression item);
                     var convertedItem = paramType.ElementType.IsEnum
-                        ? paramType.ElementType.ToSerial(item)
+                        ? paramType.ElementType.ToSerial(item.Value)
                         : item.Value;
-                    forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    AddExplodeQueryItem(forEachStatement, uri, item.Key, convertedItem, paramType.ElementType);
                     return forEachStatement;
                 }
                 else
@@ -674,8 +677,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     convertedItem = item;
                 }
-                forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                AddExplodeQueryItem(forEachStatement, uri, Literal(inputQueryParameter.SerializedName), convertedItem, paramType.ElementType);
                 return forEachStatement;
+            }
+        }
+
+        private static bool IsExtensibleStringEnum(CSharpType type)
+            => type.IsEnum && type.IsStruct && type.UnderlyingEnumType == typeof(string);
+
+        private static void AddExplodeQueryItem(
+            ForEachStatement forEachStatement,
+            ScopedApi uri,
+            ValueExpression key,
+            ValueExpression convertedItem,
+            CSharpType elementType)
+        {
+            if (IsExtensibleStringEnum(elementType))
+            {
+                forEachStatement.Add(Declare("paramStr", typeof(string), convertedItem, out VariableExpression cachedVar));
+                forEachStatement.Add(new IfStatement(cachedVar.As<string>().NotEqual(Null))
+                {
+                    uri.AppendQuery(key, cachedVar, true).Terminate()
+                });
+            }
+            else
+            {
+                forEachStatement.Add(uri.AppendQuery(key, convertedItem, true).Terminate());
             }
         }
 

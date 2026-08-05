@@ -116,7 +116,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (currentMethodSignatures.Contains(previousMethod.Signature))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers) ||
+                    currentMethodSignatures.Contains(previousMethod.Signature))
                 {
                     continue;
                 }
@@ -125,6 +126,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // baseline, honor that decision and do not resurrect a compatibility shim for it.
                 if (BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
+                    continue;
+                }
+
+                var unavailableTypes = GetUnavailableSignatureTypes(previousMethod.Signature);
+                if (unavailableTypes.Count > 0)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.UnavailableBackcompatType,
+                        $"Skipped backward compatible model factory method '{previousMethod.Signature.FullMethodName}' because its signature references unavailable type(s): {string.Join(", ", unavailableTypes)}.");
                     continue;
                 }
 
@@ -207,6 +217,93 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. factoryMethods];
+        }
+
+        internal static IReadOnlyList<string> GetUnavailableSignatureTypes(MethodSignature signature)
+        {
+            var unavailableTypes = new HashSet<string>(StringComparer.Ordinal);
+            if (signature.ReturnType != null)
+            {
+                CollectUnavailableTypes(signature.ReturnType, unavailableTypes);
+            }
+
+            foreach (var parameter in signature.Parameters)
+            {
+                CollectUnavailableTypes(parameter.Type, unavailableTypes);
+            }
+
+            return [.. unavailableTypes.OrderBy(type => type, StringComparer.Ordinal)];
+        }
+
+        private static void CollectUnavailableTypes(CSharpType type, ISet<string> unavailableTypes)
+        {
+            foreach (var argument in type.Arguments)
+            {
+                CollectUnavailableTypes(argument, unavailableTypes);
+            }
+
+            if (type.IsFrameworkType)
+            {
+                return;
+            }
+
+            if (TryGetArrayElementName(type, out var elementName))
+            {
+                if (!IsTypeAvailable(type.Namespace, elementName, type.DeclaringType?.Name))
+                {
+                    unavailableTypes.Add(string.IsNullOrEmpty(type.Namespace) ? elementName : $"{type.Namespace}.{elementName}");
+                }
+                return;
+            }
+
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.CSharpTypeMap.Keys.Any(type.AreNamesEqual))
+            {
+                return;
+            }
+
+            var declaringTypeName = type.DeclaringType?.Name;
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                type.Namespace,
+                type.Name,
+                declaringTypeName,
+                includeReferencedAssemblies: true) != null)
+            {
+                return;
+            }
+
+            unavailableTypes.Add(type.FullyQualifiedName);
+        }
+
+        private static bool TryGetArrayElementName(CSharpType type, [NotNullWhen(true)] out string? elementName)
+        {
+            var bracketIndex = type.Name.IndexOf('[');
+            if (bracketIndex <= 0)
+            {
+                elementName = null;
+                return false;
+            }
+
+            elementName = type.Name[..bracketIndex];
+            return true;
+        }
+
+        private static bool IsTypeAvailable(string ns, string name, string? declaringTypeName)
+        {
+            var typeFactory = CodeModelGenerator.Instance.TypeFactory;
+            if (typeFactory.CSharpTypeMap.Keys.Any(
+                type => type.Name == name &&
+                    (string.IsNullOrEmpty(ns) || type.Namespace == ns) &&
+                    type.DeclaringType?.Name == declaringTypeName))
+            {
+                return true;
+            }
+
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                ns,
+                name,
+                declaringTypeName,
+                includeReferencedAssemblies: true) != null;
         }
 
         private bool TryBuildCompatibleMethodForPreviousContract(

@@ -1,16 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import {
-  Aspect,
-  HttpHeader,
-  Metadata,
-  OperationGroup,
-  Parameter,
-  Property,
-  Security,
-} from "@autorest/codemodel";
-import { DeepPartial } from "@azure-tools/codegen";
-import { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
-import { XmlSerializationFormat } from "./formats/xml.js";
+import type { HttpHeader, OperationGroup, Parameter, Property } from "@autorest/codemodel";
+import { Aspect, Metadata, Security } from "@autorest/codemodel";
+import type { DeepPartial } from "@azure-tools/codegen";
+import type { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
+import type { XmlSerializationFormat } from "./formats/xml.js";
 
 export interface Client extends Aspect {
   /** All operations  */

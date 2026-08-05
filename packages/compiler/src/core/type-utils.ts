@@ -1,5 +1,5 @@
 import type { Program } from "./program.js";
-import {
+import type {
   ArrayModelType,
   Entity,
   Enum,
@@ -13,8 +13,6 @@ import {
   Operation,
   RecordModelType,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   TemplateDeclarationNode,
   TemplatedType,
   Type,
@@ -23,6 +21,7 @@ import {
   Value,
   VoidType,
 } from "./types.js";
+import { SymbolFlags, SyntaxKind } from "./types.js";
 
 export function isErrorType(type: Entity): type is ErrorType {
   return "kind" in type && type.kind === "Intrinsic" && type.name === "ErrorType";

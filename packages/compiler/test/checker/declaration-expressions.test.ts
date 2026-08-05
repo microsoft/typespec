@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Enum, Model, Scalar, Type, Union } from "../../src/core/types.js";
+import type { Enum, Model, Scalar, Type, Union } from "../../src/core/types.js";
 import { getDoc, getTypeName, resolvePath } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { createTester } from "../../src/testing/tester.js";

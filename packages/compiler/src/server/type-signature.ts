@@ -6,7 +6,7 @@ import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
-import {
+import type {
   AliasStatementNode,
   Decorator,
   EnumMember,
@@ -18,12 +18,11 @@ import {
   Operation,
   StringTemplate,
   Sym,
-  SymbolFlags,
-  SyntaxKind,
   Type,
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { SymbolFlags, SyntaxKind } from "../core/types.js";
 import { walkPropertiesInherited } from "../index.js";
 
 interface GetSymbolSignatureOptions {

@@ -1,4 +1,13 @@
 {
+  "empty": {
+    "title": "Empty project",
+    "description": "Create an empty project with just the bare minimum to get started.",
+    "compilerVersion": "1.14.0",
+    "libraries": [],
+    "config": {
+      "kind": "project"
+    }
+  },
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API service.",

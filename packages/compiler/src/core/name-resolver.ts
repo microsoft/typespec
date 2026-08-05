@@ -57,12 +57,13 @@
  * program.
  **/
 
-import { Mutable, mutate } from "../utils/misc.js";
+import type { Mutable } from "../utils/misc.js";
+import { mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
-import { Program } from "./program.js";
-import {
+import type { Program } from "./program.js";
+import type {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
   DecoratorExpressionNode,
@@ -77,27 +78,29 @@ import {
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
-  ModifierFlags,
   NamespaceStatementNode,
   Node,
-  NodeFlags,
   NodeLinks,
   OperationStatementNode,
   ResolutionResult,
-  ResolutionResultFlags,
   ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   Sym,
-  SymbolFlags,
   SymbolLinks,
   SymbolTable,
-  SyntaxKind,
   TemplateParameterDeclarationNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionDeclarationExpressionNode,
   UnionStatementNode,
   UsingStatementNode,
+} from "./types.js";
+import {
+  ModifierFlags,
+  NodeFlags,
+  ResolutionResultFlags,
+  SymbolFlags,
+  SyntaxKind,
 } from "./types.js";
 
 export interface NameResolver {

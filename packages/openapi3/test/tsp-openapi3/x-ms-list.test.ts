@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Response } from "../../src/types.js";
+import type { OpenAPI3Response } from "../../src/types.js";
 import { renderTypeSpecForOpenAPI3, validateTsp } from "./utils/tsp-for-openapi3.js";
 
 const response: OpenAPI3Response = {

@@ -1,4 +1,4 @@
-import { ModelProperty } from "@typespec/compiler";
+import type { ModelProperty } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";

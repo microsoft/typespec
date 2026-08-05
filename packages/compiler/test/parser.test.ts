@@ -4,22 +4,19 @@ import { CharCode } from "../src/core/charcode.js";
 import { logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
-import {
+import type {
   IdentifierNode,
   ModelStatementNode,
   Node,
   ParseOptions,
   SourceFile,
   StringTemplateExpressionNode,
-  SyntaxKind,
   TypeSpecScriptNode,
 } from "../src/core/types.js";
-import { DecorableNode } from "../src/formatter/print/types.js";
-import {
-  DiagnosticMatch,
-  expectDiagnosticEmpty,
-  expectDiagnostics,
-} from "../src/testing/expect.js";
+import { SyntaxKind } from "../src/core/types.js";
+import type { DecorableNode } from "../src/formatter/print/types.js";
+import type { DiagnosticMatch } from "../src/testing/expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../src/testing/expect.js";
 import { dumpAST } from "./ast-test-utils.js";
 
 describe("future reserved keywords", () => {
