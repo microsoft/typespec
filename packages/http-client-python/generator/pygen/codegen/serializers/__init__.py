@@ -35,12 +35,7 @@ from .test_serializer import TestSerializer, TestGeneralSerializer
 from .types_serializer import TypesSerializer
 from .unions_serializer import UnionsSerializer
 from ...utils import to_snake_case, VALID_PACKAGE_MODE
-from .utils import (
-    extract_sample_name,
-    get_namespace_from_package_name,
-    get_namespace_config,
-    hash_file_import,
-)
+from .utils import extract_sample_name, get_namespace_from_package_name, get_namespace_config, hash_file_import
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -151,18 +146,12 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        for (
-            client_namespace,
-            client_namespace_type,
-        ) in self.code_model.client_namespace_types.items():
+        for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             generation_path = self.code_model.get_generation_dir(client_namespace)
             if client_namespace == "":
                 if self.code_model.options["basic-setup-py"]:
                     # Write the setup file
-                    self.write_file(
-                        generation_path / Path("setup.py"),
-                        general_serializer.serialize_setup_file(),
-                    )
+                    self.write_file(generation_path / Path("setup.py"), general_serializer.serialize_setup_file())
                 elif not self.code_model.options["keep-setup-py"]:
                     # remove setup.py file
                     self.remove_file(generation_path / Path("setup.py"))
@@ -245,7 +234,7 @@ class JinjaSerializer(ReaderAndWriter):
                         env=env,
                         client_namespace=client_namespace,
                         models=client_namespace_type.models,
-                        enums=(client_namespace_type.enums if is_typeddict_mode else None),
+                        enums=client_namespace_type.enums if is_typeddict_mode else None,
                     ).serialize(),
                 )
 
@@ -258,9 +247,7 @@ class JinjaSerializer(ReaderAndWriter):
             # add operations folder if there are operations in this namespace
             if client_namespace_type.operation_groups:
                 self._serialize_and_write_operations_folder(
-                    client_namespace_type.operation_groups,
-                    env=env,
-                    namespace=client_namespace,
+                    client_namespace_type.operation_groups, env=env, namespace=client_namespace
                 )
 
             # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
@@ -329,11 +316,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
     def _serialize_and_write_models_folder(
-        self,
-        env: Environment,
-        namespace: str,
-        models: list[ModelType],
-        enums: list[EnumType],
+        self, env: Environment, namespace: str, models: list[ModelType], enums: list[EnumType]
     ) -> None:
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
@@ -344,26 +327,18 @@ class JinjaSerializer(ReaderAndWriter):
             serializer = MsrestModelSerializer
         # Filter out typed-dict-only models and typeddict copies — they only appear in types.py, not as model classes
         class_models = [m for m in models if not m.is_typed_dict_only and m.base != "typeddict"]
-        if not class_models and not enums:
-            return
         if self.code_model.has_non_json_models(class_models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
                 serializer(
-                    code_model=self.code_model,
-                    env=env,
-                    client_namespace=namespace,
-                    models=class_models,
+                    code_model=self.code_model, env=env, client_namespace=namespace, models=class_models
                 ).serialize(),
             )
         if enums:
             self.write_file(
                 models_path / Path(f"{self.code_model.enums_filename}.py"),
                 EnumSerializer(
-                    code_model=self.code_model,
-                    env=env,
-                    client_namespace=namespace,
-                    enums=enums,
+                    code_model=self.code_model, env=env, client_namespace=namespace, enums=enums
                 ).serialize(),
             )
         self.write_file(
@@ -425,10 +400,7 @@ class JinjaSerializer(ReaderAndWriter):
             prefix_path = f"{async_path}{operations_folder_name}"
             # write init file
             operations_init_serializer = OperationsInitSerializer(
-                code_model=self.code_model,
-                operation_groups=operation_groups,
-                env=env,
-                async_mode=async_mode,
+                code_model=self.code_model, operation_groups=operation_groups, env=env, async_mode=async_mode
             )
             self.write_file(
                 generation_path / Path(f"{prefix_path}/__init__.py"),
@@ -495,10 +467,7 @@ class JinjaSerializer(ReaderAndWriter):
         generation_path = self.code_model.get_generation_dir(namespace)
         for async_mode, async_path in self.serialize_loop:
             general_serializer = GeneralSerializer(
-                code_model=self.code_model,
-                env=env,
-                async_mode=async_mode,
-                client_namespace=namespace,
+                code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace
             )
             # when there is client.py, there must be __init__.py
             self.write_file(
@@ -706,10 +675,6 @@ class JinjaSerializer(ReaderAndWriter):
                         output_path = out_path / f"{to_snake_case(test_serializer.test_class_name)}.py"
                         self.write_file(output_path, content)
                 except Exception as e:  # pylint: disable=broad-except
-                    _LOGGER.error(
-                        "error happens in test generation for operation group %s: %s",
-                        og.class_name,
-                        e,
-                    )
+                    _LOGGER.error("error happens in test generation for operation group %s: %s", og.class_name, e)
 
         self.code_model.for_test = False
