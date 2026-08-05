@@ -1,11 +1,7 @@
 import { deepStrictEqual, equal, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  MarkupKind,
-} from "vscode-languageserver";
+import type { CompletionItem, CompletionList } from "vscode-languageserver";
+import { CompletionItemKind, MarkupKind } from "vscode-languageserver";
 import { extractCursor, extractSquiggles } from "../../src/testing/source-utils.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 

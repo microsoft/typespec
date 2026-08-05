@@ -1,5 +1,5 @@
+import type { Interface } from "@typespec/compiler";
 import {
-  Interface,
   isStdNamespace,
   isTemplateDeclaration,
   type Operation,

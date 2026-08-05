@@ -1,4 +1,4 @@
-import { Metadata, Schema } from "@autorest/codemodel";
+import type { Metadata, Schema } from "@autorest/codemodel";
 
 export class LongRunningMetadata {
   longRunning: boolean = false;

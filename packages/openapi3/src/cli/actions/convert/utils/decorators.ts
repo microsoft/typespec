@@ -1,6 +1,6 @@
 import { printIdentifier } from "@typespec/compiler";
-import { ExtensionKey } from "@typespec/openapi";
-import {
+import type { ExtensionKey } from "@typespec/openapi";
+import type {
   Extensions,
   OpenAPI3Parameter,
   OpenAPI3Schema,
@@ -10,7 +10,7 @@ import {
   Refable,
 } from "../../../../types.js";
 import { stringLiteral } from "../generators/common.js";
-import { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
+import type { TSValue, TypeSpecDecorator, TypeSpecDirective } from "../interfaces.js";
 import type { Context } from "./context.js";
 
 const validLocations = ["header", "query", "path", "cookie"];

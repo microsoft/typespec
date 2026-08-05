@@ -1,5 +1,5 @@
-import { Contact, License } from "@typespec/openapi";
-import {
+import type { Contact, License } from "@typespec/openapi";
+import type {
   OpenAPI3Encoding,
   OpenAPI3Responses,
   Refable,

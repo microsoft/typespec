@@ -1,5 +1,4 @@
-import {
-  isHttpMetadata,
+import type {
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -14,12 +13,14 @@ import {
   SdkModelType,
   SdkType,
   SdkUnionType,
-  UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { getEncode, Type } from "@typespec/compiler";
-import { HttpAuth, Visibility } from "@typespec/http";
+import { isHttpMetadata, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import type { Type } from "@typespec/compiler";
+import { getEncode } from "@typespec/compiler";
+import type { HttpAuth } from "@typespec/http";
+import { Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
-import { PythonSdkContext } from "./lib.js";
+import type { PythonSdkContext } from "./lib.js";
 import {
   camelToSnakeCase,
   emitParamBase,

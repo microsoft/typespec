@@ -1,7 +1,8 @@
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createDiagnostic } from "../core/messages.js";
-import { Diagnostic, NoTarget } from "../core/types.js";
-import {
+import type { Diagnostic } from "../core/types.js";
+import { NoTarget } from "../core/types.js";
+import type {
   ConfigEnvironmentVariable,
   ConfigParameter,
   EmitterOptions,

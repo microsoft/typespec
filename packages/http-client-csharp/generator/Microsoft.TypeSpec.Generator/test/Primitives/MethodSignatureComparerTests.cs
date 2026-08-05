@@ -4,6 +4,7 @@
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 {
@@ -114,6 +115,54 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
 
             Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(nonNullable, nullable));
             Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(nullable, nonNullable));
+        }
+
+        // Two optional value-type parameters that differ only by nullability (int vs int?) are distinct under
+        // the default comparer but equal under the relaxed comparer, since a caller that omits the parameter
+        // can't disambiguate them (CS0121).
+        [Test]
+        public void OptionalValueTypeParameter_DiffersOnlyByNullability_EqualOnlyUnderRelaxedComparer()
+        {
+            var intParam = new ParameterProvider("value", $"value", new CSharpType(typeof(int)), defaultValue: Default);
+            var nullableIntParam = new ParameterProvider("value", $"value", new CSharpType(typeof(int), isNullable: true), defaultValue: Default);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
+
+            var a = new MethodSignature("Create", null, modifiers, typeof(object), null, [intParam]);
+            var b = new MethodSignature("Create", null, modifiers, typeof(object), null, [nullableIntParam]);
+
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(a, b));
+            Assert.IsTrue(MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(a, b));
+        }
+
+        // A value-type nullability difference on a REQUIRED parameter is a genuinely distinct, unambiguous
+        // overload and stays distinct even under the relaxed comparer.
+        [Test]
+        public void RequiredValueTypeParameter_DiffersByNullability_NotEqualUnderEitherComparer()
+        {
+            var intParam = new ParameterProvider("value", $"value", new CSharpType(typeof(int)));
+            var nullableIntParam = new ParameterProvider("value", $"value", new CSharpType(typeof(int), isNullable: true));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
+
+            var a = new MethodSignature("Create", null, modifiers, typeof(object), null, [intParam]);
+            var b = new MethodSignature("Create", null, modifiers, typeof(object), null, [nullableIntParam]);
+
+            Assert.IsFalse(MethodSignatureBase.SignatureComparer.Equals(a, b));
+            Assert.IsFalse(MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(a, b));
+        }
+
+        // The relaxed comparer only loosens optional value-type parameter nullability — it still applies every
+        // other signature check, e.g. it keeps distinguishing conversion operators by return type.
+        [Test]
+        public void RelaxedComparer_StillDistinguishesOperatorsByReturnType()
+        {
+            var enumType = new CSharpType(typeof(int));
+            var valueParam = new ParameterProvider("value", $"value", typeof(string));
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Implicit | MethodSignatureModifiers.Operator;
+
+            var nonNullable = new MethodSignature(string.Empty, null, modifiers, enumType, null, [valueParam]);
+            var nullable = new MethodSignature(string.Empty, null, modifiers, enumType.WithNullable(true), null, [valueParam]);
+
+            Assert.IsFalse(MethodSignatureBase.SignatureComparerIgnoringOptionalValueTypeNullability.Equals(nonNullable, nullable));
         }
     }
 }

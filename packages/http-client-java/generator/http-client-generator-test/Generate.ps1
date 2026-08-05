@@ -19,16 +19,6 @@ Write-Host "Parallelization: $Parallelization"
 $generateScript = {
   $tspFile = $_
 
-  if ((($tspFile -match "payload[\\/]pageable[\\/]main\.tsp") -and (-not ($tspFile -match "azure[\\/]payload[\\/]pageable[\\/]main\.tsp")))) {
-    Write-Host "
-    SKIPPED
-    $tspFile
-    "
-    # xml is not supported
-    # nested pageItems/nextLink/continuationToken is not supported
-    return
-  }
-
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
     $tspFile = $tspClientFile

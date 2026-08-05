@@ -229,7 +229,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, responseBodyType, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, convenienceBodyParameters, true)];
+                var createRequestSignature = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation).Signature;
+                methodBody =
+                [
+                    .. GetPagingMethodBody(
+                        collection,
+                        createRequestSignature,
+                        convenienceBodyParameters,
+                        true,
+                        [.. protocolMethod.Signature.Parameters])
+                ];
             }
             else if (streamingResponse != null)
             {
@@ -990,7 +999,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(convenienceParam.Type, out var typeProvider) &&
                         typeProvider is ModelProvider paramModel)
                     {
-                        AddArgument(protocolParam, paramModel.GetPropertyExpression(convenienceParam, propertySegments));
+                        var propertyExpression = paramModel.GetPropertyExpression(convenienceParam, propertySegments, out var leafProperty);
+
+                        // When the options property is an enum but the protocol method flattens it to its
+                        // serialized (string/number) form, serialize it before forwarding, mirroring the
+                        // conversion applied to non-grouped enum convenience parameters below.
+                        if (leafProperty.Type.IsEnum && !protocolParam.Type.IsEnum)
+                        {
+                            if (leafProperty.Type.IsNullable)
+                            {
+                                propertyExpression = propertyExpression.NullConditional();
+                            }
+                            propertyExpression = leafProperty.Type.ToSerial(propertyExpression);
+                        }
+
+                        AddArgument(protocolParam, propertyExpression);
                     }
                 }
                 else
@@ -1172,6 +1195,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
             }
 
+            // A grouped options bag adopted by the protocol method can carry the same name as the request
+            // options/context parameter, which would emit a duplicate parameter name. Rename the request
+            // options parameter when that happens.
+            requestOptionsParameter = ResolveRequestOptionsNameCollision(
+                requestOptionsParameter,
+                requiredParameters,
+                optionalParameters);
+
             ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
 
@@ -1188,7 +1219,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 // Partial methods cannot have optional parameters in the implementation.
                 var requiredCustomParameters = PartialMethodCustomization.RenameAndCloneParameters(
-                    customSignature.Parameters,
+                    parameters,
                     customSignature.Parameters,
                     removeDefaults: true).ToArray();
 
@@ -1221,7 +1252,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, bodyParameters, false)];
+                methodBody = [.. GetPagingMethodBody(collection, createRequestMethod.Signature, bodyParameters, false)];
             }
             else
             {
@@ -1271,6 +1302,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return protocolMethod;
         }
 
+        private static ParameterProvider ResolveRequestOptionsNameCollision(
+            ParameterProvider requestOptionsParameter,
+            IReadOnlyList<ParameterProvider> requiredParameters,
+            IReadOnlyList<ParameterProvider> optionalParameters)
+        {
+            var otherParameters = requiredParameters.Concat(optionalParameters).ToList();
+            if (!otherParameters.Any(p => string.Equals(p.Name, requestOptionsParameter.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return requestOptionsParameter;
+            }
+
+            var baseName = "request"
+                + char.ToUpperInvariant(requestOptionsParameter.Name[0])
+                + requestOptionsParameter.Name.Substring(1);
+            var uniqueName = baseName;
+            var suffix = 1;
+            while (otherParameters.Any(p => string.Equals(p.Name, uniqueName, StringComparison.OrdinalIgnoreCase)))
+            {
+                uniqueName = baseName + suffix++;
+            }
+
+            return new ParameterProvider(
+                uniqueName,
+                requestOptionsParameter.Description,
+                requestOptionsParameter.Type,
+                requestOptionsParameter.DefaultValue,
+                location: requestOptionsParameter.Location,
+                wireInfo: requestOptionsParameter.WireInfo,
+                validation: requestOptionsParameter.Validation,
+                inputParameter: requestOptionsParameter.InputParameter);
+        }
+
         // The protocol method orders its parameters required-first (optional parameters and the
         // request options/context parameter are moved to the end so they can have default values).
         // This order can differ from the CreateRequest method's parameter order, which follows the
@@ -1279,11 +1342,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // parameter with the request body). Reorder the arguments to match the CreateRequest
         // signature by mapping each CreateRequest parameter to the protocol parameter with the same
         // name. If the names cannot be reconciled, fall back to the original positional behavior.
-        private static ValueExpression[] BuildCreateRequestArguments(
+        private ValueExpression[] BuildCreateRequestArguments(
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> bodyParameters)
         {
             var createRequestParameters = createRequestSignature.Parameters;
+
+            // When the protocol method exposes an options bag, its parameters no longer line up with the
+            // CreateRequest method's flattened wire parameters. Expand each grouped parameter back out of
+            // the bag (e.g. `options.Top`) so CreateRequest still receives the individual values.
+            if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
+            {
+                var groupedArguments = BuildGroupedCreateRequestArguments(createRequestParameters, bodyParameters);
+                if (groupedArguments is not null)
+                {
+                    return groupedArguments;
+                }
+            }
+
             if (createRequestParameters.Count == bodyParameters.Count)
             {
                 var arguments = new ValueExpression[createRequestParameters.Count];
@@ -1307,6 +1383,98 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [.. bodyParameters.Select(p => (ValueExpression)p)];
+        }
+
+        private static ValueExpression[]? BuildGroupedCreateRequestArguments(
+            IReadOnlyList<ParameterProvider> createRequestParameters,
+            IReadOnlyList<ParameterProvider> protocolParameters,
+            Func<ParameterProvider, ValueExpression>? getArgument = null)
+        {
+            getArgument ??= parameter => parameter;
+            var arguments = new ValueExpression[createRequestParameters.Count];
+
+            for (int i = 0; i < createRequestParameters.Count; i++)
+            {
+                var createRequestParameter = createRequestParameters[i];
+                var segments = createRequestParameter.InputParameter?.MethodParameterSegments;
+
+                if (segments is not { Count: > 1 })
+                {
+                    var match = FindUngroupedArgument(protocolParameters, createRequestParameter);
+                    if (match is null)
+                    {
+                        return null;
+                    }
+
+                    arguments[i] = getArgument(match);
+                    continue;
+                }
+
+                var groupParameter = protocolParameters.FirstOrDefault(
+                    p => string.Equals(p.InputParameter?.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(p.Name, segments[0].Name, StringComparison.OrdinalIgnoreCase));
+                if (groupParameter is null
+                    || !ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(groupParameter.Type, out var typeProvider)
+                    || typeProvider is not ModelProvider groupModel)
+                {
+                    return null;
+                }
+
+                var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
+                var propertyExpression = groupModel.GetPropertyExpression(getArgument(groupParameter), propertySegments, out var leafProperty);
+
+                // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
+                if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
+                {
+                    if (leafProperty.Type.IsNullable)
+                    {
+                        propertyExpression = propertyExpression.NullConditional();
+                    }
+                    propertyExpression = leafProperty.Type.ToSerial(propertyExpression);
+                }
+
+                arguments[i] = propertyExpression;
+            }
+
+            return arguments;
+        }
+
+        /// <summary>
+        /// Locates the protocol parameter to forward for a <c>CreateRequest</c> parameter that was not
+        /// folded into the options bag. The name alone is not reliable: a bag named after the request
+        /// options parameter causes that parameter to be renamed, so the original name now resolves to
+        /// the bag. The type disambiguates in that case.
+        /// </summary>
+        private static ParameterProvider? FindUngroupedArgument(
+            IReadOnlyList<ParameterProvider> protocolParameters,
+            ParameterProvider createRequestParameter)
+        {
+            foreach (var parameter in protocolParameters)
+            {
+                if (string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.OrdinalIgnoreCase)
+                    && parameter.Type.Equals(createRequestParameter.Type))
+                {
+                    return parameter;
+                }
+            }
+
+            ParameterProvider? typeMatch = null;
+            foreach (var parameter in protocolParameters)
+            {
+                if (!parameter.Type.Equals(createRequestParameter.Type))
+                {
+                    continue;
+                }
+
+                if (typeMatch is not null)
+                {
+                    return null;
+                }
+
+                typeMatch = parameter;
+            }
+
+            return typeMatch;
         }
 
         private ParameterProvider ProcessOptionalParameters(
@@ -1376,19 +1544,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
+            MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
-            bool isConvenience)
+            bool isConvenience,
+            IReadOnlyList<ParameterProvider>? pagingProtocolParameters = null)
         {
             if (isConvenience)
             {
+                var conversionStatements = GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations);
+                var protocolArguments = GetProtocolMethodArguments(declarations);
+
+                IReadOnlyList<ValueExpression> constructorArguments = protocolArguments;
+                if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
+                {
+                    var protocolParameters = pagingProtocolParameters
+                        ?? throw new InvalidOperationException("Paging protocol parameters are required to expand grouped arguments.");
+                    var argumentMap = new Dictionary<ParameterProvider, ValueExpression>();
+                    for (int i = 0; i < protocolParameters.Count; i++)
+                    {
+                        argumentMap[protocolParameters[i]] = protocolArguments[i];
+                    }
+
+                    constructorArguments = BuildGroupedCreateRequestArguments(
+                        createRequestSignature.Parameters,
+                        protocolParameters,
+                        parameter => argumentMap[parameter]) ?? protocolArguments;
+                }
+
                 return
                     [
-                        .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
+                        .. conversionStatements,
                         Return(New.Instance(
                         collection.Type,
                         [
                             This,
-                            .. GetProtocolMethodArguments(declarations)
+                            .. constructorArguments
                         ]))
                     ];
             }
@@ -1397,7 +1587,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 collection.Type,
                 [
                     This,
-                    .. parameters
+                    .. BuildCreateRequestArguments(createRequestSignature, parameters)
                 ]));
         }
 

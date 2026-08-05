@@ -16,6 +16,8 @@
     - [Explicit (Non-contiguous) Values Preserved](#scenario-explicit-non-contiguous-values-preserved)
     - [Removed Integer Enum Member Re-added](#scenario-removed-integer-enum-member-re-added)
     - [Baseline-Accepted Removal Honored](#scenario-baseline-accepted-removal-honored)
+  - [Extensible Enum Members](#extensible-enum-members)
+    - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
@@ -27,6 +29,8 @@
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
   - [Client Methods](#client-methods)
     - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
+    - [Value-Type Parameter Nullability Removed](#scenario-value-type-parameter-nullability-removed)
+    - [Nullable Optional Parameter Became Required](#scenario-nullable-optional-parameter-became-required)
 
 ## Overview
 
@@ -446,6 +450,53 @@ public enum SampleEnum
 
 - Suppressed members are matched by the declaring enum's fully-qualified name and the member name
 - This lets a library intentionally drop a previously shipped enum member once the removal is reviewed and recorded in the baseline
+
+### Extensible Enum Members
+
+Extensible enums (C# `readonly partial struct` types) preserve their previously shipped members by comparing the current spec against the last contract. The generator re-adds an extensible enum member that was dropped from the current spec, restoring it with its original wire value to avoid removing a previously shipped member.
+
+#### Scenario: Removed Extensible Enum Member Re-added
+
+**Description:** When an extensible enum member present in the last contract is dropped from the current spec, the generator restores it — as a public static property backed by its recovered `const` wire value — to keep the previously shipped API.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+Current TypeSpec removes `Running`. **Generated Result:** `Running` is re-added (appended after the current members) with its original wire value:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+**Key Points:**
+
+- Members that already exist in the current spec, are provided by custom code, or whose removal is accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) are not re-added
+- Restored members are appended after the current spec's members, preserving the current spec's order
 
 ### API Version Enum
 
@@ -964,3 +1015,75 @@ public virtual Task<ClientResult> GetDataAsync(int p1, BinaryContent body, Reque
 ```
 
 The back-compat overloads are hidden from IntelliSense via `[EditorBrowsable(EditorBrowsableState.Never)]`, have all default values stripped to avoid ambiguous call sites with the current methods, and delegate to the current method passing `default` for each new parameter.
+
+#### Scenario: Value-Type Parameter Nullability Removed
+
+**Description:** When a value-type parameter that was nullable in the last contract (`T?`) becomes non-nullable (`T`) in the current generation, the generator emits a hidden back-compat overload that reproduces the previous nullable signature and delegates to the current method, unwrapping the argument with `.Value`. The forwarded argument is guarded with `Argument.AssertNotNull` so a `null` argument produces a clear `ArgumentNullException` rather than an `InvalidOperationException` from `.Value`. This also covers extensible enums (which are read back from the last contract as structs), matched by fully-qualified type name.
+
+**Example:**
+
+Previous contract:
+
+```csharp
+public string GetData(string data, FileFormatType? value = default, bool? flag = default);
+```
+
+Current generation makes `value` non-nullable and required:
+
+```csharp
+public string GetData(string data, FileFormatType value, bool? flag = default);
+```
+
+**Generated Compatibility Overload:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public string GetData(string data, FileFormatType? value = default, bool? flag = default)
+{
+    Argument.AssertNotNull(value, nameof(value));
+    return this.GetData(data: data, value: value.Value, flag: flag);
+}
+```
+
+**Key Points:**
+
+- Only applies to value types (including extensible enums); reference-type nullability (`string?` vs `string`) cannot form distinct overloads and is not handled.
+- Only the `T?` → `T` direction (removing nullability) is handled, not the widening direction.
+- When the current parameter is required, the previous optional default is preserved so callers that omitted it still compile; the `AssertNotNull` guard turns a `null` argument into a clear `ArgumentNullException`.
+- A `ref`/`out` parameter is not eligible (its value cannot be forwarded through `.Value`), so no overload is generated in that case.
+- The overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+
+#### Scenario: Nullable Optional Parameter Became Required
+
+**Description:** When a nullable parameter that was optional in the last contract (had a default value) becomes required in the current generation (same type, but no longer has a default), callers that omitted it no longer compile. The generator emits a hidden reduced-arity overload that drops the now-required parameter and delegates to the current method, supplying the parameter's previous default value.
+
+**Example:**
+
+Previous contract:
+
+```csharp
+public string GetData(string data, FileFormatType? value = default, bool? flag = default);
+```
+
+Current generation keeps `value` nullable but makes it required:
+
+```csharp
+public string GetData(string data, FileFormatType? value, bool? flag = default);
+```
+
+**Generated Compatibility Overload:**
+
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public string GetData(string data, bool? flag = default)
+{
+    return this.GetData(data: data, value: default, flag: flag);
+}
+```
+
+**Key Points:**
+
+- Applies only to a single nullable parameter that changed from optional to required; the parameter's type is otherwise unchanged.
+- The dropped parameter's type must differ from every other parameter's type so the reduced-arity overload's call sites stay unambiguous.
+- The optionality of the remaining parameters is preserved, and the overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+- Unlike the nullability-removal scenario, the delegation passes the previous default — there is no `.Value` unwrap and no runtime throw.

@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { URL } from "url";
 import { describe, it } from "vitest";
 import { isIdentifierContinue, isIdentifierStart } from "../src/core/charcode.js";
-import { DiagnosticHandler } from "../src/core/diagnostics.js";
+import type { DiagnosticHandler } from "../src/core/diagnostics.js";
 import { formatDiagnostic } from "../src/core/logger/console-sink.js";
 import {
   KeywordLimit,
@@ -16,7 +16,8 @@ import {
   isReservedKeyword,
   isStatementKeyword,
 } from "../src/core/scanner.js";
-import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
+import type { DiagnosticMatch } from "../src/testing/expect.js";
+import { expectDiagnostics } from "../src/testing/expect.js";
 import { extractSquiggles } from "../src/testing/source-utils.js";
 
 type TokenEntry = [

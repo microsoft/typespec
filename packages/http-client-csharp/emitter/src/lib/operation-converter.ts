@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  getClientNamespace,
-  getClientOptions,
-  getHttpOperationParameter,
-  getParamAlias,
-  isHttpMetadata,
+import type {
   SdkBodyParameter,
   SdkBuiltInKinds,
   SdkContext,
@@ -26,29 +21,35 @@ import {
   SdkServiceResponseHeader,
   SdkStreamMetadata,
   SdkType,
+} from "@azure-tools/typespec-client-generator-core";
+import {
+  getClientNamespace,
+  getClientOptions,
+  getHttpOperationParameter,
+  getParamAlias,
+  isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
+import type { Diagnostic, Union } from "@typespec/compiler";
 import {
   compilerAssert,
   createDiagnosticCollector,
-  Diagnostic,
   getDeprecated,
   isErrorModel,
   NoTarget,
-  Union,
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
-import { HttpStatusCodeRange } from "@typespec/http";
+import type { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { isTerminalEvent } from "@typespec/sse";
-import { CSharpEmitterContext } from "../sdk-context.js";
+import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
-import { HttpResponseHeader } from "../type/http-response-header.js";
-import { InputConstant } from "../type/input-constant.js";
-import { InputOperation } from "../type/input-operation.js";
+import type { HttpResponseHeader } from "../type/http-response-header.js";
+import type { InputConstant } from "../type/input-constant.js";
+import type { InputOperation } from "../type/input-operation.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import {
+import type {
   InputBasicServiceMethod,
   InputContinuationToken,
   InputLongRunningPagingServiceMethod,
@@ -60,7 +61,7 @@ import {
   InputServiceMethod,
   InputServiceMethodResponse,
 } from "../type/input-service-method.js";
-import {
+import type {
   InputBodyParameter,
   InputHeaderParameter,
   InputHttpParameter,
@@ -71,7 +72,7 @@ import {
   InputType,
 } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationResponse } from "../type/operation-response.js";
+import type { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";

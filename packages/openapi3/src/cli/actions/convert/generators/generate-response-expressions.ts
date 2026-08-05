@@ -1,12 +1,12 @@
-import {
+import type {
   OpenAPI3Header,
   OpenAPI3MediaType,
   OpenAPI3Response,
   OpenAPI3Schema,
   Refable,
 } from "../../../../types.js";
-import { TypeSpecDecorator, TypeSpecModelProperty, TypeSpecOperation } from "../interfaces.js";
-import { Context } from "../utils/context.js";
+import type { TypeSpecDecorator, TypeSpecModelProperty, TypeSpecOperation } from "../interfaces.js";
+import type { Context } from "../utils/context.js";
 import { convertHeaderName } from "../utils/convert-header-name.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateModelExpression } from "./generate-model.js";

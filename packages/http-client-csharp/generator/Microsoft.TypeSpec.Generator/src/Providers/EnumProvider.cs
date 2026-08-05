@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected static string RemoveUnderscores(string name) => name.Replace("_", string.Empty);
 
         private HashSet<string>? _customMemberNames;
-        private HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
+        private protected HashSet<string> CustomMemberNames => _customMemberNames ??= new HashSet<string>(
             GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
 
