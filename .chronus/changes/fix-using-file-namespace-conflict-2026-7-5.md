@@ -11,7 +11,7 @@ using TypeSpec.Http; // Now resolves the global `TypeSpec` namespace instead of 
 namespace _Specs_.TypeSpec.Foo;
 ```
 
-A `using` declared after the file namespace, or inside a namespace block, is unchanged and still resolves relative to that namespace. Code relying on a relative name in a `using` written above the file namespace must now use the fully qualified name; a new `using-before-file-namespace` error with a quick fix suggests it.
+A `using` declared after the file namespace, or inside a namespace block, is unchanged and still resolves relative to that namespace. Code relying on a relative name in a `using` written above the file namespace must now use the fully qualified name.
 
 ```tsp
 namespace MyOrg.Service;

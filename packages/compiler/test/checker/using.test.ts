@@ -439,7 +439,7 @@ describe("compiler: using statements", () => {
       strictEqual(Y.properties.size, 1);
     });
 
-    it("reports a dedicated error when a using before the file namespace only resolves relatively", async () => {
+    it("reports an unknown identifier when a using before the file namespace only resolves relatively", async () => {
       const diagnostics = await Tester.files({
         "a.tsp": `namespace MyOrg.Models { model X {} }`,
       }).diagnose(`
@@ -449,24 +449,8 @@ describe("compiler: using statements", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "using-before-file-namespace",
-        message:
-          "Unknown identifier Models. `using` statements declared before the file namespace are resolved from the global namespace. Did you mean MyOrg.Models?",
-      });
-      strictEqual(diagnostics[0].codefixes?.length, 1);
-      strictEqual(diagnostics[0].codefixes![0].id, "qualify-reference");
-      strictEqual(diagnostics[0].codefixes![0].label, "Change Models to MyOrg.Models");
-    });
-
-    it("reports the generic unknown identifier error when the name doesn't resolve relatively either", async () => {
-      const diagnostics = await Tester.diagnose(`
-        using NotDefined;
-        namespace MyOrg.Svc;
-      `);
-
-      expectDiagnostics(diagnostics, {
         code: "invalid-ref",
-        message: "Unknown identifier NotDefined",
+        message: "Unknown identifier Models",
       });
     });
   });
