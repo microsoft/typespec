@@ -244,7 +244,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         updatedBody = [.. constructor.BodyStatements];
                     }
 
-                    AddSetPropagators(updatedBody);
+                    if (AddSetPropagators(updatedBody))
+                    {
+                        var suppression = new SuppressionStatement(null, Literal(ScmEvaluationTypeDiagnosticId), ScmEvaluationTypeSuppressionJustification);
+                        constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
+                    }
 
                     constructor.Update(bodyStatements: updatedBody);
                 }
@@ -256,11 +260,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// propagated to nested models. This must be emitted in every applicable constructor so that
         /// propagation behaves consistently regardless of how the model is instantiated.
         /// </summary>
-        private void AddSetPropagators(List<MethodBodyStatement> updatedBody)
+        /// <returns><c>true</c> if a <c>SetPropagators</c> call was appended; otherwise <c>false</c>.</returns>
+        private bool AddSetPropagators(List<MethodBodyStatement> updatedBody)
         {
             if (!HasDynamicProperties)
             {
-                return;
+                return false;
             }
 
             if (JsonPatchField != null)
@@ -268,15 +273,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 #pragma warning disable SCME0001
                 updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
 #pragma warning restore SCME0001
+                return true;
             }
-            else if (BaseJsonPatchProperty.Value is not null)
+
+            if (BaseJsonPatchProperty.Value is not null)
             {
                 // Derived model has dynamic properties but inherits the JsonPatch field from base
                 // We need to call SetPropagators on the inherited patch field
 #pragma warning disable SCME0001
                 updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
 #pragma warning restore SCME0001
+                return true;
             }
+
+            return false;
         }
 
         private List<ConstructorProvider>? BuildMultipartFileConstructors(List<ConstructorProvider> existingConstructors)
