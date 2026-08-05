@@ -5,4 +5,4 @@ packages:
   - "@typespec/graphql"
 ---
 
-[graphql] Add ./mutation-engine subpath export for standalone mutation pipeline usage
+Add `./mutation-engine` subpath export for standalone mutation pipeline usage
