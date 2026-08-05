@@ -19,7 +19,6 @@ import { reportEmitterDiagnostics } from "./diagnostics.js";
 import type { CSharpServiceEmitterOptions } from "./lib.js";
 import { resolveOpenApiPath, writeOutputWithOverwrite } from "./output-writer.js";
 import { resolveServiceTypes } from "./service-resolution.js";
-import { getFreePort } from "./utils/port.js";
 
 /**
  * Main function to handle the emission process.
@@ -57,17 +56,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     (iface) => `I${iface.name}, ${iface.name}`,
   );
 
-  // Resolve ports for project files
-  let httpPort = options["http-port"] ?? 5000;
-  let httpsPort = options["https-port"] ?? 7000;
-  if (emitProjectFiles) {
-    if (!options["http-port"]) {
-      httpPort = await getFreePort(5000, 5999);
-    }
-    if (!options["https-port"]) {
-      httpsPort = await getFreePort(7000, 7999);
-    }
-  }
+  const httpPort = options["http-port"] ?? 5000;
+  const httpsPort = options["https-port"] ?? 7000;
 
   const output = (
     <Output program={context.program} namePolicy={createCSharpNamePolicy()}>

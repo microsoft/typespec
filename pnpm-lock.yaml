@@ -1956,6 +1956,9 @@ importers:
       '@typespec/http-client-js':
         specifier: workspace:^
         version: link:../http-client-js
+      '@typespec/http-server-csharp':
+        specifier: workspace:^
+        version: link:../http-server-csharp
       '@typespec/http-server-js':
         specifier: workspace:^
         version: link:../http-server-js
