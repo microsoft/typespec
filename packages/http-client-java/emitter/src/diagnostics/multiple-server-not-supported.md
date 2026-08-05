@@ -1,10 +1,10 @@
-This diagnostic is issued when a generated client has more than two alternative server endpoints.
+This diagnostic is issued when a service declares multiple alternative ways to specify its endpoint.
 
 ## Impact
 
-Java client generation stops because the emitter cannot select a supported client initialization shape for the server union.
+The service definition is valid, but the Java emitter currently supports only one server definition when constructing the client endpoint.
 
-## ❌ Incorrect Usage
+## Valid Usage
 
 ```typespec
 @service
@@ -28,9 +28,9 @@ namespace Contoso {
 Multiple server on client is not supported.
 ```
 
-## ✅ How to Fix
+## How to Address
 
-Expose one server endpoint, or reduce the alternatives to a supported endpoint configuration. Prefer a single templated server when the endpoints differ only by a parameter.
+If the service supports multiple endpoint forms, no change to the service contract is required. Until the Java emitter supports this pattern, select one server definition for generation and customize the Java library to expose the additional endpoint forms.
 
 ```typespec
 @service
