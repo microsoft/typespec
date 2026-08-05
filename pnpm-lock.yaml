@@ -476,6 +476,8 @@ overrides:
   cross-spawn@>=7.0.0 <7.0.5: '>=7.0.5'
   diff@>=6.0.0 <8.0.3: '>=8.0.3'
   dompurify: ^3.3.3
+  undici@>=7.0.0 <7.29.0: '>=7.29.0'
+  undici@>=8.0.0 <8.9.0: '>=8.9.0'
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
 
 packageExtensionsChecksum: sha256-41ngUhSL5ByEpDCSEB/d425efDxH3k+E1gkcIyo00jw=
@@ -10343,9 +10345,9 @@ packages:
   undici-types@8.3.0:
     resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
 
-  undici@7.28.0:
-    resolution: {integrity: sha512-cRZYrTDwWznlnRiPjggAGxZXanty6M8RV1ff8Wm4LWXBp7/IG8v5DnOm74DtUBp9OONpK75YlPnIjQqX0dBDtA==}
-    engines: {node: '>=20.18.1'}
+  undici@8.9.0:
+    resolution: {integrity: sha512-aWZpUj7XoGonMClx4gdDRfgBjqeA+F473aDmROQQbM9n6PRfK/u1q/a0X4wMTgcHfT8H6fpbt98PFuDUwFg2YA==}
+    engines: {node: '>=22.19.0'}
 
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
@@ -15913,7 +15915,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.28.0
+      undici: 8.9.0
       whatwg-mimetype: 4.0.0
 
   chokidar@4.0.3:
@@ -20139,7 +20141,7 @@ snapshots:
 
   undici-types@8.3.0: {}
 
-  undici@7.28.0: {}
+  undici@8.9.0: {}
 
   unicorn-magic@0.1.0: {}
 
