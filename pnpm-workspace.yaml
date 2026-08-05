@@ -35,9 +35,9 @@ catalog:
   "@azure/storage-blob": ^12.31.0
   "@babel/code-frame": ^7.29.0
   "@babel/core": ^7.29.0
-  "@chronus/chronus": ^1.4.0
-  "@chronus/github": ^1.1.0
-  "@chronus/github-pr-commenter": ^1.1.0
+  "@chronus/chronus": ^1.5.0
+  "@chronus/github": ^1.2.0
+  "@chronus/github-pr-commenter": ^1.1.1
   "@docsearch/css": ^4.6.2
   "@docsearch/js": ^4.6.2
   "@expressive-code/core": ^0.44.0
