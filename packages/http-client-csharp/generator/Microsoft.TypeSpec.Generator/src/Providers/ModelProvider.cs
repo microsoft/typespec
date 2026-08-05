@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => MethodProviderHelpers.IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -630,9 +630,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // Apply back-compat type replacement only for properties on the public API
                 // surface: changing the type of an internal/private generated property is not
-                // a source-breaking change, and the last-contract map already excludes
-                // non-public-API entries.
-                if (MethodProviderHelpers.IsPublicApi(outputProperty.Modifiers) &&
+                // a source-breaking change
+                if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
@@ -1655,6 +1654,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)

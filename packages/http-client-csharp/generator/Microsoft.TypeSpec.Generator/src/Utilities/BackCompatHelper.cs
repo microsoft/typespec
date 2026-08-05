@@ -141,10 +141,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return null;
             }
 
-            IEnumerable<MethodProvider> scopedMethods = lastContractMethods;
+            IEnumerable<MethodProvider> scopedMethods = lastContractMethods
+                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
             if (methodName != null)
             {
-                scopedMethods = lastContractMethods.Where(m =>
+                scopedMethods = scopedMethods.Where(m =>
                     string.Equals(m.Signature.Name, methodName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(m.Signature.Name, methodName + "Async", StringComparison.OrdinalIgnoreCase));
             }
@@ -253,6 +254,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             foreach (var previousMethod in previousMethods)
             {
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                {
+                    continue;
+                }
+
                 if (MethodSignature.MethodSignatureComparer.Equals(currentSignature, previousMethod.Signature))
                 {
                     return previousMethod;
@@ -384,7 +390,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 var previousSignature = previousMethod.Signature;
                 if (previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
-                    !MethodProviderHelpers.IsPublicApi(previousSignature.Modifiers) ||
+                    !MethodSignatureHelper.IsPublicApi(previousSignature.Modifiers) ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;
@@ -398,7 +404,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 foreach (var candidate in candidates)
                 {
                     var candidateSignature = candidate.Signature;
-                    bool candidateIsAccessible = MethodProviderHelpers.IsPublicApi(candidateSignature.Modifiers);
+                    bool candidateIsAccessible = MethodSignatureHelper.IsPublicApi(candidateSignature.Modifiers);
 
                     if (candidateSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static)
                         != previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Static))
