@@ -1320,6 +1320,43 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
         return retval
 
+    def _handle_response_body(self, builder: OperationType) -> list[str]:  # pylint: disable=too-many-nested-blocks
+        retval: list[str] = []
+        if len(builder.responses) > 1:
+            status_codes, res_headers, res_deserialization = [], [], []
+            for status_code in builder.success_status_codes:
+                response = builder.get_response_from_status(status_code)  # type: ignore
+                if response.headers or response.type:
+                    status_codes.append(status_code)
+                    res_headers.append(self.response_headers(response))
+                    res_deserialization.append(self.response_deserialization(builder, response))
+
+            is_headers_same = _all_same(res_headers)
+            is_deserialization_same = _all_same(res_deserialization)
+            if is_deserialization_same:
+                if is_headers_same:
+                    retval.extend(res_headers[0])
+                    retval.extend(res_deserialization[0])
+                    retval.append("")
+                else:
+                    for status_code, headers in zip(status_codes, res_headers):
+                        if headers:
+                            retval.append(f"if response.status_code == {status_code}:")
+                            retval.extend([f"    {line}" for line in headers])
+                            retval.append("")
+                    retval.extend(res_deserialization[0])
+                    retval.append("")
+            else:
+                for status_code, headers, deserialization in zip(status_codes, res_headers, res_deserialization):
+                    retval.append(f"if response.status_code == {status_code}:")
+                    retval.extend([f"    {line}" for line in headers])
+                    retval.extend([f"    {line}" for line in deserialization])
+                    retval.append("")
+        else:
+            retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
+            retval.append("")
+        return retval
+
     def handle_response(self, builder: OperationType) -> list[str]:
         retval: list[str] = ["response = pipeline_response.http_response"]
         retval.append("")
@@ -1332,40 +1369,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("deserialized = None")
         if builder.any_response_has_headers:
             retval.append("response_headers = {}")
-        if builder.has_response_body or builder.any_response_has_headers:  # pylint: disable=too-many-nested-blocks
-            if len(builder.responses) > 1:
-                status_codes, res_headers, res_deserialization = [], [], []
-                for status_code in builder.success_status_codes:
-                    response = builder.get_response_from_status(status_code)  # type: ignore
-                    if response.headers or response.type:
-                        status_codes.append(status_code)
-                        res_headers.append(self.response_headers(response))
-                        res_deserialization.append(self.response_deserialization(builder, response))
-
-                is_headers_same = _all_same(res_headers)
-                is_deserialization_same = _all_same(res_deserialization)
-                if is_deserialization_same:
-                    if is_headers_same:
-                        retval.extend(res_headers[0])
-                        retval.extend(res_deserialization[0])
-                        retval.append("")
-                    else:
-                        for status_code, headers in zip(status_codes, res_headers):
-                            if headers:
-                                retval.append(f"if response.status_code == {status_code}:")
-                                retval.extend([f"    {line}" for line in headers])
-                                retval.append("")
-                        retval.extend(res_deserialization[0])
-                        retval.append("")
-                else:
-                    for status_code, headers, deserialization in zip(status_codes, res_headers, res_deserialization):
-                        retval.append(f"if response.status_code == {status_code}:")
-                        retval.extend([f"    {line}" for line in headers])
-                        retval.extend([f"    {line}" for line in deserialization])
-                        retval.append("")
-            else:
-                retval.extend(self.response_headers_and_deserialization(builder, builder.responses[0]))
-                retval.append("")
+        if builder.has_response_body or builder.any_response_has_headers:
+            retval.extend(self._handle_response_body(builder))
         if (
             builder.has_optional_return_type
             or self.code_model.options["models-mode"]
