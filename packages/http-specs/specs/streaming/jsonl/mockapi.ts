@@ -7,22 +7,13 @@ Scenarios.Streaming_Jsonl_Basic_send = passOnSuccess({
   uri: "/streaming/jsonl/basic/send",
   method: "post",
   request: {
-    headers: {
-      "content-type": "application/jsonl",
+    body: {
+      rawContent: Buffer.from('{"desc": "one"}\n{"desc": "two"}\n{"desc": "three"}'),
+      contentType: "application/jsonl",
     },
   },
   response: {
     status: 204,
-  },
-  handler: (req) => {
-    const rawBody = req.originalRequest.rawBody;
-    const content = Buffer.isBuffer(rawBody) ? rawBody.toString("utf8") : rawBody;
-    const values = content
-      ?.trimEnd()
-      .split(/\r?\n/)
-      .map((line) => JSON.parse(line));
-    req.expect.deepEqual(values, [{ desc: "one" }, { desc: "two" }, { desc: "three" }]);
-    return { status: 204 };
   },
   kind: "MockApiDefinition",
 });
