@@ -119,31 +119,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client);
             Assert.AreEqual(2, methodCollection.Count);
-            foreach (var method in methodCollection)
-            {
-                Assert.AreEqual(1, method.Suppressions.Count);
-                StringAssert.Contains(
-                    ScmMethodProviderCollection.StreamingResultDiagnosticId,
-                    method.Suppressions[0].DisableStatement.ToDisplayString());
-            }
-            var generatedClient = new TypeProviderWriter(client).Write().Content;
-            const string disable = "#pragma warning disable SCME0005";
-            const string restore = "#pragma warning restore SCME0005";
-            Assert.AreEqual(2, generatedClient.Split(disable).Length - 1);
-            Assert.AreEqual(2, generatedClient.Split(restore).Length - 1);
-
-            var classIndex = generatedClient.IndexOf("public partial class", StringComparison.Ordinal);
-            var firstDisable = generatedClient.IndexOf(disable, StringComparison.Ordinal);
-            var firstMethod = generatedClient.IndexOf("public virtual async", firstDisable, StringComparison.Ordinal);
-            var firstRestore = generatedClient.IndexOf(restore, firstMethod, StringComparison.Ordinal);
-            var secondDisable = generatedClient.IndexOf(disable, firstRestore, StringComparison.Ordinal);
-            var secondMethod = generatedClient.IndexOf("public virtual async", secondDisable, StringComparison.Ordinal);
-            var secondRestore = generatedClient.IndexOf(restore, secondMethod, StringComparison.Ordinal);
-
-            Assert.That(firstDisable, Is.GreaterThan(classIndex));
-            Assert.That(firstMethod, Is.GreaterThan(firstDisable).And.LessThan(firstRestore));
-            Assert.That(secondDisable, Is.GreaterThan(firstRestore));
-            Assert.That(secondMethod, Is.GreaterThan(secondDisable).And.LessThan(secondRestore));
             Assert.IsFalse(methodCollection.Any(method =>
                 method.Signature.Name == "Receive" &&
                 method.Signature.Parameters.Any(parameter => parameter.Name == "options")));
@@ -177,6 +152,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.DoesNotContain(
                 "JsonLinesBinaryContent",
                 convenienceMethod.BodyStatements!.ToDisplayString());
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped")
+                    .ReplaceLineEndings("\n"),
+                writer.ToString(false));
 
             foreach (var protocolMethod in methodCollection.Where(method =>
                 method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
@@ -218,13 +199,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var methodCollection = new ScmMethodProviderCollection(serviceMethod, client!);
             Assert.AreEqual(2, methodCollection.Count);
-            foreach (var method in methodCollection)
-            {
-                Assert.AreEqual(1, method.Suppressions.Count);
-                StringAssert.Contains(
-                    ScmMethodProviderCollection.StreamingResultDiagnosticId,
-                    method.Suppressions[0].DisableStatement.ToDisplayString());
-            }
             Assert.IsFalse(methodCollection.Any(method => method.Signature.Name == "Receive"));
 
             var rawProtocolMethod = methodCollection.Single(method =>
