@@ -162,18 +162,31 @@ function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptio
 }
 
 function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(e.namespace, options)}${getIdentifierName(e.name, options)}`;
+  // An enum used in expression position is anonymous; render its members inline
+  // instead of a (namespace-prefixed) name.
+  if (e.name === "") {
+    return `{ ${[...e.members.values()].map((m) => m.name).join(", ")} }`;
+  }
+  const nsPrefix = e.expression ? "" : getNamespacePrefix(e.namespace, options);
+  return `${nsPrefix}${getIdentifierName(e.name, options)}`;
 }
 
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
-    scalar.name,
-    options,
-  )}`;
+  // A scalar used in expression position is anonymous; render what it extends
+  // (there is no inline literal syntax for it) instead of a namespace-only name.
+  if (scalar.name === "") {
+    return scalar.baseScalar
+      ? `scalar extends ${getTypeName(scalar.baseScalar, options)}`
+      : "scalar";
+  }
+  const nsPrefix = scalar.expression ? "" : getNamespacePrefix(scalar.namespace, options);
+  return `${nsPrefix}${getIdentifierName(scalar.name, options)}`;
 }
 
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
-  const nsPrefix = getNamespacePrefix(model.namespace, options);
+  // Declarations used in expression position are anonymous and not addressable, so
+  // they should not be namespace-qualified (mirrors union expression naming).
+  const nsPrefix = model.expression ? "" : getNamespacePrefix(model.namespace, options);
   if (model.name === "" && model.properties.size === 0) {
     return "{}";
   }
