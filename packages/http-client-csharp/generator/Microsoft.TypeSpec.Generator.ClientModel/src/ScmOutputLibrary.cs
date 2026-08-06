@@ -98,6 +98,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
+                new JsonLinesBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
                 ScmCodeModelGenerator.Instance.ClientPipelineExtensionsDefinition,
                 new CancellationTokenExtensionsDefinition(),
