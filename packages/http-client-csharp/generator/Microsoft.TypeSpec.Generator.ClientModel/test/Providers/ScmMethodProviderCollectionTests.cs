@@ -68,6 +68,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Single();
             Assert.IsFalse(jsonLinesContent.Methods.Any(
                 method => method.Signature.Name is "DeserializeModel" or "DeserializeValue"));
+            var writeToAsyncMethod = jsonLinesContent.Methods.Single(
+                method => method.Signature.Name == "WriteToAsync");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(writeToAsyncMethod);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("WriteToAsyncStj"),
+                writer.ToString(false));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 

@@ -22,10 +22,6 @@ namespace SampleTypeSpec
         {
             10
         };
-        private static readonly byte[] _space = new byte[] 
-        {
-            32
-        };
 
         /// <param name="values"></param>
         public JsonLinesBinaryContent(IAsyncEnumerable<T> values)
@@ -40,71 +36,17 @@ namespace SampleTypeSpec
             bool first = true;
             await foreach (T value in _values.WithCancellation(cancellationToken))
             {
-                if (first == false)
+                if (!first)
                 {
                     await stream.WriteAsync(_newLine, 0, 1, cancellationToken).ConfigureAwait(false);
                 }
-                using MemoryStream buffer = new MemoryStream();
-                using Utf8JsonWriter writer = new Utf8JsonWriter(buffer);
-                writer.WriteObjectValue(value, ModelSerializationExtensions.WireOptions);
-                await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
-                byte[] bytes = buffer.ToArray();
-                await WriteJsonAsync(stream, bytes, cancellationToken).ConfigureAwait(false);
+                using (Utf8JsonWriter writer = new Utf8JsonWriter(stream))
+                {
+                    writer.WriteObjectValue(value, ModelSerializationExtensions.WireOptions);
+                    await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+                }
                 first = false;
             }
-        }
-
-        /// <param name="stream"></param>
-        /// <param name="bytes"></param>
-        /// <param name="cancellationToken"> The cancellation token to use. </param>
-        private static async Task WriteJsonAsync(Stream stream, byte[] bytes, CancellationToken cancellationToken = default)
-        {
-            bool inString = false;
-            bool escaped = false;
-            int start = 0;
-            int i = 0;
-            for (; i < bytes.Length; i++)
-            {
-                byte current = bytes[i];
-                if (inString)
-                {
-                    if (escaped)
-                    {
-                        escaped = false;
-                    }
-                    else
-                    {
-                        if (current == '\\')
-                        {
-                            escaped = true;
-                        }
-                        else
-                        {
-                            if (current == '"')
-                            {
-                                inString = false;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (current == '"')
-                    {
-                        inString = true;
-                    }
-                    else
-                    {
-                        if (current == ':')
-                        {
-                            await stream.WriteAsync(bytes, start, i - start + 1, cancellationToken).ConfigureAwait(false);
-                            await stream.WriteAsync(_space, 0, 1, cancellationToken).ConfigureAwait(false);
-                            start = i + 1;
-                        }
-                    }
-                }
-            }
-            await stream.WriteAsync(bytes, start, bytes.Length - start, cancellationToken).ConfigureAwait(false);
         }
 
         /// <param name="stream"></param>
