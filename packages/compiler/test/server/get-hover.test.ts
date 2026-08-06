@@ -836,7 +836,7 @@ describe("template access", () => {
   });
 });
 
-describe("$onInfo hook", () => {
+describe("$provideTypeInfo hook", () => {
   it("appends info contributed by a library to the hover, separated by a horizontal rule", async () => {
     const hover = await getHoverAtCursorWithInfoHook(`
         import "./info.js";
@@ -877,9 +877,12 @@ async function getHoverAtCursor(sourceWithCursor: string): Promise<Hover | undef
 async function getHoverAtCursorWithInfoHook(sourceWithCursor: string): Promise<Hover | undefined> {
   const { source, pos } = extractCursor(sourceWithCursor);
   const testHost = await createTestServerHost();
-  testHost.addOrUpdateDocument("tspconfig.yaml", `kind: project\nfeatures:\n  - type-info-hook\n`);
+  testHost.addOrUpdateDocument(
+    "tspconfig.yaml",
+    `kind: project\nfeatures:\n  - type-info-provider\n`,
+  );
   testHost.addJsFile("info.js", {
-    $onInfo: ({ target }: { target: { kind: string; name?: string } }) =>
+    $provideTypeInfo: ({ target }: { target: { kind: string; name?: string } }) =>
       target.kind === "Operation" ? { content: `op-info:${target.name}` } : undefined,
   });
   const textDocument = testHost.addOrUpdateDocument("test.tsp", source);

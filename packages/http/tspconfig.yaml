@@ -1,7 +1,8 @@
-# Opt this library into the experimental `type-info-hook` feature so that the `$onInfo` hook
-# exported from `src/info.ts` is registered by the compiler. Per-package feature enablement is
-# resolved from the owning package's config, so consumers do not need to enable it.
+# Opt this library into the experimental `type-info-provider` feature so that the
+# `$provideTypeInfo` provider exported from `src/type-info.ts` is registered by the compiler.
+# Per-package feature enablement is resolved from the owning package's config, so consumers do
+# not need to enable it.
 # NOTE: this file must stay listed in `package.json#files` or the opt-in is lost when published.
 kind: project
 features:
-  - type-info-hook
+  - type-info-provider

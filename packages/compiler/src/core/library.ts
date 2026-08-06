@@ -8,9 +8,9 @@ import {
   JSONSchemaValidator,
   LinterDefinition,
   LinterRuleDefinition,
-  OnInfoHook,
   PackageFlags,
   StateDef,
+  TypeInfoProvider,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -116,20 +116,20 @@ export function defineLinter(def: LinterDefinition): LinterDefinition {
 }
 
 /**
- * Define a `$onInfo` hook that contributes extra information about types to IDE hover
- * documentation and tooling. This helper only provides typing; export the result as `$onInfo`
+ * Define a `$provideTypeInfo` provider that contributes extra information about types to IDE hover
+ * documentation and tooling. This helper only provides typing; export the result as `$provideTypeInfo`
  * from your library's entry point.
  *
  * @example
  * ```ts
- * export const $onInfo = defineInfoHook(({ target }) => {
+ * export const $provideTypeInfo = defineTypeInfoProvider(({ target }) => {
  *   if (target.kind !== "Operation") return undefined;
  *   return { content: `Operation ${target.name}` };
  * });
  * ```
  */
-export function defineInfoHook(hook: OnInfoHook): OnInfoHook {
-  return hook;
+export function defineTypeInfoProvider(provider: TypeInfoProvider): TypeInfoProvider {
+  return provider;
 }
 
 /** Create a new linter rule. */

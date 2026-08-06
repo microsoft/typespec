@@ -60,7 +60,6 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
-  InfoContext,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -71,7 +70,6 @@ import {
   Namespace,
   NoTarget,
   Node,
-  OnInfoHook,
   PerfReporter,
   SourceFile,
   Sym,
@@ -81,6 +79,8 @@ import {
   Tracer,
   Type,
   TypeInfo,
+  TypeInfoContext,
+  TypeInfoProvider,
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
@@ -123,17 +123,17 @@ export interface Program {
   ): void;
   /**
    * Register a provider that contributes extra information about types. Libraries wire this up
-   * by exporting a `$onInfo` hook; it is discovered automatically by the compiler.
+   * by exporting a `$provideTypeInfo` function; it is discovered automatically by the compiler.
    * @internal
    */
-  registerInfoProvider(provider: OnInfoHook, metadata: LibraryMetadata): void;
+  registerTypeInfoProvider(provider: TypeInfoProvider, metadata: LibraryMetadata): void;
   /**
-   * Query the registered `$onInfo` providers for extra information about the given type. Returns
+   * Query the registered `$provideTypeInfo` providers for extra information about the given type. Returns
    * the merged information contributed by every library, or `undefined` when none contributed.
    * Providers are run lazily and never mutate the type graph. Used by the language server for
    * hover docs and by tooling.
    *
-   * Only libraries that opted into the experimental `type-info-hook` feature in their own
+   * Only libraries that opted into the experimental `type-info-provider` feature in their own
    * `tspconfig.yaml` contribute; consumers do not need to enable anything.
    */
   getTypeInfo(target: Type): TypeInfo | undefined;
@@ -196,9 +196,9 @@ interface Validator {
   ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
 }
 
-interface InfoProvider {
+interface RegisteredTypeInfoProvider {
   metadata: LibraryMetadata;
-  callback: OnInfoHook;
+  callback: TypeInfoProvider;
 }
 
 interface TypeSpecLibraryReference {
@@ -262,7 +262,7 @@ async function createProgram(
 ): Promise<{ program: Program; shouldAbort: boolean }> {
   const runtimeStats: Partial<RuntimeStats> = {};
   const validateCbs: Validator[] = [];
-  const infoProviders: InfoProvider[] = [];
+  const typeInfoProviders: RegisteredTypeInfoProvider[] = [];
   const stateMaps = new Map<symbol, Map<Type, unknown>>();
   const stateSets = new Map<symbol, Set<Type>>();
   const diagnostics: Diagnostic[] = [];
@@ -326,16 +326,16 @@ async function createProgram(
     onValidate(cb, metadata) {
       validateCbs.push({ callback: cb, metadata });
     },
-    registerInfoProvider(provider, metadata) {
-      infoProviders.push({ callback: provider, metadata });
+    registerTypeInfoProvider(provider, metadata) {
+      typeInfoProviders.push({ callback: provider, metadata });
     },
     getTypeInfo(target) {
-      if (infoProviders.length === 0) {
+      if (typeInfoProviders.length === 0) {
         return undefined;
       }
       const contents: string[] = [];
-      const context: InfoContext = { program, target };
-      for (const provider of infoProviders) {
+      const context: TypeInfoContext = { program, target };
+      for (const provider of typeInfoProviders) {
         let result: TypeInfo | undefined;
         try {
           result = provider.callback(context);
@@ -346,7 +346,7 @@ async function createProgram(
           if (options.designTimeBuild) {
             trace(
               "info-provider.crash",
-              `Library "${provider.metadata.name ?? "<unnamed>"}" $onInfo crashed: ${error.stack}`,
+              `Library "${provider.metadata.name ?? "<unnamed>"}" $provideTypeInfo crashed: ${error.stack}`,
             );
             continue;
           } else {

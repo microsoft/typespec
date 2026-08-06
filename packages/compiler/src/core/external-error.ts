@@ -57,7 +57,7 @@ function renderExternalErrorInfo(
       kind === "emitter"
         ? `Emitter "${metadata.name}" crashed! This is a bug.`
         : kind === "info"
-          ? `Library "${metadata.name}" $onInfo crashed! This is a bug.`
+          ? `Library "${metadata.name}" $provideTypeInfo crashed! This is a bug.`
           : `Library "${metadata.name}" $onValidate crashed! This is a bug.`,
       "red",
     ),

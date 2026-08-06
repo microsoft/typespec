@@ -1,4 +1,4 @@
-import { defineInfoHook } from "@typespec/compiler";
+import { defineTypeInfoProvider } from "@typespec/compiler";
 import { getHttpOperation } from "./operations.js";
 import type { HttpStatusCodeRange } from "./types.js";
 
@@ -6,10 +6,10 @@ import type { HttpStatusCodeRange } from "./types.js";
  * Contribute HTTP specific information about types to IDEs (e.g. hover) and tooling.
  *
  * For an operation, this surfaces the resolved HTTP route (verb + URI template) plus basic
- * response status codes so it can be shown on hover or queried programmatically. This hook never
- * mutates the type graph.
+ * response status codes so it can be shown on hover or queried programmatically. This provider
+ * never mutates the type graph.
  */
-export const $onInfo = defineInfoHook(({ program, target }) => {
+export const $provideTypeInfo = defineTypeInfoProvider(({ program, target }) => {
   if (target.kind !== "Operation") {
     return undefined;
   }

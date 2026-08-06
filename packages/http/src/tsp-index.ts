@@ -37,8 +37,8 @@ import {
   $plainData,
 } from "./private.decorators.js";
 
-export { $onInfo } from "./info.js";
 export { $lib } from "./lib.js";
+export { $provideTypeInfo } from "./type-info.js";
 export { $onValidate } from "./validate.js";
 
 /** @internal */

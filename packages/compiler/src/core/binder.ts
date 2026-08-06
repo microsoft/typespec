@@ -180,17 +180,17 @@ export function createBinder(program: Program): Binder {
                 : ({ type: "file" } satisfies FileLibraryMetadata);
             program.onValidate(member as any, metadata);
             continue;
-          } else if (name === "onInfo") {
-            // `$onInfo` is experimental: only respect it when the library (or project) that
-            // declares the hook opted into the `type-info-hook` feature in its own
-            // `tspconfig.yaml`. Consumers do not need to enable anything.
-            if (isCompilerFeatureEnabled(program, "type-info-hook", sourceFile)) {
+          } else if (name === "provideTypeInfo") {
+            // `$provideTypeInfo` is experimental: only respect it when the library (or
+            // project) declaring the provider opted into the `type-info-provider` feature in
+            // its own `tspconfig.yaml`. Consumers do not need to enable anything.
+            if (isCompilerFeatureEnabled(program, "type-info-provider", sourceFile)) {
               const context = getLocationContext(program, sourceFile);
               const metadata =
                 context.type === "library"
                   ? context.metadata
                   : ({ type: "file" } satisfies FileLibraryMetadata);
-              program.registerInfoProvider(member as any, metadata);
+              program.registerTypeInfoProvider(member as any, metadata);
             }
             continue;
           } else if (name === "onEmit") {

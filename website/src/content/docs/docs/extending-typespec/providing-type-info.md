@@ -1,6 +1,6 @@
 ---
-id: providing-info
-title: Providing IDE & tooling info
+id: providing-type-info
+title: Providing type info to IDEs & tooling
 ---
 
 Libraries can contribute extra, domain-specific information about types that is not part of
@@ -9,20 +9,20 @@ operation. This information is shown in IDE hover tooltips and can also be queri
 programmatically by tooling (such as AI agents).
 
 :::caution
-This is an experimental feature. A library must opt in by enabling the `type-info-hook`
+This is an experimental feature. A library must opt in by enabling the `type-info-provider`
 [compiler feature](../handbook/configuration/configuration.mdx) in **its own** `tspconfig.yaml`:
 
 ```yaml
 kind: project
 features:
-  - type-info-hook
+  - type-info-provider
 ```
 
-The opt-in is scoped to the package declaring the hook — consumers of the library do not need
-to enable anything to see the information.
+The opt-in is scoped to the package declaring the provider — consumers of the library do not
+need to enable anything to see the information.
 
 Because the opt-in is read from the published package, make sure `tspconfig.yaml` is actually
-shipped — add it to `files` in your `package.json`, otherwise the hook is silently ignored
+shipped — add it to `files` in your `package.json`, otherwise the provider is silently ignored
 once the library is installed from a registry:
 
 ```json
@@ -33,18 +33,18 @@ once the library is installed from a registry:
 
 :::
 
-## The `$onInfo` hook
+## The `$provideTypeInfo` provider
 
-A library provides this information by exporting an `$onInfo` function from its main entry
-point. Use the `defineInfoHook` helper for typing. The hook receives an `InfoContext` (with
-the current `program` and the `target` type) and returns a single `TypeInfo` object, or
-`undefined` when it has nothing to contribute.
+A library provides this information by exporting a `$provideTypeInfo` function from its main
+entry point. Use the `defineTypeInfoProvider` helper for typing. The provider receives a
+`TypeInfoContext` (with the current `program` and the `target` type) and returns a single
+`TypeInfo` object, or `undefined` when it has nothing to contribute.
 
 ```ts
-import { defineInfoHook } from "@typespec/compiler";
+import { defineTypeInfoProvider } from "@typespec/compiler";
 import { getHttpOperation } from "./operations.js";
 
-export const $onInfo = defineInfoHook(({ program, target }) => {
+export const $provideTypeInfo = defineTypeInfoProvider(({ program, target }) => {
   if (target.kind !== "Operation") {
     return undefined;
   }
@@ -81,7 +81,7 @@ Reads a pet.
 
 ## Important constraints
 
-Unlike [`$onValidate`](./diagnostics.md), the `$onInfo` hook:
+Unlike the [`$onValidate`](./diagnostics.md) lifecycle hook, a `$provideTypeInfo` provider:
 
 - **is never run during compilation.** It is invoked lazily and on demand.
 - **must not mutate the type graph.** It should only read the program and answer questions
