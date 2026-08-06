@@ -155,8 +155,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             using var writer = new CodeWriter();
             writer.WriteMethod(convenienceMethod);
             Assert.AreEqual(
-                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped")
-                    .ReplaceLineEndings("\n"),
+                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped"),
                 writer.ToString(false));
 
             foreach (var protocolMethod in methodCollection.Where(method =>
