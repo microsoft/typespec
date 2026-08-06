@@ -1268,22 +1268,43 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
         terminal_event = getattr(response, "terminal_event", None)
+        streaming_events = getattr(response, "streaming_events", [])
         retval: list[str] = []
         retval.append("def _callback(_http_response, _event):")
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
-            # Heterogeneous SSE (``@events`` unions) is deserialized against the union item
-            # type below; the shared ``_deserialize`` cannot resolve a forward-ref union
-            # member name into a concrete model, so payloads are yielded as parsed JSON.
-            # Per-event ``eventType`` dispatch into distinct model instances requires the
-            # TCGC ``sseMetadata`` (SdkSseMetadata.events[], typespec-client-generator-core
-            # #4882), which is unavailable in the currently pinned TCGC version. The stream's
-            # terminal event (a string-literal union member such as ``[DONE]``) is detected
-            # structurally and passed as ``terminal_event`` below, so the runtime stops
-            # before this callback attempts to JSON-parse it.
+            # SSE payloads arrive as raw ``data`` strings; the terminal marker (e.g. ``[DONE]``)
+            # is consumed by the runtime before this callback runs (see ``terminal_event``).
             retval.append("    _event_json = json.loads(_event.data)")
+            named_events = [
+                (event_type, event_item_type)
+                for event_type, event_item_type in streaming_events
+                if event_type
+            ]
+            if named_events:
+                # Heterogeneous SSE: route each ``event:`` name to its concrete payload model
+                # (TCGC ``sseMetadata``), yielding distinct model instances.
+                for index, (event_type, event_item_type) in enumerate(named_events):
+                    event_annotation = event_item_type.type_annotation(
+                        is_operation_file=True, serialize_namespace=self.serialize_namespace
+                    )
+                    keyword = "if" if index == 0 else "elif"
+                    retval.append(f'    {keyword} _event.event == {event_type!r}:')
+                    retval.append(f"        deserialized = _deserialize({event_annotation}, _event_json)")
+                retval.append("    else:")
+                retval.append("        deserialized = _event_json")
+            elif streaming_events:
+                # Homogeneous SSE: a single (unnamed) event type deserialized into its model.
+                _event_type, event_item_type = streaming_events[0]
+                event_annotation = event_item_type.type_annotation(
+                    is_operation_file=True, serialize_namespace=self.serialize_namespace
+                )
+                retval.append(f"    deserialized = _deserialize({event_annotation}, _event_json)")
+            else:
+                # No per-event metadata: best-effort deserialize against the union item type.
+                retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         else:
             retval.append("    _event_json = _event.json()")
-        retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+            retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
         retval.append("    if cls:")
         retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
         retval.append("    return deserialized")
