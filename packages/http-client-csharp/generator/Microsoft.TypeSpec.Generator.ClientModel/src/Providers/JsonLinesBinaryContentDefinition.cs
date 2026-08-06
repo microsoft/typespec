@@ -3,7 +3,6 @@
 
 using System;
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -88,9 +87,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteJsonAsyncMethod(),
                 BuildWriteToMethod(),
                 BuildTryComputeLengthMethod(),
-                BuildDisposeMethod(),
-                BuildDeserializeModelMethod(),
-                BuildDeserializeValueMethod()
+                BuildDisposeMethod()
             ];
 
         private MethodProvider BuildWriteToAsyncMethod()
@@ -276,49 +273,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 null,
                 []);
             return new MethodProvider(signature, Array.Empty<MethodBodyStatement>(), this);
-        }
-
-        private MethodProvider BuildDeserializeModelMethod()
-        {
-            var data = new ParameterProvider("data", FormattableStringHelpers.Empty, typeof(BinaryData));
-            var wireOptions = Static(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.Type)
-                .Property(ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.Name);
-            var signature = new MethodSignature(
-                "DeserializeModel",
-                null,
-                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                _t,
-                null,
-                [data]);
-            return new MethodProvider(
-                signature,
-                new MethodBodyStatement[]
-                {
-                    Return(Static(typeof(ModelReaderWriter)).Invoke(
-                        nameof(ModelReaderWriter.Read),
-                        [data, wireOptions],
-                        [_t]))
-                },
-                this);
-        }
-
-        private MethodProvider BuildDeserializeValueMethod()
-        {
-            var data = new ParameterProvider("data", FormattableStringHelpers.Empty, typeof(BinaryData));
-            var signature = new MethodSignature(
-                "DeserializeValue",
-                null,
-                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
-                _t,
-                null,
-                [data]);
-            return new MethodProvider(
-                signature,
-                new MethodBodyStatement[]
-                {
-                    Return(data.As<BinaryData>().ToObjectFromJson(_t))
-                },
-                this);
         }
     }
 }
