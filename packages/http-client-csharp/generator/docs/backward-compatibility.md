@@ -16,9 +16,13 @@
     - [Explicit (Non-contiguous) Values Preserved](#scenario-explicit-non-contiguous-values-preserved)
     - [Removed Integer Enum Member Re-added](#scenario-removed-integer-enum-member-re-added)
     - [Baseline-Accepted Removal Honored](#scenario-baseline-accepted-removal-honored)
+  - [Extensible Enum Members](#extensible-enum-members)
+    - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
+    - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
+    - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
   - [Parameter Naming](#parameter-naming)
     - [Page Size Parameter Casing Correction](#scenario-page-size-parameter-casing-correction)
     - [Top Parameter Conversion to MaxCount](#scenario-top-parameter-conversion-to-maxcount)
@@ -449,6 +453,53 @@ public enum SampleEnum
 - Suppressed members are matched by the declaring enum's fully-qualified name and the member name
 - This lets a library intentionally drop a previously shipped enum member once the removal is reviewed and recorded in the baseline
 
+### Extensible Enum Members
+
+Extensible enums (C# `readonly partial struct` types) preserve their previously shipped members by comparing the current spec against the last contract. The generator re-adds an extensible enum member that was dropped from the current spec, restoring it with its original wire value to avoid removing a previously shipped member.
+
+#### Scenario: Removed Extensible Enum Member Re-added
+
+**Description:** When an extensible enum member present in the last contract is dropped from the current spec, the generator restores it — as a public static property backed by its recovered `const` wire value — to keep the previously shipped API.
+
+**Example:**
+
+Previous version:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+Current TypeSpec removes `Running`. **Generated Result:** `Running` is re-added (appended after the current members) with its original wire value:
+
+```csharp
+public readonly partial struct OperationStatusType : IEquatable<OperationStatusType>
+{
+    private const string CompletedValue = "Completed";
+    private const string FailedValue = "Failed";
+    private const string RunningValue = "Running";
+
+    public static OperationStatusType Completed { get; } = new OperationStatusType(CompletedValue);
+    public static OperationStatusType Failed { get; } = new OperationStatusType(FailedValue);
+    public static OperationStatusType Running { get; } = new OperationStatusType(RunningValue);
+    // ...
+}
+```
+
+**Key Points:**
+
+- Members that already exist in the current spec, are provided by custom code, or whose removal is accepted in the [ApiCompat baseline](#apicompat-baseline-awareness) are not re-added
+- Restored members are appended after the current spec's members, preserving the current spec's order
+
 ### API Version Enum
 
 Service version enums maintain backward compatibility by preserving version values from previous releases.
@@ -588,6 +639,108 @@ public abstract partial class SearchIndexerDataIdentity
 - The constructor must have matching parameters (same count, types, and names)
 - The modifier is changed from `private protected` to `public`
 - No additional constructors are generated; only the accessibility is adjusted
+
+#### Scenario: Required Property Becomes Optional
+
+**Description:** When a required model property becomes optional, the current initialization constructor no longer includes that property. To preserve source compatibility for callers that construct the model positionally, the generator restores the previously published public constructor as an overload. The restored overload chains to the closest current public constructor and assigns the now-optional property.
+
+**Example:**
+
+Previous version required both properties:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
+
+    public string Name { get; }
+    public string Description { get; }
+}
+```
+
+Current TypeSpec makes `description` optional:
+
+```csharp
+public partial class Widget
+{
+    public Widget(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+    public string Description { get; set; }
+}
+```
+
+**Generated Compatibility Result:**
+
+```csharp
+public Widget(string name, string description) : this(name)
+{
+    Description = description;
+}
+```
+
+**Key Points:**
+
+- The previous constructor must be public and no generated or custom constructor may already have the same parameters.
+- Every parameter removed from the current constructor must map to a public, settable property with the same type. Properties renamed through a code-generation customization are supported.
+- The current constructor used for chaining must have parameters that match an in-order subset of the previous constructor's parameters.
+- If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
+
+#### Scenario: Parameterless Constructor Becomes Parameterized
+
+**Description:** When a model previously exposed an accessible parameterless constructor and a property later becomes required, generation replaces the parameterless constructor with one that accepts the required property. The generator restores the previous parameterless constructor and chains it to an appropriate current constructor with `default` values.
+
+**Example:**
+
+Previous version exposed a parameterless constructor:
+
+```csharp
+public partial class Widget
+{
+    protected Widget()
+    {
+    }
+
+    public string Name { get; set; }
+}
+```
+
+Current TypeSpec makes `name` required:
+
+```csharp
+public partial class Widget
+{
+    protected Widget(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+}
+```
+
+**Generated Compatibility Result:**
+
+```csharp
+protected Widget() : this(default)
+{
+}
+```
+
+**Key Points:**
+
+- The previous parameterless constructor must be accessible and no accessible generated or custom parameterless constructor may already exist.
+- The restored constructor retains the previous accessibility.
+- The generator prefers an accessible current constructor with the fewest required parameters as the chain target. When necessary, it can chain to a `private protected` initialization constructor.
+- The generated parameterless mocking constructor is removed so it does not duplicate the restored constructor.
+- If the constructor removal is accepted in an ApiCompat baseline, the generator does not restore it.
 
 ### Parameter Naming
 

@@ -366,6 +366,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         }
 
         [Test]
+        public void IsMethodRemovalSuppressedMatchesConstructor()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
+
+            // Ns.Ctors..ctor(System.String, System.Int32) is accepted in the baseline. Constructors are
+            // recorded under the ".ctor" member name with their exact parameter types.
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed(
+                "Ns.Ctors",
+                ".ctor",
+                [new CSharpType(typeof(string)), new CSharpType(typeof(int))]));
+
+            // The same types in a different order are a different constructor signature.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed(
+                "Ns.Ctors",
+                ".ctor",
+                [new CSharpType(typeof(int)), new CSharpType(typeof(string))]));
+
+            // A different arity must not match.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Ctors", ".ctor", [new CSharpType(typeof(string))]));
+
+            // A different parameter type in one slot must not match.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed(
+                "Ns.Ctors",
+                ".ctor",
+                [new CSharpType(typeof(string)), new CSharpType(typeof(bool))]));
+
+            // A different declaring type must not match.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed(
+                "Ns.Other",
+                ".ctor",
+                [new CSharpType(typeof(string)), new CSharpType(typeof(int))]));
+        }
+
+        [Test]
+        public void IsMethodRemovalSuppressedMatchesParameterlessConstructor()
+        {
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "Baseline");
+
+            // Ns.Ctors..ctor() has no parameters; the canonical signature is empty on both sides.
+            Assert.IsTrue(baseline.IsMethodRemovalSuppressed("Ns.Ctors", ".ctor", []));
+
+            // Ns.Foo only has a constructor overload that takes arguments in the baseline, so querying
+            // its parameterless constructor must not match that overload.
+            Assert.IsFalse(baseline.IsMethodRemovalSuppressed("Ns.Foo", ".ctor", []));
+        }
+
+        [Test]
         public void ReferencesSuppressedTypeMatchesDirectType()
         {
             var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: _fileExtension, method: "SuppressedString");

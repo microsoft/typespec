@@ -216,9 +216,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal static ParameterProvider CloneParameterWithName(
             ParameterProvider source,
             string newName,
-            bool removeDefault)
+            bool removeDefault,
+            ParameterValidationType? validation = null)
         {
-            if (source.Name == newName && !(removeDefault && source.DefaultValue != null))
+            if (source.Name == newName
+                && !(removeDefault && source.DefaultValue != null)
+                && (validation == null || validation == source.Validation))
             {
                 return source;
             }
@@ -238,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 initializationValue: source.InitializationValue,
                 location: source.Location,
                 wireInfo: source.WireInfo,
-                validation: source.Validation,
+                validation: validation ?? source.Validation,
                 inputParameter: source.InputParameter)
             {
                 SpreadSource = source.SpreadSource,
