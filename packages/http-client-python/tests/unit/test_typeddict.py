@@ -18,6 +18,20 @@ from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
 def _make_code_model(models_mode="dpg"):
+    options = {
+        "show-send-request": True,
+        "builders-visibility": "public",
+        "show-operations": True,
+        "models-mode": models_mode,
+        "flavor": "unbranded",
+        "client-side-validation": False,
+    }
+    # The deprecated 'typeddict' models-mode is represented internally as models-mode
+    # none (falsy) + generate-typeddict enabled on a TypeSpec input.
+    if models_mode == "typeddict":
+        options["models-mode"] = None
+        options["generate-typeddict"] = True
+        options["tsp_file"] = True
     return CodeModel(
         {
             "clients": [
@@ -32,21 +46,14 @@ def _make_code_model(models_mode="dpg"):
             ],
             "namespace": "namespace",
         },
-        options={
-            "show-send-request": True,
-            "builders-visibility": "public",
-            "show-operations": True,
-            "models-mode": models_mode,
-            "flavor": "unbranded",
-            "client-side-validation": False,
-        },
+        options=options,
     )
 
 
 def _make_model(code_model, name, model_cls=None, properties=None):
     """Create a model of the given class attached to code_model."""
     if model_cls is None:
-        if code_model.options["models-mode"] == "typeddict":
+        if code_model.generate_typeddict_only:
             model_cls = TypedDictModelType
         elif code_model.options["models-mode"] == "dpg":
             model_cls = DPGModelType

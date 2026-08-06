@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -98,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => MethodProviderHelpers.IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -629,9 +630,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // Apply back-compat type replacement only for properties on the public API
                 // surface: changing the type of an internal/private generated property is not
-                // a source-breaking change, and the last-contract map already excludes
-                // non-public-API entries.
-                if (MethodProviderHelpers.IsPublicApi(outputProperty.Modifiers) &&
+                // a source-breaking change
+                if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
                     !lastContractPropertyType.Equals(outputProperty.Type))
                 {
@@ -773,6 +773,280 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. constructors];
+        }
+
+        /// <summary>
+        /// Restores previously-published public constructors that the current generation would otherwise
+        /// drop. The primary scenario is a previously required property becoming optional: the corresponding
+        /// parameter is removed from the initialization constructor, which is a source-breaking change for
+        /// callers that construct the model positionally. When the previous public constructor can be safely
+        /// reconstructed - i.e. every one of its extra parameters still maps to a settable property whose
+        /// name and type are unchanged (or a property renamed via a codegen customization but keeping the
+        /// same type) - a back-compat overload is added that chains to the current public constructor and
+        /// assigns the extra properties.
+        /// </summary>
+        protected internal override IReadOnlyList<ConstructorProvider> BuildConstructorsForBackCompatibility(IEnumerable<ConstructorProvider> originalConstructors)
+        {
+            if (LastContractView?.Constructors is not { Count: > 0 } previousConstructors)
+            {
+                return base.BuildConstructorsForBackCompatibility(originalConstructors);
+            }
+
+            var constructors = new List<ConstructorProvider>(base.BuildConstructorsForBackCompatibility(originalConstructors));
+            var restorablePropertyLookup = BuildRestorablePropertyLookup();
+            IReadOnlyList<ConstructorProvider> candidateConstructors = CustomCodeView?.Constructors is { Count: > 0 } customConstructors
+                ? [.. constructors, .. customConstructors]
+                : constructors;
+
+            foreach (var previousConstructor in previousConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
+                {
+                    continue;
+                }
+
+                var previousParameters = previousConstructor.Signature.Parameters;
+
+                if (BackCompatHelper.IsConstructorRemovalAcceptedInBaseline(this, previousConstructor.Signature))
+                {
+                    continue;
+                }
+
+                // A previously published accessible parameterless constructor is dropped when the current
+                // generation makes a property required. Restore it and drop the generated mocking constructor
+                // so it is not a duplicate. An accessible parameterless constructor (generated or custom code)
+                // counts as already present; an inaccessible generated mocking constructor does not.
+                if (!Type.IsStruct && previousParameters.Count == 0)
+                {
+                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                        && !CanonicalView.Constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
+                    {
+                        var parameterlessConstructor = BuildBackCompatParameterlessConstructor(previousConstructor, candidateConstructors);
+                        RemoveGeneratedMockingConstructor(constructors);
+                        constructors.Add(parameterlessConstructor);
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Restored parameterless constructor '{Name}()' to match last contract.",
+                            BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                    }
+
+                    continue;
+                }
+
+                // If a constructor with the same parameters already exists - either still generated or
+                // supplied by custom code (which lives in the canonical view) - there is nothing to restore.
+                if (constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters))
+                    || CanonicalView.Constructors.Any(c => BackCompatHelper.ParametersMatch(c.Signature.Parameters, previousParameters)))
+                {
+                    continue;
+                }
+
+                if (TryBuildRestoredConstructor(previousConstructor, candidateConstructors, restorablePropertyLookup, out var restoredConstructor))
+                {
+                    constructors.Add(restoredConstructor);
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Restored constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.Name))})' to match last contract.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContract);
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.Info(
+                        $"Could not restore constructor '{Name}({string.Join(", ", previousParameters.Select(p => p.Type.Name))})' from the last contract; a property name or type has changed.",
+                        BackCompatibilityChangeCategory.ConstructorAddedFromLastContractSkipped);
+                }
+            }
+
+            return constructors;
+        }
+
+        private bool TryBuildRestoredConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors,
+            Dictionary<string, PropertyProvider> restorablePropertyLookup,
+            [NotNullWhen(true)] out ConstructorProvider? restoredConstructor)
+        {
+            restoredConstructor = null;
+            var previousParameters = previousConstructor.Signature.Parameters;
+
+            // Find the public constructor to chain to: its parameters must form an in-order subsequence of
+            // the previous constructor's parameters. Prefer the closest one.
+            ConstructorProvider? targetConstructor = null;
+            foreach (var candidate in currentConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(candidate.Signature.Modifiers)
+                    || candidate.Signature.Parameters.Count >= previousParameters.Count)
+                {
+                    continue;
+                }
+
+                // Check whether this candidate would improve on the current target before performing the
+                // more expensive subsequence lookup.
+                if ((targetConstructor == null
+                        || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count)
+                    && IsParameterSubsequence(candidate.Signature.Parameters, previousParameters))
+                {
+                    targetConstructor = candidate;
+                }
+            }
+
+            if (targetConstructor == null)
+            {
+                return false;
+            }
+
+            var targetParameters = targetConstructor.Signature.Parameters;
+            var restoredParameters = new List<ParameterProvider>(previousParameters.Count);
+            var initializerArguments = new List<ParameterProvider>(targetParameters.Count);
+            var extraAssignments = new List<(PropertyProvider Property, ParameterProvider Parameter)>();
+            int targetIndex = 0;
+
+            foreach (var previousParameter in previousParameters)
+            {
+                if (targetIndex < targetParameters.Count
+                    && targetParameters[targetIndex].Equals(previousParameter))
+                {
+                    var keptParameter = PartialMethodCustomization.CloneParameterWithName(
+                        targetParameters[targetIndex],
+                        previousParameter.Name,
+                        removeDefault: false,
+                        validation: ParameterValidationType.None);
+                    restoredParameters.Add(keptParameter);
+                    initializerArguments.Add(keptParameter);
+                    targetIndex++;
+                    continue;
+                }
+
+                if (!restorablePropertyLookup.TryGetValue(previousParameter.Name, out var property)
+                    || !property.Type.AreNamesEqual(previousParameter.Type))
+                {
+                    return false;
+                }
+
+                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(
+                    property.AsParameter,
+                    previousParameter.Name,
+                    removeDefault: true);
+
+                restoredParameters.Add(restoredParameter);
+                extraAssignments.Add((property, restoredParameter));
+            }
+
+            // Every target parameter must be consumed and at least one extra property must be assigned,
+            // otherwise the restored constructor would be redundant or would produce an invalid chained call.
+            if (targetIndex != targetParameters.Count || extraAssignments.Count == 0)
+            {
+                return false;
+            }
+
+            var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
+            foreach (var (property, parameter) in extraAssignments)
+            {
+                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                ValueExpression value = parameter;
+                if (CSharpType.RequiresToList(parameter.Type, property.Type))
+                {
+                    value = parameter.Type.IsNullable ? value.NullConditional().ToList() : value.ToList();
+                }
+
+                bodyStatements.Add(assignee.Assign(value).Terminate());
+            }
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                previousConstructor.Signature.Modifiers,
+                restoredParameters,
+                initializer: new ConstructorInitializer(false, initializerArguments));
+
+            restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
+            return true;
+        }
+
+        private ConstructorProvider BuildBackCompatParameterlessConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors)
+        {
+            // Prefer the public or protected constructor with the fewest required parameters, then a
+            // private-protected one; a null target yields a standalone constructor.
+            const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
+            var target = currentConstructors
+                .Where(c => c.Signature.Parameters.Count > 0
+                    && (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) || (c.Signature.Modifiers & privateProtected) == privateProtected))
+                .MinBy(c => (MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers) ? 0 : 1, c.Signature.Parameters.Count(p => p.DefaultValue is null)));
+
+            ConstructorInitializer? initializer = target is null
+                ? null
+                : new ConstructorInitializer(false, [.. target.Signature.Parameters.Select(_ => Snippet.Default)]);
+
+            var signature = new ConstructorSignature(
+                Type,
+                $"Initializes a new instance of {Type:C}",
+                previousConstructor.Signature.Modifiers,
+                parameters: [],
+                initializer: initializer);
+
+            return new ConstructorProvider(signature, MethodBodyStatement.Empty, this);
+        }
+
+        private void RemoveGeneratedMockingConstructor(List<ConstructorProvider> constructors)
+        {
+            constructors.RemoveAll(c => c.Signature.Parameters.Count == 0);
+
+            foreach (var serializationProvider in SerializationProviders)
+            {
+                var serializationConstructors = serializationProvider.Constructors;
+                if (serializationConstructors.Any(c => c.Signature.Parameters.Count == 0))
+                {
+                    serializationProvider.Update(
+                        constructors: [.. serializationConstructors.Where(c => c.Signature.Parameters.Count != 0)]);
+                }
+            }
+        }
+
+        private static bool IsParameterSubsequence(
+            IReadOnlyList<ParameterProvider> subset,
+            IReadOnlyList<ParameterProvider> full)
+        {
+            if (subset.Count > full.Count)
+            {
+                return false;
+            }
+
+            int matched = 0;
+            foreach (var parameter in full)
+            {
+                if (matched == subset.Count)
+                {
+                    break;
+                }
+
+                if (subset[matched].Equals(parameter))
+                {
+                    matched++;
+                }
+            }
+
+            return matched == subset.Count;
+        }
+
+        private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
+        {
+            var lookup = new Dictionary<string, PropertyProvider>();
+            foreach (var property in CanonicalView.Properties)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                {
+                    continue;
+                }
+
+                lookup.TryAdd(property.AsParameter.Name, property);
+
+                if (property.OriginalName != null)
+                {
+                    lookup.TryAdd(property.OriginalName.ToVariableName(), property);
+                }
+            }
+
+            return lookup;
         }
 
         /// <summary>
@@ -1380,6 +1654,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
+                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)

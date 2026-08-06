@@ -666,6 +666,67 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(3, v74Literal!.Literal);
         }
 
+        // Validates that the constant value of a const field on a non-enum type (here a struct,
+        // mirroring the private `<Member>Value` backing constants an extensible enum uses) is
+        // recovered as the field's initialization value. This is what lets back-compat processing
+        // read a previously shipped member's wire value from the last contract's metadata.
+        [Test]
+        public void ValidateConstFieldInitializerIsRecovered()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private const string RecoverValue = "recover";
+                            private const int Answer = 42;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var fields = provider.Fields.ToDictionary(f => f.Name);
+
+            Assert.IsTrue(fields.ContainsKey("RecoverValue"));
+            var recoverValue = fields["RecoverValue"];
+            Assert.IsInstanceOf<LiteralExpression>(recoverValue.InitializationValue);
+            Assert.AreEqual("recover", (recoverValue.InitializationValue as LiteralExpression)!.Literal);
+
+            Assert.IsTrue(fields.ContainsKey("Answer"));
+            var answer = fields["Answer"];
+            Assert.IsInstanceOf<LiteralExpression>(answer.InitializationValue);
+            Assert.AreEqual(42, (answer.InitializationValue as LiteralExpression)!.Literal);
+        }
+
+        // Validates that a non-const field carries no recovered initialization value.
+        [Test]
+        public void ValidateNonConstFieldHasNoInitializer()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample.Models
+                    {
+                        public readonly partial struct MockInputEnum
+                        {
+                            private readonly string _value;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.Models.MockInputEnum");
+            Assert.IsNotNull(symbol);
+
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var field = provider.Fields.Single(f => f.Name == "_value");
+            Assert.IsNull(field.InitializationValue);
+        }
+
         public enum SomeEnum
         {
             Foo,
