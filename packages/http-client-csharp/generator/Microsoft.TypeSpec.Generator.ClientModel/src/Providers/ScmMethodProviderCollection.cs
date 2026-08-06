@@ -95,12 +95,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
             if (_streamingResponse.Value != null)
             {
+                AddStreamingResultSuppression(asyncProtocol);
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
+                    var convenienceMethod = BuildConvenienceMethod(asyncProtocol, true);
+                    AddStreamingResultSuppression(convenienceMethod);
                     return
                     [
                         asyncProtocol,
-                        BuildConvenienceMethod(asyncProtocol, true)
+                        convenienceMethod
                     ];
                 }
 
@@ -144,6 +147,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 asyncProtocol,
             ];
         }
+
+        private static void AddStreamingResultSuppression(MethodProvider method)
+            => method.Update(suppressions:
+            [
+                new SuppressionStatement(
+                    null,
+                    Literal(StreamingResultDiagnosticId),
+                    StreamingResultSuppressionJustification),
+                .. method.Suppressions
+            ]);
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
         {
