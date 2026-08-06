@@ -1,8 +1,10 @@
-import { createDiagnosticCollector, DiagnosticResult, Program, Type } from "@typespec/compiler";
+import type { DiagnosticResult, Program, Type } from "@typespec/compiler";
+import { createDiagnosticCollector } from "@typespec/compiler";
 import { useStateMap } from "@typespec/compiler/utils";
-import { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
+import type { ExperimentalDecorator } from "../../generated-defs/TypeSpec.HttpClient.js";
 import { createStateSymbol } from "../lib.js";
-import { parseScopeFilter, ScopedValue } from "./scope-cache.js";
+import type { ScopedValue } from "./scope-cache.js";
+import { parseScopeFilter } from "./scope-cache.js";
 
 const featureLifecycleStateSymbol = createStateSymbol("featureLifecycleState");
 

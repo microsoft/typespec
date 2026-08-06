@@ -1,5 +1,5 @@
 import { type Children } from "@alloy-js/core";
-import { HttpOperation } from "@typespec/http";
+import type { HttpOperation } from "@typespec/http";
 
 export interface OperationHandler {
   /**

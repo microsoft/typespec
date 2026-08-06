@@ -1,8 +1,8 @@
 import { renderAsync, type Children } from "@alloy-js/core";
+import type { Program } from "@typespec/compiler";
 import {
   emitFile,
   joinPaths,
-  Program,
   resolveCompilerOptions,
   resolvePath,
   type EmitContext,

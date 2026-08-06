@@ -33,9 +33,23 @@ export interface PlaygroundTspLibrary {
   isEmitter: boolean;
   definition?: TypeSpecLibrary<any>;
   linter?: LinterDefinition;
+
+  /**
+   * Whether the library module has been declared but not imported yet.
+   *
+   * Deferred emitters are only imported the first time they are used, so their `definition`,
+   * `linter` and `packageJson` are placeholders until then.
+   */
+  deferred?: boolean;
 }
 
 export interface BrowserHost extends CompilerHost {
   compiler: typeof import("@typespec/compiler");
   libraries: Record<string, PlaygroundTspLibrary>;
+
+  /**
+   * Import a library that was registered as a deferred emitter and make its files available to the
+   * compiler. Resolves immediately for libraries that are already loaded.
+   */
+  loadLibrary(name: string): Promise<void>;
 }

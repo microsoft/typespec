@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Model, Union, UnionVariant } from "../../src/core/types.js";
+import type { Model, Union, UnionVariant } from "../../src/core/types.js";
 import { expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

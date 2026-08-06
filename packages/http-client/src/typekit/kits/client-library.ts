@@ -1,18 +1,9 @@
-import {
-  Enum,
-  getLocationContext,
-  Interface,
-  listServices,
-  Model,
-  Namespace,
-  navigateType,
-  Scalar,
-  Type,
-  Union,
-} from "@typespec/compiler";
+import type { Enum, Interface, Model, Namespace, Scalar, Type, Union } from "@typespec/compiler";
+import { getLocationContext, listServices, navigateType } from "@typespec/compiler";
 import { defineKit, type Typekit } from "@typespec/compiler/typekit";
-import { HttpOperation, isHttpFile } from "@typespec/http";
-import { InternalClient } from "../../interfaces.js";
+import type { HttpOperation } from "@typespec/http";
+import { isHttpFile } from "@typespec/http";
+import type { InternalClient } from "../../interfaces.js";
 
 /**
  * ClientLibraryKit provides a set of utilities to work with the client library.

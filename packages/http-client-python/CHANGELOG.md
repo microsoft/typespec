@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.35.1
+
+### Bug Fixes
+
+- [#11371](https://github.com/microsoft/typespec/pull/11371) Use wire names in TypedDict docstrings
+- [#11392](https://github.com/microsoft/typespec/pull/11392) Fix the generated `_validation.py` `@api_version_validation` decorator so it reads the correct client config attribute for the API version. It previously hardcoded `client._config.api_version`, but the attribute name is derived from the API-version parameter's `client_name`. For specs that name the versioning parameter something other than `apiVersion` (e.g. `self.version`), the lookup raised `AttributeError` that the decorator silently swallowed, disabling all API-version validation for those clients. The emitter now bakes the real attribute name into the generated decorator so it reads `config.<name>` directly.
+- [#11272](https://github.com/microsoft/typespec/pull/11272) Fix generated request builders serializing a `None` `content-type` header for an
+  operation with an optional body whose content-type is required/constant. The
+  `content-type` kwarg is now declared `Optional[str]` and the header is omitted
+  when it is `None`, instead of raising `ValueError: No value for given attribute`.
+
+
 ## 0.35.0
 
 ### Features

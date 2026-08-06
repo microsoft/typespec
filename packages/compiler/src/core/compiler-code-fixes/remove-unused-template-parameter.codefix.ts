@@ -1,5 +1,5 @@
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import { TemplateParameterDeclarationNode } from "../types.js";
+import type { TemplateParameterDeclarationNode } from "../types.js";
 
 /**
  * Quick fix that remove unused template parameter.

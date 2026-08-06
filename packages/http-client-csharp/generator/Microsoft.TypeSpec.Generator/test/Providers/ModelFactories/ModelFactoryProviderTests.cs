@@ -408,6 +408,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_SkipsNonPublicPreviousMethod()
+        {
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: ModelList,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+
+            // The last contract exposes an internal factory method that no longer exists in the current
+            // contract. It is surfaced in the last-contract view (metadata import includes non-public members)
+            // but is not part of the public compatibility surface.
+            Assert.IsTrue(modelFactory.LastContractView!.Methods.Any(m =>
+                m.Signature.Name == "PublicModel1OldName"
+                && m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            // No back-compat shim is generated for the internal previous method.
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public async Task BackCompatibility_SuppressedByApiCompatBaselineNotRegenerated()
         {
             // The previous contract contains a "PublicModel1OldName" factory method that no longer
@@ -658,6 +682,152 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var bodyString = body!.ToDisplayString();
             StringAssert.Contains("listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();", bodyString);
             StringAssert.Contains("return new global::Sample.Models.PublicModel1(default, default, listProp.ToList(), default, additionalBinaryDataProperties: null);", bodyString);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tool", externalTool)
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual(typeof(Uri), methods[0].Signature.Parameters.Single().Type.FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableGenericParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var toolsParameter = methods[0].Signature.Parameters.Single();
+            Assert.AreEqual(typeof(IEnumerable<>), toolsParameter.Type.FrameworkType);
+            Assert.AreEqual(typeof(Uri), toolsParameter.Type.Arguments.Single().FrameworkType);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_PreservesMethodWithAvailableArrayParameterType()
+        {
+            var tool = InputFactory.Model("Tool");
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(tool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [tool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            Assert.IsEmpty(ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableArrayParameterType()
+        {
+            var externalTool = InputFactory.Model(
+                "Tool",
+                external: new InputExternalTypeMetadata("System.Uri", null, null));
+            var hostedAgentDefinition = InputFactory.Model(
+                "HostedAgentDefinition",
+                properties:
+                [
+                    InputFactory.Property("Tools", InputFactory.Array(externalTool))
+                ]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [externalTool, hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var previousMethod = modelFactory.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "HostedAgentDefinition");
+            CollectionAssert.AreEqual(
+                new[] { "Sample.Models.ProjectsAgentTool" },
+                ModelFactoryProvider.GetUnavailableSignatureTypes(previousMethod.Signature));
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_SkipsMethodWithUnavailableReturnType()
+        {
+            var hostedAgentDefinition = InputFactory.Model("HostedAgentDefinition");
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [hostedAgentDefinition],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(method => method.Signature.Name == "HostedAgentDefinition")
+                .ToList();
+            Assert.AreEqual(1, methods.Count);
+            Assert.AreEqual("HostedAgentDefinition", methods[0].Signature.ReturnType?.Name);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            StringAssert.DoesNotContain("ProjectsAgentTool", content);
         }
 
         [Test]

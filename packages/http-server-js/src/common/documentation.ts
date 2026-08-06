@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { Type, getDoc } from "@typespec/compiler";
-import { JsContext } from "../ctx.js";
+import type { Type } from "@typespec/compiler";
+import { getDoc } from "@typespec/compiler";
+import type { JsContext } from "../ctx.js";
 import { indent } from "../util/iter.js";
 
 /**

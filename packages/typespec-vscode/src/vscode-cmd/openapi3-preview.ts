@@ -5,9 +5,10 @@ import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import telemetryClient from "../telemetry/telemetry-client.js";
-import { OperationTelemetryEvent } from "../telemetry/telemetry-event.js";
-import { TspLanguageClient } from "../tsp-language-client.js";
-import { Result, ResultCode } from "../types.js";
+import type { OperationTelemetryEvent } from "../telemetry/telemetry-event.js";
+import type { TspLanguageClient } from "../tsp-language-client.js";
+import type { Result } from "../types.js";
+import { ResultCode } from "../types.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../typespec-utils.js";
 import { createTempDir, throttle } from "../utils.js";
 

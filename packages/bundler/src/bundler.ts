@@ -1,5 +1,5 @@
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
-import { BuildOptions, BuildResult, context, Plugin } from "esbuild";
+import { context, type BuildOptions, type BuildResult, type Plugin } from "esbuild";
 import { access, mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, dirname, join, resolve } from "path";
 import { promisify } from "util";
