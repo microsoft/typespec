@@ -98,7 +98,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 model.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
                     && c.Signature.Parameters.All(p => p.Name != "patch"));
             Assert.IsNotNull(publicConstructor);
-            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", publicConstructor!.BodyStatements!.ToDisplayString());
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile("PublicInitializationConstructor"),
+                publicConstructor!.BodyStatements!.ToDisplayString());
         }
 
         [Test]
