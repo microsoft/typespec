@@ -247,18 +247,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        private static LiteralExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
         {
-            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
-            {
-                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
-                {
-                    return Literal(fieldSymbol.ConstantValue);
-                }
-                return null;
-            }
-
-            return null;
+            return fieldSymbol.HasConstantValue &&
+                fieldSymbol.ConstantValue != null &&
+                LiteralExpression.TryCreate(fieldSymbol.ConstantValue, out var initializer)
+                ? initializer
+                : null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
