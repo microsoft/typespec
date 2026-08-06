@@ -63,6 +63,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            var jsonLinesContent = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<JsonLinesBinaryContentDefinition>()
+                .Single();
+            Assert.IsFalse(jsonLinesContent.Methods.Any(
+                method => method.Signature.Name is "DeserializeModel" or "DeserializeValue"));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 
@@ -106,6 +111,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [itemType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             StringAssert.Contains(
@@ -141,6 +148,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.Contains(
                 "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
                 convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "JsonLinesBinaryContent",
+                convenienceMethod.BodyStatements!.ToDisplayString());
 
             foreach (var protocolMethod in methodCollection.Where(method =>
                 method.Signature.Parameters.Any(parameter => parameter.Name == "options")))
@@ -175,6 +188,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 response: InputFactory.ServiceMethodResponse(streamType, null));
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
             MockHelpers.LoadMockGenerator(inputModels: () => [eventType], clients: () => [inputClient]);
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(
+                type => type is JsonLinesBinaryContentDefinition));
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
 
@@ -211,8 +226,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
                 body);
             StringAssert.Contains(
-                "global::Sample.JsonLinesBinaryContent<global::Sample.Models.Info>.DeserializeModel",
+                "global::Sample.SampleContext.Default",
                 body);
+            StringAssert.DoesNotContain("JsonLinesBinaryContent", body);
             StringAssert.Contains(
                 "item.Data.ToString() == \"[DONE]\"",
                 body);
@@ -253,7 +269,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 method.Signature.Name == "ReceiveAsync" &&
                 method.Signature.Parameters.All(parameter => parameter.Name != "options"));
             StringAssert.Contains(
-                "global::Sample.JsonLinesBinaryContent<string>.DeserializeValue",
+                "global::Sample.SampleContext.Default",
+                convenienceMethod.BodyStatements!.ToDisplayString());
+            StringAssert.DoesNotContain(
+                "ToObjectFromJson",
                 convenienceMethod.BodyStatements!.ToDisplayString());
         }
 
