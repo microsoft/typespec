@@ -658,6 +658,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(signature.ReturnType!.Equals(expectedReturnType));
         }
 
+        [Test]
+        public void ListMethodWithInheritedPageItems()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["value"],
+                null,
+                null);
+            var itemModel = InputFactory.Model("cat");
+            var basePageModel = InputFactory.Model(
+                "basePage",
+                properties: [InputFactory.Property("value", InputFactory.Array(itemModel))]);
+            var responseModel = InputFactory.Model(
+                "page",
+                properties: [InputFactory.Property("summary", InputPrimitiveType.String)],
+                baseModel: basePageModel);
+            var response = InputFactory.OperationResponse([200], responseModel);
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod(
+                "Test",
+                operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, null),
+                pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [itemModel, basePageModel, responseModel],
+                clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var itemModelType = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemModel);
+
+            var methodCollection = new ScmMethodProviderCollection(inputClient.Methods.First(), client!);
+            var listMethod = methodCollection.FirstOrDefault(
+                m => !m.Signature.Parameters.Any(p => p.Name == "options") && m.Signature.Name == "GetCats");
+            Assert.IsNotNull(listMethod);
+
+            var expectedReturnType = new CSharpType(typeof(CollectionResult<>), itemModelType!);
+            Assert.IsTrue(listMethod!.Signature.ReturnType!.Equals(expectedReturnType));
+        }
+
         [TestCase(true, InputRequestLocation.Header)]
         [TestCase(true, InputRequestLocation.Body)]
         [TestCase(false, InputRequestLocation.Header)]
