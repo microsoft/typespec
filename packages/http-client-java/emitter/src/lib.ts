@@ -1,5 +1,10 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { DIAGNOSTIC_DOCS_BASE_URL, EmitterOptionsSchema, LIB_NAME } from "./options.js";
+import {
+  DIAGNOSTIC_DOCS_BASE_PATH,
+  DIAGNOSTIC_DOCS_BASE_URL,
+  EmitterOptionsSchema,
+  LIB_NAME,
+} from "./options.js";
 
 /**
  * Build the source documentation reference and published URL for a diagnostic.
@@ -8,7 +13,7 @@ function doc(code: string) {
   return {
     docs: {
       kind: "file-ref" as const,
-      path: `emitter/src/diagnostics/${code}.md`,
+      path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
     },
     url: `${DIAGNOSTIC_DOCS_BASE_URL}/${code}`,
   };
