@@ -1,5 +1,23 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { EmitterOptionsSchema, LIB_NAME } from "./options.js";
+import {
+  DIAGNOSTIC_DOCS_BASE_PATH,
+  DIAGNOSTIC_DOCS_BASE_URL,
+  EmitterOptionsSchema,
+  LIB_NAME,
+} from "./options.js";
+
+/**
+ * Build the source documentation reference and published URL for a diagnostic.
+ */
+function doc(code: string) {
+  return {
+    docs: {
+      kind: "file-ref" as const,
+      path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
+    },
+    url: `${DIAGNOSTIC_DOCS_BASE_URL}/${code}`,
+  };
+}
 
 export const $lib = createTypeSpecLibrary({
   name: LIB_NAME,
@@ -18,6 +36,7 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "invalid-java-sdk-dependency": {
+      ...doc("invalid-java-sdk-dependency"),
       severity: "error",
       messages: {
         default:
@@ -30,18 +49,21 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "multiple-server-not-supported": {
+      ...doc("multiple-server-not-supported"),
       severity: "error",
       messages: {
         default: "Multiple server on client is not supported.",
       },
     },
     "invalid-api-version": {
+      ...doc("invalid-api-version"),
       severity: "error",
       messages: {
         default: paramMessage`Invalid api-version option: '${"apiVersion"}'. The value should be an api-version, 'latest', or 'all'.`,
       },
     },
     "unrecognized-type": {
+      ...doc("unrecognized-type"),
       severity: "error",
       messages: {
         default: paramMessage`Unrecognized type, kind '${"typeKind"}'. Updating the version of the emitter may resolve this issue.`,
@@ -50,6 +72,7 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "empty-name": {
+      ...doc("empty-name"),
       severity: "error",
       messages: {
         default: "Name from TCGC is empty.",
@@ -64,12 +87,14 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "no-service": {
+      ...doc("no-service"),
       severity: "warning",
       messages: {
         default: "No service found in this TypeSpec. Client will not be generated.",
       },
     },
     "auth-scheme-not-supported": {
+      ...doc("auth-scheme-not-supported"),
       severity: "warning",
       messages: {
         oauth2Unbranded:
@@ -79,12 +104,14 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "protocol-api-not-generated": {
+      ...doc("protocol-api-not-generated"),
       severity: "warning",
       messages: {
         multipartFormData: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
       },
     },
     "convenience-api-not-generated": {
+      ...doc("convenience-api-not-generated"),
       severity: "warning",
       messages: {
         multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,
@@ -92,30 +119,35 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "header-parameter-format-not-supported": {
+      ...doc("header-parameter-format-not-supported"),
       severity: "warning",
       messages: {
         default: paramMessage`Header parameter format '${"format"}' is not supported.`,
       },
     },
     "unknown-encode": {
+      ...doc("unknown-encode"),
       severity: "warning",
       messages: {
         default: paramMessage`Encode '${"encode"}' is not supported.`,
       },
     },
     "invalid-java-namespace": {
+      ...doc("invalid-java-namespace"),
       severity: "warning",
       messages: {
         default: paramMessage`Namespace '${"namespace"}' contains reserved Java keywords, replaced it with '${"processedNamespace"}'.`,
       },
     },
     "constant-header-in-response-removed": {
+      ...doc("constant-header-in-response-removed"),
       severity: "warning",
       messages: {
         default: paramMessage`Constant header '${"headerName"}' is removed from response headers.`,
       },
     },
     "spread-json-merge-patch-payload-not-supported": {
+      ...doc("spread-json-merge-patch-payload-not-supported"),
       severity: "warning",
       messages: {
         default:
@@ -123,18 +155,21 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "type-not-supported-on-text-plain": {
+      ...doc("type-not-supported-on-text-plain"),
       severity: "warning",
       messages: {
         default: paramMessage`Complex SDK type is not supported for "text/plain" content-type. Emitter would use string type on '${"operationName"}' ${"payloadKind"}.`,
       },
     },
     "client-required-false": {
+      ...doc("client-required-false"),
       severity: "error",
       messages: {
         default: "Client option 'clientRequired' can only be set to 'true'.",
       },
     },
     "response-headers-as-model-with-body": {
+      ...doc("response-headers-as-model-with-body"),
       severity: "error",
       messages: {
         default: paramMessage`Client option 'responseHeadersAsModel' cannot be used on operation '${"operationName"}', because it has a response body. It is only applicable to operations that have response headers but no response body.`,

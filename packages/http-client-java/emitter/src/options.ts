@@ -5,6 +5,9 @@ import type { JSONSchemaType } from "@typespec/compiler";
 // If add/remove "export" here, please also check typespec-java in autorest.java repository.
 
 export const LIB_NAME = "@typespec/http-client-java";
+export const DIAGNOSTIC_DOCS_BASE_PATH = "emitter/src/diagnostics";
+export const DIAGNOSTIC_DOCS_BASE_URL =
+  "https://typespec.io/docs/emitters/clients/http-client-java/reference/diagnostics";
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
