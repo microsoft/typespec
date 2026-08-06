@@ -1,6 +1,5 @@
-package encode.duration;
+package streaming.sse;
 
-import encode.duration.implementation.DurationClientImpl;
 import io.clientcore.core.annotations.Metadata;
 import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ServiceClientBuilder;
@@ -27,14 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import streaming.sse.implementation.SseClientImpl;
 
 /**
- * A builder for creating a new instance of the DurationClient type.
+ * A builder for creating a new instance of the SseClient type.
  */
-@ServiceClientBuilder(
-    serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class, LossyClient.class })
-public final class DurationClientBuilder implements HttpTrait<DurationClientBuilder>, ProxyTrait<DurationClientBuilder>,
-    ConfigurationTrait<DurationClientBuilder>, EndpointTrait<DurationClientBuilder> {
+@ServiceClientBuilder(serviceClients = { UnnamedClient.class, NamedClient.class, RetrieveClient.class })
+public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, ProxyTrait<SseClientBuilder>,
+    ConfigurationTrait<SseClientBuilder>, EndpointTrait<SseClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -42,16 +41,16 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     private static final String SDK_VERSION = "version";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("encode-duration.properties");
+    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("streaming-sse.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
-     * Create an instance of the DurationClientBuilder.
+     * Create an instance of the SseClientBuilder.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public DurationClientBuilder() {
+    public SseClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
@@ -66,7 +65,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder httpClient(HttpClient httpClient) {
+    public SseClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -82,7 +81,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
+    public SseClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
         return this;
     }
@@ -92,7 +91,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+    public SseClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
         pipelinePolicies.add(customPolicy);
         return this;
@@ -109,7 +108,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+    public SseClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
         return this;
     }
@@ -125,7 +124,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+    public SseClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
         this.httpInstrumentationOptions = httpInstrumentationOptions;
         return this;
     }
@@ -141,7 +140,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder proxyOptions(ProxyOptions proxyOptions) {
+    public SseClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
@@ -157,7 +156,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder configuration(Configuration configuration) {
+    public SseClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
@@ -173,18 +172,18 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public DurationClientBuilder endpoint(String endpoint) {
+    public SseClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
         return this;
     }
 
     /**
-     * Builds an instance of DurationClientImpl with the provided parameters.
+     * Builds an instance of SseClientImpl with the provided parameters.
      * 
-     * @return an instance of DurationClientImpl.
+     * @return an instance of SseClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private DurationClientImpl buildInnerClient() {
+    private SseClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
         HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
@@ -196,7 +195,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
                 .setEndpoint(localEndpoint);
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        DurationClientImpl client = new DurationClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
+        SseClientImpl client = new SseClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -224,46 +223,35 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
     }
 
     /**
-     * Builds an instance of QueryClient class.
+     * Builds an instance of UnnamedClient class.
      * 
-     * @return an instance of QueryClient.
+     * @return an instance of UnnamedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public QueryClient buildQueryClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new QueryClient(innerClient.getQueries(), innerClient.getInstrumentation());
+    public UnnamedClient buildUnnamedClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new UnnamedClient(innerClient.getUnnameds(), innerClient.getInstrumentation());
     }
 
     /**
-     * Builds an instance of PropertyClient class.
+     * Builds an instance of NamedClient class.
      * 
-     * @return an instance of PropertyClient.
+     * @return an instance of NamedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public PropertyClient buildPropertyClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new PropertyClient(innerClient.getProperties(), innerClient.getInstrumentation());
+    public NamedClient buildNamedClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new NamedClient(innerClient.getNameds(), innerClient.getInstrumentation());
     }
 
     /**
-     * Builds an instance of HeaderClient class.
+     * Builds an instance of RetrieveClient class.
      * 
-     * @return an instance of HeaderClient.
+     * @return an instance of RetrieveClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public HeaderClient buildHeaderClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new HeaderClient(innerClient.getHeaders(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of LossyClient class.
-     * 
-     * @return an instance of LossyClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public LossyClient buildLossyClient() {
-        DurationClientImpl innerClient = buildInnerClient();
-        return new LossyClient(innerClient.getLossies(), innerClient.getInstrumentation());
+    public RetrieveClient buildRetrieveClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new RetrieveClient(innerClient.getRetrieves(), innerClient.getInstrumentation());
     }
 }
