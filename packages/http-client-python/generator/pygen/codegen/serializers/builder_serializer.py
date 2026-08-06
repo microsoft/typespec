@@ -1256,11 +1256,57 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         )
         return retval
 
+    def handle_structured_stream_response(self, builder: OperationType) -> list[str]:
+        """Emit the body for an operation returning a structured (JSONL / SSE) stream.
+
+        Produces a per-event deserialization callback and returns a ``Stream`` /
+        ``AsyncStream`` wrapping the streamed HTTP response.
+        """
+        response = next(r for r in builder.responses if getattr(r, "is_structured_stream", False))
+        item_annotation = response.type.type_annotation(  # type: ignore[union-attr]
+            is_operation_file=True, serialize_namespace=self.serialize_namespace
+        )
+        stream_class = response.stream_class_name(self.async_mode)  # type: ignore[attr-defined]
+        terminal_event = getattr(response, "terminal_event", None)
+        retval: list[str] = []
+        retval.append("def _callback(_http_response, _event):")
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            # Heterogeneous SSE (``@events`` unions) is deserialized against the union item
+            # type below; the shared ``_deserialize`` cannot resolve a forward-ref union
+            # member name into a concrete model, so payloads are yielded as parsed JSON.
+            # Per-event ``eventType`` dispatch into distinct model instances requires the
+            # TCGC ``sseMetadata`` (SdkSseMetadata.events[], typespec-client-generator-core
+            # #4882), which is unavailable in the currently pinned TCGC version. The stream's
+            # terminal event (a string-literal union member such as ``[DONE]``) is detected
+            # structurally and passed as ``terminal_event`` below, so the runtime stops
+            # before this callback attempts to JSON-parse it.
+            retval.append("    _event_json = json.loads(_event.data)")
+        else:
+            retval.append("    _event_json = _event.json()")
+        retval.append(f"    deserialized = _deserialize({item_annotation}, _event_json)")
+        retval.append("    if cls:")
+        retval.append("        return cls(pipeline_response, deserialized, {})  # type: ignore")
+        retval.append("    return deserialized")
+        retval.append("")
+        if terminal_event is not None:
+            retval.append(
+                f"return {stream_class}(response=response, deserialization_callback=_callback, "
+                f"terminal_event={terminal_event!r})  # type: ignore"
+            )
+        else:
+            retval.append(
+                f"return {stream_class}(response=response, deserialization_callback=_callback)  # type: ignore"
+            )
+        return retval
+
     def handle_response(self, builder: OperationType) -> list[str]:
         retval: list[str] = ["response = pipeline_response.http_response"]
         retval.append("")
         retval.extend(self.handle_error_response(builder))
         retval.append("")
+        if builder.has_structured_stream_response:
+            retval.extend(self.handle_structured_stream_response(builder))
+            return retval
         if builder.has_optional_return_type:
             retval.append("deserialized = None")
         if builder.any_response_has_headers:

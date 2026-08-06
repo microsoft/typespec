@@ -58,6 +58,16 @@ class Response(BaseModel):
         self.type = type
         self.nullable = yaml_data.get("nullable")
         self.default_content_type = yaml_data.get("defaultContentType")
+        # Structured streaming (JSONL / SSE) metadata. When present, ``self.type`` holds the
+        # per-item type (model or union) rather than the raw byte body, and the response is
+        # rendered as ``Stream[Item]`` / ``AsyncStream[Item]``.
+        streaming = yaml_data.get("streaming")
+        # Only treat this as a structured stream when the resolved ``type`` is the per-item
+        # type (model / union). When the structured item type could not be resolved we fall
+        # back to the raw byte body (``BinaryIteratorType``) and must NOT render ``Stream[...]``.
+        self.streaming_kind: Optional[str] = (
+            streaming["kind"] if streaming and not isinstance(self.type, BinaryIteratorType) else None
+        )
 
     @property
     def result_property(self) -> str:
@@ -92,12 +102,45 @@ class Response(BaseModel):
         )
         return retval
 
+    @property
+    def is_structured_stream(self) -> bool:
+        """Is the response a structured (JSONL / SSE) stream rendered as Stream[T] / AsyncStream[T]."""
+        return self.streaming_kind is not None
+
+    @property
+    def terminal_event(self) -> Optional[str]:
+        """Terminal event marker for a heterogeneous SSE stream, if any.
+
+        Heterogeneous SSE ``@events`` unions include a string-literal member (e.g.
+        ``"[DONE]"``) that marks the end of the stream. Without TCGC ``sseMetadata``
+        (#4882) we detect it structurally: the first ``ConstantType`` string member of
+        the union item type is treated as the terminal marker, so the runtime can stop
+        before attempting to JSON-deserialize it. Returns ``None`` for homogeneous
+        streams (no constant member) and for JSONL.
+        """
+        if self.streaming_kind != "sse" or not isinstance(self.type, CombinedType):
+            return None
+        from .constant_type import ConstantType
+
+        for member in self.type.types:
+            if isinstance(member, ConstantType) and isinstance(member.value, str):
+                return member.value
+        return None
+
+    def stream_class_name(self, async_mode: bool) -> str:
+        return "AsyncStream" if async_mode else "Stream"
+
     def serialization_type(self, **kwargs: Any) -> str:
         if self.type:
             return self.type.serialization_type(**kwargs)
         return "None"
 
     def type_annotation(self, **kwargs: Any) -> str:
+        if self.is_structured_stream and self.type:
+            kwargs["is_operation_file"] = True
+            kwargs["is_response"] = True
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            return f"{stream_class}[{self.type.type_annotation(**kwargs)}]"
         if self.type:
             kwargs["is_operation_file"] = True
             kwargs["is_response"] = True
@@ -109,12 +152,18 @@ class Response(BaseModel):
 
     def docstring_text(self, **kwargs: Any) -> str:
         kwargs["is_response"] = True
+        if self.is_structured_stream and self.type:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            return f"An instance of {stream_class} that iterates over {self.type.docstring_text(**kwargs)}"
         if self.nullable and self.type:
             return f"{self.type.docstring_text(**kwargs)} or None"
         return self.type.docstring_text(**kwargs) if self.type else "None"
 
     def docstring_type(self, **kwargs: Any) -> str:
         kwargs["is_response"] = True
+        if self.is_structured_stream and self.type:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            return f"~{self.code_model.namespace}._utils.streaming_base.{stream_class}[{self.type.docstring_type(**kwargs)}]"
         if self.nullable and self.type:
             return f"{self.type.docstring_type(**kwargs)} or None"
         return self.type.docstring_type(**kwargs) if self.type else "None"
@@ -133,6 +182,15 @@ class Response(BaseModel):
                 ImportType.LOCAL,
                 TypingSection.TYPING,
             )
+        if self.is_structured_stream:
+            stream_class = self.stream_class_name(kwargs.get("async_mode", False))
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            relative_path = self.code_model.get_relative_import_path(
+                serialize_namespace, module_name="_utils.streaming_base"
+            )
+            file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
+            if self.streaming_kind == "sse":
+                file_import.add_import("json", ImportType.STDLIB)
         return file_import
 
     def _get_import_type(self, input_path: str) -> ImportType:
@@ -143,6 +201,26 @@ class Response(BaseModel):
 
     @classmethod
     def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "Response":
+        streaming = yaml_data.get("streaming")
+        if streaming:
+            # Structured stream (JSONL / SSE): the response ``type`` is the raw byte body,
+            # but we render per-item types, so use the streaming item type instead and do
+            # NOT convert it to a BinaryIteratorType (that would trigger the raw-bytes path).
+            # Resolve the item type from the global type map. For heterogeneous / request-body
+            # streaming overloads (out of scope) the item type is serialized inline and not
+            # collected globally; in that case fall back to the raw byte-iterator path below
+            # instead of failing generation (and to avoid emitting duplicate inline models).
+            try:
+                item_type = code_model.lookup_type(id(streaming["itemType"]))
+            except KeyError:
+                item_type = None
+            if item_type is not None:
+                return cls(
+                    yaml_data=yaml_data,
+                    code_model=code_model,
+                    headers=[ResponseHeader.from_yaml(header, code_model) for header in yaml_data["headers"]],
+                    type=item_type,
+                )
         type = code_model.lookup_type(id(yaml_data["type"])) if yaml_data.get("type") else None
         # use ByteIteratorType if we are returning a binary type
         default_content_type = yaml_data.get("defaultContentType", "application/json")

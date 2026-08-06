@@ -42,6 +42,69 @@ export enum ReferredByOperationTypes {
   NonPagingOnly = 2,
 }
 
+/**
+ * Determine whether a stream's payload type is "structured" (a model or union
+ * that can be deserialized into an item `T`), as opposed to a bare byte/string
+ * stream that should keep the existing raw byte-iterator behavior.
+ */
+export function isStructuredStreamType(type: SdkType): boolean {
+  switch (type.kind) {
+    case "model":
+    case "union":
+      return true;
+    case "nullable":
+      return isStructuredStreamType(type.type);
+    default:
+      return false;
+  }
+}
+
+/**
+ * Build the `streaming` block for a response YAML when the response is a JSONL/SSE
+ * stream with a structured payload type (driven by the TCGC stream metadata).
+ *
+ * Returns `undefined` when structured streaming should not apply, in which case
+ * the existing raw byte-iterator behavior is preserved.
+ *
+ * Note: the currently consumed TCGC metadata (`streamMetadata`) does not expose
+ * per-event SSE metadata (event-type dispatch). Terminal-event handling does NOT
+ * depend on it — the terminal marker is a string-literal member of the item union
+ * (e.g. `Literal["[DONE]"]`), which the generator detects structurally and passes
+ * to the vendored runtime as `terminal_event`. Only `kind` and `itemType` are
+ * emitted here; the terminal event is derived generator-side from `itemType`.
+ */
+function getStreamingInfo(
+  context: PythonSdkContext,
+  response: SdkHttpResponse | SdkHttpErrorResponse,
+  method?: SdkServiceMethod<SdkHttpOperation>,
+): Record<string, any> | undefined {
+  // Structured streaming targets the vendored `azure.core.rest`-based runtime, so
+  // it only applies to the Azure flavor. For unbranded, keep the raw byte-iterator
+  // behavior.
+  if ((context.emitContext.options as any).flavor !== "azure") return undefined;
+  // Request-body streaming is out of scope: operations that carry a request body are
+  // kept on the raw byte-iterator path. This also avoids the per-request-content-type
+  // overloads (whose response item types are serialized inline rather than registered
+  // globally) producing an inconsistent mix of `Stream[T]` and `Iterator[bytes]`.
+  if (method?.operation.bodyParam) return undefined;
+  const streamMetadata = response.streamMetadata;
+  if (!streamMetadata) return undefined;
+  if (!isStructuredStreamType(streamMetadata.streamType)) return undefined;
+  const contentTypes = streamMetadata.contentTypes ?? response.contentTypes ?? [];
+  const isSse = contentTypes.some((ct) => ct.toLowerCase().includes("event-stream"));
+  // SSE kind is detected from the response Content-Type. A heterogeneous `@events`
+  // union streamType is emitted as a single union `itemType`; the generator detects
+  // the terminal event (a string-literal union member such as `[DONE]`) structurally
+  // and wires it into the runtime, so terminal-event termination works without TCGC
+  // `sseMetadata`. Per-event MODEL dispatch (routing each event to its distinct
+  // payload model) still requires `sseMetadata` (SdkSseMetadata.events[], TCGC
+  // #4882); until then heterogeneous events are yielded as parsed JSON.
+  return {
+    kind: isSse ? "sse" : "jsonl",
+    itemType: getType(context, streamMetadata.streamType),
+  };
+}
+
 function isEtagType(type: SdkType): boolean {
   if (type.kind === "nullable") return isEtagType(type.type);
   const raw = type.__raw;
@@ -682,6 +745,7 @@ function emitHttpResponse(
       "invalid-lro-result",
       method,
     ),
+    streaming: isException ? undefined : getStreamingInfo(context, response, method),
   };
 }
 
