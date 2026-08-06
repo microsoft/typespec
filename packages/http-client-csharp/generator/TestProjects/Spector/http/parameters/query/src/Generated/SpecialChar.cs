@@ -14,7 +14,7 @@ namespace Parameters.Query
     {
         protected SpecialChar() => throw null;
 
-        internal SpecialChar(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpecialChar(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

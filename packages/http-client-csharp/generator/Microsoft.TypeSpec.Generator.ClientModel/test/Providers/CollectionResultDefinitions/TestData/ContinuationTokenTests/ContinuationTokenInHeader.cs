@@ -12,12 +12,14 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _myToken;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _myToken = myToken;
             _options = options;
         }

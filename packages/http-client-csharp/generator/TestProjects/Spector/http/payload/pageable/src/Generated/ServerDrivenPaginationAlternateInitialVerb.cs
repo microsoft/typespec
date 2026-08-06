@@ -14,7 +14,7 @@ namespace Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb
     {
         protected ServerDrivenPaginationAlternateInitialVerb() => throw null;
 
-        internal ServerDrivenPaginationAlternateInitialVerb(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ServerDrivenPaginationAlternateInitialVerb(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using Sample;
 
 #pragma warning disable SCME0004 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -14,11 +15,11 @@ namespace Sample.Models
         {
         }
 
-        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent()
+        internal global::System.ClientModel.MultiPartFormContent ToMultipartFormContent(global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             global::System.ClientModel.MultiPartFormContent content = new global::System.ClientModel.MultiPartFormContent();
 
-            content.Add<global::Sample.Models.Address>("address", Address, global::Sample.SampleContext.Default, global::Sample.ModelSerializationExtensions.WireOptions, "application/json");
+            content.Add<global::Sample.Models.Address>("address", Address, global::Sample.SampleContext.Default, options, "application/json");
 
             return content;
         }

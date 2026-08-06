@@ -15,7 +15,7 @@ namespace _Type._Array
     {
         protected ModelValue() => throw null;
 
-        internal ModelValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

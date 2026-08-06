@@ -14,7 +14,7 @@ namespace _Type.Property.Optional
     {
         protected CollectionsByte() => throw null;
 
-        internal CollectionsByte(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal CollectionsByte(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

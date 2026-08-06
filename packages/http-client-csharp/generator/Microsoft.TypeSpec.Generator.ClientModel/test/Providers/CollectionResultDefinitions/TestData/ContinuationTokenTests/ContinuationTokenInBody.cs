@@ -13,12 +13,14 @@ namespace Sample
     internal partial class CatClientGetCatsCollectionResult : global::System.ClientModel.Primitives.CollectionResult
     {
         private readonly global::Sample.CatClient _client;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _myToken;
         private readonly global::System.ClientModel.Primitives.RequestOptions _options;
 
-        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
+        public CatClientGetCatsCollectionResult(global::Sample.CatClient client, global::System.ClientModel.Primitives.ModelReaderWriterOptions modelReaderWriterOptions, string myToken, global::System.ClientModel.Primitives.RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _myToken = myToken;
             _options = options;
         }
@@ -43,7 +45,7 @@ namespace Sample
 
         public override global::System.ClientModel.ContinuationToken GetContinuationToken(global::System.ClientModel.ClientResult page)
         {
-            string nextPage = ((global::Sample.Models.Page)page).NextPage;
+            string nextPage = ((global::Sample.Models.Page)global::System.ClientModel.Primitives.ModelReaderWriter.Read<global::Sample.Models.Page>(page.GetRawResponse().Content, _modelReaderWriterOptions, global::Sample.SampleContext.Default)).NextPage;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return global::System.ClientModel.ContinuationToken.FromBytes(global::System.BinaryData.FromString(nextPage));

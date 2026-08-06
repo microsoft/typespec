@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithWrappedPrimitiveCustomItemNamesValue() => throw null;
 
-        internal ModelWithWrappedPrimitiveCustomItemNamesValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithWrappedPrimitiveCustomItemNamesValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

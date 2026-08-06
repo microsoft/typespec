@@ -15,7 +15,7 @@ namespace Client.Structure.Service._Baz
     {
         protected BazFoo() => throw null;
 
-        internal BazFoo(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal BazFoo(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

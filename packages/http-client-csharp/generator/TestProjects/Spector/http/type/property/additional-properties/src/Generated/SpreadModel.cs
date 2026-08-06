@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadModel() => throw null;
 
-        internal SpreadModel(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpreadModel(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

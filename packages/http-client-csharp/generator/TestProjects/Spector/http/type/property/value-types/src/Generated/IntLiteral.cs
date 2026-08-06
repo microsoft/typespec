@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected IntLiteral() => throw null;
 
-        internal IntLiteral(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IntLiteral(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

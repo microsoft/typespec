@@ -15,14 +15,17 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+        public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -47,7 +50,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((PageThing)page).Items)
+            foreach (Thing item in ModelReaderWriter.Read<PageThing>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Items)
             {
                 yield return item;
                 await Task.Yield();

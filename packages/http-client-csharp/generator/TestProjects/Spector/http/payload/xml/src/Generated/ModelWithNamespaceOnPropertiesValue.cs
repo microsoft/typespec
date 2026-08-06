@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithNamespaceOnPropertiesValue() => throw null;
 
-        internal ModelWithNamespaceOnPropertiesValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithNamespaceOnPropertiesValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

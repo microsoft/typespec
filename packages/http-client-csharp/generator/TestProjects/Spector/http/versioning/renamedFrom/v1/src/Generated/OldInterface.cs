@@ -14,7 +14,7 @@ namespace Versioning.RenamedFrom
     {
         protected OldInterface() => throw null;
 
-        internal OldInterface(ClientPipeline pipeline, Uri endpoint, string version) => throw null;
+        internal OldInterface(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string version) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsModel() => throw null;
 
-        internal IsModel(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IsModel(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

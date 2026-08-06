@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithOptionalFieldValue() => throw null;
 
-        internal ModelWithOptionalFieldValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithOptionalFieldValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

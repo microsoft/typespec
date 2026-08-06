@@ -14,7 +14,7 @@ namespace Payload.ContentNegotiation._DifferentBody
     {
         protected DifferentBody() => throw null;
 
-        internal DifferentBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal DifferentBody(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
