@@ -122,6 +122,9 @@
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/typespec-vscode"],
       "outFiles": ["${workspaceFolder}/packages/typespec-vscode/dist/**/*.cjs"],
+      // Closing the Extension Development Host window ends this session without a manual stop,
+      // which compound `stopAll` does not cover, so cascade the termination explicitly.
+      "cascadeTerminateToConfigurations": ["Attach to Language Server"],
       "env": {
         // Log elapsed time for each call to server.
         //"TYPESPEC_SERVER_LOG_TIMING": "true",
@@ -187,6 +190,9 @@
     {
       "name": "VS Code Extension",
       "configurations": ["VS Code Extension (Client)", "Attach to Language Server"],
+      // Stopping either the extension host or the language server session terminates both,
+      // instead of leaving an orphan session behind in the Call Stack view.
+      "stopAll": true,
       "presentation": {
         "order": 1
       }

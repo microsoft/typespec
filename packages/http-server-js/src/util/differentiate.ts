@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import {
+import type {
   BooleanLiteral,
   EnumMember,
   Model,
@@ -14,6 +14,8 @@ import {
   Union,
   UnknownType,
   VoidType,
+} from "@typespec/compiler";
+import {
   getDiscriminator,
   getMaxValue,
   getMinValue,
@@ -23,7 +25,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getJsScalar } from "../common/scalar.js";
-import { JsContext, Module } from "../ctx.js";
+import type { JsContext, Module } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
 import { isUnspeakable, parseCase } from "./case.js";
 import { UnimplementedError, UnreachableError } from "./error.js";

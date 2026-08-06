@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createTypeSpecLibrary,
-  DiagnosticDefinition,
-  DiagnosticMessages,
-  paramMessage,
-} from "@typespec/compiler";
+import type { DiagnosticDefinition, DiagnosticMessages } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import { CSharpEmitterOptionsSchema } from "../options.js";
 
 export type DiagnosticMessagesMap = {

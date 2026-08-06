@@ -3,7 +3,7 @@ import { applyCodeFix as applyCodeFixReal } from "../core/code-fixes.js";
 import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { createLinterRuleContext } from "../core/linter.js";
 import { navigateProgram } from "../core/semantic-walker.js";
-import {
+import type {
   CodeFix,
   CompilerHost,
   Diagnostic,
@@ -11,10 +11,11 @@ import {
   Entity,
   LinterRuleDefinition,
 } from "../core/types.js";
-import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
-import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
+import type { DiagnosticMatch } from "./expect.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import type { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
-import { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
+import type { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
 export interface LinterRuleTester {
   expect<

@@ -1,6 +1,4 @@
-import {
-  expandDyns,
-  isMatcher,
+import type {
   MockApiDefinition,
   MockBody,
   MockMultipartBody,
@@ -9,15 +7,17 @@ import {
   ResolverConfig,
   ScenarioMockApi,
 } from "@typespec/spec-api";
-import { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
-import { Response, Router } from "express";
+import { expandDyns, isMatcher } from "@typespec/spec-api";
+import type { ScenariosMetadata } from "@typespec/spec-coverage-sdk";
+import type { Response } from "express";
+import { Router } from "express";
 import { getScenarioMetadata } from "../coverage/common.js";
 import { CoverageTracker } from "../coverage/coverage-tracker.js";
 import { logger } from "../logger.js";
 import { internalRouter } from "../routes/index.js";
 import { loadScenarioMockApis } from "../scenarios-resolver.js";
 import { MockApiServer } from "../server/index.js";
-import { ApiMockAppConfig } from "./config.js";
+import type { ApiMockAppConfig } from "./config.js";
 import { processRequest } from "./request-processor.js";
 
 export interface ScenariosAndScenariosMetadata {

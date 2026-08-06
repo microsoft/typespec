@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { it } from "vitest";
-import { DecoratorContext, Enum, Type } from "../../src/core/types.js";
+import type { DecoratorContext, Enum, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";

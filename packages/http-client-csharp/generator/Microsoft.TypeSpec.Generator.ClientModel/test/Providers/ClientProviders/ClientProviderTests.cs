@@ -2888,6 +2888,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                result);
         }
 
+        // The rest client is a partial of the same type as its ClientProvider. Back-compatibility must be
+        // applied only once (by the ClientProvider); otherwise the base pass would add duplicate overloads to
+        // the RestClientProvider partial (CS0111). Here the convenience delegation target lives in custom
+        // code shared by both partials, and the last contract published the nullable overload.
+        [Test]
+        public async Task BackCompatibility_RestClientProviderDoesNotDuplicateOverloads()
+        {
+            var enumType = InputFactory.StringEnum(
+                "fileFormatType",
+                [("Document", "Document"), ("Glossary", "Glossary")],
+                usage: InputModelTypeUsage.Input,
+                isExtensible: true);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [InputFactory.QueryParameter("type", enumType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            var method = InputFactory.BasicServiceMethod(
+                "GetData",
+                operation,
+                parameters: [InputFactory.MethodParameter("type", enumType, isRequired: true, location: InputRequestLocation.Query)]);
+
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var restClientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<RestClientProvider>().Single();
+
+            clientProvider.ProcessTypeForBackCompatibility();
+            restClientProvider.ProcessTypeForBackCompatibility();
+
+            static int NullableEnumOverloads(TypeProvider provider) => provider.Methods.Count(m =>
+                m.Signature.Name.StartsWith("GetData")
+                && m.Signature.Parameters.Count >= 1
+                && m.Signature.Parameters[0].Type is { IsValueType: true, IsNullable: true });
+
+            // The sync + async nullable back-compat overloads are added on the ClientProvider only.
+            Assert.AreEqual(2, NullableEnumOverloads(clientProvider));
+            Assert.AreEqual(0, NullableEnumOverloads(restClientProvider), "RestClientProvider must not add duplicate back-compat overloads.");
+
+            // Validate the generated output: the hidden nullable overloads appear on the ClientProvider
+            // partial and are absent from the RestClientProvider partial.
+            var clientFile = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider, name => name is "GetData" or "GetDataAsync")).Write();
+            var restClientFile = new TypeProviderWriter(new FilteredMethodsTypeProvider(restClientProvider, name => name is "GetData" or "GetDataAsync")).Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Client"), clientFile.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("RestClient"), restClientFile.Content);
+        }
+
         [Test]
         public async Task BackCompatibility_ConvenienceMethodParamOrderChanged()
         {

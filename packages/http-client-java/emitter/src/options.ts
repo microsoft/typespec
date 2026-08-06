@@ -1,10 +1,13 @@
 import { UnbrandedSdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
-import { JSONSchemaType } from "@typespec/compiler";
+import type { JSONSchemaType } from "@typespec/compiler";
 
 // typespec-java has another "options.ts" file, with same "export".
 // If add/remove "export" here, please also check typespec-java in autorest.java repository.
 
 export const LIB_NAME = "@typespec/http-client-java";
+export const DIAGNOSTIC_DOCS_BASE_PATH = "emitter/src/diagnostics";
+export const DIAGNOSTIC_DOCS_BASE_URL =
+  "https://typespec.io/docs/emitters/clients/http-client-java/reference/diagnostics";
 
 export interface DevOptions {
   "generate-code-model"?: boolean;

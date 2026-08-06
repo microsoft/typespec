@@ -1,6 +1,7 @@
-import { Refkey, Show } from "@alloy-js/core";
+import type { Refkey } from "@alloy-js/core";
+import { Show } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { DecoratorSignature, EntitySignature } from "../types.js";
+import type { DecoratorSignature, EntitySignature } from "../types.js";
 
 export interface EntitySignatureTests {
   namespaceName: string;

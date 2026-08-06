@@ -1,13 +1,8 @@
-import {
-  Entity,
-  MixedParameterConstraint,
-  getEntityName,
-  isType,
-  resolvePath,
-} from "@typespec/compiler";
+import type { Entity, MixedParameterConstraint } from "@typespec/compiler";
+import { getEntityName, isType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
-import {
+import type {
   DecoratorRefDoc,
   DeprecationNotice,
   EmitterOptionRefDoc,
@@ -29,8 +24,8 @@ import {
   TypeSpecRefDocBase,
   UnionRefDoc,
 } from "../types.js";
+import type { MarkdownDoc } from "../utils/markdown.js";
 import {
-  MarkdownDoc,
   codeblock,
   inlinecode,
   link,

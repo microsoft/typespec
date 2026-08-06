@@ -1,7 +1,7 @@
 import { code, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { typespecCompiler } from "../external-packages/compiler.js";
-import { DecoratorSignature } from "../types.js";
+import type { DecoratorSignature } from "../types.js";
 import { ParameterTsType, TargetParameterTsType } from "./decorator-signature-type.js";
 
 export interface AutoDecoratorAccessorsProps {

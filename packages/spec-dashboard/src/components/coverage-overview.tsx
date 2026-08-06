@@ -1,6 +1,7 @@
 import { Card, Text } from "@fluentui/react-components";
-import { FunctionComponent, useMemo } from "react";
-import { CoverageSummary } from "../apis.js";
+import type { FunctionComponent } from "react";
+import { useMemo } from "react";
+import type { CoverageSummary } from "../apis.js";
 import { GroupRatioColors, GroupRatios } from "../constants.js";
 import style from "./coverage-overview.module.css";
 

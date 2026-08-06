@@ -1,12 +1,6 @@
 import { mapJoin } from "@alloy-js/core";
-import {
-  DocNodeKind,
-  DocNodeTransforms,
-  DocPlainText,
-  DocSection,
-  type DocNode,
-  type DocParagraph,
-} from "@microsoft/tsdoc";
+import type { DocPlainText, DocSection } from "@microsoft/tsdoc";
+import { DocNodeKind, DocNodeTransforms, type DocNode, type DocParagraph } from "@microsoft/tsdoc";
 
 export interface TSDocProps {
   readonly node: DocNode;

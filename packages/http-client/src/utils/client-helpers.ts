@@ -1,8 +1,9 @@
-import { Refkey, refkey } from "@alloy-js/core";
-import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
+import type { Refkey } from "@alloy-js/core";
+import { refkey } from "@alloy-js/core";
+import type { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
-import { InternalClient } from "../interfaces.js";
+import type { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 

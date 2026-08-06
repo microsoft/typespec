@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
 import { filterModelProperties, getEffectiveModelType } from "../../src/core/checker.js";
-import { DecoratorContext, Model, ModelProperty, Type } from "../../src/core/types.js";
+import type { DecoratorContext, Model, ModelProperty, Type } from "../../src/core/types.js";
 import { expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 

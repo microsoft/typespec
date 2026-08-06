@@ -1,23 +1,16 @@
-import {
+import type {
   CodeAction,
-  CodeActionKind,
   CodeActionParams,
-  CompletionList,
   CompletionParams,
   CreateFile,
   DefinitionParams,
-  DiagnosticSeverity,
-  DiagnosticTag,
   DidChangeWatchedFilesParams,
   DocumentFormattingParams,
   DocumentHighlight,
-  DocumentHighlightKind,
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  FileChangeType,
   FoldingRange,
-  FoldingRangeKind,
   FoldingRangeParams,
   Hover,
   HoverParams,
@@ -26,15 +19,12 @@ import {
   InitializeResult,
   Location,
   MarkupContent,
-  MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  Range,
   ReferenceParams,
   RenameFilesParams,
   RenameParams,
   SemanticTokens,
-  SemanticTokensBuilder,
   SemanticTokensLegend,
   SemanticTokensParams,
   ServerCapabilities,
@@ -43,13 +33,25 @@ import {
   TextDocumentChangeEvent,
   TextDocumentEdit,
   TextDocumentIdentifier,
-  TextDocumentSyncKind,
-  TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import {
+  CodeActionKind,
+  CompletionList,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  DocumentHighlightKind,
+  FileChangeType,
+  FoldingRangeKind,
+  MarkupKind,
+  Range,
+  SemanticTokensBuilder,
+  TextDocumentSyncKind,
+  TextEdit,
+} from "vscode-languageserver";
+import type { TextDocument } from "vscode-languageserver-textdocument";
 import { getSymNode } from "../core/binder.js";
 import { CharCode } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
@@ -60,7 +62,7 @@ import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
-import { CompilerOptions } from "../core/options.js";
+import type { CompilerOptions } from "../core/options.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -70,11 +72,11 @@ import {
   normalizePath,
   resolvePath,
 } from "../core/path-utils.js";
-import { type Program } from "../core/program.js";
+import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import { createRemoveUnusedSuppressionCodeFix } from "../core/suppression-tracking.js";
-import {
+import type {
   AugmentDecoratorStatementNode,
   CodeFixEdit,
   CompilerHost,
@@ -84,25 +86,25 @@ import {
   DiagnosticTarget,
   IdentifierNode,
   Node,
-  NoTarget,
   PositionDetail,
   ProcessedLog,
   SourceFile,
-  SyntaxKind,
   TextRange,
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { NoTarget, SyntaxKind } from "../core/types.js";
 import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
 import { validateTemplateDefinitions } from "../init/init-template-validate.js";
-import { InitTemplate } from "../init/init-template.js";
+import type { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
-import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
+import type { ResolveModuleHost } from "../module-resolver/index.js";
+import { resolveModule } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
-import { ClientConfigProvider } from "./client-config-provider.js";
+import type { ClientConfigProvider } from "./client-config-provider.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
@@ -111,7 +113,7 @@ import { createFileSystemCache } from "./file-system-cache.js";
 import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getRenameImportEdit, getUpdatedImportValue } from "./rename-file.js";
-import { ServerCompileOptions } from "./server-compile-manager.js";
+import type { ServerCompileOptions } from "./server-compile-manager.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
 import {
@@ -119,12 +121,11 @@ import {
   getSymbolDetails,
   getTemplateParameterDocumentation,
 } from "./type-details.js";
-import {
+import type {
   CompileResult,
   InitProjectConfig,
   InitProjectContext,
   InternalCompileResult,
-  SemanticTokenKind,
   Server,
   ServerCustomCapacities,
   ServerDiagnostic,
@@ -134,6 +135,7 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
+import { SemanticTokenKind } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
 export function createServer(
@@ -177,7 +179,11 @@ export function createServer(
     log,
     clientConfigsProvider,
   });
-  let currentDiagnosticIndex = new Map<number, Diagnostic>();
+  interface DiagnosticIndexEntry {
+    readonly diagnostic: Diagnostic;
+    readonly fileUri: string;
+  }
+  let currentDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
   let diagnosticIdCounter = 0;
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -789,7 +795,7 @@ export function createServer(
     if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
-    const newDiagnosticIndex = new Map<number, Diagnostic>();
+    const newDiagnosticIndex = new Map<number, DiagnosticIndexEntry>();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -862,7 +868,7 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        newDiagnosticIndex.set(diagnostic.data.id, each);
+        newDiagnosticIndex.set(diagnostic.data.id, { diagnostic: each, fileUri: diagDocument.uri });
       }
     }
 
@@ -894,7 +900,10 @@ export function createServer(
           "Diagnostic reported against a source file that was not added to the program.",
         );
         diagnostics.push(diagnostic);
-        newDiagnosticIndex.set(diagnostic.data.id, unusedSuppressionDiagnostic);
+        newDiagnosticIndex.set(diagnostic.data.id, {
+          diagnostic: unusedSuppressionDiagnostic,
+          fileUri: diagDocument.uri,
+        });
       }
     }
 
@@ -1411,12 +1420,17 @@ export function createServer(
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
     if (isTspConfigFile(params.textDocument)) return [];
 
-    const actions = [];
-    for (const vsDiag of params.context.diagnostics) {
-      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
-      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+    const fileUri = params.textDocument.uri;
+    const actions: CodeAction[] = [];
 
-      for (const fix of tspDiag.codefixes ?? []) {
+    // Track fix IDs seen in the current selection to generate "Fix all" actions
+    const fixIdsInSelection = new Set<string>();
+
+    for (const vsDiag of params.context.diagnostics) {
+      const entry = currentDiagnosticIndex.get(vsDiag.data?.id);
+      if (entry === undefined || entry.diagnostic.codefixes === undefined) continue;
+
+      for (const fix of entry.diagnostic.codefixes) {
         const codeAction: CodeAction = {
           title: fix.label,
           kind: CodeActionKind.QuickFix,
@@ -1424,6 +1438,35 @@ export function createServer(
           data: { diagId: vsDiag.data?.id, fixId: fix.id },
         };
         actions.push(codeAction);
+        fixIdsInSelection.add(fix.id);
+      }
+    }
+
+    // Build a map of fixId -> { count, label } for all diagnostics in the current file
+    const fixIdInfoInFile = new Map<string, { count: number; label: string }>();
+    for (const entry of currentDiagnosticIndex.values()) {
+      if (entry.fileUri !== fileUri) continue;
+      for (const fix of entry.diagnostic.codefixes ?? []) {
+        const existing = fixIdInfoInFile.get(fix.id);
+        if (existing) {
+          existing.count++;
+        } else {
+          fixIdInfoInFile.set(fix.id, { count: 1, label: fix.label });
+        }
+      }
+    }
+
+    // Add "Fix all: X" actions for codefixes that appear multiple times in the file
+    const addedFixAllIds = new Set<string>();
+    for (const fixId of fixIdsInSelection) {
+      const info = fixIdInfoInFile.get(fixId);
+      if (info && info.count > 1 && !addedFixAllIds.has(fixId)) {
+        addedFixAllIds.add(fixId);
+        actions.push({
+          title: `Fix all: ${info.label}`,
+          kind: CodeActionKind.QuickFix,
+          data: { fixAllInFile: { fixId, fileUri } },
+        });
       }
     }
 
@@ -1431,13 +1474,30 @@ export function createServer(
   }
 
   async function resolveCodeAction(codeAction: CodeAction): Promise<CodeAction> {
-    const { diagId, fixId } = codeAction.data ?? {};
-    if (diagId !== undefined && fixId) {
-      const diag = currentDiagnosticIndex.get(diagId);
-      const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
-      if (codeFix) {
-        const edits = await resolveCodeFix(codeFix);
-        codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+    const data = codeAction.data ?? {};
+    if (data.fixAllInFile !== undefined) {
+      const { fixId, fileUri } = data.fixAllInFile;
+      const allEdits: CodeFixEdit[] = [];
+      for (const entry of currentDiagnosticIndex.values()) {
+        if (entry.fileUri !== fileUri) continue;
+        const codeFix = entry.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          allEdits.push(...edits);
+        }
+      }
+      if (allEdits.length > 0) {
+        codeAction.edit = { documentChanges: convertCodeFixEdits(allEdits) };
+      }
+    } else {
+      const { diagId, fixId } = data;
+      if (diagId !== undefined && fixId) {
+        const entry = currentDiagnosticIndex.get(diagId);
+        const codeFix = entry?.diagnostic.codefixes?.find((x) => x.id === fixId);
+        if (codeFix) {
+          const edits = await resolveCodeFix(codeFix);
+          codeAction.edit = { documentChanges: convertCodeFixEdits(edits) };
+        }
       }
     }
     return codeAction;
