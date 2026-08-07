@@ -73,10 +73,11 @@ steps:
       versionSpec: ${{ parameters.NodeVersion }}
       checkLatest: true
 
-  - task: UsePythonVersion@0
-    displayName: "Use Python ${{ parameters.PythonVersion }}"
-    inputs:
-      versionSpec: ${{ parameters.PythonVersion }}
+  - ${{ if eq(parameters.LanguageShortName, 'python') }}:
+      - task: UsePythonVersion@0
+        displayName: "Use Python ${{ parameters.PythonVersion }}"
+        inputs:
+          versionSpec: ${{ parameters.PythonVersion }}
 
   - ${{ parameters.AdditionalInitializeSteps }}
 
