@@ -190,7 +190,12 @@ class Response(BaseModel):
         if self.is_structured_stream and isinstance(self.type, CombinedType):
             for member in self.type.types:
                 file_import.merge(member.imports(**kwargs))
-            if not all(t.type == "constant" for t in self.type.types):
+            # ``Union`` is only needed when the inline expansion actually yields a union of
+            # 2+ distinct member types (a single member collapses to that member; a union of
+            # only literals collapses to a single ``Literal[...]``).
+            distinct = list(dict.fromkeys(m.type_annotation(**kwargs) for m in self.type.types))
+            all_constant = all(t.type == "constant" for t in self.type.types)
+            if len(distinct) > 1 and not all_constant:
                 file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
         elif self.type:
             file_import.merge(self.type.imports(**kwargs))
