@@ -6,6 +6,7 @@ import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../core/index.js";
 import { ClassDeclaration } from "./class/declaration.js";
+import { EnumDeclaration } from "./enum/declaration.jsx";
 import { TypeExpression } from "./type-expression.jsx";
 
 let runner: TesterInstance;
@@ -142,4 +143,55 @@ describe("Literal types", () => {
       }
     `);
   });
+});
+
+describe("types with no direct C# equivalent", () => {
+  it.each([
+    ["string template", "string", `"a-\${string}"`],
+    ["tuple", "int[]", "[int32, int32]"],
+    ["unknown", "object", "unknown"],
+    ["void", "void", "void"],
+    ["never", "void", "never"],
+    ["null", "object", "null"],
+  ])("%s => %s", async (_label, csType, tspType) => {
+    const type = await compileType(tspType);
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo(csType);
+  });
+
+  it("falls back to object instead of throwing", async () => {
+    const type = await compileType("int32 | boolean");
+    expect(
+      <Wrapper>
+        <TypeExpression type={type} />
+      </Wrapper>,
+    ).toRenderTo("object");
+  });
+});
+
+it("renders an enum member using the enum it belongs to", async () => {
+  const { test, Color } = await runner.compile(t.code`
+    enum ${t.enum("Color")} { red, blue }
+    model Test {
+      ${t.modelProperty("test")}: Color.red;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <EnumDeclaration type={Color} />
+      <hbr />
+      <TypeExpression type={test.type} />
+    </Wrapper>,
+  ).toRenderTo(`
+    enum Color
+    {
+        red,
+        blue
+    }
+    Color
+  `);
 });

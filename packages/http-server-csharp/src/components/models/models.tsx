@@ -1,6 +1,7 @@
 import { code, For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   isErrorModel,
   isVoidType,
@@ -9,12 +10,11 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { getDocComments } from "@typespec/emitter-framework/csharp";
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
-import { JsonSerialization } from "../../utils/csharp-libs.jsx";
-import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
@@ -116,9 +116,7 @@ function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
   }
 
   // Generate constructor for error models
-  const errorConstructor = isError
-    ? getErrorConstructor($.program, props.type, className)
-    : undefined;
+  const errorConstructor = isError ? getErrorConstructor($, props.type, className) : undefined;
 
   // For error models with base model, check if base is also an error (child constructor)
   const hasChildConstructor =
@@ -178,7 +176,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
   const namePolicy = cs.useCSharpNamePolicy();
   const propType = props.type.type;
-  const attrs = getPropertyAttributes($.program, props.type);
+  const attrs = getPropertyAttributes($, props.type);
 
   // Determine property name, handling error model conflicts
   let propName = props.type.name;
@@ -193,10 +191,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const csharpName = namePolicy.getName(propName, "class-property");
   if (csharpName !== props.type.name) {
     attrs.unshift(
-      <Attribute
-        name={JsonSerialization.JsonPropertyNameAttribute}
-        args={[`"${props.type.name}"`]}
-      />,
+      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
     );
   }
 
