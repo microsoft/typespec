@@ -1850,7 +1850,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 foreach (var segment in _pagingServiceMethod!.PagingMetadata.ItemPropertySegments)
                 {
-                    var property = modelType!.Properties.FirstOrDefault(p => p.SerializedName == segment);
+                    var property = modelType!
+                        .GetSelfAndBaseModels()
+                        .SelectMany(m => m.Properties)
+                        .FirstOrDefault(p => p.SerializedName == segment);
                     var propertyType = property?.Type;
 
                     if (propertyType is InputArrayType arrayType)
