@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "verbatimModuleSyntax": true,
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/.tsbuildinfo",

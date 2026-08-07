@@ -430,6 +430,14 @@ namespace SampleTypeSpec
                 intFixedEnumPart);
         }
 
+        /// <summary> The StreamingItem. </summary>
+        /// <param name="message"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.StreamingItem"/> instance for mocking. </returns>
+        public static StreamingItem StreamingItem(string message = default)
+        {
+            return new StreamingItem(message, additionalBinaryDataProperties: null);
+        }
+
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
