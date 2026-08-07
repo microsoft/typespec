@@ -104,6 +104,7 @@ export {
   createTypeSpecLibrary,
   defineLinter,
   definePackageFlags,
+  defineTypeInfoProvider,
   paramMessage,
   setTypeSpecNamespace,
 } from "./core/library.js";
@@ -470,6 +471,9 @@ export type {
   TracerOptions,
   Tuple,
   Type,
+  TypeInfo,
+  TypeInfoContext,
+  TypeInfoProvider,
   TypeInstantiationMap,
   TypeListeners,
   TypeMapper,
