@@ -12,6 +12,12 @@
   "bin": {
     "tsp-spector": "./cmd/cli.mjs"
   },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "cmd/**",
+    "!dist/test/**"
+  ],
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "pnpm gen-extern-signature && tsc -p tsconfig.build.json",
