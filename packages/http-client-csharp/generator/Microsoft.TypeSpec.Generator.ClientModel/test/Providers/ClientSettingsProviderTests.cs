@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -1052,8 +1054,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public async Task TestSettings_ExcludesUnsupportedFrameworkConstructorParameters()
         {
-            await MockHelpers.LoadMockGeneratorAsync(
+            using var diagnosticStream = new MemoryStream();
+            using var emitter = new Emitter(diagnosticStream);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            generator.SetupGet(g => g.Emitter).Returns(emitter);
 
             var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
             var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
@@ -1073,6 +1078,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "BindCore should not bind custom constructor parameters that cannot be constructed from IConfigurationSection");
             Assert.IsTrue(bodyString.Contains("TenantId"),
                 "BindCore should continue to bind supported parameters from the same custom constructor");
+
+            diagnosticStream.Position = 0;
+            using var reader = new StreamReader(diagnosticStream, leaveOpen: true);
+            var diagnostics = reader.ReadToEnd();
+            Assert.That(diagnostics, Does.Contain("\"code\":\"unsupported-client-settings-parameter\""));
+            Assert.That(diagnostics, Does.Contain("omitted custom constructor parameter"));
+            Assert.That(diagnostics, Does.Contain("clientCertificate"));
+            Assert.That(diagnostics, Does.Contain("X509Certificate2"));
+            Assert.That(diagnostics, Does.Contain("\"severity\":\"warning\""));
+            Assert.AreEqual(1, diagnostics.Split("unsupported-client-settings-parameter").Length - 1,
+                "The warning should only be emitted once when both properties and methods are built");
         }
 
         [Test]

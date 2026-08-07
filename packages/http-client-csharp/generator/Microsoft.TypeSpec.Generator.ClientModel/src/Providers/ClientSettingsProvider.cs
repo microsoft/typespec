@@ -15,6 +15,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -24,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string ClientSettingsDiagnosticId = "SCME0002";
 
         private readonly ClientProvider _clientProvider;
+        private readonly HashSet<string> _reportedUnsupportedCustomParameters = [];
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only
         internal static readonly CSharpType ClientSettingsType = typeof(ClientSettings);
@@ -126,9 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) &&
-                            !IsStandardParameterType(param.Type) &&
-                            IsBindableCustomParameterType(param.Type))
+                        if (ShouldIncludeCustomParameter(param, propName, knownProps))
                         {
                             properties.Add(new PropertyProvider(
                                 null,
@@ -202,9 +202,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) &&
-                            !IsStandardParameterType(param.Type) &&
-                            IsBindableCustomParameterType(param.Type))
+                        if (ShouldIncludeCustomParameter(param, propName, knownProps))
                         {
                             AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
                             knownProps.Add(propName);
@@ -640,6 +638,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 frameworkType == typeof(double) ||
                 frameworkType == typeof(TimeSpan) ||
                 frameworkType == typeof(Uri);
+        }
+
+        private bool ShouldIncludeCustomParameter(
+            ParameterProvider parameter,
+            string propertyName,
+            HashSet<string> knownProperties)
+        {
+            if (knownProperties.Contains(propertyName) || IsStandardParameterType(parameter.Type))
+            {
+                return false;
+            }
+
+            if (IsBindableCustomParameterType(parameter.Type))
+            {
+                return true;
+            }
+
+            if (_reportedUnsupportedCustomParameters.Add(propertyName))
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedClientSettingsParameter,
+                    $"Client settings for '{_clientProvider.Name}' omitted custom constructor parameter '{parameter.Name}' of type '{parameter.Type.Name}' because it cannot be bound from configuration. Construct the client directly or use a configuration-bindable parameter type.");
+            }
+
+            return false;
         }
 
         /// <summary>
