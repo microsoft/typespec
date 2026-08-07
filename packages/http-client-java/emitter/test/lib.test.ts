@@ -4,7 +4,6 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
-  DIAGNOSTIC_DOCS_FILE_OVERRIDES,
 } from "../src/options.js";
 
 describe("diagnostic documentation", () => {
@@ -26,10 +25,9 @@ describe("diagnostic documentation", () => {
         expect(definition.docs).toBeUndefined();
         expect(definition.url).toBeUndefined();
       } else {
-        const sourceCode = DIAGNOSTIC_DOCS_FILE_OVERRIDES[code] ?? code;
         expect(definition.docs).toEqual({
           kind: "file-ref",
-          path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${sourceCode}.md`,
+          path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
         });
         expect(definition.url).toBe(`${DIAGNOSTIC_DOCS_BASE_URL}/${code}`);
       }

@@ -9,10 +9,9 @@ export const DIAGNOSTIC_DOCS_BASE_PATH = "emitter/src/diagnostics";
 export const DIAGNOSTIC_DOCS_BASE_URL =
   "https://typespec.io/docs/emitters/clients/http-client-java/reference/diagnostics";
 export const DIAGNOSTIC_DOCS_EXCLUDED = new Set([
-  "protocol-api-not-generated",
-  "convenience-api-not-generated",
+  "dpg-protocol-api-not-generated",
+  "dpg-convenience-api-not-generated",
 ]);
-export const DIAGNOSTIC_DOCS_FILE_OVERRIDES: Readonly<Record<string, string>> = {};
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
