@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure-tools/typespec-client-generator-core": "0.70.0",
+    "@azure-tools/typespec-client-generator-core": "^0.70.0",
     "@typespec/spec-api": "workspace:^",
     "@typespec/spector": "workspace:^"
   },
