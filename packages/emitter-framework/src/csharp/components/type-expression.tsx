@@ -1,16 +1,10 @@
 import { Experimental_OverridableComponent } from "#core/index.js";
 import { code, type Children } from "@alloy-js/core";
 import { Reference } from "@alloy-js/csharp";
-import {
-  getTypeName,
-  isVoidType,
-  type IntrinsicType,
-  type Scalar,
-  type Type,
-} from "@typespec/compiler";
+import { getTypeName, type IntrinsicType, type Scalar, type Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { useTsp } from "../../core/index.js";
-import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { reportDiagnostic } from "../../lib.js";
 import { getNullableUnionInnerType } from "./utils/nullable-util.js";
 import { efRefkey } from "./utils/refkey.js";
 
@@ -21,40 +15,76 @@ export interface TypeExpressionProps {
 export function TypeExpression(props: TypeExpressionProps): Children {
   return (
     <Experimental_OverridableComponent reference type={props.type}>
-      {() => {
-        if (props.type.kind === "Union") {
-          const nullabletype = getNullableUnionInnerType(props.type);
-          if (nullabletype) {
-            return code`${(<TypeExpression type={nullabletype} />)}?`;
-          }
-        }
-        const { $ } = useTsp();
-        if (isDeclaration($, props.type)) {
-          return <Reference refkey={efRefkey(props.type)} />;
-        }
-        if ($.scalar.is(props.type)) {
-          return getScalarIntrinsicExpression($, props.type);
-        } else if ($.array.is(props.type)) {
-          return code`${(<TypeExpression type={props.type.indexer.value} />)}[]`;
-        } else if ($.record.is(props.type)) {
-          return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
-        } else if ($.literal.isString(props.type)) {
-          // c# doesn't have literal types, so we map them to their corresponding C# types in general
-          return code`string`;
-        } else if ($.literal.isNumeric(props.type)) {
-          return Number.isInteger(props.type.value) ? code`int` : code`double`;
-        } else if ($.literal.isBoolean(props.type)) {
-          return code`bool`;
-        } else if (isVoidType(props.type)) {
-          return code`void`;
-        }
-
-        throw new Error(
-          `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
-        );
-      }}
+      {() => <TypeExpressionBody type={props.type} />}
     </Experimental_OverridableComponent>
   );
+}
+
+/**
+ * Resolves a TypeSpec type to the C# type expression that represents it.
+ *
+ * This never throws: type kinds with no C# equivalent report a diagnostic and fall back to
+ * `object`, so that a single unsupported type does not abort the whole emit.
+ */
+function TypeExpressionBody(props: TypeExpressionProps): Children {
+  const { $ } = useTsp();
+  const type = props.type;
+
+  switch (type.kind) {
+    // Wrappers that carry the type we actually want to render.
+    case "ModelProperty":
+    case "UnionVariant":
+      return <TypeExpression type={type.type} />;
+
+    // C# has no way to type something as one specific enum member, so a property typed
+    // `kind: Color.red` is rendered using the enum the member belongs to.
+    case "EnumMember":
+      return <TypeExpression type={type.enum} />;
+
+    case "Union": {
+      const innerType = getNullableUnionInnerType(type);
+      if (innerType) {
+        return code`${(<TypeExpression type={innerType} />)}?`;
+      }
+      break; // Named unions are declarations; anything else falls through.
+    }
+
+    // C# has no tuple-of-values type; an array of the element type is the closest match.
+    case "Tuple":
+      return type.values.length > 0
+        ? code`${(<TypeExpression type={type.values[0]} />)}[]`
+        : code`object[]`;
+
+    case "StringTemplate":
+      return "string";
+
+    case "TemplateParameter":
+      return getTypeName(type);
+
+    case "Intrinsic":
+      return getScalarIntrinsicExpression($, type);
+  }
+
+  if (isDeclaration($, type)) {
+    return <Reference refkey={efRefkey(type)} />;
+  }
+  if ($.scalar.is(type)) {
+    return getScalarIntrinsicExpression($, type);
+  } else if ($.array.is(type)) {
+    return code`${(<TypeExpression type={type.indexer.value} />)}[]`;
+  } else if ($.record.is(type)) {
+    return code`IDictionary<string, ${(<TypeExpression type={type.indexer.value} />)}>`;
+  } else if ($.literal.isString(type)) {
+    // c# doesn't have literal types, so we map them to their corresponding C# types in general
+    return code`string`;
+  } else if ($.literal.isNumeric(type)) {
+    return Number.isInteger(type.value) ? code`int` : code`double`;
+  } else if ($.literal.isBoolean(type)) {
+    return code`bool`;
+  }
+
+  reportDiagnostic($.program, { code: "csharp-unsupported-type", target: type });
+  return "object";
 }
 
 const intrinsicNameToCSharpType = new Map<string, string | null>([
@@ -62,9 +92,9 @@ const intrinsicNameToCSharpType = new Map<string, string | null>([
   ["unknown", "object"], // Matches C#'s `object`
   ["string", "string"], // Matches C#'s `string`
   ["boolean", "bool"], // Matches C#'s `bool`
-  ["null", "null"], // Matches C#'s `null`
+  ["null", "object"], // C# has no null type; `object` is the only thing null inhabits
   ["void", "void"], // Matches C#'s `void`
-  ["never", null], // No direct equivalent in C#
+  ["never", "void"], // C# has no bottom type; `void` is the closest equivalent
   ["bytes", "byte[]"], // Matches C#'s `byte[]`
 
   // Numeric types
@@ -96,10 +126,7 @@ const intrinsicNameToCSharpType = new Map<string, string | null>([
   ["url", "Uri"], // Matches C#'s `Uri`
 ]);
 
-export function getScalarIntrinsicExpression(
-  $: Typekit,
-  type: Scalar | IntrinsicType,
-): string | null {
+export function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string {
   let intrinsicName: string;
 
   if ($.scalar.isUtcDateTime(type) || $.scalar.extendsUtcDateTime(type)) {
@@ -114,7 +141,7 @@ export function getScalarIntrinsicExpression(
   const csType = intrinsicNameToCSharpType.get(intrinsicName);
 
   if (!csType) {
-    reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-scalar", target: type });
+    reportDiagnostic($.program, { code: "csharp-unsupported-scalar", target: type });
     return "object"; // Fallback to object if unsupported
   }
 
@@ -127,10 +154,7 @@ function isDeclaration($: Typekit, type: Type): boolean {
     case "Interface":
     case "Enum":
     case "Operation":
-    case "EnumMember":
       return true;
-    case "UnionVariant":
-      return false;
 
     case "Model":
       if ($.array.is(type) || $.record.is(type)) {
