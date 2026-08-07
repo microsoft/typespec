@@ -3,8 +3,14 @@ import { $lib } from "../src/lib.js";
 import { DIAGNOSTIC_DOCS_BASE_PATH, DIAGNOSTIC_DOCS_BASE_URL } from "../src/options.js";
 
 describe("diagnostic documentation", () => {
-  it("links non-generic diagnostics to their documentation", () => {
-    const genericDiagnostics = new Set(["unknown-error", "generator-error", "generator-warning"]);
+  it("links documented diagnostics to their documentation", () => {
+    const undocumentedDiagnostics = new Set([
+      "unknown-error",
+      "generator-error",
+      "generator-warning",
+      "protocol-api-not-generated",
+      "convenience-api-not-generated",
+    ]);
 
     for (const [code, diagnostic] of Object.entries($lib.diagnostics)) {
       const definition = diagnostic as {
@@ -12,7 +18,7 @@ describe("diagnostic documentation", () => {
         url?: string;
       };
 
-      if (genericDiagnostics.has(code)) {
+      if (undocumentedDiagnostics.has(code)) {
         expect(definition.docs).toBeUndefined();
         expect(definition.url).toBeUndefined();
       } else {

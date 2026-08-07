@@ -104,14 +104,12 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "protocol-api-not-generated": {
-      ...doc("protocol-api-not-generated"),
       severity: "warning",
       messages: {
         multipartFormData: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
       },
     },
     "convenience-api-not-generated": {
-      ...doc("convenience-api-not-generated"),
       severity: "warning",
       messages: {
         multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,
