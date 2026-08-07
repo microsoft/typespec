@@ -10,6 +10,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
         public const string NoMatchingItemsProperty = "no-matching-items-property";
         public const string UnsupportedSerialization = "unsupported-serialization";
         public const string UnsupportedFrameworkType = "unsupported-framework-type";
+        public const string UnsupportedClientSettingsParameter = "unsupported-client-settings-parameter";
         public const string UnsupportedStreamingType = "unsupported-streaming-type";
     }
 }
