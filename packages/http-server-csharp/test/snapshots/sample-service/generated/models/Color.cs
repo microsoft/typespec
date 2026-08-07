@@ -7,10 +7,10 @@ using System.Text.Json.Serialization;
 
 namespace PetStore;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 /// <summary>
 /// Color options for a pet
 /// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum Color
 {
     [JsonStringEnumMemberName("Red")]

@@ -88,13 +88,17 @@ export function Enums(props: EnumsProps): Children {
 
         const enumDecl = (
           <>
-            <cs.DocWhen doc={getDocComments($, info.type)} />
             <Attribute
               name={JsonSerialization.JsonConverterAttribute}
               args={["typeof(JsonStringEnumConverter)"]}
             />
             <hbr />
-            <cs.EnumDeclaration name={enumName} public refkey={efRefkey(info.type)}>
+            <cs.EnumDeclaration
+              name={enumName}
+              public
+              refkey={efRefkey(info.type)}
+              doc={getDocComments($, info.type)}
+            >
               <For each={info.members} comma hardline>
                 {(member) => (
                   <>

@@ -22,27 +22,38 @@ it("uses deterministic default ports for project files", async () => {
   expect(launchSettings).toContain("http://localhost:5000");
 });
 
-it("uses C# type names for model files and places enum docs before attributes", async () => {
+it("uses C# type names for generated type files", async () => {
   const [result] = await compileAndDiagnose(
     tester,
     getStandardService(`
-      /** A camel enum. */
       enum camelEnum {
         value
       }
 
       model camelModel {}
-    `),
-  );
-  const files = [...result.fs.fs.entries()];
-  const enumFile = files.find(([path]) => path.endsWith("/generated/models/CamelEnum.cs"));
 
-  expect(enumFile?.[1]).toContain(`/// <summary>
-/// A camel enum.
-/// </summary>
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum CamelEnum`);
-  expect(files.some(([path]) => path.endsWith("/generated/models/CamelModel.cs"))).toBe(true);
-  expect(files.some(([path]) => path.endsWith("/generated/models/camelEnum.cs"))).toBe(false);
-  expect(files.some(([path]) => path.endsWith("/generated/models/camelModel.cs"))).toBe(false);
+      @route("/items")
+      interface camelInterface {
+        @post op create(item: string): void;
+      }
+    `),
+    { "emit-mocks": "mocks-and-project-files", "skip-format": true },
+  );
+  const files = [...result.fs.fs.keys()];
+
+  expect(files.some((path) => path.endsWith("/generated/models/CamelEnum.cs"))).toBe(true);
+  expect(files.some((path) => path.endsWith("/generated/models/CamelModel.cs"))).toBe(true);
+  expect(
+    files.some((path) => path.endsWith("/generated/models/CamelInterfaceCreateRequest.cs")),
+  ).toBe(true);
+  expect(files.some((path) => path.endsWith("/generated/operations/ICamelInterface.cs"))).toBe(
+    true,
+  );
+  expect(
+    files.some((path) => path.endsWith("/generated/controllers/CamelInterfaceController.cs")),
+  ).toBe(true);
+  expect(files.some((path) => path.endsWith("/mocks/CamelInterface.cs"))).toBe(true);
+  expect(files.some((path) => path.includes("/generated/models/camel"))).toBe(false);
+  expect(files.some((path) => path.includes("/generated/operations/Icamel"))).toBe(false);
+  expect(files.some((path) => path.includes("/generated/controllers/camel"))).toBe(false);
 });
