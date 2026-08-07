@@ -126,7 +126,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        if (!knownProps.Contains(propName) &&
+                            !IsStandardParameterType(param.Type) &&
+                            IsBindableCustomParameterType(param.Type))
                         {
                             properties.Add(new PropertyProvider(
                                 null,
@@ -200,7 +202,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     foreach (var param in ctor.Signature.Parameters)
                     {
                         var propName = param.Name.ToIdentifierName();
-                        if (!knownProps.Contains(propName) && !IsStandardParameterType(param.Type))
+                        if (!knownProps.Contains(propName) &&
+                            !IsStandardParameterType(param.Type) &&
+                            IsBindableCustomParameterType(param.Type))
                         {
                             AppendBindingForProperty(body, sectionParam, propName, param.Name.ToVariableName(), param.Type);
                             knownProps.Add(propName);
@@ -580,6 +584,62 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Checks if a custom constructor parameter can be populated from configuration.
+        /// </summary>
+        internal static bool IsBindableCustomParameterType(CSharpType type)
+        {
+            var effectiveType = type.IsNullable ? type.WithNullable(false) : type;
+
+            if (!effectiveType.IsFrameworkType)
+            {
+                if (effectiveType.IsEnum)
+                {
+                    return true;
+                }
+
+                if (effectiveType.IsStruct)
+                {
+                    var underlyingType = TryGetStructUnderlyingType(effectiveType);
+                    if (underlyingType == null || !underlyingType.IsFrameworkType)
+                    {
+                        return false;
+                    }
+
+                    var underlyingFrameworkType = underlyingType.FrameworkType;
+                    return underlyingFrameworkType == typeof(string) ||
+                        underlyingFrameworkType == typeof(int) ||
+                        underlyingFrameworkType == typeof(long) ||
+                        underlyingFrameworkType == typeof(float) ||
+                        underlyingFrameworkType == typeof(double);
+                }
+
+                var typeProvider = CodeModelGenerator.Instance.SourceInputModel
+                    .FindForTypeInCurrentCompilation(effectiveType.Namespace, effectiveType.Name);
+                return typeProvider?.Constructors.Any(ctor =>
+                    ctor.Signature.Parameters.Count == 1 &&
+                    ctor.Signature.Parameters[0].Type.Name == IConfigurationSectionType.Name &&
+                    ctor.Signature.Parameters[0].Type.Namespace == IConfigurationSectionType.Namespace) == true;
+            }
+
+            if (effectiveType.IsList)
+            {
+                return effectiveType.Arguments.Count > 0 &&
+                    effectiveType.Arguments[0].IsFrameworkType &&
+                    effectiveType.Arguments[0].FrameworkType == typeof(string);
+            }
+
+            var frameworkType = effectiveType.FrameworkType;
+            return frameworkType == typeof(string) ||
+                frameworkType == typeof(bool) ||
+                frameworkType == typeof(int) ||
+                frameworkType == typeof(long) ||
+                frameworkType == typeof(float) ||
+                frameworkType == typeof(double) ||
+                frameworkType == typeof(TimeSpan) ||
+                frameworkType == typeof(Uri);
         }
 
         /// <summary>

@@ -1050,6 +1050,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task TestSettings_ExcludesUnsupportedFrameworkConstructorParameters()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+            Assert.IsNotNull(clientProvider);
+
+            var settings = clientProvider!.ClientSettings;
+            Assert.IsNotNull(settings);
+            Assert.IsNull(settings!.Properties.FirstOrDefault(p => p.Name == "ClientCertificate"),
+                "Settings should not include custom constructor parameters that cannot be bound from configuration");
+            Assert.IsNotNull(settings.Properties.FirstOrDefault(p => p.Name == "TenantId"),
+                "Settings should continue to include bindable parameters from the same custom constructor");
+
+            var bindCoreMethod = settings.Methods.FirstOrDefault(m => m.Signature.Name == "BindCore");
+            Assert.IsNotNull(bindCoreMethod);
+            var bodyString = bindCoreMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsFalse(bodyString.Contains("ClientCertificate"),
+                "BindCore should not bind custom constructor parameters that cannot be constructed from IConfigurationSection");
+            Assert.IsTrue(bodyString.Contains("TenantId"),
+                "BindCore should continue to bind supported parameters from the same custom constructor");
+        }
+
+        [Test]
         public async Task TestSettingsType_DoesNotContainSelfReferentialSettingsProperty()
         {
             await MockHelpers.LoadMockGeneratorAsync(
