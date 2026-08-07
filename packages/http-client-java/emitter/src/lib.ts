@@ -2,6 +2,8 @@ import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
+  DIAGNOSTIC_DOCS_EXCLUDED,
+  DIAGNOSTIC_DOCS_FILE_OVERRIDES,
   EmitterOptionsSchema,
   LIB_NAME,
 } from "./options.js";
@@ -10,10 +12,15 @@ import {
  * Build the source documentation reference and published URL for a diagnostic.
  */
 function doc(code: string) {
+  if (DIAGNOSTIC_DOCS_EXCLUDED.has(code)) {
+    return {};
+  }
+
+  const sourceCode = DIAGNOSTIC_DOCS_FILE_OVERRIDES[code] ?? code;
   return {
     docs: {
       kind: "file-ref" as const,
-      path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
+      path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${sourceCode}.md`,
     },
     url: `${DIAGNOSTIC_DOCS_BASE_URL}/${code}`,
   };
@@ -104,12 +111,14 @@ export const $lib = createTypeSpecLibrary({
       },
     },
     "protocol-api-not-generated": {
+      ...doc("protocol-api-not-generated"),
       severity: "warning",
       messages: {
         multipartFormData: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
       },
     },
     "convenience-api-not-generated": {
+      ...doc("convenience-api-not-generated"),
       severity: "warning",
       messages: {
         multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,

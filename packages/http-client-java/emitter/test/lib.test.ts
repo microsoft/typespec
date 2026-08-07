@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { $lib } from "../src/lib.js";
-import { DIAGNOSTIC_DOCS_BASE_PATH, DIAGNOSTIC_DOCS_BASE_URL } from "../src/options.js";
+import {
+  DIAGNOSTIC_DOCS_BASE_PATH,
+  DIAGNOSTIC_DOCS_BASE_URL,
+  DIAGNOSTIC_DOCS_EXCLUDED,
+  DIAGNOSTIC_DOCS_FILE_OVERRIDES,
+} from "../src/options.js";
 
 describe("diagnostic documentation", () => {
   it("links documented diagnostics to their documentation", () => {
@@ -8,8 +13,7 @@ describe("diagnostic documentation", () => {
       "unknown-error",
       "generator-error",
       "generator-warning",
-      "protocol-api-not-generated",
-      "convenience-api-not-generated",
+      ...DIAGNOSTIC_DOCS_EXCLUDED,
     ]);
 
     for (const [code, diagnostic] of Object.entries($lib.diagnostics)) {
@@ -22,9 +26,10 @@ describe("diagnostic documentation", () => {
         expect(definition.docs).toBeUndefined();
         expect(definition.url).toBeUndefined();
       } else {
+        const sourceCode = DIAGNOSTIC_DOCS_FILE_OVERRIDES[code] ?? code;
         expect(definition.docs).toEqual({
           kind: "file-ref",
-          path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${code}.md`,
+          path: `${DIAGNOSTIC_DOCS_BASE_PATH}/${sourceCode}.md`,
         });
         expect(definition.url).toBe(`${DIAGNOSTIC_DOCS_BASE_URL}/${code}`);
       }
